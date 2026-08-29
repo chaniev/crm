@@ -48,7 +48,7 @@ needs-clarification
 - [ ] После уточнения определить ручные проверки desktop/browser multi-window сценария.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: medium
 - Reason: задача затрагивает навигационную модель CRM и разделы `Расписание`/`Финансы`, но требования к UX, session/state и scope пока не определены.
 

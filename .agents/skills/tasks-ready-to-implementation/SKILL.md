@@ -3,7 +3,7 @@ name: tasks-ready-to-implementation
 description: "Выбрать готовые backlog tasks, перевести их в implementation и создать компактные test-first implementation plans без дублирования AGENTS.md, worktree, agent и validation правил. Использовать для подготовки одной задачи или небольшого batch к последующей реализации без изменения project code."
 ---
 
-# Tasks Ready to Implementation
+# Tasks ready to implementation
 
 ## Результат
 

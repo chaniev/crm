@@ -101,7 +101,7 @@ read-model изменения требуют читать и повторно п
   зафиксировать, почему backend-only contract-preserving slice их не затрагивает.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: read-only refactoring пересекает authorization scope и membership
   projections; незаметная ошибка может раскрыть данные или изменить Telegram output.

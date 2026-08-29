@@ -45,7 +45,7 @@ ready
 - [ ] Запустить frontend e2e checks по принятому проектному сценарию.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: low
 - Reason: задача про verification и regression coverage frontend UI.
 

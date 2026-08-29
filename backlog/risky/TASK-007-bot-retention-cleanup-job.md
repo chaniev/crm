@@ -46,7 +46,7 @@ risky
 - [ ] При изменениях миграций или backend storage запустить affected backend validation.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: задача затрагивает background job и удаление runtime data.
 

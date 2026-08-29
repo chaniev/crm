@@ -48,7 +48,7 @@ risky
 - [ ] Проверить клиента без абонемента, с абонементом и в архиве.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: задача затрагивает посещаемость, абонементы, оплату, группы, архив и permissions.
 

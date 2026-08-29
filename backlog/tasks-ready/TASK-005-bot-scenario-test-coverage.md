@@ -48,7 +48,7 @@ Telegram MVP защищен regression tests по актуальной матр�
 - [ ] Проверить, что новые tests падают при удалении соответствующей защиты.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: low
 - Reason: задача добавляет regression coverage и не должна менять runtime behavior.
 

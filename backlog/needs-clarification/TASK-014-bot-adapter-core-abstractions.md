@@ -43,7 +43,7 @@ needs-clarification
 - [ ] После будущего refactoring запустить `cd bot && pytest`.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: medium
 - Reason: задача широкая и зависит от будущего канала и стабилизации Telegram-сценариев.
 

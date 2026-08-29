@@ -48,7 +48,7 @@ ready
 - [ ] Вручную проверить desktop, tablet и mobile.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: medium
 - Reason: значимая, но в основном frontend UI-структура; риск снижается сохранением backend contracts.
 

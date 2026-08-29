@@ -49,7 +49,7 @@ Backend internal bot contract уже возвращает `daysUntilExpiration`,
 - [ ] Вручную проверить Telegram-сценарий списка заканчивающихся абонементов.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: low
 - Reason: после TASK-083 задача ограничена отображением готового backend-поля без write-flow и изменения доменных правил.
 

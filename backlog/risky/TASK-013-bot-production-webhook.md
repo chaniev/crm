@@ -49,7 +49,7 @@ Long polling подходит для MVP/dev, но production webhook требу
 - [ ] При Docker/runtime изменениях выполнить `docker compose build bot`.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: задача затрагивает production deployment, security validation и runtime ingress.
 

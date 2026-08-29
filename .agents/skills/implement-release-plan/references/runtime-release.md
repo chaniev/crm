@@ -1,4 +1,4 @@
-# Runtime, migrations and deployment
+# Runtime, migration, and deployment workflow
 
 Читать этот файл только если меняются schema/data/runtime либо явно требуется
 обновить стенд.

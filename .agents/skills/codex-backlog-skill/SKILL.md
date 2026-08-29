@@ -9,7 +9,8 @@ description: Reconcile existing backlog task statuses and transform raw backlog 
 
 Transform raw notes from `/backlog/inbox` into structured AI-ready markdown tasks.
 
-This skill is designed for AI-assisted development workflows with Codex / ChatGPT.
+This skill is designed for AI-assisted development workflows across coding
+agents.
 
 Main goals:
 
@@ -349,7 +350,7 @@ ready / risky / needs-clarification
 - [ ] Какие тесты добавить или обновить
 
 ## AI safety
-- Safe for Codex: yes/no
+- Safe for autonomous implementation: yes/no
 - Risk level: low/medium/high
 - Reason:
 
@@ -541,7 +542,7 @@ updated_existing_tasks:
 
 ```text
 Используй skill:
-.codex/skills/codex-backlog-triage/SKILL.md
+.agents/skills/codex-backlog-skill/SKILL.md
 
 Выполни triage backlog:
 - обработай /backlog/inbox

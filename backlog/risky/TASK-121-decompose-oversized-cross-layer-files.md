@@ -111,7 +111,7 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
   consumer regressions.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: широкий структурный refactoring затрагивает несколько runtime-слоёв и может незаметно изменить authorization, orchestration или пользовательские workflow.
 

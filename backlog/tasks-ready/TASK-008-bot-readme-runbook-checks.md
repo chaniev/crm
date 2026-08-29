@@ -44,7 +44,7 @@ ready
 - [ ] Запустить `cd bot && pytest`.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: low
 - Reason: documentation-only задача с локальной проверкой команд.
 

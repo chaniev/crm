@@ -56,7 +56,7 @@ needs-clarification
 - [ ] Запустить backend tests, frontend tests/lint/build и проверки затронутых consumers.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: задача меняет membership lifecycle и attendance semantics; сначала требуется отдельное продуктовое и техническое проектирование модели заморозки.
 

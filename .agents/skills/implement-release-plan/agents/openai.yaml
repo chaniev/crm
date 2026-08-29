@@ -1,4 +1,4 @@
 interface:
   display_name: "Implement Release Plan"
-  short_description: "Реализовать и локально интегрировать планы"
+  short_description: "Реализовать планы и локально интегрировать результат"
   default_prompt: "Используй $implement-release-plan, чтобы реализовать и проверить переданный plan до локальной интеграции; обновляй стенд только если он явно указан."

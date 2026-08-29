@@ -50,7 +50,7 @@ Detail и form сценарии клиента выглядят плотнее �
 - [ ] Вручную проверить form/detail на mobile.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: low
 - Reason: локальная frontend cleanup задача без изменения бизнес-логики.
 

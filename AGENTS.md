@@ -115,7 +115,7 @@ Every implementation task uses an isolated task workspace:
 
 - one task -> one dedicated branch
 - one task -> one dedicated Git worktree
-- one worktree -> one Codex session
+- one worktree -> one coding-agent session
 - one running stack -> one isolated Docker Compose project
 
 Before starting, resuming, or cleaning up implementation work, read and follow

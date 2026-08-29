@@ -44,7 +44,7 @@ needs-clarification
 - [ ] После реализации проверить bot tests и runtime startup.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: medium
 - Reason: вопрос касается runtime schema policy и migrations.
 

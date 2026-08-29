@@ -48,7 +48,7 @@ needs-clarification
 - [ ] Запустить backend tests, frontend lint и build.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: задача объединяет финансовые, attendance и membership semantics и влияет на отчётные показатели.
 

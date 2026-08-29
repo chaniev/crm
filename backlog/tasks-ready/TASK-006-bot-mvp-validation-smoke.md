@@ -52,7 +52,7 @@ ready
 - [ ] Повторный callback без дублей.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: low
 - Reason: задача про проверку и фиксацию результатов, без изменения кода.
 

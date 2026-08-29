@@ -52,7 +52,7 @@ risky
 - [ ] Вручную проверить Telegram upload flow.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: задача затрагивает персональные данные клиента, permissions, file upload и audit.
 

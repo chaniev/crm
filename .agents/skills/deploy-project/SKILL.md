@@ -1,8 +1,14 @@
-# Skill: Deploy project to server from `main`
+---
+name: deploy-project
+description: Deploy the CRM from main to an explicitly identified server using an isolated build workspace, verified artifacts, safe credential handling, and post-deployment health checks. Use only when the user explicitly requests deployment and supplies the target access context.
+---
+
+# Deploy project to server from `main`
 
 ## Purpose
 
-Use this skill when the user asks Codex to deploy the project to a specified server using provided access parameters.
+Use this skill when the user asks the coding agent to deploy the project to a
+specified server using provided access parameters.
 
 The skill must:
 

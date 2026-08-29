@@ -48,7 +48,7 @@ risky
 - [ ] Проверить клиента без абонемента, без посещений, без группы, без контактов и без фото.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: medium
 - Reason: задача касается permissions, статусов, абонементов и действий, доступность которых должна соответствовать backend.
 

@@ -1,4 +1,4 @@
-# Batch integration
+# Batch integration workflow
 
 Читать этот файл только для release-набора из двух и более планов.
 

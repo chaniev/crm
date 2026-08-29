@@ -47,7 +47,7 @@ risky
 - [ ] Проверить permissions и роли получателей.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for autonomous implementation: no
 - Risk level: high
 - Reason: задача затрагивает scheduler, расписание, attendance и delivery correctness.
 

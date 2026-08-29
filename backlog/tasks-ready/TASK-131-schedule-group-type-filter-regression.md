@@ -60,7 +60,7 @@ Status audit TASK-113 от 2026-08-24 подтвердил, что production be
 - [ ] Запустить `cd frontend && npm run check`, affected Chromium и `npm run test:e2e:iphone` для schedule flow.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: medium
 - Reason: задача меняет только regression coverage существующего read contract, но затрагивает backend-owned access-scoped schedule endpoint и основной mobile calendar workflow; production change требует отдельного подтверждения после observed RED.
 

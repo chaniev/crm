@@ -45,7 +45,7 @@ ready
 - [ ] Вручную проверить roster большой группы в Telegram.
 
 ## AI safety
-- Safe for Codex: yes
+- Safe for autonomous implementation: yes
 - Risk level: low
 - Reason: локальная UI/flow-задача бота без изменения доменных правил.
 
