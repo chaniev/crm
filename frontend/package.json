@@ -10,6 +10,7 @@
     "catalog:build": "tsc -b && vite build --config vite.catalog.config.ts",
     "catalog:dev": "vite --config vite.catalog.config.ts --open /catalog.html",
     "catalog:preview": "vite preview --config vite.catalog.config.ts --outDir dist-catalog",
+    "catalog:test:e2e": "playwright test --config playwright.catalog.config.ts",
     "check": "npm run lint && npm run typecheck && npm run check:raw-colors && npm run test:unit && npm run build",
     "check:raw-colors": "node scripts/check-raw-colors.mjs",
     "lint": "eslint .",

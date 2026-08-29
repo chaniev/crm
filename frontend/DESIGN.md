@@ -235,9 +235,12 @@ and effects that compete with operational data do not fit the product.
 The isolated design-system catalog uses the Vite-native entry documented in
 `src/catalog/README.md`. Run `npm run catalog:dev` for the local shell and
 `npm run catalog:build` for its independent artifact. The normal production
-build verifies that catalog code is excluded. Phase A covers the stable shell
-and production foundation registries only; it does not claim final shared
-component coverage.
+build verifies that catalog code is excluded. The catalog audits the runtime
+exports from `src/features/shared/ux.tsx`, renders production foundations,
+recipes and typography, and validates addressable 390/440/1440, alternate-theme,
+long-content and reduced-motion states. Update the executable inventory and
+its source-linked canonical example whenever a shared export changes; never
+copy a production component into the catalog.
 
 ## Design acceptance
 

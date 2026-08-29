@@ -5,6 +5,7 @@ import '@fontsource/onest/500.css'
 import '@fontsource/onest/600.css'
 import '@fontsource/onest/700.css'
 import '@mantine/core/styles.css'
+import '../App.css'
 import './catalog.css'
 import { CatalogApp } from './CatalogApp'
 

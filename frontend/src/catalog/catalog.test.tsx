@@ -46,7 +46,7 @@ describe('development-only design-system catalog shell', () => {
 
     expect(screen.getByRole('heading', { name: 'Каталог дизайн-системы' })).toBeVisible()
     expect(screen.getByRole('region', { name: 'Foundation registries' })).toBeVisible()
-    expect(screen.getByText('default-green-v1')).toBeVisible()
+    expect(screen.getAllByText('default-green-v1')).toHaveLength(2)
     expect(screen.getByText('pageSectionGap')).toBeVisible()
     expect(screen.getAllByText('card')).toHaveLength(2)
     expect(screen.getByTestId('catalog-preview')).toHaveAttribute('data-viewport', '440')

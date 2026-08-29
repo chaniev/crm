@@ -12,10 +12,13 @@ import {
 import { themeProfiles } from '../theme/profiles'
 import { semanticToneDefinitions } from '../theme/semanticTones'
 import { createSemanticVariables } from '../theme/semanticVariables'
+import { typographyRoles } from '../theme/typography'
+import { SharedComponentsCatalog } from './SharedComponentsCatalog'
 import {
   catalogContentModes,
   catalogMotionModes,
   catalogViewportModes,
+  createCatalogSearch,
   readCatalogControls,
 } from './controls'
 
@@ -70,7 +73,7 @@ export function CatalogApp({ search = window.location.search }: CatalogAppProps)
         <header className="catalog-header">
           <div>
             <h1>Каталог дизайн-системы</h1>
-            <p>Phase A: изолированный shell и production foundation registries.</p>
+            <p>Production foundations, recipes and audited shared component contracts.</p>
           </div>
           <span>Docs: frontend/src/catalog/README.md</span>
         </header>
@@ -116,6 +119,18 @@ export function CatalogApp({ search = window.location.search }: CatalogAppProps)
             {controls.content === 'long' ? longFixture : 'Стандартный пример содержимого'}
           </p>
 
+          <nav aria-label="Theme profile review links" className="catalog-theme-links">
+            {themeProfiles.map(({ id }) => (
+              <a
+                aria-current={id === controls.theme ? 'page' : undefined}
+                href={createCatalogSearch({ ...controls, theme: id })}
+                key={id}
+              >
+                {id}
+              </a>
+            ))}
+          </nav>
+
           <section aria-label="Foundation registries" className="catalog-section">
             <h2>Foundation registries</h2>
             <p>
@@ -138,7 +153,24 @@ export function CatalogApp({ search = window.location.search }: CatalogAppProps)
                 definition.foreground,
               ]),
             )} />
+            <h3>Typography</h3>
+            <div className="catalog-type-scale">
+              {Object.entries(typographyRoles).map(([role, definition]) => (
+                <div className="catalog-type-role" key={role} style={{
+                  fontFamily: definition.fontFamily,
+                  fontSize: definition.fontSize,
+                  fontWeight: definition.fontWeight,
+                  letterSpacing: definition.letterSpacing,
+                  lineHeight: definition.lineHeight,
+                }}>
+                  <span>{role}</span>
+                  <span>Съешь ещё этих мягких французских булок · 0123456789</span>
+                </div>
+              ))}
+            </div>
           </section>
+
+          <SharedComponentsCatalog longContent={controls.content === 'long'} />
         </div>
       </main>
     </MantineProvider>
