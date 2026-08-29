@@ -4,20 +4,40 @@
   --color-surface: var(--crm-surface-card);
   --color-surface-subtle: var(--crm-surface-subtle);
   --color-border: var(--crm-border-default);
+  --crm-space-page-section-gap: 1.5rem;
+  --crm-space-page-section-gap-mobile: 1rem;
+  --crm-space-page-card-padding: 1.5rem;
+  --crm-space-page-card-padding-compact: 1rem;
+  --crm-space-page-card-padding-compact-mobile: 0.875rem;
+  --crm-space-dense-surface-padding: 0.9rem 1rem;
+  --crm-radius-card: 24px;
+  --crm-radius-inner: 20px;
+  --crm-radius-dense-surface: 8px;
+  --crm-radius-pill: 999px;
+  --crm-layer-underlay: -1;
+  --crm-layer-base: 1;
+  --crm-layer-raised: 2;
+  --crm-layer-sticky-action-bar: 210;
+  --crm-layer-mobile-navigation: 220;
+  --crm-elevation-card: 0 10px 30px var(--crm-shadow-card), 0 2px 8px var(--crm-shadow-soft);
+  --crm-elevation-subtle: 0 1px 4px var(--crm-shadow-soft);
+  --crm-elevation-section: 0 4px 12px var(--crm-shadow-card);
+  --crm-elevation-floating: 0 8px 20px var(--crm-brand-alpha-20);
+  --crm-elevation-bottom-surface: 0 -12px 28px var(--crm-shadow-strong);
   --page-max-width: 100%;
   --content-width: var(--page-max-width);
-  --page-section-gap: 1.5rem;
+  --page-section-gap: var(--crm-space-page-section-gap);
   --page-padding-block-start: 0;
   --page-padding-block-end: 2rem;
-  --page-card-padding: 1.5rem;
-  --page-card-padding-compact: 1rem;
-  --page-card-radius: 24px;
-  --dense-surface-radius: 8px;
-  --dense-surface-padding: 0.9rem 1rem;
-  --radius-card: 24px;
-  --radius-inner: 20px;
-  --radius-pill: 999px;
-  --shadow-card: 0 10px 30px var(--crm-shadow-card), 0 2px 8px var(--crm-shadow-soft);
+  --page-card-padding: var(--crm-space-page-card-padding);
+  --page-card-padding-compact: var(--crm-space-page-card-padding-compact);
+  --page-card-radius: var(--crm-radius-card);
+  --dense-surface-radius: var(--crm-radius-dense-surface);
+  --dense-surface-padding: var(--crm-space-dense-surface-padding);
+  --radius-card: var(--crm-radius-card);
+  --radius-inner: var(--crm-radius-inner);
+  --radius-pill: var(--crm-radius-pill);
+  --shadow-card: var(--crm-elevation-card);
   --nav-active: linear-gradient(135deg, var(--crm-status-success-fg) 0%, var(--crm-brand-primary) 100%);
 }
 
@@ -59,7 +79,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: var(--crm-layer-underlay);
   background:
     linear-gradient(180deg, var(--crm-surface-card-alpha-08), transparent 20%),
     linear-gradient(90deg, var(--crm-auth-overlay-edge), transparent 52%);
@@ -73,14 +93,14 @@
   grid-template-columns: minmax(0, 31rem) minmax(0, 1fr);
   align-items: center;
   position: relative;
-  z-index: 1;
+  z-index: var(--crm-layer-base);
 }
 
 .stage-card,
 .utility-card,
 .loading-card {
   position: relative;
-  z-index: 1;
+  z-index: var(--crm-layer-base);
 }
 
 .stage-card {
@@ -276,7 +296,7 @@
   display: grid;
   place-items: center;
   position: relative;
-  z-index: 1;
+  z-index: var(--crm-layer-base);
 }
 
 .brand-heading {
@@ -390,7 +410,7 @@
   color: var(--crm-action-primary-active);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  box-shadow: 0 1px 4px var(--crm-shadow-soft);
+  box-shadow: var(--crm-elevation-subtle);
   transition:
     background-color var(--crm-motion-duration-fast) var(--crm-motion-easing-functional),
     border-color var(--crm-motion-duration-fast) var(--crm-motion-easing-functional),
@@ -433,7 +453,7 @@
   color: var(--crm-action-primary-active);
   background: var(--color-surface, var(--crm-surface-card));
   border: 1px solid var(--color-border, var(--crm-border-default));
-  box-shadow: 0 4px 12px var(--crm-shadow-card);
+  box-shadow: var(--crm-elevation-section);
 }
 
 .app-shell__nav-button:hover {
@@ -527,13 +547,13 @@
   position: fixed;
   inset-inline: 0;
   bottom: 0;
-  z-index: 210;
+  z-index: var(--crm-layer-sticky-action-bar);
   display: none;
   box-sizing: border-box;
   padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
   background: var(--crm-surface-card-alpha-96);
   border-top: 1px solid var(--color-border);
-  box-shadow: 0 -12px 28px var(--crm-shadow-strong);
+  box-shadow: var(--crm-elevation-bottom-surface);
   backdrop-filter: blur(14px);
 }
 
@@ -585,7 +605,7 @@
   color: var(--crm-surface-card);
   background: var(--nav-active);
   border-color: transparent;
-  box-shadow: 0 8px 20px var(--crm-brand-alpha-20);
+  box-shadow: var(--crm-elevation-floating);
 }
 
 .mobile-bottom-nav__icon,
@@ -623,14 +643,14 @@
   position: fixed;
   inset-inline: 0;
   bottom: 0;
-  z-index: 220;
+  z-index: var(--crm-layer-mobile-navigation);
   max-height: min(24rem, calc(100dvh - 1rem));
   display: flex;
   flex-direction: column;
   border-radius: 1.25rem 1.25rem 0 0;
   background:
     linear-gradient(180deg, var(--crm-surface-card-alpha-99), var(--crm-surface-subtle-overlay));
-  box-shadow: 0 -12px 28px var(--crm-shadow-strong);
+  box-shadow: var(--crm-elevation-bottom-surface);
 }
 
 .mobile-bottom-nav__sheet-header {
@@ -691,7 +711,7 @@
   color: var(--crm-surface-card);
   background: var(--nav-active);
   border-color: transparent;
-  box-shadow: 0 8px 20px var(--crm-brand-alpha-20);
+  box-shadow: var(--crm-elevation-floating);
 }
 
 @media (max-width: 47.99em) {
@@ -1199,7 +1219,7 @@
 .temporary-surface-footer {
   position: sticky;
   bottom: 0;
-  z-index: 2;
+  z-index: var(--crm-layer-raised);
   padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--crm-border-default);
   background: var(--crm-surface-card);
@@ -1602,7 +1622,7 @@
 
 .compact-filter-panel__sheet-actions {
   position: sticky;
-  z-index: 2;
+  z-index: var(--crm-layer-raised);
   inset-inline: 0;
   bottom: 0;
   flex: 0 0 auto;
@@ -1922,7 +1942,7 @@
 .administrator-form-modal__stack > .temporary-surface-footer {
   position: sticky;
   bottom: 0;
-  z-index: 1;
+  z-index: var(--crm-layer-base);
   margin-inline: calc(var(--mantine-spacing-md) * -1);
   margin-bottom: calc(var(--mantine-spacing-md) * -1);
 }
@@ -1978,7 +1998,7 @@
   .administrator-attendance-scope-modal__footer {
     position: sticky;
     bottom: 0;
-    z-index: 1;
+    z-index: var(--crm-layer-base);
     margin-inline: calc(var(--mantine-spacing-md) * -1);
     margin-bottom: calc(var(--mantine-spacing-md) * -1);
     padding: var(--mantine-spacing-md);
@@ -2733,7 +2753,7 @@
 .schedule-events-disclosure {
   position: absolute;
   inset-inline: 6px;
-  z-index: 2;
+  z-index: var(--crm-layer-raised);
   min-width: 0;
   min-height: 54px;
   padding: 0.48rem 0.58rem;
@@ -2872,7 +2892,7 @@
 }
 
 .schedule-mobile-day-strip__button:focus-visible {
-  z-index: 1;
+  z-index: var(--crm-layer-base);
   outline: 2px solid var(--crm-selection-border);
   outline-offset: -2px;
 }
@@ -2964,7 +2984,7 @@
 
 .schedule-event-card--calendar {
   position: absolute;
-  z-index: 1;
+  z-index: var(--crm-layer-base);
   padding: 0.5rem 0.58rem;
 }
 
@@ -2974,7 +2994,7 @@
 
 .schedule-event-card--mobile-grid {
   position: absolute;
-  z-index: 1;
+  z-index: var(--crm-layer-base);
   padding: 0.85rem 0.95rem;
 }
 
@@ -3144,9 +3164,9 @@
 
 @media (max-width: 48em) {
   .app-shell {
-    --page-section-gap: 1rem;
-    --page-card-padding: 1rem;
-    --page-card-padding-compact: 0.875rem;
+    --page-section-gap: var(--crm-space-page-section-gap-mobile);
+    --page-card-padding: var(--crm-space-page-card-padding-compact);
+    --page-card-padding-compact: var(--crm-space-page-card-padding-compact-mobile);
   }
 
   .membership-target-group-row {
@@ -3661,7 +3681,7 @@
 .clients-v7-filters-drawer__body > .temporary-surface-footer {
   position: sticky;
   flex: 0 0 auto;
-  z-index: 2;
+  z-index: var(--crm-layer-raised);
   inset-inline: auto;
   bottom: 0;
 }

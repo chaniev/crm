@@ -1,4 +1,5 @@
 import type { ThemeProfile } from './types'
+import { createFoundationVariables } from './foundations'
 
 export type SemanticVariableMap = Record<`--crm-${string}`, string>
 
@@ -51,6 +52,8 @@ export function createSemanticVariables(
   const accentFour = profile.roles.accentFour
 
   return {
+    ...createFoundationVariables(),
+
     '--crm-brand-primary': primary[6],
     '--crm-brand-primary-hover': primary[7],
     '--crm-brand-primary-active': primary[8],

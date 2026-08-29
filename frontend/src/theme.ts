@@ -24,6 +24,20 @@ export {
   type ThemeContrastKind,
   type ThemeContrastResult,
 } from './theme/contrastMatrix'
+export {
+  createFoundationVariables,
+  foundationBreakpoints,
+  foundationElevation,
+  foundationLayers,
+  foundationRadii,
+  foundationSpacing,
+  type FoundationVariableMap,
+  type FoundationBreakpoint,
+  type FoundationElevation,
+  type FoundationLayer,
+  type FoundationRadius,
+  type FoundationSpacing,
+} from './theme/foundations'
 export { resolveAuthBackgroundProfile, resolveThemeProfile } from './theme/resolveProfiles'
 export { DEFAULT_THEME_PROFILE_ID, themeProfiles } from './theme/profiles'
 export {
