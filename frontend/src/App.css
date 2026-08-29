@@ -24,6 +24,60 @@
   --crm-elevation-section: 0 4px 12px var(--crm-shadow-card);
   --crm-elevation-floating: 0 8px 20px var(--crm-brand-alpha-20);
   --crm-elevation-bottom-surface: 0 -12px 28px var(--crm-shadow-strong);
+  --crm-font-family-body: Onest, ui-sans-serif, system-ui, sans-serif;
+  --crm-font-family-heading: Onest, ui-sans-serif, system-ui, sans-serif;
+  --crm-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  --crm-type-display-family: var(--crm-font-family-heading);
+  --crm-type-display-size: clamp(2.25rem, 5vw, 3rem);
+  --crm-type-display-weight: 800;
+  --crm-type-display-line-height: 1;
+  --crm-type-display-letter-spacing: 0;
+  --crm-type-heading1-family: var(--crm-font-family-heading);
+  --crm-type-heading1-size: clamp(1.75rem, 3vw, 2.35rem);
+  --crm-type-heading1-weight: 800;
+  --crm-type-heading1-line-height: 1.12;
+  --crm-type-heading1-letter-spacing: 0;
+  --crm-type-heading2-family: var(--crm-font-family-heading);
+  --crm-type-heading2-size: clamp(1.45rem, 2.4vw, 2rem);
+  --crm-type-heading2-weight: 800;
+  --crm-type-heading2-line-height: 1.14;
+  --crm-type-heading2-letter-spacing: 0;
+  --crm-type-heading3-family: var(--crm-font-family-heading);
+  --crm-type-heading3-size: 1rem;
+  --crm-type-heading3-weight: 800;
+  --crm-type-heading3-line-height: 1.2;
+  --crm-type-heading3-letter-spacing: 0;
+  --crm-type-body-family: var(--crm-font-family-body);
+  --crm-type-body-size: 1rem;
+  --crm-type-body-weight: 400;
+  --crm-type-body-line-height: 1.45;
+  --crm-type-body-letter-spacing: 0;
+  --crm-type-body-compact-family: var(--crm-font-family-body);
+  --crm-type-body-compact-size: 0.875rem;
+  --crm-type-body-compact-weight: 500;
+  --crm-type-body-compact-line-height: 1.25;
+  --crm-type-body-compact-letter-spacing: 0;
+  --crm-type-label-family: var(--crm-font-family-body);
+  --crm-type-label-size: 0.875rem;
+  --crm-type-label-weight: 800;
+  --crm-type-label-line-height: 1.25;
+  --crm-type-label-letter-spacing: 0;
+  --crm-type-caption-family: var(--crm-font-family-body);
+  --crm-type-caption-size: 0.75rem;
+  --crm-type-caption-weight: 700;
+  --crm-type-caption-line-height: 1.15;
+  --crm-type-caption-letter-spacing: 0;
+  --crm-type-form-control-family: var(--crm-font-family-body);
+  --crm-type-form-control-size: 1rem;
+  --crm-type-form-control-weight: 600;
+  --crm-type-form-control-line-height: 1.25;
+  --crm-type-form-control-letter-spacing: 0;
+  --crm-type-numeric-family: var(--crm-font-family-body);
+  --crm-type-numeric-size: 1rem;
+  --crm-type-numeric-weight: 800;
+  --crm-type-numeric-line-height: 1.1;
+  --crm-type-numeric-letter-spacing: 0;
+  --crm-type-numeric-numeric: tabular-nums;
   --page-max-width: 100%;
   --content-width: var(--page-max-width);
   --page-section-gap: var(--crm-space-page-section-gap);
@@ -145,8 +199,11 @@
 .bootstrap-loading-card__title {
   margin: 0 0 0.5rem;
   overflow: hidden;
-  font: 700 1.5rem/1.2 Onest, ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: 0;
+  font-family: var(--crm-type-heading2-family);
+  font-size: var(--crm-type-heading2-size);
+  font-weight: 700;
+  line-height: var(--crm-type-heading2-line-height);
+  letter-spacing: var(--crm-type-heading2-letter-spacing);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -154,25 +211,30 @@
 .bootstrap-loading-card__text {
   margin: 0;
   color: var(--crm-text-secondary);
-  font: 400 1rem/1.45 Onest, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--crm-type-body-family);
+  font-size: var(--crm-type-body-size);
+  font-weight: var(--crm-type-body-weight);
+  line-height: var(--crm-type-body-line-height);
 }
 
 .login-card__brand {
   max-width: 100%;
   overflow: hidden;
   color: var(--auth-accent);
-  font-size: clamp(2.25rem, 5vw, 3rem);
-  line-height: 1;
+  font-size: var(--crm-type-display-size);
+  font-weight: var(--crm-type-display-weight);
+  line-height: var(--crm-type-display-line-height);
   text-overflow: ellipsis;
   white-space: nowrap;
-  letter-spacing: 0;
+  letter-spacing: var(--crm-type-display-letter-spacing);
 }
 
 .login-card__title {
   color: var(--auth-text);
-  font-size: clamp(1.75rem, 3vw, 2.35rem);
-  line-height: 1.12;
-  letter-spacing: 0;
+  font-size: var(--crm-type-heading1-size);
+  font-weight: var(--crm-type-heading1-weight);
+  line-height: var(--crm-type-heading1-line-height);
+  letter-spacing: var(--crm-type-heading1-letter-spacing);
 }
 
 .login-card__description {
@@ -188,8 +250,9 @@
 .stage-card .mantine-PasswordInput-label {
   margin-bottom: 0.55rem;
   color: var(--auth-text);
-  font-size: 0.94rem;
-  font-weight: 800;
+  font-size: var(--crm-type-label-size);
+  font-weight: var(--crm-type-label-weight);
+  line-height: var(--crm-type-label-line-height);
 }
 
 .stage-card :where(.mantine-Input-input) {
@@ -198,7 +261,9 @@
   border-radius: 0.9rem;
   color: var(--auth-text);
   background: var(--crm-surface-card);
-  font-size: 1rem;
+  font-size: var(--crm-type-form-control-size);
+  font-weight: var(--crm-type-form-control-weight);
+  line-height: var(--crm-type-form-control-line-height);
   transition:
     border-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
     box-shadow var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
@@ -804,7 +869,9 @@
   display: block;
   margin-bottom: 0.35rem;
   color: var(--crm-text-heading);
-  font-weight: 800;
+  font-size: var(--crm-type-label-size);
+  font-weight: var(--crm-type-label-weight);
+  line-height: var(--crm-type-label-line-height);
 }
 
 .entity-locator-bar__row {
@@ -821,7 +888,9 @@
 
 .entity-locator-bar__input :where(.mantine-Input-input) {
   min-height: 44px;
-  font-size: 1rem;
+  font-size: var(--crm-type-form-control-size, 1rem);
+  font-weight: var(--crm-type-form-control-weight);
+  line-height: var(--crm-type-form-control-line-height);
 }
 
 .entity-locator-bar__input :where(.mantine-Input-section[data-position='right']) {
@@ -1131,8 +1200,10 @@
   align-items: center;
   gap: 0.35rem;
   color: var(--crm-text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--crm-type-body-compact-size);
   font-weight: 700;
+  line-height: var(--crm-type-body-compact-line-height);
+  font-variant-numeric: var(--crm-type-numeric-numeric);
 }
 
 .task-item {
@@ -1185,7 +1256,8 @@
 
 .task-item__metadata {
   color: var(--crm-text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--crm-type-body-compact-size);
+  line-height: var(--crm-type-body-compact-line-height);
 }
 
 .restricted-state {
@@ -1193,6 +1265,7 @@
   border: 1px solid var(--crm-border-default);
   border-radius: var(--page-card-radius);
   background: var(--crm-surface-card);
+  overflow-wrap: anywhere;
 }
 
 .route-state-layout {
@@ -1330,13 +1403,18 @@
 
 .page-header__title {
   color: var(--crm-text-heading);
-  line-height: 1.14;
-  font-size: clamp(1.45rem, 2.4vw, 2rem);
-  letter-spacing: 0;
+  font-size: var(--crm-type-heading2-size);
+  font-weight: var(--crm-type-heading2-weight);
+  line-height: var(--crm-type-heading2-line-height);
+  letter-spacing: var(--crm-type-heading2-letter-spacing);
+  overflow-wrap: anywhere;
 }
 
 .page-header__description {
   max-width: 38rem;
+  font-size: var(--crm-type-body-compact-size);
+  line-height: var(--crm-type-body-compact-line-height);
+  overflow-wrap: anywhere;
 }
 
 .page-header__actions {
@@ -1463,9 +1541,9 @@
   border-radius: 8px;
   background: var(--crm-surface-card);
   color: var(--crm-text-heading);
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
+  font-size: var(--crm-type-form-control-size, 1rem);
+  font-weight: var(--crm-type-form-control-weight);
+  line-height: var(--crm-type-form-control-line-height);
   transition:
     border-color var(--crm-motion-duration-fast) var(--crm-motion-easing-functional),
     box-shadow var(--crm-motion-duration-fast) var(--crm-motion-easing-functional);
@@ -1513,7 +1591,7 @@
   height: 44px !important;
   border-color: var(--crm-border-strong);
   border-radius: 8px;
-  font-size: 16px;
+  font-size: var(--crm-type-form-control-size, 1rem);
   font-weight: 700;
 }
 
@@ -1537,9 +1615,9 @@
   min-height: 44px;
   padding: 9px 10px;
   color: var(--crm-text-heading);
-  font-size: 16px;
+  font-size: var(--crm-type-form-control-size, 1rem);
   font-weight: 700;
-  line-height: 20px;
+  line-height: var(--crm-type-form-control-line-height);
 }
 
 .compact-filter-panel :where(.mantine-SegmentedControl-indicator) {
@@ -1640,9 +1718,9 @@
 
 .compact-filter-field__label {
   color: var(--crm-text-heading);
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 18px;
+  font-size: var(--crm-type-label-size);
+  font-weight: var(--crm-type-label-weight);
+  line-height: var(--crm-type-label-line-height);
 }
 
 .compact-filter-panel__item--sheet :where(.mantine-Input-input, .mantine-Select-input),
@@ -1690,9 +1768,10 @@
 
 .compact-summary-card__value {
   color: var(--crm-text-heading);
-  font-size: 1.65rem;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-size: var(--crm-type-numeric-size);
+  font-weight: var(--crm-type-numeric-weight);
+  line-height: var(--crm-type-numeric-line-height);
+  font-variant-numeric: var(--crm-type-numeric-numeric);
 }
 
 .metadata-chip-list {
@@ -1711,9 +1790,9 @@
   border-radius: var(--radius-pill);
   color: var(--metadata-chip-color, var(--crm-text-heading));
   background: var(--metadata-chip-bg, var(--crm-surface-subtle-alpha));
-  font-size: 0.8rem;
+  font-size: var(--crm-type-body-compact-size);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: var(--crm-type-body-compact-line-height);
 }
 
 .metadata-chip__dot {
@@ -1726,7 +1805,7 @@
 
 .metadata-chip__count {
   color: var(--crm-text-secondary);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: var(--crm-type-numeric-numeric);
 }
 
 .empty-state {
@@ -1747,15 +1826,22 @@
 
 .empty-state__title {
   color: var(--crm-text-heading);
+  font-size: var(--crm-type-heading3-size);
+  line-height: var(--crm-type-heading3-line-height);
+  overflow-wrap: anywhere;
 }
 
 .empty-state__description {
   max-width: 24rem;
+  font-size: var(--crm-type-body-compact-size);
+  line-height: var(--crm-type-body-compact-line-height);
+  overflow-wrap: anywhere;
 }
 
 .state-panel {
   min-height: 10rem;
   border-radius: var(--radius-inner);
+  overflow-wrap: anywhere;
 }
 
 .state-panel--loading {
@@ -5531,17 +5617,20 @@
 
 .group-registry-row__name h3 {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.2;
-  letter-spacing: 0;
+  font-size: var(--crm-type-heading3-size);
+  font-weight: var(--crm-type-heading3-weight);
+  line-height: var(--crm-type-heading3-line-height);
+  letter-spacing: var(--crm-type-heading3-letter-spacing);
+  overflow-wrap: anywhere;
 }
 
 .group-registry-row__meta {
   grid-column: 1;
   overflow: hidden;
-  font-size: 0.875rem;
-  line-height: 1.25;
+  font-size: var(--crm-type-body-compact-size);
+  line-height: var(--crm-type-body-compact-line-height);
   text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .group-registry-row__status {
@@ -5629,8 +5718,9 @@
     min-width: 0;
     padding: 0 0.85rem 0.25rem;
     color: var(--crm-text-secondary);
-    font-size: 0.78rem;
+    font-size: var(--crm-type-caption-size);
     font-weight: 800;
+    line-height: var(--crm-type-caption-line-height);
   }
 
   .group-registry-row {
@@ -5679,7 +5769,7 @@
 .clients-v7-filter-panel.compact-filter-panel .clients-v7-filter-chip.shared-button {
   min-width: 0;
   padding-inline: 10px;
-  font-size: 13px;
+  font-size: var(--crm-type-label-size);
   box-shadow: none;
 }
 
@@ -5702,8 +5792,9 @@
   padding-left: var(--input-padding-inline-start, var(--mantine-spacing-sm));
   padding-right: var(--input-padding-inline-end, var(--mantine-spacing-sm));
   border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-size: var(--crm-type-form-control-size, 1rem);
+  font-weight: var(--crm-type-form-control-weight);
+  line-height: var(--crm-type-form-control-line-height);
+  letter-spacing: var(--crm-type-form-control-letter-spacing);
   box-shadow: none;
 }

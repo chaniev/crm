@@ -1,5 +1,6 @@
 import { createTheme } from '@mantine/core'
 import { semanticBaseColors } from './semanticVariables'
+import { crmFontFamilies, typographyRoles } from './typography'
 import type { ThemeProfile } from './types'
 
 export function createGymCrmTheme(profile: ThemeProfile) {
@@ -11,9 +12,31 @@ export function createGymCrmTheme(profile: ThemeProfile) {
     primaryShade: 6,
     autoContrast: true,
     luminanceThreshold: 0.2,
-    fontFamily: 'Onest, ui-sans-serif, system-ui, sans-serif',
+    fontFamily: crmFontFamilies.body,
+    fontSizes: {
+      xs: typographyRoles.caption.fontSize,
+      sm: typographyRoles.bodyCompact.fontSize,
+      md: typographyRoles.body.fontSize,
+      lg: '1.125rem',
+      xl: typographyRoles.heading3.fontSize,
+    },
     headings: {
-      fontFamily: 'Onest, ui-sans-serif, system-ui, sans-serif',
+      fontFamily: crmFontFamilies.heading,
+      fontWeight: typographyRoles.heading1.fontWeight,
+      sizes: {
+        h1: {
+          fontSize: typographyRoles.heading1.fontSize,
+          lineHeight: typographyRoles.heading1.lineHeight,
+        },
+        h2: {
+          fontSize: typographyRoles.heading2.fontSize,
+          lineHeight: typographyRoles.heading2.lineHeight,
+        },
+        h3: {
+          fontSize: typographyRoles.heading3.fontSize,
+          lineHeight: typographyRoles.heading3.lineHeight,
+        },
+      },
     },
     defaultRadius: 'md',
     colors: {

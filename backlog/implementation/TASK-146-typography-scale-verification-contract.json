@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "task_id": "TASK-146",
+  "expected_branch": "feature/TASK-146-typography-scale",
+  "areas": ["frontend", "requirements"],
+  "runtime_smoke": [
+    {
+      "id": "frontend.typography-scale-unit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "src/test/typographyScale.test.tsx"
+      ],
+      "timeout_seconds": 120
+    }
+  ],
+  "playwright": [
+    {
+      "id": "frontend.responsive-main-screens",
+      "spec": "e2e/responsive-main-screens.spec.ts",
+      "projects": ["chromium"],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.iphone-target-devices",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": ["iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 1800
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.rendered-type-scale",
+      "description": "Review auth, shared empty/error/loading states, groups registry rows and compact filter controls at 390x844, 420x912, 440x956, 912x420, 956x440, 768x1024 and 1440x1200; confirm hierarchy, long Russian wrapping, numeric alignment and no unintended horizontal overflow."
+    },
+    {
+      "id": "manual.device-level-ios",
+      "description": "On Simulator or physical iPhone, confirm Safari chrome, safe-area, home indicator and software-keyboard behavior for representative forms before claiming device-level acceptance."
+    }
+  ]
+}

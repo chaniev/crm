@@ -45,6 +45,26 @@ and effects that compete with operational data do not fit the product.
 - Truncation is reserved for dense repeated content and must preserve access to
   the full value. Consequences and recovery text are never truncated.
 
+### Semantic type scale
+
+- `src/theme/typography.ts` owns the executable role scale for shared CRM text:
+  `display`, heading levels, `body`, `bodyCompact`, `label`, `caption`,
+  `formControl` and `numeric`.
+- `createSemanticVariables` publishes those roles as `--crm-type-*` variables.
+  CSS may keep local fallback values only to preserve an already approved
+  component geometry.
+- `formControl` is the minimum role for inputs, selects, textareas and compact
+  filter controls; it remains `1rem` so iPhone Safari does not zoom focused
+  controls.
+- `caption` is bounded to noncritical compact metadata. Validation,
+  consequences and recovery copy use `body` or `bodyCompact`, never `caption`.
+- `numeric` enables tabular numerals only where alignment supports comparison,
+  such as counts, totals, pagination ranges and operational summary values.
+- TASK-146 deliberately migrated shared layout/state components plus
+  representative auth, groups registry, compact filters and list/status slices.
+  A production-wide call-site sweep remains outside this task and should be
+  done only with rendered regression coverage.
+
 ## Color and surfaces
 
 - The bundled default foundation is warm neutral page space, white or subtle

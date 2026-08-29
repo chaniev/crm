@@ -11,6 +11,12 @@
 
 ## 2026-08-29
 
+- 29.08.2026 — REQ-NFR-001 — semantic typography contract реализован в
+  shared/representative frontend slices; Onest roles, iPhone form-control
+  minimums, long-content wrapping and numeric tabular alignment стали
+  проверяемым theme/CSS контрактом, общая реализация требования остаётся
+  «частично» (задача
+  [TASK-146](../../backlog/implementation/TASK-146-typography-scale.md)).
 - 29.08.2026 — REQ-NFR-001 — reduced-motion contract реализован и
   подтверждён unit/Chromium/WebKit evidence; общая реализация
   требования остаётся «частично» (задача

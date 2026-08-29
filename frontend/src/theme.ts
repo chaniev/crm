@@ -38,6 +38,14 @@ export {
   type FoundationRadius,
   type FoundationSpacing,
 } from './theme/foundations'
+export {
+  createTypographyVariables,
+  crmFontFamilies,
+  typographyRoles,
+  type TypographyRole,
+  type TypographyRoleDefinition,
+  type TypographyVariableMap,
+} from './theme/typography'
 export { resolveAuthBackgroundProfile, resolveThemeProfile } from './theme/resolveProfiles'
 export { DEFAULT_THEME_PROFILE_ID, themeProfiles } from './theme/profiles'
 export {

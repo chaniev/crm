@@ -1,5 +1,6 @@
 import type { ThemeProfile } from './types'
 import { createFoundationVariables } from './foundations'
+import { createTypographyVariables } from './typography'
 
 export type SemanticVariableMap = Record<`--crm-${string}`, string>
 
@@ -53,6 +54,7 @@ export function createSemanticVariables(
 
   return {
     ...createFoundationVariables(),
+    ...createTypographyVariables(),
 
     '--crm-brand-primary': primary[6],
     '--crm-brand-primary-hover': primary[7],
