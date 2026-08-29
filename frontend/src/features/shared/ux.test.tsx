@@ -1149,6 +1149,8 @@ describe('shared UX components', () => {
     )
 
     expect(screen.getByText('Загружаем тестовые данные...')).toBeVisible()
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent('Загружаем тестовые данные...')
     expect(screen.getByText('Ошибка загрузки')).toBeVisible()
     expect(screen.getByText('Сервер недоступен')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Повторить' })).toBeVisible()

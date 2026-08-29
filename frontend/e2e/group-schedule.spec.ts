@@ -972,6 +972,51 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(toolsButton).toBeFocused()
   })
 
+  test('reduced motion keeps loading visible and makes the tools drawer effectively instant', async ({ page }) => {
+    let releaseSchedule!: () => void
+    const scheduleGate = new Promise<void>((resolve) => {
+      releaseSchedule = resolve
+    })
+
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/schedule/lessons' && method === 'GET') {
+        await scheduleGate
+        await fulfillJson(route, 200, scheduleResponse())
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/schedule?date=2026-08-20&view=day')
+
+    const loadingRegion = page.locator('[aria-label="Загружаем занятия"]')
+    await expect(loadingRegion).toHaveAttribute('aria-busy', 'true')
+    const skeletonLine = loadingRegion.locator('.schedule-skeleton__line').first()
+    await expect(skeletonLine).toBeVisible()
+    await expect.poll(() => skeletonLine.evaluate((element) => (
+      getComputedStyle(element).animationName
+    ))).toBe('none')
+
+    releaseSchedule()
+    await expect(page.getByTestId('schedule-screen')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-occ-morning')).toBeVisible()
+
+    const toolsButton = page.getByRole('button', { name: 'Параметры календаря' })
+    await toolsButton.click()
+    const drawer = page.getByRole('dialog', { name: 'Параметры календаря' })
+    await expect(drawer).toBeVisible()
+    const transitionDuration = await drawer.evaluate((element) => (
+      getComputedStyle(element).transitionDuration
+    ))
+    expect(transitionDuration).toMatch(/^(?:0s|0\.001s)(?:, (?:0s|0\.001s))*$/)
+
+    await page.keyboard.press('Escape')
+    await expect(drawer).toBeHidden()
+    await expect(toolsButton).toBeFocused()
+  })
+
   test('schedule avoids horizontal overflow across mobile and compact-height targets', async ({ page }) => {
     await mockApi(page)
 

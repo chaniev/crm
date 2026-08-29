@@ -88,6 +88,18 @@ and effects that compete with operational data do not fit the product.
 - Motion is functional and restrained. Frequent navigation and keyboard-first
   actions remain instant.
 
+### Motion contract
+
+- Custom feedback uses `--crm-motion-duration-fast` (120 ms) or
+  `--crm-motion-duration-standard` (140 ms) with
+  `--crm-motion-easing-functional`; repeating loading feedback uses the
+  dedicated continuous duration/easing pair.
+- With `prefers-reduced-motion: reduce`, repeating skeleton motion stops and
+  temporary surfaces become effectively instant. Static skeleton geometry,
+  explicit loading copy, focus, completion copy and live-region announcements
+  remain available.
+- Motion is never the only evidence of loading, pending, completion or error.
+
 ## Design acceptance
 
 A design is not approved because it compiles or satisfies a checklist. For a

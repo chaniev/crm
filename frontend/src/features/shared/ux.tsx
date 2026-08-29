@@ -779,7 +779,13 @@ type LoadingStateProps = {
 
 export function LoadingState({ label = 'Загружаем данные...' }: LoadingStateProps) {
   return (
-    <Group className="state-panel state-panel--loading" justify="center">
+    <Group
+      aria-busy="true"
+      aria-live="polite"
+      className="state-panel state-panel--loading"
+      justify="center"
+      role="status"
+    >
       <Loader color="var(--crm-action-primary)" size="sm" />
       <Text c="dimmed" fw={600} size="sm">
         {label}

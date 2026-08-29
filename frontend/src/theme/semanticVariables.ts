@@ -140,6 +140,12 @@ export function createSemanticVariables(
     '--crm-shadow-card': alpha(semanticBaseColors.text, 6),
     '--crm-shadow-strong': alpha(semanticBaseColors.textStrong, 13),
 
+    '--crm-motion-duration-fast': '120ms',
+    '--crm-motion-duration-standard': '140ms',
+    '--crm-motion-duration-continuous': '1400ms',
+    '--crm-motion-easing-functional': 'ease',
+    '--crm-motion-easing-continuous': 'ease-in-out',
+
     '--crm-status-success': semanticBaseColors.success,
     '--crm-status-success-bg': alpha(semanticBaseColors.success, 12),
     '--crm-status-success-border': alpha(semanticBaseColors.success, 24),
