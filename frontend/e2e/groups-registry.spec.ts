@@ -306,6 +306,12 @@ test('Группы: поиск, без тренера, статус и паги�
   await expect(page.getByRole('heading', { name: 'Группы' })).toBeVisible()
   await expect(page.getByTestId('groups-list')).toBeVisible()
   await expect(page.getByTestId('groups-summary-bar')).toHaveCount(0)
+  await expect(page.getByLabel(`Всего групп: ${registryGroups.length}`)).toBeVisible()
+  await expect(page.getByLabel(
+    `Активных групп без тренера: ${registryGroups.filter(
+      (group) => group.isActive && group.trainerNames.length === 0,
+    ).length}`,
+  )).toBeVisible()
   const firstEditButton = page.locator('[data-group-edit-action="true"]').first()
   const firstEditButtonBox = await firstEditButton.boundingBox()
   expect(firstEditButtonBox).not.toBeNull()
@@ -315,6 +321,7 @@ test('Группы: поиск, без тренера, статус и паги�
 
   await expect.poll(() => listRequests.length).toBeGreaterThanOrEqual(1)
   expect(listRequests.at(-1)).toEqual({ page: 1, pageSize: 10 })
+  await expect(page.getByRole('navigation', { name: 'Страницы списка групп' })).toBeVisible()
 
   const search = page.getByRole('textbox', { name: 'Поиск групп по названию' })
   await search.fill('Группа 2')
@@ -347,7 +354,6 @@ test('Группы: поиск, без тренера, статус и паги�
     withoutTrainer: true,
   })
 
-  await expect(page.getByRole('navigation', { name: 'Страницы списка групп' })).toBeVisible()
   await expectNoHorizontalOverflow(page)
   await page.getByRole('button', { name: 'Готово' }).click()
   await page.getByRole('button', { name: 'Сбросить все' }).click()
@@ -360,6 +366,60 @@ test('Группы: поиск, без тренера, статус и паги�
     pageSize: 10,
   })
   await expect(counters.groupPutCalls).toBe(0)
+})
+
+test('Группы: сохраняет мобильный вертикальный бюджет и одну строку локатора', async ({ page }) => {
+  const listRequests: ListRequestRecord[] = []
+  const counters: RequestCounters = {
+    groupsListCalls: 0,
+    groupGetCalls: 0,
+    groupPutCalls: 0,
+    lastUpdatePayload: null,
+  }
+
+  await mockApi(page, {
+    session: headCoachSession,
+    listRequests,
+    counters,
+  })
+
+  for (const viewport of [
+    { width: 360, height: 800 },
+    { width: 390, height: 844 },
+    { width: 420, height: 912 },
+    { width: 440, height: 956 },
+    { width: 768, height: 1024 },
+    { width: 1440, height: 1000 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/groups')
+    await expect(page.getByTestId('groups-list')).toBeVisible()
+
+    const locator = page.getByTestId('groups-list-controls').locator('.entity-locator-bar')
+    const search = page.getByRole('textbox', { name: 'Поиск групп по названию' })
+    const filter = page.getByRole('button', { name: 'Открыть фильтры' })
+    const refresh = page.getByRole('button', { name: 'Обновить список групп' })
+    const create = page.getByRole('button', { name: 'Новая группа' })
+    const boxes = await Promise.all([search, filter, refresh, create].map((item) => item.boundingBox()))
+    const locatorBox = await locator.boundingBox()
+    const firstCardBox = await page.locator('.group-registry-row').first().boundingBox()
+
+    expect(locatorBox).not.toBeNull()
+    expect(firstCardBox).not.toBeNull()
+    expect(Math.max(...boxes.map((box) => box!.y)) - Math.min(...boxes.map((box) => box!.y))).toBeLessThan(4)
+    await expectNoHorizontalOverflow(page)
+
+    if (viewport.width === 420) {
+      expect(firstCardBox!.y).toBeLessThanOrEqual(180)
+      const fullyVisibleCards = await countFullyVisibleCards(page)
+      expect(fullyVisibleCards).toBeGreaterThanOrEqual(5)
+    }
+
+    if (viewport.width === 390) {
+      const fullyVisibleCards = await countFullyVisibleCards(page)
+      expect(fullyVisibleCards).toBeGreaterThanOrEqual(4)
+    }
+  }
 })
 
 test('Группы: пагинация, редактирование и возврат с сохранением состояния списка', async ({ page }) => {
@@ -384,7 +444,7 @@ test('Группы: пагинация, редактирование и возв
   const pagination = page.getByRole('navigation', { name: 'Страницы списка групп' })
   await expect(pagination).toBeVisible()
 
-  const pageTwo = pagination.getByRole('button', { name: '2' })
+  const pageTwo = pagination.getByRole('button', { name: 'Дальше' })
   await pageTwo.click()
 
   await expect.poll(() => listRequests.at(-1)?.page).toBe(2)
@@ -575,7 +635,7 @@ test('Группы: при временной ошибке сохранения 
   await page.waitForLoadState('networkidle')
   const pagination = page.getByRole('navigation', { name: 'Страницы списка групп' })
   await expect(pagination).toBeVisible()
-  await pagination.getByRole('button', { name: '2' }).click()
+  await pagination.getByRole('button', { name: 'Дальше' }).click()
   await expect.poll(() => listRequests.at(-1)?.page).toBe(2)
 
   const editButton = page.getByTestId('group-card-group-11').getByRole('button', { name: /Редактировать группу/ })
@@ -837,6 +897,16 @@ async function mockApi(
       }
 
       await fulfillJson(context.route, 200, filterGroupsPayload(scopedGroups, query))
+      return
+    }
+
+    if (pathname === '/api/groups/summary' && method === 'GET') {
+      await fulfillJson(context.route, 200, {
+        totalCount: scopedGroups.length,
+        activeWithoutTrainerCount: scopedGroups.filter(
+          (group) => group.isActive && group.trainerNames.length === 0,
+        ).length,
+      })
       return
     }
 
@@ -1123,4 +1193,19 @@ async function expectNoHorizontalOverflow(page: Page) {
       () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
     ),
   ).toBe(true)
+}
+
+async function countFullyVisibleCards(page: Page) {
+  return page.evaluate(() => {
+    const navigation = document.querySelector<HTMLElement>(
+      '[data-testid="mobile-bottom-navigation"]',
+    )
+    const visibleBottom = navigation?.getBoundingClientRect().top ?? window.innerHeight
+
+    return Array.from(document.querySelectorAll<HTMLElement>('.group-registry-row'))
+      .filter((card) => {
+        const box = card.getBoundingClientRect()
+        return box.top >= 0 && box.bottom <= visibleBottom
+      }).length
+  })
 }

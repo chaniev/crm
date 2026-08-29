@@ -113,8 +113,9 @@ describe('GroupsListScreen', () => {
     )
   })
 
-  test('renders locator-first registry without summary metrics and keeps actions available', async () => {
+  test('renders compact registry metrics inside the status row and keeps decision data available', async () => {
     apiMocks.getGroups.mockResolvedValue({ items: [group], totalCount: 1, skip: 0, take: 10 })
+    apiMocks.getGroupSummary.mockResolvedValue({ totalCount: 12, activeWithoutTrainerCount: 3 })
     const onCreate = vi.fn()
     renderWithProviders(<GroupsListScreen onCreate={onCreate} onEdit={vi.fn()} />)
 
@@ -122,6 +123,8 @@ describe('GroupsListScreen', () => {
     expect(screen.getByRole('search')).toBeVisible()
     expect(screen.getByRole('search')).toHaveClass('entity-locator-bar', 'crm-filter-surface')
     expect(screen.queryByText('Поиск групп по названию')).not.toBeInTheDocument()
+    expect(screen.getByText('Центр · Большой')).toBeVisible()
+    expect(screen.getByText('Пн · 60 мин')).toBeVisible()
     expect(screen.getByText('Тренер не назначен')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Редактировать группу «Утренняя»' })).toBeEnabled()
     expect(screen.getByRole('button', { name: 'Обновить список групп' })).toHaveClass(
@@ -130,7 +133,12 @@ describe('GroupsListScreen', () => {
     expect(screen.getByRole('button', { name: 'Новая группа' })).toHaveClass(
       'task-toolbar-action--primary',
     )
-    expect(screen.queryByText('Всего')).not.toBeInTheDocument()
+    const statusRow = screen.getByTestId('groups-list-status-row')
+    expect(statusRow).toHaveTextContent('Всего: 12')
+    expect(statusRow).toHaveTextContent('Без тренера: 3')
+    expect(screen.getByLabelText('Всего групп: 12')).toBeVisible()
+    expect(screen.getByLabelText('Активных групп без тренера: 3')).toBeVisible()
+    expect(screen.getByTestId('group-card-group-1')).toHaveClass('crm-list-row-surface')
     expect(screen.queryByText('Клиентов: 2')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Новая группа' }))
     expect(onCreate).toHaveBeenCalledOnce()

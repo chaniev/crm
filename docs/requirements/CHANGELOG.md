@@ -11,6 +11,14 @@
 
 ## 2026-08-30
 
+- 30.08.2026 — REQ-GRP-001 — мобильная list-row композиция реестра
+  сохранила decision-данные группы без изменения статуса
+  требования (задача
+  [TASK-164](../../backlog/implementation/TASK-164-groups-vertical-budget.md)).
+- 30.08.2026 — REQ-NFR-001 — для реестра групп реализован
+  проверяемый мобильный вертикальный бюджет; общая реализация
+  требования осталась «частично» (задача
+  [TASK-164](../../backlog/implementation/TASK-164-groups-vertical-budget.md)).
 - 30.08.2026 — REQ-NFR-001 — текст дополнен принятым list-row/focus-card
   контрактом; representative Users/Audit slices и mobile radius overrides
   реализованы, общая реализация требования остаётся «частично» (задача
