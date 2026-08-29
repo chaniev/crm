@@ -139,10 +139,12 @@ touch targets должны быть `44 x 44px`, даже если концеп�
 - External conversation visualization: `/Users/muradchaniev/.codex/visualizations/2026/08/29/01a04f29-2b70-78c3-92d5-cd3cf24e2f35/schedule-mobile-redesign.html`.
 - Related completed task: [TASK-133](../done/TASK-133-schedule-task-first-cards.md).
 - Coordinated active task: [TASK-131](../implementation/TASK-131-schedule-group-type-filter-regression.md) owns filter regression only and does not own this visual change.
+- Cross-screen analysis evidence (2026-08-30): `artifacts/screenshots/all-screens/06-schedule-day-*.png`; бюджет до контента ~250–280px на 420x912 подтверждён на полном наборе экранов.
 
 ## Processing notes
 - Created at: 2026-08-29 23:42 MSK
 - Created by skill: codex-backlog-skill + crm-mobile-first-ui
 - Duplicate check: TASK-133 implemented the current task-first baseline; TASK-157 is a user-approved follow-up with new density, field hierarchy and mobile action-placement acceptance, so the completed task was not reopened and no active duplicate was created.
 - Classification: `tasks-ready`; accepted requirement and visual direction exist, behavior is bounded to frontend presentation, and no blocking product decision remains.
+- Updated at: 2026-08-30 (analysis addendum): visual contract дополнен аддендумом all-screens анализа (базлайн бюджета, типографика строк по стандарту реестров, list-row токены TASK-160, мобильные переопределения типографики TASK-158); утверждённое направление не менялось.
 

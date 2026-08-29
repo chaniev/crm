@@ -74,3 +74,32 @@ states. No new frontend-owned schedule or attendance meaning may be inferred.
 - no backend, permissions, recurrence, cancellation or attendance changes;
 - no direct copy of exploratory HTML/CSS into production.
 
+## Analysis addendum (2026-08-30)
+
+Additive evidence and constraints from the all-screens mobile analysis
+(26 routes rendered at 420 x 912; artifacts under
+`artifacts/screenshots/all-screens/`). The approved direction above is not
+changed.
+
+Additional rendered baseline:
+
+- `06-schedule-day-top.png` quantifies the current budget: ~250–280px
+  (28–31% of the first viewport) before the first lesson card — date row,
+  weekday chips row and filter chips row; only ~2 full cards fit.
+- The schedule is the only screen with three legitimate control rows; the
+  approved two-row hierarchy (date row + summary/filter row) remains the
+  cross-screen reference for TASK-163/TASK-164.
+
+Additive implementation constraints:
+
+- Row typography follows the registry standard observed on «Клиенты»,
+  «Тренеры», «Журнал»: group name 15–16px, weight 600–700, as the first
+  reading anchor; branch/hall/trainer metadata 12–13px in secondary color;
+  one neutral attendance status.
+- Compact rows consume the shared list-row surface tokens introduced by
+  TASK-160 (tonal separation, radius ≤ 16px, no per-row elevation). The
+  contract's "tonally separated rows" maps to those tokens; until TASK-160
+  integrates, local values must match them.
+- Heading sizes on `≤ 48rem` follow the mobile type overrides from TASK-158
+  rather than the desktop heading scale.
+

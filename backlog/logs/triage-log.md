@@ -3283,3 +3283,66 @@
 - created tasks: 1
 - updated existing tasks: 0
 - processed inbox files: 0
+
+# 2026-08-30 mobile design-system analysis batch
+
+## Baseline and scope
+
+- Источник — анализ всех 26 экранов на 420x912, выполненный в текущем
+  conversation (Chromium-эмуляция, e2e-инфраструктура с API-моками);
+  evidence: `artifacts/screenshots/all-screens/` (49 скриншотов + листы).
+- Inbox-файл не создавался: пользователь запросил задачи напрямую; source
+  traceability зафиксирован в каждой карточке.
+- Код приложения, API, runtime и deployment не изменялись.
+
+## Created tasks
+
+- `/backlog/tasks-ready/TASK-158-mobile-typography.md` — мобильные
+  переопределения типографской шкалы (REQ-NFR-001 constrains).
+- `/backlog/tasks-ready/TASK-159-spacing-scale-breakpoints.md` — шкала
+  отступов 4px, narrow-брейкпоинт алиасы, сканер raw-значений (`none`,
+  behavior-preserving).
+- `/backlog/tasks-ready/TASK-160-list-row-surfaces.md` — surface-токены
+  list-row/focus-card + миграция «Тренеров»/«Журнала» (REQ-NFR-001 constrains).
+- `/backlog/tasks-ready/TASK-161-mobile-control-recipes.md` — инпуты ≥44px,
+  мобильная позиция уведомлений, drawer-bottom-sheet (REQ-NFR-001 constrains).
+- `/backlog/tasks-ready/TASK-162-forms-sticky-cta.md` — sticky primary CTA
+  мобильных форм (REQ-NFR-001 constrains).
+- `/backlog/tasks-ready/TASK-163-attention-density.md` — «Внимание»:
+  плотность и action row (REQ-ATTN-001, REQ-NFR-001 constrains).
+- `/backlog/tasks-ready/TASK-164-groups-vertical-budget.md` — «Группы»:
+  вертикальный бюджет реестра (REQ-GRP-001, REQ-NFR-001 constrains).
+
+## Updated existing tasks
+
+- `/backlog/tasks-ready/TASK-157-schedule-mobile-density.md` — append-only:
+  cross-screen evidence в Source notes, запись об аддендуме в Processing notes.
+- `backlog/mockups/TASK-157-schedule-mobile-density/README.md` — добавлен
+  «Analysis addendum (2026-08-30)»: квантифицированный базлайн
+  (~250–280px до контента), типографика строк по стандарту реестров,
+  list-row токены TASK-160, мобильные переопределения TASK-158.
+  Утверждённое направление не менялось.
+
+## Duplicate and consistency checks
+
+- TASK-145/146/149/151/152 (done) — базовые слои; новые задачи являются
+  follow-up без пересечения владения.
+- TASK-154 (risky, App.css) и TASK-150 (risky, миграция цветов) упомянуты в
+  sequencing/constraints карточек; конфликтов владения нет.
+- TASK-016/018/019/021 касаются карточки клиента, не CTA-раскладки форм и не
+  реестра групп; дублей нет.
+- Расписание остаётся за TASK-157; TASK-160/158 только поставляют токены.
+- Все ссылки на REQ проверены: REQ-NFR-001, REQ-ATTN-001, REQ-GRP-001 —
+  решение `принято`.
+
+## Validation
+
+- `python3 scripts/validate_requirements.py` — см. результат в отчёте сессии.
+- Проверка существования всех файловых ссылок карточек выполнена.
+
+## Summary
+
+- tasks-ready: 16
+- created tasks: 7
+- updated existing tasks: 2
+- processed inbox files: 0
