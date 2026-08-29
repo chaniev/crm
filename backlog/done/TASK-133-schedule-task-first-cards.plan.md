@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-133 Сделать карточки расписания task-first на mobile и desktop
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-133-schedule-task-first-cards.md
+- source_task: /backlog/done/TASK-133-schedule-task-first-cards.md
 - requirements: REQ-GRP-007 (implements); REQ-GRP-005 (constrains); REQ-NFR-001 (constrains); REQ-ATT-006 (constrains)
 - branch: feature/TASK-133-schedule-task-first-cards
 - readiness: yes
@@ -9,6 +9,7 @@
 - prompt_evidence: /backlog/logs/TASK-133-ui-prompt-autoresearch.md; promoted change is integrated into `.agents/skills/design-first-ui-prompting/SKILL.md`
 - dependencies: none; completed TASK-119 is the occurrence-calendar baseline, and TASK-131 may add overlapping schedule tests but does not block this UI change
 - risk: medium — dense responsive schedule, shared mobile navigation and list-return behavior change together without changing backend semantics
+- completion: implemented and locally integrated to `main` at candidate `3150c2a038bd09e702784a1d0104e2d6dd0b2381` on 2026-08-29
 
 ## Goal
 На плотном расписании из 15 занятий пользователь различает занятие по времени и decision data, открывает разрешённую посещаемость как primary operation и возвращается в тот же URL-backed и визуальный контекст списка; rare/destructive actions не перегружают повторяющиеся карточки.
