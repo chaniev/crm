@@ -1,13 +1,15 @@
 # TASK-141: Качество и исполнимость agent instructions
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29
 - implementation_branch: refactor/TASK-141-agent-instructions-quality
-- implementation_state: ready_for_integration
-- verification_contract: backlog/implementation/TASK-141-agent-instructions-quality-verification-contract.json
+- implementation_state: completed
+- implementation_commit: 84d07963c946329bb8b9fbfc4693a62a50326915
+- completed_at: 2026-08-29
+- verification_contract: backlog/done/TASK-141-agent-instructions-quality-verification-contract.json
 
 ## Goal
 Сделать repository agent instructions однозначными, компактными и
