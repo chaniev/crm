@@ -242,6 +242,20 @@ const SCHEDULE_GROUPS_RESPONSE = {
   take: 100,
 } as const
 
+const GROUPS_REGISTRY_RESPONSE = {
+  ...SCHEDULE_GROUPS_RESPONSE,
+  items: SCHEDULE_GROUPS_RESPONSE.items.map((group, index) => ({
+    ...group,
+    name: index === 0
+      ? 'Мобильная группа с очень длинным названием для проверки переноса'
+      : `Мобильная группа ${index + 1}`,
+    trainerNames: index % 2 === 0 ? [] : group.trainerNames,
+    trainers: index % 2 === 0 ? [] : group.trainers,
+    trainerIds: index % 2 === 0 ? [] : group.trainerIds,
+    trainerCount: index % 2 === 0 ? 0 : group.trainerCount,
+  })),
+} as const
+
 const SCHEDULE_IOS_LESSON_CARD = {
   lessonOccurrenceId: 'occ-evening',
   sourceKind: 'Recurring',
@@ -904,6 +918,43 @@ test('target portrait profile menu trigger stays reachable and keyboard-closeabl
   expect(environment.innerWidth).toBe(target.width)
   expect(environment.innerHeight).toBeLessThanOrEqual(target.height)
   expect(environment.userAgent).toContain('iPhone')
+})
+
+test('target iPhone groups registry keeps the first-screen vertical budget', async ({
+  page,
+}, testInfo) => {
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.route(/\/api\/groups(?:\?.*)?$/, async (route) => {
+    await fulfillJson(route, GROUPS_REGISTRY_RESPONSE)
+  })
+  await page.route('**/api/groups/summary', async (route) => {
+    await fulfillJson(route, {
+      totalCount: GROUPS_REGISTRY_RESPONSE.totalCount,
+      activeWithoutTrainerCount: 3,
+    })
+  })
+
+  await page.goto('/groups')
+
+  const firstCard = page.locator('.group-registry-row').first()
+  await expect(firstCard).toBeVisible()
+  await expect(page.getByLabel('Всего групп: 6')).toBeVisible()
+  await expect(page.getByLabel('Активных групп без тренера: 3')).toBeVisible()
+  await expect(page.getByTestId('groups-list-controls').locator('.entity-locator-bar')).toBeVisible()
+  await expectNoHorizontalScroll(page)
+
+  const firstCardBox = await firstCard.boundingBox()
+  const visibleCards = await countFullyVisibleGroupCards(page)
+  const expectedVisibleCards = testInfo.project.name === 'iphone-air-webkit' ? 3 : 4
+  const longNameWraps = await firstCard.locator('h3').evaluate((heading) => {
+    const lineHeight = Number.parseFloat(getComputedStyle(heading).lineHeight)
+    return heading.getBoundingClientRect().height >= lineHeight * 1.8
+  })
+
+  expect(firstCardBox).not.toBeNull()
+  expect(firstCardBox!.y).toBeLessThanOrEqual(180)
+  expect(visibleCards).toBeGreaterThanOrEqual(expectedVisibleCards)
+  expect(longNameWraps).toBe(true)
 })
 
 test('target iPhone schedule preserves the mobile timeline in portrait and touch landscape', async ({
@@ -4764,6 +4815,21 @@ async function expectNoHorizontalScroll(page: Page) {
   expect(dimensions.bodyScrollWidth).toBeLessThanOrEqual(
     dimensions.viewportWidth + 1,
   )
+}
+
+async function countFullyVisibleGroupCards(page: Page) {
+  return page.evaluate(() => {
+    const navigation = document.querySelector<HTMLElement>(
+      '[data-testid="mobile-bottom-navigation"]',
+    )
+    const visibleBottom = navigation?.getBoundingClientRect().top ?? window.innerHeight
+
+    return Array.from(document.querySelectorAll<HTMLElement>('.group-registry-row'))
+      .filter((card) => {
+        const box = card.getBoundingClientRect()
+        return box.top >= 0 && box.bottom <= visibleBottom
+      }).length
+  })
 }
 
 async function expectTouchTargetAtLeast(locator: Locator, minSize: number) {

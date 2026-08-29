@@ -192,7 +192,7 @@ body {
 .catalog-surface-example {
   min-width: 0;
   display: grid;
-  gap: var(--crm-space-1, 4px);
+  gap: var(--crm-space-1);
   padding: 1rem;
   color: var(--crm-text-primary);
 }

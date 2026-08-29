@@ -235,14 +235,39 @@ export function GroupsListScreen({
       <section aria-labelledby="groups-list-title" className="groups-list-section">
         <h2 className="groups-screen__visually-hidden" id="groups-list-title">Список групп</h2>
         <PageSection className="groups-list-surface" variant="plain">
-          <Stack gap="lg">
-            <div className="groups-list-status-row">
+          <Stack gap="xs">
+            <div
+              className="groups-list-status-row"
+              data-testid="groups-list-status-row"
+            >
               <ListRangeStatus
                 end={state.pageEnd}
                 loading={state.loading}
                 start={state.pageStart}
                 total={state.totalCount}
               />
+              <div className="groups-list-metrics">
+                <span
+                  aria-label={
+                    state.summary
+                      ? `Всего групп: ${state.summary.totalCount}`
+                      : state.totalCount === null
+                        ? 'Всего групп: обновляем'
+                        : `Всего групп: ${state.totalCount}`
+                  }
+                >
+                  Всего: {state.summary?.totalCount ?? state.totalCount ?? '—'}
+                </span>
+                <span
+                  aria-label={
+                    state.summary
+                      ? `Активных групп без тренера: ${state.summary.activeWithoutTrainerCount}`
+                      : 'Активных групп без тренера: обновляем'
+                  }
+                >
+                  Без тренера: {state.summary?.activeWithoutTrainerCount ?? '—'}
+                </span>
+              </div>
             </div>
 
             {showFirstLoad ? (
@@ -372,7 +397,7 @@ function GroupRegistryRow({
 
   return (
     <article
-      className="group-registry-row"
+      className="group-registry-row crm-list-row-surface"
       data-group-id={group.id}
       data-selected={selected || undefined}
       data-testid={`group-card-${group.id}`}
@@ -383,25 +408,39 @@ function GroupRegistryRow({
           {group.name}
         </Text>
       </div>
-      <Text className="group-registry-row__meta" c="dimmed">
+      <Text
+        className="group-registry-row__meta group-registry-row__location"
+        c="dimmed"
+        title={`${group.branchName} · ${group.hallName}`}
+      >
         {group.branchName} · {group.hallName}
       </Text>
-      <Text className="group-registry-row__meta" c="dimmed">
+      <Text
+        className="group-registry-row__meta group-registry-row__schedule"
+        c="dimmed"
+        title={scheduleText}
+      >
         {scheduleText}
       </Text>
-      <Text className="group-registry-row__meta" c="dimmed">
-        {trainerText}
-      </Text>
-      <div className="group-registry-row__status">
-        <Badge
-          color={group.isActive ? 'teal' : 'gray'}
-          radius="xl"
-          variant="light"
+      <div className="group-registry-row__trainer-status">
+        <Text
+          className="group-registry-row__meta group-registry-row__trainers"
+          c="dimmed"
+          title={trainerText}
         >
-          {group.isActive
-            ? GROUPS_STATUS_LABELS.active
-            : GROUPS_STATUS_LABELS.inactive}
-        </Badge>
+          {trainerText}
+        </Text>
+        <div className="group-registry-row__status">
+          <Badge
+            color={group.isActive ? 'teal' : 'gray'}
+            radius="xl"
+            variant="light"
+          >
+            {group.isActive
+              ? GROUPS_STATUS_LABELS.active
+              : GROUPS_STATUS_LABELS.inactive}
+          </Badge>
+        </div>
       </div>
       <IconButton
         className="group-registry-row__edit"

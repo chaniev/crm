@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { getGroups, type TrainingGroupListItem } from '../../lib/api'
+import {
+  getGroups,
+  getGroupSummary,
+  type TrainingGroupListItem,
+  type TrainingGroupSummary,
+} from '../../lib/api'
 import {
   countGroupListFilters,
   createDefaultGroupListFilters,
@@ -38,6 +43,7 @@ export function useGroupsListState({
   )
   const [page, setPage] = useState(() => initialReturnSnapshot?.page ?? 1)
   const [totalCount, setTotalCount] = useState<number | null>(null)
+  const [summary, setSummary] = useState<TrainingGroupSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
@@ -158,6 +164,27 @@ export function useGroupsListState({
     return () => controller.abort()
   }, [filters, page, reloadKey])
 
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadSummary() {
+      try {
+        const response = await getGroupSummary(controller.signal)
+
+        if (!controller.signal.aborted) {
+          setSummary(response)
+        }
+      } catch {
+        // Summary metrics are supplementary: keep the last known value and
+        // never make the paginated registry depend on this request.
+      }
+    }
+
+    void loadSummary()
+
+    return () => controller.abort()
+  }, [reloadKey])
+
   const returnSnapshot = useMemo(
     () =>
       createGroupListReturnSnapshot({
@@ -272,6 +299,7 @@ export function useGroupsListState({
     pageStart,
     pageEnd,
     totalCount,
+    summary,
     loading,
     error,
     selectedGroupId,
