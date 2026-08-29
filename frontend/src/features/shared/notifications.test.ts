@@ -54,6 +54,21 @@ describe('showAppNotification', () => {
     })
   })
 
+  test('maps semantic tones to shared functional status variables', () => {
+    showAppNotification({
+      title: 'Абонемент сохранен',
+      message: 'Изменения применены.',
+      tone: 'success',
+    })
+
+    expect(notificationsMock.show).toHaveBeenCalledWith({
+      autoClose: APP_NOTIFICATION_AUTO_CLOSE_MS,
+      title: 'Абонемент сохранен',
+      message: 'Изменения применены.',
+      color: 'var(--crm-status-success-fg)',
+    })
+  })
+
   test('upserts stable-id notifications so the latest payload wins', () => {
     showAppNotification({
       id: 'settings-group-type-create',

@@ -5,6 +5,7 @@ import { cwd } from 'node:process'
 import { describe, expect, test } from 'vitest'
 import {
   findViolationsByLine,
+  findSemanticToneBypassesByLine,
   formatFindings,
   groupFindingsByKind,
   readAllowlist,
@@ -81,6 +82,23 @@ describe('TASK-090 Slice C — raw-color scanner', () => {
     expect(kinds.has('mantineCssVar')).toBe(true)
     expect(kinds.has('crmCompatibilityVar')).toBe(true)
     expect(findings.length).toBe(8)
+  })
+
+  test('classifies semantic tone bypass fixtures without enabling production-wide enforcement', () => {
+    const fixturePath = 'src/test/semantic-tone-scanner.fixture.tsx'
+    const syntheticSource = [
+      '<Alert color="red">Ошибка</Alert>',
+      'showAppNotification({ color: "yellow", title: "Внимание" })',
+      'const decorative = <Badge color="brand">Акцент</Badge>',
+      'const approved = getSemanticToneComponentProps("danger")',
+    ].join('\n')
+
+    const findings = findSemanticToneBypassesByLine(fixturePath, syntheticSource)
+
+    expect(findings.map((finding: { match: string }) => finding.match)).toEqual([
+      'red',
+      'yellow',
+    ])
   })
 
   test('requires zero disallowed color usage in frontend production source', async () => {

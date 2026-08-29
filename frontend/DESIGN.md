@@ -100,6 +100,18 @@ and effects that compete with operational data do not fit the product.
   remain available.
 - Motion is never the only evidence of loading, pending, completion or error.
 
+### Semantic tone contract
+
+- Functional presentation uses the typed tones `danger`, `warning`, `success`,
+  `info` and `neutral`; brand/accent colors do not stand for CRM status.
+- Tone components consume `--crm-status-*-fg`, `--crm-status-*-bg` and
+  `--crm-status-*-border` together with an icon/text cue. The original
+  `--crm-status-*` paint variables remain for compatibility until the
+  production migration task removes approved bypasses.
+- Direct Mantine functional names such as `red`, `yellow`, `teal`, `blue` and
+  `gray` are scanner fixtures for TASK-150 enforcement. Decorative brand use
+  stays separate from status tone APIs.
+
 ## Design acceptance
 
 A design is not approved because it compiles or satisfies a checklist. For a

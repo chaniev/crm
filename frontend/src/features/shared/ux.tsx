@@ -39,6 +39,10 @@ import {
   type ReactNode,
 } from 'react'
 import { resources } from '../../lib/resources'
+import {
+  getSemanticToneAttributes,
+  getSemanticToneComponentProps,
+} from '../../theme/semanticTones'
 import { Button, type SharedButtonProps } from './Button'
 
 type ResponsiveButtonGroupProps = {
@@ -803,9 +807,11 @@ type ErrorStateProps = {
 export function ErrorState({ title, message, action }: ErrorStateProps) {
   return (
     <Alert
+      {...getSemanticToneAttributes('danger')}
       className="state-panel state-panel--error"
-      color="red"
+      color={getSemanticToneComponentProps('danger').color}
       icon={<IconAlertCircle size={18} />}
+      role="alert"
       title={title}
       variant="light"
     >

@@ -42,6 +42,40 @@ export const sourceDefinitionPaths = new Set([
   'src/theme/semanticVariables.ts',
 ])
 
+export const functionalMantineColorNames = [
+  'red',
+  'yellow',
+  'teal',
+  'blue',
+  'gray',
+]
+
+const functionalColorPattern = new RegExp(
+  String.raw`(?:\b(?:color|c)\s*=\s*["']|\b(?:color|c)\s*:\s*["'])(` +
+    functionalMantineColorNames.join('|') +
+    String.raw`)(?:["'])`,
+  'gi',
+)
+
+export function findSemanticToneBypassesByLine(file, content) {
+  const lines = splitLines(content)
+  const findings = []
+
+  lines.forEach((line, lineIndex) => {
+    for (const match of line.matchAll(functionalColorPattern)) {
+      findings.push({
+        path: file,
+        line: lineIndex + 1,
+        kind: 'functionalMantineColor',
+        match: match[1],
+        lineText: line.trim(),
+      })
+    }
+  })
+
+  return findings
+}
+
 const genericAllowlistPatterns = new Set([
   '#',
   'rgb(',

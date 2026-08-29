@@ -1152,6 +1152,8 @@ describe('shared UX components', () => {
     expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true')
     expect(screen.getByRole('status')).toHaveTextContent('Загружаем тестовые данные...')
     expect(screen.getByText('Ошибка загрузки')).toBeVisible()
+    expect(screen.getByRole('alert')).toHaveAttribute('data-semantic-tone', 'danger')
+    expect(screen.getByRole('alert')).toHaveAttribute('data-semantic-tone-cue', 'alert')
     expect(screen.getByText('Сервер недоступен')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Повторить' })).toBeVisible()
     expect(container.querySelectorAll('.skeleton-row')).toHaveLength(2)
