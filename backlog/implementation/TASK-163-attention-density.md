@@ -1,7 +1,13 @@
 # TASK-163: «Внимание» — плотность списка и actions в карточке
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-30 00:30
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-163-attention-density.plan.md
+- implementation_branch: feature/TASK-163-attention-density
 
 ## Requirements
 - REQ-ATTN-001 — constrains

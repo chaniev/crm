@@ -1774,3 +1774,9 @@
 - planned_in_place: none
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-131-schedule-group-type-filter-regression.plan.md
+
+# 2026-08-30 00:30
+- moved: TASK-157, TASK-158, TASK-159, TASK-160, TASK-161, TASK-162, TASK-163, TASK-164
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-157-schedule-mobile-density.plan.md, /backlog/implementation-plans/TASK-158-mobile-typography.plan.md, /backlog/implementation-plans/TASK-159-spacing-scale-breakpoints.plan.md, /backlog/implementation-plans/TASK-160-list-row-surfaces.plan.md, /backlog/implementation-plans/TASK-161-mobile-control-recipes.plan.md, /backlog/implementation-plans/TASK-162-forms-sticky-cta.plan.md, /backlog/implementation-plans/TASK-163-attention-density.plan.md, /backlog/implementation-plans/TASK-164-groups-vertical-budget.plan.md

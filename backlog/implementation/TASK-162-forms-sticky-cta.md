@@ -1,7 +1,13 @@
 # TASK-162: Sticky primary CTA форм на мобильных
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-30 00:30
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-162-forms-sticky-cta.plan.md
+- implementation_branch: feature/TASK-162-forms-sticky-cta
 
 ## Requirements
 - REQ-NFR-001 — constrains

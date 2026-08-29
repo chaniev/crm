@@ -1,7 +1,13 @@
 # TASK-160: Поверхности list-row и focus-card как нормы дизайн-системы
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-30 00:30
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-160-list-row-surfaces.plan.md
+- implementation_branch: feature/TASK-160-list-row-surfaces
 
 ## Requirements
 - REQ-NFR-001 — constrains

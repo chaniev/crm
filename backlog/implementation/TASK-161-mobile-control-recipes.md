@@ -1,7 +1,13 @@
 # TASK-161: Мобильные рецепты контролов: инпуты 44px, уведомления, bottom-sheet
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-30 00:30
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-161-mobile-control-recipes.plan.md
+- implementation_branch: feature/TASK-161-mobile-control-recipes
 
 ## Requirements
 - REQ-NFR-001 — constrains

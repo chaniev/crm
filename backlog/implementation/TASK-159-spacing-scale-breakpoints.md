@@ -1,7 +1,13 @@
 # TASK-159: Шкала отступов 4px и гигиена узких брейкпоинтов
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-30 00:30
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-159-spacing-scale-breakpoints.plan.md
+- implementation_branch: feature/TASK-159-spacing-scale-breakpoints
 
 ## Requirements
 - none — behavior-preserving консолидация отступов и брейкпоинтов в токены с сохранением вычисляемой геометрии
