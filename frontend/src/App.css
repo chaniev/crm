@@ -4545,14 +4545,138 @@
 }
 
 .attention-client-row-card {
-  background:
-    linear-gradient(135deg, var(--crm-brand-soft-overlay), var(--crm-surface-card-alpha-98));
+  min-width: 0;
+  min-height: 90px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--crm-space-2);
+  padding: var(--crm-space-2) var(--crm-space-3);
 }
 
-.attention-client-row__field {
+.attention-panel__content,
+.attention-list {
+  min-width: 0;
+}
+
+.attention-controls-row {
+  min-height: 44px;
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.attention-list-status {
+  min-width: 0;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  gap: var(--crm-space-3);
+  overflow: hidden;
+  color: var(--crm-text-secondary);
+  font-size: var(--crm-type-caption-size);
+  font-weight: var(--crm-type-numeric-weight);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--crm-type-caption-line-height);
+  white-space: nowrap;
+}
+
+.attention-list-status > :last-child {
+  min-width: 0;
+  margin-inline-start: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attention-client-row__content {
+  min-width: 0;
+  display: grid;
+  gap: var(--crm-space-1);
+}
+
+.attention-client-row__name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--crm-text-heading);
+  font-size: var(--crm-type-body-size);
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attention-client-row__reasons,
+.attention-client-row__metadata,
+.attention-client-row__reason {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--crm-space-1);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.attention-client-row__reasons {
+  min-height: 20px;
+}
+
+.attention-client-row__reasons > *,
+.attention-client-row__reason > *,
+.attention-client-row__metadata > * {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attention-client-row__reasons,
+.attention-client-row__reasons .mantine-Text-root,
+.attention-client-row__metadata {
+  font-size: var(--crm-type-caption-size);
+  line-height: var(--crm-type-caption-line-height);
+}
+
+.attention-client-row__reasons .mantine-Badge-root {
+  max-width: 100%;
+  flex: 0 1 auto;
+}
+
+.attention-client-row__metadata > * + *::before {
+  content: '·';
+  margin-inline-end: var(--crm-space-1);
+  color: var(--crm-text-muted);
+}
+
+.attention-client-row__metadata > :first-child,
+.attention-client-row__metadata > :nth-child(3) {
+  flex-shrink: 0;
+}
+
+.attention-client-row__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--crm-space-2);
+}
+
+.attention-client-row__primary {
+  min-width: 44px;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.attention-client-row__error {
+  grid-column: 1 / -1;
+  font-size: var(--crm-type-body-compact-size);
+}
+
+.attention-client-row-card:focus-visible {
+  outline: 2px solid var(--crm-selection-border);
+  outline-offset: 2px;
+}
+
+.attention-actions-menu__item {
+  min-height: 44px;
+  white-space: nowrap;
 }
 
 .audit-filter-card,

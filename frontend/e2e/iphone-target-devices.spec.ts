@@ -939,6 +939,102 @@ test('target iPhone schedule preserves the mobile timeline in portrait and touch
   await expectNoHorizontalScroll(page)
 })
 
+test('target iPhone attention keeps five dense rows and every client operation reachable', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let attentionItems = Array.from({ length: 6 }, (_, index) => {
+    const number = index + 1
+    return {
+      clientId: `attention-client-${number}`,
+      fullName: number === 1
+        ? 'Александра Константинопольская-Северная'
+        : `Клиент внимания ${number}`,
+      phone: `+7999111223${number}`,
+      notes: number === 1 ? 'Позвонить после вечерней тренировки' : `Комментарий ${number}`,
+      telegramLink: `https://t.me/attention${number}`,
+      membership: {
+        membershipId: `attention-membership-${number}`,
+        saleId: `attention-sale-${number}`,
+        behaviorKind: 'Term',
+        membershipName: 'Профессиональный абонемент',
+        expirationDate: '2026-08-29',
+        daysUntilExpiration: -1,
+        targetGroups: [{
+          id: 'group-1',
+          name: 'Утренняя группа',
+          groupTypeName: 'Отчётность',
+        }],
+      },
+      reasons: [
+        { type: 'missedTraining', missedCount: 4 },
+        {
+          type: 'expiredMembership',
+          membershipId: `attention-membership-${number}`,
+          saleId: `attention-sale-${number}`,
+          expirationDate: '2026-08-29',
+          daysUntilExpiration: -1,
+          targetGroups: [{
+            id: 'group-1',
+            name: 'Утренняя группа',
+            groupTypeName: 'Отчётность',
+          }],
+        },
+      ],
+    }
+  })
+
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.route('**/api/clients/attention', async (route) => {
+    await fulfillJson(route, attentionItems)
+  })
+  await page.route(
+    '**/api/clients/attention-client-1/attention/missed-training/contacted',
+    async (route) => {
+      attentionItems = attentionItems.map((item) => item.clientId === 'attention-client-1'
+        ? { ...item, reasons: item.reasons.filter((reason) => reason.type !== 'missedTraining') }
+        : item)
+      await fulfillJson(route, attentionItems[0])
+    },
+  )
+
+  await page.setViewportSize(target)
+  await page.goto('/attention')
+
+  const cards = page.locator('[data-testid^="attention-client-card-"]')
+  const firstCard = cards.first()
+  await expect(cards).toHaveCount(6)
+  await expect(firstCard).toContainText('Александра Константинопольская-Северная')
+  await expect(firstCard).toContainText('Пропущено подряд: 4')
+  await expect(firstCard).toContainText('Истек 1 день назад')
+  await expect(firstCard).toContainText('Профессиональный абонемент')
+  await expect(firstCard).toContainText('Утренняя группа')
+  await expect(firstCard).toContainText('+79991112231')
+  await expect(firstCard).toContainText('Позвонить после вечерней тренировки')
+
+  const navigationBox = await page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR).boundingBox()
+  expect(navigationBox).not.toBeNull()
+  const fullyVisibleCards = await cards.evaluateAll((elements, viewportBottom) =>
+    elements.filter((element) => element.getBoundingClientRect().bottom <= viewportBottom).length,
+  navigationBox!.y)
+  expect(fullyVisibleCards).toBeGreaterThanOrEqual(5)
+  await expect(firstCard.locator('[data-crm-variant="primary"]')).toHaveCount(1)
+
+  const menuTrigger = firstCard.getByRole('button', { name: /Другие действия/ })
+  await menuTrigger.click()
+  await expect(page.getByRole('menuitem', { name: /Позвонить/ })).toBeVisible()
+  await expect(page.getByRole('menuitem', { name: /Открыть Telegram/ })).toBeVisible()
+  await expect(page.getByRole('menuitem', { name: /Открыть карточку/ })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(menuTrigger).toBeFocused()
+
+  await firstCard.getByRole('button', { name: /Связались/ }).click()
+  await expect(firstCard.getByText('Пропущено подряд: 4')).toHaveCount(0)
+  await expect(firstCard).toContainText('Истек 1 день назад')
+  await expectTouchTargetAtLeast(firstCard.getByRole('link', { name: /Позвонить/ }), 44)
+  await expectNoHorizontalScroll(page)
+})
+
 test('target iPhone opens exact attendance from schedule occurrence and stays state-safe after save', async ({
   page,
 }, testInfo) => {

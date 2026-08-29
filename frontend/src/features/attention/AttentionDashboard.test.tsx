@@ -93,8 +93,18 @@ describe('AttentionDashboard', () => {
     expect(await screen.findByText('Пропущено подряд: 4')).toBeVisible()
     expect(screen.getByText('Истекает сегодня')).toBeVisible()
     expect(screen.queryByText('Требует оплаты')).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Telegram/ })).toHaveAttribute('target', '_blank')
-    expect(screen.getByRole('link', { name: /Telegram/ })).toHaveAttribute('rel', 'noopener noreferrer')
+    fireEvent.click(screen.getByRole('button', { name: 'Другие действия для Иван Иванов' }))
+    // Floating UI cannot position the portal in JSDOM, so assert the rendered
+    // menu contract directly; Playwright covers real visibility and focus.
+    let telegramAction: HTMLAnchorElement | null = null
+    await waitFor(() => {
+      telegramAction = document.querySelector<HTMLAnchorElement>(
+        'a[role="menuitem"][href="https://t.me/ivan"]',
+      )
+      expect(telegramAction).not.toBeNull()
+    })
+    expect(telegramAction).toHaveAttribute('target', '_blank')
+    expect(telegramAction).toHaveAttribute('rel', 'noopener noreferrer')
 
     fireEvent.click(screen.getByRole('button', { name: 'Связались с Иван Иванов' }))
 
@@ -250,6 +260,82 @@ describe('AttentionDashboard', () => {
     renderWithProviders(<AttentionDashboard />)
 
     expect((await screen.findAllByText('Нет данных')).length).toBeGreaterThan(0)
+  })
+
+  test('keeps REQ-ATTN-001 data in one list row with one primary action and one menu', async () => {
+    const onOpenClient = vi.fn()
+    getAttentionMock.mockResolvedValueOnce([{
+      clientId: 'client-density',
+      fullName: 'Александра Константинопольская-Северная',
+      phone: '+79991234567',
+      notes: 'Позвонить после вечерней тренировки и уточнить решение по продлению',
+      telegramLink: 'https://t.me/alexandra',
+      membership: {
+        membershipId: 'membership-density',
+        saleId: 'sale-density',
+        behaviorKind: 'Term',
+        membershipName: 'Профессиональный абонемент',
+        expirationDate: '2026-07-20',
+        daysUntilExpiration: -2,
+        targetGroups: [buildTargetGroup()],
+        targetSummary: '1. Утренняя группа · отчётность',
+      },
+      reasons: [
+        { type: 'missedTraining', missedCount: 4 },
+        {
+          type: 'expiredMembership',
+          membershipId: 'membership-density',
+          saleId: 'sale-density',
+          expirationDate: '2026-07-20',
+          daysUntilExpiration: -2,
+          targetGroups: [buildTargetGroup()],
+          targetSummary: '1. Утренняя группа · отчётность',
+        },
+      ],
+    } as unknown as ClientAttentionItem])
+
+    renderWithProviders(<AttentionDashboard onOpenClient={onOpenClient} />)
+
+    const card = await screen.findByTestId(
+      'attention-client-card-client-density:membership-density:sale-density',
+    )
+    expect(card).toHaveClass('crm-list-row-surface')
+    expect(card).toHaveAttribute('tabindex', '0')
+    expect(card).toHaveTextContent('Александра Константинопольская-Северная')
+    expect(card).toHaveTextContent('Пропущено подряд: 4')
+    expect(card).toHaveTextContent('Истек 2 дня назад')
+    expect(card).toHaveTextContent('Профессиональный абонемент')
+    expect(card).toHaveTextContent('1. Утренняя группа · отчётность')
+    expect(card).toHaveTextContent('+79991234567')
+    expect(card).toHaveTextContent('Позвонить после вечерней тренировки')
+
+    expect(screen.getByLabelText('Всего клиентов: 1')).toBeVisible()
+    expect(screen.getByLabelText('Просроченных абонементов: 1')).toBeVisible()
+    expect(card.querySelectorAll('[data-crm-variant="primary"]')).toHaveLength(1)
+
+    fireEvent.click(screen.getByRole('button', {
+      name: 'Другие действия для Александра Константинопольская-Северная',
+    }))
+
+    let phoneAction: HTMLAnchorElement | null = null
+    let telegramAction: HTMLAnchorElement | null = null
+    let profileAction: HTMLButtonElement | null = null
+    await waitFor(() => {
+      phoneAction = document.querySelector<HTMLAnchorElement>(
+        'a[role="menuitem"][href="tel:+79991234567"]',
+      )
+      telegramAction = document.querySelector<HTMLAnchorElement>(
+        'a[role="menuitem"][href="https://t.me/alexandra"]',
+      )
+      profileAction = document.querySelector<HTMLButtonElement>(
+        'button[role="menuitem"][aria-label="Открыть карточку Александра Константинопольская-Северная"]',
+      )
+      expect(phoneAction).not.toBeNull()
+      expect(telegramAction).not.toBeNull()
+      expect(profileAction).not.toBeNull()
+    })
+    fireEvent.click(profileAction!)
+    expect(onOpenClient).toHaveBeenCalledWith('client-density')
   })
 })
 
