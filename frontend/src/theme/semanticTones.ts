@@ -84,4 +84,3 @@ export function getSemanticToneComponentProps(tone: SemanticTone) {
     ...getSemanticToneAttributes(tone),
   } as const
 }
-

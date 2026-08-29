@@ -42,4 +42,3 @@ describe('TASK-143 semantic functional tones', () => {
     })
   })
 })
-
