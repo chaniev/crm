@@ -15,9 +15,14 @@ an infrastructure path safely.
 Run from the repository root inside the task worktree:
 
 ```bash
-python3 scripts/harness/verify_change.py --base origin/main --dry-run
-python3 scripts/harness/verify_change.py --base origin/main
+python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-123 --dry-run
+python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-123
 ```
+
+`--task-id` discovers exactly one matching
+`TASK-NNN-*verification-contract.json` in `backlog/implementation/` or
+`backlog/done/`. For a change with no task contract, omit the option and the
+runner uses diff-aware canonical verification only.
 
 The local profile includes committed changes since the base plus staged,
 unstaged, and untracked files. Deleted paths are retained, and both the old and
@@ -46,18 +51,20 @@ verification cannot be derived from changed paths alone. Keep the active
 contract beside the task in `backlog/implementation/` and move both artifacts
 to `backlog/done/` when the task is completed.
 
-Run it explicitly from the declared task branch:
+Prefer discovery by task ID. An explicit path remains available for debugging:
 
 ```bash
 python3 scripts/harness/verify_change.py \
   --base origin/main \
-  --task-contract backlog/implementation/TASK-123-verification.json
+  --task-id TASK-123
 ```
 
 The contract can only add areas and checks. It cannot remove anything selected
 by the diff or canonical contract-boundary rules. Its filename must contain the
-declared task ID, and `expected_branch` must match the current branch; a missing,
-malformed, misplaced or stale contract exits before any check is executed.
+declared task ID, and `expected_branch` must match the current branch. A
+detached CI checkout is accepted only when `--source-ref` names that expected
+branch. A missing, ambiguous, malformed, misplaced or stale contract exits
+before any check is executed.
 
 Schema version 1 supports:
 
@@ -67,6 +74,7 @@ Schema version 1 supports:
   "task_id": "TASK-123",
   "expected_branch": "feature/TASK-123-client-flow",
   "areas": ["frontend"],
+  "manual_evidence": "backlog/implementation/TASK-123-manual-evidence.json",
   "playwright": [
     {
       "id": "frontend.e2e.client-flow",
@@ -81,15 +89,27 @@ Schema version 1 supports:
       "timeout_seconds": 1800
     }
   ],
-  "runtime_smoke": [
-    {
-      "id": "deploy.smoke.readiness",
-      "area": "deploy",
-      "working_directory": ".",
-      "command": ["curl", "-fsS", "http://127.0.0.1:8080/health/ready"],
-      "timeout_seconds": 600
-    }
-  ],
+  "runtime_stack": {
+    "compose_file": "deploy/docker-compose.yml",
+    "env_file": "deploy/.env.example",
+    "services": ["frontend"],
+    "startup_timeout_seconds": 1800,
+    "cleanup_timeout_seconds": 180,
+    "readiness": [
+      {
+        "id": "runtime.backend-ready",
+        "command": ["curl", "-fsS", "http://127.0.0.1:{backend_port}/health/ready"],
+        "timeout_seconds": 180
+      }
+    ],
+    "smoke": [
+      {
+        "id": "runtime.frontend-root",
+        "command": ["curl", "-fsS", "http://127.0.0.1:{frontend_port}/"],
+        "timeout_seconds": 30
+      }
+    ]
+  },
   "manual_checks": [
     {
       "id": "manual.physical-iphone",
@@ -99,22 +119,49 @@ Schema version 1 supports:
 }
 ```
 
-Playwright specs must exist below `frontend/e2e`, and the runner invokes them as
-`npm run test:e2e -- <spec> --project=<project>`. Runtime smoke commands are
-argv arrays executed directly without a shell; their working directory must
-remain inside the repository. Identifiers and command signatures must be unique
-across canonical and task-specific checks.
+Playwright specs must exist below `frontend/e2e`. The runner installs the
+pinned Playwright browsers first, reserves a task-local E2E port, and invokes
+the declared desktop/mobile projects as
+`npm run test:e2e -- <spec> --project=<project>`. Traces are retained on
+failure and screenshots are captured only on failure.
+
+`runtime_stack` owns a disposable Compose lifecycle. It allocates local backend
+and frontend ports, creates a unique project name, starts only the declared
+service graph, retries readiness probes, runs smoke probes, and always calls
+`down --remove-orphans` on success, failure, timeout or interruption. It never
+uses `down -v`; retained data volumes therefore remain recoverable. Probe
+commands are argv arrays executed directly without a shell and may use
+`{backend_port}`, `{frontend_port}`, and `{project_name}` placeholders. The
+nested runtime report records the exact project, ports, probes and cleanup
+outcome. Identifiers and command signatures must be unique across canonical and
+task-specific checks.
 
 Manual checks are never inferred as completed. A dry run records them as
-`required`; an execution without confirmation records `not_confirmed`, finishes
+`required`; an execution without evidence records `not_confirmed`, finishes
 automated checks, returns non-zero and gives the report status
-`manual_required`. Confirm completed checks explicitly:
+`manual_required`. Check in agent-neutral provenance beside the task:
 
-```bash
-python3 scripts/harness/verify_change.py \
-  --task-contract backlog/implementation/TASK-123-verification.json \
-  --confirm-manual manual.physical-iphone
+```json
+{
+  "version": 1,
+  "task_id": "TASK-123",
+  "actor": "coding-agent:TASK-123",
+  "performed_at": "2026-08-29T12:00:00+03:00",
+  "confirmations": [
+    {
+      "id": "manual.physical-iphone",
+      "note": "Validated the affected flow on the target device.",
+      "artifacts": ["docs/validation/TASK-123.md"]
+    }
+  ]
+}
 ```
+
+Every confirmation requires an actor, timestamp, note and at least one
+repository-relative artifact reference. The CLI options `--confirm-manual`,
+`--manual-actor`, `--manual-note`, and `--manual-artifact` are available for
+local one-off evidence, but CI consumes the checked-in provenance named by
+`manual_evidence` and never invents a confirmation.
 
 Do not put secrets, tokens or personal data in a contract. The validated JSON
 content and its SHA-256 digest are intentionally copied into evidence.
@@ -147,12 +194,10 @@ contract, for example:
 ```bash
 python3 scripts/harness/verify_change.py \
   --base "$PULL_REQUEST_BASE_SHA" \
-  --task-contract backlog/implementation/TASK-123-verification.json \
+  --task-id TASK-123 \
+  --source-ref "$PULL_REQUEST_SOURCE_BRANCH" \
   --report .artifacts/verification/TASK-123.json
 ```
-
-CI must not synthesize `--confirm-manual` values. Manual confirmations belong
-to evidence from the person or agent that actually performed the check.
 
 ## Change-impact rules
 
@@ -205,4 +250,13 @@ agent or CI job prove which diff rules and task requirements produced the run.
 
 Every Quality workflow job writes a unique report, appends its outcome to the
 GitHub job summary, and uploads the JSON as a 14-day artifact even when a check
-fails.
+fails. Pull requests additionally run the discovered task contract from the
+detached checkout and upload Playwright diagnostics.
+
+`scripts/harness/aggregate_evidence.py` is the final merge gate. It downloads
+and combines all required reports, rejects missing evidence, failures,
+unconfirmed manual checks, mixed HEAD/tree identities, mixed contract digests,
+or a missing task ID, and writes one immutable aggregate JSON result. A pull
+request branch must contain `TASK-NNN`; this keeps task discovery portable for
+Claude Code, Codex, OpenCode, Zed and other coding agents without relying on a
+vendor-specific runtime or metadata format.

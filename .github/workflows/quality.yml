@@ -181,3 +181,129 @@ jobs:
           path: .artifacts/verification/deploy.json
           if-no-files-found: error
           retention-days: 14
+
+  task-verification:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: bot/uv.lock
+
+      - name: Resolve task identity
+        id: task
+        shell: bash
+        run: |
+          if [[ "$GITHUB_HEAD_REF" =~ (TASK-[0-9]+) ]]; then
+            echo "task_id=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "Pull request branch must contain TASK-NNN" >&2
+            exit 1
+          fi
+
+      - name: Run task verification contract
+        run: >-
+          python3 scripts/harness/verify_change.py
+          --base "${{ github.event.pull_request.base.sha }}"
+          --task-id "${{ steps.task.outputs.task_id }}"
+          --source-ref "$GITHUB_HEAD_REF"
+          --report ".artifacts/verification/${{ steps.task.outputs.task_id }}.json"
+
+      - name: Upload task verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-task-${{ github.run_attempt }}
+          path: .artifacts/verification/*.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: diagnostics-task-${{ github.run_attempt }}
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  verification-gate:
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - requirements
+      - harness
+      - backend
+      - frontend
+      - bot
+      - deploy
+      - task-verification
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download verification evidence
+        uses: actions/download-artifact@v7
+        with:
+          pattern: verification-*
+          path: .artifacts/verification-input
+          merge-multiple: true
+
+      - name: Resolve required task evidence
+        id: task
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            if [[ "$GITHUB_HEAD_REF" =~ (TASK-[0-9]+) ]]; then
+              echo "arguments=--require-task-id ${BASH_REMATCH[1]} --require-report ${BASH_REMATCH[1]}.json" >> "$GITHUB_OUTPUT"
+            else
+              echo "Pull request branch must contain TASK-NNN" >&2
+              exit 1
+            fi
+          else
+            echo "arguments=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Aggregate merge-gate evidence
+        run: >-
+          python3 scripts/harness/aggregate_evidence.py
+          --input-dir .artifacts/verification-input
+          --report .artifacts/verification-gate.json
+          --require-report requirements.json
+          --require-report harness.json
+          --require-report backend.json
+          --require-report frontend.json
+          --require-report bot.json
+          --require-report deploy.json
+          ${{ steps.task.outputs.arguments }}
+
+      - name: Upload aggregate merge-gate evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-gate-${{ github.run_attempt }}
+          path: .artifacts/verification-gate.json
+          if-no-files-found: error
+          retention-days: 14

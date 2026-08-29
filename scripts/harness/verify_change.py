@@ -8,6 +8,7 @@ import json
 import os
 import shlex
 import signal
+import socket
 import subprocess
 import sys
 import tempfile
@@ -30,16 +31,19 @@ from scripts.harness.task_contract import (
     TaskContract,
     combine_checks,
     contract_evidence,
+    discover_task_contract,
     extend_impact,
+    load_manual_evidence,
     load_task_contract,
     manual_check_entries,
+    manual_evidence_from_cli,
     task_checks,
-    validate_contract_branch,
+    validate_contract_ref,
 )
 
 
-SCHEMA_VERSION = 3
-RUNNER_VERSION = "3.0"
+SCHEMA_VERSION = 4
+RUNNER_VERSION = "4.0"
 GITHUB_ENVIRONMENT_KEYS = (
     "GITHUB_ACTIONS",
     "GITHUB_JOB",
@@ -104,13 +108,39 @@ def parse_args() -> argparse.Namespace:
         help="repository-relative JSON verification contract for the implementation task",
     )
     parser.add_argument(
+        "--task-id",
+        help="discover exactly one repository contract for TASK-NNN",
+    )
+    parser.add_argument(
+        "--source-ref",
+        help="task source ref used to validate a detached CI checkout",
+    )
+    parser.add_argument(
+        "--manual-evidence",
+        help="repository-relative JSON provenance for required manual checks",
+    )
+    parser.add_argument(
         "--confirm-manual",
         action="append",
         default=[],
         metavar="CHECK_ID",
         help="confirm one required manual check from --task-contract; repeat as needed",
     )
+    parser.add_argument("--manual-actor", help="actor for CLI manual confirmations")
+    parser.add_argument("--manual-note", help="note for CLI manual confirmations")
+    parser.add_argument(
+        "--manual-artifact",
+        action="append",
+        default=[],
+        help="artifact reference for CLI manual confirmations; repeat as needed",
+    )
     return parser.parse_args()
+
+
+def reserve_local_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        listener.bind(("127.0.0.1", 0))
+        return int(listener.getsockname()[1])
 
 
 def changed_paths(base: str, *, root: Path = ROOT) -> list[str]:
@@ -386,11 +416,20 @@ def main() -> int:
     if args.area and args.profile != "full":
         print("--area is supported only with --profile full", file=sys.stderr)
         return 2
-    if args.confirm_manual and not args.task_contract:
-        print("--confirm-manual requires --task-contract", file=sys.stderr)
+    if args.task_id and args.task_contract:
+        print("--task-id and --task-contract are mutually exclusive", file=sys.stderr)
         return 2
-    if args.confirm_manual and args.dry_run:
-        print("--confirm-manual is not accepted with --dry-run", file=sys.stderr)
+    if args.confirm_manual and not (args.task_id or args.task_contract):
+        print("--confirm-manual requires a task contract", file=sys.stderr)
+        return 2
+    if args.confirm_manual and (not args.manual_actor or not args.manual_note):
+        print(
+            "--confirm-manual requires --manual-actor and --manual-note",
+            file=sys.stderr,
+        )
+        return 2
+    if args.confirm_manual and args.manual_evidence:
+        print("CLI confirmations and --manual-evidence are mutually exclusive", file=sys.stderr)
         return 2
 
     try:
@@ -402,10 +441,37 @@ def main() -> int:
 
     git_context = collect_git_context(args.base, root=ROOT)
     contract: TaskContract | None = None
+    manual_evidence = None
     try:
-        if args.task_contract:
-            contract = load_task_contract(Path(args.task_contract), root=ROOT)
-            validate_contract_branch(contract, git_context.branch)
+        contract_path: Path | None = None
+        if args.task_id:
+            contract_path = discover_task_contract(args.task_id, root=ROOT)
+        elif args.task_contract:
+            contract_path = Path(args.task_contract)
+        if contract_path is not None:
+            contract = load_task_contract(contract_path, root=ROOT)
+            if args.task_id and contract.task_id != args.task_id:
+                raise ContractError(
+                    f"discovered contract task_id {contract.task_id} does not match {args.task_id}"
+                )
+            validate_contract_ref(
+                contract,
+                branch=git_context.branch,
+                source_ref=args.source_ref,
+            )
+            evidence_path = args.manual_evidence or contract.manual_evidence
+            if evidence_path:
+                manual_evidence = load_manual_evidence(
+                    Path(evidence_path), contract=contract, root=ROOT
+                )
+            elif args.confirm_manual:
+                manual_evidence = manual_evidence_from_cli(
+                    contract=contract,
+                    confirmed=args.confirm_manual,
+                    actor=args.manual_actor,
+                    note=args.manual_note,
+                    artifacts=args.manual_artifact,
+                )
     except (ContractError, OSError, UnicodeError) as error:
         print(error, file=sys.stderr)
         return 2
@@ -430,9 +496,7 @@ def main() -> int:
         extra_checks = task_checks(contract) if contract is not None else []
         checks = combine_checks(canonical_checks, extra_checks)
         manual_entries = (
-            manual_check_entries(
-                contract, set(args.confirm_manual), dry_run=args.dry_run
-            )
+            manual_check_entries(contract, manual_evidence, dry_run=args.dry_run)
             if contract is not None
             else []
         )
@@ -449,6 +513,15 @@ def main() -> int:
     )
 
     report_path = _report_path(args.report)
+    e2e_port = None
+    if contract is not None and contract.playwright and not args.dry_run:
+        configured_e2e_port = os.environ.get("E2E_PORT")
+        e2e_port = (
+            int(configured_e2e_port)
+            if configured_e2e_port is not None
+            else reserve_local_port()
+        )
+        os.environ["E2E_PORT"] = str(e2e_port)
     task_check_ids = {check.identifier for check in extra_checks}
     report: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -469,6 +542,9 @@ def main() -> int:
             if contract is not None
             else None
         ),
+        "task_id": contract.task_id if contract is not None else None,
+        "source_ref": args.source_ref,
+        "e2e_port": e2e_port,
         "github": github_environment(),
         "tool_versions": collect_tool_versions(checks),
         "changes": [asdict(change) for change in changes],

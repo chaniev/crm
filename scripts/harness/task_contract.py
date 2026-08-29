@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
 
@@ -25,6 +26,8 @@ TOP_LEVEL_KEYS = {
     "playwright",
     "runtime_smoke",
     "manual_checks",
+    "manual_evidence",
+    "runtime_stack",
 }
 MAX_CONTRACT_BYTES = 256 * 1024
 
@@ -51,9 +54,45 @@ class RuntimeSmokeSpec:
 
 
 @dataclass(frozen=True)
+class RuntimeProbeSpec:
+    identifier: str
+    command: tuple[str, ...]
+    timeout_seconds: float
+
+
+@dataclass(frozen=True)
+class RuntimeStackSpec:
+    compose_file: str
+    env_file: str
+    services: tuple[str, ...]
+    startup_timeout_seconds: float
+    cleanup_timeout_seconds: float
+    readiness: tuple[RuntimeProbeSpec, ...]
+    smoke: tuple[RuntimeProbeSpec, ...]
+
+
+@dataclass(frozen=True)
 class ManualCheckSpec:
     identifier: str
     description: str
+
+
+@dataclass(frozen=True)
+class ManualConfirmation:
+    identifier: str
+    actor: str
+    performed_at: str
+    note: str
+    artifacts: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ManualEvidence:
+    path: Path
+    relative_path: str
+    task_id: str
+    confirmations: tuple[ManualConfirmation, ...]
+    sha256: str
 
 
 @dataclass(frozen=True)
@@ -65,7 +104,9 @@ class TaskContract:
     areas: frozenset[str]
     playwright: tuple[PlaywrightSpec, ...]
     runtime_smoke: tuple[RuntimeSmokeSpec, ...]
+    runtime_stack: RuntimeStackSpec | None
     manual_checks: tuple[ManualCheckSpec, ...]
+    manual_evidence: str | None
     content: str
     data: dict[str, Any]
     sha256: str
@@ -76,6 +117,8 @@ class TaskContract:
         if self.playwright:
             areas.add("frontend")
         areas.update(check.area for check in self.runtime_smoke)
+        if self.runtime_stack is not None:
+            areas.add("deploy")
         return areas
 
 
@@ -148,6 +191,15 @@ def _relative_path(value: Any, location: str) -> str:
     return pure.as_posix()
 
 
+def _artifact_paths(value: Any, location: str) -> tuple[str, ...]:
+    paths = _string_list(value, location)
+    if not paths:
+        raise _fail(location, "must contain at least one artifact")
+    return tuple(
+        _relative_path(path, f"{location}[]") for path in paths
+    )
+
+
 def _resolve_contract_path(path: Path, root: Path) -> tuple[Path, str]:
     root = root.resolve()
     resolved = path if path.is_absolute() else root / path
@@ -163,6 +215,30 @@ def _resolve_contract_path(path: Path, root: Path) -> tuple[Path, str]:
     if resolved.suffix != ".json":
         raise ContractError("task contract must use the .json extension")
     return resolved, relative
+
+
+def discover_task_contract(task_id: str, *, root: Path) -> Path:
+    if not TASK_ID_PATTERN.fullmatch(task_id):
+        raise ContractError("task ID must match TASK-NNN")
+    candidates: list[Path] = []
+    for directory in (root / "backlog" / "implementation", root / "backlog" / "done"):
+        if directory.is_dir():
+            candidates.extend(
+                path
+                for path in directory.glob(f"{task_id}-*verification-contract.json")
+                if path.is_file()
+            )
+    candidates = sorted({path.resolve() for path in candidates})
+    if not candidates:
+        raise ContractError(f"no verification contract found for {task_id}")
+    if len(candidates) > 1:
+        rendered = ", ".join(
+            path.relative_to(root.resolve()).as_posix() for path in candidates
+        )
+        raise ContractError(
+            f"multiple verification contracts found for {task_id}: {rendered}"
+        )
+    return candidates[0]
 
 
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -212,7 +288,9 @@ def load_task_contract(path: Path, *, root: Path) -> TaskContract:
         raise _fail(relative, f"unknown areas: {', '.join(sorted(unknown_areas))}")
 
     playwright_specs: list[PlaywrightSpec] = []
-    for index, raw in enumerate(_objects(data.get("playwright"), f"{relative}.playwright")):
+    for index, raw in enumerate(
+        _objects(data.get("playwright"), f"{relative}.playwright")
+    ):
         location = f"{relative}.playwright[{index}]"
         raw = _mapping(
             raw,
@@ -302,10 +380,108 @@ def load_task_contract(path: Path, *, root: Path) -> TaskContract:
             )
         )
 
+    runtime_stack: RuntimeStackSpec | None = None
+    if data.get("runtime_stack") is not None:
+        location = f"{relative}.runtime_stack"
+        raw_stack = _mapping(
+            data["runtime_stack"],
+            location,
+            {
+                "compose_file",
+                "env_file",
+                "services",
+                "startup_timeout_seconds",
+                "cleanup_timeout_seconds",
+                "readiness",
+                "smoke",
+            },
+        )
+        compose_file = _relative_path(
+            raw_stack.get("compose_file"), f"{location}.compose_file"
+        )
+        env_file = _relative_path(
+            raw_stack.get("env_file"), f"{location}.env_file"
+        )
+        for field_name, file_path in (
+            ("compose_file", compose_file),
+            ("env_file", env_file),
+        ):
+            if not (root / file_path).is_file():
+                raise _fail(
+                    f"{location}.{field_name}", f"does not exist: {file_path}"
+                )
+        services = _string_list(
+            raw_stack.get("services"), f"{location}.services"
+        )
+        if not services:
+            raise _fail(f"{location}.services", "must not be empty")
+        for service in services:
+            if not PROJECT_PATTERN.fullmatch(service):
+                raise _fail(
+                    f"{location}.services", f"invalid service {service!r}"
+                )
+
+        def probes(field_name: str) -> tuple[RuntimeProbeSpec, ...]:
+            result: list[RuntimeProbeSpec] = []
+            for index, raw_probe in enumerate(
+                _objects(raw_stack.get(field_name), f"{location}.{field_name}")
+            ):
+                probe_location = f"{location}.{field_name}[{index}]"
+                raw_probe = _mapping(
+                    raw_probe,
+                    probe_location,
+                    {"id", "command", "timeout_seconds"},
+                )
+                command = _string_list(
+                    raw_probe.get("command"),
+                    f"{probe_location}.command",
+                    unique=False,
+                )
+                if not command:
+                    raise _fail(f"{probe_location}.command", "must not be empty")
+                result.append(
+                    RuntimeProbeSpec(
+                        identifier=_identifier(
+                            raw_probe.get("id"), f"{probe_location}.id"
+                        ),
+                        command=command,
+                        timeout_seconds=_timeout(
+                            raw_probe.get("timeout_seconds"),
+                            f"{probe_location}.timeout_seconds",
+                            120,
+                        ),
+                    )
+                )
+            return tuple(result)
+
+        readiness = probes("readiness")
+        smoke = probes("smoke")
+        if not readiness or not smoke:
+            raise _fail(location, "readiness and smoke must both contain checks")
+        runtime_stack = RuntimeStackSpec(
+            compose_file=compose_file,
+            env_file=env_file,
+            services=services,
+            startup_timeout_seconds=_timeout(
+                raw_stack.get("startup_timeout_seconds"),
+                f"{location}.startup_timeout_seconds",
+                1800,
+            ),
+            cleanup_timeout_seconds=_timeout(
+                raw_stack.get("cleanup_timeout_seconds"),
+                f"{location}.cleanup_timeout_seconds",
+                180,
+            ),
+            readiness=readiness,
+            smoke=smoke,
+        )
+
     identifiers = [
         *(item.identifier for item in playwright_specs),
         *(item.identifier for item in runtime_specs),
         *(item.identifier for item in manual_specs),
+        *(item.identifier for item in (runtime_stack.readiness if runtime_stack else ())),
+        *(item.identifier for item in (runtime_stack.smoke if runtime_stack else ())),
     ]
     duplicates = sorted(
         identifier for identifier in set(identifiers) if identifiers.count(identifier) > 1
@@ -321,14 +497,36 @@ def load_task_contract(path: Path, *, root: Path) -> TaskContract:
         areas=frozenset(area_values),
         playwright=tuple(playwright_specs),
         runtime_smoke=tuple(runtime_specs),
+        runtime_stack=runtime_stack,
         manual_checks=tuple(manual_specs),
+        manual_evidence=(
+            _relative_path(data.get("manual_evidence"), f"{relative}.manual_evidence")
+            if data.get("manual_evidence") is not None
+            else None
+        ),
         content=content,
         data=data,
         sha256=hashlib.sha256(content.encode("utf-8")).hexdigest(),
     )
 
 
-def validate_contract_branch(contract: TaskContract, branch: str) -> None:
+def validate_contract_ref(
+    contract: TaskContract, *, branch: str, source_ref: str | None
+) -> None:
+    if branch == contract.expected_branch:
+        if source_ref is not None and source_ref != contract.expected_branch:
+            raise ContractError(
+                f"stale task contract {contract.relative_path}: source ref "
+                f"{source_ref!r} does not match {contract.expected_branch!r}"
+            )
+        return
+    if branch == "DETACHED" and source_ref == contract.expected_branch:
+        return
+    if branch == "DETACHED":
+        raise ContractError(
+            f"stale task contract {contract.relative_path}: source ref "
+            f"{source_ref!r} does not match {contract.expected_branch!r}"
+        )
     if branch != contract.expected_branch:
         raise ContractError(
             f"stale task contract {contract.relative_path}: expects branch "
@@ -347,7 +545,18 @@ def extend_impact(impact: ChangeImpact, contract: TaskContract) -> ChangeImpact:
 
 
 def task_checks(contract: TaskContract) -> list[CheckSpec]:
-    checks = [
+    checks: list[CheckSpec] = []
+    if contract.playwright:
+        checks.append(
+            CheckSpec(
+                "frontend.playwright.install",
+                "frontend",
+                ("npm", "run", "test:e2e:install"),
+                "frontend",
+                1200,
+            )
+        )
+    checks.extend(
         CheckSpec(
             item.identifier,
             "frontend",
@@ -363,7 +572,7 @@ def task_checks(contract: TaskContract) -> list[CheckSpec]:
             item.timeout_seconds,
         )
         for item in contract.playwright
-    ]
+    )
     checks.extend(
         CheckSpec(
             item.identifier,
@@ -374,6 +583,30 @@ def task_checks(contract: TaskContract) -> list[CheckSpec]:
         )
         for item in contract.runtime_smoke
     )
+    if contract.runtime_stack is not None:
+        total_timeout = (
+            contract.runtime_stack.startup_timeout_seconds
+            + contract.runtime_stack.cleanup_timeout_seconds
+            + sum(item.timeout_seconds for item in contract.runtime_stack.readiness)
+            + sum(item.timeout_seconds for item in contract.runtime_stack.smoke)
+            + 60
+        )
+        checks.append(
+            CheckSpec(
+                "runtime.stack",
+                "deploy",
+                (
+                    "python3",
+                    "scripts/harness/runtime_stack.py",
+                    "--task-contract",
+                    contract.relative_path,
+                    "--report",
+                    f".artifacts/verification/{contract.task_id}-runtime.json",
+                ),
+                ".",
+                total_timeout,
+            )
+        )
     return checks
 
 
@@ -397,15 +630,126 @@ def combine_checks(
     return combined
 
 
-def manual_check_entries(
-    contract: TaskContract, confirmed: set[str], *, dry_run: bool
-) -> list[dict[str, str]]:
+def load_manual_evidence(
+    path: Path, *, contract: TaskContract, root: Path
+) -> ManualEvidence:
+    resolved, relative = _resolve_contract_path(path, root)
+    content = resolved.read_text(encoding="utf-8")
+    try:
+        parsed = json.loads(content, object_pairs_hook=_unique_object)
+    except json.JSONDecodeError as error:
+        raise ContractError(
+            f"invalid JSON in manual evidence {relative}: {error.msg}"
+        ) from error
+    data = _mapping(parsed, relative, {"version", "task_id", "confirmations"})
+    if data.get("version") != 1:
+        raise _fail(relative, "version must be 1")
+    task_id = _string(data.get("task_id"), f"{relative}.task_id")
+    if task_id != contract.task_id:
+        raise _fail(relative, f"task_id must be {contract.task_id}")
+    confirmations: list[ManualConfirmation] = []
     known = {item.identifier for item in contract.manual_checks}
-    unknown = confirmed.difference(known)
+    for index, raw in enumerate(
+        _objects(data.get("confirmations"), f"{relative}.confirmations")
+    ):
+        location = f"{relative}.confirmations[{index}]"
+        raw = _mapping(
+            raw, location, {"id", "actor", "performed_at", "note", "artifacts"}
+        )
+        identifier = _identifier(raw.get("id"), f"{location}.id")
+        if identifier not in known:
+            raise _fail(location, f"unknown manual check {identifier}")
+        performed_at = _string(raw.get("performed_at"), f"{location}.performed_at")
+        try:
+            parsed_time = datetime.fromisoformat(performed_at.replace("Z", "+00:00"))
+        except ValueError as error:
+            raise _fail(
+                f"{location}.performed_at", "must be an ISO-8601 timestamp"
+            ) from error
+        if parsed_time.tzinfo is None:
+            raise _fail(f"{location}.performed_at", "must include a timezone")
+        confirmations.append(
+            ManualConfirmation(
+                identifier=identifier,
+                actor=_string(raw.get("actor"), f"{location}.actor"),
+                performed_at=performed_at,
+                note=_string(raw.get("note"), f"{location}.note"),
+                artifacts=_artifact_paths(
+                    raw.get("artifacts", []), f"{location}.artifacts"
+                ),
+            )
+        )
+    identifiers = [item.identifier for item in confirmations]
+    if len(identifiers) != len(set(identifiers)):
+        raise _fail(relative, "contains duplicate manual confirmations")
+    return ManualEvidence(
+        path=resolved,
+        relative_path=relative,
+        task_id=task_id,
+        confirmations=tuple(confirmations),
+        sha256=hashlib.sha256(content.encode("utf-8")).hexdigest(),
+    )
+
+
+def manual_evidence_from_cli(
+    *,
+    contract: TaskContract,
+    confirmed: list[str],
+    actor: str,
+    note: str,
+    artifacts: list[str],
+) -> ManualEvidence:
+    known = {item.identifier for item in contract.manual_checks}
+    unknown = set(confirmed).difference(known)
     if unknown:
         raise ContractError(
             f"unknown manual check confirmations: {', '.join(sorted(unknown))}"
         )
+    performed_at = datetime.now(timezone.utc).isoformat()
+    confirmations = tuple(
+        ManualConfirmation(
+            identifier=identifier,
+            actor=_string(actor, "manual actor"),
+            performed_at=performed_at,
+            note=_string(note, "manual note"),
+            artifacts=_artifact_paths(artifacts, "manual artifacts"),
+        )
+        for identifier in confirmed
+    )
+    serialized = json.dumps(
+        {
+            "task_id": contract.task_id,
+            "confirmations": [
+                {
+                    "id": item.identifier,
+                    "actor": item.actor,
+                    "performed_at": item.performed_at,
+                    "note": item.note,
+                    "artifacts": list(item.artifacts),
+                }
+                for item in confirmations
+            ],
+        },
+        sort_keys=True,
+    )
+    return ManualEvidence(
+        path=Path("<cli>"),
+        relative_path="<cli>",
+        task_id=contract.task_id,
+        confirmations=confirmations,
+        sha256=hashlib.sha256(serialized.encode("utf-8")).hexdigest(),
+    )
+
+
+def manual_check_entries(
+    contract: TaskContract,
+    evidence: ManualEvidence | None,
+    *,
+    dry_run: bool,
+) -> list[dict[str, Any]]:
+    confirmed = {
+        item.identifier: item for item in evidence.confirmations
+    } if evidence is not None else {}
     return [
         {
             "id": item.identifier,
@@ -416,6 +760,18 @@ def manual_check_entries(
                 else "confirmed"
                 if item.identifier in confirmed
                 else "not_confirmed"
+            ),
+            **(
+                {
+                    "actor": confirmed[item.identifier].actor,
+                    "performed_at": confirmed[item.identifier].performed_at,
+                    "note": confirmed[item.identifier].note,
+                    "artifacts": list(confirmed[item.identifier].artifacts),
+                    "evidence_path": evidence.relative_path,
+                    "evidence_sha256": evidence.sha256,
+                }
+                if item.identifier in confirmed and evidence is not None
+                else {}
             ),
         }
         for item in contract.manual_checks
