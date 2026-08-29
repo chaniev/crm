@@ -19,16 +19,30 @@ Backend is the source of truth for CRM domain behavior.
 
 ## Backend ownership
 
-Backend owns:
+Backend owns the CRM behavior listed in the root rules plus transaction
+boundaries and public/internal transport contracts. Consumers present those
+decisions without reimplementing them.
 
-- permissions and access scope
-- membership and attendance state transitions
-- audit and validation semantics
-- persistence consistency and transaction boundaries
-- public Staff API and internal Bot API contracts
-- ProblemDetails and field-error contracts
+### Shared contract boundaries
 
-Consumers may present backend decisions but must not reimplement them.
+Treat these paths as Staff API contract boundaries whose changes require
+frontend impact analysis and consumer validation:
+
+- `src/GymCrm.Api/**/*Request.cs`
+- `src/GymCrm.Api/**/*Response.cs`
+- `src/GymCrm.Api/**/*Endpoints.cs`
+- `src/GymCrm.Api/**/*Contracts.cs`
+- `src/GymCrm.Api/**/*ProblemDetails*.cs`
+- `src/GymCrm.Api/**/*ValidationProblems*.cs`
+- `src/GymCrm.Application/Authorization/**/*Contracts.cs`
+- `src/GymCrm.Application/Messenger/**/*Contracts.cs`
+- `src/GymCrm.Application/Reports/**/*Contracts.cs`
+
+`src/GymCrm.Application/Bot/**` and
+`src/GymCrm.Api/Auth/BotInternal*` are Internal Bot API boundaries and require
+bot consumer validation. When a new application-layer shared-contract location
+is introduced, update this list and `scripts/harness/change_impact.py` tests in
+the same task.
 
 ---
 
@@ -100,18 +114,12 @@ When creating or substantially restructuring xUnit tests:
 
 ## Required validation
 
-Run from the repository root.
+Use the root verification harness. Its canonical backend area must restore
+locked dependencies, verify formatting, build Release with warnings as errors,
+run tests, and audit direct and transitive NuGet dependencies. Command
+definitions live only in `scripts/harness/commands.py`.
 
-Minimum:
-
-- `dotnet format backend/GymCrm.slnx --no-restore --verify-no-changes`
-- `dotnet build backend/GymCrm.slnx --configuration Release --no-restore -warnaserror`
-- `dotnet test backend/GymCrm.slnx --configuration Release --no-build`
-- `dotnet list backend/GymCrm.slnx package --vulnerable --include-transitive`
-
-Run `dotnet restore backend/GymCrm.slnx` before these checks when dependencies
-are unavailable or project/package references changed. Do not suppress NuGet
-audit warnings to make validation green.
+Do not suppress NuGet audit warnings to make validation green.
 
 If infrastructure, migrations, or runtime configuration changed, also validate
 the affected Docker/runtime path. Schema changes must include the migration
@@ -135,14 +143,14 @@ the behavior. Leave formatting and analyzer enforcement to required validation.
 
 ---
 
-## Preferred specialists
+## Preferred capabilities
 
-Default:
+When available, prefer:
 
 - dotnet-backend-specialist
-
-Additional:
-
 - refactoring-specialist
 - test-automator
 - docker-expert
+
+The required backend outcomes and validation do not depend on a particular
+agent topology.

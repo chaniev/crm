@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "task_id": "TASK-141",
+  "expected_branch": "refactor/TASK-141-agent-instructions-quality",
+  "areas": ["harness"]
+}

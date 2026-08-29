@@ -17,20 +17,6 @@ Deploy owns local and server-oriented runtime composition for the CRM stack.
 
 ---
 
-## Deploy ownership
-
-Deploy owns:
-
-- Docker Compose service wiring and startup order
-- runtime environment-variable mapping
-- exposed ports, internal service names, and named volumes
-- healthcheck and shutdown contracts
-- local/server Compose parity
-- image build/export/load scripts
-- operational documentation alignment
-
----
-
 ## Runtime and secret rules
 
 - Store secrets only in untracked runtime environment files or an approved
@@ -86,35 +72,19 @@ isolation rules.
 
 ## Docker rules
 
-Prefer:
-
-- explicit dependencies with health conditions
-- stable internal service names
-- named volumes for persisted state
-- least necessary published ports
-- env defaults aligned with `.env.example`
-- explicit signal handling and sufficient shutdown grace periods
-
-Avoid:
-
-- business rules in runtime configuration
-- hardcoded credentials or functional secrets in tracked files
-- hidden host dependencies
-- publishing databases by default
-- floating runtime differences between local and server Compose files
-- cleanup commands whose Compose project or volume ownership is unresolved
+Use explicit health-conditioned dependencies, stable service names, named
+volumes, least necessary published ports, `.env.example`-aligned defaults, and
+explicit shutdown handling. Reject business rules or secrets in configuration,
+hidden host dependencies, default database publication, unexplained Compose
+drift, and cleanup with unresolved resource ownership.
 
 ---
 
 ## Required validation
 
-Run from the repository root.
-
-Minimum:
-
-- `docker compose --project-directory . --env-file deploy/.env.example -f deploy/docker-compose.yml config --quiet`
-- `docker compose --project-directory . --env-file deploy/.env.example -f deploy/docker-compose.server.yml config --quiet`
-- `bash -n deploy/build-images.sh deploy/export-images.sh deploy/load-images.sh deploy/lib/images.sh`
+Use the root verification harness. Its canonical deploy area must validate both
+Compose configurations and deployment shell syntax. Command definitions live
+only in `scripts/harness/commands.py`.
 
 If service wiring changes, validate affected startup, readiness, shutdown, one
 representative dependency failure, and the documented recovery path.
@@ -140,14 +110,14 @@ Prefer the smallest operable fix with a clear validation and rollback path.
 
 ---
 
-## Preferred specialists
+## Preferred capabilities
 
-Default:
+When available, prefer:
 
 - docker-expert
-
-Additional:
-
 - dotnet-backend-specialist
 - react-specialist
 - python-pro
+
+The required deployment outcomes and validation do not depend on a particular
+agent topology.

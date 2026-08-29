@@ -27,10 +27,20 @@ class CommandMatrixTests(unittest.TestCase):
         )
 
     def test_requirements_base_is_forwarded_to_validator(self) -> None:
-        [check] = checks_for({"requirements"}, base="base-sha")
+        checks = checks_for({"requirements"}, base="base-sha")
+        check = next(
+            item for item in checks if item.identifier == "requirements.registry"
+        )
         self.assertEqual(
             ("python3", "scripts/validate_requirements.py", "--base", "base-sha"),
             check.command,
+        )
+
+    def test_requirements_validate_agent_instructions_before_registry(self) -> None:
+        checks = checks_for({"requirements"})
+        self.assertEqual(
+            ["requirements.agent-instructions", "requirements.registry"],
+            [check.identifier for check in checks],
         )
 
 

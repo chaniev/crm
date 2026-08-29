@@ -15,6 +15,36 @@ ALL_AREAS = (
     "deploy",
 )
 
+SCOPED_AGENT_AREAS = {
+    "backend/AGENTS.md": ("backend",),
+    "frontend/AGENTS.md": ("frontend",),
+    "bot/AGENTS.md": ("bot",),
+    "deploy/AGENTS.md": ("deploy",),
+    "backlog/AGENTS.md": (),
+}
+
+SCOPED_SKILL_AREAS = {
+    ".agents/skills/codex-backlog-skill/": (),
+    ".agents/skills/tasks-ready-to-implementation/": (),
+    ".agents/skills/csharp-xunit/": ("backend",),
+    ".agents/skills/crm-mobile-first-ui/": ("frontend",),
+    ".agents/skills/design-first-ui-prompting/": ("frontend",),
+    ".agents/skills/react-best-practices/": ("frontend",),
+    ".agents/skills/web-design-guidelines/": ("frontend",),
+}
+
+CROSS_CUTTING_SKILL_PREFIXES = (
+    ".agents/skills/deploy-project/",
+    ".agents/skills/implement-release-plan/",
+    ".agents/skills/task-worktree/",
+)
+
+STAFF_APPLICATION_CONTRACT_PREFIXES = (
+    "backend/src/GymCrm.Application/Authorization/",
+    "backend/src/GymCrm.Application/Messenger/",
+    "backend/src/GymCrm.Application/Reports/",
+)
+
 
 @dataclass
 class ChangeImpact:
@@ -42,12 +72,28 @@ def _is_dockerfile(path: str) -> bool:
 
 
 def _is_staff_api_boundary(path: str) -> bool:
-    if not path.startswith("backend/src/GymCrm.Api/"):
-        return False
     name = PurePosixPath(path).name
-    return name.endswith(("Request.cs", "Response.cs", "Endpoints.cs")) or any(
-        marker in name for marker in ("Contracts", "ProblemDetails", "ValidationProblems")
+    if path.startswith("backend/src/GymCrm.Api/"):
+        return name.endswith(("Request.cs", "Response.cs", "Endpoints.cs")) or any(
+            marker in name
+            for marker in ("Contracts", "ProblemDetails", "ValidationProblems")
+        )
+    return path.startswith(STAFF_APPLICATION_CONTRACT_PREFIXES) and name.endswith(
+        "Contracts.cs"
     )
+
+
+def _is_internal_bot_api_boundary(path: str) -> bool:
+    return path.startswith("backend/src/GymCrm.Application/Bot/") or path.startswith(
+        "backend/src/GymCrm.Api/Auth/BotInternal"
+    )
+
+
+def _add_scoped_infrastructure(
+    impact: ChangeImpact, path: str, areas: tuple[str, ...]
+) -> None:
+    for area in areas:
+        impact.add(area, f"scoped agent infrastructure changed: {path}")
 
 
 def analyze_paths(paths: list[str], *, full: bool = False) -> ChangeImpact:
@@ -63,8 +109,32 @@ def analyze_paths(paths: list[str], *, full: bool = False) -> ChangeImpact:
     for raw_path in paths:
         path = _normalize(raw_path)
 
+        if path == "AGENTS.md":
+            impact.add_full_baseline(f"root agent instructions changed: {path}")
+            continue
+
+        if path in SCOPED_AGENT_AREAS:
+            _add_scoped_infrastructure(impact, path, SCOPED_AGENT_AREAS[path])
+            continue
+
+        if path.startswith(CROSS_CUTTING_SKILL_PREFIXES):
+            impact.add_full_baseline(f"cross-cutting skill changed: {path}")
+            continue
+
+        matched_skill = next(
+            (prefix for prefix in SCOPED_SKILL_AREAS if path.startswith(prefix)),
+            None,
+        )
+        if matched_skill is not None:
+            _add_scoped_infrastructure(impact, path, SCOPED_SKILL_AREAS[matched_skill])
+            continue
+
+        if path.startswith("scripts/harness/tests/"):
+            impact.add("harness", f"verification harness tests changed: {path}")
+            continue
+
         if path.startswith("scripts/harness/"):
-            impact.add("harness", f"verification harness changed: {path}")
+            impact.add_full_baseline(f"verification harness changed: {path}")
             continue
 
         if path == "scripts/validate_requirements.py":
@@ -73,9 +143,7 @@ def analyze_paths(paths: list[str], *, full: bool = False) -> ChangeImpact:
 
         if path.startswith("backend/") or path == "global.json":
             impact.add("backend", f"backend-owned path changed: {path}")
-            if path.startswith("backend/src/GymCrm.Application/Bot/") or (
-                path.startswith("backend/src/GymCrm.Api/Auth/BotInternal")
-            ):
+            if _is_internal_bot_api_boundary(path):
                 impact.add("bot", f"Internal Bot API boundary changed: {path}")
             elif _is_staff_api_boundary(path):
                 impact.add("frontend", f"Staff API boundary changed: {path}")
@@ -108,8 +176,7 @@ def analyze_paths(paths: list[str], *, full: bool = False) -> ChangeImpact:
             continue
 
         if (
-            path == "AGENTS.md"
-            or path.endswith("/AGENTS.md")
+            path.endswith("/AGENTS.md")
             or path.startswith(".agents/")
             or path.startswith(".github/")
             or path.startswith("scripts/")

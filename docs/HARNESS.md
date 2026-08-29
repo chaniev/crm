@@ -10,6 +10,13 @@ The runner does not replace the nearest `AGENTS.md`. It makes the existing
 validation baseline executable and uses a full fallback when it cannot classify
 an infrastructure path safely.
 
+`scripts/harness/commands.py` is the single source of canonical command
+definitions. `AGENTS.md` files describe required outcomes and additional
+scenario coverage without duplicating those commands. The requirements area
+runs `scripts/harness/validate_agent_instructions.py` for every change to
+validate instruction routing, repository references, command ownership,
+task-contract guidance, and instruction-chain size.
+
 ## Local use
 
 Run from the repository root inside the task worktree:
@@ -204,7 +211,8 @@ python3 scripts/harness/verify_change.py \
 | Changed boundary | Selected areas |
 |---|---|
 | Repository knowledge or backlog | requirements |
-| Harness implementation | requirements, harness |
+| Harness tests | requirements, harness |
+| Harness implementation or command matrix | full baseline |
 | Backend implementation | requirements, backend |
 | Staff API request/response/endpoint contract | requirements, backend, frontend |
 | Internal Bot API contract | requirements, backend, bot |
@@ -212,10 +220,18 @@ python3 scripts/harness/verify_change.py \
 | Bot | requirements, bot |
 | Deploy or Compose | requirements, deploy |
 | Service Dockerfile | owning layer plus deploy |
-| AGENTS, skills, CI, unknown script or unclassified path | full baseline |
+| Root `AGENTS.md`, cross-cutting skill, CI, unknown script or unclassified path | full baseline |
+| Scoped `AGENTS.md` | requirements, owning layer |
+| Backlog-only `AGENTS.md` or skill | requirements |
+| Scoped backend/frontend skill | requirements, owning layer |
 
-The mapping is conservative. Add or change a rule only with a focused unit test
-under `scripts/harness/tests/`.
+Staff API detection includes transport contracts under `GymCrm.Api` plus the
+application contract locations listed in `backend/AGENTS.md`. Internal Bot API
+paths are evaluated first so Bot contracts do not select frontend checks.
+
+The mapping is conservative. Add or change a path or rule only with a focused
+unit test under `scripts/harness/tests/` and keep the owning scoped
+`AGENTS.md` synchronized.
 
 Impact analysis intentionally does not guess individual Playwright specs. For a
 changed user workflow, enumerate the affected desktop and target-iPhone specs

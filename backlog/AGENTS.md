@@ -21,37 +21,20 @@ Backlog files are workflow artifacts, not project-code implementation.
 - `logs/` -> append-only triage, planning, implementation, and status-audit evidence
 - `mockups/` -> backlog-owned visual references linked from tasks
 
-```mermaid
-flowchart TD
-    I["inbox"] --> P["processing"]
-    P --> C["needs-clarification"]
-    P --> R["risky"]
-    P --> T["tasks-ready"]
-    P --> PR["processed source"]
-    C --> T
-    R --> T
-    T --> IP["implementation plan"]
-    T --> IM["implementation"]
-    IP --> IM
-    IM --> D["done"]
-```
-
----
-
 ## Workflow invariants
 
 - Preserve the original source note and traceability when creating or merging tasks.
 - Prevent duplicate active tasks; reconcile against current code, tests, plans,
   and done items before creating a new card.
 - The status recorded in a card must match its status directory.
-- A task with blocking questions does not remain in `tasks-ready/`, `risky/`,
+- A backlog card with blocking questions does not remain in `tasks-ready/`, `risky/`,
   or `implementation/`.
-- A risky task does not move to implementation until its required review and
+- A risky backlog card does not move to implementation until its required review and
   stop conditions are explicit.
-- Every active task contains `## Requirements`. Use concrete `REQ-*` links for
+- Every active backlog card contains `## Requirements`. Use concrete `REQ-*` links for
   product behavior, `none` with a reason for behavior-preserving work, or
   `pending` only in `needs-clarification` while a product decision is missing.
-- A task referencing a requirement with decision `предложено` does not move to
+- A backlog card referencing a requirement with decision `предложено` does not move to
   `tasks-ready` or `implementation`.
 - Creating a plan does not imply that implementation has started.
 - Moving a completed task to `done/` also moves its completed plan there.

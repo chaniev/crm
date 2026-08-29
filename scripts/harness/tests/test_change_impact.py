@@ -30,6 +30,27 @@ class ChangeImpactTests(unittest.TestCase):
             {"requirements", "backend", "frontend"},
         )
 
+    def test_application_authorization_contract_adds_frontend_consumer(self) -> None:
+        self.assert_areas(
+            [
+                "backend/src/GymCrm.Application/Authorization/"
+                "AdministratorAttendanceGroupGrantContracts.cs"
+            ],
+            {"requirements", "backend", "frontend"},
+        )
+
+    def test_application_messenger_contract_adds_frontend_consumer(self) -> None:
+        self.assert_areas(
+            ["backend/src/GymCrm.Application/Messenger/ClientMessengerContracts.cs"],
+            {"requirements", "backend", "frontend"},
+        )
+
+    def test_application_report_contract_adds_frontend_consumer(self) -> None:
+        self.assert_areas(
+            ["backend/src/GymCrm.Application/Reports/FinancialReportContracts.cs"],
+            {"requirements", "backend", "frontend"},
+        )
+
     def test_bot_api_boundary_adds_bot_consumer_only(self) -> None:
         self.assert_areas(
             ["backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs"],
@@ -48,11 +69,38 @@ class ChangeImpactTests(unittest.TestCase):
             {"requirements", "deploy"},
         )
 
-    def test_harness_change_runs_harness_tests(self) -> None:
+    def test_harness_implementation_change_runs_full_baseline(self) -> None:
         self.assert_areas(
             ["scripts/harness/verify_change.py"],
-            {"requirements", "harness"},
+            set(ALL_AREAS),
         )
+
+    def test_scoped_agent_file_selects_owning_layer(self) -> None:
+        self.assert_areas(
+            ["frontend/AGENTS.md"],
+            {"requirements", "frontend"},
+        )
+
+    def test_backlog_agent_file_selects_requirements(self) -> None:
+        self.assert_areas(
+            ["backlog/AGENTS.md"],
+            {"requirements"},
+        )
+
+    def test_scoped_frontend_skill_selects_frontend(self) -> None:
+        self.assert_areas(
+            [".agents/skills/react-best-practices/SKILL.md"],
+            {"requirements", "frontend"},
+        )
+
+    def test_cross_cutting_skill_keeps_full_baseline(self) -> None:
+        self.assert_areas(
+            [".agents/skills/task-worktree/SKILL.md"],
+            set(ALL_AREAS),
+        )
+
+    def test_root_agent_file_keeps_full_baseline(self) -> None:
+        self.assert_areas(["AGENTS.md"], set(ALL_AREAS))
 
     def test_documentation_only_change_stays_lightweight(self) -> None:
         self.assert_areas(["docs/HARNESS.md"], {"requirements"})

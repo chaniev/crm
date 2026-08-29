@@ -32,12 +32,16 @@ and narrow-screen usability.
 For a new screen or materially changed workflow:
 
 1. Read `.agents/skills/crm-mobile-first-ui/SKILL.md` completely.
-2. Have `ux-researcher` define the UX contract before design.
-3. Have `ui-designer` convert it into an implementation-ready specification.
+2. Define the UX contract before design; prefer `ux-researcher` when available.
+3. Convert it into an implementation-ready specification; prefer `ui-designer`.
 4. Resolve product uncertainties that change the workflow before implementation.
-5. Have `react-specialist` implement the approved interaction.
-6. Have `test-automator` add regression coverage for the primary mobile workflow.
+5. Implement the approved interaction; prefer `react-specialist`.
+6. Add regression coverage for the primary mobile workflow; prefer `test-automator`.
 7. Verify the result against the approved contract and the skill's acceptance criteria.
+
+These outcomes and their order are mandatory; separate agents are not. When a
+specialist is unavailable or separate delegation is disproportionate, the
+implementing agent owns the same artifacts and review boundaries.
 
 The skill is the single source for target viewport sizes, safe-area,
 compact-height, Safari, software-keyboard, operational-state, and mobile
@@ -80,21 +84,10 @@ interface-compliance audit, read
 
 ## Contract rules
 
-Frontend mirrors and consumes backend contracts; it does not define their CRM
-semantics.
-
-Frontend must not:
-
-- implement backend-owned business rules
-- infer permissions independently of backend responses
-- duplicate backend validation semantics
-- invent fields, states, or error meaning absent from the backend contract
-
-Backend contract changes must update:
-
-- the affected module under `src/lib/api/**`;
-- facade exports in `src/lib/api.ts` when the public frontend API changes;
-- affected screens/components and consumer tests.
+Frontend mirrors backend contracts without defining CRM semantics or inventing
+permissions, validation, fields, states, or error meaning. Backend contract
+changes update the affected `src/lib/api/**` module, public facade exports in
+`src/lib/api.ts`, screens/components, and consumer tests.
 
 ---
 
@@ -120,20 +113,15 @@ Preserve Mantine and Onest. Do not introduce a parallel design system.
 
 ## Required validation
 
-Run from the repository root.
-
-Minimum:
-
-- `cd frontend && npm run check`
-- `cd frontend && npm run audit` when dependencies or `package-lock.json` change
-
-Run `cd frontend && npm ci` first when locked dependencies are unavailable or
-the lockfile changed.
+Use the root verification harness. Its canonical frontend area must perform a
+locked install, dependency audit, lint, type checking, raw-color checks, unit
+tests, and production build. Command definitions live only in
+`scripts/harness/commands.py`.
 
 If a flow or interface changed:
 
 - run affected Playwright tests;
-- run `cd frontend && npm run test:e2e:iphone` for affected target-device flows;
+- include affected target-iPhone Playwright projects in the task verification contract;
 - verify the primary task, one representative failure path, and one
   permission-restricted path;
 - report Safari, browser-chrome, software-keyboard, safe-area, Simulator, and
@@ -161,15 +149,15 @@ enforced by lint, raw-color checks, or the design system.
 
 ---
 
-## Preferred specialists
+## Preferred capabilities
 
-Default:
+When available, prefer:
 
 - react-specialist
-
-Additional:
-
 - ui-designer
 - ux-researcher
 - refactoring-specialist
 - test-automator
+
+The required UX and implementation outcomes do not depend on a particular
+agent topology.

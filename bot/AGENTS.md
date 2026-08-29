@@ -20,17 +20,9 @@ Bot is a thin Telegram adapter over backend APIs.
 
 ## Responsibility boundary
 
-Bot handles:
-
-- Telegram events and presentation
-- dialog/session state
-- adapter-level idempotency orchestration
-- user interaction flow
-- backend response and error presentation
-
-Backend handles permissions, memberships, attendance, validation, access scope,
-and all other CRM business rules. Bot must not infer or persist independent CRM
-truth.
+Bot owns Telegram presentation, dialog/session state, interaction flow, and
+adapter-level idempotency orchestration. It presents backend responses and
+errors but never infers or persists independent CRM truth.
 
 ---
 
@@ -64,18 +56,10 @@ retained bot-storage upgrade path before production use.
 
 ## Required validation
 
-Run from the repository root.
-
-Minimum:
-
-- `cd bot && uv sync --locked --extra dev`
-- `cd bot && uv run --locked --extra dev ruff check .`
-- `cd bot && uv run --locked --extra dev ruff format --check .`
-- `cd bot && uv run --locked --extra dev mypy`
-- `cd bot && uv run --locked --extra dev pytest`
-
-Use `bot/uv.lock` for local, CI, and container dependency installation. Do not
-use an unlocked `pip install` as the normal project workflow.
+Use the root verification harness. Its canonical bot area must use
+`bot/uv.lock` for locked dependency sync, then run lint, format, typing, and
+tests. Command definitions live only in `scripts/harness/commands.py`. Do not
+use an unlocked dependency installation as the normal project workflow.
 
 If runtime, storage, or Docker behavior changes, validate the affected
 container/startup path and one representative failure path.
@@ -98,14 +82,14 @@ implementation coupling.
 
 ---
 
-## Preferred specialists
+## Preferred capabilities
 
-Default:
+When available, prefer:
 
 - python-pro
-
-Additional:
-
 - refactoring-specialist
 - docker-expert
 - test-automator
+
+The required bot outcomes and validation do not depend on a particular agent
+topology.

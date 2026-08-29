@@ -24,6 +24,14 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
     checks: list[CheckSpec] = []
 
     if "requirements" in areas:
+        checks.append(
+            CheckSpec(
+                "requirements.agent-instructions",
+                "requirements",
+                ("python3", "scripts/harness/validate_agent_instructions.py"),
+                timeout_seconds=60,
+            )
+        )
         command = ["python3", "scripts/validate_requirements.py"]
         if base:
             command.extend(("--base", base))

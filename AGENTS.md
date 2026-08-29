@@ -5,40 +5,58 @@
 This file always applies. A nested `AGENTS.md` adds scoped rules and overrides
 this file only when the two conflict.
 
-- Tasks in `backend/` -> read `backend/AGENTS.md`
-- Tasks in `frontend/` -> read `frontend/AGENTS.md`
-- Tasks in `bot/` -> read `bot/AGENTS.md`
-- Tasks in `deploy/` -> read `deploy/AGENTS.md`
-- Tasks in `backlog/` -> read `backlog/AGENTS.md`
+- Work affecting `backend/` -> read `backend/AGENTS.md`
+- Work affecting `frontend/` -> read `frontend/AGENTS.md`
+- Work affecting `bot/` -> read `bot/AGENTS.md`
+- Work affecting `deploy/` -> read `deploy/AGENTS.md`
+- Work affecting `backlog/` -> read `backlog/AGENTS.md`
 
-Paths without a nested file use these repository-wide rules.
+Read every nested file applicable to affected producers and consumers, not
+only the directory where editing starts. A shared-contract change applies to
+the owning backend scope and every affected consumer scope. Paths without a
+nested file use these repository-wide rules.
+
+---
+
+## Terminology and task scope
+
+- **User request**: the current conversational request; it is not automatically
+  a backlog artifact.
+- **Backlog task/card**: a `TASK-NNN` Markdown artifact under `backlog/`.
+- **Implementation task**: authorized project changes performed on a dedicated
+  task branch and worktree, normally linked to a backlog card.
+- **Implementation plan**: a reviewable plan artifact; it does not authorize or
+  imply implementation by itself.
 
 ---
 
 ## Product requirements registry
 
 `docs/requirements/**` is the source of truth for desired product behavior.
-Every task that adds or changes system behavior must reference an existing
-requirement ID (`REQ-*`) from the registry, or add a new requirement card as
-part of the same task. Updating the affected `REQ-*` cards and
-`docs/requirements/CHANGELOG.md` is part of the task's definition of done.
-A task or implementation plan must contain requirements metadata. A task that
-does not change product behavior may use `none` with a concrete reason. A task
-with an unresolved product decision may use `pending` only while it remains in
-`backlog/needs-clarification`. A behavior-changing task is not ready for
-implementation until every referenced requirement has product decision
-`принято`; `предложено` never authorizes implementation. Registry format,
-status model, and change process are defined in `docs/requirements/README.md`.
+Every behavior-changing backlog task references an existing requirement ID
+(`REQ-*`) or adds a requirement card in the same task. Updating affected cards
+and `docs/requirements/CHANGELOG.md` is part of its definition of done.
+
+Every active backlog card and unfinished implementation plan contains
+requirements metadata. Behavior-preserving work may use `none` with a concrete
+reason. An unresolved product decision may use `pending` only in
+`backlog/needs-clarification`. Behavior-changing work is not ready for
+implementation until every referenced requirement has decision `принято`;
+`предложено` never authorizes implementation. Registry format, status model,
+and change process are defined in `docs/requirements/README.md`.
 
 ---
 
 ## Evidence and instruction precedence
 
-For desired behavior, use this order:
+For desired behavior and product decisions, use this order:
 
-1. Explicit user request and the accepted task or implementation plan
-2. Applicable root and nested `AGENTS.md` files
-3. Approved UX or architecture contracts
+1. An explicit user decision in the current request. Record behavior changes
+   in the requirements registry in the same task.
+2. Accepted `REQ-*` cards and the accepted backlog task or implementation plan
+   that relates the work to them.
+3. Approved UX or architecture contracts consistent with accepted requirements.
+4. Applicable root and nested `AGENTS.md` process and engineering invariants.
 
 For current behavior, prefer executable evidence:
 
@@ -47,10 +65,11 @@ For current behavior, prefer executable evidence:
 3. Source code
 4. `docs/*` as supporting context
 
-If the requested outcome conflicts materially with an architecture, security,
-data-retention, or deployment invariant, surface the conflict before changing
-the invariant. Documentation does not override executable behavior unless the
-task explicitly updates that behavior and its validation.
+If sources at the same level conflict, or the requested outcome conflicts with
+an architecture, security, data-retention, or deployment invariant, surface
+the conflict before changing it. Documentation does not override executable
+current behavior unless the task explicitly updates that behavior and its
+validation.
 
 ---
 
@@ -87,14 +106,16 @@ same task or an explicitly approved coordinated dependency.
 
 ---
 
-## Specialist and skill routing
+## Capability and skill routing
 
 - New screens or materially changed workflows follow `frontend/AGENTS.md` and
-  `.agents/skills/crm-mobile-first-ui/SKILL.md`: UX analysis, UI specification,
-  React implementation, and regression coverage are required in that order.
-- Broad structural refactors involve `refactoring-specialist`.
-- Layer-specific specialists and skills are defined in the nearest
-  `AGENTS.md`.
+  `.agents/skills/crm-mobile-first-ui/SKILL.md`. They must produce UX analysis,
+  an implementation-ready UI specification, React implementation, and
+  regression coverage in that order.
+- Broad structural refactors require an explicit refactoring review; use
+  `refactoring-specialist` when that capability is available.
+- Layer-specific preferred capabilities and skills are defined in every
+  applicable nested `AGENTS.md`.
 - Generic skill guidance never overrides applicable repository instructions,
   executable contracts, or backend-owned CRM rules.
 
@@ -115,32 +136,25 @@ Every implementation task uses an isolated task workspace:
 
 - one task -> one dedicated branch
 - one task -> one dedicated Git worktree
-- one worktree -> one coding-agent session
 - one running stack -> one isolated Docker Compose project
 
 Before starting, resuming, or cleaning up implementation work, read and follow
 `.agents/skills/task-worktree/SKILL.md`.
 
-Non-negotiable boundaries:
-
-- The primary repository directory remains on `main` and is used only for
-  coordination and repository administration.
-- Task branches start from current `origin/main` unless an implementation plan
-  declares and the user approves another dependency.
-- A plan-declared branch must be used verbatim.
-- Stop when the branch, worktree, base, ownership of existing changes, or
-  inter-task dependency is ambiguous.
-- Do not mix unrelated fixes, experiments, or refactors into the task.
-- The coordinating agent owns branch, worktree, integration, and cleanup
-  lifecycle. Specialists do not create or remove worktrees unless assigned.
+Keep the primary repository on `main` for coordination only. Use the
+plan-declared branch verbatim; otherwise start from current `origin/main`. Stop
+on ambiguous branch, worktree, base, change ownership, or dependency. The
+coordinating agent owns workspace, integration, and cleanup lifecycle.
 
 ---
 
 ## Validation policy
 
-Run commands from the repository root unless the nearest `AGENTS.md` says
-otherwise. The commands in `.github/workflows/quality.yml` are the CI baseline;
-keep scoped validation instructions synchronized with them.
+Run verification from the repository root. `scripts/harness/commands.py` is the
+single source of canonical command definitions; `.github/workflows/quality.yml`
+invokes that matrix through the harness. Scoped `AGENTS.md` files define
+required outcomes and additional scenario coverage, not duplicate shell
+commands.
 
 Use `python3 scripts/harness/verify_change.py --base origin/main --task-id
 TASK-NNN` as the default local entry point when the task has a verification
@@ -148,15 +162,15 @@ contract; otherwise omit `--task-id`. Use `--dry-run` to inspect the selected
 areas and commands. `docs/HARNESS.md` defines contract discovery, evidence,
 managed runtime lifecycle, and the safe full-baseline fallback.
 
-When an implementation task has a JSON verification contract, pass it through
-`--task-contract`; the contract may add task-specific Playwright, runtime smoke,
-and manual checks but must never reduce the diff-selected baseline. Confirm a
-manual check only after it was actually performed.
+`--task-id` discovers the task contract. `--task-contract` is an explicit-path
+diagnostic alternative; the two options are mutually exclusive. A contract may
+add task-specific Playwright, runtime smoke, and manual checks but never reduce
+the diff-selected baseline. Confirm a manual check only after it was performed.
 
-- Backend changes -> backend format, Release build, dependency audit, and tests
-- Frontend changes -> the canonical frontend check, plus affected Playwright flows
+- Backend changes -> formatting, Release build, dependency audit, and tests
+- Frontend changes -> install/audit/check baseline plus affected Playwright flows
 - Bot changes -> locked dependency sync, lint/format, typing, and tests
-- Deploy/runtime changes -> both Compose configurations and affected service behavior
+- Deploy/runtime changes -> both Compose configurations and affected behavior
 - Contract changes -> all affected producers and consumers
 - Instruction or CI changes -> verify paths, command syntax, and the affected validation entry points
 
