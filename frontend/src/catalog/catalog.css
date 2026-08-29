@@ -182,6 +182,35 @@ body {
   font: var(--crm-type-caption-weight) var(--crm-type-caption-size) / var(--crm-type-caption-line-height) var(--crm-font-family-mono);
 }
 
+.catalog-surface-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.catalog-surface-example {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  color: var(--crm-text-primary);
+}
+
+.catalog-surface-example--list-row {
+  background: var(--crm-surface-list-row);
+  border: 1px solid var(--crm-surface-list-row-border);
+  border-radius: var(--crm-radius-list-row);
+  box-shadow: var(--crm-elevation-list-row);
+}
+
+.catalog-surface-example--focus {
+  background: var(--crm-surface-card);
+  border: 1px solid var(--crm-border-default);
+  border-radius: var(--crm-radius-card);
+  box-shadow: var(--crm-elevation-card);
+}
+
 .catalog-isolated-header,
 .catalog-isolated-mobile-nav,
 .catalog-isolated-shell {
@@ -257,6 +286,11 @@ body {
 }
 
 @media (max-width: 48rem) {
+  .catalog-preview {
+    --crm-radius-card: var(--crm-radius-card-mobile);
+    --crm-radius-inner: var(--crm-radius-inner-mobile);
+  }
+
   .catalog-header,
   .catalog-registry__row {
     grid-template-columns: 1fr;

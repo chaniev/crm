@@ -452,7 +452,7 @@ function UserListCard({
     return (
       <button
         aria-label={`Редактировать тренера «${user.fullName}»`}
-        className="coach-registry-row coach-registry-row--editable list-row-card"
+        className="coach-registry-row coach-registry-row--editable list-row-card crm-list-row-surface"
         data-testid={`user-card-${user.id}`}
         data-trainer-id={user.id}
         onClick={() => onEdit(user.id)}
@@ -469,7 +469,7 @@ function UserListCard({
 
   return (
     <div
-      className="coach-registry-row list-row-card"
+      className="coach-registry-row list-row-card crm-list-row-surface"
       data-testid={`user-card-${user.id}`}
       data-trainer-id={user.id}
     >

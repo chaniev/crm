@@ -606,6 +606,9 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
         if (route.screenTestId === 'audit-screen') {
           await expectAuditListContract(page)
         }
+        if (route.screenTestId === 'users-screen') {
+          await expectTrainerListSurfaceContract(page)
+        }
         if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
           await expectScheduleOverflowContract(page)
         }
@@ -656,6 +659,28 @@ const TASK_107_AUDIT_VIEWPORTS = [
   { label: 'audit-tablet', width: 768, height: 1024 },
   { label: 'audit-desktop', width: 1440, height: 1200 },
 ] as const
+
+const TASK_160_TRAINER_VIEWPORTS = [
+  { label: 'trainer-narrow-360', width: 360, height: 780 },
+  { label: 'trainer-stress-390', width: 390, height: 844 },
+  { label: 'trainer-iphone-air-420', width: 420, height: 912 },
+  { label: 'trainer-iphone-pro-max-440', width: 440, height: 956 },
+  { label: 'trainer-desktop', width: 1440, height: 1200 },
+] as const
+
+for (const viewport of TASK_160_TRAINER_VIEWPORTS) {
+  test.describe(`TASK-160 trainer list-row surface ${viewport.label}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } })
+
+    test('keeps density while resolving list-row and focus radii', async ({ page }) => {
+      await mockApi(page, MANAGEMENT_SESSION)
+      await page.goto('/coaches')
+
+      await expectTrainerListSurfaceContract(page)
+      await expectNoHorizontalScroll(page)
+    })
+  })
+}
 
 for (const viewport of TASK_107_AUDIT_VIEWPORTS) {
   test.describe(`TASK-107 audit required geometry ${viewport.label}`, () => {
@@ -2023,6 +2048,14 @@ async function expectAuditListContract(page: Page) {
       rowHeight: element.getBoundingClientRect().height,
       detailsWidth: detailsRect?.width ?? 0,
       detailsHeight: detailsRect?.height ?? 0,
+      background: style.backgroundColor,
+      borderColor: style.borderTopColor,
+      radius: style.borderTopLeftRadius,
+      shadow: style.boxShadow,
+      surfaceBackground: style.getPropertyValue('--crm-surface-list-row').trim(),
+      surfaceBorder: style.getPropertyValue('--crm-surface-list-row-border').trim(),
+      semanticBackground: style.getPropertyValue('--crm-surface-subtle').trim(),
+      semanticBorder: style.getPropertyValue('--crm-border-muted').trim(),
     }
   })
 
@@ -2037,6 +2070,12 @@ async function expectAuditListContract(page: Page) {
   expect(geometry.descriptionClamp).toBe('2')
   expect(geometry.detailsWidth).toBeGreaterThanOrEqual(44)
   expect(geometry.detailsHeight).toBeGreaterThanOrEqual(44)
+  expect(geometry.radius).toBe('8px')
+  expect(geometry.shadow).toBe('none')
+  expect(geometry.surfaceBackground).toBe(geometry.semanticBackground)
+  expect(geometry.surfaceBorder).toBe(geometry.semanticBorder)
+  expect(geometry.background).not.toBe('rgba(0, 0, 0, 0)')
+  expect(geometry.borderColor).not.toBe('rgba(0, 0, 0, 0)')
   if ((viewport?.width ?? 0) <= 440 && (viewport?.height ?? 0) >= 780) {
     expect(geometry.rowHeight).toBeLessThanOrEqual(128)
   }
@@ -2123,6 +2162,38 @@ async function expectAuditListContract(page: Page) {
   await expect(grid.getByText('Attendance import completed')).toBeVisible()
   await expect(grid.getByText('AttendanceImported')).toBeVisible()
   await expect(grid.getByText('ExternalAttendance')).toBeVisible()
+}
+
+async function expectTrainerListSurfaceContract(page: Page) {
+  const row = page.locator('[data-testid^="user-card-"]').first()
+  await expect(row).toBeVisible()
+  await expect(row).toHaveClass(/\bcrm-list-row-surface\b/)
+
+  const geometry = await row.evaluate((element) => {
+    const style = getComputedStyle(element)
+    const shellStyle = getComputedStyle(document.querySelector('.app-shell')!)
+
+    return {
+      height: element.getBoundingClientRect().height,
+      radius: style.borderTopLeftRadius,
+      shadow: style.boxShadow,
+      surfaceBackground: style.getPropertyValue('--crm-surface-list-row').trim(),
+      surfaceBorder: style.getPropertyValue('--crm-surface-list-row-border').trim(),
+      semanticBackground: style.getPropertyValue('--crm-surface-subtle').trim(),
+      semanticBorder: style.getPropertyValue('--crm-border-muted').trim(),
+      focusRadius: shellStyle.getPropertyValue('--crm-radius-card').trim(),
+      innerRadius: shellStyle.getPropertyValue('--crm-radius-inner').trim(),
+    }
+  })
+  const viewportWidth = page.viewportSize()?.width ?? 0
+
+  expect(geometry.height).toBeGreaterThanOrEqual(64)
+  expect(geometry.radius).toBe('8px')
+  expect(geometry.shadow).toBe('none')
+  expect(geometry.surfaceBackground).toBe(geometry.semanticBackground)
+  expect(geometry.surfaceBorder).toBe(geometry.semanticBorder)
+  expect(geometry.focusRadius).toBe(viewportWidth <= 768 ? '16px' : '24px')
+  expect(geometry.innerRadius).toBe(viewportWidth <= 768 ? '12px' : '20px')
 }
 
 async function expectScheduleOverflowContract(page: Page) {

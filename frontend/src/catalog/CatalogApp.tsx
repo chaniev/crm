@@ -8,6 +8,7 @@ import {
   foundationLayers,
   foundationRadii,
   foundationSpacing,
+  foundationSurfaces,
 } from '../theme/foundations'
 import { themeProfiles } from '../theme/profiles'
 import { semanticToneDefinitions } from '../theme/semanticTones'
@@ -140,6 +141,13 @@ export function CatalogApp({ search = window.location.search }: CatalogAppProps)
             <RegistryList registry={foundationSpacing} />
             <h3>Radii</h3>
             <RegistryList registry={foundationRadii} />
+            <h3>Surfaces</h3>
+            <RegistryList registry={Object.fromEntries(
+              Object.entries(foundationSurfaces).map(([name, definition]) => [
+                name,
+                `${definition.background}; ${definition.border}; radius ${definition.radius}; elevation ${definition.elevation}`,
+              ]),
+            )} />
             <h3>Elevation</h3>
             <RegistryList registry={foundationElevation} />
             <h3>Layers</h3>
@@ -167,6 +175,35 @@ export function CatalogApp({ search = window.location.search }: CatalogAppProps)
                   <span>Съешь ещё этих мягких французских булок · 0123456789</span>
                 </div>
               ))}
+            </div>
+          </section>
+
+          <section
+            aria-label="Surface modes"
+            className="catalog-section"
+            data-testid="catalog-reference-surfaces"
+          >
+            <h2>Surface modes</h2>
+            <p>
+              Строки повторяющихся списков разделяются тоном и тонкой границей без
+              тени. Focus-card сохраняет элевацию для detail, auth и временных или
+              плавающих поверхностей: drawer, modal, sticky bar и floating controls.
+            </p>
+            <div className="catalog-surface-grid">
+              <article
+                className="catalog-surface-example catalog-surface-example--list-row"
+                data-testid="catalog-surface-list-row"
+              >
+                <strong>List row</strong>
+                <span>Повторяющаяся рабочая запись · без тени</span>
+              </article>
+              <article
+                className="catalog-surface-example catalog-surface-example--focus"
+                data-testid="catalog-surface-focus-card"
+              >
+                <strong>Focus card</strong>
+                <span>Detail или временная поверхность · с элевацией</span>
+              </article>
             </div>
           </section>
 

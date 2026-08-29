@@ -59,6 +59,7 @@ export function buildThemeContrastMatrix(profile: ThemeProfile): ThemeContrastRe
   const inverse = variables['--crm-text-inverse']
   const card = variables['--crm-surface-card']
   const page = variables['--crm-surface-page']
+  const listRow = variables['--crm-surface-subtle']
   const primaryForeground = isLightColor(primary[6], 0.2)
     ? semanticBaseColors.textStrong
     : inverse
@@ -67,6 +68,8 @@ export function buildThemeContrastMatrix(profile: ThemeProfile): ThemeContrastRe
     normalText('Text', 'page/secondary', variables['--crm-text-secondary'], page),
     normalText('Text', 'card/primary', variables['--crm-text-primary'], card),
     normalText('Text', 'card/secondary', variables['--crm-text-secondary'], card),
+    normalText('ListRow', 'default/primary', variables['--crm-text-primary'], listRow),
+    normalText('ListRow', 'default/secondary', variables['--crm-text-secondary'], listRow),
     normalText('Button', 'filled/default', primaryForeground, variables['--crm-action-primary']),
     normalText('Button', 'filled/hover', primaryForeground, variables['--crm-action-primary-hover']),
     normalText('Button', 'filled/active', primaryForeground, variables['--crm-action-primary-active']),

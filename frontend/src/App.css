@@ -11,9 +11,15 @@
   --crm-space-page-card-padding-compact-mobile: 0.875rem;
   --crm-space-dense-surface-padding: 0.9rem 1rem;
   --crm-radius-card: 24px;
+  --crm-radius-card-mobile: 16px;
   --crm-radius-inner: 20px;
+  --crm-radius-inner-mobile: 12px;
   --crm-radius-dense-surface: 8px;
   --crm-radius-pill: 999px;
+  --crm-surface-list-row: var(--crm-surface-subtle);
+  --crm-surface-list-row-border: var(--crm-border-muted);
+  --crm-radius-list-row: 8px;
+  --crm-elevation-list-row: none;
   --crm-layer-underlay: -1;
   --crm-layer-base: 1;
   --crm-layer-raised: 2;
@@ -1869,6 +1875,13 @@
   background: var(--crm-surface-card-alpha-90);
 }
 
+.crm-list-row-surface {
+  background: var(--crm-surface-list-row);
+  border-color: var(--crm-surface-list-row-border);
+  border-radius: var(--crm-radius-list-row);
+  box-shadow: var(--crm-elevation-list-row);
+}
+
 .list-row-card,
 .settings-branch-row,
 .settings-branch-details,
@@ -1931,8 +1944,8 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.55rem 0.85rem;
-  border: 1px solid var(--crm-brand-alpha-08);
-  border-radius: var(--dense-surface-radius);
+  border: 1px solid var(--crm-surface-list-row-border);
+  border-radius: var(--crm-radius-list-row);
   color: var(--crm-text-primary);
   font: inherit;
   text-align: left;
@@ -1952,8 +1965,8 @@
 }
 
 .coach-registry-row:not(.coach-registry-row--editable):hover {
-  border-color: var(--crm-brand-alpha-08);
-  background: var(--crm-surface-page-alpha-55);
+  border-color: var(--crm-surface-list-row-border);
+  background: var(--crm-surface-list-row);
 }
 
 .coach-registry-row__identity {
@@ -4353,10 +4366,10 @@
   min-width: 0;
   min-height: 4rem;
   padding: 0.625rem 0.75rem;
-  border: 1px solid var(--crm-brand-alpha-08);
-  border-radius: 0.5rem;
-  background:
-    linear-gradient(135deg, var(--crm-surface-page-alpha-88), var(--crm-surface-card-alpha-96));
+  border: 1px solid var(--crm-surface-list-row-border);
+  border-radius: var(--crm-radius-list-row);
+  background: var(--crm-surface-list-row);
+  box-shadow: var(--crm-elevation-list-row);
 }
 
 .audit-log-cell {
@@ -5115,6 +5128,11 @@
 }
 
 @media (max-width: 48rem) {
+  .app-shell {
+    --crm-radius-card: var(--crm-radius-card-mobile);
+    --crm-radius-inner: var(--crm-radius-inner-mobile);
+  }
+
   .gym-crm-page--auth {
     align-items: start;
     min-height: 100svh;

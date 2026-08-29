@@ -62,6 +62,15 @@ example links to its owning source file. Foundations come directly from
 from `theme/profiles.ts`, tones from `theme/semanticTones.ts`, and Mantine
 defaults from `theme/componentRecipes.ts` through `createGymCrmTheme`.
 
+The surface section is the executable review rule for repeated and elevated
+content. Repeated list rows use `--crm-surface-list-row`,
+`--crm-surface-list-row-border`, `--crm-radius-list-row` and
+`--crm-elevation-list-row` (`none`). `--crm-elevation-card` is reserved for
+detail/auth focus cards and genuinely temporary or floating surfaces such as
+drawers, modals, sticky bars and floating controls. At the shared mobile
+boundary (`max-width: 48rem`), focus-card and inner radii resolve to 16px and
+12px; desktop retains 24px and 20px.
+
 The frontend design-system owner updates catalog examples whenever a stable
 production foundation or shared component contract changes. Final TASK-152
 review compares the runtime export namespace with the inventory test. A new or

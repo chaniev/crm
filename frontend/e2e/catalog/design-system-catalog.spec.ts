@@ -24,6 +24,28 @@ test('renders the audited catalog without accessibility smoke regressions', asyn
   await expect(page.getByTestId('catalog-preview')).toHaveAttribute('data-viewport', viewport)
   await expect(page.getByTestId('catalog-preview')).toHaveAttribute('data-motion', 'reduced')
   await expect(page.locator('[data-catalog-component]')).toHaveCount(sharedComponentInventory.length)
+
+  const listRow = page.getByTestId('catalog-surface-list-row')
+  const focusCard = page.getByTestId('catalog-surface-focus-card')
+  await expect(listRow).toBeVisible()
+  await expect(focusCard).toBeVisible()
+  const surfaces = await page.getByTestId('catalog-reference-surfaces').evaluate((section) => {
+    const listRowElement = section.querySelector<HTMLElement>('[data-testid="catalog-surface-list-row"]')!
+    const focusCardElement = section.querySelector<HTMLElement>('[data-testid="catalog-surface-focus-card"]')!
+    const listRowStyle = getComputedStyle(listRowElement)
+    const focusCardStyle = getComputedStyle(focusCardElement)
+
+    return {
+      listRowRadius: listRowStyle.borderTopLeftRadius,
+      listRowShadow: listRowStyle.boxShadow,
+      focusCardRadius: focusCardStyle.borderTopLeftRadius,
+      focusCardShadow: focusCardStyle.boxShadow,
+    }
+  })
+  expect(surfaces.listRowRadius).toBe('8px')
+  expect(surfaces.listRowShadow).toBe('none')
+  expect(surfaces.focusCardRadius).toBe(testInfo.project.name === 'catalog-1440' ? '24px' : '16px')
+  expect(surfaces.focusCardShadow).not.toBe('none')
   await expect(page.getByRole('alert').first()).toBeVisible()
   await expect(page.getByRole('status').filter({ hasText: 'Обновляем клиентов' })).toBeVisible()
 
