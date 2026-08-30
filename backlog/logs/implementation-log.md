@@ -1786,3 +1786,15 @@
 - planned_in_place: none
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-157-schedule-mobile-density.plan.md, /backlog/implementation-plans/TASK-158-mobile-typography.plan.md, /backlog/implementation-plans/TASK-159-spacing-scale-breakpoints.plan.md, /backlog/implementation-plans/TASK-160-list-row-surfaces.plan.md, /backlog/implementation-plans/TASK-161-mobile-control-recipes.plan.md, /backlog/implementation-plans/TASK-162-forms-sticky-cta.plan.md, /backlog/implementation-plans/TASK-163-attention-density.plan.md, /backlog/implementation-plans/TASK-164-groups-vertical-budget.plan.md
+
+# 2026-08-30 18:50
+- moved: none
+- planned_in_place: TASK-155, TASK-165
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-155-runtime-customer-branding.plan.md, /backlog/implementation-plans/TASK-165-user-facing-text-resources.plan.md
+
+# 2026-08-30 18:51
+- moved: none
+- planned_in_place: TASK-166
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-166-case-insensitive-login.plan.md
