@@ -89,3 +89,4 @@ Hardcoded пользовательские тексты затрудняют с�
 - Created by skill: codex-backlog-skill
 - Duplicate check: completed `REFACTORING_PLAN.md` introduced partial backend/frontend resources but explicitly left residual areas; no active task owns complete cross-layer user-facing text adoption. TASK-150 owns shared component/color migration, not copy resources.
 - Classification: risky because the requested all-layer migration is broad and can alter public error/audit/bot text if implemented without characterization and slice review.
+- 30.08.2026 — user decision: scanner detection ограничена кириллическим видимым copy (названия кнопок, пункты меню, подсказки); текст, вводимый пользователем, не входит. Реализация блокируется до завершения и интеграции TASK-167 и TASK-168 (см. dependencies плана).

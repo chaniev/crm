@@ -28,6 +28,7 @@
 
 ### Out
 - New locale/runtime language switch, copy rewriting, protocol identifiers, telemetry-only messages, tests/fixtures, generated sources and historical production data.
+- Текст, вводимый пользователем, и динамические значения домена; не-кириллический видимый copy не входит в детекцию gate.
 
 ## Implementation slices
 1. Generate the cross-layer candidate inventory and classify every finding with owner/reason. Review duplicates, propagated backend meanings and persisted audit surfaces; record bounded layer/feature slices and stop if the proposed allowlist hides unreviewed user copy.
@@ -78,4 +79,4 @@
 - Stop and split follow-up tasks if review cannot bound a layer/feature slice; do not merge thousands of mechanical moves or suppress the remainder wholesale.
 - Stop if the scanner requires fragile line-number exemptions, regex-only parsing with material false positives, or broad exclusions of production directories.
 - Stop before touching historical audit data, generated migrations, route/action/error codes or callback payloads; those are not resource migration targets.
-- Do not absorb concurrent TASK-167/168 changes or revert their resource additions; rebase the inventory on their integrated result or record a precise ownership dependency.
+- Do not start this task before TASK-167 and TASK-168 are implemented and integrated into `main`; rebase the inventory on their integrated result, absorb their resource additions and do not revert them.
