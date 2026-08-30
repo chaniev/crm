@@ -24,9 +24,9 @@
 - Остальной inventory пользовательских строк (TASK-165), attendance terminology вне кнопки, backend и routing semantics.
 
 ## Implementation slices
-1. Обновить component tests: обе surfaces ожидают exact accessible name `Посещение`, старый button label отсутствует, callback сохраняет `lessonOccurrenceId` и `lessonDate`; получить RED на текущей подписи.
+1. Обновить component tests для occurrence card: exact accessible name `Посещение`, старый button label отсутствует, callback сохраняет `lessonOccurrenceId` и `lessonDate`; получить RED на текущей подписи. Component-обвязка для detail screen не создаётся — её action не покрыт component tests сегодня, подпись проверяется на e2e уровне.
 2. Добавить schedule resource и подключить его к occurrence card и lesson detail action без изменения disabled reason/route behavior.
-3. Обновить schedule Chromium и target-iPhone locators; подтвердить одинаковую подпись на responsive surfaces и прежний переход к точному занятию.
+3. Обновить schedule Chromium и target-iPhone locators; в существующем detail-navigation шаге Chromium flow добавить exact-name assertion для lesson detail action; подтвердить одинаковую подпись на responsive surfaces и прежний переход к точному занятию.
 
 ## Likely files and layers
 - `frontend/src/lib/resources.ts` — единый schedule action resource.
@@ -36,12 +36,13 @@
 
 ## Regression specification
 ### Automated tests to add or update
-- Component: в разрешённой карточке и detail surface кнопка находится по exact name `Посещение`; `Посещаемость` отсутствует именно как button name; disabled reason остаётся неизменным.
+- Component (occurrence card): кнопка находится по exact name `Посещение`; `Посещаемость` отсутствует именно как button name; disabled reason остаётся неизменным.
+- E2E (detail surface): lesson detail action на `schedule-lesson-detail-screen` находится по exact name `Посещение`; отдельная component-обвязка для detail screen не создаётся.
 - Component/navigation: click по новой подписи передаёт прежние `lessonOccurrenceId` и `lessonDate`.
 - Playwright: mobile и desktop schedule card открывают прежний `/attendance/{lessonOccurrenceId}?lessonDate=…`; restricted action остаётся disabled и связан с прежней причиной.
 
 ### Expected red evidence
-- Новые exact-name assertions падают, потому что обе production surfaces ещё показывают `Посещаемость`, а occurrence card переопределяет accessible name через `aria-label`.
+- Component assertions падают на occurrence card, потому что production ещё показывает `Посещаемость` и переопределяет accessible name через `aria-label`; e2e detail assertion падает по той же причине до переименования.
 
 ### Required validation
 - Affected `GroupScheduleScreen` unit tests, Chromium `group-schedule` flow и schedule slices target-iPhone projects.
