@@ -100,6 +100,53 @@ business mapping.
 contract, используй его; иначе не выдумывай task ID. Дополнительно исполни
 affected runtime/migration scenarios из scoped `AGENTS.md`.
 
+### Локальный кеш сборки
+
+До сборки определи стабильный cache root во временной области build host, но
+вне Git repository и вне одноразового release checkout. Например:
+
+```bash
+DEPLOY_BUILD_CACHE_ROOT="${TMPDIR%/}/gym-crm-release-build-cache"
+```
+
+Точный путь может отличаться, но он обязан:
+
+- переиспользоваться следующими release builds на этом build host;
+- не попадать в Git index, Docker build context, release archive или backup;
+- не содержать credentials, private NuGet source secrets или remote `.env`;
+- не удаляться вместе с успешным isolated checkout;
+- иметь контролируемые permissions и проверяемый лимит свободного места.
+
+Используй раздельные cache namespaces как минимум для target platform и
+dependency type, чтобы несовместимые `linux/amd64` и native-host layers не
+смешивались. До сборки:
+
+1. Проверь доступность local Docker/BuildKit cache и уже загруженных base images.
+2. Импортируй сохранённый BuildKit cache; после успешной сборки экспортируй его
+   обратно атомарно, не оставляя частично обновлённый cache как валидный.
+3. Для backend используй persistent NuGet package cache через BuildKit cache
+   mount на `/root/.nuget/packages` либо эквивалентный project-owned mechanism.
+4. Сохраняй восстановленные NuGet packages между сборками; валидность определяют
+   project manifests, resolved dependency graph, package integrity и sources,
+   а не только совпадение имени файла.
+5. Разрешай network fallback: отсутствующий base image, BuildKit layer или NuGet
+   package скачивается из штатного registry/feed, после чего попадает в local
+   cache для последующих сборок.
+6. При повреждении удаляй/перестраивай только подтверждённо невалидную cache
+   entry. Не очищай весь cache и не запускай `--no-cache` как обычный путь.
+
+Если текущий Dockerfile или `deploy/build-images.sh` не позволяют подключить
+external BuildKit/NuGet cache, не подменяй project build ad-hoc командой во время
+релиза. Оформи поддержку кеша как изменение в dedicated task worktree, проверь
+её, интегрируй в target branch, обнови exact target commit и только затем создай
+immutable release checkout.
+
+Кеш является ускорителем, а не источником истины. Даже при полном cache hit
+сохраняются locked restore, dependency audit, image provenance, checksum и
+platform validation. Если кеш отсутствует (включая очистку временной области
+операционной системой), сборка должна корректно скачать зависимости из сети и
+восстановить кеш без изменения release semantics.
+
 Собери image-only release проектными scripts. Для amd64 target типовой вызов:
 
 ```bash

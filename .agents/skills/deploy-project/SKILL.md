@@ -110,6 +110,14 @@ checksums, тесты, backup и внутреннюю реализацию. Ес
   commit. Не выкладывай uncommitted local state.
 - Используй проектные `deploy/build-images.sh`, `export-images.sh`,
   `load-images.sh` и `deploy/docker-compose.server.yml`.
+- Для повторных remote-release сборок используй persistent local build cache
+  вне Git и вне isolated checkout. Сохраняй в нём BuildKit layers/base images и
+  NuGet packages; импортируй кеш до сборки и обновляй после успешной сборки.
+  Не очищай весь кеш как обычный cleanup и не используй `--no-cache` без
+  диагностированной причины.
+- Отсутствующие либо невалидные cache entries скачивай из сети через штатные
+  package/image sources. Cache hit не отменяет lockfile, checksum, dependency
+  audit и target-platform проверки.
 - Сверь server architecture; для известного стенда ожидается `linux/amd64`, но
   проверь это в каждом релизе.
 - До изменений создай проверенный backup БД и persistent file data, сохрани
