@@ -5,11 +5,11 @@
 - requirements: REQ-NFR-007 (implements)
 - branch: refactor/TASK-165-user-facing-text-resources
 - readiness: no — сначала нужен review generated inventory, ownership classifications, slice size and scanner allowlist; mechanical extraction may proceed only after that baseline is accepted
-- dependencies: no blocking product dependency; incorporate completed resource foundations and coordinate with active TASK-167/168 so their owned copy changes are not duplicated or reverted
+- dependencies: заблокирована задачами TASK-167 и TASK-168 — реализация может начаться только после того, как обе задачи реализованы и интегрированы в `main`; inventory и characterization генерируются на их интегрированном результате, чтобы их copy-изменения были поглощены, а не откачены
 - risk: medium — broad cross-layer extraction can accidentally change public ProblemDetails, persisted audit descriptions, Telegram callback contracts or approved visible copy
 
 ## Goal
-Дать каждому статическому user-facing тексту во frontend, backend and bot явного resource-владельца и поставить executable gate, который запрещает новые production literals без маскировки machine-readable contracts под copy.
+Дать каждому статическому кириллическому user-facing тексту во frontend, backend and bot явного resource-владельца и поставить executable gate, который запрещает новые production literals без маскировки machine-readable contracts под copy. Область детекции — видимый на экранах copy: названия кнопок, пункты меню, подсказки и другой статический экранный текст. Текст, вводимый пользователем, не является resource-кандидатом.
 
 ## Decisions and contracts
 - Inventory classifies every candidate as `resource`, `backend-owned propagated text`, `dynamic user/domain value`, `machine contract`, `telemetry-only`, `test fixture` or `persisted historical description`. Only `resource` entries move; visible wording, punctuation, plural/count behavior and public response fields remain byte-for-byte compatible unless an existing characterization intentionally normalizes formatting.
@@ -17,6 +17,7 @@
 - Backend ProblemDetails titles/details, validation/display copy and new audit descriptions use domain/API-owned `.resx` plus focused typed helpers. Error/action/entity codes, routes, field names and serialized enum values remain constants. Existing persisted audit rows are untouched.
 - Bot messages and button labels move to `gym_crm_bot.resources`; callback payloads, command names and protocol identifiers remain machine contracts. Backend error text is mapped or presented according to the current bot contract, not re-authored as independent CRM truth.
 - Add a deterministic source scanner with a versioned narrow allowlist containing `path`, stable literal fingerprint, category, reason and owner/task. Line-number-only suppressions and blanket directory/file exclusions are forbidden. The scanner parses each language with existing toolchain syntax support where available and ignores comments/tests/generated code before classification; raw regex matches are not the enforcement contract.
+- Детекция сканера ограничена кириллическими литералами, которые рендерятся как видимый UI copy — названия кнопок, пункты меню, подсказки и другой статический экранный текст. Текст, вводимый пользователем, и динамические значения не классифицируются как `resource`. Принятый зазор: не-кириллический (английский) видимый copy не попадает под gate; при миграции он сохраняется byte-for-byte, если уже затронут срезом.
 - The guard fails on a newly introduced representative visible literal while accepting explicit fixtures for route/code/callback/telemetry categories. Missing required resource keys fail tests/build; production logic does not contain a hidden fallback sentence.
 - Store a reviewed machine-readable inventory/allowlist and a short ownership document. If the initial inventory cannot be reviewed safely in one change-set, this task first lands the gate and classification baseline, then creates bounded follow-up tasks per layer/feature; it does not conceal unchecked residuals behind a broad allowlist.
 
