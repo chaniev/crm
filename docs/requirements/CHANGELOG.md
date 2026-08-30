@@ -26,11 +26,11 @@
   [TASK-166](../../backlog/risky/TASK-166-case-insensitive-login.md)).
 - 30.08.2026 — REQ-GRP-007 — нормативная подпись schedule action изменена с
   `Посещаемость` на `Посещение`; реализация переведена в «частично» (задача
-  [TASK-167](../../backlog/tasks-ready/TASK-167-schedule-attendance-label.md)).
+  [TASK-167](../../backlog/implementation/TASK-167-schedule-attendance-label.md)).
 - 30.08.2026 — REQ-ATT-006 — принят task-first landing `/attendance` со
   списком занятий на сегодня, быстрым входом и счётчиком `Не отмечено`;
   реализация переведена в «частично» (задача
-  [TASK-168](../../backlog/tasks-ready/TASK-168-attendance-today-worklist.md)).
+  [TASK-168](../../backlog/implementation/TASK-168-attendance-today-worklist.md)).
 - 30.08.2026 — REQ-GRP-007 — TASK-157 интегрирована в `main`;
   mobile-density contract покрыт component/Chromium/target-iPhone WebKit
   evidence, реализация переведена в «реализовано» (задача

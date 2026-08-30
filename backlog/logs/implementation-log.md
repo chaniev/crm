@@ -1,3 +1,9 @@
+# 2026-08-30 18:43
+- moved: TASK-167, TASK-168
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-167-schedule-attendance-label.plan.md, /backlog/implementation-plans/TASK-168-attendance-today-worklist.plan.md
+
 # 2026-08-19 22:49
 
 ## Moved to implementation

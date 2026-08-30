@@ -1,7 +1,13 @@
 # TASK-168: Наполнить раздел «Посещения» занятиями на сегодня
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-30 18:43 MSK
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-168-attendance-today-worklist.plan.md
+- implementation_branch: feature/TASK-168-attendance-today-worklist
 
 ## Requirements
 - REQ-ATT-006 — changes

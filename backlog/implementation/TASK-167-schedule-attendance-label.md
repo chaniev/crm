@@ -1,7 +1,13 @@
 # TASK-167: Переименовать действие расписания в «Посещение»
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-30 18:43 MSK
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-167-schedule-attendance-label.plan.md
+- implementation_branch: feature/TASK-167-schedule-attendance-label
 
 ## Requirements
 - REQ-GRP-007 — changes
