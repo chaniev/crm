@@ -3457,3 +3457,34 @@
 - updated existing: 0
 - processed files: 1
 - source notes deleted: 0
+
+# 2026-08-30 TASK-169 clarification resolution
+
+## Product decisions
+
+- `стартовый экран` means the unauthenticated auth screen.
+- The login button is the reported mismatch, while every auth-screen color role
+  must consume the design system rather than a local palette.
+- Auth background and primary action are customer-specific runtime branding.
+
+## Status and duplicate resolution
+
+- TASK-169 clarification criteria are complete; the card moved from
+  `needs-clarification` to `done` without project-code implementation.
+- Its implementation scope and source traceability were merged into risky
+  TASK-155, the existing owner of REQ-NFR-005 runtime customer branding.
+- No parallel auth-theme implementation task was created.
+
+## Requirements updates
+
+- Accepted REQ-NFR-005 now explicitly requires all auth-screen colors to use
+  semantic design-system roles while preserving TASK-155 ownership of
+  customer-specific auth background and primary action.
+- `docs/requirements/CHANGELOG.md` records the clarification; implementation
+  remains `частично` and owned by TASK-155.
+
+## Validation
+
+- Validate requirement references, active-task metadata and status/directory
+  consistency after moving TASK-169.
+- Project code and runtime were not changed.

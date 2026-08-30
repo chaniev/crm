@@ -17,7 +17,10 @@ CRM после деплоя.
 TASK-148 принял расширенную customer-branding boundary. Текущая реализация
 TASK-090 выбирает только заранее собранные frontend profiles по opaque ID и
 использует invariant neutral/auth colors, поэтому она реализует новую редакцию
-REQ-NFR-005 лишь частично.
+REQ-NFR-005 лишь частично. Уточнение TASK-169 закрепило auth-экран как
+целевую surface: все его цвета должны исходить из semantic roles
+дизайн-системы, а фон и primary action — поддерживать customer-specific
+branding.
 
 ## User role
 Оператор deployment; Главный тренер, Супер-администратор и Администратор в
@@ -40,7 +43,10 @@ action не следует customer primary color, neutral foundation неизм
   изменениям branding.
 - Передавать frontend только нормализованный safe branding contract без
   произвольных CSS/style rules.
-- Строить auth primary action из customer primary color.
+- Привести все цветовые роли auth-экрана к semantic tokens
+  дизайн-системы без изменения layout, typography и functional semantics.
+- Строить auth background и primary action из валидированных customer
+  branding roles.
 - Применять customer-specific neutral surfaces/text/borders с contrast gate.
 - Сохранить deterministic fallback на bundled defaults для unknown, invalid,
   incomplete или broken configuration.
@@ -67,7 +73,10 @@ action не следует customer primary color, neutral foundation неизм
 - [ ] Новый валидный customer profile вводится при деплое без frontend release.
 - [ ] Branding можно прочитать и изменить в CRM только через backend-permitted settings flow.
 - [ ] Каждое изменение branding валидируется и записывается в audit log.
-- [ ] Auth primary action использует customer primary color.
+- [ ] Все цветовые роли auth-экрана получаются из semantic tokens
+  дизайн-системы; локальной палитры экрана нет.
+- [ ] Auth background и primary action используют соответствующие
+  customer-specific branding roles.
 - [ ] Customer-specific neutral roles применяются без contrast/accessibility regression.
 - [ ] Functional status meaning и status colors не переназначаются.
 - [ ] Unknown, invalid, incomplete и broken configuration дают bundled defaults и не блокируют login.
@@ -77,7 +86,8 @@ action не следует customer primary color, neutral foundation неизм
 ## Test checklist
 - [ ] Backend contract/authorization/validation/audit tests для settings mutations.
 - [ ] Persistence migration tests для clean bootstrap и retained database.
-- [ ] Frontend unit tests для runtime schema, auth action, neutral roles и fallback.
+- [ ] Frontend unit tests для runtime schema, semantic auth roles, auth background,
+  primary action, neutral roles и fallback.
 - [ ] Playwright для deploy baseline, post-deploy edit, reload, invalid config и login fallback.
 - [ ] Contrast matrix для primary action и customer-specific neutrals.
 - [ ] Проверить обе Compose-конфигурации и documented deployment inputs.
@@ -99,6 +109,9 @@ ownership существующих active theme tasks.
   allowed; initial branding is configured at deployment; post-deploy branding
   is configured in CRM; unknown/broken config falls back to bundled defaults.
 - Parent decision: TASK-148.
+- Merged clarification: TASK-169; on 2026-08-30 the product owner identified
+  the auth screen, its login button and the whole screen color system as the
+  target, with customer-specific auth background and primary action.
 
 ## Processing notes
 - Created at: 2026-08-29 17:13 MSK.
@@ -108,4 +121,5 @@ ownership существующих active theme tasks.
   runtime settings, neutral/auth expansion, persistence or authorization.
 - Classification: risky because deployment, database, authorization, audit and
   auth availability require a coordinated reviewed implementation plan.
-
+- Clarification merge at: 2026-08-30; TASK-169 was resolved into this existing
+  implementation owner rather than creating a parallel auth-theme task.

@@ -1,10 +1,15 @@
 # TASK-169: Уточнить цветовую схему стартового экрана
 
 ## Status
-needs-clarification
+done
 
 ## Requirements
-- pending — нужно определить целевой экран, semantic color roles и границу с runtime customer branding TASK-155
+- REQ-NFR-005 — clarifies; implementation remains owned by TASK-155
+
+## Completion
+- clarified_at: 2026-08-30
+- resolution: merged into `/backlog/risky/TASK-155-runtime-customer-branding.md`
+- implementation: not performed by this clarification task
 
 ## Goal
 Зафиксировать, какой экран и какие цветовые роли должны быть приведены к
@@ -19,7 +24,7 @@ role-specific landing sections (`/attendance` и `/attention`). Активная
 TASK-142/TASK-147 закрепили contrast/theme contracts.
 
 ## User role
-Неизвестно; зависит от целевого экрана.
+Все неаутентифицированные пользователи экрана авторизации.
 
 ## Problem
 Без идентификации экрана, проблемных элементов и ожидаемых semantic roles
@@ -44,11 +49,15 @@ Codex должен угадать визуальную цель либо соз�
 - Если речь об auth customer colors, ownership не дублирует TASK-155.
 
 ## Acceptance criteria
-- [ ] Точный экран и route однозначно определены.
-- [ ] Перечислены элементы и semantic tokens, которые должны измениться.
-- [ ] Зафиксирована граница bundled design system и runtime customer branding.
-- [ ] Есть current/proposed visual evidence или проверяемое текстовое описание.
-- [ ] После уточнения определены requirement links и безопасный implementation scope.
+- [x] Целевая surface однозначно определена как экран авторизации.
+- [x] Проблемный элемент — кнопка входа; весь экран должен
+  использовать semantic color roles дизайн-системы.
+- [x] Auth background и primary action определяются customer-specific
+  branding; functional colors, layout и typography не меняются.
+- [x] Проверяемое текстовое описание зафиксировано в REQ-NFR-005 и
+  TASK-155; макет для решения о color-role ownership не требуется.
+- [x] Requirement link и implementation scope определены; реализацией
+  владеет risky TASK-155.
 
 ## Test checklist
 - [ ] После уточнения определить contrast, component и visual regression matrix.
@@ -60,10 +69,8 @@ Codex должен угадать визуальную цель либо соз�
 - Reason: неоднозначный экран и возможное пересечение с runtime branding могут привести к конфликтующим theme contracts.
 
 ## Clarification questions
-- [ ] Под «стартовым экраном» имеется в виду экран авторизации, `/attendance`, `/attention` или другой route?
-- [ ] Какие конкретно элементы сейчас выбиваются из дизайн-системы и чем?
-- [ ] Нужна bundled палитра для всех клиентов или customer-specific colors из TASK-155?
-- [ ] Есть ли скриншот/макет целевого состояния либо достаточно применить существующие semantic tokens без изменения layout?
+Все блокирующие вопросы закрыты решениями product owner от
+2026-08-30; детали implementation ведёт TASK-155.
 
 ## Source notes
 - Source file: `backlog/processed/2026-08-30.md`
@@ -74,3 +81,8 @@ Codex должен угадать визуальную цель либо соз�
 - Created by skill: codex-backlog-skill
 - Duplicate check: possible overlap with active TASK-155 and completed TASK-142/TASK-147; exact target is unclear, so a separate clarification card is required by the skill instead of an assumed merge.
 - Classification: needs-clarification because the target screen, affected roles and expected palette are not identifiable from the note.
+- Resolved at: 2026-08-30 from direct product-owner answers: auth screen;
+  login button is the observed problem; every screen color must follow the design
+  system; auth background and primary action are customer-specific.
+- Resolution: clarification goal completed and merged into TASK-155, which
+  already owns the accepted REQ-NFR-005 runtime/customer-branding behavior.
