@@ -11,6 +11,21 @@
 
 ## 2026-08-30
 
+- 30.08.2026 — REQ-NFR-007 — новая принятая карточка обязательного
+  layer-owned resource contract для всех user-facing статических текстов;
+  реализация отмечена «частично» (задача
+  [TASK-165](../../backlog/risky/TASK-165-user-facing-text-resources.md)).
+- 30.08.2026 — REQ-USR-002, REQ-USR-003 — login identity и вход приняты
+  регистронезависимыми; реализация переведена в «частично» до безопасного
+  uniqueness/retained-database barrier (задача
+  [TASK-166](../../backlog/risky/TASK-166-case-insensitive-login.md)).
+- 30.08.2026 — REQ-GRP-007 — нормативная подпись schedule action изменена с
+  `Посещаемость` на `Посещение`; реализация переведена в «частично» (задача
+  [TASK-167](../../backlog/tasks-ready/TASK-167-schedule-attendance-label.md)).
+- 30.08.2026 — REQ-ATT-006 — принят task-first landing `/attendance` со
+  списком занятий на сегодня, быстрым входом и счётчиком `Не отмечено`;
+  реализация переведена в «частично» (задача
+  [TASK-168](../../backlog/tasks-ready/TASK-168-attendance-today-worklist.md)).
 - 30.08.2026 — REQ-GRP-007 — TASK-157 интегрирована в `main`;
   mobile-density contract покрыт component/Chromium/target-iPhone WebKit
   evidence, реализация переведена в «реализовано» (задача

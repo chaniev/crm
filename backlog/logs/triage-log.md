@@ -3346,3 +3346,114 @@
 - created tasks: 7
 - updated existing tasks: 2
 - processed inbox files: 0
+
+# 2026-08-30 18:11 status audit
+
+## Baseline and scope
+
+- Audit completed in the current coordination workspace before reading or
+  moving any inbox file; no branch, worktree or Docker Compose project was
+  created or switched for the audit.
+- Integrated baseline: local `main` and `origin/main` both resolve to
+  `5b60edaabfe9e33012507f518a530b259b658456` (`новое требование`,
+  2026-08-30 18:08:11 +03:00).
+- Reviewed active cards in `tasks-ready`, `risky`, `needs-clarification` and
+  `implementation`, the unfinished TASK-131 plan, current Git history,
+  branches/worktrees, requirements registry and explicit unresolved questions.
+- Project code and runtime were not changed.
+
+## Evidence and status changes
+
+- Status changes: none. No active card has sufficient integrated evidence for
+  every goal and acceptance criterion to move to `done`.
+- TASK-131 remains `implementation` with its linked unfinished plan. Focused
+  group-type regression coverage required by the card is not present on the
+  baseline, no `feature/TASK-131-schedule-group-type-filter-regression` branch
+  or task worktree exists, and no matching integration commit was found.
+- Unchanged `tasks-ready`: TASK-002, TASK-004, TASK-005, TASK-006, TASK-008,
+  TASK-018, TASK-019, TASK-021.
+- Unchanged `risky`: TASK-007, TASK-011, TASK-012, TASK-013, TASK-016,
+  TASK-020, TASK-121, TASK-132, TASK-150, TASK-154, TASK-155.
+- Unchanged `needs-clarification`: TASK-009, TASK-014, TASK-058, TASK-071,
+  TASK-074, TASK-156; their blocking questions remain unresolved.
+- Unchanged `implementation`: TASK-131.
+
+## Consistency checks
+
+- Status values agree with all four active directories; active TASK IDs are
+  unique.
+- TASK-131 plan metadata points to the existing implementation card and uses
+  the same REQ-GRP-005 requirement and declared branch.
+- All active cards and the unfinished plan contain requirements metadata; all
+  referenced REQ IDs exist, `pending` is limited to
+  `needs-clarification`, and no proposed requirement enters ready or
+  implementation workflow.
+- Completed artifacts were not reopened or moved without acceptance evidence.
+
+## Counts before inbox triage
+
+- tasks-ready: 8
+- risky: 11
+- needs-clarification: 6
+- implementation: 1
+- unfinished implementation plans: 1
+- status changes: 0
+
+## Validation
+
+- `python3 scripts/validate_requirements.py` passed: 57 requirement cards,
+  26 active tasks, 1 active plan.
+- `python3 scripts/validate_requirements.py --base origin/main` passed with the
+  same counts.
+- `git diff --check` passed before inbox processing.
+
+# 2026-08-30 18:11 inbox triage
+
+## Processed inbox files
+
+- `2026-08-30.md` → `/backlog/processed/2026-08-30.md`
+
+## Created tasks
+
+- `/backlog/risky/TASK-165-user-facing-text-resources.md`
+- `/backlog/risky/TASK-166-case-insensitive-login.md`
+- `/backlog/tasks-ready/TASK-167-schedule-attendance-label.md`
+- `/backlog/tasks-ready/TASK-168-attendance-today-worklist.md`
+- `/backlog/needs-clarification/TASK-169-start-screen-colors.md`
+
+## Updated existing tasks
+
+- none
+
+## Requirements updates
+
+- Added accepted `REQ-NFR-007` for layer-owned user-facing text resources;
+  implementation is `частично` and owned by TASK-165.
+- Updated accepted `REQ-USR-002` and `REQ-USR-003` for case-insensitive login
+  identity; implementation is `частично` and owned by risky TASK-166.
+- Updated accepted `REQ-GRP-007` with the `Посещение` schedule action label;
+  implementation is `частично` and owned by TASK-167.
+- Updated accepted `REQ-ATT-006` with the approved option-2 today worklist,
+  quick entry and unmarked counter; implementation is `частично` and owned by
+  TASK-168.
+- `docs/requirements/CHANGELOG.md` records all four normative changes.
+
+## Skipped duplicates
+
+- No duplicate task was skipped.
+- TASK-165 is a follow-up to the partial resource adoption recorded in the
+  completed refactoring plan and does not duplicate TASK-150 component/color
+  migration.
+- TASK-168 does not duplicate completed TASK-103/TASK-104: they own the route
+  and workbench, while TASK-168 owns the newly accepted today-lessons landing.
+- TASK-169 records the possible TASK-155 overlap explicitly because the source
+  does not identify whether `стартовый экран` is auth, attendance or attention.
+
+## Summary
+
+- tasks-ready created: 2
+- risky created: 2
+- needs-clarification created: 1
+- updated existing: 0
+- processed files: 1
+- source notes deleted: 0
