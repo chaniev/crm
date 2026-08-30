@@ -87,6 +87,25 @@ Backend owns CRM business logic, including:
 Frontend and bot consume backend decisions. They must not independently derive
 or duplicate CRM domain rules.
 
+## Architecture decision workflow
+
+Use `.agents/skills/architecture-decision/SKILL.md` before implementing a
+significant, costly-to-reverse technical choice involving layer ownership,
+shared contracts, data or migration strategy, security boundaries, deployment
+topology, foundational technology, or a broad structural refactor. Routine
+local choices that follow existing contracts do not require an ADR.
+
+Product behavior is decided through accepted `REQ-*` cards, not ADRs. An agent
+may draft a `Proposed` ADR, but only an explicit user decision or named human
+owner may mark it `Accepted`. Record decisions under `docs/architecture/adr/`
+and link an applicable ADR from the implementation plan rather than duplicating
+its contents.
+
+For a cross-layer decision, obtain evidence from every affected producer and
+consumer scope. Broad structural refactors also require an explicit
+refactoring review; use `refactoring-specialist` when that capability is
+available.
+
 ---
 
 ## Cross-layer change impact

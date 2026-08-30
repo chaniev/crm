@@ -99,6 +99,12 @@ class ChangeImpactTests(unittest.TestCase):
             set(ALL_AREAS),
         )
 
+    def test_architecture_decision_skill_keeps_full_baseline(self) -> None:
+        self.assert_areas(
+            [".agents/skills/architecture-decision/SKILL.md"],
+            set(ALL_AREAS),
+        )
+
     def test_root_agent_file_keeps_full_baseline(self) -> None:
         self.assert_areas(["AGENTS.md"], set(ALL_AREAS))
 

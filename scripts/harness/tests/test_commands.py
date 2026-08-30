@@ -39,7 +39,11 @@ class CommandMatrixTests(unittest.TestCase):
     def test_requirements_validate_agent_instructions_before_registry(self) -> None:
         checks = checks_for({"requirements"})
         self.assertEqual(
-            ["requirements.agent-instructions", "requirements.registry"],
+            [
+                "requirements.agent-instructions",
+                "requirements.architecture-decisions",
+                "requirements.registry",
+            ],
             [check.identifier for check in checks],
         )
 

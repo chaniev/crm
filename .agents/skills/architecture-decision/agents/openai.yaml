@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Decision"
+  short_description: "Compare architecture options and draft a CRM ADR"
+  default_prompt: "Use $architecture-decision to compare the viable technical options and draft a reviewable CRM ADR."

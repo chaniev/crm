@@ -34,6 +34,7 @@ SCOPED_SKILL_AREAS = {
 }
 
 CROSS_CUTTING_SKILL_PREFIXES = (
+    ".agents/skills/architecture-decision/",
     ".agents/skills/deploy-project/",
     ".agents/skills/implement-release-plan/",
     ".agents/skills/task-worktree/",

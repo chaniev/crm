@@ -16,6 +16,9 @@ scenario coverage without duplicating those commands. The requirements area
 runs `scripts/harness/validate_agent_instructions.py` for every change to
 validate instruction routing, repository references, command ownership,
 task-contract guidance, and instruction-chain size.
+It also runs `scripts/harness/validate_architecture_decisions.py` to validate
+ADR naming, required sections, status and approval syntax, supersession
+targets, and links to known `REQ-*` cards.
 
 ## Local use
 
@@ -239,6 +242,12 @@ paths are evaluated first so Bot contracts do not select frontend checks.
 The mapping is conservative. Add or change a path or rule only with a focused
 unit test under `scripts/harness/tests/` and keep the owning scoped
 `AGENTS.md` synchronized.
+
+The cross-cutting skill set includes
+`.agents/skills/architecture-decision/`. Changes to that workflow select the
+full baseline because they can alter decisions across every producer and
+consumer layer. ADR documents themselves are repository knowledge and select
+the requirements area, which includes ADR validation.
 
 Impact analysis intentionally does not guess individual Playwright specs. For a
 changed user workflow, enumerate the affected desktop and target-iPhone specs

@@ -32,6 +32,14 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                 timeout_seconds=60,
             )
         )
+        checks.append(
+            CheckSpec(
+                "requirements.architecture-decisions",
+                "requirements",
+                ("python3", "scripts/harness/validate_architecture_decisions.py"),
+                timeout_seconds=60,
+            )
+        )
         command = ["python3", "scripts/validate_requirements.py"]
         if base:
             command.extend(("--base", base))
