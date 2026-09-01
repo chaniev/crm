@@ -11,6 +11,10 @@
 
 ## 2026-09-01
 
+- 01.09.2026 — REQ-GRP-007 — TASK-167 реализовала единую resource-backed
+  подпись schedule action `Посещение`; реализация требования
+  переведена в «реализовано» (задача
+  [TASK-167](../../backlog/done/TASK-167-schedule-attendance-label.md)).
 - 01.09.2026 — REQ-ATT-006 — today worklist уточнён до action-only
   занятий с `unmarkedClientCount > 0`; закреплены исключённые
   состояния, порядок, partial-result и правила актуализации (уточнение
@@ -41,7 +45,7 @@
   [TASK-166](../../backlog/risky/TASK-166-case-insensitive-login.md)).
 - 30.08.2026 — REQ-GRP-007 — нормативная подпись schedule action изменена с
   `Посещаемость` на `Посещение`; реализация переведена в «частично» (задача
-  [TASK-167](../../backlog/implementation/TASK-167-schedule-attendance-label.md)).
+  [TASK-167](../../backlog/done/TASK-167-schedule-attendance-label.md)).
 - 30.08.2026 — REQ-ATT-006 — принят task-first landing `/attendance` со
   списком занятий на сегодня, быстрым входом и счётчиком `Не отмечено`;
   реализация переведена в «частично» (задача

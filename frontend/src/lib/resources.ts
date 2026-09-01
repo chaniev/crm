@@ -25,6 +25,11 @@ export const resources = {
     emptyTitle: 'Никому не требуется внимание',
     emptyDescription: 'Нет клиентов с повторными пропусками или вопросами по абонементам.',
   },
+  schedule: {
+    actions: {
+      attendance: 'Посещение',
+    },
+  },
   users: {
     roles: {
       HeadCoach: 'Главный тренер',

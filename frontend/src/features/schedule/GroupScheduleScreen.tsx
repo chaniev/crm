@@ -57,6 +57,7 @@ import {
   type ScheduleWarning,
   type UserRole,
 } from '../../lib/api'
+import { resources } from '../../lib/resources'
 import {
   EmptyState,
   ErrorState,
@@ -2371,7 +2372,6 @@ function ScheduleOccurrenceCard({
           {lesson.hasAttendanceMarks ? 'Отметки есть' : 'Без отметок'}
         </Badge>
         <Button
-          aria-label={`Открыть посещаемость: ${accessibleContext}`}
           aria-describedby={attendanceReason ? attendanceReasonId : undefined}
           className="schedule-occurrence-card__attendance"
           disabled={!attendanceAllowed}
@@ -2380,7 +2380,7 @@ function ScheduleOccurrenceCard({
           type="button"
           variant="light"
         >
-          Посещаемость
+          {resources.schedule.actions.attendance}
         </Button>
         {lesson.allowedActions.edit.allowed && useDesktopRowActions ? (
           <Button
