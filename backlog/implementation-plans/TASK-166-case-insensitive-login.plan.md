@@ -13,7 +13,7 @@
 
 ## Decisions and contracts
 - Ввести единый backend `LoginIdentity` contract: после существующего trim вычислять deterministic invariant normalized key без изменения сохранённого канонического `User.Login`. Authentication, create validation, bootstrap, seed/upsert и persistence используют только этот contract для identity comparison.
-- Хранить нормализованный ключ отдельно от отображаемого `Login`; lookup выполняется по ключу и остаётся индексируемым. PostgreSQL unique index на ключ является окончательным concurrency barrier, а application validation возвращает прежнюю field-level ошибку для обычного case-only duplicate.
+- Хранить нормализованный ключ отдельно от отображаемого `Login`; lookup выполняется по ключу и остаётся индексируемым. PostgreSQL unique index на ключ является окончательным concurrency barrier. И обычная application validation, и обнаруженный через unique barrier конкурентный case-only duplicate возвращают одинаковую field-level ошибку у поля `login`: «Пользователь с таким логином уже существует.».
 - Централизованно синхронизировать normalized key перед каждой вставкой пользователя, включая bootstrap и тестовые seed paths; не полагаться на frontend normalization или на то, что каждый producer вручную повторит алгоритм.
 - Forward migration сначала вычисляет и проверяет normalized keys существующих строк. Если один ключ принадлежит нескольким `User`, migration останавливается до изменения uniqueness contract и сообщает конфликтные канонические логины; она не выбирает, не переименовывает и не объединяет записи.
 - После успешного preflight migration backfill-ит обязательный normalized key, заменяет case-sensitive `IX_Users_Login` на case-insensitive unique barrier и синхронизирует EF model snapshot. Clean database и retained database без collision обновляются автоматически обычным startup migration flow.
@@ -35,7 +35,7 @@
 2. Add create/update/bootstrap tests for case-only duplicates and canonical preservation, including concurrent PostgreSQL insertion; capture RED while current application checks and `IX_Users_Login` remain case-sensitive.
 3. Add retained PostgreSQL migration tests: clean bootstrap, upgrade with distinct logins, and upgrade with `Coach`/`coach` that fails with actionable collision evidence and leaves existing rows unmodified.
 4. Implement the shared normalized-key contract, persistence synchronization and indexed login lookup; route staff creation, bootstrap and seed/upsert identity checks through it while preserving stored `Login` in claims/audit/responses.
-5. Add the forward migration and snapshot update, map the new unique constraint to the existing validation/bootstrap conflict behavior, and prove clean/retained/concurrent paths green on PostgreSQL.
+5. Add the forward migration and snapshot update, map the new unique constraint to the existing field-level `login` validation response «Пользователь с таким логином уже существует.» for concurrent case-only duplicates, preserve the existing bootstrap conflict behavior, and prove clean/retained/concurrent paths green on PostgreSQL.
 6. Add or update the focused frontend auth test so mixed-case input is sent after trim without lower/upper conversion and the canonical login returned by backend remains the displayed/session identity.
 
 ## Likely files and layers
@@ -56,7 +56,7 @@
 - Users API rejects a case-only duplicate through every staff-create endpoint with the existing `login` validation contract; update with case-only login remains rejected as immutable and does not alter stored/audit state.
 - Bootstrap started with a case variant of an existing login does not create a second user; parallel bootstrap/create attempts resolve through the new unique constraint without leaking PostgreSQL details.
 - Seed tests prove repeated/upsert execution does not create case-only duplicates and every seeded user has a synchronized normalized key.
-- PostgreSQL persistence test inserts concurrent case variants and proves exactly one commit succeeds under the named unique barrier; application endpoint maps the loser to the established validation/conflict response.
+- PostgreSQL persistence test inserts concurrent case variants and proves exactly one commit succeeds under the named unique barrier; application endpoint maps the loser to the same field-level `login` error «Пользователь с таким логином уже существует.», without leaking PostgreSQL details.
 - PostgreSQL migration tests cover empty clean schema, retained unique logins, and retained `Coach`/`coach`; the collision case fails before uniqueness replacement, names the conflicting canonical logins, and preserves both source rows for operator resolution.
 - Frontend auth test submits mixed-case input unchanged except trim and consumes a canonical stored login returned by backend without client-side identity normalization.
 
@@ -71,7 +71,7 @@
 - Task verification contract must run the real PostgreSQL retained-upgrade and concurrent case-only uniqueness scenarios in addition to the diff-selected backend baseline, plus the focused frontend auth smoke.
 
 ### Regression barrier
-- One PostgreSQL-backed end-to-end barrier creates canonical `Coach`, rejects concurrent creation of `coach`, authenticates as `COACH`, and asserts that session, claim and audit still expose exactly `Coach`; a paired retained-migration collision case must stop without changing either row.
+- One PostgreSQL-backed end-to-end barrier creates canonical `Coach`, rejects concurrent creation of `coach` with the field-level `login` error «Пользователь с таким логином уже существует.», authenticates as `COACH`, and asserts that session, claim and audit still expose exactly `Coach`; a paired retained-migration collision case must stop without changing either row.
 
 ## Risks and stop conditions
 - Stop if the chosen .NET normalization and PostgreSQL migration/backfill produce different keys for any currently stored login; one shared observable contract must be demonstrated before the unique index is replaced.

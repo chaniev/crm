@@ -3488,3 +3488,14 @@
 - Validate requirement references, active-task metadata and status/directory
   consistency after moving TASK-169.
 - Project code and runtime were not changed.
+
+# 2026-09-01 21:37
+
+## Decision actualization
+- Updated accepted `REQ-USR-002`, TASK-166 and its implementation plan with the explicit user decision that ordinary and concurrent case-only duplicate creation return the same field-level `login` error: «Пользователь с таким логином уже существует.».
+- Preserved the non-enumerating authentication error contract; the clarification applies only to authenticated staff creation flows.
+- Updated `docs/requirements/CHANGELOG.md` and the PostgreSQL regression barrier for traceability.
+
+## Validation
+- No inbox files processed and no task status changed.
+- Requirements metadata and TASK-166 risky status remain consistent.

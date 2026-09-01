@@ -9,20 +9,21 @@
 - risk: medium — новый read contract агрегирует occurrence, access scope и roster-derived count, а material change landing workflow требует отдельного design acceptance до реализации
 
 ## Goal
-На `/attendance` пользователь получает backend-authorized список занятий CRM-дня `today`, видит группу, время и точное количество `Не отмечено`, открывает workbench выбранного `lessonOccurrenceId` одним действием и возвращается в сохранённый контекст списка.
+На `/attendance` пользователь получает backend-authorized список требующих действия занятий CRM-дня `today`, упорядоченный по времени начала. Каждая строка имеет `unmarkedClientCount > 0`, доступна для открытия и ведёт в workbench точного `lessonOccurrenceId`. После возврата список актуализируется с сохранением контекста.
 
 ## Domain/API contract
 - Добавить dedicated staff read `GET /attendance/lessons/today` без browser-supplied date. Backend берёт `today` из принятого `IAttendanceDatePolicy`/CRM local-day contract и применяет тот же effective attendance scope, включая активные замещения и occurrence-scoped access, что и существующие schedule/roster reads.
 - Ответ: `today` и ordered `items`; row содержит `lessonOccurrenceId`, `lessonDate`, `groupId`, `groupName`, `startTime`, `endTime`, `branchName`, `hallName`, `effectiveTrainers`, backend action decision для открытия attendance и `unmarkedClientCount`.
-- Backend определяет, какие projected/materialized occurrences являются worklist items, их stable identity, порядок и allowed action; frontend не фильтрует по роли, расписанию, статусу или дате самостоятельно.
+- Backend возвращает только occurrences с разрешённым открытием attendance и `unmarkedClientCount > 0`; `Cancelled`, `NotHeld`, недоступные и полностью отмеченные occurrences исключаются. Frontend не фильтрует по роли, расписанию, статусу, count или дате самостоятельно.
+- Backend сортирует items по `startTime`, а при равном времени использует stable occurrence identity как deterministic tie-breaker.
 - `unmarkedClientCount` эквивалентен числу активных клиентов roster точного occurrence со state `Unmarked`: нет сохранённой `Present`/`Absent` записи для этого `lessonOccurrenceId`. Группа+дата или `hasAttendanceMarks` не заменяют occurrence identity/count.
-- Contract read-only: attendance save/reset, membership entitlement, audit и date-window semantics не меняются. Partial/stale row не маскируется нулём; contract/mapping failure остаётся recoverable error state.
+- Contract read-only: attendance save/reset, membership entitlement, audit и date-window semantics не меняются. Invalid row не маскируется нулём и не превращает весь ответ в full error: она пропускается, корректные строки сохраняются, а frontend показывает неблокирующее partial-result сообщение с retry.
 
 ## UX contract and design gate
 - Primary user: Coach/Administrator на mobile в начале рабочего дня; HeadCoach/SuperAdministrator открывают тот же раздел из навигации. Completion signal — открыт exact occurrence workbench; после возврата сохранены row anchor/scroll и список можно продолжить.
 - Primary content сразу после persistent navigation: ordered today worklist. Каждая строка даёт decision data (группа, время, локация/тренер по выбранной иерархии), backend count `Не отмечено` и одно видимое frequent action; без дублирующего route heading/hero.
 - До production code: зафиксировать UX contract и visual brief, отрендерить три различающихся направления на `390 x 844` и `1440 x 1200` с populated и consequential non-happy state, получить выбор product owner и преобразовать его в implementation-ready responsive contract.
-- Design contract обязан покрыть loading, empty, full error + retry, partial/stale row, restricted action, long content, focus/back behavior и mobile/desktop transformation. Никакое направление не может добавлять frontend-owned attendance semantics.
+- Design contract обязан покрыть loading, единый empty для пустого дня/охвата, full error + retry, partial result, stale-action recovery, long content, focus/back behavior и mobile/desktop transformation. Штатного restricted-row state нет. Никакое направление не может добавлять frontend-owned attendance semantics.
 
 ## Scope
 ### In
@@ -33,11 +34,12 @@
 
 ## Implementation slices
 1. Design gate: собрать rendered current-state evidence, оформить UX contract/brief, три направления, recorded selection и final responsive/interaction contract; остановить production implementation до выбора.
-2. Backend RED→green: contract tests для CRM `today`, exact occurrence identity/order, role/scope/substitution boundaries и `unmarkedClientCount`; реализовать dedicated read, переиспользуя существующие occurrence/access/roster semantics вместо их копирования в endpoint.
-3. Frontend client RED→green: typed endpoint, strict mapper и facade export; invalid/partial payload не превращается в пустой успешный список или нулевой count.
-4. Landing RED→green: заменить placeholder today worklist, реализовать loading/empty/error/retry/restricted/partial states по выбранному contract; row action принимает только backend `lessonOccurrenceId` + `lessonDate`.
-5. Return context: отличать вход из schedule от входа из `/attendance`; после workbench/browser back вернуть соответствующий origin, focus к исходной строке и прежнюю scroll position без ложного schedule snapshot.
-6. Browser/rendered acceptance: primary flow и recovery/scope edges на mobile/desktop, отсутствие overflow, target-iPhone/compact-height checks и runtime comparison с выбранным направлением.
+2. Backend RED→green: contract tests для CRM `today`, exact occurrence identity, start-time order, role/scope/substitution boundaries, excluded `Cancelled`/`NotHeld`/disallowed occurrences и `unmarkedClientCount > 0`; реализовать dedicated read, переиспользуя существующие occurrence/access/roster semantics вместо их копирования в endpoint.
+3. Frontend client RED→green: typed endpoint, per-row strict mapper и facade export; invalid row пропускается с partial-result signal, не превращает count в ноль и не скрывает корректные rows.
+4. Landing RED→green: заменить placeholder today worklist, реализовать loading/unified-empty/error/retry/partial-result/stale-action states по выбранному contract; row action принимает только backend `lessonOccurrenceId` + `lessonDate`.
+5. Return context and refresh: отличать вход из schedule от входа из `/attendance`; после workbench/browser back вернуть соответствующий origin, автоматически актуализировать today worklist и восстановить его row anchor/scroll без ложного schedule snapshot. Если исходная строка исчезла после актуализации, final focus fallback определить в design contract.
+6. Explicit refresh: добавить понятное обновление по запросу пользователя; не вводить timer/day-rollover auto-refresh.
+7. Browser/rendered acceptance: primary flow и recovery/scope edges на mobile/desktop, отсутствие overflow, target-iPhone/compact-height checks и runtime comparison с выбранным направлением.
 
 ## Likely files and layers
 - `backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs` и новые focused `AttendanceToday*Response.cs` — endpoint composition/DTO.
@@ -51,12 +53,12 @@
 
 ## Regression specification
 ### Automated tests to add or update
-- Backend: `today` comes from date policy; projected and materialized same-day lessons keep unique occurrence IDs and stable time order; Coach/Administrator/management scope and active substitution are enforced; inaccessible items/actions are absent or restricted only per backend decision.
-- Backend count: active roster clients without exact-occurrence marks count as `Unmarked`; `Present`/`Absent` reduce count; marks for another same-group/date occurrence do not; reset to `Unmarked` restores count; cancelled/unavailable occurrence handling matches shared backend projection rather than frontend filtering.
-- API mapper: valid payload maps decision fields/count/action; missing identity/date/count or malformed row rejects/stales the response instead of inventing defaults.
-- Component: populated/loading/empty/error+retry/partial/restricted and long-name states; exact row opens the expected occurrence; no legacy schedule-link placeholder.
-- Navigation: entry from `/attendance` returns to saved row focus/scroll; entry from `/schedule` preserves existing schedule return snapshot; back/forward and scope refresh do not restore stale unauthorized rows.
-- Playwright: Coach and Administrator primary flow landing → exact lesson → attendance → return; HeadCoach/SuperAdministrator navigation access; one API failure+retry; one empty/restricted scope; no horizontal overflow on `360/390/420/440`, tablet/desktop transformation, compact-height smoke and target-iPhone WebKit.
+- Backend: `today` comes from date policy; projected and materialized same-day lessons keep unique occurrence IDs and stable start-time order; Coach/Administrator/management scope and active substitution are enforced; inaccessible, disallowed, `Cancelled` and `NotHeld` items are absent.
+- Backend count: active roster clients without exact-occurrence marks count as `Unmarked`; `Present`/`Absent` reduce count; marks for another same-group/date occurrence do not; reset to `Unmarked` restores count; only occurrences with count greater than zero are returned, and reaching zero removes the item on the next refresh.
+- API mapper: valid payload maps decision fields/count/action; missing identity/date/count or malformed row is omitted with a partial-result signal instead of inventing defaults or discarding valid rows.
+- Component: populated/loading/unified-empty/error+retry/partial-result/stale-action and long-name states; every rendered row has an enabled action and opens the expected occurrence; no legacy schedule-link placeholder.
+- Navigation: entry from `/attendance` returns, refreshes data, and restores the saved row/scroll context when still present; entry from `/schedule` preserves existing schedule return snapshot; back/forward and scope refresh do not restore stale unauthorized rows; day rollover alone does not trigger refresh.
+- Playwright: Coach and Administrator primary flow landing → exact lesson → attendance → return+refresh, including removal after count reaches zero; HeadCoach/SuperAdministrator navigation access; one API failure+retry; one unified empty scope; one partial-result case; no horizontal overflow on `360/390/420/440`, tablet/desktop transformation, compact-height smoke and target-iPhone WebKit.
 
 ### Expected red evidence
 - Backend contract tests fail because `/attendance/lessons/today` and `unmarkedClientCount` do not exist.
@@ -71,11 +73,11 @@
 - Report Simulator/physical-device gaps for Safari chrome, real safe area, home indicator and one-handed reach.
 
 ### Regression barrier
-- One end-to-end target-iPhone + Chromium scenario: backend-scoped today list shows exact `unmarkedClientCount`, opens the selected `lessonOccurrenceId`, and returns to the originating row without overflow or context loss.
+- One end-to-end target-iPhone + Chromium scenario: backend-scoped today list shows exact `unmarkedClientCount`, opens the selected `lessonOccurrenceId`, and returns to the refreshed list without overflow or context loss; if the count reaches zero, the completed row is absent.
 
 ## Risks and stop conditions
 - Stop before production UI until product owner selects/refines a rendered direction; a compile-green first layout is not design acceptance.
 - Stop if implementation would derive scope, date, occurrence eligibility or count in frontend, or count by group/date instead of exact occurrence.
 - Stop if the dedicated read cannot reuse a single backend occurrence/access source without diverging from schedule/roster semantics; extract a focused application query seam before continuing.
-- Stop and request a product decision if existing accepted requirements do not determine whether a newly discovered occurrence state belongs in the today worklist; do not silently hide or relabel it.
+- Stop and request a product decision if a newly discovered occurrence state is neither an actionable scheduled occurrence nor one of the explicitly excluded `Cancelled`/`NotHeld` states; do not silently include, hide or relabel it.
 - No schema migration is expected. If aggregation requires persisted counters or destructive data changes, reclassify risk and review the data plan first.

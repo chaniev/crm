@@ -55,6 +55,7 @@ risky
 - [ ] Существующая учётная запись входит при любом регистре букв логина и правильном пароле.
 - [ ] Неверный пароль и неизвестный логин возвращают прежний нераскрывающий credentials contract.
 - [ ] Нельзя создать или bootstrap-нуть логин, отличающийся от существующего только регистром.
+- [ ] При обычном или конкурентном создании case-only дубля пользователь получает одинаковую field-level ошибку у поля `login`: «Пользователь с таким логином уже существует.».
 - [ ] Session, audit и UI используют канонический сохранённый логин, а не введённый вариант.
 - [ ] Retained database с case-collision не обновляется неоднозначно и выдаёт actionable stop evidence.
 - [ ] PostgreSQL и test provider coverage фиксируют одинаковую identity semantics.
@@ -62,6 +63,7 @@ risky
 ## Test checklist
 - [ ] Добавить AuthFlow cases для lower/upper/mixed-case login.
 - [ ] Добавить create/bootstrap validation cases для case-only duplicate.
+- [ ] Проверить одинаковую field-level ошибку `login` для обычного и конкурентного case-only duplicate.
 - [ ] Добавить PostgreSQL uniqueness и retained-database collision tests.
 - [ ] Запустить backend format, Release build, dependency audit и полный xUnit suite.
 - [ ] Проверить login UI smoke без frontend-owned normalization.
@@ -84,3 +86,4 @@ risky
 - Created by skill: codex-backlog-skill
 - Duplicate check: active and done tasks cover roles, user forms and auth UI but no task owns case-insensitive login identity or its persistence collision barrier.
 - Classification: risky because authentication and a case-insensitive unique database invariant must change together.
+- Product clarification: 2026-09-01 — пользователь должен видеть field-level сообщение «Пользователь с таким логином уже существует.» и при обычном, и при конкурентном case-only duplicate; login authentication остаётся non-enumerating.
