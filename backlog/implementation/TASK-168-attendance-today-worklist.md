@@ -9,6 +9,20 @@ implementation
 - implementation_plan: /backlog/implementation-plans/TASK-168-attendance-today-worklist.plan.md
 - implementation_branch: feature/TASK-168-attendance-today-worklist
 
+## Implementation progress
+
+- 2026-09-01 — design gate prepared under
+  `/backlog/mockups/TASK-168-attendance-today-worklist/`: UX contract, visual
+  brief, three divergent directions, isolated prototype, and populated/partial
+  renders at `390 x 844` and `1440 x 1200`. Product-owner selection is pending;
+  production UI has not started.
+- 2026-09-01 — backend preflight found a contract conflict: TASK-119/TASK-075
+  explicitly superseded `Held | NotHeld` with `Scheduled | Cancelled`, while
+  this task and REQ-ATT-006 require `NotHeld` exclusion. Backend implementation
+  is paused until the product owner chooses whether the current two-state
+  lifecycle remains authoritative or `NotHeld` is intentionally reintroduced
+  with a separate lifecycle/data decision.
+
 ## Requirements
 - REQ-ATT-006 — changes
 - REQ-ATT-001 — constrains

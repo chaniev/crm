@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TASK-168 attendance worklist directions</title>
+  <style>
+    :root { --page:#f6f4ee; --surface:#fff; --subtle:#f6faf7; --text:#17312d; --strong:#111827; --muted:#64736d; --border:#d7e0da; --border-muted:#e5e7eb; --brand:#2f765e; --brand-soft:#e6f2ec; --warning:#8a5a11; --warning-bg:#fff6df; --warning-border:#e4bf76; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    body { margin:0; background:var(--page); color:var(--text); font-family:Onest, ui-sans-serif, system-ui, sans-serif; font-size:16px; }
+    button { font:inherit; }
+    .shell { min-height:100vh; display:grid; grid-template-columns:224px minmax(0,1fr); }
+    .sidebar { background:#153b32; color:#fff; padding:28px 16px; display:flex; flex-direction:column; gap:28px; }
+    .brand { font-weight:800; font-size:22px; padding:0 12px; }
+    .nav { display:grid; gap:8px; }
+    .nav-item { padding:12px 14px; border-radius:10px; color:#d7e6e0; font-weight:650; }
+    .nav-item.active { color:#fff; background:#2f765e; }
+    main { width:min(100%, 1120px); margin:0 auto; padding:32px 40px 48px; }
+    .toolbar { min-height:52px; display:flex; justify-content:flex-end; align-items:center; margin-bottom:18px; }
+    .refresh { height:44px; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:10px; padding:0 16px; font-weight:700; }
+    .warning { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; padding:14px 16px; border:1px solid var(--warning-border); background:var(--warning-bg); border-radius:12px; color:#65420c; }
+    .warning strong { display:block; margin-bottom:3px; color:#4e3309; }
+    .warning button { min-height:44px; border:1px solid var(--warning-border); background:#fff; border-radius:9px; padding:0 14px; color:#5c3c0b; font-weight:750; }
+    .list { display:grid; gap:10px; }
+    .row { min-width:0; background:var(--subtle); border:1px solid var(--border-muted); border-radius:8px; }
+    .time { font-variant-numeric:tabular-nums; color:var(--strong); font-weight:800; white-space:nowrap; }
+    .time small { display:block; color:var(--muted); font-size:12px; font-weight:650; margin-top:3px; }
+    .name { color:var(--strong); font-weight:800; line-height:1.2; min-width:0; overflow-wrap:anywhere; }
+    .meta { color:var(--muted); font-size:14px; line-height:1.35; overflow-wrap:anywhere; }
+    .count { font-variant-numeric:tabular-nums; font-weight:750; color:var(--text); white-space:nowrap; }
+    .count b { display:inline-grid; place-items:center; min-width:28px; height:28px; padding:0 8px; margin-left:6px; border-radius:999px; background:var(--brand-soft); color:#245c4a; }
+    .open { min-height:44px; border:1px solid #b9d3c8; background:var(--brand-soft); color:#245c4a; border-radius:9px; padding:0 16px; font-weight:800; white-space:nowrap; }
+    .bottom { display:none; }
+    .direction-a .row { display:grid; grid-template-columns:104px minmax(0,1fr) auto auto; align-items:center; gap:18px; padding:16px; }
+    .direction-a .details { display:grid; gap:5px; }
+    .time-band { display:grid; grid-template-columns:96px minmax(0,1fr); gap:14px; align-items:start; }
+    .time-band + .time-band { margin-top:14px; }
+    .band-label { padding-top:16px; }
+    .band-cards { display:grid; gap:8px; }
+    .direction-b .row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:18px; padding:15px 16px; }
+    .direction-b .details { display:grid; gap:5px; }
+    .ledger-head { display:grid; grid-template-columns:92px minmax(0,1.7fr) minmax(180px,1fr) 150px 104px; gap:16px; padding:0 16px 10px; color:var(--muted); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+    .direction-c .row { display:grid; grid-template-columns:92px minmax(0,1.7fr) minmax(180px,1fr) 150px 104px; align-items:center; gap:16px; padding:14px 16px; }
+    .direction-c .location { display:grid; gap:4px; }
+    @media (max-width: 700px) {
+      .shell { display:block; min-height:100dvh; padding-bottom:82px; }
+      .sidebar { display:none; }
+      main { padding:14px 14px 24px; }
+      .toolbar { min-height:44px; margin-bottom:12px; }
+      .refresh { width:44px; padding:0; font-size:0; }
+      .refresh::before { content:'↻'; font-size:22px; }
+      .warning { align-items:stretch; padding:12px; gap:10px; }
+      .warning button { padding:0 12px; }
+      .bottom { position:fixed; z-index:5; left:0; right:0; bottom:0; height:72px; padding:8px 10px calc(8px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.97); border-top:1px solid var(--border); display:grid; grid-template-columns:repeat(4,1fr); }
+      .bottom div { display:grid; place-items:center; align-content:center; gap:3px; color:var(--muted); font-size:11px; font-weight:700; }
+      .bottom .active { color:#245c4a; }
+      .bottom i { font-style:normal; font-size:20px; }
+      .direction-a .row { grid-template-columns:66px minmax(0,1fr) auto; gap:10px; padding:12px; align-items:start; }
+      .direction-a .count { grid-column:2; }
+      .direction-a .open { grid-column:3; grid-row:1 / span 2; align-self:center; padding:0 12px; }
+      .time-band { display:block; }
+      .band-label { display:flex; gap:8px; align-items:baseline; padding:5px 2px 8px; }
+      .band-label small { display:inline; margin:0; }
+      .direction-b .row { grid-template-columns:minmax(0,1fr) auto; gap:10px; padding:12px; }
+      .direction-b .count { grid-column:1; }
+      .direction-b .open { grid-column:2; grid-row:1 / span 2; }
+      .ledger-head { display:none; }
+      .direction-c .row { grid-template-columns:62px minmax(0,1fr) auto; gap:9px; padding:12px; align-items:start; }
+      .direction-c .location { grid-column:2; }
+      .direction-c .count { grid-column:2; }
+      .direction-c .open { grid-column:3; grid-row:1 / span 3; align-self:center; padding:0 11px; }
+      .meta { font-size:13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar"><div class="brand">Gym CRM</div><nav class="nav"><div class="nav-item active">Посещения</div><div class="nav-item">Внимание</div><div class="nav-item">Расписание</div><div class="nav-item">Клиенты</div></nav></aside>
+    <main>
+      <div class="toolbar"><button class="refresh" aria-label="Обновить список">Обновить</button></div>
+      <div id="warning" class="warning" hidden><div><strong>Часть занятий не загрузилась</strong><span>Показываем доступные данные. Обновите список, чтобы получить остальные.</span></div><button>Повторить</button></div>
+      <section id="content" aria-label="Занятия на сегодня"></section>
+    </main>
+    <nav class="bottom"><div class="active"><i>✓</i>Посещения</div><div><i>!</i>Внимание</div><div><i>▦</i>Расписание</div><div><i>○</i>Клиенты</div></nav>
+  </div>
+  <script>
+    const q = new URLSearchParams(location.search); const direction = q.get('direction') || 'a'; const state = q.get('state') || 'populated';
+    document.body.className = `direction-${direction}`; document.getElementById('warning').hidden = state !== 'partial';
+    const rows = [
+      ['08:00','08:50','Утренняя функциональная тренировка','Центр · Основной зал','Алиса Воронова',7],
+      ['10:30','11:20','Детская группа начинающих «Первые старты»','Северный · Зал единоборств','Михаил Александрович Константинов',3],
+      ['18:00','18:50','Кардио интенсив','Центр · Малый зал','Алиса Воронова · Илья Соколов',11],
+      ['19:00','19:50','Силовая подготовка','Южный · Панорамный зал','Илья Соколов',4],
+    ];
+    const details = r => `<div class="details"><div class="name">${r[2]}</div><div class="meta">${r[3]}</div><div class="meta">${r[4]}</div></div>`;
+    const count = r => `<div class="count">Не отмечено <b>${r[5]}</b></div>`; const action = '<button class="open">Открыть</button>';
+    let html = '';
+    if (direction === 'a') html = `<div class="list">${rows.map(r => `<article class="row"><div class="time">${r[0]}<small>до ${r[1]}</small></div>${details(r)}${count(r)}${action}</article>`).join('')}</div>`;
+    if (direction === 'b') { const groups = [['08:00–08:50',[rows[0]]],['10:30–11:20',[rows[1]]],['18:00–18:50',[rows[2]]],['19:00–19:50',[rows[3]]]]; html = groups.map(g => `<section class="time-band"><div class="band-label time">${g[0].split('–')[0]}<small>до ${g[0].split('–')[1]}</small></div><div class="band-cards">${g[1].map(r => `<article class="row">${details(r)}${count(r)}${action}</article>`).join('')}</div></section>`).join(''); }
+    if (direction === 'c') html = `<div class="ledger-head"><span>Время</span><span>Группа</span><span>Локация и тренер</span><span>Осталось</span><span></span></div><div class="list">${rows.map(r => `<article class="row"><div class="time">${r[0]}<small>${r[1]}</small></div><div class="name">${r[2]}</div><div class="location"><div class="meta">${r[3]}</div><div class="meta">${r[4]}</div></div>${count(r)}${action}</article>`).join('')}</div>`;
+    document.getElementById('content').innerHTML = html;
+  </script>
+</body>
+</html>
