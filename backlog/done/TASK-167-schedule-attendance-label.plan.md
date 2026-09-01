@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-167 Переименовать действие расписания в «Посещение»
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-167-schedule-attendance-label.md
+- source_task: /backlog/done/TASK-167-schedule-attendance-label.md
 - requirements: REQ-GRP-007 (changes)
 - branch: feature/TASK-167-schedule-attendance-label
 - readiness: yes
@@ -57,3 +57,13 @@
 - Stop, если общий resource требует broad extraction или scanner/architecture change из TASK-165: TASK-167 должна ограничиться существующим resource module.
 - Stop, если изменение accessible name ломает различимость действий вне семантического контекста карточки; решить scoped locator/association без возврата старой терминологии.
 - Не заменять `Посещаемость` в disabled reasons или attendance workspace copy: это отдельные product-copy решения.
+
+## Implementation result
+
+- Completed at: 2026-09-01.
+- Implementation commit: `36e1530`.
+- Added the single `resources.schedule.actions.attendance` label, removed the
+  occurrence-card-specific `aria-label`, and preserved occurrence/date routing
+  plus existing disabled-reason copy.
+- Validation: frontend baseline 647/647 unit tests; Chromium schedule 17/17;
+  affected target-iPhone WebKit scenarios 4/4 across both profiles.

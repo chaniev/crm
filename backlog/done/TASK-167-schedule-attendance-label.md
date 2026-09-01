@@ -1,13 +1,16 @@
 # TASK-167: Переименовать действие расписания в «Посещение»
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-30 18:43 MSK
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-167-schedule-attendance-label.plan.md
+- implementation_plan: /backlog/done/TASK-167-schedule-attendance-label.plan.md
 - implementation_branch: feature/TASK-167-schedule-attendance-label
+- implementation_state: completed
+- implementation_commit: 36e1530
+- moved_to_done_at: 2026-09-01
 
 ## Requirements
 - REQ-GRP-007 — changes
@@ -43,15 +46,15 @@ implementation
 - Переход продолжает использовать тот же lesson occurrence и дату.
 
 ## Acceptance criteria
-- [ ] Каждая разрешённая schedule card показывает действие `Посещение`.
-- [ ] Mobile и desktop action surfaces используют одинаковую подпись и accessible name.
-- [ ] Кнопка открывает прежний attendance route для выбранного занятия.
-- [ ] Старый button label `Посещаемость` отсутствует в schedule action surfaces.
+- [x] Каждая разрешённая schedule card показывает действие `Посещение`.
+- [x] Mobile и desktop action surfaces используют одинаковую подпись и accessible name.
+- [x] Кнопка открывает прежний attendance route для выбранного занятия.
+- [x] Старый button label `Посещаемость` отсутствует в schedule action surfaces.
 
 ## Test checklist
-- [ ] Обновить focused `GroupScheduleScreen` component tests.
-- [ ] Обновить affected schedule Playwright locators/assertions.
-- [ ] Запустить frontend check и affected Chromium/target-iPhone schedule flows.
+- [x] Обновить focused `GroupScheduleScreen` component tests.
+- [x] Обновить affected schedule Playwright locators/assertions.
+- [x] Запустить frontend check и affected Chromium/target-iPhone schedule flows.
 
 ## AI safety
 - Safe for autonomous implementation: yes
