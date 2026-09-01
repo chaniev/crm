@@ -108,7 +108,7 @@ test.describe('Occurrence schedule calendar', () => {
 
     await page
       .getByTestId('schedule-card-occ-evening')
-      .getByRole('button', { name: /Открыть посещаемость/ })
+      .getByRole('button', { name: 'Посещение' })
       .click()
 
     await expect(page).toHaveURL(/\/attendance\/occ-evening\?lessonDate=2026-08-20$/)
@@ -908,7 +908,7 @@ test.describe('Occurrence schedule calendar', () => {
     const card = page.getByTestId('schedule-card-occ-evening')
 
     await expect(card).toBeVisible()
-    await expect(card.getByRole('button', { name: /Открыть посещаемость/ })).toBeDisabled()
+    await expect(card.getByRole('button', { name: 'Посещение' })).toBeDisabled()
     await expect(card).toHaveText(/Посещаемость недоступна для вашей роли или зоны доступа./)
     await expect(card).not.toHaveText(/attendance-forbidden/)
   })
@@ -1027,7 +1027,7 @@ test.describe('Occurrence schedule calendar', () => {
     // Task-first row: attendance remains visible while edit moves into mobile `Ещё`.
     const primaryCard = page.getByTestId('schedule-card-dense-parallel-a')
     await expect(primaryCard.getByRole('button', { name: /Открыть занятие/ })).toBeVisible()
-    await expect(primaryCard.getByRole('button', { name: /Открыть посещаемость/ })).toBeVisible()
+    await expect(primaryCard.getByRole('button', { name: 'Посещение' })).toBeVisible()
     await expect(primaryCard.getByRole('button', { name: /Изменить занятие/ })).toHaveCount(0)
     await expect(primaryCard.getByRole('button', { name: /Ещё действий/ })).toBeVisible()
     const visiblePrimaryCardActions = await primaryCard
@@ -1043,7 +1043,7 @@ test.describe('Occurrence schedule calendar', () => {
 
     // Restricted attendance keeps the backend reason attached to the disabled control.
     const restrictedCard = page.getByTestId('schedule-card-dense-parallel-b')
-    await expect(restrictedCard.getByRole('button', { name: /Открыть посещаемость/ })).toBeDisabled()
+    await expect(restrictedCard.getByRole('button', { name: 'Посещение' })).toBeDisabled()
     await expect(restrictedCard).toContainText('Посещаемость недоступна для вашей роли или зоны доступа.')
     await expect(restrictedCard.getByRole('button', { name: /Ещё действий/ })).toHaveCount(0)
 
@@ -1068,7 +1068,7 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(primaryCard.getByRole('button', { name: /Ещё действий/ })).toBeFocused()
 
     // Primary flow: attendance opens from the dense card and back restores the exact list URL and card.
-    await primaryCard.getByRole('button', { name: /Открыть посещаемость/ }).click()
+    await primaryCard.getByRole('button', { name: 'Посещение' }).click()
     await expect(page).toHaveURL(/\/attendance\/dense-parallel-a\?lessonDate=2026-08-20$/)
     await page.goBack()
     await expect(page).toHaveURL('/schedule?date=2026-08-20&view=day')

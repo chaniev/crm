@@ -1163,7 +1163,7 @@ test('target iPhone opens exact attendance from schedule occurrence and stays st
 
   const eveningCard = page.getByTestId('schedule-card-occ-evening')
   await expect(eveningCard).toBeVisible()
-  await eveningCard.getByRole('button', { name: /Открыть посещаемость/ }).click()
+  await eveningCard.getByRole('button', { name: 'Посещение' }).click()
   await expect(page).toHaveURL('/attendance/occ-evening?lessonDate=2026-08-20')
 
   await expect(page.getByTestId('attendance-client-card-client-1')).toBeVisible()
@@ -2053,7 +2053,7 @@ test('target iPhone shows restricted attendance action only and keeps route stab
   await page.goto('/schedule?date=2026-08-20&view=day')
 
   const eveningCard = page.getByTestId('schedule-card-occ-evening')
-  const attendanceButton = eveningCard.getByRole('button', { name: /Открыть посещаемость/ })
+  const attendanceButton = eveningCard.getByRole('button', { name: 'Посещение' })
 
   await expect(attendanceButton).toBeDisabled()
   await expect(eveningCard).toContainText('Посещаемость недоступна для вашей роли или зоны доступа.')

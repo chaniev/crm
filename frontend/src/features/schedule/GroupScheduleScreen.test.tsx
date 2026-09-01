@@ -211,11 +211,17 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     fireEvent.click(
       within(screen.getByTestId('schedule-card-occurrence-evening')).getByRole(
         'button',
-        { name: /Открыть посещаемость/ },
+        { name: 'Посещение' },
       ),
     )
 
     expect(onOpenAttendance).toHaveBeenCalledWith('occurrence-evening', '2026-08-20')
+    expect(
+      within(screen.getByTestId('schedule-card-occurrence-evening')).queryByRole(
+        'button',
+        { name: /Посещаемость/ },
+      ),
+    ).not.toBeInTheDocument()
   })
 
   test('opens tools drawer, uses response filterOptions and writes filters to URL', async () => {
@@ -272,7 +278,7 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     renderSchedule({ onOpenAttendance })
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
-    const action = within(card).getByRole('button', { name: /Открыть посещаемость/ })
+    const action = within(card).getByRole('button', { name: 'Посещение' })
 
     expect(action).toBeDisabled()
     expect(card).toHaveTextContent('Посещаемость недоступна для вашей роли или зоны доступа.')
@@ -880,7 +886,7 @@ describe('GroupScheduleScreen occurrence calendar', () => {
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
     // Mobile keeps only attendance and `Ещё` next to the body trigger.
-    expect(within(card).getByRole('button', { name: /Открыть посещаемость/ })).toBeVisible()
+    expect(within(card).getByRole('button', { name: 'Посещение' })).toBeVisible()
     expect(within(card).queryByRole('button', { name: /Изменить занятие/ })).not.toBeInTheDocument()
     expect(within(card).getByRole('button', { name: /Ещё действий/ })).toBeVisible()
     expect(within(card).queryByRole('button', { name: /Перенести занятие/ })).not.toBeInTheDocument()
