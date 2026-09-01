@@ -5,6 +5,7 @@ import {
   getAttendanceGroupClients,
   getAttendanceGroups,
   getAttendanceLessonClients,
+  getAttendanceTodayLessons,
   saveAttendanceMarks,
   saveAttendanceLessonMarks,
   type AuthenticatedUser,
@@ -18,6 +19,7 @@ vi.mock('../../lib/api', async (importOriginal) => ({
   getAttendanceGroupClients: vi.fn(),
   getAttendanceGroups: vi.fn(),
   getAttendanceLessonClients: vi.fn(),
+  getAttendanceTodayLessons: vi.fn(),
   saveAttendanceMarks: vi.fn(),
   saveAttendanceLessonMarks: vi.fn(),
 }))
@@ -33,13 +35,17 @@ const administratorUser = {
 const getGroups = vi.mocked(getAttendanceGroups)
 const getRoster = vi.mocked(getAttendanceGroupClients)
 const getLessonRoster = vi.mocked(getAttendanceLessonClients)
+const getTodayLessons = vi.mocked(getAttendanceTodayLessons)
 const saveMarks = vi.mocked(saveAttendanceMarks)
 const saveLessonMarks = vi.mocked(saveAttendanceLessonMarks)
 
 beforeEach(() => {
+  window.history.replaceState(null, '', '/attendance')
+  window.scrollTo = vi.fn()
   getGroups.mockReset()
   getRoster.mockReset()
   getLessonRoster.mockReset()
+  getTodayLessons.mockReset()
   saveMarks.mockReset()
   saveLessonMarks.mockReset()
   getGroups.mockResolvedValue({
@@ -99,16 +105,81 @@ beforeEach(() => {
     maxTrainingDate: '2026-07-12',
     attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
   })
+  getTodayLessons.mockResolvedValue({
+    today: '2026-07-12',
+    partial: false,
+    items: [{
+      lessonOccurrenceId: 'lesson-today-1',
+      lessonDate: '2026-07-12',
+      groupId: 'group-1',
+      groupName: 'Вечерняя',
+      startTime: '18:30',
+      endTime: '20:00',
+      branchName: 'Центр',
+      hallName: 'Большой зал',
+      effectiveTrainers: [{ trainerId: 'trainer-1', fullName: 'Анна Смирнова', kind: 'Permanent' }],
+      openAttendance: { allowed: true, reason: null },
+      unmarkedClientCount: 3,
+    }],
+  })
 })
 
 describe('AttendanceWorkspace', () => {
-  test('top-level Attendance does not load or mutate by legacy group/date', () => {
-    renderWithProviders(<AttendanceScreen user={user} />)
+  test('top-level Attendance loads today worklist and opens exact occurrence', async () => {
+    const onOpenLesson = vi.fn()
+    renderWithProviders(<AttendanceScreen onOpenLesson={onOpenLesson} user={user} />)
 
-    expect(screen.getByText('Посещаемость открывается из занятия')).toBeVisible()
+    const row = await screen.findByTestId('attendance-today-row-lesson-today-1')
+    expect(within(row).getByText('18:30–20:00')).toBeVisible()
+    expect(within(row).getByText('Вечерняя')).toBeVisible()
+    expect(within(row).getByText('Центр · Большой зал')).toBeVisible()
+    expect(within(row).getByText('Анна Смирнова')).toBeVisible()
+    expect(within(row).getByText('Не отмечено 3')).toBeVisible()
+    fireEvent.click(within(row).getByRole('button', { name: /Открыть: Вечерняя/ }))
+
+    expect(onOpenLesson).toHaveBeenCalledWith('lesson-today-1', '2026-07-12')
+    expect(window.history.state.attendanceTodayReturn).toMatchObject({
+      anchorLessonOccurrenceId: 'lesson-today-1',
+      nextLessonOccurrenceId: null,
+    })
     expect(getGroups).not.toHaveBeenCalled()
     expect(getRoster).not.toHaveBeenCalled()
     expect(saveMarks).not.toHaveBeenCalled()
+  })
+
+  test('today worklist keeps valid rows visible when the response is partial', async () => {
+    getTodayLessons.mockResolvedValueOnce({
+      ...(await getTodayLessons()),
+      partial: true,
+    })
+
+    renderWithProviders(<AttendanceScreen user={user} />)
+
+    expect(await screen.findByText('Часть занятий не загрузилась')).toBeVisible()
+    expect(screen.getByTestId('attendance-today-row-lesson-today-1')).toBeVisible()
+  })
+
+  test('today worklist shows one neutral empty state with explicit refresh', async () => {
+    getTodayLessons.mockResolvedValueOnce({ today: '2026-07-12', partial: false, items: [] })
+
+    renderWithProviders(<AttendanceScreen user={user} />)
+
+    expect(await screen.findByText('На сегодня всё отмечено')).toBeVisible()
+    expect(screen.getByTestId('attendance-today-refresh')).toBeVisible()
+    expect(screen.queryByRole('link', { name: /расписание/i })).not.toBeInTheDocument()
+  })
+
+  test('today worklist shows backend error and retries', async () => {
+    getTodayLessons
+      .mockRejectedValueOnce(new ApiError('Сервис временно недоступен.', 503))
+      .mockResolvedValueOnce({ today: '2026-07-12', partial: false, items: [] })
+
+    renderWithProviders(<AttendanceScreen user={user} />)
+
+    expect(await screen.findByText('Сервис временно недоступен.')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+    expect(await screen.findByText('На сегодня всё отмечено')).toBeVisible()
+    expect(getTodayLessons).toHaveBeenCalledTimes(2)
   })
 
   test('occurrence route loads and saves by lessonOccurrenceId plus lessonDate', async () => {

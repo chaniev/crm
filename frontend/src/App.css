@@ -4317,6 +4317,109 @@
   align-items: end;
 }
 
+.attendance-today-section {
+  min-width: 0;
+}
+
+.attendance-today-toolbar {
+  justify-content: flex-end;
+}
+
+.attendance-today-list {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.attendance-today-list__header,
+.attendance-today-row {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 0.72fr) minmax(9rem, 1.15fr) minmax(14rem, 2fr) minmax(8.75rem, 0.9fr) minmax(6.25rem, auto);
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.attendance-today-list__header {
+  padding: 0 var(--crm-space-page-card-padding-compact-mobile);
+  color: var(--crm-text-secondary);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+}
+
+.attendance-today-row {
+  min-width: 0;
+  padding: var(--crm-space-page-card-padding-compact-mobile);
+  border: 1px solid var(--crm-brand-alpha-12);
+  border-radius: var(--radius-inner);
+  background: var(--crm-surface-card-alpha-98);
+}
+
+.attendance-today-row:focus-visible {
+  outline: 3px solid var(--crm-brand-alpha-35);
+  outline-offset: 2px;
+}
+
+.attendance-today-row__time,
+.attendance-today-row__group,
+.attendance-today-row__details,
+.attendance-today-row__count {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.attendance-today-row__time {
+  font-variant-numeric: tabular-nums;
+}
+
+.attendance-today-row__details {
+  display: grid;
+  gap: var(--crm-space-1);
+}
+
+.attendance-today-row__action.shared-button {
+  min-height: 44px;
+}
+
+@media (max-width: 48em) {
+  .attendance-today-list__header {
+    display: none;
+  }
+
+  .attendance-today-row {
+    grid-template-columns: minmax(4.75rem, auto) minmax(0, 1fr) minmax(5.5rem, auto);
+    grid-template-areas:
+      'time group action'
+      '. details action'
+      '. count action';
+    gap: var(--crm-space-1) var(--crm-space-2);
+    align-items: start;
+    padding: 0.75rem;
+  }
+
+  .attendance-today-row__time {
+    grid-area: time;
+  }
+
+  .attendance-today-row__group {
+    grid-area: group;
+  }
+
+  .attendance-today-row__details {
+    grid-area: details;
+  }
+
+  .attendance-today-row__count {
+    grid-area: count;
+  }
+
+  .attendance-today-row__action.shared-button {
+    grid-area: action;
+    align-self: stretch;
+    min-height: 44px;
+    padding-inline: 0.75rem;
+  }
+}
+
 .attendance-context-controls > .mantine-Select-root,
 .attendance-date-control {
   grid-column: 1 / -1;
@@ -4463,7 +4566,7 @@
 
 .attendance-client-card {
   min-width: 0;
-  padding: 0.875rem;
+  padding: var(--crm-space-page-card-padding-compact-mobile);
   background:
     linear-gradient(135deg, var(--crm-brand-soft-overlay), var(--crm-surface-card-alpha-98));
 }

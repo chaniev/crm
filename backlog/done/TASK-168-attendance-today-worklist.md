@@ -1,13 +1,14 @@
 # TASK-168: Наполнить раздел «Посещения» занятиями на сегодня
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-30 18:43 MSK
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-168-attendance-today-worklist.plan.md
+- implementation_plan: /backlog/done/TASK-168-attendance-today-worklist.plan.md
 - implementation_branch: feature/TASK-168-attendance-today-worklist
+- verification_contract: /backlog/done/TASK-168-attendance-today-worklist-verification-contract.json
 
 ## Implementation progress
 
@@ -25,6 +26,13 @@ implementation
 - 2026-09-01 — product owner selected rendered direction C and confirmed the
   recommended resolution: `Scheduled | Cancelled` remains authoritative;
   `NotHeld` is not reintroduced. The design and backend blockers are resolved.
+- 2026-09-02 — implemented and verified the backend-authorized today read,
+  exact-occurrence counter/scope/substitution semantics, direction C landing,
+  strict partial-row mapper, source-aware return refresh and focus restoration.
+  Canonical backend/frontend/requirements checks passed; rendered Chromium
+  captures at `390 x 844` and `1440 x 1200` match the selected hierarchy.
+  Real Safari chrome/safe-area behavior remains a reported physical-device or
+  Simulator gap and is not claimed as device-level acceptance.
 
 ## Requirements
 - REQ-ATT-006 — changes
@@ -82,23 +90,23 @@ Landing `/attendance` не даёт выполнить основную зада
 - Mobile first action остаётся выше сгиба и не создаёт page-level overflow.
 
 ## Acceptance criteria
-- [ ] `/attendance` показывает в порядке начала только доступные для открытия занятия на сегодня с
+- [x] `/attendance` показывает в порядке начала только доступные для открытия занятия на сегодня с
   `unmarkedClientCount > 0` вместо заглушки.
-- [ ] Каждая строка показывает группу, время и счётчик `Не отмечено` из backend-owned данных.
-- [ ] Одно действие открывает существующий workbench точного занятия.
-- [ ] Недоступные занятия и действия не появляются вне backend scope.
-- [ ] Empty, loading, error и retry состояния понятны и не отправляют пользователя принудительно в `/schedule`.
-- [ ] Повреждённая строка не скрывает корректные; empty state не различает пустой день и пустой scope.
-- [ ] Возврат из workbench актуализирует счётчики/состав и сохраняет контекст; смена CRM-дня не вызывает автообновление.
-- [ ] Coach и Administrator сохраняют landing на `/attendance`; HeadCoach и SuperAdministrator сохраняют доступ через навигацию.
-- [ ] Mobile и desktop regression coverage фиксирует отсутствие горизонтального overflow и сохранение контекста при возврате.
+- [x] Каждая строка показывает группу, время и счётчик `Не отмечено` из backend-owned данных.
+- [x] Одно действие открывает существующий workbench точного занятия.
+- [x] Недоступные занятия и действия не появляются вне backend scope.
+- [x] Empty, loading, error и retry состояния понятны и не отправляют пользователя принудительно в `/schedule`.
+- [x] Повреждённая строка не скрывает корректные; empty state не различает пустой день и пустой scope.
+- [x] Возврат из workbench актуализирует счётчики/состав и сохраняет контекст; смена CRM-дня не вызывает автообновление.
+- [x] Coach и Administrator сохраняют landing на `/attendance`; HeadCoach и SuperAdministrator сохраняют доступ через навигацию.
+- [x] Mobile и desktop regression coverage фиксирует отсутствие горизонтального overflow и сохранение контекста при возврате.
 
 ## Test checklist
-- [ ] Добавить backend contract coverage, если текущий schedule response не содержит надёжный unmarked count.
-- [ ] Добавить API/client mapper tests для today lessons и counters.
-- [ ] Добавить component tests для role scope, loading/empty/error/retry и exact occurrence navigation.
-- [ ] Добавить mobile/wide Playwright flow: landing → занятие → отметка → возврат.
-- [ ] Запустить canonical backend/frontend validation всех затронутых producer/consumer слоёв.
+- [x] Добавить backend contract coverage, если текущий schedule response не содержит надёжный unmarked count.
+- [x] Добавить API/client mapper tests для today lessons и counters.
+- [x] Добавить component tests для role scope, loading/empty/error/retry и exact occurrence navigation.
+- [x] Добавить mobile/wide Playwright flow: landing → занятие → отметка → возврат.
+- [x] Запустить canonical backend/frontend validation всех затронутых producer/consumer слоёв.
 
 ## AI safety
 - Safe for autonomous implementation: yes

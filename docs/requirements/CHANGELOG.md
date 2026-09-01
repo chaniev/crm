@@ -9,12 +9,19 @@
 - ДД.ММ.ГГГГ — REQ-ДОМЕН-NNN — <что изменилось: новая | текст | решение | реализация> (задача <ссылка>)
 ```
 
+## 2026-09-02
+
+- 02.09.2026 — REQ-ATT-006 — backend-authorized today worklist, точный
+  occurrence counter, direction C и возврат с актуализацией контекста
+  реализованы; реализация требования переведена в «реализовано» (задача
+  [TASK-168](../../backlog/done/TASK-168-attendance-today-worklist.md)).
+
 ## 2026-09-01
 
 - 01.09.2026 — REQ-ATT-006 — product owner сохранил lifecycle
   `Scheduled | Cancelled`, удалил устаревшее условие `NotHeld` и выбрал
   visual direction C для today worklist (уточнение
-  [TASK-168](../../backlog/implementation/TASK-168-attendance-today-worklist.md)).
+  [TASK-168](../../backlog/done/TASK-168-attendance-today-worklist.md)).
 - 01.09.2026 — REQ-GRP-007 — TASK-167 реализовала единую resource-backed
   подпись schedule action `Посещение`; реализация требования
   переведена в «реализовано» (задача
@@ -22,7 +29,7 @@
 - 01.09.2026 — REQ-ATT-006 — today worklist уточнён до action-only
   занятий с `unmarkedClientCount > 0`; закреплены исключённые
   состояния, порядок, partial-result и правила актуализации (уточнение
-  [TASK-168](../../backlog/implementation/TASK-168-attendance-today-worklist.md)).
+  [TASK-168](../../backlog/done/TASK-168-attendance-today-worklist.md)).
 - 01.09.2026 — REQ-NFR-007 — текст уточнён: resource migration охватывает все
   отображаемые пользователю статические тексты независимо от языка, завершается
   только после переноса всех выявленных текстов и не меняет их форматирование
@@ -53,7 +60,7 @@
 - 30.08.2026 — REQ-ATT-006 — принят task-first landing `/attendance` со
   списком занятий на сегодня, быстрым входом и счётчиком `Не отмечено`;
   реализация переведена в «частично» (задача
-  [TASK-168](../../backlog/implementation/TASK-168-attendance-today-worklist.md)).
+  [TASK-168](../../backlog/done/TASK-168-attendance-today-worklist.md)).
 - 30.08.2026 — REQ-GRP-007 — TASK-157 интегрирована в `main`;
   mobile-density contract покрыт component/Chromium/target-iPhone WebKit
   evidence, реализация переведена в «реализовано» (задача

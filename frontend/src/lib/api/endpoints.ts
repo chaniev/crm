@@ -118,6 +118,7 @@ export const API_ENDPOINTS = {
   },
   attendance: {
     groups: '/attendance/groups',
+    todayLessons: '/attendance/lessons/today',
     groupClients: (groupId: string) => `/attendance/groups/${groupId}/clients`,
     groupMarks: (groupId: string) => `/attendance/groups/${groupId}`,
     lessonClients: (lessonOccurrenceId: string) =>

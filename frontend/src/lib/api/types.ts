@@ -153,6 +153,32 @@ export type AttendanceGroupsResponse = {
   maxTrainingDate: string
 }
 
+export type AttendanceTodayTrainer = {
+  trainerId: string
+  fullName: string
+  kind: 'Permanent' | 'Substitute'
+}
+
+export type AttendanceTodayLesson = {
+  lessonOccurrenceId: string
+  lessonDate: string
+  groupId: string
+  groupName: string
+  startTime: string
+  endTime: string
+  branchName: string
+  hallName: string
+  effectiveTrainers: AttendanceTodayTrainer[]
+  openAttendance: ScheduleAction
+  unmarkedClientCount: number
+}
+
+export type AttendanceTodayLessonsResponse = {
+  today: string
+  items: AttendanceTodayLesson[]
+  partial: boolean
+}
+
 export type AdministratorAttendanceScopeGroup = {
   id: string
   name: string

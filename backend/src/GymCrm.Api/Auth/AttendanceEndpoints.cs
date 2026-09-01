@@ -25,10 +25,101 @@ internal static class AttendanceEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.MarkAttendance);
 
         group.MapGet("/groups", ListGroupsAsync);
+        group.MapGet("/lessons/today", ListTodayLessonsAsync);
         group.MapGet("/lessons/{lessonOccurrenceId:guid}/clients", GetLessonClientsAsync);
         group.MapPost("/lessons/{lessonOccurrenceId:guid}", SaveLessonAttendanceAsync);
 
         return endpoints;
+    }
+
+    private static async Task<Results<Ok<AttendanceTodayLessonsResponse>, UnauthorizedHttpResult>> ListTodayLessonsAsync(
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IAccessScopeService accessScopeService,
+        IAttendanceDatePolicy attendanceDatePolicy,
+        CancellationToken cancellationToken)
+    {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var today = attendanceDatePolicy.GetWindow(currentUser.Role).Today;
+        var lessons = (await ScheduleEndpoints.LoadScopedLessonsAsync(
+                currentUser,
+                today,
+                today,
+                dbContext,
+                accessScopeService,
+                attendanceDatePolicy,
+                cancellationToken))
+            .Where(lesson =>
+                string.Equals(lesson.Status, "Scheduled", StringComparison.Ordinal) &&
+                lesson.AllowedActions.ViewAttendance.Allowed)
+            .ToArray();
+
+        if (lessons.Length == 0)
+        {
+            return TypedResults.Ok(new AttendanceTodayLessonsResponse(today, []));
+        }
+
+        var groupIds = lessons.Select(lesson => lesson.GroupId).ToHashSet();
+        var activeRoster = await dbContext.Clients
+            .AsNoTracking()
+            .Where(client => client.Status == ClientStatus.Active)
+            .SelectMany(client => client.Groups
+                .Where(clientGroup => groupIds.Contains(clientGroup.GroupId))
+                .Select(clientGroup => new { clientGroup.GroupId, client.Id }))
+            .ToArrayAsync(cancellationToken);
+        var clientsByGroup = activeRoster
+            .GroupBy(item => item.GroupId)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(item => item.Id).ToHashSet());
+
+        var occurrenceIds = lessons.Select(lesson => lesson.LessonOccurrenceId).ToHashSet();
+        var markedClients = await dbContext.Attendance
+            .AsNoTracking()
+            .Where(attendance => occurrenceIds.Contains(attendance.LessonOccurrenceId))
+            .Select(attendance => new { attendance.LessonOccurrenceId, attendance.ClientId })
+            .ToArrayAsync(cancellationToken);
+        var markedClientsByOccurrence = markedClients
+            .GroupBy(item => item.LessonOccurrenceId)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(item => item.ClientId).ToHashSet());
+
+        var items = lessons
+            .Select(lesson =>
+            {
+                var activeClientIds = clientsByGroup.GetValueOrDefault(lesson.GroupId) ?? [];
+                var markedClientIds = markedClientsByOccurrence.GetValueOrDefault(lesson.LessonOccurrenceId) ?? [];
+                var unmarkedClientCount = activeClientIds.Count(clientId => !markedClientIds.Contains(clientId));
+                return new AttendanceTodayLessonResponse(
+                    lesson.LessonOccurrenceId,
+                    lesson.LessonDate,
+                    lesson.GroupId,
+                    lesson.GroupName,
+                    lesson.StartTime,
+                    lesson.EndTime,
+                    lesson.BranchName,
+                    lesson.HallName,
+                    lesson.EffectiveTrainers
+                        .Select(trainer => new AttendanceTodayTrainerResponse(
+                            trainer.TrainerId,
+                            trainer.FullName,
+                            trainer.Kind))
+                        .ToArray(),
+                    lesson.AllowedActions.ViewAttendance,
+                    unmarkedClientCount);
+            })
+            .Where(lesson => lesson.UnmarkedClientCount > 0)
+            .OrderBy(lesson => lesson.StartTime, StringComparer.Ordinal)
+            .ThenBy(lesson => lesson.LessonOccurrenceId)
+            .ToArray();
+
+        return TypedResults.Ok(new AttendanceTodayLessonsResponse(today, items));
     }
 
     private static async Task<Results<Ok<AttendanceGroupsResponse>, UnauthorizedHttpResult>> ListGroupsAsync(

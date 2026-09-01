@@ -9,6 +9,9 @@ export type {
   AttendanceScope,
   AttendanceScopeKind,
   AttendanceState,
+  AttendanceTodayLesson,
+  AttendanceTodayLessonsResponse,
+  AttendanceTodayTrainer,
   AdministrativeUserRole,
   AdministratorAttendanceScopeGroup,
   AdministratorAttendanceScopeResponse,
@@ -278,6 +281,7 @@ export {
   getAttendanceGroupClients,
   getAttendanceGroups,
   getAttendanceLessonClients,
+  getAttendanceTodayLessons,
   saveAttendanceMarks,
   saveAttendanceLessonMarks,
 } from './api/attendance'

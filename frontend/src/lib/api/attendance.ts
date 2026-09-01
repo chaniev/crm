@@ -15,6 +15,7 @@ import {
   extractArrayPayload,
   isRecord,
   readBoolean,
+  readNumber,
   readString,
 } from './read-helpers'
 import { request } from './transport'
@@ -26,10 +27,31 @@ import type {
   AttendanceGroupsResponse,
   AttendanceRosterResponse,
   AttendanceState,
+  AttendanceTodayLesson,
+  AttendanceTodayLessonsResponse,
+  AttendanceTodayTrainer,
   ClientResponsePayload,
   SaveAttendanceMarksRequest,
   SaveAttendanceMarksResponse,
 } from './types'
+
+const ATTENDANCE_TODAY_ITEM_KEYS = ['items', 'Items'] as const
+
+export async function getAttendanceTodayLessons(
+  signal?: AbortSignal,
+): Promise<AttendanceTodayLessonsResponse> {
+  const payload = await request<unknown>(API_ENDPOINTS.attendance.todayLessons, { signal })
+  const envelope = requireRecord(payload, 'Некорректный ответ списка занятий на сегодня.')
+  const mappedItems = extractArrayPayload<unknown>(payload, ATTENDANCE_TODAY_ITEM_KEYS)
+    .map(mapAttendanceTodayLesson)
+  const items = mappedItems.filter((item): item is AttendanceTodayLesson => item !== null)
+
+  return {
+    today: requireIsoDate(envelope, ['today', 'Today']),
+    items,
+    partial: items.length !== mappedItems.length,
+  }
+}
 
 export async function getAttendanceGroups(signal?: AbortSignal) {
   const payload = await request<unknown>(API_ENDPOINTS.attendance.groups, { signal })
@@ -339,6 +361,91 @@ function mapAttendanceGroup(payload: AttendanceGroupPayload): AttendanceGroup | 
     clientCount:
       typeof payload.clientCount === 'number' ? payload.clientCount : undefined,
   }
+}
+
+function mapAttendanceTodayLesson(payload: unknown): AttendanceTodayLesson | null {
+  if (!isRecord(payload)) {
+    return null
+  }
+
+  const lessonOccurrenceId = readString(payload, ['lessonOccurrenceId', 'LessonOccurrenceId'])
+  const lessonDate = normalizeIsoDateValue(
+    readString(payload, ['lessonDate', 'LessonDate']) ?? '',
+  )
+  const groupId = readString(payload, ['groupId', 'GroupId'])
+  const groupName = readString(payload, ['groupName', 'GroupName'])
+  const startTime = readClockTime(payload, ['startTime', 'StartTime'])
+  const endTime = readClockTime(payload, ['endTime', 'EndTime'])
+  const branchName = readString(payload, ['branchName', 'BranchName'])
+  const hallName = readString(payload, ['hallName', 'HallName'])
+  const unmarkedClientCount = readNumber(payload, [
+    'unmarkedClientCount',
+    'UnmarkedClientCount',
+  ])
+  const openAttendance = readScheduleAction(payload, [
+    'openAttendance',
+    'OpenAttendance',
+  ])
+  const trainersPayload = payload.effectiveTrainers ?? payload.EffectiveTrainers
+  const effectiveTrainers = Array.isArray(trainersPayload)
+    ? trainersPayload.map(mapAttendanceTodayTrainer)
+    : null
+
+  if (
+    !lessonOccurrenceId ||
+    !lessonDate ||
+    !groupId ||
+    !groupName ||
+    !startTime ||
+    !endTime ||
+    !branchName ||
+    !hallName ||
+    !Number.isInteger(unmarkedClientCount) ||
+    unmarkedClientCount === undefined ||
+    unmarkedClientCount <= 0 ||
+    !openAttendance?.allowed ||
+    !effectiveTrainers ||
+    effectiveTrainers.some((trainer) => trainer === null)
+  ) {
+    return null
+  }
+
+  return {
+    lessonOccurrenceId,
+    lessonDate,
+    groupId,
+    groupName,
+    startTime,
+    endTime,
+    branchName,
+    hallName,
+    effectiveTrainers: effectiveTrainers as AttendanceTodayTrainer[],
+    openAttendance,
+    unmarkedClientCount,
+  }
+}
+
+function mapAttendanceTodayTrainer(payload: unknown): AttendanceTodayTrainer | null {
+  if (!isRecord(payload)) {
+    return null
+  }
+
+  const trainerId = readString(payload, ['trainerId', 'TrainerId'])
+  const fullName = readString(payload, ['fullName', 'FullName'])
+  const kind = readString(payload, ['kind', 'Kind'])
+  if (!trainerId || !fullName || (kind !== 'Permanent' && kind !== 'Substitute')) {
+    return null
+  }
+
+  return { trainerId, fullName, kind }
+}
+
+function readClockTime(
+  payload: Record<string, unknown>,
+  keys: readonly string[],
+) {
+  const value = readString(payload, keys)
+  return value && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value) ? value : undefined
 }
 
 function mapAttendanceClient(payload: AttendanceClientPayload): AttendanceClient | null {

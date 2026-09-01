@@ -34,11 +34,13 @@ import {
   type AttendanceRosterView,
 } from './AttendanceRosterViewControl'
 import type { AttendanceClientRowState } from './types'
+import { AttendanceTodayWorklist } from './AttendanceTodayWorklist'
 
 type AttendanceScreenProps = {
   initialReturnContext?: ClientProfileReturnContext | null
   lessonTarget?: AttendanceLessonTarget | null
   onOpenClient?: (clientId: string, origin: ClientProfileOriginInput) => void
+  onOpenLesson?: (lessonOccurrenceId: string, lessonDate: string) => void
   user: AuthenticatedUser
 }
 
@@ -51,19 +53,13 @@ export function AttendanceScreen({
   initialReturnContext = null,
   lessonTarget = null,
   onOpenClient,
+  onOpenLesson,
   user,
 }: AttendanceScreenProps) {
   if (!lessonTarget) {
     return (
       <PageLayout data-testid="attendance-screen" showHeader={false} title="Посещения">
-        <PageSection>
-          <EmptyState
-            action={<Button component="a" href="/schedule" variant="light">Открыть расписание</Button>}
-            description="Выберите конкретное занятие в расписании и откройте его посещаемость."
-            icon={<IconUsersGroup size={24} />}
-            title="Посещаемость открывается из занятия"
-          />
-        </PageSection>
+        <AttendanceTodayWorklist onOpenLesson={onOpenLesson ?? (() => undefined)} />
       </PageLayout>
     )
   }

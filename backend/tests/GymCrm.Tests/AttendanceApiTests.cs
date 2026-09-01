@@ -34,6 +34,184 @@ public class AttendanceApiTests
     // 4) Тело отправки: { attendanceMarks: [{ clientId, state }] }
 
     [Fact]
+    public async Task Today_worklist_uses_business_day_scope_exact_occurrence_counts_and_removes_completed_lesson()
+    {
+        await using var factory = new AttendanceAppFactory();
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
+        var today = GetBusinessToday();
+        var occurrenceId = await ResolveLessonOccurrenceIdAsync(factory, seeded.AssignedGroupId, today);
+
+        using (var initialResponse = await client.GetAsync("/attendance/lessons/today"))
+        {
+            Assert.Equal(HttpStatusCode.OK, initialResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(initialResponse);
+            Assert.Equal(today.ToString("yyyy-MM-dd"), payload.GetProperty("today").GetString());
+            var item = Assert.Single(payload.GetProperty("items").EnumerateArray());
+            Assert.Equal(occurrenceId, item.GetProperty("lessonOccurrenceId").GetGuid());
+            Assert.Equal(seeded.AssignedGroupId, item.GetProperty("groupId").GetGuid());
+            Assert.Equal("08:00", item.GetProperty("startTime").GetString());
+            Assert.Equal("09:00", item.GetProperty("endTime").GetString());
+            Assert.Equal(3, item.GetProperty("unmarkedClientCount").GetInt32());
+            Assert.True(item.GetProperty("openAttendance").GetProperty("allowed").GetBoolean());
+        }
+
+        await SaveStateAsync(
+            factory,
+            client,
+            seeded.AssignedGroupId,
+            seeded.SingleVisitClientId,
+            today.ToString("yyyy-MM-dd"),
+            "Present",
+            session.CsrfToken);
+
+        using (var partiallyMarkedResponse = await client.GetAsync("/attendance/lessons/today"))
+        {
+            var payload = await ReadJsonElementAsync(partiallyMarkedResponse);
+            var item = Assert.Single(payload.GetProperty("items").EnumerateArray());
+            Assert.Equal(2, item.GetProperty("unmarkedClientCount").GetInt32());
+        }
+
+        await SaveStateAsync(
+            factory,
+            client,
+            seeded.AssignedGroupId,
+            seeded.WarningClientId,
+            today.ToString("yyyy-MM-dd"),
+            "Absent",
+            session.CsrfToken);
+        await SaveStateAsync(
+            factory,
+            client,
+            seeded.AssignedGroupId,
+            seeded.ProfessionalClientId,
+            today.ToString("yyyy-MM-dd"),
+            "Absent",
+            session.CsrfToken);
+
+        using var completedResponse = await client.GetAsync("/attendance/lessons/today");
+        var completedPayload = await ReadJsonElementAsync(completedResponse);
+        Assert.Empty(completedPayload.GetProperty("items").EnumerateArray());
+    }
+
+    [Fact]
+    public async Task Today_worklist_keeps_backend_scope_start_order_and_excludes_empty_or_cancelled_lessons()
+    {
+        await using var factory = new AttendanceAppFactory();
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var headCoachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var headCoachSession = await LoginAsync(headCoachClient, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var globalResponse = await headCoachClient.GetAsync("/attendance/lessons/today"))
+        {
+            Assert.Equal(HttpStatusCode.OK, globalResponse.StatusCode);
+            var items = (await ReadJsonElementAsync(globalResponse))
+                .GetProperty("items")
+                .EnumerateArray()
+                .ToArray();
+            Assert.Equal(2, items.Length);
+            Assert.Equal(["08:00", "20:00"], items.Select(item => item.GetProperty("startTime").GetString()!).ToArray());
+            Assert.Equal(
+                [seeded.AssignedGroupId, seeded.ForeignBranchGroupId],
+                items.Select(item => item.GetProperty("groupId").GetGuid()).ToArray());
+            Assert.DoesNotContain(items, item => item.GetProperty("groupId").GetGuid() == seeded.UnassignedGroupId);
+        }
+
+        const string substituteLogin = "substitute-stage7";
+        var today = GetBusinessToday();
+        var occurrenceId = await ResolveLessonOccurrenceIdAsync(factory, seeded.AssignedGroupId, today);
+        await SaveStateAsync(
+            factory,
+            headCoachClient,
+            seeded.AssignedGroupId,
+            seeded.WarningClientId,
+            today.ToString("yyyy-MM-dd"),
+            "Absent",
+            headCoachSession.CsrfToken);
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+            var now = DateTimeOffset.UtcNow;
+            var substitute = CreateUser(
+                substituteLogin,
+                "Подменный тренер Stage 7",
+                UserRole.Coach,
+                seeded.SharedPassword,
+                now,
+                passwordHashService);
+            dbContext.Users.Add(substitute);
+            dbContext.LessonOccurrenceTrainerSubstitutions.Add(new LessonOccurrenceTrainerSubstitution
+            {
+                Id = Guid.NewGuid(),
+                LessonOccurrenceId = occurrenceId,
+                ReplacedTrainerId = seeded.CoachId,
+                SubstituteTrainerId = substitute.Id,
+                CreatedByUserId = seeded.HeadCoachId,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var substituteClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(substituteClient, substituteLogin, seeded.SharedPassword);
+        using (var substituteResponse = await substituteClient.GetAsync("/attendance/lessons/today"))
+        {
+            var substituteItem = Assert.Single((await ReadJsonElementAsync(substituteResponse))
+                .GetProperty("items")
+                .EnumerateArray());
+            Assert.Equal(seeded.AssignedGroupId, substituteItem.GetProperty("groupId").GetGuid());
+            Assert.Contains(
+                substituteItem.GetProperty("effectiveTrainers").EnumerateArray(),
+                trainer =>
+                    trainer.GetProperty("fullName").GetString() == "Подменный тренер Stage 7" &&
+                    trainer.GetProperty("kind").GetString() == "Substitute");
+        }
+
+        using var administratorClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(administratorClient, seeded.AdministratorLogin, seeded.SharedPassword);
+        using var emptyScopeResponse = await administratorClient.GetAsync("/attendance/lessons/today");
+        var emptyScopePayload = await ReadJsonElementAsync(emptyScopeResponse);
+        Assert.Empty(emptyScopePayload.GetProperty("items").EnumerateArray());
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var occurrence = await dbContext.LessonOccurrences.SingleAsync(item => item.Id == occurrenceId);
+            occurrence.Status = LessonOccurrenceStatus.Cancelled;
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
+        using var cancelledResponse = await coachClient.GetAsync("/attendance/lessons/today");
+        var cancelledPayload = await ReadJsonElementAsync(cancelledResponse);
+        Assert.Empty(cancelledPayload.GetProperty("items").EnumerateArray());
+    }
+
+    [Fact]
     public async Task HeadCoach_can_mark_attendance_edit_it_and_trigger_single_visit_write_off()
     {
         await using var factory = new AttendanceAppFactory();

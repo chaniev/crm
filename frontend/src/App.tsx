@@ -551,6 +551,9 @@ export function App({ appConfig, authBackground }: AppProps) {
               lessonOccurrenceId,
             )
           }
+          onOpenAttendanceTodayLesson={(lessonOccurrenceId, lessonDate) =>
+            navigate({ kind: 'attendanceLesson', lessonOccurrenceId, lessonDate })
+          }
           onOpenScheduleLesson={(lessonOccurrenceId, lessonDate) =>
             navigateWithScheduleReturnState(
               { kind: 'scheduleLessonDetail', lessonOccurrenceId, lessonDate },

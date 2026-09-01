@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-168 Наполнить раздел «Посещения» занятиями на сегодня
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-168-attendance-today-worklist.md
+- source_task: /backlog/done/TASK-168-attendance-today-worklist.md
 - requirements: REQ-ATT-006 (changes), REQ-ATT-001 (constrains), REQ-ATT-003 (constrains), REQ-GRP-005 (constrains), REQ-NFR-001 (constrains)
 - branch: feature/TASK-168-attendance-today-worklist
 - readiness: yes — production UI начинается только после обязательного UX/rendered-direction gate и выбора product owner

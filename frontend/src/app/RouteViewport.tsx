@@ -52,6 +52,7 @@ type RouteViewportProps = {
   onEditScheduleSeries: (lesson: ScheduleLesson, scope: 'this-and-future' | 'entire') => void
   onMoveScheduleLesson: (lessonOccurrenceId: string, lessonDate: string) => void
   onOpenAttendanceLesson: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenAttendanceTodayLesson: (lessonOccurrenceId: string, lessonDate: string) => void
   onOpenScheduleLesson: (lessonOccurrenceId: string, lessonDate: string) => void
   onEditGroup: (
     groupId: string,
@@ -94,6 +95,7 @@ export function RouteViewport({
   onEditClient,
   onOpenClient,
   onOpenAttendanceLesson,
+  onOpenAttendanceTodayLesson,
   onOpenScheduleLesson,
   onPreviewClient,
   onCreateGroup,
@@ -348,6 +350,7 @@ export function RouteViewport({
       <AttendanceScreen
         initialReturnContext={clientProfileReturnContext}
         onOpenClient={onOpenClient}
+        onOpenLesson={onOpenAttendanceTodayLesson}
         user={user}
       />
     )

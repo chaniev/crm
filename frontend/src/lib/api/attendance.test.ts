@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
   getAttendanceGroupClients,
   getAttendanceGroups,
+  getAttendanceTodayLessons,
   saveAttendanceMarks,
 } from './attendance'
 
@@ -10,6 +11,64 @@ afterEach(() => {
 })
 
 describe('attendance API', () => {
+  test('maps valid today lessons and reports malformed rows as a partial result', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      today: '2026-09-01',
+      items: [
+        {
+          lessonOccurrenceId: 'lesson-1',
+          lessonDate: '2026-09-01',
+          groupId: 'group-1',
+          groupName: 'Утренняя группа',
+          startTime: '08:00',
+          endTime: '09:00',
+          branchName: 'Центр',
+          hallName: 'Основной зал',
+          effectiveTrainers: [{
+            trainerId: 'trainer-1',
+            fullName: 'Алиса Воронова',
+            kind: 'Permanent',
+          }],
+          openAttendance: { allowed: true, reason: null },
+          unmarkedClientCount: 7,
+        },
+        {
+          lessonOccurrenceId: 'broken-row',
+          lessonDate: '2026-09-01',
+          groupId: 'group-2',
+          groupName: 'Повреждённая строка',
+          startTime: '10:00',
+          endTime: '11:00',
+          branchName: 'Центр',
+          hallName: 'Зал',
+          effectiveTrainers: [],
+          openAttendance: { allowed: true, reason: null },
+        },
+      ],
+    })))
+
+    await expect(getAttendanceTodayLessons()).resolves.toEqual({
+      today: '2026-09-01',
+      partial: true,
+      items: [{
+        lessonOccurrenceId: 'lesson-1',
+        lessonDate: '2026-09-01',
+        groupId: 'group-1',
+        groupName: 'Утренняя группа',
+        startTime: '08:00',
+        endTime: '09:00',
+        branchName: 'Центр',
+        hallName: 'Основной зал',
+        effectiveTrainers: [{
+          trainerId: 'trainer-1',
+          fullName: 'Алиса Воронова',
+          kind: 'Permanent',
+        }],
+        openAttendance: { allowed: true, reason: null },
+        unmarkedClientCount: 7,
+      }],
+    })
+  })
   test('maps authoritative dates and tri-state roster without boolean coercion', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
       groupId: 'group-1',

@@ -25,6 +25,29 @@ export const resources = {
     emptyTitle: 'Никому не требуется внимание',
     emptyDescription: 'Нет клиентов с повторными пропусками или вопросами по абонементам.',
   },
+  attendance: {
+    today: {
+      refresh: 'Обновить список',
+      loading: 'Загружаем занятия на сегодня...',
+      loadingErrorTitle: 'Занятия не загрузились',
+      loadingErrorMessage: 'Не удалось загрузить занятия на сегодня.',
+      retry: 'Повторить',
+      partialTitle: 'Часть занятий не загрузилась',
+      partialMessage: 'Показаны доступные занятия. Обновите список, чтобы загрузить остальные.',
+      emptyTitle: 'На сегодня всё отмечено',
+      emptyDescription: 'Нет доступных занятий, которые требуют отметки посещений.',
+      listLabel: 'Занятия на сегодня',
+      unmarkedCount: 'Не отмечено',
+      open: 'Открыть',
+      columns: {
+        time: 'Время',
+        group: 'Группа',
+        details: 'Локация и тренер',
+        remaining: 'Осталось',
+        action: 'Действие',
+      },
+    },
+  },
   schedule: {
     actions: {
       attendance: 'Посещение',

@@ -208,6 +208,51 @@ internal static partial class ScheduleEndpoints
             : TypedResults.Ok(lesson);
     }
 
+    internal static async Task<IReadOnlyList<ScheduleLessonResponse>> LoadScopedLessonsAsync(
+        User currentUser,
+        DateOnly from,
+        DateOnly to,
+        GymCrmDbContext dbContext,
+        IAccessScopeService accessScopeService,
+        IAttendanceDatePolicy attendanceDatePolicy,
+        CancellationToken cancellationToken)
+    {
+        var scopedSeries = await LoadScopedSeriesAsync(
+            currentUser,
+            from,
+            to,
+            dbContext,
+            accessScopeService,
+            cancellationToken);
+        var attendanceMarks = await LoadAttendanceMarkFactsAsync(
+            dbContext,
+            from,
+            to,
+            cancellationToken);
+        var materialized = await LoadMaterializedOccurrencesAsync(
+            dbContext,
+            scopedSeries.Select(item => item.GroupId).ToHashSet(),
+            await LoadAccessibleSubstituteOccurrenceIdsAsync(
+                dbContext,
+                currentUser,
+                from,
+                to,
+                cancellationToken),
+            from,
+            to,
+            cancellationToken);
+
+        return ProjectLessons(
+                scopedSeries,
+                materialized,
+                from,
+                to,
+                currentUser,
+                attendanceDatePolicy,
+                attendanceMarks)
+            .ToArray();
+    }
+
     private static async Task<IResult> PreviewOneOffLessonAsync(
         ScheduleOneOffLessonRequest request,
         HttpContext httpContext,

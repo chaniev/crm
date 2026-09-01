@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "task_id": "TASK-168",
+  "expected_branch": "feature/TASK-168-attendance-today-worklist",
+  "areas": ["backend", "frontend", "requirements"],
+  "runtime_smoke": [
+    {
+      "id": "backend.attendance-today-contract",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/tests/GymCrm.Tests/GymCrm.Tests.csproj",
+        "-m:1",
+        "--no-restore",
+        "--filter",
+        "FullyQualifiedName~Today_worklist",
+        "--logger",
+        "console;verbosity=minimal"
+      ],
+      "timeout_seconds": 600
+    },
+    {
+      "id": "frontend.attendance-today-unit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "src/features/attendance/AttendanceScreen.test.tsx",
+        "src/features/attendance/attendanceTodayReturnState.test.ts",
+        "src/lib/api/attendance.test.ts"
+      ],
+      "timeout_seconds": 240
+    }
+  ],
+  "playwright": [
+    {
+      "id": "frontend.attendance-today-chromium",
+      "spec": "e2e/attendance-today-worklist.spec.ts",
+      "projects": ["chromium"],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.attendance-today-target-iphones",
+      "spec": "e2e/attendance-today-worklist.spec.ts",
+      "projects": ["iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 2400
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.rendered-attendance-today",
+      "description": "Compare populated, partial/error, empty and long-content states at 390x844 and 1440x1200 with selected direction C under backlog/mockups/TASK-168-attendance-today-worklist; confirm the stable count/action ledger, 44px actions, wrapping, no duplicate visible heading, and no horizontal overflow."
+    },
+    {
+      "id": "manual.device-level-ios",
+      "description": "On Simulator or physical iPhone, confirm Safari chrome, safe area, home indicator, compact-height reach and browser Back focus restoration before claiming device-level acceptance."
+    }
+  ]
+}
