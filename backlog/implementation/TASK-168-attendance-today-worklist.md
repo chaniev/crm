@@ -22,6 +22,9 @@ implementation
   is paused until the product owner chooses whether the current two-state
   lifecycle remains authoritative or `NotHeld` is intentionally reintroduced
   with a separate lifecycle/data decision.
+- 2026-09-01 — product owner selected rendered direction C and confirmed the
+  recommended resolution: `Scheduled | Cancelled` remains authoritative;
+  `NotHeld` is not reintroduced. The design and backend blockers are resolved.
 
 ## Requirements
 - REQ-ATT-006 — changes
@@ -51,7 +54,7 @@ Landing `/attendance` не даёт выполнить основную зада
 ## Scope
 - Показать на `/attendance` backend-authorized занятия текущего локального дня с
   `unmarkedClientCount > 0`, упорядоченные по времени начала.
-- Не показывать `Cancelled`, `NotHeld`, недоступные для открытия и полностью отмеченные занятия.
+- Не показывать `Cancelled`, недоступные для открытия и полностью отмеченные занятия.
 - Для каждого занятия показать достаточные decision data и backend-derived
   количество клиентов со статусом `Не отмечено`.
 - Добавить один быстрый переход в существующий attendance workbench конкретного

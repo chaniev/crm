@@ -11,6 +11,10 @@
 
 ## 2026-09-01
 
+- 01.09.2026 — REQ-ATT-006 — product owner сохранил lifecycle
+  `Scheduled | Cancelled`, удалил устаревшее условие `NotHeld` и выбрал
+  visual direction C для today worklist (уточнение
+  [TASK-168](../../backlog/implementation/TASK-168-attendance-today-worklist.md)).
 - 01.09.2026 — REQ-GRP-007 — TASK-167 реализовала единую resource-backed
   подпись schedule action `Посещение`; реализация требования
   переведена в «реализовано» (задача

@@ -14,7 +14,7 @@
 ## Domain/API contract
 - Добавить dedicated staff read `GET /attendance/lessons/today` без browser-supplied date. Backend берёт `today` из принятого `IAttendanceDatePolicy`/CRM local-day contract и применяет тот же effective attendance scope, включая активные замещения и occurrence-scoped access, что и существующие schedule/roster reads.
 - Ответ: `today` и ordered `items`; row содержит `lessonOccurrenceId`, `lessonDate`, `groupId`, `groupName`, `startTime`, `endTime`, `branchName`, `hallName`, `effectiveTrainers`, backend action decision для открытия attendance и `unmarkedClientCount`.
-- Backend возвращает только occurrences с разрешённым открытием attendance и `unmarkedClientCount > 0`; `Cancelled`, `NotHeld`, недоступные и полностью отмеченные occurrences исключаются. Frontend не фильтрует по роли, расписанию, статусу, count или дате самостоятельно.
+- Backend возвращает только `Scheduled` occurrences с разрешённым открытием attendance и `unmarkedClientCount > 0`; `Cancelled`, недоступные и полностью отмеченные occurrences исключаются. Принятый lifecycle остаётся `Scheduled | Cancelled`; TASK-168 не вводит `NotHeld`. Frontend не фильтрует по роли, расписанию, статусу, count или дате самостоятельно.
 - Backend сортирует items по `startTime`, а при равном времени использует stable occurrence identity как deterministic tie-breaker.
 - `unmarkedClientCount` эквивалентен числу активных клиентов roster точного occurrence со state `Unmarked`: нет сохранённой `Present`/`Absent` записи для этого `lessonOccurrenceId`. Группа+дата или `hasAttendanceMarks` не заменяют occurrence identity/count.
 - Contract read-only: attendance save/reset, membership entitlement, audit и date-window semantics не меняются. Invalid row не маскируется нулём и не превращает весь ответ в full error: она пропускается, корректные строки сохраняются, а frontend показывает неблокирующее partial-result сообщение с retry.
@@ -33,7 +33,7 @@
 - Attendance mutations и roster composition после входа, будущие/исторические даты, schedule filters, navigation order/landing roles, новый persisted schema, bot contract.
 
 ## Implementation slices
-1. Design gate: собрать rendered current-state evidence, оформить UX contract/brief, три направления, recorded selection и final responsive/interaction contract; остановить production implementation до выбора.
+1. Design gate: direction C selected by product owner on 2026-09-01; UX contract, brief, alternatives, selection record and responsive/interaction contract are stored under `backlog/mockups/TASK-168-attendance-today-worklist/`.
 2. Backend RED→green: contract tests для CRM `today`, exact occurrence identity, start-time order, role/scope/substitution boundaries, excluded `Cancelled`/`NotHeld`/disallowed occurrences и `unmarkedClientCount > 0`; реализовать dedicated read, переиспользуя существующие occurrence/access/roster semantics вместо их копирования в endpoint.
 3. Frontend client RED→green: typed endpoint, per-row strict mapper и facade export; invalid row пропускается с partial-result signal, не превращает count в ноль и не скрывает корректные rows.
 4. Landing RED→green: заменить placeholder today worklist, реализовать loading/unified-empty/error/retry/partial-result/stale-action states по выбранному contract; row action принимает только backend `lessonOccurrenceId` + `lessonDate`.
@@ -53,7 +53,7 @@
 
 ## Regression specification
 ### Automated tests to add or update
-- Backend: `today` comes from date policy; projected and materialized same-day lessons keep unique occurrence IDs and stable start-time order; Coach/Administrator/management scope and active substitution are enforced; inaccessible, disallowed, `Cancelled` and `NotHeld` items are absent.
+- Backend: `today` comes from date policy; projected and materialized same-day lessons keep unique occurrence IDs and stable start-time order; Coach/Administrator/management scope and active substitution are enforced; inaccessible, disallowed and `Cancelled` items are absent.
 - Backend count: active roster clients without exact-occurrence marks count as `Unmarked`; `Present`/`Absent` reduce count; marks for another same-group/date occurrence do not; reset to `Unmarked` restores count; only occurrences with count greater than zero are returned, and reaching zero removes the item on the next refresh.
 - API mapper: valid payload maps decision fields/count/action; missing identity/date/count or malformed row is omitted with a partial-result signal instead of inventing defaults or discarding valid rows.
 - Component: populated/loading/unified-empty/error+retry/partial-result/stale-action and long-name states; every rendered row has an enabled action and opens the expected occurrence; no legacy schedule-link placeholder.
@@ -79,5 +79,5 @@
 - Stop before production UI until product owner selects/refines a rendered direction; a compile-green first layout is not design acceptance.
 - Stop if implementation would derive scope, date, occurrence eligibility or count in frontend, or count by group/date instead of exact occurrence.
 - Stop if the dedicated read cannot reuse a single backend occurrence/access source without diverging from schedule/roster semantics; extract a focused application query seam before continuing.
-- Stop and request a product decision if a newly discovered occurrence state is neither an actionable scheduled occurrence nor one of the explicitly excluded `Cancelled`/`NotHeld` states; do not silently include, hide or relabel it.
+- Stop and request a product decision if a newly discovered occurrence state is neither actionable `Scheduled` nor excluded `Cancelled`; do not silently include, hide or relabel it.
 - No schema migration is expected. If aggregation requires persisted counters or destructive data changes, reclassify risk and review the data plan first.

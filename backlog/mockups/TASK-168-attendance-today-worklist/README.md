@@ -44,7 +44,8 @@ SELECTION CRITERIA
 | B — Time bands | Lessons grouped under explicit time-band headers | Best separation when several lessons share a start time | Repeated headers consume more vertical space | Strong for parallel lessons |
 | C — Action ledger | Count and action form a stable trailing ledger; desktop becomes a table-like list | Strong count-to-action association and desktop throughput | Mobile rows feel denser and need careful long-name wrapping | Strong for administrators |
 
-Recommendation: A for the primary mobile coach workflow. It gives time the strongest locator role, keeps one obvious action per row, and does not add urgency semantics. The product owner must still select or refine a direction before production UI implementation.
+The product owner selected direction C. Its stable trailing count/action ledger
+is the approved hierarchy for both mobile operations and desktop throughput.
 
 ## Operational contract shared by all concepts
 
@@ -55,10 +56,45 @@ Recommendation: A for the primary mobile coach workflow. It gives time the stron
 
 ## Selection record
 
-- Status: awaiting product-owner selection.
-- Selected direction: pending.
-- Feedback: pending.
-- Production implementation remains blocked until this section is completed.
+- Status: selected by product owner on 2026-09-01.
+- Selected direction: C — Action ledger.
+- Feedback: implement direction C; preserve the accepted `Scheduled | Cancelled`
+  lifecycle and remove stale `NotHeld` assumptions from TASK-168.
+- Rejected alternatives: A and B remain exploration evidence only.
+
+## Implementation-ready contract: direction C
+
+- Content order: refresh toolbar, optional inline operational alert, one
+  accessible today-worklist, then rows in backend order. No visible route title,
+  date picker, summary metrics, filters, or schedule link.
+- Desktop (`768–1440`): a table-like list with aligned columns for time,
+  group, location/trainers, `Не отмечено N`, and `Открыть`. Rows use the shared
+  subtle list surface, muted border, 8 px radius, and no shadow.
+- Mobile (`360–440`): each row becomes a three-column task card. Time is the
+  leading locator, group is the dominant wrapping value, location/trainers and
+  count stack below it, and the 44 px `Открыть` action remains in the trailing
+  column. No field is hidden or horizontally scrolled.
+- Tablet and compact height use the same mobile information order until the
+  desktop columns fit without compression. Bottom navigation and safe-area
+  spacing remain owned by the existing shell.
+- Loading: shared list-shaped loading state plus explicit polite status copy;
+  it must not resemble an empty result.
+- Empty: one neutral state for no actionable lessons, with explicit refresh and
+  no forced navigation to schedule.
+- Full error: persistent error state with `Повторить`; no stale rows presented
+  as current success.
+- Partial result: valid rows stay visible under a warning with `Повторить`.
+- Stale action: failed/opened row triggers an immediate list refresh; if the row
+  disappears, focus moves to the next row or the refresh action when no row
+  remains.
+- Return: opening stores `lessonOccurrenceId`, list scroll offset, and row
+  anchor. Returning from the attendance workbench refreshes once, restores the
+  row when it remains, and otherwise uses the same deterministic fallback.
+- Explicit refresh is the only other reload trigger. A CRM-day change by itself
+  does not schedule a timer or reload.
+- Acceptance: exact backend identity/date are passed to the workbench; every
+  rendered row is actionable; targets are at least 44 px; long content wraps;
+  no page overflow at 360/390/420/440 or the target compact-height profiles.
 
 ## Artifacts
 
