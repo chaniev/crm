@@ -27,7 +27,9 @@ internal static class UserRequestValidator
         {
             errors["login"] = [UserResources.LoginRequired];
         }
-        else if (await dbContext.Users.AnyAsync(candidate => candidate.Login == login, cancellationToken))
+        else if (await dbContext.Users.AnyAsync(
+                     candidate => candidate.LoginNormalized == LoginIdentity.NormalizeKey(login),
+                     cancellationToken))
         {
             errors["login"] = [UserResources.LoginAlreadyExists];
         }

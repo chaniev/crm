@@ -232,18 +232,6 @@ public sealed class AttendanceTransitionPostgreSqlMigrationTests
             CreatedAt = now,
             UpdatedAt = now
         };
-        var user = new User
-        {
-            Id = Guid.NewGuid(),
-            Login = "attendance-transition-user",
-            FullName = "Attendance Transition User",
-            PasswordHash = "test-hash",
-            Role = UserRole.HeadCoach,
-            IsActive = true,
-            MustChangePassword = false,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
         var client = new Client
         {
             Id = Guid.NewGuid(),
@@ -260,11 +248,38 @@ public sealed class AttendanceTransitionPostgreSqlMigrationTests
         dbContext.Halls.Add(hall);
         dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.Add(group);
-        dbContext.Users.Add(user);
         dbContext.Clients.Add(client);
         await dbContext.SaveChangesAsync();
 
-        return new SeededAttendanceTransitionGraph(client.Id, group.Id, user.Id, DateOnly.FromDateTime(now.UtcDateTime), now);
+        var userId = await InsertHistoricalSchemaUserAsync(dbContext, now);
+
+        return new SeededAttendanceTransitionGraph(client.Id, group.Id, userId, DateOnly.FromDateTime(now.UtcDateTime), now);
+    }
+
+    // The historical schema under test predates the Users.LoginNormalized column,
+    // so the current EF model cannot seed this row and raw SQL is required.
+    private static async Task<Guid> InsertHistoricalSchemaUserAsync(
+        GymCrmDbContext dbContext,
+        DateTimeOffset now)
+    {
+        var userId = Guid.NewGuid();
+        await using var connection = new NpgsqlConnection(dbContext.Database.GetConnectionString());
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            INSERT INTO "Users" (
+                "Id", "FullName", "Login", "PasswordHash", "Role",
+                "MustChangePassword", "IsActive", "CreatedAt", "UpdatedAt")
+            VALUES (
+                @id, 'Attendance Transition User', 'attendance-transition-user', 'test-hash', 'HeadCoach',
+                false, true, @createdAt, @updatedAt)
+            """;
+        command.Parameters.AddWithValue("id", userId);
+        command.Parameters.AddWithValue("createdAt", now);
+        command.Parameters.AddWithValue("updatedAt", now);
+        await command.ExecuteNonQueryAsync();
+
+        return userId;
     }
 
     private static async Task<SeededLessonOccurrenceSubstitutionGraph> SeedLessonOccurrenceSubstitutionGraphAsync(

@@ -59,6 +59,38 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<ClientTelegramPollState> ClientTelegramPollStates => Set<ClientTelegramPollState>();
     public DbSet<MembershipCatalogItem> MembershipCatalogItems => Set<MembershipCatalogItem>();
 
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        SynchronizeLoginIdentityKeys();
+
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
+    {
+        SynchronizeLoginIdentityKeys();
+
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    /// <summary>
+    /// Keeps the normalized login identity key synchronized in one place so that
+    /// every producer (staff create, bootstrap, seed) stores the key computed by
+    /// the domain <see cref="LoginIdentity"/> contract without repeating it.
+    /// </summary>
+    private void SynchronizeLoginIdentityKeys()
+    {
+        foreach (var entry in ChangeTracker.Entries<User>())
+        {
+            if (entry.State is EntityState.Added or EntityState.Modified)
+            {
+                entry.Entity.LoginNormalized = LoginIdentity.NormalizeKey(entry.Entity.Login);
+            }
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(GymCrmDbContext).Assembly);

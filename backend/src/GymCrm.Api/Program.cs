@@ -220,6 +220,7 @@ if (AttendanceTransitionMaintenanceCommand.IsRequested(args))
     return;
 }
 
+await app.PrepareLoginIdentityUpgradeAsync();
 await app.ApplyPersistenceStartupFlowAsync();
 await app.SeedBootstrapUserAsync();
 

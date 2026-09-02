@@ -53,6 +53,55 @@ public class StartupLoggingSmokeTests
     }
 
     [Fact]
+    public async Task Session_reports_bootstrap_mode_when_configured_login_case_variant_matches_stored_user()
+    {
+        var databaseRoot = new InMemoryDatabaseRoot();
+        var databaseName = $"gym-crm-bootstrap-case-{Guid.NewGuid():N}";
+
+        await using (var firstFactory = new StartupAppFactory(
+                         databaseRoot,
+                         databaseName,
+                         technicalLoggingEnabled: false,
+                         bootstrapLogin: "Bootstrap-Case"))
+        {
+            using var client = firstFactory.CreateClient();
+
+            using var seededSessionResponse = await client.GetAsync("/auth/session");
+            var seededSession = await ReadJsonAsync<SessionPayload>(seededSessionResponse);
+
+            Assert.True(seededSession.BootstrapMode);
+
+            using var scope = firstFactory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.Equal(1, await dbContext.Users.CountAsync(user => user.Login == "Bootstrap-Case"));
+        }
+
+        await using (var secondFactory = new StartupAppFactory(
+                         databaseRoot,
+                         databaseName,
+                         technicalLoggingEnabled: false,
+                         bootstrapLogin: "BOOTSTRAP-CASE"))
+        {
+            using var client = secondFactory.CreateClient();
+            using var response = await client.GetAsync("/");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            using var sessionResponse = await client.GetAsync("/auth/session");
+            var session = await ReadJsonAsync<SessionPayload>(sessionResponse);
+
+            Assert.True(session.BootstrapMode);
+            Assert.Equal(1, await CountUsersAsync(secondFactory, "Bootstrap-Case"));
+        }
+    }
+
+    private static async Task<int> CountUsersAsync(StartupAppFactory factory, string login)
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        return await dbContext.Users.CountAsync(user => user.Login == login);
+    }
+
+    [Fact]
     public async Task Technical_logging_writes_request_summary_without_password_cookie_or_csrf_data()
     {
         var databaseRoot = new InMemoryDatabaseRoot();
@@ -128,13 +177,14 @@ public class StartupLoggingSmokeTests
 
     private sealed record LoginRequest(string Login, string Password);
 
-    private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken);
+    private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, bool BootstrapMode);
 
     private sealed class StartupAppFactory(
         InMemoryDatabaseRoot databaseRoot,
         string databaseName,
         bool technicalLoggingEnabled,
-        string? logDirectory = null) : WebApplicationFactory<Program>
+        string? logDirectory = null,
+        string bootstrapLogin = "bootstrap-repeat") : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -147,7 +197,7 @@ public class StartupLoggingSmokeTests
                     ["ConnectionStrings:Postgres"] =
                         "Host=localhost;Port=5432;Database=gym_crm;Username=gym_crm;Password=gym_crm",
                     ["Persistence:ApplyMigrationsOnStartup"] = "false",
-                    ["BootstrapUser:Login"] = "bootstrap-repeat",
+                    ["BootstrapUser:Login"] = bootstrapLogin,
                     ["BootstrapUser:FullName"] = "Bootstrap Repeat",
                     ["TechnicalLogging:Enabled"] = technicalLoggingEnabled.ToString(),
                     ["TechnicalLogging:DirectoryPath"] = logDirectory ?? "logs/technical"

@@ -11,6 +11,15 @@
 
 ## 2026-09-02
 
+- 02.09.2026 — REQ-USR-003 — регистронезависимый вход реализован через
+  нормализованный login identity ключ с каноническим логином в
+  session/audit/UI; реализация переведена в «реализовано» после интеграции
+  TASK-166 в `main` (задача
+  [TASK-166](../../backlog/done/TASK-166-case-insensitive-login.md)).
+- 02.09.2026 — REQ-USR-002 — регистронезависимая уникальность логина
+  реализована на PostgreSQL unique barrier с единой field-level ошибкой дубля;
+  остальная часть карточки остаётся «частично» (задача
+  [TASK-166](../../backlog/done/TASK-166-case-insensitive-login.md)).
 - 02.09.2026 — REQ-ATT-006 — backend-authorized today worklist, точный
   occurrence counter, direction C и возврат с актуализацией контекста
   реализованы; реализация требования переведена в «реализовано» (задача
@@ -37,7 +46,7 @@
 - 01.09.2026 — REQ-USR-002 — для обычного и конкурентного создания
   case-only дубля закреплена единая field-level ошибка
   «Пользователь с таким логином уже существует.» (уточнение
-  [TASK-166](../../backlog/risky/TASK-166-case-insensitive-login.md)).
+  [TASK-166](../../backlog/done/TASK-166-case-insensitive-login.md)).
 
 ## 2026-08-30
 
@@ -53,7 +62,7 @@
 - 30.08.2026 — REQ-USR-002, REQ-USR-003 — login identity и вход приняты
   регистронезависимыми; реализация переведена в «частично» до безопасного
   uniqueness/retained-database barrier (задача
-  [TASK-166](../../backlog/risky/TASK-166-case-insensitive-login.md)).
+  [TASK-166](../../backlog/done/TASK-166-case-insensitive-login.md)).
 - 30.08.2026 — REQ-GRP-007 — нормативная подпись schedule action изменена с
   `Посещаемость` на `Посещение`; реализация переведена в «частично» (задача
   [TASK-167](../../backlog/done/TASK-167-schedule-attendance-label.md)).

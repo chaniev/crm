@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import type { AppConfigResponse, AuthenticatedUser } from './lib/api/types'
-import { changePassword, loadSession, logout } from './lib/api'
+import { changePassword, loadSession, login, logout } from './lib/api'
 import {
   showAppNotification,
   showPoliteStatusNotification,
@@ -274,6 +274,7 @@ const AUTH_BACKGROUND = {
 }
 
 const loadSessionMock = vi.mocked(loadSession)
+const loginMock = vi.mocked(login)
 const changePasswordMock = vi.mocked(changePassword)
 const logoutMock = vi.mocked(logout)
 const showAppNotificationMock = vi.mocked(showAppNotification)
@@ -388,6 +389,46 @@ afterEach(() => {
 })
 
 describe('App route access contract', () => {
+  test('login sends trimmed mixed-case input unchanged and adopts canonical backend login', async () => {
+    window.history.replaceState({}, '', '/')
+    loadSessionMock.mockReset()
+    loadSessionMock.mockResolvedValue({
+      bootstrapMode: false,
+      csrfToken: 'csrf-token',
+      isAuthenticated: false,
+      user: null,
+    })
+    loginMock.mockReset()
+    loginMock.mockResolvedValue(
+      mockSession({
+        ...baseSession,
+        login: 'HeadCoach',
+      }),
+    )
+
+    renderApp()
+
+    expect(await screen.findByRole('heading', { name: 'Добро пожаловать!' })).toBeVisible()
+
+    fireEvent.change(screen.getByLabelText('Логин'), {
+      target: { value: '  HeAdCoAcH  ' },
+    })
+    fireEvent.change(screen.getByLabelText('Пароль'), {
+      target: { value: 'stage-password' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Войти' }))
+
+    await waitFor(() => expect(loginMock).toHaveBeenCalledTimes(1))
+    expect(loginMock).toHaveBeenCalledWith({
+      login: 'HeAdCoAcH',
+      password: 'stage-password',
+    })
+
+    const profileTrigger = await getProfileMenuTrigger()
+    expect(profileTrigger).toBeVisible()
+    await waitFor(() => expect(window.location.pathname).toBe('/attention'))
+  })
+
   test('keeps the existing destination matrix for all three edit routes', async () => {
     const clientView = renderAppAt('/clients/client-1/edit', baseSession)
     expect(await screen.findByTestId('client-edit-screen')).toBeVisible()
