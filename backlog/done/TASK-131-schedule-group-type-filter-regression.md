@@ -85,6 +85,7 @@ Status audit TASK-113 от 2026-08-24 подтвердил, что production be
 - candidate_branch: feature/TASK-131-schedule-group-type-filter-regression
 - completion_evidence: harness `verify_change --base origin/main --task-id TASK-131` passed 16/16 checks on the candidate tree — backend format/Release build/514 tests/NuGet audit, frontend install/audit/check, focused group-type unit runs (backend ScheduleLessonsApiTests 21/21, frontend 36/36), Chromium `group-schedule.spec.ts` 18/18 including the new query-sensitive mobile/wide workflow, and both target-iPhone WebKit schedule projects 72/72.
 - outcome: regression coverage only; no production code changed and no production defect surfaced (all new tests were green against the TASK-119 contract baseline, as the plan expected).
+- post_merge_evidence: local main advanced during implementation (TASK-167 action rename, TASK-168 attendance worklist), so the merge tree 677af63 was re-verified: canonical backend area green, `npm run check` green (659 unit tests, build), Chromium `group-schedule.spec.ts` 15/15 and both target-iPhone schedule projects 68/68. One unrelated full-suite timing flake (`stale occurrence change preserves draft`) failed once under harness load and passed on the immediate full re-run.
 - moved_from: /backlog/tasks-ready
 - implementation_plan: /backlog/implementation-plans/TASK-131-schedule-group-type-filter-regression.plan.md
 - implementation_branch: feature/TASK-131-schedule-group-type-filter-regression
