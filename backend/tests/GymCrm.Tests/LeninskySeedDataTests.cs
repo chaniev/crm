@@ -161,4 +161,48 @@ public sealed class LeninskySeedDataTests
             logins);
         Assert.DoesNotContain(logins, login => login.StartsWith("leninsky.", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public async Task Administrators_only_seed_adopts_case_variant_login_without_duplicates()
+    {
+        var options = new DbContextOptionsBuilder<GymCrmDbContext>()
+            .UseInMemoryDatabase($"leninsky-admins-only-case-variant-{Guid.NewGuid():N}")
+            .Options;
+        await using var dbContext = new GymCrmDbContext(options);
+        var now = DateTimeOffset.UtcNow;
+
+        dbContext.Users.Add(new User
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Legacy administrator case variant",
+            Login = "ADMIN1",
+            PasswordHash = "legacy-password-hash",
+            Role = UserRole.Administrator,
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        });
+
+        await dbContext.SaveChangesAsync();
+
+        await using var seeder = new LeninskyAdministratorsOnlySeeder(dbContext);
+        await seeder.SeedAsync(CancellationToken.None);
+        await seeder.SeedAsync(CancellationToken.None);
+
+        var users = await dbContext.Users.ToArrayAsync();
+        var administratorLogins = users
+            .Where(user => user.Role == UserRole.Administrator)
+            .OrderBy(user => user.Login)
+            .Select(user => user.Login)
+            .ToArray();
+
+        Assert.Equal(["admin1", "admin2", "admin3", "admin4", "admin5"], administratorLogins);
+        Assert.Equal(7, users.Length);
+        Assert.DoesNotContain(users, user => user.Login == "ADMIN1");
+        Assert.All(users, user =>
+            Assert.Equal(LoginIdentity.NormalizeKey(user.Login), user.LoginNormalized));
+        Assert.Equal(
+            users.Length,
+            users.Select(user => user.LoginNormalized).Distinct(StringComparer.Ordinal).Count());
+    }
 }

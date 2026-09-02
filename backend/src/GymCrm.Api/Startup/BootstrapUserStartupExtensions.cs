@@ -33,7 +33,9 @@ internal static class BootstrapUserStartupExtensions
             : options.FullName.Trim();
         var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
 
-        if (await dbContext.Users.AnyAsync(user => user.Login == login, cancellationToken))
+        var normalizedLogin = LoginIdentity.NormalizeKey(login);
+
+        if (await dbContext.Users.AnyAsync(user => user.LoginNormalized == normalizedLogin, cancellationToken))
         {
             logger.LogDebug(
                 StartupResources.BootstrapUserLoginAlreadyExistsLog,
@@ -89,7 +91,7 @@ internal static class BootstrapUserStartupExtensions
         return exception.InnerException is PostgresException
         {
             SqlState: PostgresErrorCodes.UniqueViolation,
-            ConstraintName: "IX_Users_Login"
+            ConstraintName: "UX_Users_LoginNormalized"
         };
     }
 }

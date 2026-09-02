@@ -2034,6 +2034,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<string>("LoginNormalized")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<string>("MessengerPlatform")
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
@@ -2062,8 +2067,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.HasIndex("Login")
-                        .IsUnique();
+                    b.HasIndex("LoginNormalized")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Users_LoginNormalized");
 
                     b.HasIndex("MessengerPlatform", "MessengerPlatformUserId")
                         .IsUnique()

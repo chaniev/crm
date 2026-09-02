@@ -1667,6 +1667,122 @@ public class UsersApiTests
         }
     }
 
+    [Theory]
+    [InlineData("/coaches", "COACH-STAGE4", "Coach", false)]
+    [InlineData("/coaches", "coach-stage4", "Coach", false)]
+    [InlineData("/settings/administrators", "ADMINISTRATOR-STAGE4", "Administrator", true)]
+    [InlineData("/settings/administrators", "administrator-stage4", "Administrator", true)]
+    public async Task Staff_create_rejects_case_only_duplicate_login_with_field_level_error(
+        string endpoint,
+        string duplicateLogin,
+        string role,
+        bool requiresBranch)
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        var payload = new Dictionary<string, object?>
+        {
+            ["fullName"] = "Case-only duplicate",
+            ["login"] = duplicateLogin,
+            ["password"] = "12345Aa!",
+            ["role"] = role,
+            ["mustChangePassword"] = false,
+            ["isActive"] = true,
+            ["branchId"] = requiresBranch ? seeded.BranchId : null
+        };
+
+        using var response = await PostJsonAsync(client, endpoint, payload, session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var errors = await ReadValidationErrorsAsync(response);
+        Assert.True(
+            errors.TryGetProperty("login", out var loginErrors) && loginErrors.GetArrayLength() > 0,
+            "Expected a field-level login error.");
+        Assert.Equal(
+            "Пользователь с таким логином уже существует.",
+            loginErrors[0].GetString());
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var usersWithDuplicateIdentity = await dbContext.Users
+                .CountAsync(user => user.LoginNormalized == LoginIdentity.NormalizeKey(duplicateLogin));
+            Assert.Equal(1, usersWithDuplicateIdentity);
+        }
+    }
+
+    [Fact]
+    public async Task Update_with_case_only_login_variant_is_rejected_as_immutable_and_keeps_state()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        var originalLogin = $"Case-Immutable-{Guid.NewGuid():N}";
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/coaches",
+                   new UserCreateRequest("Тренер с каноническим логином", originalLogin, "12345Aa!", "Coach", false, true),
+                   session.CsrfToken))
+        {
+            Assert.True(
+                createResponse.StatusCode is HttpStatusCode.Created or HttpStatusCode.OK,
+                $"Expected user create success, got {createResponse.StatusCode}.");
+        }
+
+        Guid userId;
+        DateTimeOffset updatedAt;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var createdUser = await dbContext.Users.SingleAsync(user => user.Login == originalLogin);
+            userId = createdUser.Id;
+            updatedAt = createdUser.UpdatedAt;
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/coaches/{userId}",
+                   new UserUpdateRequest("Тренер с каноническим логином", originalLogin.ToLowerInvariant(), "Coach", false, true),
+                   session.CsrfToken))
+        {
+            Assert.False(updateResponse.IsSuccessStatusCode, "Case-only login update must be rejected.");
+            var errors = await ReadValidationErrorsAsync(updateResponse);
+            Assert.True(
+                errors.TryGetProperty("login", out var loginErrors) && loginErrors.GetArrayLength() > 0,
+                "Expected a field-level login immutability error.");
+            Assert.Equal(
+                "Логин нельзя изменить после создания пользователя.",
+                loginErrors[0].GetString());
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var unchangedUser = await dbContext.Users.SingleAsync(user => user.Id == userId);
+
+            Assert.Equal(originalLogin, unchangedUser.Login);
+            Assert.Equal(updatedAt, unchangedUser.UpdatedAt);
+            Assert.False(await dbContext.AuditLogs.AnyAsync(log =>
+                log.EntityType == "User" && log.EntityId == userId.ToString() &&
+                log.ActionType == "UserUpdated"));
+        }
+    }
+
     [Fact]
     public async Task HeadCoach_self_update_keeps_current_session_in_sync()
     {

@@ -28,14 +28,16 @@ internal static class LeninskyPrivilegedUserSeed
                 LeninskySeedData.SuperAdministratorFullName,
                 UserRole.SuperAdministrator)
         };
-        var logins = definitions.Select(definition => definition.Login).ToArray();
+        var normalizedKeys = definitions
+            .Select(definition => LoginIdentity.NormalizeKey(definition.Login))
+            .ToArray();
         var existingUsers = await dbContext.Users
-            .Where(user => logins.Contains(user.Login))
-            .ToDictionaryAsync(user => user.Login, StringComparer.Ordinal, cancellationToken);
+            .Where(user => normalizedKeys.Contains(user.LoginNormalized))
+            .ToDictionaryAsync(user => user.LoginNormalized, StringComparer.Ordinal, cancellationToken);
 
         foreach (var definition in definitions)
         {
-            if (!existingUsers.TryGetValue(definition.Login, out var user))
+            if (!existingUsers.TryGetValue(LoginIdentity.NormalizeKey(definition.Login), out var user))
             {
                 user = new User
                 {

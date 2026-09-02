@@ -2,6 +2,7 @@ using GymCrm.Application.Security;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace GymCrm.Api.Auth;
 
@@ -96,7 +97,17 @@ internal static class StaffManagementMutationService
             oldState: null,
             newState: UserAuditSerializer.Serialize(user)));
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception) when (IsLoginIdentityConflict(exception))
+        {
+            dbContext.Entry(user).State = EntityState.Detached;
+            return StaffMutationResult.ValidationFailed(
+                new Dictionary<string, string[]> { ["login"] = [UserResources.LoginAlreadyExists] });
+        }
+
         return StaffMutationResult.Created(user);
     }
 
@@ -306,6 +317,15 @@ internal static class StaffManagementMutationService
                 command.EndpointRoleFamily,
                 command.Actor,
                 user);
+    }
+
+    private static bool IsLoginIdentityConflict(DbUpdateException exception)
+    {
+        return exception.InnerException is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: "UX_Users_LoginNormalized"
+        };
     }
 
     private static async Task LockStaffUpdateRowsAsync(

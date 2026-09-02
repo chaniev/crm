@@ -40,6 +40,10 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(LoginMaxLength)
             .IsRequired();
 
+        builder.Property(user => user.LoginNormalized)
+            .HasMaxLength(LoginMaxLength)
+            .IsRequired();
+
         builder.Property(user => user.PasswordHash)
             .HasMaxLength(PasswordHashMaxLength)
             .IsRequired();
@@ -59,7 +63,9 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.CreatedAt).IsRequired();
         builder.Property(user => user.UpdatedAt).IsRequired();
 
-        builder.HasIndex(user => user.Login).IsUnique();
+        builder.HasIndex(user => user.LoginNormalized)
+            .IsUnique()
+            .HasDatabaseName("UX_Users_LoginNormalized");
         builder.HasIndex(user => user.BranchId);
 
         builder.HasOne(user => user.Branch)

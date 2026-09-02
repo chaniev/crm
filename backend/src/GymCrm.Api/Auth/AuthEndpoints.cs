@@ -83,8 +83,9 @@ internal static class AuthEndpoints
             });
         }
 
+        var normalizedLogin = LoginIdentity.NormalizeKey(login);
         var user = await dbContext.Users
-            .SingleOrDefaultAsync(candidate => candidate.Login == login, cancellationToken);
+            .SingleOrDefaultAsync(candidate => candidate.LoginNormalized == normalizedLogin, cancellationToken);
 
         if (user is null || !user.IsActive || !passwordHashService.VerifyPassword(user, request.Password))
         {
@@ -284,6 +285,7 @@ internal static class AuthEndpoints
         var login = string.IsNullOrWhiteSpace(configuredLogin)
             ? "headcoach"
             : configuredLogin.Trim();
+        var normalizedLogin = LoginIdentity.NormalizeKey(login);
 
         var userCount = await dbContext.Users.CountAsync(cancellationToken);
         if (userCount != 1)
@@ -293,7 +295,7 @@ internal static class AuthEndpoints
 
         return await dbContext.Users.AnyAsync(
             user =>
-                user.Login == login &&
+                user.LoginNormalized == normalizedLogin &&
                 user.Role == UserRole.HeadCoach &&
                 user.MustChangePassword &&
                 user.IsActive,
