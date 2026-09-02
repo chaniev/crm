@@ -1250,6 +1250,127 @@ public sealed class ScheduleLessonsApiTests
         Assert.Equal(HttpStatusCode.OK, currentLocator.StatusCode);
     }
 
+    [Fact]
+    public async Task Calendar_group_type_filter_returns_exact_type_only_and_composes_with_branch_filter()
+    {
+        await using var factory = new ScheduleLessonsAppFactory();
+        var seeded = await SeedGroupTypeScopeAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(client, seeded.Login, seeded.Password);
+
+        using var unfilteredResponse = await client.GetAsync("/schedule/lessons?from=2026-08-17&to=2026-08-18");
+        Assert.Equal(HttpStatusCode.OK, unfilteredResponse.StatusCode);
+        var unfiltered = (await ReadJsonElementAsync(unfilteredResponse)).GetProperty("items").EnumerateArray().ToArray();
+        Assert.Equal(
+            new[]
+            {
+                "2026-08-17 10:00",
+                "2026-08-17 18:30",
+                "2026-08-18 09:00",
+                "2026-08-18 20:00"
+            },
+            unfiltered.Select(item =>
+                $"{item.GetProperty("lessonDate").GetString()} {item.GetProperty("startTime").GetString()}").ToArray());
+
+        using var kidsResponse = await client.GetAsync(
+            $"/schedule/lessons?from=2026-08-17&to=2026-08-18&groupTypeId={seeded.KidsTypeId}");
+        Assert.Equal(HttpStatusCode.OK, kidsResponse.StatusCode);
+        var kidsItems = (await ReadJsonElementAsync(kidsResponse)).GetProperty("items").EnumerateArray().ToArray();
+        Assert.Equal(
+            new[]
+            {
+                seeded.KidsSouthMorningOccurrenceId,
+                seeded.KidsSouthEveningOccurrenceId,
+                seeded.KidsNorthOccurrenceId
+            },
+            kidsItems.Select(item => Guid.Parse(item.GetProperty("lessonOccurrenceId").GetString()!)).ToArray());
+        Assert.All(kidsItems, item =>
+            Assert.Equal(seeded.KidsTypeId, Guid.Parse(item.GetProperty("groupTypeId").GetString()!)));
+        Assert.DoesNotContain(kidsItems, item =>
+            Guid.Parse(item.GetProperty("lessonOccurrenceId").GetString()!) == seeded.AdultsNorthOccurrenceId);
+
+        using var kidsNorthBranchResponse = await client.GetAsync(
+            $"/schedule/lessons?from=2026-08-17&to=2026-08-18&groupTypeId={seeded.KidsTypeId}&branchId={seeded.NorthBranchId}");
+        Assert.Equal(HttpStatusCode.OK, kidsNorthBranchResponse.StatusCode);
+        var intersection = (await ReadJsonElementAsync(kidsNorthBranchResponse)).GetProperty("items").EnumerateArray().ToArray();
+        var intersectionLesson = Assert.Single(intersection);
+        Assert.Equal(seeded.KidsNorthOccurrenceId, Guid.Parse(intersectionLesson.GetProperty("lessonOccurrenceId").GetString()!));
+        Assert.Equal(seeded.KidsTypeId, Guid.Parse(intersectionLesson.GetProperty("groupTypeId").GetString()!));
+        Assert.Equal(seeded.NorthBranchId, Guid.Parse(intersectionLesson.GetProperty("branchId").GetString()!));
+
+        using var adultsSouthResponse = await client.GetAsync(
+            $"/schedule/lessons?from=2026-08-17&to=2026-08-18&groupTypeId={seeded.AdultsTypeId}&branchId={seeded.SouthBranchId}");
+        Assert.Equal(HttpStatusCode.OK, adultsSouthResponse.StatusCode);
+        var adultsSouth = await ReadJsonElementAsync(adultsSouthResponse);
+        Assert.Equal(0, adultsSouth.GetProperty("items").GetArrayLength());
+        Assert.Equal(
+            new[] { "Adults", "Kids" },
+            adultsSouth.GetProperty("filterOptions").GetProperty("groupTypes").EnumerateArray()
+                .Select(option => option.GetProperty("name").GetString()!)
+                .ToArray());
+    }
+
+    [Fact]
+    public async Task Calendar_group_type_options_stay_access_scoped_and_survive_filtered_empty_results()
+    {
+        await using var factory = new ScheduleLessonsAppFactory();
+        var seeded = await SeedGroupTypeScopeAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(client, seeded.ScopedCoachLogin, seeded.Password);
+
+        using var unfilteredResponse = await client.GetAsync("/schedule/lessons?from=2026-08-17&to=2026-08-18");
+        Assert.Equal(HttpStatusCode.OK, unfilteredResponse.StatusCode);
+        var unfiltered = await ReadJsonElementAsync(unfilteredResponse);
+        var unfilteredItems = unfiltered.GetProperty("items").EnumerateArray().ToArray();
+        Assert.Equal(
+            new[]
+            {
+                seeded.KidsSouthMorningOccurrenceId,
+                seeded.KidsSouthEveningOccurrenceId
+            },
+            unfilteredItems.Select(item => Guid.Parse(item.GetProperty("lessonOccurrenceId").GetString()!)).ToArray());
+        Assert.Equal(
+            new[] { "Kids" },
+            unfiltered.GetProperty("filterOptions").GetProperty("groupTypes").EnumerateArray()
+                .Select(option => option.GetProperty("name").GetString()!)
+                .ToArray());
+        Assert.Equal(
+            new[] { "Southside" },
+            unfiltered.GetProperty("filterOptions").GetProperty("branches").EnumerateArray()
+                .Select(option => option.GetProperty("name").GetString()!)
+                .ToArray());
+
+        using var filteredEmptyResponse = await client.GetAsync(
+            $"/schedule/lessons?from=2026-08-17&to=2026-08-18&groupTypeId={seeded.KidsTypeId}&branchId={seeded.NorthBranchId}");
+        Assert.Equal(HttpStatusCode.OK, filteredEmptyResponse.StatusCode);
+        var filteredEmpty = await ReadJsonElementAsync(filteredEmptyResponse);
+        Assert.Equal(0, filteredEmpty.GetProperty("items").GetArrayLength());
+        Assert.Equal(
+            new[] { "Kids" },
+            filteredEmpty.GetProperty("filterOptions").GetProperty("groupTypes").EnumerateArray()
+                .Select(option => option.GetProperty("name").GetString()!)
+                .ToArray());
+
+        using var outOfScopeTypeResponse = await client.GetAsync(
+            $"/schedule/lessons?from=2026-08-17&to=2026-08-18&groupTypeId={seeded.AdultsTypeId}");
+        Assert.Equal(HttpStatusCode.OK, outOfScopeTypeResponse.StatusCode);
+        var outOfScope = await ReadJsonElementAsync(outOfScopeTypeResponse);
+        Assert.Equal(0, outOfScope.GetProperty("items").GetArrayLength());
+        Assert.Equal(
+            new[] { "Kids" },
+            outOfScope.GetProperty("filterOptions").GetProperty("groupTypes").EnumerateArray()
+                .Select(option => option.GetProperty("name").GetString()!)
+                .ToArray());
+    }
+
     private static async Task<SeededSchedule> SeedAsync(ScheduleLessonsAppFactory factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -1465,6 +1586,265 @@ public sealed class ScheduleLessonsApiTests
         Guid MorningSlotLineageId,
         Guid MorningOccurrenceId,
         Guid EveningOccurrenceId);
+
+    private static async Task<SeededGroupTypeScope> SeedGroupTypeScopeAsync(ScheduleLessonsAppFactory factory)
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+        var now = new DateTimeOffset(2026, 8, 1, 9, 0, 0, TimeSpan.Zero);
+        var password = "schedule-type-scope-password";
+        var headCoach = new User
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Type Scope HeadCoach",
+            Login = "type-scope-headcoach",
+            Role = UserRole.HeadCoach,
+            MustChangePassword = false,
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        headCoach.PasswordHash = passwordHashService.HashPassword(headCoach, password);
+        var scopedCoach = new User
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Type Scope Coach",
+            Login = "type-scope-coach",
+            Role = UserRole.Coach,
+            MustChangePassword = false,
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        scopedCoach.PasswordHash = passwordHashService.HashPassword(scopedCoach, password);
+
+        var southBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Southside",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var southHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = southBranch.Id,
+            Name = "South Hall",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var northBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Northside",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var northHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = northBranch.Id,
+            Name = "North Hall",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var kidsType = new GroupType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Kids",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var adultsType = new GroupType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Adults",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        LessonSeries SeriesSeed(Guid groupId) => new()
+        {
+            Id = Guid.NewGuid(),
+            GroupId = groupId,
+            StartsOn = new DateOnly(2026, 8, 1),
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var kidsSouthGroup = new TrainingGroup
+        {
+            Id = Guid.NewGuid(),
+            BranchId = southBranch.Id,
+            HallId = southHall.Id,
+            GroupTypeId = kidsType.Id,
+            Name = "Kids South",
+            TrainingStartTime = new TimeOnly(10, 0),
+            DurationMinutes = 60,
+            Weekdays = [1],
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var kidsSouthSeries = SeriesSeed(kidsSouthGroup.Id);
+
+        var kidsSouthRule = new LessonScheduleRuleVersion
+        {
+            Id = Guid.NewGuid(),
+            LessonSeriesId = kidsSouthSeries.Id,
+            VersionNumber = 1,
+            EffectiveFrom = new DateOnly(2026, 8, 1),
+            CreatedAt = now
+        };
+        var kidsSouthMorningLineageId = Guid.Parse("21111111-1111-1111-1111-111111111111");
+        var kidsSouthEveningLineageId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        var kidsNorthGroup = new TrainingGroup
+        {
+            Id = Guid.NewGuid(),
+            BranchId = northBranch.Id,
+            HallId = northHall.Id,
+            GroupTypeId = kidsType.Id,
+            Name = "Kids North",
+            TrainingStartTime = new TimeOnly(20, 0),
+            DurationMinutes = 60,
+            Weekdays = [2],
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var kidsNorthSeries = SeriesSeed(kidsNorthGroup.Id);
+        var kidsNorthRule = new LessonScheduleRuleVersion
+        {
+            Id = Guid.NewGuid(),
+            LessonSeriesId = kidsNorthSeries.Id,
+            VersionNumber = 1,
+            EffectiveFrom = new DateOnly(2026, 8, 1),
+            CreatedAt = now
+        };
+        var kidsNorthLineageId = Guid.Parse("23333333-3333-3333-3333-333333333333");
+
+        var adultsNorthGroup = new TrainingGroup
+        {
+            Id = Guid.NewGuid(),
+            BranchId = northBranch.Id,
+            HallId = northHall.Id,
+            GroupTypeId = adultsType.Id,
+            Name = "Adults North",
+            TrainingStartTime = new TimeOnly(9, 0),
+            DurationMinutes = 60,
+            Weekdays = [2],
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var adultsNorthSeries = SeriesSeed(adultsNorthGroup.Id);
+        var adultsNorthRule = new LessonScheduleRuleVersion
+        {
+            Id = Guid.NewGuid(),
+            LessonSeriesId = adultsNorthSeries.Id,
+            VersionNumber = 1,
+            EffectiveFrom = new DateOnly(2026, 8, 1),
+            CreatedAt = now
+        };
+        var adultsNorthLineageId = Guid.Parse("24444444-4444-4444-4444-444444444444");
+
+        dbContext.AddRange(
+            headCoach,
+            scopedCoach,
+            southBranch,
+            southHall,
+            northBranch,
+            northHall,
+            kidsType,
+            adultsType,
+            kidsSouthGroup,
+            kidsNorthGroup,
+            adultsNorthGroup,
+            kidsSouthSeries,
+            kidsNorthSeries,
+            adultsNorthSeries,
+            new GroupTrainer
+            {
+                GroupId = kidsSouthGroup.Id,
+                TrainerId = scopedCoach.Id
+            },
+            kidsSouthRule,
+            kidsNorthRule,
+            adultsNorthRule,
+            new LessonScheduleSlot
+            {
+                Id = Guid.NewGuid(),
+                LessonScheduleRuleVersionId = kidsSouthRule.Id,
+                SlotLineageId = kidsSouthMorningLineageId,
+                IsoWeekday = 1,
+                StartTime = new TimeOnly(10, 0),
+                DurationMinutes = 60,
+                HallId = southHall.Id,
+                CreatedAt = now
+            },
+            new LessonScheduleSlot
+            {
+                Id = Guid.NewGuid(),
+                LessonScheduleRuleVersionId = kidsSouthRule.Id,
+                SlotLineageId = kidsSouthEveningLineageId,
+                IsoWeekday = 1,
+                StartTime = new TimeOnly(18, 30),
+                DurationMinutes = 60,
+                HallId = southHall.Id,
+                CreatedAt = now
+            },
+            new LessonScheduleSlot
+            {
+                Id = Guid.NewGuid(),
+                LessonScheduleRuleVersionId = kidsNorthRule.Id,
+                SlotLineageId = kidsNorthLineageId,
+                IsoWeekday = 2,
+                StartTime = new TimeOnly(20, 0),
+                DurationMinutes = 60,
+                HallId = northHall.Id,
+                CreatedAt = now
+            },
+            new LessonScheduleSlot
+            {
+                Id = Guid.NewGuid(),
+                LessonScheduleRuleVersionId = adultsNorthRule.Id,
+                SlotLineageId = adultsNorthLineageId,
+                IsoWeekday = 2,
+                StartTime = new TimeOnly(9, 0),
+                DurationMinutes = 60,
+                HallId = northHall.Id,
+                CreatedAt = now
+            });
+        await dbContext.SaveChangesAsync();
+
+        return new SeededGroupTypeScope(
+            headCoach.Login,
+            password,
+            scopedCoach.Login,
+            kidsType.Id,
+            adultsType.Id,
+            southBranch.Id,
+            northBranch.Id,
+            LessonOccurrenceIdPolicy.CreateRecurring(kidsSouthMorningLineageId, new DateOnly(2026, 8, 17)),
+            LessonOccurrenceIdPolicy.CreateRecurring(kidsSouthEveningLineageId, new DateOnly(2026, 8, 17)),
+            LessonOccurrenceIdPolicy.CreateRecurring(kidsNorthLineageId, new DateOnly(2026, 8, 18)),
+            LessonOccurrenceIdPolicy.CreateRecurring(adultsNorthLineageId, new DateOnly(2026, 8, 18)));
+    }
+
+    private sealed record SeededGroupTypeScope(
+        string Login,
+        string Password,
+        string ScopedCoachLogin,
+        Guid KidsTypeId,
+        Guid AdultsTypeId,
+        Guid SouthBranchId,
+        Guid NorthBranchId,
+        Guid KidsSouthMorningOccurrenceId,
+        Guid KidsSouthEveningOccurrenceId,
+        Guid KidsNorthOccurrenceId,
+        Guid AdultsNorthOccurrenceId);
 
     private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);
 

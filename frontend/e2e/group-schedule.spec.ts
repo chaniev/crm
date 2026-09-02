@@ -141,6 +141,143 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(page.getByRole('button', { name: /активных фильтров: 1/ })).toBeVisible()
   })
 
+  test('filters lessons by response group type at mobile and wide viewports without overflow', async ({ page }) => {
+    const scheduleQueries: string[] = []
+
+    await mockApi(page, async ({ pathname, method, route, searchParams }) => {
+      if (pathname === '/api/schedule/lessons' && method === 'GET') {
+        scheduleQueries.push(searchParams.toString())
+        const filteredByType = searchParams.get('groupTypeId') === 'type-1'
+        await fulfillJson(route, 200, scheduleResponse({
+          // Shuffled order proves the rendered DOM order is chronological.
+          items: filteredByType
+            ? [
+              typeFilterLesson('occ-cardio-evening', 'Кардио вечер', '18:00', '18:50'),
+              typeFilterLesson('occ-cardio-morning', 'Кардио утро', '08:00', '08:50'),
+            ]
+            : [
+              typeFilterLesson('occ-strength', 'Силовая группа', '12:00', '12:50', 'type-2', 'Силовая'),
+              typeFilterLesson('occ-cardio-evening', 'Кардио вечер', '18:00', '18:50'),
+              typeFilterLesson('occ-cardio-morning', 'Кардио утро', '08:00', '08:50'),
+            ],
+          filterOptions: {
+            branches: [{ id: 'branch-1', name: 'Центр' }],
+            halls: [{ id: 'hall-1', name: 'Основной зал' }],
+            trainers: [{ id: 'trainer-1', name: 'Алиса' }],
+            groups: [{ id: 'group-1', name: 'Утренняя база' }],
+            groupTypes: [
+              { id: 'type-1', name: 'Кардио' },
+              { id: 'type-2', name: 'Силовая' },
+            ],
+          },
+        }))
+        return true
+      }
+
+      return false
+    })
+
+    const expectCardOrder = async (expected: string[]) => {
+      await expect
+        .poll(() =>
+          page.locator('[data-testid^="schedule-card-occ-"]').evaluateAll((cards) =>
+            cards.map((card) => card.getAttribute('data-testid')),
+          ),
+        )
+        .toEqual(expected)
+    }
+
+    for (const viewport of [
+      { width: 390, height: 844 },
+      { width: 1440, height: 1200 },
+    ]) {
+      await page.setViewportSize(viewport)
+      await page.goto('/schedule?date=2026-08-20&view=day')
+
+      await expectCardOrder([
+        'schedule-card-occ-cardio-morning',
+        'schedule-card-occ-strength',
+        'schedule-card-occ-cardio-evening',
+      ])
+
+      await page.getByRole('button', { name: /Параметры календаря/ }).click()
+      const drawer = page.getByRole('dialog', { name: 'Параметры календаря' })
+      await drawer.getByRole('combobox', { name: 'Тип группы' }).click()
+      await page.getByRole('option', { name: 'Кардио' }).click()
+      await drawer.getByRole('button', { name: 'Готово' }).click()
+
+      await expect(page).toHaveURL(/groupTypeId=type-1/)
+      await expect(
+        page.getByRole('button', { name: /Параметры календаря, активных фильтров: 1/ }),
+      ).toBeVisible()
+      await expectCardOrder([
+        'schedule-card-occ-cardio-morning',
+        'schedule-card-occ-cardio-evening',
+      ])
+      await expect(page.getByTestId('schedule-card-occ-strength')).toHaveCount(0)
+
+      // Reload recovers the selection from the URL alone.
+      await page.reload()
+      await expectCardOrder([
+        'schedule-card-occ-cardio-morning',
+        'schedule-card-occ-cardio-evening',
+      ])
+      await expect(page).toHaveURL(/groupTypeId=type-1/)
+
+      // Back returns to the unfiltered entry, forward restores the selection.
+      await page.goBack()
+      await expect(page).not.toHaveURL(/groupTypeId/)
+      await expectCardOrder([
+        'schedule-card-occ-cardio-morning',
+        'schedule-card-occ-strength',
+        'schedule-card-occ-cardio-evening',
+      ])
+      await page.goForward()
+      await expect(page).toHaveURL(/groupTypeId=type-1/)
+      await expectCardOrder([
+        'schedule-card-occ-cardio-morning',
+        'schedule-card-occ-cardio-evening',
+      ])
+
+      // Individual clear restores the full list...
+      await page.getByRole('button', { name: /Параметры календаря/ }).click()
+      await drawer.getByRole('combobox', { name: 'Тип группы' }).click()
+      await page.getByRole('option', { name: 'Кардио' }).click()
+      await expect(page).not.toHaveURL(/groupTypeId/)
+      await expectCardOrder([
+        'schedule-card-occ-cardio-morning',
+        'schedule-card-occ-strength',
+        'schedule-card-occ-cardio-evening',
+      ])
+
+      // ...and the global reset does the same for a restored selection.
+      await drawer.getByRole('combobox', { name: 'Тип группы' }).click()
+      await page.getByRole('option', { name: 'Кардио' }).click()
+      await expect(page).toHaveURL(/groupTypeId=type-1/)
+      await drawer.getByRole('button', { name: 'Сбросить фильтры' }).click()
+      await expect(page).not.toHaveURL(/groupTypeId/)
+      await drawer.getByRole('button', { name: 'Готово' }).click()
+      await expectCardOrder([
+        'schedule-card-occ-cardio-morning',
+        'schedule-card-occ-strength',
+        'schedule-card-occ-cardio-evening',
+      ])
+
+      const dimensions = await page.evaluate(() => ({
+        body: document.body.scrollWidth,
+        viewport: document.documentElement.clientWidth,
+      }))
+      expect(dimensions.body).toBeLessThanOrEqual(dimensions.viewport + 1)
+    }
+
+    const filteredQuery = new URLSearchParams(
+      scheduleQueries.find((query) => query.includes('groupTypeId=type-1')),
+    )
+    expect(filteredQuery.get('from')).toBe('2026-08-20')
+    expect(filteredQuery.get('to')).toBe('2026-08-20')
+    expect(filteredQuery.get('groupTypeId')).toBe('type-1')
+  })
+
   test('creates one-off lesson through preview confirmation and opens exact detail', async ({ page }) => {
     let previewPayload: unknown = null
     let executePayload: unknown = null
@@ -1256,6 +1393,24 @@ function scheduleResponse(overrides: {
       }),
     ],
   }
+}
+
+function typeFilterLesson(
+  occurrenceId: string,
+  groupName: string,
+  startTime: string,
+  endTime: string,
+  groupTypeId = 'type-1',
+  groupTypeName = 'Кардио',
+) {
+  return lesson({
+    lessonOccurrenceId: occurrenceId,
+    groupName,
+    startTime,
+    endTime,
+    groupTypeId,
+    groupTypeName,
+  })
 }
 
 function lesson(overrides: Record<string, unknown>) {
