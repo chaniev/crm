@@ -42,4 +42,4 @@ ADR.
 
 ## Index
 
-No architecture decisions have been recorded yet.
+- [ADR-0001: Регистронезависимая идентичность логина через нормализованный ключ](0001-case-insensitive-login-identity.md) — Proposed

@@ -4,7 +4,7 @@
 - source_task: /backlog/risky/TASK-166-case-insensitive-login.md
 - requirements: REQ-USR-002 (changes), REQ-USR-003 (changes), REQ-NFR-003 (constrains)
 - branch: feature/TASK-166-case-insensitive-login
-- readiness: no — продуктовое решение принято; до functional code требуется backend data/security review нормализованного ключа, forward migration и retained-database collision stop
+- readiness: yes — продуктовое решение принято; backend data/security review нормализованного ключа, forward migration и retained-database collision stop зафиксирован в ADR-0001
 - dependencies: none
 - risk: high — authentication lookup, все пути создания пользователя и PostgreSQL unique identity меняются одним согласованным контрактом
 
@@ -12,6 +12,7 @@
 Пользователь с правильным паролем входит под существующей учётной записью при любом регистре введённого логина, а backend не позволяет существовать двум логинам, отличающимся только регистром, и продолжает возвращать канонический сохранённый `Login`.
 
 ## Decisions and contracts
+- [ADR-0001](../../docs/architecture/adr/0001-case-insensitive-login-identity.md) — регистронезависимая identity через сохранённый нормализованный ключ (Proposed; реализация авторизована планом TASK-166).
 - Ввести единый backend `LoginIdentity` contract: после существующего trim вычислять deterministic invariant normalized key без изменения сохранённого канонического `User.Login`. Authentication, create validation, bootstrap, seed/upsert и persistence используют только этот contract для identity comparison.
 - Хранить нормализованный ключ отдельно от отображаемого `Login`; lookup выполняется по ключу и остаётся индексируемым. PostgreSQL unique index на ключ является окончательным concurrency barrier. И обычная application validation, и обнаруженный через unique barrier конкурентный case-only duplicate возвращают одинаковую field-level ошибку у поля `login`: «Пользователь с таким логином уже существует.».
 - Централизованно синхронизировать normalized key перед каждой вставкой пользователя, включая bootstrap и тестовые seed paths; не полагаться на frontend normalization или на то, что каждый producer вручную повторит алгоритм.

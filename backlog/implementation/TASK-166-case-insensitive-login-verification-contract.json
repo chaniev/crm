@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "task_id": "TASK-166",
+  "expected_branch": "feature/TASK-166-case-insensitive-login",
+  "areas": ["backend", "frontend"],
+  "runtime_smoke": [
+    {
+      "id": "backend.postgresql.login-identity-barrier",
+      "area": "backend",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build",
+        "--filter",
+        "FullyQualifiedName~CaseInsensitiveLoginPostgreSqlTests"
+      ],
+      "working_directory": ".",
+      "timeout_seconds": 900
+    },
+    {
+      "id": "frontend.auth.login-smoke",
+      "area": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "src/App.test.tsx"
+      ],
+      "working_directory": "frontend",
+      "timeout_seconds": 300
+    }
+  ]
+}
