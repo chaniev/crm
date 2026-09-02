@@ -2,11 +2,53 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
   applyScheduleLessonTrainerSubstitution,
   applyScheduleLessonTrainerSubstitutionCancellation,
+  getScheduleLessons,
   previewScheduleLessonTrainerSubstitution,
   previewScheduleLessonTrainerSubstitutionCancellation,
 } from './schedule'
 
 afterEach(() => vi.unstubAllGlobals())
+
+describe('schedule API query contract', () => {
+  test('getScheduleLessons sends one GET with exact filters and drops null values', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({
+        from: '2026-08-17',
+        to: '2026-08-23',
+        items: [],
+        capabilities: { createOneOff: { allowed: true, reason: null } },
+        filterOptions: {
+          branches: [],
+          halls: [],
+          trainers: [],
+          groups: [],
+          groupTypes: [{ id: 'type-1', name: 'Кардио' }],
+        },
+      }), { status: 200, headers: { 'content-type': 'application/json' } }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await getScheduleLessons({
+      from: '2026-08-17',
+      to: '2026-08-23',
+      branchId: 'branch-1',
+      hallId: null,
+      trainerId: null,
+      groupId: null,
+      groupTypeId: 'type-1',
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const requestUrl = new URL(String(fetchMock.mock.calls[0]?.[0]), 'http://localhost')
+    expect(requestUrl.pathname).toBe('/api/schedule/lessons')
+    expect(requestUrl.searchParams.get('from')).toBe('2026-08-17')
+    expect(requestUrl.searchParams.get('to')).toBe('2026-08-23')
+    expect(requestUrl.searchParams.get('branchId')).toBe('branch-1')
+    expect(requestUrl.searchParams.get('groupTypeId')).toBe('type-1')
+    expect([...requestUrl.searchParams.keys()].sort()).toEqual(['branchId', 'from', 'groupTypeId', 'to'])
+    expect(fetchMock.mock.calls[0]?.[1]?.method ?? 'GET').toBe('GET')
+  })
+})
 
 describe('schedule API mutation contracts', () => {
   test('uses exact occurrence trainer substitution preview and execute endpoints', async () => {

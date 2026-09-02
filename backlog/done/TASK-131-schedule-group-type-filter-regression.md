@@ -1,7 +1,7 @@
 # TASK-131: Закрепить регрессии фильтра расписания по типу группы
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-GRP-005 — verifies
@@ -43,21 +43,21 @@ Status audit TASK-113 от 2026-08-24 подтвердил, что production be
 - Не ослаблять существующие calendar, permission, retry, responsive и target-iPhone barriers.
 
 ## Acceptance criteria
-- [ ] Backend test доказывает, что `groupTypeId` возвращает только занятия выбранного типа и корректно комбинируется с другим фильтром.
-- [ ] Backend test доказывает, что unauthorized group types не попадают в `filterOptions`, а authorized options не исчезают только из-за filtered-empty результата.
-- [ ] Frontend API test доказывает точную сериализацию `groupTypeId`.
-- [ ] Component test выбирает `Тип группы`, проверяет URL, API request, active count, clear и global reset с сохранением `date`/`view`.
-- [ ] Component test сохраняет selected `groupTypeId` при refresh/retry и URL round-trip.
-- [ ] Mobile и wide Playwright scenarios проверяют matching results, chronological order, clear/reset и отсутствие горизонтального overflow.
-- [ ] Existing full backend/frontend validation остаётся зелёной; production behavior не меняется, если тесты подтверждают текущий contract.
+- [x] Backend test доказывает, что `groupTypeId` возвращает только занятия выбранного типа и корректно комбинируется с другим фильтром.
+- [x] Backend test доказывает, что unauthorized group types не попадают в `filterOptions`, а authorized options не исчезают только из-за filtered-empty результата.
+- [x] Frontend API test доказывает точную сериализацию `groupTypeId`.
+- [x] Component test выбирает `Тип группы`, проверяет URL, API request, active count, clear и global reset с сохранением `date`/`view`.
+- [x] Component test сохраняет selected `groupTypeId` при refresh/retry и URL round-trip.
+- [x] Mobile и wide Playwright scenarios проверяют matching results, chronological order, clear/reset и отсутствие горизонтального overflow.
+- [x] Existing full backend/frontend validation остаётся зелёной; production behavior не меняется, если тесты подтверждают текущий contract.
 
 ## Test checklist
-- [ ] Добавить focused xUnit cases в `backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs`.
-- [ ] Добавить query serialization case в `frontend/src/lib/api/schedule.test.ts`.
-- [ ] Добавить focused component cases в `frontend/src/features/schedule/GroupScheduleScreen.test.tsx`.
-- [ ] Добавить mobile/wide workflow в `frontend/e2e/group-schedule.spec.ts` и при необходимости включить существующий target-iPhone suite без дублирования viewport inventory.
-- [ ] Запустить backend format, Release build, NuGet audit и focused/full backend tests.
-- [ ] Запустить `cd frontend && npm run check`, affected Chromium и `npm run test:e2e:iphone` для schedule flow.
+- [x] Добавить focused xUnit cases в `backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs`.
+- [x] Добавить query serialization case в `frontend/src/lib/api/schedule.test.ts`.
+- [x] Добавить focused component cases в `frontend/src/features/schedule/GroupScheduleScreen.test.tsx`.
+- [x] Добавить mobile/wide workflow в `frontend/e2e/group-schedule.spec.ts` и при необходимости включить существующий target-iPhone suite без дублирования viewport inventory.
+- [x] Запустить backend format, Release build, NuGet audit и focused/full backend tests.
+- [x] Запустить `cd frontend && npm run check`, affected Chromium и `npm run test:e2e:iphone` для schedule flow.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -81,6 +81,10 @@ Status audit TASK-113 от 2026-08-24 подтвердил, что production be
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 21:32 MSK
+- completed_at: 2026-09-02 07:33 MSK
+- candidate_branch: feature/TASK-131-schedule-group-type-filter-regression
+- completion_evidence: harness `verify_change --base origin/main --task-id TASK-131` passed 16/16 checks on the candidate tree — backend format/Release build/514 tests/NuGet audit, frontend install/audit/check, focused group-type unit runs (backend ScheduleLessonsApiTests 21/21, frontend 36/36), Chromium `group-schedule.spec.ts` 18/18 including the new query-sensitive mobile/wide workflow, and both target-iPhone WebKit schedule projects 72/72.
+- outcome: regression coverage only; no production code changed and no production defect surfaced (all new tests were green against the TASK-119 contract baseline, as the plan expected).
 - moved_from: /backlog/tasks-ready
 - implementation_plan: /backlog/implementation-plans/TASK-131-schedule-group-type-filter-regression.plan.md
 - implementation_branch: feature/TASK-131-schedule-group-type-filter-regression

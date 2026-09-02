@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "task_id": "TASK-131",
+  "expected_branch": "feature/TASK-131-schedule-group-type-filter-regression",
+  "areas": ["backend", "frontend"],
+  "runtime_smoke": [
+    {
+      "id": "backend.schedule.group-type-filter-unit",
+      "area": "backend",
+      "working_directory": "backend",
+      "command": [
+        "dotnet",
+        "test",
+        "GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--filter",
+        "FullyQualifiedName~ScheduleLessonsApiTests"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "frontend.schedule.group-type-unit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "src/lib/api/schedule.test.ts",
+        "src/features/schedule/GroupScheduleScreen.test.tsx"
+      ],
+      "timeout_seconds": 600
+    }
+  ],
+  "playwright": [
+    {
+      "id": "frontend.schedule.group-type-chromium",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": ["chromium"],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.schedule.group-type-target-iphones",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": ["iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 2400
+    }
+  ]
+}

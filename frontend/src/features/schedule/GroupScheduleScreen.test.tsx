@@ -247,6 +247,181 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     ).toBeVisible()
   })
 
+  test('selects response-provided group type, writes it to URL, request and active count', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue({
+      ...buildScheduleResponse([
+        buildLesson({
+          lessonOccurrenceId: 'occurrence-cardio',
+          groupName: 'Кардио база',
+          groupTypeId: 'type-1',
+          groupTypeName: 'Кардио',
+        }),
+        buildLesson({
+          lessonOccurrenceId: 'occurrence-strength',
+          groupName: 'Силовая база',
+          groupTypeId: 'type-2',
+          groupTypeName: 'Силовая',
+        }),
+      ]),
+      filterOptions: {
+        branches: [{ id: 'branch-1', name: 'Центр' }],
+        halls: [{ id: 'hall-1', name: 'Основной зал' }],
+        trainers: [{ id: 'trainer-1', name: 'Алиса' }],
+        groups: [{ id: 'group-1', name: 'Утренняя база' }],
+        groupTypes: [
+          { id: 'type-1', name: 'Кардио' },
+          { id: 'type-2', name: 'Силовая' },
+        ],
+      },
+    })
+
+    renderSchedule()
+
+    await screen.findByTestId('schedule-card-occurrence-cardio')
+    fireEvent.click(screen.getByRole('button', { name: 'Параметры календаря' }))
+
+    const drawer = await screen.findByRole('dialog', { name: 'Параметры календаря' })
+    fireEvent.click(within(drawer).getByLabelText('Тип группы'))
+    fireEvent.click(await screen.findByRole('option', { name: 'Силовая' }))
+
+    await waitFor(() =>
+      expect(window.location.search).toContain('groupTypeId=type-2'),
+    )
+    expect(window.location.search).toContain('date=2026-08-20')
+    expect(window.location.search).toContain('view=day')
+    expect(getLessons).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        from: '2026-08-20',
+        to: '2026-08-20',
+        groupTypeId: 'type-2',
+      }),
+      expect.any(AbortSignal),
+    )
+    expect(
+      screen.getByRole('button', { name: /активных фильтров: 1/ }),
+    ).toBeVisible()
+  })
+
+  test('clears group type individually and through global reset without losing date and view', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/schedule?date=2026-08-20&view=week&branchId=branch-1&groupTypeId=type-1',
+    )
+    renderSchedule()
+
+    await screen.findByTestId('schedule-card-occurrence-morning')
+    expect(getLessons).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: '2026-08-17',
+        to: '2026-08-23',
+        branchId: 'branch-1',
+        groupTypeId: 'type-1',
+      }),
+      expect.any(AbortSignal),
+    )
+
+    // Individual clear: re-submitting the selected option deselects it.
+    fireEvent.click(screen.getByRole('button', { name: /Параметры календаря/ }))
+    const drawer = await screen.findByRole('dialog', { name: 'Параметры календаря' })
+    fireEvent.click(within(drawer).getByLabelText('Тип группы'))
+    fireEvent.click(await screen.findByRole('option', { name: 'Кардио' }))
+
+    await waitFor(() =>
+      expect(window.location.search).not.toContain('groupTypeId'),
+    )
+    expect(window.location.search).toContain('date=2026-08-20')
+    expect(window.location.search).toContain('view=week')
+    expect(window.location.search).toContain('branchId=branch-1')
+    expect(getLessons).toHaveBeenLastCalledWith(
+      expect.objectContaining({ groupTypeId: null, branchId: 'branch-1' }),
+      expect.any(AbortSignal),
+    )
+    expect(
+      screen.getByRole('button', { name: /активных фильтров: 1/ }),
+    ).toBeVisible()
+
+    // Global reset removes every filter while date and view survive.
+    // The reopened combobox dropdown stays visually hidden for jsdom transitions,
+    // so the re-selection lookup allows hidden elements while staying name-driven.
+    fireEvent.click(within(drawer).getByLabelText('Тип группы'))
+    fireEvent.click(await screen.findByRole('option', { name: 'Кардио', hidden: true }))
+    await waitFor(() =>
+      expect(window.location.search).toContain('groupTypeId=type-1'),
+    )
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Сбросить фильтры' }))
+
+    await waitFor(() => {
+      expect(window.location.search).not.toContain('groupTypeId')
+      expect(window.location.search).not.toContain('branchId')
+    })
+    expect(window.location.search).toContain('date=2026-08-20')
+    expect(window.location.search).toContain('view=week')
+    expect(getLessons).toHaveBeenLastCalledWith(
+      expect.objectContaining({ groupTypeId: null, branchId: null }),
+      expect.any(AbortSignal),
+    )
+    expect(
+      screen.queryByRole('button', { name: /активных фильтров:/ }),
+    ).not.toBeInTheDocument()
+  })
+
+  test('group type selection survives retry, rerender and popstate round-trip', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    renderSchedule()
+
+    await screen.findByTestId('schedule-card-occurrence-morning')
+    fireEvent.click(screen.getByRole('button', { name: 'Параметры календаря' }))
+    const drawer = await screen.findByRole('dialog', { name: 'Параметры календаря' })
+    fireEvent.click(within(drawer).getByLabelText('Тип группы'))
+    fireEvent.click(await screen.findByRole('option', { name: 'Кардио' }))
+    await waitFor(() =>
+      expect(window.location.search).toContain('groupTypeId=type-1'),
+    )
+
+    getLessons.mockRejectedValueOnce(new Error('network down'))
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Обновить' }))
+    expect(await screen.findByText('Не удалось обновить расписание')).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+    await waitFor(() =>
+      expect(getLessons).toHaveBeenLastCalledWith(
+        expect.objectContaining({ groupTypeId: 'type-1' }),
+        expect.any(AbortSignal),
+      ),
+    )
+    expect(window.location.search).toContain('groupTypeId=type-1')
+
+    // Back navigates to the unfiltered entry, forward restores the selection.
+    window.history.back()
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    await waitFor(() =>
+      expect(getLessons).toHaveBeenLastCalledWith(
+        expect.objectContaining({ groupTypeId: null }),
+        expect.any(AbortSignal),
+      ),
+    )
+    window.history.forward()
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    await waitFor(() =>
+      expect(getLessons).toHaveBeenLastCalledWith(
+        expect.objectContaining({ groupTypeId: 'type-1' }),
+        expect.any(AbortSignal),
+      ),
+    )
+    expect(window.location.search).toContain('groupTypeId=type-1')
+
+    // A fresh render rehydrates the selection from the same URL.
+    cleanup()
+    renderSchedule()
+    await screen.findByTestId('schedule-card-occurrence-morning')
+    expect(getLessons).toHaveBeenLastCalledWith(
+      expect.objectContaining({ groupTypeId: 'type-1' }),
+      expect.any(AbortSignal),
+    )
+  })
+
   test('week mode queries ISO Monday-Sunday and renders seven vertical sections', async () => {
     window.history.replaceState({}, '', '/schedule?date=2026-08-20&view=week')
     renderSchedule()
