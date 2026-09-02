@@ -1,7 +1,7 @@
 # TASK-166: Сделать вход по логину регистронезависимым
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-USR-002 — changes
@@ -88,3 +88,4 @@ implementation
 - Classification: risky because authentication and a case-insensitive unique database invariant must change together.
 - Product clarification: 2026-09-01 — пользователь должен видеть field-level сообщение «Пользователь с таким логином уже существует.» и при обычном, и при конкурентном case-only duplicate; login authentication остаётся non-enumerating.
 - Implementation start: 2026-09-01 — пользователь явно запросил реализацию плана; data/security review зафиксирован в ADR-0001, stop conditions — в плане; карточка переведена в `implementation`.
+- Completed: 2026-09-02 — реализация проверена harness-контрактом TASK-166 (backend/frontend baseline + PostgreSQL barrier/retained-upgrade/collision + frontend auth smoke) и локально интегрирована в `main`.

@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-166 Регистронезависимый вход по логину
 
 ## Metadata
-- source_task: /backlog/risky/TASK-166-case-insensitive-login.md
+- source_task: /backlog/done/TASK-166-case-insensitive-login.md
+- completion: implemented and locally integrated into main on 2026-09-02
 - requirements: REQ-USR-002 (changes), REQ-USR-003 (changes), REQ-NFR-003 (constrains)
 - branch: feature/TASK-166-case-insensitive-login
 - readiness: yes — продуктовое решение принято; backend data/security review нормализованного ключа, forward migration и retained-database collision stop зафиксирован в ADR-0001
