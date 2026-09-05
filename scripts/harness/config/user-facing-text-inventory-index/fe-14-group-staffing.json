@@ -1,0 +1,1330 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-14-group-staffing",
+  "entry_count": 60,
+  "entries": [
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить назначения тренеров.'",
+      "value": "Не удалось сохранить назначения тренеров.",
+      "fingerprint": "sha256:b044e028ddcc27cdaa756dd143a00d788ad85c24bcfabba19abd2f4400adce8a",
+      "context": {
+        "kind": "variable",
+        "name": "GENERIC_ASSIGNMENT_ERROR"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        59
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${trainer.fullName} (${trainer.login})`",
+      "value": "`${trainer.fullName} (${trainer.login})`",
+      "fingerprint": "sha256:a0ff92ddd3c1e250915bcc34a657824d8aeb31cf6cea1dc073305d75c35c94e4",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        89
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сначала получите предпросмотр назначений.'",
+      "value": "Сначала получите предпросмотр назначений.",
+      "fingerprint": "sha256:8c90a577681dd4a326f4546c84e09f5821eb97fec1db183cf99d97f58d86d39f",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        162
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Назначения тренеров сохранены'",
+      "value": "Назначения тренеров сохранены",
+      "fingerprint": "sha256:759d829a2bf2d4145134cb37aad6a7a93a589277512225ff3ebcc4a75015fa41",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        183
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Постоянные периоды тренеров применены к группе.'",
+      "value": "Постоянные периоды тренеров применены к группе.",
+      "fingerprint": "sha256:7a7b41bdcf0d9bdce70c875026ea63269afb4fc9912d40bc2eb4838f6810d421",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        184
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Проверьте поля назначений.'",
+      "value": "Проверьте поля назначений.",
+      "fingerprint": "sha256:bd7d6747ee2bc347bed09a754948436e56cf5ee18d3f6a1601a29bddcc75fc18",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        204
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Периодов: ",
+      "value": "Периодов:",
+      "fingerprint": "sha256:a43d49caf8eae4f07f37350b78a5f261b53d23a402ff499060d687288ff41b24",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        231
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Постоянные тренеры меняются отдельным подтверждаемым действием. Основные данные группы сохраняются выше без расписания и списка тренеров.\"",
+      "value": "Постоянные тренеры меняются отдельным подтверждаемым действием. Основные данные группы сохраняются выше без расписания и списка тренеров.",
+      "fingerprint": "sha256:72d9305492142bbbfa597f903addddf84f35f412ce2541436c3217a61637f1c1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Постоянные назначения тренеров\"",
+      "value": "Постоянные назначения тренеров",
+      "fingerprint": "sha256:6f2a21caf4d941233c8d46c5ee86ee6f000953087c4a9487b2bcd1d68e6cb451",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        235
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Действие не выполнено\"",
+      "value": "Действие не выполнено",
+      "fingerprint": "sha256:7530f803ba06c56fc9f37b01e650d538be036dbf6694848e967d1e1ce341bc27",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        244
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Добавьте хотя бы один период, затем получите предпросмотр влияния на занятия.\"",
+      "value": "Добавьте хотя бы один период, затем получите предпросмотр влияния на занятия.",
+      "fingerprint": "sha256:b5251bc55f5d82c2b3f815517352c7f42f682962c2cdd4c147c4dea0e618ca25",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        253
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Периоды тренеров не заданы\"",
+      "value": "Периоды тренеров не заданы",
+      "fingerprint": "sha256:eb93958c5d821cb68fa5fb1238eee2d2d150d4d95a9359fff453f50c6091efe1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        255
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Тренер периода ${index + 1}`",
+      "value": "`Тренер периода ${index + 1}`",
+      "fingerprint": "sha256:07b8af35ab0f9e601a4c514692e1df07b2217f5ce43d1e488b697b7c82e38f5a",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        271
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите тренера\"",
+      "value": "Выберите тренера",
+      "fingerprint": "sha256:3928a7cc4ded7107ac59fdc52bf9043d72d945cf9e7e33ef669148b8405627b9",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        275
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Начало периода ${index + 1}`",
+      "value": "`Начало периода ${index + 1}`",
+      "fingerprint": "sha256:bb0c93bf2c09016cbadfe057241159389b9d2e3d21171b126ae61bd782554465",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        282
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Окончание периода ${index + 1}`",
+      "value": "`Окончание периода ${index + 1}`",
+      "fingerprint": "sha256:b016d5be4ca10add6f5da4e34e5d1547368c25ee90618b02b43182be1c568d44",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        294
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Удалить\n                  ",
+      "value": "Удалить",
+      "fingerprint": "sha256:be99b13612015a48305ed2eddee74aa89288783185407708cd30157daf7942c2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        311
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Предпросмотр изменений",
+      "value": "Предпросмотр изменений",
+      "fingerprint": "sha256:e9be6ac748bcd313b79aff3506c48a61dd3727ec7e0116be8f3517d52281513d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        324
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Затронуто занятий: ",
+      "value": "Затронуто занятий:",
+      "fingerprint": "sha256:672a522d25a384dc524b7a4e71eca13ce811526a960ceee56ae4bc8254e2141b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        326
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Предупреждений нет.",
+      "value": "Предупреждений нет.",
+      "fingerprint": "sha256:f853b1ba75b9bf5d6a1dc019db69c648ab4f35de7426a338044db56b3e8ea2c6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        339
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        345
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ".\n            ",
+      "value": ".",
+      "fingerprint": "sha256:cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        351
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Подтверждение действует до ",
+      "value": "Подтверждение действует до",
+      "fingerprint": "sha256:fb7dfed488bfaf4296194c381fcf6ca4143b32f1d7ea6600fea6bf75ab8746e6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        351
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Добавить период\n        ",
+      "value": "Добавить период",
+      "fingerprint": "sha256:0918d5654cb0a66549c18addf5db84f0e8abd89dc2e8da118185c5b9ea849617",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        365
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Получить предпросмотр\n        ",
+      "value": "Получить предпросмотр",
+      "fingerprint": "sha256:857a90c114158486ca10d936cb5284fc239049b0932b822d81ff9d09eaa216ac",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        374
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить назначения\n        ",
+      "value": "Сохранить назначения",
+      "fingerprint": "sha256:8b3890f607cb6aa1c486eb108affa9d312bc36e8bec67c9341b5413cc9b4f7f3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        383
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Добавьте хотя бы один период назначения.'",
+      "value": "Добавьте хотя бы один период назначения.",
+      "fingerprint": "sha256:eed7cd023a67b3f3bb21ad5a1c0483ae2eecd71c3fd41c3e0ea143374999cff2",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        414
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите тренера.'",
+      "value": "Выберите тренера.",
+      "fingerprint": "sha256:11da4ac58e8aa998570be429489086f9b883ccb32ecf72c95e41d4a2718657f9",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        419
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите корректную дату начала.'",
+      "value": "Укажите корректную дату начала.",
+      "fingerprint": "sha256:eb4a03938b532d6c5134521654929bfbdb10549ac1ea8bc941512b89265bc8ca",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        422
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите корректную дату окончания.'",
+      "value": "Укажите корректную дату окончания.",
+      "fingerprint": "sha256:8858264cce3012c1a51d2016cb6d28efa5ff9bc330471538a53fb419cc901462",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        425
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Дата окончания не может быть раньше начала.'",
+      "value": "Дата окончания не может быть раньше начала.",
+      "fingerprint": "sha256:a9adf0fbbf4e23942f4d1892dea5a953f59d6669e9ed0317bc01e05f4ffa35f3",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        432
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активно'",
+      "value": "Активно",
+      "fingerprint": "sha256:68505b6d0475073beb2edda6095a90a294f454f1c3f12f868c27d4f8a6785a16",
+      "context": {
+        "kind": "property",
+        "name": "Active"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        28
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Запланировано'",
+      "value": "Запланировано",
+      "fingerprint": "sha256:c4c9abc154de659660863959e18ecddaaf5581dc304557a4c3b7371dedfe2463",
+      "context": {
+        "kind": "property",
+        "name": "Upcoming"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        29
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Завершено'",
+      "value": "Завершено",
+      "fingerprint": "sha256:b459ff8f254e7194df672250177f39c79650eb9d1604f45b1612a5480d9a607c",
+      "context": {
+        "kind": "property",
+        "name": "Expired"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        30
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменено'",
+      "value": "Отменено",
+      "fingerprint": "sha256:23a2a9bfcf74c4a1d09d4f60823bad9a2c1e02f9204a028507ad690d0374d8ed",
+      "context": {
+        "kind": "property",
+        "name": "Cancelled"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        31
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить замещения.'",
+      "value": "Не удалось загрузить замещения.",
+      "fingerprint": "sha256:0cb0e0e6c570cf4770001d31c5372bf4dd44a54f172a916e90bddefa09f1d671",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        68
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить историю замещений.'",
+      "value": "Не удалось загрузить историю замещений.",
+      "fingerprint": "sha256:e92898f10ae977e464a61c9d14a582526ba49b8b7bfc49d32e4504edd1b19fad",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Старые периодные замещения доступны только для просмотра. Изменение тренера для конкретного занятия появится отдельным действием в календаре.\"",
+      "value": "Старые периодные замещения доступны только для просмотра. Изменение тренера для конкретного занятия появится отдельным действием в календаре.",
+      "fingerprint": "sha256:bfe9a56a8c0a7a89cf0616f40b58f8c1e16ca579b97c459cd5402c21b5835b0d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        126
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Временные замещения\"",
+      "value": "Временные замещения",
+      "fingerprint": "sha256:4e2bc0cdecb3109916920f242d491645eb423c04797ec3429bc4449ba23650cf",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем временные замещения...\"",
+      "value": "Загружаем временные замещения...",
+      "fingerprint": "sha256:10365fea7cf82768d910f66736cd07f4a394ed10909e7928a218e8479f5d8713",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        132
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Замещения не загрузились\"",
+      "value": "Замещения не загрузились",
+      "fingerprint": "sha256:3b8a3e5b03fde0d77f4477c15563678aa9bd47239cf89ab3748aaa099ae4d210",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        140
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить загрузку замещений\n                ",
+      "value": "Повторить загрузку замещений",
+      "fingerprint": "sha256:34a89a261365ee74e68537be8217700fd54641804e3cf39d77318c86a73b1a25",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        151
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"История не загрузилась\"",
+      "value": "История не загрузилась",
+      "fingerprint": "sha256:2e1514c4624f8efe0db8670ec4c7b66d907536d872113b66557a7b207edec7ae",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        163
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Создание, изменение и отмена периодных замещений отключены в календаре занятий.\n            ",
+      "value": "Создание, изменение и отмена периодных замещений отключены в календаре занятий.",
+      "fingerprint": "sha256:993cc81f276d252f7301a94fa97708dee1b21914ba961f64b654ead030a3a5b2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        173
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Текущие и будущие\n              ",
+      "value": "Текущие и будущие",
+      "fingerprint": "sha256:7ca077e4526386ad0226bea8bbad3dbcf0e2c113a362edfc54b35c9bf6777079",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        178
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Текущие и будущие временные назначения будут показаны здесь только для контроля старых данных.\"",
+      "value": "Текущие и будущие временные назначения будут показаны здесь только для контроля старых данных.",
+      "fingerprint": "sha256:fcc54bde23eb32ad6f2643526ba56b2a441671e9c39940e43af7b099d475888e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        183
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Текущих и будущих замещений нет\"",
+      "value": "Текущих и будущих замещений нет",
+      "fingerprint": "sha256:38aa014393ac96fab52053410c9dd44005eb9d30b368f58a72fc03625350c8c7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        185
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Текущие и будущие замещения\"",
+      "value": "Текущие и будущие замещения",
+      "fingerprint": "sha256:8c0dc67fa5e686b81fe50135d51777aff65c0a244c6a02c988785f5c77bd3788",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        188
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "История\n                  ",
+      "value": "История",
+      "fingerprint": "sha256:1417b7792d57bbb792b008b683c540380387d0f1e8773ac274741507321e73e8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        203
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Показано ",
+      "value": "Показано",
+      "fingerprint": "sha256:1a48f320873b596d79c0e293ca733da9af29d05da2b02e65bf318b1442ebafce",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        206
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "из ",
+      "value": "из",
+      "fingerprint": "sha256:7f4adf318ef3f841fbcfdb9c5612e88124e15bd9f6885d50acdeb21e0ac52cbb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        206
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Показать историю замещений'",
+      "value": "Показать историю замещений",
+      "fingerprint": "sha256:2d015c261c205f6c77b874a27796b700f100ad5c7c2e1c92595219e7838e7983",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        216
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Скрыть историю замещений'",
+      "value": "Скрыть историю замещений",
+      "fingerprint": "sha256:f3b6b22a452d93cc56c0e35030735d5d24c10c86696dfbe9f3e44bc074d5ed39",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        216
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"История временных замещений\"",
+      "value": "История временных замещений",
+      "fingerprint": "sha256:c3c5b1568c14962c06c6af6515447f0227d34e53fd185500de5e7c8317864165",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        222
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Показать ещё\n                      ",
+      "value": "Показать ещё",
+      "fingerprint": "sha256:c6826c78379433a1f1e1d839c970a132ccaac0d787882b661643d378c888c194",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        241
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Неактивный тренер\n                ",
+      "value": "Неактивный тренер",
+      "fingerprint": "sha256:5539f6e6fc3b63b8dbd1efda46c6e38ff918ac552bb3c506fb13e60160090c27",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        280
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Логин: ",
+      "value": "Логин:",
+      "fingerprint": "sha256:8541e28c522fdc6730eb62064c87475056e443d022f117579a1f958709d1a76f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        285
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "с ",
+      "value": "с",
+      "fingerprint": "sha256:a1f5d39a12e8f6bed437ee6c16fa961dcd6a5af84e1518290a577a029e7501e2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        289
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "по ",
+      "value": "по",
+      "fingerprint": "sha256:51ad1397c2255740f870b11d4eb9b6795e615aa8f2e38f217cde48eebec82cf5",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        293
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "включительно\n              ",
+      "value": "включительно",
+      "fingerprint": "sha256:e072195b0d5902fe99d2a100937bcde0cf549de39a9795d8c98b61b7676d875c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        293
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/group-staffing",
+      "slice": "FE-14-group-staffing",
+      "review_status": "proposed"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "BE-8-startup-reports-audit",
+  "entry_count": 4,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/AttendanceTransitionMaintenanceCommand.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"attendance-transition-invalid-arguments: {exception.Message}\"",
+      "value": "attendance-transition-invalid-arguments: {exception.Message}",
+      "fingerprint": "sha256:184d8f805e601672348b7e38335fe8040c8a65f34b41f941137a44517c9bf98f",
+      "context": {
+        "kind": "source-line",
+        "name": "return StableError($\"attendance-transition-invalid-arguments: {exception.Message}\");"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        56
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/startup-api",
+      "slice": "BE-8-startup-reports-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/AttendanceTransitionMaintenanceCommand.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"attendance-transition-operation-failed: {exception.Message}\"",
+      "value": "attendance-transition-operation-failed: {exception.Message}",
+      "fingerprint": "sha256:81c9fa7b7e5aac15903ad55455fec34a90710625f067f09e6579c50e5e354653",
+      "context": {
+        "kind": "source-line",
+        "name": "return StableError($\"attendance-transition-operation-failed: {exception.Message}\", exitCode: 1);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        60
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/startup-api",
+      "slice": "BE-8-startup-reports-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Startup/HealthReportResponse.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"description\"",
+      "value": "description",
+      "fingerprint": "sha256:c9046f7a37ad0ea7cee73355984fa5428982f8b37c8f7bcec91f7ac71a7cd104",
+      "context": {
+        "kind": "source-line",
+        "name": "[property: JsonPropertyName(\"description\")] string? Description,"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        13
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/startup-api",
+      "slice": "BE-8-startup-reports-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Startup/TechnicalLoggingStartupExtensions.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj}{NewLine}{Exception}\"",
+      "value": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+      "fingerprint": "sha256:ac3d88578fbf91fc0b2f58a372edc5b670595181e87a691aefa1f8398055040f",
+      "context": {
+        "kind": "source-line",
+        "name": "\"[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj}{NewLine}{Exception}\");"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        55
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/startup-api",
+      "slice": "BE-8-startup-reports-audit",
+      "review_status": "proposed"
+    }
+  ]
+}

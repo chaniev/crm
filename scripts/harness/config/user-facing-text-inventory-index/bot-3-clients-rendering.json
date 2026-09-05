@@ -1,0 +1,1001 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "BOT-3-clients-rendering",
+  "entry_count": 45,
+  "entries": [
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Используйте /start или кнопки меню.\"",
+      "value": "Используйте /start или кнопки меню.",
+      "fingerprint": "sha256:48f52aa0c3e519eb9fa1cd0fd564a02f8d1bdefdf53905a2b1e5cc5b3220ef55",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        51
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Команда не поддерживается.\"",
+      "value": "Команда не поддерживается.",
+      "fingerprint": "sha256:21bb98ee92b8129809eed8128e2f0ddd278d830066f9ecee889e5a81ebc33cc4",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        133
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Заканчивающиеся абонементы\"",
+      "value": "Заканчивающиеся абонементы",
+      "fingerprint": "sha256:26b6589559b176268ccba4a87191f9d13a3ebb0e7b9a886ff3ebb49a0bca777a",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        155
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Результаты поиска: {query}\"",
+      "value": "f\"Результаты поиска: {query}\"",
+      "fingerprint": "sha256:0611725a11d1d65eac9c9378d86c1dd6457ca10f63d2ad64a3744f9998d52c54",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Страница: {page}\"",
+      "value": "f\"Страница: {page}\"",
+      "fingerprint": "sha256:96d52036b49622c41693e8e11131c15cc89f77d80913bdd337a376d0387fd9a7",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Результаты поиска: {query}\"",
+      "value": "Результаты поиска: ",
+      "fingerprint": "sha256:b2617ec52f5c1e7cb525a350773d016183d1bb3becb0b42814fa3088953d1174",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Страница: {page}\"",
+      "value": "Страница: ",
+      "fingerprint": "sha256:95a12083d209feb93ea750745f2cafcbeb30c4073b8e56f9066260ed4d263cbd",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171,
+        182
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\" | Профессионал\"",
+      "value": " | Профессионал",
+      "fingerprint": "sha256:7216e7c983b4f9d74e34fb8899e64dfc944f48dcdc42f58b433c0f55107be49d",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        174
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Страница: {response.page}\"",
+      "value": "f\"Страница: {response.page}\"",
+      "fingerprint": "sha256:7f5b56a52ca24ad3a166889531b8f4338d282dde8368abb48b9edf2de55bee04",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        182
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Телефон: {card.phone}\"",
+      "value": "Телефон: ",
+      "fingerprint": "sha256:3427cb3f5721760bafa79c8597430db2ea43802344dc73aaff71d7755b54d102",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        200
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Телефон: {card.phone}\"",
+      "value": "f\"Телефон: {card.phone}\"",
+      "fingerprint": "sha256:76304c278ed2ed04edf1c1159e28a90a81f7dfa87aba69f740ab11aaa811b616",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        200
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Статус: {card.status}\"",
+      "value": "Статус: ",
+      "fingerprint": "sha256:096a497176ca5fd8ae6ffae971115be21f4b339d6c5b9af72355508125ee17f6",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        202
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Статус: {card.status}\"",
+      "value": "f\"Статус: {card.status}\"",
+      "fingerprint": "sha256:0c1b54543dd4d2e0fdc716666ab8dd217fec79dce3aa9c14be58780f91bad0a6",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        202
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Группы: \"",
+      "value": "Группы: ",
+      "fingerprint": "sha256:4110d7e9584d4a6a3c42a0dfc34ba6ce12db88628142985669b8c5d81211fb86",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        204
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Профессионал{comment}\"",
+      "value": "f\"Профессионал{comment}\"",
+      "fingerprint": "sha256:15e8b16d43528ddae8222b607cba361e12ec6a6571f8ec1fe7e6b7c5ded321e6",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        207
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Профессионал{comment}\"",
+      "value": "Профессионал",
+      "fingerprint": "sha256:76fc78765f641cc0c92a13bad096515c9790fcba2b2d89907ab5a74cfa93796c",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        207
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Предупреждение: {card.warning}\"",
+      "value": "Предупреждение: ",
+      "fingerprint": "sha256:42f61bfcb990198598f509d1290e5e8596d88a2f7c88bff451749dc6b14c262f",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        209
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Предупреждение: {card.warning}\"",
+      "value": "f\"Предупреждение: {card.warning}\"",
+      "fingerprint": "sha256:9fb41f94650ab09b06d3faab84dab5502b0ade924b91ed9effe8c7b91d23e942",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        209
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Абонемент: \"\n            f\"{membership.type_label}, \"\n            f\"покупка {membership.purchase_date.strftime('%d.%m.%Y')}, \"\n            f\"оплата {membership.payment_date.strftime('%d.%m.%Y')}\"",
+      "value": ", оплата ",
+      "fingerprint": "sha256:093118f4980accd9ec1cbf1b1ab0ffa119d304f1e8fb79a687095f1c437d48da",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        212
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "\"Абонемент: \"\n            f\"{membership.type_label}, \"\n            f\"покупка {membership.purchase_date.strftime('%d.%m.%Y')}, \"\n            f\"оплата {membership.payment_date.strftime('%d.%m.%Y')}\"",
+      "value": "\"Абонемент: \"\n            f\"{membership.type_label}, \"\n            f\"покупка {membership.purchase_date.strftime('%d.%m.%Y')}, \"\n            f\"оплата {membership.payment_date.strftime('%d.%m.%Y')}\"",
+      "fingerprint": "sha256:1735bce3dc272577a843580fb5a130de277bd7ea4736ad27bb2d8ee9b152363f",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        212
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Абонемент: \"\n            f\"{membership.type_label}, \"\n            f\"покупка {membership.purchase_date.strftime('%d.%m.%Y')}, \"\n            f\"оплата {membership.payment_date.strftime('%d.%m.%Y')}\"",
+      "value": "Абонемент: ",
+      "fingerprint": "sha256:97a5e4ba8d52813aab396a0742630d2bb7f377ce5769b3822c6ee3314360e212",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        212
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Абонемент: \"\n            f\"{membership.type_label}, \"\n            f\"покупка {membership.purchase_date.strftime('%d.%m.%Y')}, \"\n            f\"оплата {membership.payment_date.strftime('%d.%m.%Y')}\"",
+      "value": ", покупка ",
+      "fingerprint": "sha256:ac59d88dcb73b8d5653ce8e574a60675a6a3b95bef154e3aedc56547a7d2898a",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        212
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Действует до: {membership.expiration_date.strftime('%d.%m.%Y')}\"",
+      "value": "f\"Действует до: {membership.expiration_date.strftime('%d.%m.%Y')}\"",
+      "fingerprint": "sha256:1d91aa1ec367cc002833676add6e1842de0027d6fa7ccfe3aab576d32cc00f38",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        218
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Действует до: {membership.expiration_date.strftime('%d.%m.%Y')}\"",
+      "value": "Действует до: ",
+      "fingerprint": "sha256:d2079864ed687229de39bb069d5ad1da59db05af91475dc425648dc711a6b66b",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        218
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Доступ: все группы; отчётность: {reporting_group}\"",
+      "value": "Доступ: все группы; отчётность: ",
+      "fingerprint": "sha256:d93750a328567b5c6685a63d8817b8e38171e3c62ad26783dc840f2cb402e9ab",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        225
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Доступ: все группы; отчётность: {reporting_group}\"",
+      "value": "f\"Доступ: все группы; отчётность: {reporting_group}\"",
+      "fingerprint": "sha256:ec96bc1b38007de8ddb6773599dcb70993d223d5911d8d3f1d08f035d3d71f0c",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        225
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Доступ: все группы\"",
+      "value": "Доступ: все группы",
+      "fingerprint": "sha256:ca7e47767cca13694cbdbe65f098a386497adcf4fa9863a571e2f714c0f2413e",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        227
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Группы абонемента: {format_target_groups(membership.target_groups)}\"",
+      "value": "f\"Группы абонемента: {format_target_groups(membership.target_groups)}\"",
+      "fingerprint": "sha256:2deb983775180c88289ed338910b66abc920b5959674c071a2748a30e9183f41",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        229
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Группы абонемента: {format_target_groups(membership.target_groups)}\"",
+      "value": "Группы абонемента: ",
+      "fingerprint": "sha256:38e5c52041a668d97908456d11f5f004ba7e8a51b5c5073be48ba92772f345cd",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        229
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Предупреждение: абонемент без групп, требуется исправление\"",
+      "value": "Предупреждение: абонемент без групп, требуется исправление",
+      "fingerprint": "sha256:7cba89cc69ee568200d486a9793c45935154c3a38ccc7d25820f4769d850d5b3",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        231
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"История посещений:\"",
+      "value": "История посещений:",
+      "fingerprint": "sha256:8f049fb2ba088b81106c655a27eba21761c2f9a3550b79f27fd23da908c5d40a",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        233
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Не был\"",
+      "value": "Не был",
+      "fingerprint": "sha256:cd2e8ad3c648098fe1eb53a077d3858d5e89b967383667139471415e38b53ae2",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        235
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Был\"",
+      "value": "Был",
+      "fingerprint": "sha256:ff13de896146db550b0bdddbcd09b8f1543f4ddd279ea5febac6d03106e8cf3c",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        235
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/client_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\" (отчётность)\"",
+      "value": " (отчётность)",
+      "fingerprint": "sha256:ae8c7c8629111371afe9439f65ddff23675dd16d2621c5b585a4fa251f15c542",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        248
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"старт {training_start_time}\"",
+      "value": "f\"старт {training_start_time}\"",
+      "fingerprint": "sha256:040ee703ced946a159ef7464ac2f742dac98d272d6c931131e2ed84778588a80",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"старт {training_start_time}\"",
+      "value": "старт ",
+      "fingerprint": "sha256:29db7d589f4b13445a6e1c03f83b6caa6a7df18d636e08b8ccdd2af04275009b",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"{duration_minutes} мин\"",
+      "value": " мин",
+      "fingerprint": "sha256:84d5d93d12778bd7c9d24a92e4eaa4a5f4f6fbce50e70c631ae308939e2b6c7e",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        26
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"{duration_minutes} мин\"",
+      "value": "f\"{duration_minutes} мин\"",
+      "fingerprint": "sha256:99b4c8f55725f6ed804997db3f34a7c6d6517ba9726d209eeb88d5b0afc82165",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        26
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Пн\"",
+      "value": "Пн",
+      "fingerprint": "sha256:31a8ee2fb6b7b6f4631776e1213464bb4114b96814fcb43a9eb0d68e5a69f752",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        32
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Вт\"",
+      "value": "Вт",
+      "fingerprint": "sha256:839b2d5c5aa3d81f59ca580ea3a076ef15d518cf2eddb632b4692d3853bc7c24",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        33
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Ср\"",
+      "value": "Ср",
+      "fingerprint": "sha256:7ec16b9e41ff461a1227082764da8cc9f6eae779e216683546f63fca490ab67a",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        34
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Чт\"",
+      "value": "Чт",
+      "fingerprint": "sha256:956618723dd8bbc19474b50c9819bfd11a259e85fb148de4f09203b8138cb462",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Пт\"",
+      "value": "Пт",
+      "fingerprint": "sha256:4ca114c23be8d9689a0ff81369971f88bcf9862b9fed53fe8bf87221e662d942",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        36
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Сб\"",
+      "value": "Сб",
+      "fingerprint": "sha256:95dab017a4da8cfdbc731ae32e73e6f0e39e118370be8b1d680ca16e50b1e539",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        37
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/rendering.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Вс\"",
+      "value": "Вс",
+      "fingerprint": "sha256:7971972c7cbb98da65679b61aa17bbc52102a8d4d4cffd4f223dd739cad27a0a",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        38
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/clients",
+      "slice": "BOT-3-clients-rendering",
+      "review_status": "proposed"
+    }
+  ]
+}

@@ -1,0 +1,1366 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-16-audit",
+  "entry_count": 61,
+  "entries": [
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить журнал действий.'",
+      "value": "Не удалось загрузить журнал действий.",
+      "fingerprint": "sha256:3c9614100cef96694d220a9f887f9aa829c4f7554d253fe19ac980a228cce24d",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        146
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось обновить, показаны предыдущие данные'",
+      "value": "Не удалось обновить, показаны предыдущие данные",
+      "fingerprint": "sha256:13cc8e2d76f27d548780297d7e1a1962c787c4e43ecfc0ae3fe03948a724f0c9",
+      "context": {
+        "kind": "call-argument",
+        "name": "setStaleError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Журнал\"",
+      "value": "Журнал",
+      "fingerprint": "sha256:97c459a6bb7c917406b8f58a8e65d077b9e2bef6bdf04a65d802eace908c889b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        218,
+        362
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Этот экран доступен главному тренеру и администратору.\"",
+      "value": "Этот экран доступен главному тренеру и администратору.",
+      "fingerprint": "sha256:9d3460568c332f44fe7f194860256d7b3e35c1cb3eebd6ce19284cd575cca91b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        221
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Журнал действий недоступен\"",
+      "value": "Журнал действий недоступен",
+      "fingerprint": "sha256:509cc0db7de71970445bb2b9f5a9441573b0b5725e9c87ed1cfb1d16aa6876fc",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        222
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${auditUser.fullName} (${auditUser.login})`",
+      "value": "`${auditUser.fullName} (${auditUser.login})`",
+      "fingerprint": "sha256:0ce029104e7533748ed00f37af23512743f747742953f416f77cbdfbad8ef505",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Пользователь'",
+      "value": "Пользователь",
+      "fingerprint": "sha256:2a5c42af7c00743bdbf29bf6cc16caaced557052833b6ef89f972feebb33eaa4",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        257,
+        262,
+        434
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Все пользователи\"",
+      "value": "Все пользователи",
+      "fingerprint": "sha256:f92b5e39d09e3428d2b664659a09d9b654340ed3e440e3aab989047b787005cc",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        265
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип действия'",
+      "value": "Тип действия",
+      "fingerprint": "sha256:6fd845da208a6b6f10d4686798581c1f39cf4fee786a10491ba1eec6782dd7f5",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        273,
+        278
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Все действия\"",
+      "value": "Все действия",
+      "fingerprint": "sha256:ca80a4dbcec6fa276d7398cf2f305a69f5f0e4371f42fd896d728bf39402466f",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        280
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Период с'",
+      "value": "Период с",
+      "fingerprint": "sha256:adf428d20ec326df56fd7e671e474f1f99959eeb4b80ed8183c04f953b46c354",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        288,
+        291
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Период по'",
+      "value": "Период по",
+      "fingerprint": "sha256:1c0844732fb8aec3c14b080f1c1fd75f4b9e645da6cbf30456dd1a5e1ee8ea6c",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        301,
+        304
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Источник'",
+      "value": "Источник",
+      "fingerprint": "sha256:56e46960c10438ad7fca62390dabc6d774250a7bbc970cb428658b2150734478",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        316,
+        321,
+        805
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Все источники\"",
+      "value": "Все источники",
+      "fingerprint": "sha256:71e214e1477f66f01997702d3a5eed91e762702bae6d310f15df453605bf5756",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        323
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Мессенджер'",
+      "value": "Мессенджер",
+      "fingerprint": "sha256:8cfeb84712d74ef4bb164d6bb569bcf1022de470fe900bbb120ccdd570bff441",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        331,
+        336,
+        816
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Все мессенджеры\"",
+      "value": "Все мессенджеры",
+      "fingerprint": "sha256:1627d7ae08cbcd02af4b0365ff575ec843b2c664692cfa04c2ec6a162cabb423",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        338
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип объекта'",
+      "value": "Тип объекта",
+      "fingerprint": "sha256:802e782254c81a21b42b664d9561a90a3bf7335ee8005ce2ca7635ab3a5bd61c",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        346,
+        351
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Все объекты\"",
+      "value": "Все объекты",
+      "fingerprint": "sha256:520f22d9bf12e9c8a54b813cf20ea79a88bfe0d3f5314b1ad2dd89698d6b903e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        353
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем журнал действий...\"",
+      "value": "Загружаем журнал действий...",
+      "fingerprint": "sha256:141826fe1b8f8432e119095e95a91e37bcca884d914b1504e6738b789223cc95",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        375
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить\n                ",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        382,
+        416
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Журнал не загрузился\"",
+      "value": "Журнал не загрузился",
+      "fingerprint": "sha256:900936e9237a209f3e502a5390eb0cd06378494c720b7b5a2058f5c652cc693e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        386
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сбросить фильтры\n                  ",
+      "value": "Сбросить фильтры",
+      "fingerprint": "sha256:cd45ec7836b5cb5e86840b932b6480a4696cf5491eaaa6c25b6cecd65d2ba4f2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        395
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сбросьте фильтры или обновите журнал после новых действий в системе.'",
+      "value": "Сбросьте фильтры или обновите журнал после новых действий в системе.",
+      "fingerprint": "sha256:27e93106817d1a36826d241a7d4be01e6297b8c630214cd9a6a50d4f639cfdc0",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        401
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Обновите журнал после новых действий в системе.'",
+      "value": "Обновите журнал после новых действий в системе.",
+      "fingerprint": "sha256:d0563fd01c804299dc1b2fab608a2b897d526dd2c4376c746c20269021253617",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        402
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Под выбранные фильтры записей нет.'",
+      "value": "Под выбранные фильтры записей нет.",
+      "fingerprint": "sha256:1ab37d8db18f3ff7a31bc14192bdb08922620606662d6cd90b0995dbbd370454",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        406
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'В журнале пока нет записей'",
+      "value": "В журнале пока нет записей",
+      "fingerprint": "sha256:3cedc5533f9fe06fd4fb9f572c577e0fde5cb23fc60d5aa157ac61f874956ec9",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        407
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Данные могли устареть\"",
+      "value": "Данные могли устареть",
+      "fingerprint": "sha256:207b310286c83ae9e42640067f9bc55f717486826bb666f8644b126e3f59933d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        420
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Журнал действий\"",
+      "value": "Журнал действий",
+      "fingerprint": "sha256:ac5dad760e33c2f07fb6eb513a65814ebaa23feb6307fd5843454c410b66c135",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        426
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Дата",
+      "value": "Дата",
+      "fingerprint": "sha256:232a0ead182bb391403963b4c7ff6d23ae85ccc2acf73fc12d8305549e9079b4",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        432
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Описание",
+      "value": "Описание",
+      "fingerprint": "sha256:b3680f2cba5f35d05b8dde72b8109a73216f60b0d3bc2208afc7ee07ba90f3a9",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        433
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Детали",
+      "value": "Детали",
+      "fingerprint": "sha256:773190d8a02615fcd63c02a5de974da6ab2f97a28f1002f5e1b1a6a8c5378257",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        435,
+        535
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Страницы журнала действий\"",
+      "value": "Страницы журнала действий",
+      "fingerprint": "sha256:273ec7a82265af63679209ba6e0ba65b0f495a98f933ad798857636ae8c8353a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        453
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'next'",
+      "value": "next",
+      "fingerprint": "sha256:c6c1c9a9c8543f1e4cd980064cf1625eeb61a90703b2464fff039f21682508b3",
+      "context": {
+        "kind": "call-argument",
+        "name": "getAuditPaginationControlLabel"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        454
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Страница ${pageNumber} журнала`",
+      "value": "`Страница ${pageNumber} журнала`",
+      "fingerprint": "sha256:4fbaec54f1bd238c6a0392073316870cf66d351e43ec48e762ea3a207c232b23",
+      "context": {
+        "kind": "ArrowFunction",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        457
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'previous'",
+      "value": "previous",
+      "fingerprint": "sha256:6da0633528deaa0144e7b058315f0b753ec0b945163a72bf96a0d18180f9de0d",
+      "context": {
+        "kind": "call-argument",
+        "name": "getAuditPaginationControlLabel"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        458
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Автор: ${presentation.actorAccessibleLabel}`",
+      "value": "`Автор: ${presentation.actorAccessibleLabel}`",
+      "fingerprint": "sha256:c1129cd4c09d46e5e082cdd12d3931aa1b7565079516bf5e3e61abba825d7895",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        511
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Показать подробности записи: ${presentation.description}`",
+      "value": "`Показать подробности записи: ${presentation.description}`",
+      "fingerprint": "sha256:f73af74a69765fa4a1e4f653913aea303d9d9d0ba96c858e94c542ab1ae9636e",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        524
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        572
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Закрыть подробности записи'",
+      "value": "Закрыть подробности записи",
+      "fingerprint": "sha256:8f65a33f7ad30b82f5e62264059273647cc1925f4b0e5ba645a2f9e15fb95d5a",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        572
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Подробности записи журнала\"",
+      "value": "Подробности записи журнала",
+      "fingerprint": "sha256:a4383fdb8db518405260cbb6a1b3a21d94ccb523f403166eb767a6223cb37077",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        580
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "ID объекта: ",
+      "value": "ID объекта:",
+      "fingerprint": "sha256:7a4effe6233ac510d91ab684ad6e71d4b7c278bcae7d7d30cb921ed48a3e89a8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        615
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Для этой записи старые значения не переданы.\"",
+      "value": "Для этой записи старые значения не переданы.",
+      "fingerprint": "sha256:7ec594698c7a52ab523ca2320bfde0c7cdf1d75495ef1481cd8d983175c9eceb",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "emptyLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        623
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Старые значения\"",
+      "value": "Старые значения",
+      "fingerprint": "sha256:b1ac9321582397f50e360def3a50f200300dd0924bf4ecec7e111e8e083b628e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        624
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Для этой записи новые значения не переданы.\"",
+      "value": "Для этой записи новые значения не переданы.",
+      "fingerprint": "sha256:745d0810d943c5d79421cecb2f47cda920c4398a473e55cbe244fa48b7112f00",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "emptyLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        628
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Новые значения\"",
+      "value": "Новые значения",
+      "fingerprint": "sha256:e4283670d0eb0a18f5796552374da8a43a0746f2388e6507024236f33bd141a3",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        629
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Страница ${response.page} из ${getTotalPages(response)}`",
+      "value": "`Страница ${response.page} из ${getTotalPages(response)}`",
+      "fingerprint": "sha256:58747b6a414b801f90012857eea7d01bfe25e486f10b608a9990510429a8545e",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        739
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Страница ${response.page}`",
+      "value": "`Страница ${response.page}`",
+      "fingerprint": "sha256:5456888ec558eb19ea7baf62e7c22a1c147aa17501086ce336dca4e726b364bf",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        742
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Первая страница журнала'",
+      "value": "Первая страница журнала",
+      "fingerprint": "sha256:045eef2d12c8a6bb8195309eee64eefba96f0320e0685faf9a39e366682da606",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        749
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Предыдущая страница журнала'",
+      "value": "Предыдущая страница журнала",
+      "fingerprint": "sha256:f94be165b881beb00db45a9a7c24cb46ff757e5d276cb4a04d3c16bfca69d5d7",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        753
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Следующая страница журнала'",
+      "value": "Следующая страница журнала",
+      "fingerprint": "sha256:d04b363e5cc0548bd3b155e1b8477867127ef9f0bce296168d073e95c0606238",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        757
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Последняя страница журнала'",
+      "value": "Последняя страница журнала",
+      "fingerprint": "sha256:b2c3006448237e7f85b6946d00239689d8716c12c4a9a965b63304702dd58390",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        760
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Действие'",
+      "value": "Действие",
+      "fingerprint": "sha256:6b53aafe28bdd5aae6d9bbbe939aa46987d3fbe900d54c7106e1fbd7e31caeff",
+      "context": {
+        "kind": "property",
+        "name": "knownPrefix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        781
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип действия из API'",
+      "value": "Тип действия из API",
+      "fingerprint": "sha256:6faaa9419ff2a309dd420b4c080241e8ffae5f8499f5065edf7ae76c220a356f",
+      "context": {
+        "kind": "property",
+        "name": "unknownPrefix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        782
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Объект'",
+      "value": "Объект",
+      "fingerprint": "sha256:cedecb919c3a57ff18eb6f3eb4a34671eb87105efa4f59de7563978ed2103b8d",
+      "context": {
+        "kind": "property",
+        "name": "knownPrefix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        787
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип объекта из API'",
+      "value": "Тип объекта из API",
+      "fingerprint": "sha256:ee94335941098fd6658cfa018d03c010eeaaf86926490b25f4c6d9e05aa4a0d0",
+      "context": {
+        "kind": "property",
+        "name": "unknownPrefix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        788
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Описание: ${description}`",
+      "value": "`Описание: ${description}`",
+      "fingerprint": "sha256:41f458cdc0ebd45d19f891f4f8cec08680c6b81d22eb00fc91dce33f19cdeaaf",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        792
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`ID объекта: ${entry.entityId}`",
+      "value": "`ID объекта: ${entry.entityId}`",
+      "fingerprint": "sha256:279b9ae500973ed7e9a6b11b22d0067082563134d2d4e1f3dfc66708aedc8545",
+      "context": {
+        "kind": "property",
+        "name": "accessible"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        797,
+        799
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Источник из API'",
+      "value": "Источник из API",
+      "fingerprint": "sha256:6ce2dabd16e4573bab69c7ea61c0ff50c3906adc0cccb6f213c9554a7f37208e",
+      "context": {
+        "kind": "property",
+        "name": "unknownPrefix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        806
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Мессенджер из API'",
+      "value": "Мессенджер из API",
+      "fingerprint": "sha256:597bec431fece2a14e5cc8c5669866c6f39059e9dcd56658a533ee0cfa7946a1",
+      "context": {
+        "kind": "property",
+        "name": "unknownPrefix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        817
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Описание не передано'",
+      "value": "Описание не передано",
+      "fingerprint": "sha256:65ab7b288039edaee57a7ad192d27262b8d3e37c10f26d92124eb19a20b29b97",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        836
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Дата не указана'",
+      "value": "Дата не указана",
+      "fingerprint": "sha256:732063f16e43e91bea739759372afdf7d4e1f40a0a9304d9ec80dd019e97000e",
+      "context": {
+        "kind": "property",
+        "name": "date"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        909
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "proposed"
+    }
+  ]
+}

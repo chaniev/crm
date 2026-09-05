@@ -1,0 +1,3249 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-7-client-membership",
+  "entry_count": 147,
+  "entries": [
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricing.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'По каталожной цене'",
+      "value": "По каталожной цене",
+      "fingerprint": "sha256:f2cb507facfe9a488cc9f6e30967a5a94fa142abfa495241c1cce0b31cf82db7",
+      "context": {
+        "kind": "property",
+        "name": "Catalog"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        17
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricing.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Индивидуальная сумма'",
+      "value": "Индивидуальная сумма",
+      "fingerprint": "sha256:00f9729f00689f96ce69e200fd63da9379bdc6fb0d51b82513821bb7393dc3d9",
+      "context": {
+        "kind": "property",
+        "name": "CatalogOverride"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        18
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricing.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Без варианта каталога'",
+      "value": "Без варианта каталога",
+      "fingerprint": "sha256:92f64d0d0d54ceb88fb2eeea7b5be026657f2226a5158b6b28c5a88e58b2c121",
+      "context": {
+        "kind": "property",
+        "name": "AmountOnly"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        19
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricing.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите способ расчёта.'",
+      "value": "Выберите способ расчёта.",
+      "fingerprint": "sha256:a81f58132ea0b150c2e3bd1c25c152297942101e96f8c39f44bd198d9c807e80",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        36
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricing.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите абонемент.'",
+      "value": "Выберите абонемент.",
+      "fingerprint": "sha256:4ec1f493b70b170b4946fbe8e96c55dbf3ab8ae87018f67286cd25babfb5b515",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        45
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricing.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите положительную сумму целыми рублями.'",
+      "value": "Укажите положительную сумму целыми рублями.",
+      "fingerprint": "sha256:68bb61b17addb3911ba5ab06d78d53a32d87db6bd8fedd191e134bebb3bec055",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        53
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Вариант абонемента'",
+      "value": "Вариант абонемента",
+      "fingerprint": "sha256:38cc78d423f84284f02d7d7a651032415a16687dfd2e83ba2252f2b40e9beb8d",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        32
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Способ расчёта суммы\"",
+      "value": "Способ расчёта суммы",
+      "fingerprint": "sha256:acf9468c8b531b047a161cb80ee38025f87332a8109702694fc74878f062269d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        61
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${item.name} • ${formatCurrencyValue(item.price)}`",
+      "value": "`${item.name} • ${formatCurrencyValue(item.price)}`",
+      "fingerprint": "sha256:7d7837d222ec3e25e6ae6cc2a4ccde3c16e6665b95fe0f03cf0b57fc2a7b767e",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        83
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите вариант'",
+      "value": "Выберите вариант",
+      "fingerprint": "sha256:cbcc2c45175acf799ea853d246098e26b0be171373a53d46a16fc075ff7b5b3c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загружаем...'",
+      "value": "Загружаем...",
+      "fingerprint": "sha256:ef27abbbcdec73e968dc458eda443c590f2f723fbdd4fb5e8fa476200b0d45d3",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Каталожная цена\n          ",
+      "value": "Каталожная цена",
+      "fingerprint": "sha256:de5a7f2f76f936749cf754235ea114d4e43e88e2d61ecb630cd854aba10fdee0",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        104
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Абонемент будет оформлен без выбора варианта каталога. Срок задается отдельно.'",
+      "value": "Абонемент будет оформлен без выбора варианта каталога. Срок задается отдельно.",
+      "fingerprint": "sha256:6a823a40c441b8f8c24aff97435592054fee7acd934a3bbef1a4355f24a6dbd6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        114
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите фактическую сумму этой продажи.'",
+      "value": "Введите фактическую сумму этой продажи.",
+      "fingerprint": "sha256:704318544a1f87242acbe9e9b5920917381c2491ea7de498d3f9dc7dc53dfa43",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        115
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Фактическая сумма продажи, ₽\"",
+      "value": "Фактическая сумма продажи, ₽",
+      "fingerprint": "sha256:ee4d70c48378f73787926493c67578a2cee50d5bfdaf945e4a3fc02ba1885cd8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        119
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "История абонемента",
+      "value": "История абонемента",
+      "fingerprint": "sha256:bf6f178a959ead701721c729d4068d59da84c6cc6fed1141d209cb42ea2f2816",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        57
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Изменения срока, суммы и оплаты по клиенту.\n            ",
+      "value": "Изменения срока, суммы и оплаты по клиенту.",
+      "fingerprint": "sha256:55ab75c748869f52f2a715749a62e7726a280f0f90c40ac1ff83f0b25c296aba",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        59
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Версий: ",
+      "value": "Версий:",
+      "fingerprint": "sha256:2239797ea1e5165367af1938e7bcb5d588bae29328a64bf272939edcb1b8a3be",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        64
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Новый абонемент\n            ",
+      "value": "Новый абонемент",
+      "fingerprint": "sha256:a946d490e650a3dcf897419f664b7aa26aeff901979880d0faa6ba0c6424c140",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        72
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Текущих абонементов нет.\n            ",
+      "value": "Текущих абонементов нет.",
+      "fingerprint": "sha256:10110ccf0248f4093e53f39504e6c213fb0f965cba1f3707177c3b92b861b6c4",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        114
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Все группы\n              ",
+      "value": "Все группы",
+      "fingerprint": "sha256:d71b0c68713c37b7ecfc098c1f043f9533896eaf5b6b468a47658c2dcfaf7f43",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        187
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Абонемент без групп не даёт доступ. Исправьте группы перед использованием.\n          ",
+      "value": "Абонемент без групп не даёт доступ. Исправьте группы перед использованием.",
+      "fingerprint": "sha256:716066222b5c80e8f7a2ecf85c3c72102864ae025ca4688939eda47091a24059",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        194
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Абонемент без групп\n            ",
+      "value": "Абонемент без групп",
+      "fingerprint": "sha256:9a0b1924eece3a6e206b119b484c786e5a4b6b440d1d69870a8a11bf5605c791",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        200
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отчётность · '",
+      "value": "Отчётность · ",
+      "fingerprint": "sha256:68f7b03502b0b99b840e3d3683ec79126114a5fe55d9ddb6a0068b4658d9f0dc",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        205
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сумма\"",
+      "value": "Сумма",
+      "fingerprint": "sha256:46a0edbb589582d6785be470e8eba1b73f490cf8f911c3bae29fd5b998240ff4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        211
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Расчёт\"",
+      "value": "Расчёт",
+      "fingerprint": "sha256:b3ae4c0025a48aa8dda6d7d02aac8aacb25c113cf69678db28bfbc36833c7fc4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        212
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дата оплаты\"",
+      "value": "Дата оплаты",
+      "fingerprint": "sha256:6611d56d6110e115950f2d8af335d615c93d64dcca0d8d04cd614fe388ecd973",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        213
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Продлить\n            ",
+      "value": "Продлить",
+      "fingerprint": "sha256:659ad690ef24999cf6cef234e54548a14d377c269dced0591ace7f88898a0f00",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        222
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Исправить'",
+      "value": "Исправить",
+      "fingerprint": "sha256:8d0e3e8b84b1c5479b5bf743a2209d2c5b551cf4fb77fda3a2e1fa704df36968",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        231
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Исправить группы'",
+      "value": "Исправить группы",
+      "fingerprint": "sha256:de3830e75332f2b2c545d9463e9edf3e8e7c2b5ad6d6008ee25d1bbf810c29d8",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        231
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активен'",
+      "value": "Активен",
+      "fingerprint": "sha256:a87a4b39c30404ad618fe7f24800b8412cfa1cbc9c08d95242541b035730ecd1",
+      "context": {
+        "kind": "property",
+        "name": "Active"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        241
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Будущий'",
+      "value": "Будущий",
+      "fingerprint": "sha256:a01345ca5eaf8b7eb17d91a85e6411e0b83fe19449fc488d318ea7dbf1de0e6d",
+      "context": {
+        "kind": "property",
+        "name": "Future"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        242
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Истёк'",
+      "value": "Истёк",
+      "fingerprint": "sha256:85d3fd5f95a260125f6d4f8153fc49e91d37235f791570d115df837d5cdd5e26",
+      "context": {
+        "kind": "property",
+        "name": "Expired"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Разовое использовано'",
+      "value": "Разовое использовано",
+      "fingerprint": "sha256:a091d2914b870c0d30f8ac6413ba69edafd899908a2802839f5881d75d1df4a0",
+      "context": {
+        "kind": "property",
+        "name": "UsedSingleVisit"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        244
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Без групп'",
+      "value": "Без групп",
+      "fingerprint": "sha256:214235ceac5c75a5506590ce446c28e3abe1e04d1a855becd2e214afbc1fed78",
+      "context": {
+        "kind": "property",
+        "name": "LegacyTargetMissing"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        245
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить группы.'",
+      "value": "Не удалось загрузить группы.",
+      "fingerprint": "sha256:46bd9402c6aa0e315fdb5c7127f82bb17a20fc131f38a4b250947f7f2321c1c6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось рассчитать срок абонемента.'",
+      "value": "Не удалось рассчитать срок абонемента.",
+      "fingerprint": "sha256:ae65fc7f6a43ee694803cd6d8ad7411a40c04e602113da0a84dd6c12da699970",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        121
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Исправить текущий абонемент",
+      "value": "Исправить текущий абонемент",
+      "fingerprint": "sha256:7d3a232e92b1d142123aad59e85388b278f6394726939103c91736ba40de2199",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        178
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Тип и цена зафиксированы в продаже и не меняются при исправлении.\n              ",
+      "value": "Тип и цена зафиксированы в продаже и не меняются при исправлении.",
+      "fingerprint": "sha256:529702bfe754cdb504daf79511f5aead2567484bca9da22c122a7f2b81a291c4",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        180
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Исправление\n            ",
+      "value": "Исправление",
+      "fingerprint": "sha256:b39773156ba8cd0ac9dd3a4170a7a897cea77b1d929d3cace83ce47cc77d9daa",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        185
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Абонемент\"",
+      "value": "Абонемент",
+      "fingerprint": "sha256:1139430b5881f6fea34f610bfa1f29b367173e25aa517749a3049cb9e00b83ce",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        191
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сумма продажи\"",
+      "value": "Сумма продажи",
+      "fingerprint": "sha256:c94a6d0ed73a994d55523964ef51f3a6410e48a3b6e0ddfa511ee0c0eca8813c",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        195
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дата покупки\"",
+      "value": "Дата покупки",
+      "fingerprint": "sha256:65ce6ae7db1aab2341cd244717b9f351015e37df9e68f1c1f8ca45a8dfd8e5df",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        199
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Действует с\"",
+      "value": "Действует с",
+      "fingerprint": "sha256:f79d7e9d94d5193360e1aba1a9ec0cc78b79da142bad50d82bf974b2c253dce8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        210
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Для разового посещения дату можно оставить пустой.'",
+      "value": "Для разового посещения дату можно оставить пустой.",
+      "fingerprint": "sha256:9577714182c3b517fb1d97da56bf17964e51914187b4ba8f744d2f0a0bf7dc03",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        222
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Рассчитываем дату окончания...'",
+      "value": "Рассчитываем дату окончания...",
+      "fingerprint": "sha256:56f2dc95323f46ea99f32a5d4f3eb6ca574c2064b23b8db4691bc3f3b0c74416",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        224
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Дата предложена автоматически, но ее можно изменить.'",
+      "value": "Дата предложена автоматически, но ее можно изменить.",
+      "fingerprint": "sha256:1b5e4eb6f3668db682d4ae91d5d40b64ff9ecd4aafbc976c8b2c66e00b605d05",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        226
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Действует по\"",
+      "value": "Действует по",
+      "fingerprint": "sha256:b9094c16ff5d4ff0e8d3c1f8c52cac0aadafed6a963a2e5e60aecc330d89a14a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        229
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'targetGroupIds'",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        246
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Подставить срок по правилу\n            ",
+      "value": "Подставить срок по правилу",
+      "fingerprint": "sha256:489f430b03724153f02e212e791aa32e9f7bc39ecee636f9db31902b0ad5b1cf",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        265
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n            ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        271
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить исправление\n            ",
+      "value": "Сохранить исправление",
+      "fingerprint": "sha256:375934ac2fbf7ac57b20a0c06071ede959111befa3aef70fb1fdaa9910c10cad",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        274
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить группы.'",
+      "value": "Не удалось загрузить группы.",
+      "fingerprint": "sha256:46bd9402c6aa0e315fdb5c7127f82bb17a20fc131f38a4b250947f7f2321c1c6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        67
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите исходную и целевую группу.'",
+      "value": "Выберите исходную и целевую группу.",
+      "fingerprint": "sha256:265d66a7ce69d51f5ef8f3d1c302d3b824283346e298d34ea997b57ce38da9ff",
+      "context": {
+        "kind": "call-argument",
+        "name": "setError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78,
+        100
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось построить предпросмотр.'",
+      "value": "Не удалось построить предпросмотр.",
+      "fingerprint": "sha256:fb5e8413248dd447530bcc7bc46a1c1eccafed43e571a5f41ba26f88f8535f65",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        92
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось перенести группу.'",
+      "value": "Не удалось перенести группу.",
+      "fingerprint": "sha256:8d75ef84a43949caefdbb73d876699b6bb332ac4d4e3bf2a996df94b7d3c4e63",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        124
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Перенести группу в абонементах",
+      "value": "Перенести группу в абонементах",
+      "fingerprint": "sha256:01c7a7e543d420a20877e4505b6ea480dacbc51402372db41d2c34b460fd1a4a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        134
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Операция не создаёт продажу и не меняет цену или оплату.\n          ",
+      "value": "Операция не создаёт продажу и не меняет цену или оплату.",
+      "fingerprint": "sha256:0d3bdb1480563e884a8e998dfe7ca7a9370106e284bf1562728a765525a76d6a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        136
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Исходная группа\"",
+      "value": "Исходная группа",
+      "fingerprint": "sha256:874977d32b3ee6dc8f6bcf95078175215db37606474cf6b7f395ab3d04f9a672",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        143
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите группу\"",
+      "value": "Выберите группу",
+      "fingerprint": "sha256:298a07c0ecfbe5db0750b83c522580c7b080330c1752d9cb1942b94837203462",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        148,
+        160
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Целевая группа\"",
+      "value": "Целевая группа",
+      "fingerprint": "sha256:1105fc2ca88bf0748dc48cc4911f147c5d675bd8b2ef48d316e920123da7fa64",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        155
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загружаем группы...'",
+      "value": "Загружаем группы...",
+      "fingerprint": "sha256:f6f37b0ed3d65d34b91b4c56e318533a8dad4e817adf8517f3fd1203a7adf288",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        160
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Было\"",
+      "value": "Было",
+      "fingerprint": "sha256:4fae346e6c26a0149ef3003b5b7f13bc72fcc9c7720013598b8e5ca0ea5780dd",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        170
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Станет\"",
+      "value": "Станет",
+      "fingerprint": "sha256:66e855e0105a8549a752a72f60a4345f4f9eb595ef5a0ec1cb2ccb895b6bae52",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Нет затронутых абонементов.",
+      "value": "Нет затронутых абонементов.",
+      "fingerprint": "sha256:7c4fbae8eb9f2f6756b8f9cae42fd72641d104493fd603aec3230742a8d736fb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        176
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Показать предпросмотр\n          ",
+      "value": "Показать предпросмотр",
+      "fingerprint": "sha256:4b8e058e0f6337ed45e70efe48c1314bccac5332c3ddd4214ec7a88cd7677a1a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        188
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Перенести группу\n          ",
+      "value": "Перенести группу",
+      "fingerprint": "sha256:52992c28b63a5e7e3f176c597cf910270591569557728203804c23b00b282735",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        196
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отчётность · '",
+      "value": "Отчётность · ",
+      "fingerprint": "sha256:68f7b03502b0b99b840e3d3683ec79126114a5fe55d9ddb6a0068b4658d9f0dc",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        216
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "История появится после первого действия с абонементом.\n      ",
+      "value": "История появится после первого действия с абонементом.",
+      "fingerprint": "sha256:7a2b2927d39aca7c0baa4b0e204a0dc968ff5f7f1f0fe48fda5c12545202b0aa",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        33
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Текущая\n                      ",
+      "value": "Текущая",
+      "fingerprint": "sha256:fb305b470ab67b41c7c38a00e1a25580f08255dfe539331530c895e89f51a2b6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        60,
+        112
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "-",
+      "value": "-",
+      "fingerprint": "sha256:3973e022e93220f9212c18d0d0c543ae7c309e46640da93a4a0314de999f5112",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        65,
+        119
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        74
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Версия: ",
+      "value": "Версия:",
+      "fingerprint": "sha256:81f1186dbd959a6e90edb63cd17e4fa785b8fb05e55097df0a76a9b8a8d6111a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        77
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Событие",
+      "value": "Событие",
+      "fingerprint": "sha256:4212693d845d9bc85cdc9fc643d95c7b12c8765ea0061040eac3f68c6d074c5f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        91
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Период",
+      "value": "Период",
+      "fingerprint": "sha256:e97ca72e2ca5bbe157cac2f8d362f6c6b0c549a7e9268f5257683a248fa122b8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        92
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Группы",
+      "value": "Группы",
+      "fingerprint": "sha256:cd8c587351082be473439ecec5b3c144b4723fc8943dec8c4c2adc5f578bbede",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        93
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сумма",
+      "value": "Сумма",
+      "fingerprint": "sha256:46a0edbb589582d6785be470e8eba1b73f490cf8f911c3bae29fd5b998240ff4",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        94
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Дата оплаты",
+      "value": "Дата оплаты",
+      "fingerprint": "sha256:6611d56d6110e115950f2d8af335d615c93d64dcca0d8d04cd614fe388ecd973",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Дата версии",
+      "value": "Дата версии",
+      "fingerprint": "sha256:638d02d7d11d89363fd43c094b03bcd42c1de86ee6b25c06029304b6a556cb2f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Абонемент без групп\n      ",
+      "value": "Абонемент без групп",
+      "fingerprint": "sha256:9a0b1924eece3a6e206b119b484c786e5a4b6b440d1d69870a8a11bf5605c791",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        181
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отчётность · '",
+      "value": "Отчётность · ",
+      "fingerprint": "sha256:68f7b03502b0b99b840e3d3683ec79126114a5fe55d9ddb6a0068b4658d9f0dc",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        190
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить абонементы.'",
+      "value": "Не удалось загрузить абонементы.",
+      "fingerprint": "sha256:1284aff03018d8c180252b16ead3889245a344e68deeec40071d78a86d780f88",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        79
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить группы.'",
+      "value": "Не удалось загрузить группы.",
+      "fingerprint": "sha256:46bd9402c6aa0e315fdb5c7127f82bb17a20fc131f38a4b250947f7f2321c1c6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите начало срока.'",
+      "value": "Укажите начало срока.",
+      "fingerprint": "sha256:c6401e275557af701e9b9741359a50787cb1f7c870d474975d2ccb90faf857b5",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        115
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите окончание срока.'",
+      "value": "Укажите окончание срока.",
+      "fingerprint": "sha256:fc65fc7de68f65f4d90b9f0ee8b02dfcb4d447e2d26b8d4aba931184e35e6e8c",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        118
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите комментарий.'",
+      "value": "Укажите комментарий.",
+      "fingerprint": "sha256:548872bdbec88bd35b15784c93160a3c54627e3e80dc7b2ee3c1575ff05fb816",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        124
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите дату оплаты.'",
+      "value": "Укажите дату оплаты.",
+      "fingerprint": "sha256:c17309b4e88f8a5deadff660291bbec8c6a7a23fcd12746f614a75921817742f",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Оформить новый абонемент",
+      "value": "Оформить новый абонемент",
+      "fingerprint": "sha256:00a991e35405d298e7dd49f26f7ae790aa18407c9522be72eb0420170ca472f6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        190
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Выберите способ расчёта и подтвердите фактическую сумму этой продажи.\n            ",
+      "value": "Выберите способ расчёта и подтвердите фактическую сумму этой продажи.",
+      "fingerprint": "sha256:a051704527b2cf50fa49a4fef484d1593650e3b0b75839b614af8e943750daf1",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        192
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'pricingMode'",
+      "value": "pricingMode",
+      "fingerprint": "sha256:2d79cfe800d15885ef6c9b733d82d122b03184845749e66a2979a6963033b37c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        203
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'membershipCatalogItemId'",
+      "value": "membershipCatalogItemId",
+      "fingerprint": "sha256:ebeb70e0670128e17aec2f2a518dc2ab312ae413472155c88d38aed21c2d6874",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        204
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'manualSaleAmount'",
+      "value": "manualSaleAmount",
+      "fingerprint": "sha256:4bc9831e9d39e3717ca149d9a62a183cf61d21b204f01c48b4942e8f8d56cd08",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        205
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'targetGroupIds'",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        216
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Действует с\"",
+      "value": "Действует с",
+      "fingerprint": "sha256:f79d7e9d94d5193360e1aba1a9ec0cc78b79da142bad50d82bf974b2c253dce8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        223
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Действует по\"",
+      "value": "Действует по",
+      "fingerprint": "sha256:b9094c16ff5d4ff0e8d3c1f8c52cac0aadafed6a963a2e5e60aecc330d89a14a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        228
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Комментарий к профессиональному абонементу\"",
+      "value": "Комментарий к профессиональному абонементу",
+      "fingerprint": "sha256:e7a31570b5d8283b8cfbde9ebce4b11531d42050d3944abe93fd6f8dd12262ba",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        236
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n            ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        248
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Оформить абонемент\n            ",
+      "value": "Оформить абонемент",
+      "fingerprint": "sha256:63e29a541bf25f760c607bae8d8c187c6fa749d126e9846dfc5fe348a0483c0e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        251
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить абонементы.'",
+      "value": "Не удалось загрузить абонементы.",
+      "fingerprint": "sha256:1284aff03018d8c180252b16ead3889245a344e68deeec40071d78a86d780f88",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        85
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить группы.'",
+      "value": "Не удалось загрузить группы.",
+      "fingerprint": "sha256:46bd9402c6aa0e315fdb5c7127f82bb17a20fc131f38a4b250947f7f2321c1c6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        101
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите дату оплаты.'",
+      "value": "Укажите дату оплаты.",
+      "fingerprint": "sha256:c17309b4e88f8a5deadff660291bbec8c6a7a23fcd12746f614a75921817742f",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        116
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Продлить текущий абонемент",
+      "value": "Продлить текущий абонемент",
+      "fingerprint": "sha256:53d9b68d70a5d34911a4e8ce225a47fed44cdf34db5d32b90d9f4cd98b558d3c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Предыдущая продажа показана только для контекста. Выберите способ расчёта заново.\n              ",
+      "value": "Предыдущая продажа показана только для контекста. Выберите способ расчёта заново.",
+      "fingerprint": "sha256:45df77cf51a176dfde85427aac49303572170e082c74f0367c6cc1724e325640",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        173
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Новая продажа\n            ",
+      "value": "Новая продажа",
+      "fingerprint": "sha256:3ec61459d7a4963c9cc1cd851f0a9a6fdbd0d3f0ead0e42caf8938254fa4f24b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        178
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Предыдущая продажа\"",
+      "value": "Предыдущая продажа",
+      "fingerprint": "sha256:69e09d39beb0de12bd3fb75f669d6238cc10fe0396ad860574f4492ec1ba57d8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        187
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Предыдущий расчёт\"",
+      "value": "Предыдущий расчёт",
+      "fingerprint": "sha256:c0aa51ea349daf8e5865c635b7ca976d5581868fac7d4930e0615b19e96f0a6a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        191
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Предыдущий период\"",
+      "value": "Предыдущий период",
+      "fingerprint": "sha256:7e076a0162b5c82eb03ba4c929f116723c327476971c41db660b348377a14cc2",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        195
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'pricingMode'",
+      "value": "pricingMode",
+      "fingerprint": "sha256:2d79cfe800d15885ef6c9b733d82d122b03184845749e66a2979a6963033b37c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        209
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'membershipCatalogItemId'",
+      "value": "membershipCatalogItemId",
+      "fingerprint": "sha256:ebeb70e0670128e17aec2f2a518dc2ab312ae413472155c88d38aed21c2d6874",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        210
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'manualSaleAmount'",
+      "value": "manualSaleAmount",
+      "fingerprint": "sha256:4bc9831e9d39e3717ca149d9a62a183cf61d21b204f01c48b4942e8f8d56cd08",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        211
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'targetGroupIds'",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        222
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Комментарий к профессиональному абонементу\"",
+      "value": "Комментарий к профессиональному абонементу",
+      "fingerprint": "sha256:e7a31570b5d8283b8cfbde9ebce4b11531d42050d3944abe93fd6f8dd12262ba",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        229
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n            ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Продлить абонемент\n            ",
+      "value": "Продлить абонемент",
+      "fingerprint": "sha256:b62f978a98d80ead1ae12dc1ec97e468e9d1fb87cf2ca7340b1a797689c30fad",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        246
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сервер не вернул обновлённый комментарий покупки.'",
+      "value": "Сервер не вернул обновлённый комментарий покупки.",
+      "fingerprint": "sha256:39ad24b1057112b543f90cb8702f816846a799f7c522424d128b1b1b319c2b23",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        54
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить комментарий.'",
+      "value": "Не удалось сохранить комментарий.",
+      "fingerprint": "sha256:de79692d57bfff21c989205eef82de46714c12310dc70eab4ac148cb0f6ef4f6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        62
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Комментарий к покупке\n        ",
+      "value": "Комментарий к покупке",
+      "fingerprint": "sha256:5b3537735cfc33f59d1e50e9a2da395499dc18575af30ab48bdf8a6d49436f9f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        77,
+        92
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${editing ? 'Отменить редактирование' : 'Редактировать комментарий'} к покупке от ${formatDateValue(membership.purchaseDate)}`",
+      "value": "`${editing ? 'Отменить редактирование' : 'Редактировать комментарий'} к покупке от ${formatDateValue(membership.purchaseDate)}`",
+      "fingerprint": "sha256:359b5242bbabed546fd17d87d1b684bc1840ebbcb8d9c2dc51cc12c6a2863de2",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        80
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменить редактирование'",
+      "value": "Отменить редактирование",
+      "fingerprint": "sha256:79e9f1b7d23aeaeacbfdfd447abc280aee5e040d8894281ef3d4e32f75ee2d4c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        80
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактировать комментарий'",
+      "value": "Редактировать комментарий",
+      "fingerprint": "sha256:b091246d9dbfce803ffdfeef6e74576146f091fd2d9ec116f272e507c6cbd00a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        80
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактировать'",
+      "value": "Редактировать",
+      "fingerprint": "sha256:59792556fd0682484dde8d5ec7ddc8d312c6faa1c399a5ff26922a0c63f99757",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        86
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отмена'",
+      "value": "Отмена",
+      "fingerprint": "sha256:8fbe9b75cbdfbfa6f57f060f286e00dee7e021068ebe378cfb495f3380d1e96b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        86
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить\n            ",
+      "value": "Сохранить",
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        106
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Комментарий пока не добавлен.\n            ",
+      "value": "Комментарий пока не добавлен.",
+      "fingerprint": "sha256:9adae390b63b7be02eb2be35f8f44320eddc2f48de76a1f2396ca4b01aebfde7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        118
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Группа ${group.name} добавлена.`",
+      "value": "`Группа ${group.name} добавлена.`",
+      "fingerprint": "sha256:4cc8c7c2198d6f398e406e087d2f9c64c348e6fc455fc3ffd2889c69c2f11654",
+      "context": {
+        "kind": "call-argument",
+        "name": "commit"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        64
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Группа ${group?.name ?? ''} перемещена на позицию ${nextIndex + 1}.`",
+      "value": "`Группа ${group?.name ?? ''} перемещена на позицию ${nextIndex + 1}.`",
+      "fingerprint": "sha256:2457468a995a5d21c34509f1b993d4ee7b71dcc92ac2acc3abf229bddc657f07",
+      "context": {
+        "kind": "call-argument",
+        "name": "commit"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Группа ${group?.name ?? ''} удалена.`",
+      "value": "`Группа ${group?.name ?? ''} удалена.`",
+      "fingerprint": "sha256:e797a5925117121c63c17a08bcde6317d281c93e0219cad8492299971a1104cc",
+      "context": {
+        "kind": "call-argument",
+        "name": "commit"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        84
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Группы абонемента",
+      "value": "Группы абонемента",
+      "fingerprint": "sha256:bb3893c53d1c8ebe4cf98663765afbb5286d3833006bc01d8518ba97719e9053",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        99
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Доступ остаётся ко всем группам; выбранные группы нужны для отчётности.\n          ",
+      "value": "Доступ остаётся ко всем группам; выбранные группы нужны для отчётности.",
+      "fingerprint": "sha256:b558d46f4148f29b68b947dab99416a361d7ed1553446236c9e3e9a986337fcc",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        106
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Добавить группу\"",
+      "value": "Добавить группу",
+      "fingerprint": "sha256:90ad60fb9e990c02909e4b31849d118e1d8787a2421c64aa19039a56e56336fe",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        113
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загружаем группы...'",
+      "value": "Загружаем группы...",
+      "fingerprint": "sha256:f6f37b0ed3d65d34b91b4c56e318533a8dad4e817adf8517f3fd1203a7adf288",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        118
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выбрано 5 групп'",
+      "value": "Выбрано 5 групп",
+      "fingerprint": "sha256:96ed57bea79d74b73284bf49c5e19db86a71754bcb1d7e87ec7f6428a152930d",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        120
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Найдите группу'",
+      "value": "Найдите группу",
+      "fingerprint": "sha256:3b566ca72738f6147690274ded1d5bd8cb41a09041778bd98fd336cd831c13f1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        121
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Нет выбранных групп.\n          ",
+      "value": "Нет выбранных групп.",
+      "fingerprint": "sha256:e8d73d0dc595216f820d7aa18914ec89fd353e1533451133b04f6457bf4a553a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        128
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отчётность\n                    ",
+      "value": "Отчётность",
+      "fingerprint": "sha256:3049ac8a9859db32d8c84add75cea0163eb0d00a0803c0ad081143f57d3fadc6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        146
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Поднять группу ${group.name}`",
+      "value": "`Поднять группу ${group.name}`",
+      "fingerprint": "sha256:ed679b9629a00c21f0f2753f1c6f847637e504689c5086c25934b22e2a895c53",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Опустить группу ${group.name}`",
+      "value": "`Опустить группу ${group.name}`",
+      "fingerprint": "sha256:46df310fcdb9490c06a907aa420551b941677860cbf50bd2769e5e8f06a3e569",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        161
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Удалить группу ${group.name}`",
+      "value": "`Удалить группу ${group.name}`",
+      "fingerprint": "sha256:272191593a495e8a020f63122787534cfc4a174c7b1721e87896e3bf7d0b8f0e",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        174
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Разовое посещение действует только в выбранной группе.'",
+      "value": "Разовое посещение действует только в выбранной группе.",
+      "fingerprint": "sha256:11585e1a0644cbfe7075e608198c0232af9fe9baf6a7e646ceca27921232e1ff",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        194
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите от 1 до 5 групп одного филиала. Первая группа используется в финансовой разбивке.'",
+      "value": "Выберите от 1 до 5 групп одного филиала. Первая группа используется в финансовой разбивке.",
+      "fingerprint": "sha256:240a0407c71073d36d405a00240518870c5a7f0f46ba6fb2f284fa57e7effe7b",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        197
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/membershipForms.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите начало срока.'",
+      "value": "Укажите начало срока.",
+      "fingerprint": "sha256:c6401e275557af701e9b9741359a50787cb1f7c870d474975d2ccb90faf857b5",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        66
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/membershipForms.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите дату окончания.'",
+      "value": "Укажите дату окончания.",
+      "fingerprint": "sha256:0a04a7f3fb6e8c73212e6ac6ca6d7b89105505bf3232d1a775da87bb46a49aef",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        71
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/membershipForms.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите дату оплаты.'",
+      "value": "Укажите дату оплаты.",
+      "fingerprint": "sha256:c17309b4e88f8a5deadff660291bbec8c6a7a23fcd12746f614a75921817742f",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        76
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/membershipForms.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите хотя бы одну группу'",
+      "value": "Выберите хотя бы одну группу",
+      "fingerprint": "sha256:95193c089fad0b180a5c471740888ba99d8d191fcc23807f93901f2dcac8284b",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        94
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/membershipForms.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Разовое посещение действует только в одной группе'",
+      "value": "Разовое посещение действует только в одной группе",
+      "fingerprint": "sha256:f603ddac2ec1122e615d146cd0a1831bfb8d3e5677f7435f69194c28a21b65a4",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        98
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/membershipForms.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Можно выбрать не больше 5 групп'",
+      "value": "Можно выбрать не больше 5 групп",
+      "fingerprint": "sha256:55dc184cedf3fe1916cc130e6e21e756a56f4c6ab80e03cb5354eab7d773c58d",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        102
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "proposed"
+    }
+  ]
+}

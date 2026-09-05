@@ -1,0 +1,2706 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-13-groups-core",
+  "entry_count": 122,
+  "entries": [
+    {
+      "path": "frontend/src/features/groups/GroupClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Телефон: ",
+      "value": "Телефон:",
+      "fingerprint": "sha256:353ad7d1834d6b5f214001241c2b1c31c29195db058373b130720a1e4319cd01",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        23
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открыть карточку клиента ${client.fullName}`",
+      "value": "`Открыть карточку клиента ${client.fullName}`",
+      "fingerprint": "sha256:a4942e1b61203df65fbfd6433ad95df5fd8d7bf062b79aa9ec0bcd1f1a20348d",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        33
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Карточка клиента\n            ",
+      "value": "Карточка клиента",
+      "fingerprint": "sha256:a912ec8664f1d3b52b0b4c7b2a42f703b060b687c9686617aa4c3f4887c33edf",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        42
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить список тренеров.'",
+      "value": "Не удалось загрузить список тренеров.",
+      "fingerprint": "sha256:c9bed940634525ca952096eccb656b2a51da5f41dd301690649ce0d9eaf10fe6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        97
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группа создана'",
+      "value": "Группа создана",
+      "fingerprint": "sha256:1f78cfd71bc4c61bebc4c8e51c4ba72d81755a8c469de0ee1553ba1e40e6c503",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        133
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Группа «${createdGroup.name}» уже доступна в списке.`",
+      "value": "`Группа «${createdGroup.name}» уже доступна в списке.`",
+      "fingerprint": "sha256:613f7cb9273d34423f4f8ac04d63d4383ad40d3b9f9d51fd23bb6e9d0ee10647",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        134
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось проверить создание группы. Проверьте поля и попробуйте снова.'",
+      "value": "Не удалось проверить создание группы. Проверьте поля и попробуйте снова.",
+      "fingerprint": "sha256:c62414171da9275656f2df7f6eaa799316a59148cff71823435bd08fc862c95d",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        143
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось создать группу. Попробуйте еще раз.'",
+      "value": "Не удалось создать группу. Попробуйте еще раз.",
+      "fingerprint": "sha256:ee875cc41ac76d76312d59a5b0edb1778d5502cb2ab10739ea11d49ece67b302",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "К списку групп\n          ",
+      "value": "К списку групп",
+      "fingerprint": "sha256:322693c940236a99e23c9bec7aa0cc882064c20e94a5fc0fcf27714672475808",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        164
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Новая группа\"",
+      "value": "Новая группа",
+      "fingerprint": "sha256:c9fd9fc0e5d2198dab9dcf985de7e5a46f30be1b4924072417ad0bcc8de99335",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        167
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Подготавливаем форму группы...\"",
+      "value": "Подготавливаем форму группы...",
+      "fingerprint": "sha256:d8c36ed20e4dae326c16f3099239c4edf0c760c29d83e4f38a5dc946c4b0bbed",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        173
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Не удалось подготовить форму\"",
+      "value": "Не удалось подготовить форму",
+      "fingerprint": "sha256:bb243bf54eeca843905ab207082949c94bb5434e4776ae9526e1ccd6439684d0",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        179
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменить'",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        191
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Создать группу'",
+      "value": "Создать группу",
+      "fingerprint": "sha256:663c52481da0d6e3c56834fa7a8ed0dd497bfa6dd22b5f8a4033c72f47dfb38b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        194
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Получить предпросмотр'",
+      "value": "Получить предпросмотр",
+      "fingerprint": "sha256:857a90c114158486ca10d936cb5284fc239049b0932b822d81ff9d09eaa216ac",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        194
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверьте расписание перед созданием",
+      "value": "Проверьте расписание перед созданием",
+      "fingerprint": "sha256:23985cf10028a42c5b6a27275e5e65d71364cca11155f540ee4e6c587383dbfe",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        201
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ".\n                    ",
+      "value": ".",
+      "fingerprint": "sha256:cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        203
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Группа будет создана вместе с начальной серией занятий. Подтвердить можно до ",
+      "value": "Группа будет создана вместе с начальной серией занятий. Подтвердить можно до",
+      "fingerprint": "sha256:d5ff0d22c179a30678a414ccc8fc1939470791e69399a6e90002159427b90d11",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        203
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Проверьте предупреждение перед подтверждением.'",
+      "value": "Проверьте предупреждение перед подтверждением.",
+      "fingerprint": "sha256:52af7b7292454f5fcffac97183ae5f7d52a6ecda2a3fcc0442dc3ad38628adf1",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        213
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Нажмите «Создать группу», чтобы выполнить атомарное создание группы и расписания.\n                    ",
+      "value": "Нажмите «Создать группу», чтобы выполнить атомарное создание группы и расписания.",
+      "fingerprint": "sha256:1faaa276d9962198c33079eb2239921427acacb17d5149c9d237a02c0fcabf23",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        219
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'окончания срока предпросмотра'",
+      "value": "окончания срока предпросмотра",
+      "fingerprint": "sha256:4371fe938d08dbeba5726d3b3bb8e08c2e6799d42399a11716760c2ba0063b0e",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        245
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить данные группы.'",
+      "value": "Не удалось загрузить данные группы.",
+      "fingerprint": "sha256:6685ec5f0d1b532d23f4d7dac26267b317c520333a69f0b976deb3bf4527ba84",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        128
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группа обновлена'",
+      "value": "Группа обновлена",
+      "fingerprint": "sha256:3440e0c00d068da5e543123d732d7b2ae1efe979b87c0ce8c8669a60622ea4bb",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        187
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Изменения группы «${updatedGroup.name}» сохранены.`",
+      "value": "`Изменения группы «${updatedGroup.name}» сохранены.`",
+      "fingerprint": "sha256:cd1b90389531d85de255d1b44beb0035d48efe410857604a3f50870622273ae5",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        188
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить изменения группы.'",
+      "value": "Не удалось сохранить изменения группы.",
+      "fingerprint": "sha256:4200416e3ddc0ef8ecb9e622586ef67afda8be158c395996b9cc7c1161215a96",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        207
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Проверьте обязательные поля группы.'",
+      "value": "Проверьте обязательные поля группы.",
+      "fingerprint": "sha256:e9c0fdee676860651122fa2bb9380de5707f54a22311c4aebca030b1ab5322f8",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        270
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "К списку групп\n        ",
+      "value": "К списку групп",
+      "fingerprint": "sha256:322693c940236a99e23c9bec7aa0cc882064c20e94a5fc0fcf27714672475808",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        316
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Настройка группы «${groupName}»`",
+      "value": "`Настройка группы «${groupName}»`",
+      "fingerprint": "sha256:3afee36c2e77a972a8fcfddefead00c4fde3a2f1a7b75ae6e3aa3f297b33777e",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        319
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем группу...\"",
+      "value": "Загружаем группу...",
+      "fingerprint": "sha256:03b534a0e8b79351c935bfc81597d5db88b862fd7efbffd20a26b7c84105a844",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        324
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Экран редактирования не загрузился\"",
+      "value": "Экран редактирования не загрузился",
+      "fingerprint": "sha256:9728304ad4a53e511b061b3b5f648395132e2e601fef918e5a21a7ff7217854a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        332
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменить переход к карточке клиента'",
+      "value": "Отменить переход к карточке клиента",
+      "fingerprint": "sha256:08e8f4e9102b21143b90122f30cc969c9ef1c8d8b7ccef459db84491e643db24",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        347
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        347
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранить изменения в группе?\"",
+      "value": "Сохранить изменения в группе?",
+      "fingerprint": "sha256:2122d00c5f8e6052236a10237d0636ccc7be043c66cb726d09a4a51c29aeba7c",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        357
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Перед открытием карточки выберите, что сделать с текущими изменениями группы.\n              ",
+      "value": "Перед открытием карточки выберите, что сделать с текущими изменениями группы.",
+      "fingerprint": "sha256:e4748b1199699eca0132bc0ffaa30b73ce1ad2205be9cd0085dfc3d2f9c2bfa5",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        364
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить\n                  ",
+      "value": "Сохранить",
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        373
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Не сохранять\n                  ",
+      "value": "Не сохранять",
+      "fingerprint": "sha256:735b1ef6b77e2c19c82deb195d7c87258ae94c89b2bee8ed5cb67065434b6cff",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        381
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отмена\n                  ",
+      "value": "Отмена",
+      "fingerprint": "sha256:8fbe9b75cbdfbfa6f57f060f286e00dee7e021068ebe378cfb495f3380d1e96b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        389
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранить изменения\"",
+      "value": "Сохранить изменения",
+      "fingerprint": "sha256:744cf2b219992c28613d6dd92c1f9a70e66937d4f664ddc60cb85da18d789e3d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "submitLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        408
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Всего: ",
+      "value": "Всего:",
+      "fingerprint": "sha256:f8ba76ae8e828191bdfab124ef21e36b8786b5c461a25a087582140abfc780ab",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        436
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Клиенты группы\"",
+      "value": "Клиенты группы",
+      "fingerprint": "sha256:c9c7719c96e732584aadd32e9dae7f43f620f20417b6cfc71b54219e6cd8f8f0",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        439
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"После этапов клиентской базы здесь будет виден фактический состав группы.\"",
+      "value": "После этапов клиентской базы здесь будет виден фактический состав группы.",
+      "fingerprint": "sha256:a64fe90a61d4819009fd0921b0c910e165ae90377fa7d6ebc55ee86295421874",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        444
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"В группе пока нет клиентов\"",
+      "value": "В группе пока нет клиентов",
+      "fingerprint": "sha256:48aff34a5760d3bfc40047388fc252b1861ab7c660064a8fd2855361e65fdf5b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        446
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранение не выполнено\"",
+      "value": "Сохранение не выполнено",
+      "fingerprint": "sha256:09e1875e6459e25d731db8efe457f31da522b97b5c3d3609ca67e24d6cb12eee",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        110
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Филиал\"",
+      "value": "Филиал",
+      "fingerprint": "sha256:2f17c4d223aa7d914d5a9aa05e1137606b1e614d1fd739a4b4104cb56b089af6",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        125,
+        264
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите филиал\"",
+      "value": "Выберите филиал",
+      "fingerprint": "sha256:4c5ee5d81244b373bb3f6f57f94f35412ce9dde46aa27899a9ff490a4cab6fa1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Зал\"",
+      "value": "Зал",
+      "fingerprint": "sha256:182f7c572e4ff210f39e7a305be0e340afec5778bd9b214b6d9da04aa14c13a5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        141,
+        282
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сначала выберите филиал'",
+      "value": "Сначала выберите филиал",
+      "fingerprint": "sha256:74f8ad03e184e5cfc7fb33af1691cfbc3f726b88f0a3d1c34e4d35411265574a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        143
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите зал'",
+      "value": "Выберите зал",
+      "fingerprint": "sha256:d52c67f8416a9a1915f98d7d92d9b2fcf4659c012a96893002ed72edb53c2645",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        143
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Название группы\"",
+      "value": "Название группы",
+      "fingerprint": "sha256:d45e66ab5535c3a629cb30d45356815484c6fac84011f03a179929841d90599e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Например, Юниоры 18:00\"",
+      "value": "Например, Юниоры 18:00",
+      "fingerprint": "sha256:d9cf2b88c8e32f0f39f235aae8176b7af4350a47b036a54c850c2b5e23ef6438",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        154
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Тип группы\"",
+      "value": "Тип группы",
+      "fingerprint": "sha256:a642a677237d98ee106692e707fd694eedcede81ba8839d0a2559a117dc7c018",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        163
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите тип группы\"",
+      "value": "Выберите тип группы",
+      "fingerprint": "sha256:522e39dfd526f138ffb4f1ca0cc31ac7f167eedd4c27c4c4f1f6fe2d069ff4e8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        167
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Время начала\"",
+      "value": "Время начала",
+      "fingerprint": "sha256:1635ad1f95a8174ba9c3fc35931283cfb6af1a2c2a82765e0a9fca8470b59d19",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        178
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"18:00\"",
+      "value": "18:00",
+      "fingerprint": "sha256:cf5d1124f918b074e30b10cec155b1566fce852d945001871ef1992bc1e144c0",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        179
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Длительность\"",
+      "value": "Длительность",
+      "fingerprint": "sha256:2a32607189e0ff1e4d14745be34311fc6f0819f8577933dba92a5fcc44be782e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        185,
+        310
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"60\"",
+      "value": "60",
+      "fingerprint": "sha256:39fa9ec190eee7b6f4dff1100d6343e10918d044c75eac8f9e9a2596173f80c9",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        192
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\" мин\"",
+      "value": " мин",
+      "fingerprint": "sha256:84d5d93d12778bd7c9d24a92e4eaa4a5f4f6fbce50e70c631ae308939e2b6c7e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "suffix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        193
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дни недели\"",
+      "value": "Дни недели",
+      "fingerprint": "sha256:86f463bef6393889c03c3902f62487d89356b90951ce8808076eee8515ea3e7f",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        200
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Начало расписания\"",
+      "value": "Начало расписания",
+      "fingerprint": "sha256:3e2bef5cbe27c8cf3d9e7b051b8ddda4d0d38e6b4c6dc66fd69a098bf8a0da55",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        221
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Окончание расписания\"",
+      "value": "Окончание расписания",
+      "fingerprint": "sha256:da09e40b2a598059e7eebc870485f6b9edd4f028a07decd7aeeea4ad4557d98b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        228
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${trainer.fullName} (${trainer.login})`",
+      "value": "`${trainer.fullName} (${trainer.login})`",
+      "fingerprint": "sha256:a0ff92ddd3c1e250915bcc34a657824d8aeb31cf6cea1dc073305d75c35c94e4",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        241
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Можно выбрать несколько активных тренеров. Временное замещение на период настраивается отдельно и не меняет этот список.\"",
+      "value": "Можно выбрать несколько активных тренеров. Временное замещение на период настраивается отдельно и не меняет этот список.",
+      "fingerprint": "sha256:28716432af9bd0d2a1243e903aef7800d1a0f4205789a837bf45cb10c4cc4ab1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Основные тренеры группы\"",
+      "value": "Основные тренеры группы",
+      "fingerprint": "sha256:9fb9bbfa752c9bdfea9da82dd73bcedd69b8df1829b0555b0c250a7968959b67",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        244
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите тренеров\"",
+      "value": "Выберите тренеров",
+      "fingerprint": "sha256:06e7e5cc786d1eec2fe697ef392f1f95e2dccd9993f3b09c79ac05579e3a8e4e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        245
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группа активна\"",
+      "value": "Группа активна",
+      "fingerprint": "sha256:54ca642f70818a8a23e3c4ae362af6387178b5c16c780b302f5e177c8f326da4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        254
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не выбран'",
+      "value": "Не выбран",
+      "fingerprint": "sha256:d77dfdcd175bc81e734ac4a1922b8d1ed662ccdb5cde04108daf3a7dd316d721",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        267,
+        276,
+        285
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Тип\"",
+      "value": "Тип",
+      "fingerprint": "sha256:d4a6795c199fb46123cc92a68b73a4e2b04e7b0f289e7135c4ad71eeac853e43",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        272
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Старт\"",
+      "value": "Старт",
+      "fingerprint": "sha256:d8b0757a9823aa34c741b409d93c6c2cfc2f1b7a0816d8ab342d9f091be2eaf1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        293
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дни\"",
+      "value": "Дни",
+      "fingerprint": "sha256:480102a90d777c6319a05b796df2fed644f6f1de5a649b1356f447d98ecc7f87",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        301
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Тренеры\"",
+      "value": "Тренеры",
+      "fingerprint": "sha256:0314946ceb6850434b1c2b611bcc56e8419d8a763bb5bcceeb37ee3418c87e0c",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        322
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'После сохранения тренеры увидят назначенную группу в своем рабочем списке.'",
+      "value": "После сохранения тренеры увидят назначенную группу в своем рабочем списке.",
+      "fingerprint": "sha256:86ad6462e7998c77c5c086c727044d85a77ee6a96a9039f3e3353123b1e9bd91",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        332
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'На этом экране сохраняются только название, филиал, тип и активность группы.'",
+      "value": "На этом экране сохраняются только название, филиал, тип и активность группы.",
+      "fingerprint": "sha256:96ac21d71b848b9ce11b676aec264e8b022b3b321a384d580c48e40523f7186a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        333
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'архивный'",
+      "value": "архивный",
+      "fingerprint": "sha256:4ebaca56f260abf7b7a87fbc13aa319b897cec1f5516fc16be01d72082db1f7d",
+      "context": {
+        "kind": "call-argument",
+        "name": "parts.push"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        390,
+        400
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все'",
+      "value": "Все",
+      "fingerprint": "sha256:215816bf42103f1f2b24c168779f1fb0ea3afcb7a2c627e42e0bcd7fe07eb70a",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        79
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активные'",
+      "value": "Активные",
+      "fingerprint": "sha256:eeaeb97638d821f4010f06325164fb78c0b628617737e7cc55ee2cd204686ba2",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        80,
+        472
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Неактивные'",
+      "value": "Неактивные",
+      "fingerprint": "sha256:4b6feb751ea6d0e3dacca08fc6c06ceee8bcfd9d673a17e9eafe5194628d27c3",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        81,
+        472
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группы\"",
+      "value": "Группы",
+      "fingerprint": "sha256:cd8c587351082be473439ecec5b3c144b4723fc8943dec8c4c2adc5f578bbede",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        131
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Поиск групп по названию\"",
+      "value": "Поиск групп по названию",
+      "fingerprint": "sha256:ebbe1ead3613699463ae7cffabfcb02b784b6e715d8cfaa9645a80a0b8a6dfbc",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "accessibleLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        135
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Обновить список групп\"",
+      "value": "Обновить список групп",
+      "fingerprint": "sha256:afde8d3feb73cfbbede2d506aea9883124a689b771717ea2cf51fc7b57b483be",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        141
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Название группы\"",
+      "value": "Название группы",
+      "fingerprint": "sha256:d45e66ab5535c3a629cb30d45356815484c6fac84011f03a179929841d90599e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Новая группа\"",
+      "value": "Новая группа",
+      "fingerprint": "sha256:c9fd9fc0e5d2198dab9dcf985de7e5a46f30be1b4924072417ad0bcc8de99335",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        154
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сбросить все\"",
+      "value": "Сбросить все",
+      "fingerprint": "sha256:51d4168666164184d347f47bf0de1827bb0869e9bddf30b634661453abe9254b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "resetLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        166,
+        321
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        177
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Закрыть фильтры групп'",
+      "value": "Закрыть фильтры групп",
+      "fingerprint": "sha256:82f96580103978a8e8b2c808258ed5755e26b4f3ce7b5796d7636206bdecc197",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        177
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Фильтры групп\"",
+      "value": "Фильтры групп",
+      "fingerprint": "sha256:7514e29aa51789cb299e8cf26d4cafe0b046cea0e595520011d055360256cff7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        188
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Статус\"",
+      "value": "Статус",
+      "fingerprint": "sha256:225077c6d4791e693ff47d24e846cfc3198da287d2b8e77fd2bba435183f0d54",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        196,
+        353
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Без тренера\"",
+      "value": "Без тренера",
+      "fingerprint": "sha256:732e659e11da536098d2dc32f91d6596b386204b5ea0fa38336d551a9ddbdf9e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        208,
+        480
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Готово\n            ",
+      "value": "Готово",
+      "fingerprint": "sha256:ef05d57959cfde50d145153bdc66f9873ad699ce20c523cf040949ee5c404d4e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        219
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сбросить\n            ",
+      "value": "Сбросить",
+      "fingerprint": "sha256:407f871778d310700e1c7bd098be9d25e40f39c764c7f4879c0ec1aa4ca8401a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        229
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Список групп",
+      "value": "Список групп",
+      "fingerprint": "sha256:bae09e038e296d5f4fc24c682079f2870ce1968c029b2f5fb6ccde045171063a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        236
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Всего групп: ${state.summary.totalCount}`",
+      "value": "`Всего групп: ${state.summary.totalCount}`",
+      "fingerprint": "sha256:314bfdaa323db02cbf94b22db6491c140d0d3e3c4b6dca6419ce71404b8d67ae",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        253
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Всего групп: обновляем'",
+      "value": "Всего групп: обновляем",
+      "fingerprint": "sha256:e2d00d6830c5a2ef13f61ed38c265d0b15dc5473bdd926e494fbe4decde4f098",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        255
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Всего групп: ${state.totalCount}`",
+      "value": "`Всего групп: ${state.totalCount}`",
+      "fingerprint": "sha256:0405138b1654c58ff43a10952eb5123538a4b777285fcde6f0373611a47b0c2e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        256
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Всего: ",
+      "value": "Всего:",
+      "fingerprint": "sha256:f8ba76ae8e828191bdfab124ef21e36b8786b5c461a25a087582140abfc780ab",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        259
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Активных групп без тренера: ${state.summary.activeWithoutTrainerCount}`",
+      "value": "`Активных групп без тренера: ${state.summary.activeWithoutTrainerCount}`",
+      "fingerprint": "sha256:f84f017b1af79a0da943e02804441062e62b17373d23eeef102ccbcc8639855f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        264
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активных групп без тренера: обновляем'",
+      "value": "Активных групп без тренера: обновляем",
+      "fingerprint": "sha256:4a9db5bad0c755293ad5cd1e46bb53b01c1ce6348350f0417a5f1f643b4dd2a0",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        265
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Без тренера: ",
+      "value": "Без тренера:",
+      "fingerprint": "sha256:26c38cb9a6fcca2c7114394eca559e8dfef24557dacb099eca2b89587865d230",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        268
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем список групп...\"",
+      "value": "Загружаем список групп...",
+      "fingerprint": "sha256:0cf113c589069c46ee4c1c8631f9fae90cb4135fb3ba78e12ad981da525b44a9",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        274
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить\n                  ",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        281,
+        299
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить список групп.'",
+      "value": "Не удалось загрузить список групп.",
+      "fingerprint": "sha256:85b97c294565639a8b96174e6662fa13e9f76c641a231db4a7605bcb2caead73",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        284
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Список групп не загрузился\"",
+      "value": "Список групп не загрузился",
+      "fingerprint": "sha256:214164fab8d00cc9f7ecb7057c7e898dd5b4ae01935d769a9583adc721b99243",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        285
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Обновление списка не загрузилось\"",
+      "value": "Обновление списка не загрузилось",
+      "fingerprint": "sha256:3fdee84e464cc02de519188d8b1a4f5745529ba84cf244390dbd6e8a85ef3ab2",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        293
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Очистить поиск\n                  ",
+      "value": "Очистить поиск",
+      "fingerprint": "sha256:6e1f7baa472fcfbbf59e4d3c3999ebafb9288365f34ccbdcfe068f893f1dafb6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        313
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Создайте первую группу, чтобы закрепить тренеров и подготовить основу для сценария посещений.'",
+      "value": "Создайте первую группу, чтобы закрепить тренеров и подготовить основу для сценария посещений.",
+      "fingerprint": "sha256:69da2f939bf3701ab8adcaea85e04a1dfe55debca4b8c2fe3c1da9430465af24",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        326
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Измените поисковый запрос или фильтры, чтобы расширить список.'",
+      "value": "Измените поисковый запрос или фильтры, чтобы расширить список.",
+      "fingerprint": "sha256:401b50ae0d082203b91226ce562649d05cfbb76efa4dfb87bd5ee36cc4aba78a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        327
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группы пока не созданы'",
+      "value": "Группы пока не созданы",
+      "fingerprint": "sha256:33e84aeb317854ef42fcc761cae109f2874c53569785c6a20e7c4c5e2f7f7e99",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        332
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группы не найдены'",
+      "value": "Группы не найдены",
+      "fingerprint": "sha256:ed2efb2dc96d0ba3a2e18e519dcf7c62c18a02e08006092f19fd5cc94c58ea40",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        333
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Группа",
+      "value": "Группа",
+      "fingerprint": "sha256:907efbd4ce48253bae87d64dafe6c538bc0a77b9df23ecd6ea903d46c12a4c56",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        349
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Филиал и зал",
+      "value": "Филиал и зал",
+      "fingerprint": "sha256:f7642da69666823767523b381538095ef692b05215c84fef7273b9241162129d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        350
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Расписание",
+      "value": "Расписание",
+      "fingerprint": "sha256:924310227b1c2f4153d0a2cf602351ab502d9130ce266659cd242783d000091c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        351
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Тренеры",
+      "value": "Тренеры",
+      "fingerprint": "sha256:0314946ceb6850434b1c2b611bcc56e8419d8a763bb5bcceeb37ee3418c87e0c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        352
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Редактировать",
+      "value": "Редактировать",
+      "fingerprint": "sha256:59792556fd0682484dde8d5ec7ddc8d312c6faa1c399a5ff26922a0c63f99757",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        354
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Страницы списка групп\"",
+      "value": "Страницы списка групп",
+      "fingerprint": "sha256:2e31d9a40f05b4791bcda744300ca4ef9bcd8582594acc3f8debd946d045bc16",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        369
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тренер не назначен'",
+      "value": "Тренер не назначен",
+      "fingerprint": "sha256:a674b477389b8043bd74d56ec078d0265900af288e1daa2227b4efcb9a8c8ed9",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        395
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        416
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Редактировать группу «${group.name}»`",
+      "value": "`Редактировать группу «${group.name}»`",
+      "fingerprint": "sha256:5d140dac0b8ceb39b85035e8a2473f930d0416d7a64a9e3d859616c5ef2288c3",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        449
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Поиск: ${state.filters.appliedQuery}`",
+      "value": "`Поиск: ${state.filters.appliedQuery}`",
+      "fingerprint": "sha256:3a3cdea74a77bbbadde5cfb5f0878082ee20eeba2769a3f80f0057cf9c4b4035",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        464
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/groupFormMapping.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите название группы.'",
+      "value": "Введите название группы.",
+      "fingerprint": "sha256:6994b743a904f91820ff5bc3e9235b843de9715bd6ecccae7d96555d7693512d",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        38
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/groupFormMapping.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите время начала тренировки.'",
+      "value": "Укажите время начала тренировки.",
+      "fingerprint": "sha256:d730d41da016a0e39458bdeddee7ec8309fda373370edf1d0dc4b9504e5d4933",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        40
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/groupFormMapping.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите тип группы.'",
+      "value": "Выберите тип группы.",
+      "fingerprint": "sha256:9d3e66f49da92d024e6c93985296101373bc4ccba254607c4ebbeca9f808c04a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        41
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/groupManagement.constants.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группа'",
+      "value": "Группа",
+      "fingerprint": "sha256:907efbd4ce48253bae87d64dafe6c538bc0a77b9df23ecd6ea903d46c12a4c56",
+      "context": {
+        "kind": "variable",
+        "name": "GROUPS_DEFAULT_NAME"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        3
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/groups/useGroupsListState.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить список групп.'",
+      "value": "Не удалось загрузить список групп.",
+      "fingerprint": "sha256:85b97c294565639a8b96174e6662fa13e9f76c641a231db4a7605bcb2caead73",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "proposed"
+    }
+  ]
+}

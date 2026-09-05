@@ -1,0 +1,1555 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-4-attendance",
+  "entry_count": 70,
+  "entries": [
+    {
+      "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Профессиональный статус'",
+      "value": "Профессиональный статус",
+      "fingerprint": "sha256:81ee659fe4a482433bc92d670a1ff28b6c414862d86c838488b3746e76154117",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        33
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Есть предупреждение по абонементу'",
+      "value": "Есть предупреждение по абонементу",
+      "fingerprint": "sha256:56e8a5535f6b5b4cebbdfa8cebb171b9ac0bc353cbe06b2e73ee23b3ad33a39c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Нужна проверка статуса абонемента'",
+      "value": "Нужна проверка статуса абонемента",
+      "fingerprint": "sha256:64add130433e0df7dbb6c3c1918a57a56deefc95e551d5db7def9fdd9bf689fa",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        37
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Профессионал",
+      "value": "Профессионал",
+      "fingerprint": "sha256:76fc78765f641cc0c92a13bad096515c9790fcba2b2d89907ab5a74cfa93796c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        62
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проблема с абонементом",
+      "value": "Проблема с абонементом",
+      "fingerprint": "sha256:7730c85cfc74ccc03ef78230a600690b8c51c2d764cea869b12414a8c73f2f34",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        64
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открыть карточку клиента ${client.fullName}`",
+      "value": "`Открыть карточку клиента ${client.fullName}`",
+      "fingerprint": "sha256:a4942e1b61203df65fbfd6433ad95df5fd8d7bf062b79aa9ec0bcd1f1a20348d",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        88
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Карточка клиента\n                ",
+      "value": "Карточка клиента",
+      "fingerprint": "sha256:a912ec8664f1d3b52b0b4c7b2a42f703b060b687c9686617aa4c3f4887c33edf",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        102
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сначала дождитесь сохранения посещения\n                ",
+      "value": "Сначала дождитесь сохранения посещения",
+      "fingerprint": "sha256:15d9dcc3c4e3404e21696e36cb18bf415eb757d79c996920b723f307f03f91d7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        107
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группа\"",
+      "value": "Группа",
+      "fingerprint": "sha256:907efbd4ce48253bae87d64dafe6c538bc0a77b9df23ecd6ea903d46c12a4c56",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        43
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите группу\"",
+      "value": "Выберите группу",
+      "fingerprint": "sha256:298a07c0ecfbe5db0750b83c522580c7b080330c1752d9cb1942b94837203462",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        45
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дата тренировки\"",
+      "value": "Дата тренировки",
+      "fingerprint": "sha256:a06b48f83a3cc2cdd0fc31f9d7c2fa744fb9c736a1ad54c8de914d6007fe0bec",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        53
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Предыдущая дата\"",
+      "value": "Предыдущая дата",
+      "fingerprint": "sha256:669d9acd5bd6302673c8b871d3f99f9a6bdfbee1eeb2b763de6902fa1409a86f",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        63,
+        71
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Дата вне доступного периода'",
+      "value": "Дата вне доступного периода",
+      "fingerprint": "sha256:f9b110013fa8328400d081794f42c7894c30db20d90a730c1c6095dc37caa5f1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        70
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сегодня\"",
+      "value": "Сегодня",
+      "fingerprint": "sha256:b688b4c0d7836656bb838d2b0a908b62b6d210fa7bc71dedd05fbf20b5f7b9b1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78,
+        84,
+        87
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Следующая дата\"",
+      "value": "Следующая дата",
+      "fingerprint": "sha256:47cce16a306306aabeca3c7c1cedbbfeef0fdbcb526f10cdd6d3d2f7ae26f9c5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        90,
+        95
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Будущие даты недоступны'",
+      "value": "Будущие даты недоступны",
+      "fingerprint": "sha256:58b836773e074705c0e3fe918da28e420ae30e44256fa63a935d9247846a7ae6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceProgress.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Отмечено ${marked} из ${total}`",
+      "value": "`Отмечено ${marked} из ${total}`",
+      "fingerprint": "sha256:7363b38e5c302e73f0bb20435d54ae1459a69234c9594e978a8d99aa608306d5",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        14
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceProgress.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "из ",
+      "value": "из",
+      "fingerprint": "sha256:7f4adf318ef3f841fbcfdb9c5612e88124e15bd9f6885d50acdeb21e0ac52cbb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceProgress.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отмечено ",
+      "value": "Отмечено",
+      "fingerprint": "sha256:8dc8c1de5b3edf6e22613474045fee067e47f52fd8d342f89776b9bf2a7cada8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceRosterViewControl.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Показывать клиентов",
+      "value": "Показывать клиентов",
+      "fingerprint": "sha256:4627639bcc186e047dc50a4a3dea204df2a7f712e2f78fff2ff7b84702dbf7bd",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        21
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceRosterViewControl.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не отмечено'",
+      "value": "Не отмечено",
+      "fingerprint": "sha256:7c7cca865d3f077a7268756d4acb3fa455418ea4ebd0f5091d3d7ebce5fe9867",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceRosterViewControl.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все'",
+      "value": "Все",
+      "fingerprint": "sha256:215816bf42103f1f2b24c168779f1fb0ea3afcb7a2c627e42e0bcd7fe07eb70a",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        26
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохраняем…",
+      "value": "Сохраняем…",
+      "fingerprint": "sha256:9c27c381dd8b333c876c4a2dac2d556ae96f17e42732a12314d56f5057de3e85",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        18
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Не сохранено",
+      "value": "Не сохранено",
+      "fingerprint": "sha256:c5805f8b9d7982e40ee8098731069b4c9272c1bf2542802c107a22f7d177d06e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        26
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранено",
+      "value": "Сохранено",
+      "fingerprint": "sha256:2fe8f2fd72439d26994fef576bcde922c88db9fca31d83b074f447247ef317e7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        32
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Выберите состояние",
+      "value": "Выберите состояние",
+      "fingerprint": "sha256:90777d971a46c271e3de29a7e8aba418ecc5c83ef7458f16197d0af75c1d2b77",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Посещения\"",
+      "value": "Посещения",
+      "fingerprint": "sha256:5f43e5f108583b8ff7ec0392d42ed9831978dc64530e9f1497ff2259d7913d7c",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        61,
+        68
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить доступные группы для посещений.'",
+      "value": "Не удалось загрузить доступные группы для посещений.",
+      "fingerprint": "sha256:e6a18bf50c8c4f4ae8f267b0edf0a3fc5f9b89290d351ad4ee0c6abcb1e365ae",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        169
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить клиентов группы на выбранную дату.'",
+      "value": "Не удалось загрузить клиентов группы на выбранную дату.",
+      "fingerprint": "sha256:72edaa618d31541fe1907d3c123334e4c92c6be0fc1c14aec80fcacf7687edc5",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сервер не вернул сохраненное состояние.'",
+      "value": "Сервер не вернул сохраненное состояние.",
+      "fingerprint": "sha256:04540f1a223213971af1bd62b98f29e2016173f2b641132c2b1ada49af7c3dc3",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        283
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить отметку.'",
+      "value": "Не удалось сохранить отметку.",
+      "fingerprint": "sha256:ae751111b0422c1ccf1b619647e25358720dbb27a630db397a8417df61273d7e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        307
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Доступ к группе изменился'",
+      "value": "Доступ к группе изменился",
+      "fingerprint": "sha256:b4b5eb686b80563808e852b01a11da66d278a2efe12e5eaf0e08262f0ad143da",
+      "context": {
+        "kind": "call-argument",
+        "name": "setScopeChangeMessage"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        373
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Обновить список\"",
+      "value": "Обновить список",
+      "fingerprint": "sha256:163a016f3df71adcf589f473a45df360fc7b9f41b751df911f94b8656c0e91df",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        397
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Посещаемость занятия",
+      "value": "Посещаемость занятия",
+      "fingerprint": "sha256:1c26bf0759a61127706efc638afd8a1b7cd1bc57f08b57b40ca7ab0342d245f2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        460
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить загрузку групп",
+      "value": "Повторить загрузку групп",
+      "fingerprint": "sha256:9df8280084f07a07daf8f2efd9e23abf06842d50e20ba3ca0df86b90dd3b3269",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        470
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группы для посещений не загрузились\"",
+      "value": "Группы для посещений не загрузились",
+      "fingerprint": "sha256:63e4ed16cba404f7a3a7804b37f1a1cd319ffc29e4c4d03592f6842d9ae76a7d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        472
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Список доступных групп обновлен.\"",
+      "value": "Список доступных групп обновлен.",
+      "fingerprint": "sha256:5530460b6f6c15c66f3fb942ec913f8176f57bba84af6e0da1d1b576159f9a95",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        478
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем доступные группы...\"",
+      "value": "Загружаем доступные группы...",
+      "fingerprint": "sha256:ccdc603ef8f9eb0f66e71ccae6d506081c2364a9633c75984bff1ed4985c5e9d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        481
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Не удалось обновить список после сохранения.",
+      "value": "Не удалось обновить список после сохранения.",
+      "fingerprint": "sha256:1abc9cf050b46a34eeb740750e86d1b5974b97c6c4948e0877fd25c200520ec8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        528
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить обновление списка",
+      "value": "Повторить обновление списка",
+      "fingerprint": "sha256:31de5844d0b0df1658cd8dc8a14a9217116e6cdd1da244789ba2315732387e03",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        529
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Список клиентов не загрузился\"",
+      "value": "Список клиентов не загрузился",
+      "fingerprint": "sha256:d81f487a0b5f143ca263afb8a4d6b23cb9d24b70d940191a6315167c7c1d7356",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        532
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем состав группы...\"",
+      "value": "Загружаем состав группы...",
+      "fingerprint": "sha256:f63b7eb9c1256a8b3d0fdecde9a2d568b981dbc94b37928522fadf6494fdae0f",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        533
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"В выбранной группе пока нет клиентов\"",
+      "value": "В выбранной группе пока нет клиентов",
+      "fingerprint": "sha256:59fc779f2445b90de1ee7f240cc7ad300d87a3306af9cc537aa32055da8f71f8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        535
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Состав группы на эту дату пуст.\"",
+      "value": "Состав группы на эту дату пуст.",
+      "fingerprint": "sha256:acbeac4d7da1c61a9165265c8e04a670d1d3690cfc00153260d80997d9df2ab5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        535
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Показать всех",
+      "value": "Показать всех",
+      "fingerprint": "sha256:752358dfef6f28a18d3fc21c0cabcd67f75a61a51e40d998b175a3e40654e997",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        540
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Можно проверить сохраненные отметки или изменить их в полном списке.\"",
+      "value": "Можно проверить сохраненные отметки или изменить их в полном списке.",
+      "fingerprint": "sha256:823cc7d3fdc7e7361d79454d7fe7947d80a70c03b1aa9fe62ff198fc71b5b632",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        541
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Все клиенты отмечены\"",
+      "value": "Все клиенты отмечены",
+      "fingerprint": "sha256:32340c901bc6cb06e6d4e215749df123cf2de4ba6ecd17e79b7b12d2d33d4adc",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        543
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'группа изменена'",
+      "value": "группа изменена",
+      "fingerprint": "sha256:9fedff6024590c255baa001d06ae73aa0db7f1c2e553fb2ab29049c4510c901b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        606
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'дата изменена'",
+      "value": "дата изменена",
+      "fingerprint": "sha256:78cbcd82d67179d0c11791b43fd3754df7c4ce30f8558f03c002bf5a9d731a0f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        607
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "' и '",
+      "value": " и ",
+      "fingerprint": "sha256:21db14e45f667f8eb8a632218a3a46c70ebe651777d91c1a2d2e18dd8c6e22e8",
+      "context": {
+        "kind": "call-argument",
+        "name": "changedFields.join"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        612
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${changedFields.join(' и ')}. Контекст посещений выбран заново.`",
+      "value": "`${changedFields.join(' и ')}. Контекст посещений выбран заново.`",
+      "fingerprint": "sha256:97cc5be8ca4977874a291af6af9d1afefdff6904499430fe4e8c10dca0c9c438",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        612
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Нет групп для отметки посещений'",
+      "value": "Нет групп для отметки посещений",
+      "fingerprint": "sha256:aace5a72ed4597a19d392d8680071784a7515453945f515d5722353f577d852b",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        692
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Назначенные группы отсутствуют'",
+      "value": "Назначенные группы отсутствуют",
+      "fingerprint": "sha256:3fab17098123cd8be2e1171d82dc492201078e69e320347a046d748cd01fcc96",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        696
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Доступные группы пока отсутствуют'",
+      "value": "Доступные группы пока отсутствуют",
+      "fingerprint": "sha256:60cfcc47eee0411f9841342cd53c2658975feaf0748956f991e44e5c0e5d70a9",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        699
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Главный тренер или суперадминистратор назначит группы, после этого они появятся здесь.'",
+      "value": "Главный тренер или суперадминистратор назначит группы, после этого они появятся здесь.",
+      "fingerprint": "sha256:1152766863f34412714c322394f6ae7271f989d9db1f2de45f3f7ef4a53bd0be",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        704
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'",
+      "value": "Когда вам назначат группу, экран посещений автоматически покажет рабочий список.",
+      "fingerprint": "sha256:e7fdd82a43bdcbe1416f085a21011a6f4c51bec4ff5c8d9d1b5de3ca31ee2eb1",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        708
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'",
+      "value": "Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.",
+      "fingerprint": "sha256:33b50a4010c6fe8769e94d177c3971abab920c0354c16e526e900bad9a8f8321",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        711
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Будущее занятие доступно только для просмотра.'",
+      "value": "Будущее занятие доступно только для просмотра.",
+      "fingerprint": "sha256:e978a33cb56495603e6045d368276b8eebf84848d2ce8ab027ad50776fe0057d",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        722
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отмененное занятие доступно только для просмотра.'",
+      "value": "Отмененное занятие доступно только для просмотра.",
+      "fingerprint": "sha256:cbea104a401b057de111867060db4aee3dd5fd52e5fa03e9b4a5f27f199eeda5",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        724
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сервер не разрешил изменять посещаемость этого занятия.'",
+      "value": "Сервер не разрешил изменять посещаемость этого занятия.",
+      "fingerprint": "sha256:8558b70f97b7bb60a8551b1f60146b80398002e406f33eaa22925476c771dcbf",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        727
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Редактирование недоступно: ${reason}.`",
+      "value": "`Редактирование недоступно: ${reason}.`",
+      "fingerprint": "sha256:3fdd7a08515ab5e275b45c24818b7f9fe0e1fca5f82af9dee79e3ccc923bc262",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        730
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование посещаемости недоступно.'",
+      "value": "Редактирование посещаемости недоступно.",
+      "fingerprint": "sha256:4f753af9fe1a954199703b41c48abe2d7d0962f26336e88513cdc5e5ca4cd2fb",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        731
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Дата ${lessonDate}`",
+      "value": "`Дата ${lessonDate}`",
+      "fingerprint": "sha256:a4d8a7069191409cc17784331fa908a4f2585d9b7b3845eab37b09c703e32963",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        736
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не отмечено'",
+      "value": "Не отмечено",
+      "fingerprint": "sha256:7c7cca865d3f077a7268756d4acb3fa455418ea4ebd0f5091d3d7ebce5fe9867",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        12
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Был'",
+      "value": "Был",
+      "fingerprint": "sha256:ff13de896146db550b0bdddbcd09b8f1543f4ddd279ea5febac6d03106e8cf3c",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        13
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не был'",
+      "value": "Не был",
+      "fingerprint": "sha256:cd2e8ad3c648098fe1eb53a077d3858d5e89b967383667139471415e38b53ae2",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        14
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Посещение: ${clientName}`",
+      "value": "`Посещение: ${clientName}`",
+      "fingerprint": "sha256:635050658d263ed27147889037c17e8a66cc841fe917ada25fe04d637c712095",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        20
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceTodayWorklist.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "–",
+      "value": "–",
+      "fingerprint": "sha256:d4f85d36757c12f0c6dab57721287f327efbfc46ea8c0f820301067f8627fc0f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        208
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attendance/AttendanceTodayWorklist.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        214
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attendance",
+      "slice": "FE-4-attendance",
+      "review_status": "proposed"
+    }
+  ]
+}

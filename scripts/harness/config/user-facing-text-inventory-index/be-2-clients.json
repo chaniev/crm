@@ -1,0 +1,1153 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "BE-2-clients",
+  "entry_count": 51,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{currentUser.Login} отметил связь с клиентом {before!.FullName} после {missedReason.MissedCount} пропусков.\"",
+      "value": "{currentUser.Login} отметил связь с клиентом {before!.FullName} после {missedReason.MissedCount} пропусков.",
+      "fingerprint": "sha256:dd1c7f1243dc33c2ed1c5d53e308d9ecedbdfa0d78dad6d565abdb519de1c6e5",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"{currentUser.Login} отметил связь с клиентом {before!.FullName} после {missedReason.MissedCount} пропусков.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        173
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Field '{field}' is not allowed for this operation.\"",
+      "value": "Field '{field}' is not allowed for this operation.",
+      "fingerprint": "sha256:ca8e5605bd3a81d9e807ef0eaa9b3fca8dacec0c6d2fcf5fc399f4cf374596e4",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[field] = [$\"Field '{field}' is not allowed for this operation.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/clients/{client.Id}\"",
+      "value": "/clients/{client.Id}",
+      "fingerprint": "sha256:3cbf4bb71c94fa6c85ac483d873f25d1116e66a4b9c5e2bb4a8a6d88705d1f00",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.Created($\"/clients/{client.Id}\", ClientResponseMapper.MapDetails(createdClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        118
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"phone\"",
+      "value": "phone",
+      "fingerprint": "sha256:45569da57f4b7bf472d7a864ef4781451cae6383fee9fb0ae40c59aa1ce475b7",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"phone\"] = [ClientResources.PhoneRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        33,
+        37
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"notes\"",
+      "value": "notes",
+      "fingerprint": "sha256:ab5aa97074c454a0632057e704220d9a6678fbf773a0a5806fc09b8173b07309",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"notes\"] = [ClientResources.NotesTooLong];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        42
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"fullName\"",
+      "value": "fullName",
+      "fingerprint": "sha256:ffc2a51bfd02b0a2c710255baa45d689ffdc3e28d7d5a078eec0d62d17bbf8b7",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"fullName\"] = [ClientResources.FullNameRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        53
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"contacts\"",
+      "value": "contacts",
+      "fingerprint": "sha256:aa5af4084f3746bb29a29fd6ccc017a7dd49ca3b79dbeb2ec8fdbcd1ca3c50ce",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"contacts\"] = [ClientResources.ContactsLimitExceeded];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        60
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"contacts[{index}].type\"",
+      "value": "contacts[{index}].type",
+      "fingerprint": "sha256:3981035550b4e4b4301f6d917c1f46bf756859c465ae785257890b0c1fd05ac9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"contacts[{index}].type\"] = [ClientResources.ContactTypeRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        68,
+        72
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"contacts[{index}].fullName\"",
+      "value": "contacts[{index}].fullName",
+      "fingerprint": "sha256:865faa8fc0bef08a45fb5bd24dd5dd5662102250cd8d799af774a39f57db4de6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"contacts[{index}].fullName\"] = [ClientResources.ContactFullNameRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        77,
+        81
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"contacts[{index}].phone\"",
+      "value": "contacts[{index}].phone",
+      "fingerprint": "sha256:71a7276beba1c749869223ec9b2ed9fae936eb74d29614a9f40312387d55c765",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"contacts[{index}].phone\"] = [ClientResources.ContactPhoneRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        86,
+        90
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"groupIds\"",
+      "value": "groupIds",
+      "fingerprint": "sha256:1575814ebee79f7b411fa9bb9dbe78bc312dd4123e8fa5a87a19a2a290ca5713",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"groupIds\"] = [ClientResources.InvalidGroupId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        96,
+        102,
+        117,
+        128
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"branchId\"",
+      "value": "branchId",
+      "fingerprint": "sha256:9afcbf86367dc02ab44d394652ce9df69ccc9ebc2d71c79e2b30889a4dd526c9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"branchId\"] = [ClientResources.BranchRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        143,
+        149,
+        155,
+        171,
+        175
+      ],
+      "occurrences": 5,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"targetGroupIds\"",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"targetGroupIds\"] = [ClientResources.InvalidGroupId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        192,
+        197,
+        212,
+        223
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Bad Request\"",
+      "value": "Bad Request",
+      "fingerprint": "sha256:7c41b898c5da0cfa4aa049b65ef50248bce9a72d24bef4c723786431921b75aa",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"Bad Request\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        250
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/messages\"",
+      "value": "/messages",
+      "fingerprint": "sha256:a30c3f47a608f3fe551a430ab345645023091b1ff4dfef59a95d5b858cc278f5",
+      "context": {
+        "kind": "source-line",
+        "name": "group.MapGet(\"/messages\", ListMessagesAsync)"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        14,
+        18
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Telegram is not connected.\"",
+      "value": "Telegram is not connected.",
+      "fingerprint": "sha256:93f6981be505e1db5d870b69ae40b77dd3db3b09616c9c13a21b2f97d3127754",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"Telegram is not connected.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        152
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Connect the client Telegram account before sending messages.\"",
+      "value": "Connect the client Telegram account before sending messages.",
+      "fingerprint": "sha256:60d64715fd848767b5274e9c05269904eeeceacea6c5f91b4e628f7c7658c4ae",
+      "context": {
+        "kind": "source-line",
+        "name": "detail: \"Connect the client Telegram account before sending messages.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Idempotency conflict.\"",
+      "value": "Idempotency conflict.",
+      "fingerprint": "sha256:d513a3a1807e2251be01b1254c81af0227c25d90f6d4a3667395169d78a12a8f",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"Idempotency conflict.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        156
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"A message with the same idempotency key has different content.\"",
+      "value": "A message with the same idempotency key has different content.",
+      "fingerprint": "sha256:538bb04ebb44d6a113b4ab4328f7815043356f3707e3b0a67c751f7d78aea1b2",
+      "context": {
+        "kind": "source-line",
+        "name": "detail: \"A message with the same idempotency key has different content.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        157
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Client Telegram bot is not configured.\"",
+      "value": "Client Telegram bot is not configured.",
+      "fingerprint": "sha256:ab3a6efa58a0f285e18d5df774cce41eab1bfe5f54af587c930ea2b2abbb2771",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"Client Telegram bot is not configured.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        160
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Telegram request failed.\"",
+      "value": "Telegram request failed.",
+      "fingerprint": "sha256:78914546bf86f0307950d778b5be34e2a10aea480bc7687c06d53e22cebde50e",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"Telegram request failed.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        163
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"ClientNotesMetadata\"",
+      "value": "ClientNotesMetadata",
+      "fingerprint": "sha256:fc0841bffcab41e0cfb79173670d6e32e54d8cf8b6396d2cdadc1e9376c3929e",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.Ok(ClientResponseMapper.MapDetails(client, attendanceHistory, businessDateProvider.Today, loggerFactory.CreateLogger(\"ClientNotesMetadata\")));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        558,
+        583
+      ],
+      "occurrences": 2,
+      "category": "telemetry-only",
+      "reason": "Operational diagnostic text is not rendered to the user.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"page\"",
+      "value": "page",
+      "fingerprint": "sha256:3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"page\"] = [ClientResources.PageMustBeGreaterThanZero];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        611
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"pageSize\"",
+      "value": "pageSize",
+      "fingerprint": "sha256:8a00a4a803eb50c899e2732116c7534b451938d8b9219749e786fa47d24b0f2b",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"pageSize\"] = [ClientResources.PageSizeOutOfRange(ClientApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        616
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"skip\"",
+      "value": "skip",
+      "fingerprint": "sha256:42e93b9bb77d8a73e8412111b8f3d6befab66bf48fdcdefa80bb111819aa0cb1",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"skip\"] = [ClientResources.SkipCannotBeNegative];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        624
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"take\"",
+      "value": "take",
+      "fingerprint": "sha256:d1905cf90af29a5ac3f99e105830eecc5b3b415b24e2d166a7ce4cf72b2f32e6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"take\"] = [ClientResources.TakeOutOfRange(ClientApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        629
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"attendanceSkip\"",
+      "value": "attendanceSkip",
+      "fingerprint": "sha256:5356797dc9280c611b24b1aae6daf6fd2f403f989ba193a762b80921817e2df6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"attendanceSkip\"] = [ClientResources.AttendanceSkipCannotBeNegative];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        641
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"attendanceTake\"",
+      "value": "attendanceTake",
+      "fingerprint": "sha256:c75aaaf9f573990147a0fa4b8bfca2517aac8695a36ee2a2949fb64375327bec",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"attendanceTake\"] = [ClientResources.AttendanceTakeOutOfRange(ClientApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        648
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"status\"",
+      "value": "status",
+      "fingerprint": "sha256:073c1634c496cdb649d1afe0a312bbb4b7e1741b271542e4a436c3b8824b1761",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"status\"] = [ClientResources.InvalidStatus];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        685
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"membershipState\"",
+      "value": "membershipState",
+      "fingerprint": "sha256:082eea4c18a97061426f4d3c5e4f606e69ff0a38a4d450abc4d5d93f0dcf6568",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"membershipState\"] = [\"Некорректное состояние абонемента.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        690
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Некорректное состояние абонемента.\"",
+      "value": "Некорректное состояние абонемента.",
+      "fingerprint": "sha256:59e5d707eab5802c72a1a6a0336a113f36f3e0ea1239a15a74af6e0664a388b1",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"membershipState\"] = [\"Некорректное состояние абонемента.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        690
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"behaviorKind\"",
+      "value": "behaviorKind",
+      "fingerprint": "sha256:54278c88f6b38311912babe0bb67595ae7e26f90281ea49a8dcae05a86d77c90",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"behaviorKind\"] = [ClientResources.InvalidBehaviorKind];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        695,
+        851
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"membershipExpiresTo\"",
+      "value": "membershipExpiresTo",
+      "fingerprint": "sha256:86e252522d47720f99a2a64e0cd077f6da2059140075c313f002d1c35fca5f15",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"membershipExpiresTo\"] = [ClientResources.MembershipExpirationRangeInvalid];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        711
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"quickFilters\"",
+      "value": "quickFilters",
+      "fingerprint": "sha256:f34fa1202dc62c80603d890937509647a42c6e174ba9b81107d3b01997195785",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"quickFilters\"] ="
+      },
+      "has_cyrillic": false,
+      "lines": [
+        746
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Неизвестные быстрые фильтры: {string.Join(\"",
+      "value": "Неизвестные быстрые фильтры: {string.Join(",
+      "fingerprint": "sha256:a4baec14259155baf1af4f6a832f521e023b04744142198da5315f4692cfa230",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Неизвестные быстрые фильтры: {string.Join(\", \", invalidFilters)}.\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        748
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Membership behavior kind is required.\"",
+      "value": "Membership behavior kind is required.",
+      "fingerprint": "sha256:4606f73ec5c25b41f5665568db71a10576881baf1fa2277039c03227d61909c6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"behaviorKind\"] = [\"Membership behavior kind is required.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        851
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Плановое сопровождение\"",
+      "value": "Плановое сопровождение",
+      "fingerprint": "sha256:6bd8ee2e79ab242b9b29cf0baa7ecf22dc9de56fd705e0778f2330ad2d7af2a6",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Плановое сопровождение\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        516
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Льготный оплаченный статус\"",
+      "value": "Льготный оплаченный статус",
+      "fingerprint": "sha256:67fa40bd1634221639f5243a498327ca4dc5f8151c47ce88e47c5bf3fce5ee8c",
+      "context": {
+        "kind": "source-line",
+        "name": "? \"Льготный оплаченный статус\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        518
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Назначить группу\"",
+      "value": "Назначить группу",
+      "fingerprint": "sha256:c76b894edf45d6164234190e97d6728f6dfc29bd5d5af107dce45733ef346e56",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Назначить группу\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        527,
+        605
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Клиент пока без группы\"",
+      "value": "Клиент пока без группы",
+      "fingerprint": "sha256:f5e76471db5627107eb986ee33eaa76dae5d35b4bf0b42e07804a1cc4ef69da3",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Клиент пока без группы\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        528,
+        606
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Оформить абонемент\"",
+      "value": "Оформить абонемент",
+      "fingerprint": "sha256:63e29a541bf25f760c607bae8d8c187c6fa749d126e9846dfc5fe348a0483c0e",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Оформить абонемент\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        540,
+        584
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Нет текущего абонемента\"",
+      "value": "Нет текущего абонемента",
+      "fingerprint": "sha256:202af31a78c78dea36e9c74b5fb7dcdd317743bafd940090b8e4ace2615d3683",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Нет текущего абонемента\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        541
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Продлить абонемент\"",
+      "value": "Продлить абонемент",
+      "fingerprint": "sha256:b62f978a98d80ead1ae12dc1ec97e468e9d1fb87cf2ca7340b1a797689c30fad",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Продлить абонемент\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        560,
+        569
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Абонемент просрочен\"",
+      "value": "Абонемент просрочен",
+      "fingerprint": "sha256:818b63db3cb720fac9c7f32151c64f27b866d6ee0c8992d7a977eaa68f5ed177",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Абонемент просрочен\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        561
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Абонемент заканчивается сегодня\"",
+      "value": "Абонемент заканчивается сегодня",
+      "fingerprint": "sha256:679f07cbf481dcbcaa2be4ea0075290dff5a33fcd4f29c684f04809450c77617",
+      "context": {
+        "kind": "source-line",
+        "name": "? \"Абонемент заканчивается сегодня\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        571
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Осталось {daysUntilExpiration} дн.\"",
+      "value": "Осталось {daysUntilExpiration} дн.",
+      "fingerprint": "sha256:d51da79f75df6151db17378feac44d121505bb3469049c2c6d3bed9ac0473755",
+      "context": {
+        "kind": "source-line",
+        "name": ": $\"Осталось {daysUntilExpiration} дн.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        572
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Пробное посещение уже использовано\"",
+      "value": "Пробное посещение уже использовано",
+      "fingerprint": "sha256:fa5078980a6a71b151d446ff328be96afb5352c6f4fa074e4c1c11b56063b6b4",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Пробное посещение уже использовано\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        585
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Исправить группы\"",
+      "value": "Исправить группы",
+      "fingerprint": "sha256:de3830e75332f2b2c545d9463e9edf3e8e7c2b5ad6d6008ee25d1bbf810c29d8",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Исправить группы\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        594
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Абонемент без целевых групп не даёт права посещения\"",
+      "value": "Абонемент без целевых групп не даёт права посещения",
+      "fingerprint": "sha256:2baf9f338ca3280495e4e78af8483201a73e8ea9e5aa4ca4b108b2e5d8538258",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Абонемент без целевых групп не даёт права посещения\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        595
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Планово\"",
+      "value": "Планово",
+      "fingerprint": "sha256:c19bb335acac7796dd21fbd2ff9f1d5d76a97754fe5c8e9a598abb055f779f45",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Планово\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        615
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Срочных действий нет\"",
+      "value": "Срочных действий нет",
+      "fingerprint": "sha256:88f78723ebc007f91dff03cab0e2c69ccda82b2e939187da546c51f90cfbaed2",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Срочных действий нет\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        616
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/clients",
+      "slice": "BE-2-clients",
+      "review_status": "proposed"
+    }
+  ]
+}

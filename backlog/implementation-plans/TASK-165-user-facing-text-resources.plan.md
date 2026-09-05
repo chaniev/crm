@@ -4,7 +4,7 @@
 - source_task: /backlog/risky/TASK-165-user-facing-text-resources.md
 - requirements: REQ-NFR-007 (implements)
 - branch: refactor/TASK-165-user-facing-text-resources
-- readiness: no — сначала нужен review generated inventory, ownership classifications, slice size and scanner allowlist; mechanical extraction may proceed only after that baseline is accepted
+- readiness: no — proposed baseline generated at `dfe9501` and awaits review of inventory classifications, duplicates, slice sizes and the empty scanner allowlist; mechanical extraction may proceed only after that baseline is accepted
 - dependencies: заблокирована задачами TASK-167 и TASK-168 — реализация может начаться только после того, как обе задачи реализованы и интегрированы в `main`; inventory и characterization генерируются на их интегрированном результате, чтобы их copy-изменения были поглощены, а не откачены
 - risk: medium — broad cross-layer extraction can accidentally change public ProblemDetails, persisted audit descriptions, Telegram callback contracts or approved visible copy
 
@@ -31,6 +31,14 @@
 - Текст, вводимый пользователем, и динамические значения домена; не-кириллический видимый copy не входит в детекцию gate.
 
 ## Implementation slices
+Review package: `/docs/USER_FACING_TEXT_RESOURCES.md`, index and literal-level
+shards under `/scripts/harness/config/user-facing-text-inventory-index*`, exact
+duplicate groups in `/scripts/harness/config/user-facing-text-duplicates.json`
+and the proposed empty allowlist in
+`/scripts/harness/config/user-facing-text-allowlist.json`. Detailed bounded
+layer/feature slice IDs and ordering live in the review package; they do not
+change readiness until accepted.
+
 1. Generate the cross-layer candidate inventory and classify every finding with owner/reason. Review duplicates, propagated backend meanings and persisted audit surfaces; record bounded layer/feature slices and stop if the proposed allowlist hides unreviewed user copy.
 2. Add characterization tests for representative frontend auth/settings copy, backend validation/ProblemDetails/audit display and bot message/keyboard output. Capture current exact values before extraction; these tests should be green on baseline.
 3. Implement and test the scanner/allowlist contract. Confirm expected RED against known production literals such as auth validation, membership validation and bot keyboard labels, plus negative fixtures for route/error/callback/telemetry constants.

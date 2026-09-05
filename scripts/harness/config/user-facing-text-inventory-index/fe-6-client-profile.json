@@ -1,0 +1,4332 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-6-client-profile",
+  "entry_count": 196,
+  "entries": [
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "История посещений",
+      "value": "История посещений",
+      "fingerprint": "sha256:8524258618def6ef5757cdff77adae271d07de46e33df0e6b9a160382e90b64b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        32
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Карточка показывает дату тренировки, группу и признак посещения.'",
+      "value": "Карточка показывает дату тренировки, группу и признак посещения.",
+      "fingerprint": "sha256:8428fe4a4b48fc7cf7d4aafb1f2cdbd69e630fdade50350c720b478b9670da5f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тренеру доступны только дата тренировки, назначенная группа и признак посещения.'",
+      "value": "Тренеру доступны только дата тренировки, назначенная группа и признак посещения.",
+      "fingerprint": "sha256:348660514e92eef89732c7aee7e4c1813e7f54670042d4b8a67477627da71bdb",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        36
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Полная карточка'",
+      "value": "Полная карточка",
+      "fingerprint": "sha256:d78acecd272cf4fc79d2d862575fadd591d8e7ecbe359749fccd536c1711c6fd",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        42
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Режим тренера'",
+      "value": "Режим тренера",
+      "fingerprint": "sha256:f46c76fcd8d9d81876b7e0e30df1c6efcc1d0c20c9e499fdda140963a450c152",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        42
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Всего: ",
+      "value": "Всего:",
+      "fingerprint": "sha256:f8ba76ae8e828191bdfab124ef21e36b8786b5c461a25a087582140abfc780ab",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        45
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"История пока не загружена\"",
+      "value": "История пока не загружена",
+      "fingerprint": "sha256:b736786679149e03a0d30de9e90609b4359b8d408e18c2013cadc426287e7640",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        54
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "История посещений появится здесь после загрузки данных.\n          ",
+      "value": "История посещений появится здесь после загрузки данных.",
+      "fingerprint": "sha256:f4f7179e7e10858be80bfac41030f7ab1a5f82c46b0d8f5e6c9c39cf9c9787c6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        57
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "По этому клиенту пока нет отмеченных посещений.\n          ",
+      "value": "По этому клиенту пока нет отмеченных посещений.",
+      "fingerprint": "sha256:001835f066b8e8ff39328e87277de503398e7875ed282c04c657a442a886ccda",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        61
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отсутствовал'",
+      "value": "Отсутствовал",
+      "fingerprint": "sha256:439e3b4c347f602a5c401e1535d5534780cbcc8147c30699480fffc89aacc4a5",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        76
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Присутствовал'",
+      "value": "Присутствовал",
+      "fingerprint": "sha256:f1cfa3af3210a84e7d1d51591851d4b705871030b9e303a6bdb73a12e3710cb1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        76
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Показана текущая порция истории: ",
+      "value": "Показана текущая порция истории:",
+      "fingerprint": "sha256:511e94e0f3bc37713e5b71bfcc32775d98dc7370fb322cb02682583762c69e0b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        92
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "из ",
+      "value": "из",
+      "fingerprint": "sha256:7f4adf318ef3f841fbcfdb9c5612e88124e15bd9f6885d50acdeb21e0ac52cbb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        92
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ".\n          ",
+      "value": ".",
+      "fingerprint": "sha256:cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        92
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить список групп.'",
+      "value": "Не удалось загрузить список групп.",
+      "fingerprint": "sha256:85b97c294565639a8b96174e6662fa13e9f76c641a231db4a7605bcb2caead73",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        72
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Проверьте обязательные поля клиента и контактов.'",
+      "value": "Проверьте обязательные поля клиента и контактов.",
+      "fingerprint": "sha256:97732402b6c008d000c36bb72568b5f71a96737b546cd8657e7646161666d09f",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        93
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент создан'",
+      "value": "Клиент создан",
+      "fingerprint": "sha256:4f3100e0978f000ec6b1b39b4ced90084b1254accbcb23a583bfb7f1b99de203",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        104
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Базовая карточка клиента сохранена.'",
+      "value": "Базовая карточка клиента сохранена.",
+      "fingerprint": "sha256:67cfd459ca6557cbd88d6369b69ed2b0a2878c67f08276663aaa27b02835cd98",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        105
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось создать клиента. Попробуйте еще раз.'",
+      "value": "Не удалось создать клиента. Попробуйте еще раз.",
+      "fingerprint": "sha256:bdd79cff82a2f9ff04aec37a9fe6c37ec582c58dd62c24f679cf1245f0be036b",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        117
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "К списку клиентов\n        ",
+      "value": "К списку клиентов",
+      "fingerprint": "sha256:fde25c93ff0348f15f0aa7ba7915b35c5fe0339211b09d2aca05697027571b79",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        131
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Новый клиент\"",
+      "value": "Новый клиент",
+      "fingerprint": "sha256:5a2595c21fb54a00c684164fd8867f4999accdbbab4e8381f8fe0109104552d5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        134
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Форма появится после загрузки филиалов и групп.\"",
+      "value": "Форма появится после загрузки филиалов и групп.",
+      "fingerprint": "sha256:8c274e3038280013eac441853abb30dd1fa0636750990fc73299a38a420557eb",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        140
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Готовим форму клиента...\"",
+      "value": "Готовим форму клиента...",
+      "fingerprint": "sha256:28f0dd243e5802ec46a8b54710bea834d2ed4abac4e4213965adf7d75b789aa5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        141
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Не удалось подготовить форму\"",
+      "value": "Не удалось подготовить форму",
+      "fingerprint": "sha256:bb243bf54eeca843905ab207082949c94bb5434e4776ae9526e1ccd6439684d0",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        149
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменить'",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        163
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранить клиента\"",
+      "value": "Сохранить клиента",
+      "fingerprint": "sha256:40ba6630c7891fa3ad087592e55ac212ac63ecfa956f8fe245d31e87b71e4492",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "submitLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        172
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'К списку клиентов'",
+      "value": "К списку клиентов",
+      "fingerprint": "sha256:fde25c93ff0348f15f0aa7ba7915b35c5fe0339211b09d2aca05697027571b79",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        59
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить карточку клиента.'",
+      "value": "Не удалось загрузить карточку клиента.",
+      "fingerprint": "sha256:63fa9b9ed18ffd31b2ce26f8394b796cecf2ab470f08a852be798b62ed0f21be",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        123
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент переведен в архив'",
+      "value": "Клиент переведен в архив",
+      "fingerprint": "sha256:9a24f729cb79875fbe231bcd78240668a75eab28e2d4eba4d3c05696eb913d11",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        169
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент возвращен в активные'",
+      "value": "Клиент возвращен в активные",
+      "fingerprint": "sha256:a114949390086dc13bb3beb5381b2cb46ab8d799d1436d27265f80ae3409b69c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        170
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Карточка остается доступной для просмотра.'",
+      "value": "Карточка остается доступной для просмотра.",
+      "fingerprint": "sha256:840e7ca3d90dfa128a62d4b22648cae64d75feeb1f8c4b7db13a72b9ab3ff89c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        173
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент снова помечен как активный.'",
+      "value": "Клиент снова помечен как активный.",
+      "fingerprint": "sha256:ee9b846117e8b52b12544f2ac6b256452bb46733f74d1d6b2450228d0a0986ab",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        174
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось изменить статус клиента.'",
+      "value": "Не удалось изменить статус клиента.",
+      "fingerprint": "sha256:da7e2d4fa91e86a9a04b205bcf7ac1fd3f1cacc04807003c714af0a939b3ee37",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        181
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить филиалы и группы.'",
+      "value": "Не удалось загрузить филиалы и группы.",
+      "fingerprint": "sha256:a2e2cac2cd3505bdadbef79688158d576360e60b532a749c2696a276f26b41f3",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        213
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент переведен'",
+      "value": "Клиент переведен",
+      "fingerprint": "sha256:a6f3283a3682134a92779c880114ae165134de44ef83869588e8da4e68b782df",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        247
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Филиал и группа клиента обновлены.'",
+      "value": "Филиал и группа клиента обновлены.",
+      "fingerprint": "sha256:66eefff600531d7cf307184fcf757644eef0d4df52e03755ff6ee2080468c5c5",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        248
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось перевести клиента.'",
+      "value": "Не удалось перевести клиента.",
+      "fingerprint": "sha256:3cbae8657cb4a6308d3dd0914c4721107110a314d521b009c47e75aa252e7e2e",
+      "context": {
+        "kind": "call-argument",
+        "name": "setTransferFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        267
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Абонемент оформлен'",
+      "value": "Абонемент оформлен",
+      "fingerprint": "sha256:7d8a509d9db69fe9de8b3553856289fa75e7a584070edabde0d27f764cd07e35",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        299
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Текущий абонемент и история клиента обновлены.'",
+      "value": "Текущий абонемент и история клиента обновлены.",
+      "fingerprint": "sha256:43ee725f6dbed660fd11297beb8df3808a1956bb4e7d9a704b52d7d4b6415ed0",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        300
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Абонемент продлен'",
+      "value": "Абонемент продлен",
+      "fingerprint": "sha256:3c069df0dca5464335ebb0c62a57a149e769021f311f6e71461a02ae5e974aed",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        304
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новая версия абонемента появилась в карточке клиента.'",
+      "value": "Новая версия абонемента появилась в карточке клиента.",
+      "fingerprint": "sha256:e33f1080bd977147ecd2244d34241c87669f9e23ff510719191a3f6d074dd261",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        305
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Данные абонемента исправлены'",
+      "value": "Данные абонемента исправлены",
+      "fingerprint": "sha256:db7198dcc6a491d0ba5525edee1297afdc972e0846117e5871f6f8ab5b66d2fc",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        308
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Карточка клиента обновлена.'",
+      "value": "Карточка клиента обновлена.",
+      "fingerprint": "sha256:154f1c0563494e4d2561bff3f9ecd0771f16e2323fedea04f9071a43a32dc6a1",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        309
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось выполнить действие с абонементом.'",
+      "value": "Не удалось выполнить действие с абонементом.",
+      "fingerprint": "sha256:07dec05f0f728e28eb641ddc7b63dcdcb0f4b29541f3a860230fb7f25b2cf0cd",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        322
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Редактировать\n            ",
+      "value": "Редактировать",
+      "fingerprint": "sha256:59792556fd0682484dde8d5ec7ddc8d312c6faa1c399a5ff26922a0c63f99757",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        373
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Перевести\n            ",
+      "value": "Перевести",
+      "fingerprint": "sha256:4ac45591613ffc997ab687dff9b66bd29c7495afeb9f4b31470ff75a1e213a95",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        383
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'В архив'",
+      "value": "В архив",
+      "fingerprint": "sha256:1ca665192a6aa111880aadd7336d64d0bfc7bc985575ad8f2cbb4d89cfe7247a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        401
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Вернуть в активные'",
+      "value": "Вернуть в активные",
+      "fingerprint": "sha256:b2b51d6ba3fe0eb3d20117c78f2c0f98bfed3a70ab610dd8c30161c98e46ae31",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        402,
+        415
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Детали клиента'",
+      "value": "Детали клиента",
+      "fingerprint": "sha256:48186f7ab2f5fb0a5aa1b8d8768694668019f3f34b3ea262bd125004943ed174",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        407
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Перевести в архив'",
+      "value": "Перевести в архив",
+      "fingerprint": "sha256:592928a6b32661758e143248f9d4a9a79d60234436eb6bbc8a44fc46dea647f1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        414
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент исчезнет из активных выборок, но карточка и история останутся доступны.'",
+      "value": "Клиент исчезнет из активных выборок, но карточка и история останутся доступны.",
+      "fingerprint": "sha256:f868f3a19ff9ed2d6f15109d8af8a0430081bddbd921da7c66a2d4b75002929e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        419
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент снова появится в активных списках и рабочих сценариях.'",
+      "value": "Клиент снова появится в активных списках и рабочих сценариях.",
+      "fingerprint": "sha256:62845e23d5adb6ce0b15909cefb6c6c752cf969ca8ad6030fda1c9103ca64dd7",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        420
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Перевести клиента в архив?'",
+      "value": "Перевести клиента в архив?",
+      "fingerprint": "sha256:2f986ceac611c9909bb7a86ef776959383747c43dee5e21850653783333b5a8e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        428
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Вернуть клиента в активные?'",
+      "value": "Вернуть клиента в активные?",
+      "fingerprint": "sha256:f988138da0e957a61aa0ca088174170c8670f1b5d268bf2dfc7a4ab4b49a86ad",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        429
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Карточка клиента не загрузилась\"",
+      "value": "Карточка клиента не загрузилась",
+      "fingerprint": "sha256:6c247ce7dac0e58972834a6a662afe39e8554980668998f48fdbaf83b472c9ec",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        462
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Действие не выполнено\"",
+      "value": "Действие не выполнено",
+      "fingerprint": "sha256:7530f803ba06c56fc9f37b01e650d538be036dbf6694848e967d1e1ce341bc27",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        476
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Рабочая заметка",
+      "value": "Рабочая заметка",
+      "fingerprint": "sha256:6d7987c1772780bb7855d06144bf75b3b7235ce17a22130c661e6896563c61f6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        21
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Внутренняя заметка по клиенту, которая сохраняется в карточке.\n            ",
+      "value": "Внутренняя заметка по клиенту, которая сохраняется в карточке.",
+      "fingerprint": "sha256:c8443a0022add2d67c1c092a5a60d54bbb982aaedf2782b3f5435afae00fb1c3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        23
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Рабочая заметка пока не добавлена.\n          ",
+      "value": "Рабочая заметка пока не добавлена.",
+      "fingerprint": "sha256:d99fe02054362df565063cd38f5153dcdadbb392da262a0fe28b84178a019c91",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        42
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Контактные лица",
+      "value": "Контактные лица",
+      "fingerprint": "sha256:c50d9f78a2e0849caa18d911e465586c50f0d55f7ff7f6768b4c30ddd812fe97",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "До двух контактных лиц для экстренной связи.\n            ",
+      "value": "До двух контактных лиц для экстренной связи.",
+      "fingerprint": "sha256:167364bbf392001cec038f815db560222ef6c30b098c47ae85ed090e9ffd04d6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        80
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Контактные лица для клиента пока не добавлены.\n          ",
+      "value": "Контактные лица для клиента пока не добавлены.",
+      "fingerprint": "sha256:de5e3108e3f869ba23935d20e37a683909b845f4a1fb0d7febdd12d0327f3f28",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        87
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Телефон: ",
+      "value": "Телефон:",
+      "fingerprint": "sha256:353ad7d1834d6b5f214001241c2b1c31c29195db058373b130720a1e4319cd01",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        106
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Группы клиента",
+      "value": "Группы клиента",
+      "fingerprint": "sha256:ab308eef9353f6a5a7cf87ea063da8a48f2c0a7d914461ca52e69021cc62a2af",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        132
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Блок показывает текущую привязку клиента к тренировочным группам.\n              ",
+      "value": "Блок показывает текущую привязку клиента к тренировочным группам.",
+      "fingerprint": "sha256:f4ba7d705350d56206383cfe8b237942f3d5b07aa3dd3aafb958717828ad4988",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        134
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Изменить группы\n            ",
+      "value": "Изменить группы",
+      "fingerprint": "sha256:80007febed7667ee13a52b980646f362289abab5c4ed032d8dfd02d8b5302250",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        145
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Клиент пока не включен ни в одну группу.\n          ",
+      "value": "Клиент пока не включен ни в одну группу.",
+      "fingerprint": "sha256:853f0e4363dca2c5da8ccced48ec8b228c4c3d2e982bd67ed80ee969da78a5fb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        152
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Неактивна'",
+      "value": "Неактивна",
+      "fingerprint": "sha256:4f049897a5bd5c24277eede0928f3601d91f29641e319ba674d025574370fe8c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активна'",
+      "value": "Активна",
+      "fingerprint": "sha256:983ec13068146e5f02e5a2525ea41695d2c6782f81f3f3b25ea177a231de253e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Старт: ${group.trainingStartTime}`",
+      "value": "`Старт: ${group.trainingStartTime}`",
+      "fingerprint": "sha256:16812f5cddf3197a1d4855b6cec7939025abbb20ed0913998a9dc2eb4858ee51",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        176
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Время начала не указано'",
+      "value": "Время начала не указано",
+      "fingerprint": "sha256:37180f56371fd03b7ce22f40a660043bc00cb945d210b23320d4f4c3c7a97943",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        177
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить карточку клиента.'",
+      "value": "Не удалось загрузить карточку клиента.",
+      "fingerprint": "sha256:63fa9b9ed18ffd31b2ce26f8394b796cecf2ab470f08a852be798b62ed0f21be",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        83
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Проверьте обязательные поля клиента и контактов.'",
+      "value": "Проверьте обязательные поля клиента и контактов.",
+      "fingerprint": "sha256:97732402b6c008d000c36bb72568b5f71a96737b546cd8657e7646161666d09f",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        104
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Изменения сохранены'",
+      "value": "Изменения сохранены",
+      "fingerprint": "sha256:f436b337a904a80b156e80fa73a7c719cf183d7d2b0807d82ad338ea6d27ffe1",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        115
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Карточка клиента обновлена.'",
+      "value": "Карточка клиента обновлена.",
+      "fingerprint": "sha256:154f1c0563494e4d2561bff3f9ecd0771f16e2323fedea04f9071a43a32dc6a1",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        116
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить изменения клиента.'",
+      "value": "Не удалось сохранить изменения клиента.",
+      "fingerprint": "sha256:e238fab97ed83e4c13c478f46f91c9d3cb75b18b8a3664da9dd20e58eb716543",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        128
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "К карточке клиента\n        ",
+      "value": "К карточке клиента",
+      "fingerprint": "sha256:14a4b327ebd4f8e39045121852f3b449eb349ef0521e833dca66f1e072059e1a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Карточка клиента'",
+      "value": "Карточка клиента",
+      "fingerprint": "sha256:a912ec8664f1d3b52b0b4c7b2a42f703b060b687c9686617aa4c3f4887c33edf",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Поля станут доступны после загрузки карточки и справочников.\"",
+      "value": "Поля станут доступны после загрузки карточки и справочников.",
+      "fingerprint": "sha256:9c63e471d4ca181632829a483272a7f63e354126746000e919dfbbaea2483865",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        159
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем карточку клиента...\"",
+      "value": "Загружаем карточку клиента...",
+      "fingerprint": "sha256:a2151f053481946769fe8bb23f33737f0d8c4dc302834cdf8f5f414c12e3042d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        160
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Карточка клиента не загрузилась\"",
+      "value": "Карточка клиента не загрузилась",
+      "fingerprint": "sha256:6c247ce7dac0e58972834a6a662afe39e8554980668998f48fdbaf83b472c9ec",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        170
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранить изменения\"",
+      "value": "Сохранить изменения",
+      "fingerprint": "sha256:744cf2b219992c28613d6dd92c1f9a70e66937d4f664ddc60cb85da18d789e3d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "submitLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        201
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранение не выполнено\"",
+      "value": "Сохранение не выполнено",
+      "fingerprint": "sha256:09e1875e6459e25d731db8efe457f31da522b97b5c3d3609ca67e24d6cb12eee",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Фамилия\"",
+      "value": "Фамилия",
+      "fingerprint": "sha256:353eafa3bb36787b37f02be05a00e5d99f377e3a9f53d1c8933276ba8f73b3aa",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        106
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Иванов\"",
+      "value": "Иванов",
+      "fingerprint": "sha256:37f3ddd46f2434ef1d2581a98a6d538bdace6a39e69599b55bb8c35e9ff1a828",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        107
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Имя\"",
+      "value": "Имя",
+      "fingerprint": "sha256:1da7e9372e2f45a27895aaa5f6bd05d1197c3b857ffa522fd01edb44efee0547",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        111
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Иван\"",
+      "value": "Иван",
+      "fingerprint": "sha256:cc0781950ffebec65a7f552e099f5111dc6526384615f13801e3f0d25b38e960",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        112
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Отчество\"",
+      "value": "Отчество",
+      "fingerprint": "sha256:e1739d0abcc0b3548cbc1a3f41f1accf514123ee1438bd3641a333a7da3889cf",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        116
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Иванович\"",
+      "value": "Иванович",
+      "fingerprint": "sha256:52028dbdf0ec948d9c9c4bb433b09b67944af7924c3438c2f2eb672b1d2c6dd7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        117
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Телефон\"",
+      "value": "Телефон",
+      "fingerprint": "sha256:822f9fd9ba2d117e7a4c1dd10c410eab7a3a5cc0417cd149633649cc5fb23c1b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        124
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"+7(999) 000-00-00\"",
+      "value": "+7(999) 000-00-00",
+      "fingerprint": "sha256:29def5aca577f4d02c126daa7df17ba95dda8f33115c16c83032b40ccc1668c4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        125
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Филиал\"",
+      "value": "Филиал",
+      "fingerprint": "sha256:2f17c4d223aa7d914d5a9aa05e1137606b1e614d1fd739a4b4104cb56b089af6",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        137
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите филиал\"",
+      "value": "Выберите филиал",
+      "fingerprint": "sha256:4c5ee5d81244b373bb3f6f57f94f35412ce9dde46aa27899a9ff490a4cab6fa1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        139
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группы клиента\"",
+      "value": "Группы клиента",
+      "fingerprint": "sha256:ab308eef9353f6a5a7cf87ea063da8a48f2c0a7d914461ca52e69021cc62a2af",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите группы'",
+      "value": "Выберите группы",
+      "fingerprint": "sha256:3d8d006fdc0a238d215093ba6a495dec479def17c56ef845ed43d9f9dea4cbf3",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        156
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сначала выберите филиал'",
+      "value": "Сначала выберите филиал",
+      "fingerprint": "sha256:74f8ad03e184e5cfc7fb33af1691cfbc3f726b88f0a3d1c34e4d35411265574a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        157
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дата рождения\"",
+      "value": "Дата рождения",
+      "fingerprint": "sha256:1ae7206660f5674e9b73cd6191777e5452c95b40dde437738b07126e872008b2",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        163
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Рабочая заметка\"",
+      "value": "Рабочая заметка",
+      "fingerprint": "sha256:6d7987c1772780bb7855d06144bf75b3b7235ce17a22130c661e6896563c61f6",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Например: предпочитает связь после 18:00, важные детали по посещениям или оплате.\"",
+      "value": "Например: предпочитает связь после 18:00, важные детали по посещениям или оплате.",
+      "fingerprint": "sha256:0e86ea4c8d713de6f61b8e06d26728c4ebca60cb94b4dbf553c4f5a8be256448",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        173
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Контактные лица",
+      "value": "Контактные лица",
+      "fingerprint": "sha256:c50d9f78a2e0849caa18d911e465586c50f0d55f7ff7f6768b4c30ddd812fe97",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        185
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Можно указать до двух контактов. Пустые строки не будут сохранены.\n                ",
+      "value": "Можно указать до двух контактов. Пустые строки не будут сохранены.",
+      "fingerprint": "sha256:a00f32e0cc13de444767ecda1e887e7817e08f3e4be2b6c889e09cacb3e6b329",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        187
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Добавить контакт\n              ",
+      "value": "Добавить контакт",
+      "fingerprint": "sha256:63492f282565bbb904b5af67230b99715714e3f1cc86ea936956f1f24b2dba6f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        198
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Контактные лица пока не добавлены.\n              ",
+      "value": "Контактные лица пока не добавлены.",
+      "fingerprint": "sha256:14efba42d2a0d84500c1db02575a71da55440a0132ca28ecd064108849632503",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        204
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Контакт #",
+      "value": "Контакт #",
+      "fingerprint": "sha256:2c73c9381ffeaf66b8615f0ec3a449ea418c598449ca7b36e5575dcee1d713f9",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        212
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Удалить контакт ${index + 1}`",
+      "value": "`Удалить контакт ${index + 1}`",
+      "fingerprint": "sha256:8b452ad2710bbd93599a2694b3e6f14833e9ba87df758c25aea3039e1e207a39",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        214
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Тип контакта\"",
+      "value": "Тип контакта",
+      "fingerprint": "sha256:1a4f2dd4ea06dd585a934803bb27a8286b79c5f0d1ae7c27f9edab3f9127202e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        226
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Мама / Папа / Другой\"",
+      "value": "Мама / Папа / Другой",
+      "fingerprint": "sha256:a3f088c690f2a13a2c047be700d27325c83ccfd48054096854cade69e853758e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        227
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"ФИО контактного лица\"",
+      "value": "ФИО контактного лица",
+      "fingerprint": "sha256:3ab1fb44d9e04032fbba551b0c03e758bb0914648e4fa0b30787ddd8420c4ce4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        231
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Анна Иванова\"",
+      "value": "Анна Иванова",
+      "fingerprint": "sha256:e23f3a45043671f9f822e68b24d1a9adf77e62dd10953434e9f71d27e86f6bcc",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        232
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Телефон контакта\"",
+      "value": "Телефон контакта",
+      "fingerprint": "sha256:a49c980a2d45a1af1161d6e527572f563ec0ed21fd80c3eaed96fb2d716eafb7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        236
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientForm.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"+7(999) 000-00-01\"",
+      "value": "+7(999) 000-00-01",
+      "fingerprint": "sha256:59073e3ab00e219ff816867369d6b4f92b5a1edade358e7dba4262a3cf20d538",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        237
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.form.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите телефон клиента.'",
+      "value": "Укажите телефон клиента.",
+      "fingerprint": "sha256:13f09c7fc9b070b3d4506918a367f7b31a130a755a0b5c1a2ebbe91cc503b0bb",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        43,
+        57
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.form.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите хотя бы одно из полей ФИО клиента.'",
+      "value": "Укажите хотя бы одно из полей ФИО клиента.",
+      "fingerprint": "sha256:91e74fb380027eae6edf3b143723cc0c8c18f4f21d45fbc4eb6dbad78cca3a00",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        47,
+        61
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.form.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Можно сохранить не более двух контактных лиц.'",
+      "value": "Можно сохранить не более двух контактных лиц.",
+      "fingerprint": "sha256:acb35e7971e04220a312b5044386b6d61f37b94babdddfb21e1580650b3e86f4",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        65
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.form.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите тип контактного лица.'",
+      "value": "Укажите тип контактного лица.",
+      "fingerprint": "sha256:f638f9f2a2192959cc796d3ec256696bc86a195f23223f2242a005d406dea147",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        84
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.form.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите ФИО контактного лица.'",
+      "value": "Укажите ФИО контактного лица.",
+      "fingerprint": "sha256:259085f98217b4ed6017e66fcbddae0595b8bc2ef88b41ed243ab8b2b14fe4da",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        89
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.form.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Укажите телефон контактного лица.'",
+      "value": "Укажите телефон контактного лица.",
+      "fingerprint": "sha256:735598db9324ba6ddf31bd49612799ac7d5948a7d2f7a8fc94035cd168f9e34d",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        93
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.form.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'нового клиента'",
+      "value": "нового клиента",
+      "fingerprint": "sha256:db15274f6711a44cd81b9acc21e79f57e6fc5b2d2965af1de0e3b2ec0b7b2753",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        161
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не указана'",
+      "value": "Не указана",
+      "fingerprint": "sha256:f16cbd327049b31c8f77bbc0bc8f695338f72889a996cfef5acbf40986c55a41",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        55,
+        116
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не указано'",
+      "value": "Не указано",
+      "fingerprint": "sha256:ba4d4bf67a659ba70812692a107507835ac9eab43d88e39da3c9eb214bdfb78e",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        75
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'По факту использования'",
+      "value": "По факту использования",
+      "fingerprint": "sha256:62c745d0f65726239291400c3cb5b57b0e9a908ea359057f197b0088deeffff9",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        113
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Версия абонемента'",
+      "value": "Версия абонемента",
+      "fingerprint": "sha256:a3c07b6d506c6ed742717750b05895228be21b3008f33219db537e04982d72bd",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        130
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Без варианта каталога'",
+      "value": "Без варианта каталога",
+      "fingerprint": "sha256:92f64d0d0d54ceb88fb2eeea7b5be026657f2226a5158b6b28c5a88e58b2c121",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        140
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Индивидуальная сумма'",
+      "value": "Индивидуальная сумма",
+      "fingerprint": "sha256:00f9729f00689f96ce69e200fd63da9379bdc6fb0d51b82513821bb7393dc3d9",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        144
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Каталожная цена'",
+      "value": "Каталожная цена",
+      "fingerprint": "sha256:de5a7f2f76f936749cf754235ea114d4e43e88e2d61ecb630cd854aba10fdee0",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        147
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'архивный'",
+      "value": "архивный",
+      "fingerprint": "sha256:4ebaca56f260abf7b7a87fbc13aa319b897cec1f5516fc16be01d72082db1f7d",
+      "context": {
+        "kind": "call-argument",
+        "name": "parts.push"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        199
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'неактивна'",
+      "value": "неактивна",
+      "fingerprint": "sha256:bd36839e7a00b8bc72c01ab1f2f89436d0d18d88af975c1510441d096fc7c1ed",
+      "context": {
+        "kind": "call-argument",
+        "name": "parts.push"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Файл больше 10 MB. Выберите фотографию меньшего размера.'",
+      "value": "Файл больше 10 MB. Выберите фотографию меньшего размера.",
+      "fingerprint": "sha256:5536d11bf5b3378fd93bdbef3a1df5ca029eba5dc0c924055aad625db707b790",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        242
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Допустимы только JPEG, PNG, WebP, HEIC и HEIF.'",
+      "value": "Допустимы только JPEG, PNG, WebP, HEIC и HEIF.",
+      "fingerprint": "sha256:50f59e98280b6fe4f4d05e5807933f8d93af811e1e71993242f223880aad9653",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        256
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не выбраны'",
+      "value": "Не выбраны",
+      "fingerprint": "sha256:28997f75653777afad62dabeea10344622f6c198ff3718ad9e1d8a57c3f7f135",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        34
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Нет доступных групп'",
+      "value": "Нет доступных групп",
+      "fingerprint": "sha256:9edc2ad91de94a3af89ac9fee10e1e48cfc22061f6d4ff3adc9f245060d80c33",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не добавлены'",
+      "value": "Не добавлены",
+      "fingerprint": "sha256:39b10095f2d492ae079c2154643088c04a20eec4034ce7dc68c5292cc090be32",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        39
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загружаются'",
+      "value": "Загружаются",
+      "fingerprint": "sha256:7c5ffdd7bbc60afa873e5915acf01befa72d039d48d3075fd3957855f169b2c6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        42
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не указана'",
+      "value": "Не указана",
+      "fingerprint": "sha256:f16cbd327049b31c8f77bbc0bc8f695338f72889a996cfef5acbf40986c55a41",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        43,
+        109
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент'",
+      "value": "Клиент",
+      "fingerprint": "sha256:3e622aecbf306ce2e0933e6e4a65dc5865cc8f1a852589b35bf4efa6e8a966cd",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        55
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент тренера'",
+      "value": "Клиент тренера",
+      "fingerprint": "sha256:ed0b220ce7f07bde2cfc2b5dcada172489800083473177dc370a1dcd211b4288",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        55
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Профессионал\n                ",
+      "value": "Профессионал",
+      "fingerprint": "sha256:76fc78765f641cc0c92a13bad096515c9790fcba2b2d89907ab5a74cfa93796c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        75,
+        97
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Доступ тренера\"",
+      "value": "Доступ тренера",
+      "fingerprint": "sha256:09f75b9f0ddc201c8440081bdfbcd6f6759c26460938f72188c4f91ee282db34",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        85
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Видны фото, ФИО, рабочая заметка, назначенные группы и история\n              посещений.\n            ",
+      "value": "Видны фото, ФИО, рабочая заметка, назначенные группы и история посещений.",
+      "fingerprint": "sha256:8afc6d909fe1f59f57c8e059ae81970e440c867b325ae8ff48ab39eea5b95201",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        88
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Профессиональный статус'",
+      "value": "Профессиональный статус",
+      "fingerprint": "sha256:81ee659fe4a482433bc92d670a1ff28b6c414862d86c838488b3746e76154117",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        100
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Телефон\"",
+      "value": "Телефон",
+      "fingerprint": "sha256:822f9fd9ba2d117e7a4c1dd10c410eab7a3a5cc0417cd149633649cc5fb23c1b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        107
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не указан'",
+      "value": "Не указан",
+      "fingerprint": "sha256:0d836c1579f14bc01f8c010e81ae3b497c7d955539fdefbc4ede863e2c543d7e",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        107,
+        108
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Филиал\"",
+      "value": "Филиал",
+      "fingerprint": "sha256:2f17c4d223aa7d914d5a9aa05e1137606b1e614d1fd739a4b4104cb56b089af6",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        108
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Фамилия\"",
+      "value": "Фамилия",
+      "fingerprint": "sha256:353eafa3bb36787b37f02be05a00e5d99f377e3a9f53d1c8933276ba8f73b3aa",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Имя\"",
+      "value": "Имя",
+      "fingerprint": "sha256:1da7e9372e2f45a27895aaa5f6bd05d1197c3b857ffa522fd01edb44efee0547",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        110
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не указано'",
+      "value": "Не указано",
+      "fingerprint": "sha256:ba4d4bf67a659ba70812692a107507835ac9eab43d88e39da3c9eb214bdfb78e",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        110,
+        111
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Отчество\"",
+      "value": "Отчество",
+      "fingerprint": "sha256:e1739d0abcc0b3548cbc1a3f41f1accf514123ee1438bd3641a333a7da3889cf",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        111
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дата рождения\"",
+      "value": "Дата рождения",
+      "fingerprint": "sha256:1ae7206660f5674e9b73cd6191777e5452c95b40dde437738b07126e872008b2",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        114
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Возраст\"",
+      "value": "Возраст",
+      "fingerprint": "sha256:35c7d5b1292d52391fa9ed59a3e6557fcac53d596fd7fdcdfc0364e5242ecf37",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        115
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группы\"",
+      "value": "Группы",
+      "fingerprint": "sha256:cd8c587351082be473439ecec5b3c144b4723fc8943dec8c4c2adc5f578bbede",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        116
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Контакты\"",
+      "value": "Контакты",
+      "fingerprint": "sha256:fca8d5aa3c1aef3237e727b299bb330e74aaf71e545a439c1f918a5a31a87629",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        117
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Посещений\"",
+      "value": "Посещений",
+      "fingerprint": "sha256:48df6512a60064b7d729971869b99626edf5b292348da5e22b0087e5f133a668",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        118
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Последнее посещение\"",
+      "value": "Последнее посещение",
+      "fingerprint": "sha256:894707a3148c10c0f18defbaefc9db190bff83b22f4be8334628e77f86bc265a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        120
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дата оплаты\"",
+      "value": "Дата оплаты",
+      "fingerprint": "sha256:6611d56d6110e115950f2d8af335d615c93d64dcca0d8d04cd614fe388ecd973",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        52,
+        119
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Подтвердить новую продажу?\"",
+      "value": "Подтвердить новую продажу?",
+      "fingerprint": "sha256:d1df3de6e4b255bb44593ce59e2ea38c613d38c9934cf633d3d4d9d1c85542d3",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        93
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверьте способ расчёта и фактическую сумму. Эти данные сохранятся\n          в истории продажи.\n        ",
+      "value": "Проверьте способ расчёта и фактическую сумму. Эти данные сохранятся в истории продажи.",
+      "fingerprint": "sha256:5e85c193747e5aefb56e330e08b5a79895da4264e5b36657e31627d211b17e15",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        98
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Способ расчёта\"",
+      "value": "Способ расчёта",
+      "fingerprint": "sha256:1413919eba2341900f5f647617cbb29ae950a848eb7d690b903e68d8c0b65da9",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        103
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не выбран'",
+      "value": "Не выбран",
+      "fingerprint": "sha256:d77dfdcd175bc81e734ac4a1922b8d1ed662ccdb5cde04108daf3a7dd316d721",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        107
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Фактическая сумма\"",
+      "value": "Фактическая сумма",
+      "fingerprint": "sha256:625ac7ac0e19288363d0b70d0f327994bd5dc7c196d42b702e5b0c8959f1a25c",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        111
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не указана'",
+      "value": "Не указана",
+      "fingerprint": "sha256:f16cbd327049b31c8f77bbc0bc8f695338f72889a996cfef5acbf40986c55a41",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        115
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Группы абонемента\n            ",
+      "value": "Группы абонемента",
+      "fingerprint": "sha256:bb3893c53d1c8ebe4cf98663765afbb5286d3833006bc01d8518ba97719e9053",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        126
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отчётность · '",
+      "value": "Отчётность · ",
+      "fingerprint": "sha256:68f7b03502b0b99b840e3d3683ec79126114a5fe55d9ddb6a0068b4658d9f0dc",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        130
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n          ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        137
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Подтвердить продажу\n          ",
+      "value": "Подтвердить продажу",
+      "fingerprint": "sha256:cc77c58cffa1e10b9314782980e46d0d3786de6e19407d900855981db17241ed",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        140
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите целевой филиал.'",
+      "value": "Выберите целевой филиал.",
+      "fingerprint": "sha256:02733009682109ac70c280fc160109461b88ba8415af0e5fef0732482390761a",
+      "context": {
+        "kind": "property",
+        "name": "branchId"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        58
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Перевод клиента\"",
+      "value": "Перевод клиента",
+      "fingerprint": "sha256:5df21aa1f29616a16a89d62af97a1d3e2455d432c51116f1973bc590b2f136e0",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        70
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Текущий филиал\"",
+      "value": "Текущий филиал",
+      "fingerprint": "sha256:e054a7e5926e4afb7db2d41e56e48ad7b8d58838e2b3ef2f7010d75f02a1c79f",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не указан'",
+      "value": "Не указан",
+      "fingerprint": "sha256:0d836c1579f14bc01f8c010e81ae3b497c7d955539fdefbc4ede863e2c543d7e",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        79
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Текущая группа\"",
+      "value": "Текущая группа",
+      "fingerprint": "sha256:4ebcb19fa3fce076851b8861b0f1451a393e7123d90f25f2f8d5fe4dab7f9155",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        82
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Без группы'",
+      "value": "Без группы",
+      "fingerprint": "sha256:9ed5aecdd190af4cd49c0e5f005ed465e18f0a2d1ea79dab7194ef72dfef0284",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        83
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Перевод не выполнен\"",
+      "value": "Перевод не выполнен",
+      "fingerprint": "sha256:3451ed5fd1ab44ca3819740fa38a88902e9ae2912aa421346552622fd4ad5f94",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        92
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Целевой филиал\"",
+      "value": "Целевой филиал",
+      "fingerprint": "sha256:9caac9e221c47bfc9a368496fbc2e299767c6c52302b39f9ea5bc81c03d2d77f",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        107
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загружаем филиалы'",
+      "value": "Загружаем филиалы",
+      "fingerprint": "sha256:00d475e1d9f8dcf9c139fff524cae36ae52100e14c0fbcd62a556a7336b0eb9e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите филиал'",
+      "value": "Выберите филиал",
+      "fingerprint": "sha256:4c5ee5d81244b373bb3f6f57f94f35412ce9dde46aa27899a9ff490a4cab6fa1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Новая группа\"",
+      "value": "Новая группа",
+      "fingerprint": "sha256:c9fd9fc0e5d2198dab9dcf985de7e5a46f30be1b4924072417ad0bcc8de99335",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        123
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Можно оставить без группы'",
+      "value": "Можно оставить без группы",
+      "fingerprint": "sha256:49b5e8d173051e412e28911bbddf3182eb779ca837e528822a70ec925c3e2f13",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сначала выберите филиал'",
+      "value": "Сначала выберите филиал",
+      "fingerprint": "sha256:74f8ad03e184e5cfc7fb33af1691cfbc3f726b88f0a3d1c34e4d35411265574a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        128
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n            ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        137
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Перевести клиента\n            ",
+      "value": "Перевести клиента",
+      "fingerprint": "sha256:a8186ce38392771cb4316061423a873cd2ea63feaaab4301c2fe4cbb1a389cb6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        144
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'января'",
+      "value": "января",
+      "fingerprint": "sha256:05ae68ac92130e38dafe816006c2f7ac29ccac80c1cb54ad5e16034f9927ac16",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        8
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'февраля'",
+      "value": "февраля",
+      "fingerprint": "sha256:3ae2c0e9eb40fc6ab7b19b3e01e589d57ca80927ed874c4aec502c566e8dc71f",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        9
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'марта'",
+      "value": "марта",
+      "fingerprint": "sha256:6cfa0bb4f64f1f021aa38ccb26890307f18c7d3c62179f8c651080908ceac011",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        10
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'апреля'",
+      "value": "апреля",
+      "fingerprint": "sha256:3144ee44fceaf46ab4e2f7203a8d00d0e0fe5d02847b8f021e4f6d541824a839",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        11
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'мая'",
+      "value": "мая",
+      "fingerprint": "sha256:2869fa115ca7749998b9ae98ef853d63449f68fcb9d7d9a63765a6d429bdfbad",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        12
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'июня'",
+      "value": "июня",
+      "fingerprint": "sha256:b4c08e7bdac3c453a307136cb7c3ea74bbead4a546e55074ce941b3ba01abe1b",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        13
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'июля'",
+      "value": "июля",
+      "fingerprint": "sha256:a18a66ad6559a96e54b14948124be326458cee7b8148874ed4df023e0a94a48d",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        14
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'августа'",
+      "value": "августа",
+      "fingerprint": "sha256:4ae69d9dc752dc16fac375bc7fb1f75ddb9d4dc75c66d09aa5c95793788adeb4",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        15
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'сентября'",
+      "value": "сентября",
+      "fingerprint": "sha256:67cb393e7589d9c974931f544add1bc30a3c8737e6237988345414617504d336",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        16
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'октября'",
+      "value": "октября",
+      "fingerprint": "sha256:fd088563342fe69cb541d011237b93b8944f02291d04a607a4ec9766fc69377f",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        17
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'ноября'",
+      "value": "ноября",
+      "fingerprint": "sha256:01bd45259743875d3bba680b0e9359a630f5452dc8134ea6d508e0c266eaaa91",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        18
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'декабря'",
+      "value": "декабря",
+      "fingerprint": "sha256:866b5e92d80add0370d553b5dfe355b1b227286dbec42ac4e599c7b2d4b68c9c",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        19
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${parts.day} ${russianMonthNames[parts.month - 1]} ${formatYear(parts.year)} г.`",
+      "value": "`${parts.day} ${russianMonthNames[parts.month - 1]} ${formatYear(parts.year)} г.`",
+      "fingerprint": "sha256:5d0c128d4fb23d645cdc1bfd65ef6aba225b9d7e6443b78cdc424886eb548f70",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        29
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не вычисляется'",
+      "value": "Не вычисляется",
+      "fingerprint": "sha256:d80ff85ca0385d42482d5145ead8037abd587c489366f206b6a0d9fa2eafd59c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        62
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${age} лет`",
+      "value": "`${age} лет`",
+      "fingerprint": "sha256:2df85a9d3ec1d64d365c67b50582f989818432e71380d3f596b9201eeea8c06c",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        135,
+        146
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${age} год`",
+      "value": "`${age} год`",
+      "fingerprint": "sha256:a612da0bcba15b17d7d27a1ea5240bc6bd94d396c4603350d6d031622c9261a6",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        139
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/clients/clientBirthDate.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${age} года`",
+      "value": "`${age} года`",
+      "fingerprint": "sha256:9a991fb58f5d9799aca041c040aaf3e5e8bedc3618d21393dbb5247080b95133",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        143
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-profile",
+      "slice": "FE-6-client-profile",
+      "review_status": "proposed"
+    }
+  ]
+}

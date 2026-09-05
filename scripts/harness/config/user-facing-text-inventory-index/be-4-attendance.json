@@ -1,0 +1,363 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "BE-4-attendance",
+  "entry_count": 16,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AdministratorAttendanceGroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/attendance-grant-concurrency-conflict\"",
+      "value": "/problems/attendance-grant-concurrency-conflict",
+      "fingerprint": "sha256:26afc9b79049e64b5ec50ffe4694688141da471979bc4a35a796631afc935667",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/attendance-grant-concurrency-conflict\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        86
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AdministratorAttendanceGroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/attendance-grant-branch-forbidden\"",
+      "value": "/problems/attendance-grant-branch-forbidden",
+      "fingerprint": "sha256:160ed2fa8139e244582e9fa04414e6080c4f2742e9d5152c0d03f899b709fb8e",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/attendance-grant-branch-forbidden\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        91
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AdministratorAttendanceGroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/attendance-grant-inactive-resource\"",
+      "value": "/problems/attendance-grant-inactive-resource",
+      "fingerprint": "sha256:273288f51835c1e4240a12498f10ca42cc855afb36f93426ee601d45d2a80c92",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/attendance-grant-inactive-resource\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.\"",
+      "value": "Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.",
+      "fingerprint": "sha256:b0e5ed1927d38ceea0083a5accbbc75db2a796d6f843f867e49d7fefc02f2d0b",
+      "context": {
+        "kind": "source-line",
+        "name": "AttendanceBatchMutationError.MembershipEntitlementInvariantConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(\"Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.\"),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        462,
+        598
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/lesson-occurrence-not-found\"",
+      "value": "/problems/lesson-occurrence-not-found",
+      "fingerprint": "sha256:fe59f2e0f19fdf45d6cc84d7fc549f6842984bbb74ddc18c1d442ba77a980a98",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = \"/problems/lesson-occurrence-not-found\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        780
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Lesson occurrence was not found for the supplied date locator.\"",
+      "value": "Lesson occurrence was not found for the supplied date locator.",
+      "fingerprint": "sha256:a0d4e31f1b7e44a1e261d25b7ba0fb0200d0eccd1ad87e483c89bc68b745f2af",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Lesson occurrence was not found for the supplied date locator.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        781
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/lesson-attendance-state-conflict\"",
+      "value": "/problems/lesson-attendance-state-conflict",
+      "fingerprint": "sha256:47c79c77ae34eb304fdb4fa416041206c5b050f711a38a17fb9088aca79f3ad9",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = \"/problems/lesson-attendance-state-conflict\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        794
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Lesson occurrence attendance cannot be changed in its current state.\"",
+      "value": "Lesson occurrence attendance cannot be changed in its current state.",
+      "fingerprint": "sha256:a47bee819d709f506912d240d7620582a750042aa92ada687bccba12fe864582",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Lesson occurrence attendance cannot be changed in its current state.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        795
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/attendance-legacy-write-disabled\"",
+      "value": "/problems/attendance-legacy-write-disabled",
+      "fingerprint": "sha256:6d263ac27c93cfc84e16f196183fc477694241a0f99f3fe9e07ecc4753c9a95c",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = \"/problems/attendance-legacy-write-disabled\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        808
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Legacy attendance write endpoint is disabled\"",
+      "value": "Legacy attendance write endpoint is disabled",
+      "fingerprint": "sha256:acdeea914a062769fa37400c1d8e108912850f8435a0fd8426309062b88f8929",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Legacy attendance write endpoint is disabled\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        809
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Attendance writes must target an exact lesson occurrence.\"",
+      "value": "Attendance writes must target an exact lesson occurrence.",
+      "fingerprint": "sha256:84c16769a93891a9616db703b5f253aa03d6ac4a1799bb2535d2f7f185f0a082",
+      "context": {
+        "kind": "source-line",
+        "name": "Detail = \"Attendance writes must target an exact lesson occurrence.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        810
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Дата занятия должна быть в формате {lessonDateFormat}.\"",
+      "value": "Дата занятия должна быть в формате {lessonDateFormat}.",
+      "fingerprint": "sha256:e5c8412a447ca6c2bd15ebaa7dff9dca550abf061b4de704f35e765f94d886c6",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"lessonDate\"] = [$\"Дата занятия должна быть в формате {lessonDateFormat}.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        20
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"attendanceMarks\"",
+      "value": "attendanceMarks",
+      "fingerprint": "sha256:357b2782894e321ec7e01427a4201a8d844efa9dba2fd46eb51a52d5d7cb1582",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"attendanceMarks\"] = [message]"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        28
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Дата посещаемости недоступна для роли пользователя.\"",
+      "value": "Дата посещаемости недоступна для роли пользователя.",
+      "fingerprint": "sha256:1cd5b8f397cec0f8f3a29b995d705494209134912f1d7dd566abef8933be52fa",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"trainingDate\"] = [\"Дата посещаемости недоступна для роли пользователя.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        44
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/attendance-group-forbidden\"",
+      "value": "/problems/attendance-group-forbidden",
+      "fingerprint": "sha256:62b342de204d5d18c388c8ff3f07ce9bbed67318d46f2783a39370c5a178e3ac",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = \"/problems/attendance-group-forbidden\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        52
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Attendance group is not available for the current user.\"",
+      "value": "Attendance group is not available for the current user.",
+      "fingerprint": "sha256:bfcdb65769c464caaafa7b084d62bb5a66ebc7f916fb00eef5e41e4fe7e1149c",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Attendance group is not available for the current user.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        53
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/attendance",
+      "slice": "BE-4-attendance",
+      "review_status": "proposed"
+    }
+  ]
+}

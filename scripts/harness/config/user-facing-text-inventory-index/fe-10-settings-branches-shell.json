@@ -1,0 +1,2349 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-10-settings-branches-shell",
+  "entry_count": 106,
+  "entries": [
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить филиалы и залы.'",
+      "value": "Не удалось загрузить филиалы и залы.",
+      "fingerprint": "sha256:bcb7882e72ed1f3c8348d888160fe32c51077ab8a39937fc064c386929b7faae",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Филиал создан'",
+      "value": "Филиал создан",
+      "fingerprint": "sha256:e5873c80495e5f4db07b40d2137535837ed686210f58b9df809deb945090af36",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        236
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Филиал обновлен'",
+      "value": "Филиал обновлен",
+      "fingerprint": "sha256:a3a972eaf9fcfaf627036282c220d418c9553e28350613ee75dd13dd74b16e9f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        237
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Филиал «${savedBranch.name}» сохранен.`",
+      "value": "`Филиал «${savedBranch.name}» сохранен.`",
+      "fingerprint": "sha256:6443763c3864bfed8b1ede6def47ba776623db02bb4955fcf8333f251f028e88",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        238
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить филиал.'",
+      "value": "Не удалось сохранить филиал.",
+      "fingerprint": "sha256:edc2801ed0573e0e134bf68b96c817a9bd9afe97e9dbe3aa9ead6a17fe69e763",
+      "context": {
+        "kind": "call-argument",
+        "name": "setActionError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        248
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Зал обновлен'",
+      "value": "Зал обновлен",
+      "fingerprint": "sha256:0143b43baf7185ddf785c85965cbe759de7cffa108062e30b89e318bd368f51e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        283
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Зал создан'",
+      "value": "Зал создан",
+      "fingerprint": "sha256:b6a816b267bff2eaedabb8f8e5fdd814e62671c21573a211cdda62d325e11ddf",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        283
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Зал «${savedHall.name}» сохранен.`",
+      "value": "`Зал «${savedHall.name}» сохранен.`",
+      "fingerprint": "sha256:9055dca1fe363c22193bc0a123c649c7cecd35e8b45c541fc76d758b30e3be4c",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        284
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить зал.'",
+      "value": "Не удалось сохранить зал.",
+      "fingerprint": "sha256:860660d3063de8ae34311e2e5bd8594201d486928f54026febc9bd14e0c0be6e",
+      "context": {
+        "kind": "call-argument",
+        "name": "setActionError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        295
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Филиал архивирован'",
+      "value": "Филиал архивирован",
+      "fingerprint": "sha256:47862d953781db5bf08c49403d1e8f9eb3755d3e8f3a7f434667722331ce6297",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        314
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Филиал возвращен'",
+      "value": "Филиал возвращен",
+      "fingerprint": "sha256:fdb40bc223cdd6673ea489d93873ec415f69b9c257e1cb8ae5ad4a6e69bac0a0",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        315
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Филиал «${updatedBranch.name}» обновлен.`",
+      "value": "`Филиал «${updatedBranch.name}» обновлен.`",
+      "fingerprint": "sha256:f9bc60e609bd71638c85588a39a1dded06436de0bd524a67d17481c1548353d3",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        316
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось изменить статус филиала.'",
+      "value": "Не удалось изменить статус филиала.",
+      "fingerprint": "sha256:866cb8e4edff68c6c1c7003675360495d71e485bdb4ef5a7d3692ad0bf4712d0",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        323
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Зал архивирован'",
+      "value": "Зал архивирован",
+      "fingerprint": "sha256:4824b8e00b8003261e2b1a501c68113a899cd0ad5ebcb2a6438900b17f8608c5",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        342
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Зал возвращен'",
+      "value": "Зал возвращен",
+      "fingerprint": "sha256:da34740be5f1809155c5a6e6f488365629032baa7319b14649843709b86d287a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        342
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Зал «${updatedHall.name}» обновлен.`",
+      "value": "`Зал «${updatedHall.name}» обновлен.`",
+      "fingerprint": "sha256:cf9f9867d78ae79d81d59d6fdfe8ad847884e733c7bef19069104487e82b2dce",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        343
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось изменить статус зала.'",
+      "value": "Не удалось изменить статус зала.",
+      "fingerprint": "sha256:b15110030c77a17975ff6ed128f991292898a0b95973fa458fd1e612aa6fc49a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        350
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Зал удален'",
+      "value": "Зал удален",
+      "fingerprint": "sha256:4229f0262a144bea7994add0d037059bdddb20f494991e6205bea834d4dcd894",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        372
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Зал «${hallToDelete.name}» удален из филиала.`",
+      "value": "`Зал «${hallToDelete.name}» удален из филиала.`",
+      "fingerprint": "sha256:204edcc3f09ef5d02eb67081448e406aaf082cc5ea6d81d1ce957ce5f63b6f5b",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        373
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось удалить зал.'",
+      "value": "Не удалось удалить зал.",
+      "fingerprint": "sha256:a2ba13b766de46c0c17ce9456f17d9206d7efc9c3f8be12912d04e7e58a1052a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        382
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Обновить\"",
+      "value": "Обновить",
+      "fingerprint": "sha256:603e460bf59cac0fe7907c71e2f185d8003cc560d43e8cff37369d22462b70bd",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        394
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Добавить филиал\"",
+      "value": "Добавить филиал",
+      "fingerprint": "sha256:4a7c49272b35a380388764023f73c262c5ded3c1b020cde9de4d0a96fceb29cb",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        402
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Действие не выполнено\"",
+      "value": "Действие не выполнено",
+      "fingerprint": "sha256:7530f803ba06c56fc9f37b01e650d538be036dbf6694848e967d1e1ce341bc27",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        420
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем филиалы и залы...\"",
+      "value": "Загружаем филиалы и залы...",
+      "fingerprint": "sha256:9b4fd5a570c9c6e4a9e30dd87b06adc5df87bd99cfd3963d1e51c903fbc01c87",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        427
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить\n                ",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        437
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Настройки не загрузились\"",
+      "value": "Настройки не загрузились",
+      "fingerprint": "sha256:b1c395268ccf05f6d94b9598f0b3fa9c9032c0fac6b54ba52f4b7abca15b5fbf",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        441
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"После создания филиала можно будет добавить залы и использовать их в формах CRM.\"",
+      "value": "После создания филиала можно будет добавить залы и использовать их в формах CRM.",
+      "fingerprint": "sha256:c4393b126c6c6092bf76380c0aeb605b032385a884dc179da5656ce3ea8fe7fc",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        447
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Филиалы пока не созданы\"",
+      "value": "Филиалы пока не созданы",
+      "fingerprint": "sha256:82d9adbb6d37f77d78f92be3cb461a5bb74dac82bb6795729e236b7f634043d6",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        449
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открыть филиал ${branch.name}`",
+      "value": "`Открыть филиал ${branch.name}`",
+      "fingerprint": "sha256:47c564446680b37e586f65fca3c1fb125147814c714fe87de84a2044f1a62e8f",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        461
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Архивный'",
+      "value": "Архивный",
+      "fingerprint": "sha256:0909dfc714fa81692efcb0443b666af8a939e43245676c03ccb0ed5aa4c3d5a9",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        486,
+        689
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активный'",
+      "value": "Активный",
+      "fingerprint": "sha256:be6881d53fa324cfa0468775e7a72e50282d67aed8163110a8210b3190c3353a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        486,
+        689
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Адрес не указан'",
+      "value": "Адрес не указан",
+      "fingerprint": "sha256:51f4db1bea63db6d79166a41844397d3617ead2d1597a12c7290a4d9d2df9212",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        490,
+        618
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· Групп: ",
+      "value": "· Групп:",
+      "fingerprint": "sha256:0d7606f35542957a01b922e8583ed9fdfae90bdabcebca5d8e0910be5ad00570",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        493
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· Клиентов: ",
+      "value": "· Клиентов:",
+      "fingerprint": "sha256:6ea69b072e0300efe671d3f5ea2647e4f93d2d7b0d28e8ec4789a410af876f08",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        493
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Залов: ",
+      "value": "Залов:",
+      "fingerprint": "sha256:f8d072c0f5eb8f8053a54358614d0736e365f12433851cc6c02d1e4745ef9ca4",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        493
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Удалить зал\"",
+      "value": "Удалить зал",
+      "fingerprint": "sha256:d15a5f042ea8eda61554d5cf747733245d4850e4b46408f914c433348f570550",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "confirmLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        542
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Backend не удалит зал «${hallToDelete.name}», если он уже используется группами.`",
+      "value": "`Backend не удалит зал «${hallToDelete.name}», если он уже используется группами.`",
+      "fingerprint": "sha256:978bfaa1cc48618437aa9eed88dd57d70f077d0b1e5e9fab50a57cb042d44909",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        545
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Удалить выбранный зал?'",
+      "value": "Удалить выбранный зал?",
+      "fingerprint": "sha256:4e52991b96f03ccb7d6ed74298c2d707c7c1ccfe8554e40ebfcdad93b4a816a2",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        546
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Удалить зал?\"",
+      "value": "Удалить зал?",
+      "fingerprint": "sha256:137fecaea90e32cbcd4287080dfeeaaf27187f56d04762e88a0d6568647d73e4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        552
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Филиалы и залы\"",
+      "value": "Филиалы и залы",
+      "fingerprint": "sha256:3e453a66e7ecc31e19277c0ac6b34ec51f7eff820905c4fe5f5a8bb39a988006",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        562
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Выберите филиал в списке.\n        ",
+      "value": "Выберите филиал в списке.",
+      "fingerprint": "sha256:5ef593520c83b973c4bc2282a249dac8aee134b95809e87c9504c0fb3292922f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        601
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Редактировать\n            ",
+      "value": "Редактировать",
+      "fingerprint": "sha256:59792556fd0682484dde8d5ec7ddc8d312c6faa1c399a5ff26922a0c63f99757",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        629
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'В архив'",
+      "value": "В архив",
+      "fingerprint": "sha256:1ca665192a6aa111880aadd7336d64d0bfc7bc985575ad8f2cbb4d89cfe7247a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        640
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Вернуть'",
+      "value": "Вернуть",
+      "fingerprint": "sha256:5ae0e885f69deeeba606e4b61c70df516b2e44a5b8c7cd422c881d208da3f3eb",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        640
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Описание филиала пока не добавлено.\n          ",
+      "value": "Описание филиала пока не добавлено.",
+      "fingerprint": "sha256:5ae41424df049de64c1c0fa538ced81375ce17f908b7bb1558bdace982df6bdf",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        649
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Залы филиала",
+      "value": "Залы филиала",
+      "fingerprint": "sha256:a7076496740b5c3f0c67f54f5cb1bcc2cdad791424a25fb23c469aeac797205e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        655
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Зал выбирается в форме тренировочной группы.\n            ",
+      "value": "Зал выбирается в форме тренировочной группы.",
+      "fingerprint": "sha256:a47c0b9bb01cebdfa1e3ddd5698e99ed0d3d9f1dc36a471076567660d9156e02",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        657
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Добавить зал\n          ",
+      "value": "Добавить зал",
+      "fingerprint": "sha256:fd79d4d5646c94500848f429e99b81fee4244715d540c1529516a49077e0f1a7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        666
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Создайте первый зал, чтобы группы могли ссылаться на место тренировок.\"",
+      "value": "Создайте первый зал, чтобы группы могли ссылаться на место тренировок.",
+      "fingerprint": "sha256:29f0398258d968fb4c4873ebdf71ab2c7b7b73d239e6166b9104a4c301ea626a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        672
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Залы пока не созданы\"",
+      "value": "Залы пока не созданы",
+      "fingerprint": "sha256:387e19a9e4c1c06ade4c313ec01c1b45c9d41b3ae1d9b45af82470e03580a866",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        674
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Групп: ",
+      "value": "Групп:",
+      "fingerprint": "sha256:c72164c0b72f040eefcf68735e3a1afc0800da545ef1547ecc985c97a73a3506",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        692
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Описание не добавлено'",
+      "value": "Описание не добавлено",
+      "fingerprint": "sha256:15106c19fe9ef832e00769e283f1e863916d963038dc5c59f6985cf95fdb3d20",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        696
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Редактировать зал ${hall.name}`",
+      "value": "`Редактировать зал ${hall.name}`",
+      "fingerprint": "sha256:1b633f97cd90af2e8d709c3b7e124e2d2bf7ef4d30187a065d2aef106f7db49d",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        702
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Вернуть зал ${hall.name}`",
+      "value": "`Вернуть зал ${hall.name}`",
+      "fingerprint": "sha256:c34fa15a3850c8c7da34e074d0847c95f5dd573e552c60d8b4d16174d23878ad",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        712
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Архивировать зал ${hall.name}`",
+      "value": "`Архивировать зал ${hall.name}`",
+      "fingerprint": "sha256:1cc27ebf523c8fca24761001b32e13478ded390bd85dbf087355584094aed13b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        713
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Удалить зал ${hall.name}`",
+      "value": "`Удалить зал ${hall.name}`",
+      "fingerprint": "sha256:723fe81a7dac9b85da8ce398e37f878fffbfa6a9abf0fd218c602c7cde868c12",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        728
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактировать филиал'",
+      "value": "Редактировать филиал",
+      "fingerprint": "sha256:0cafa3213c8950994962be6e518a9aff05a88280aa4b49b23f5f78a5a533f39b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        769
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новый филиал'",
+      "value": "Новый филиал",
+      "fingerprint": "sha256:53340e79c5e47339a52e8b542e9e9d760a07634139bb29cf155b24f55cb6fb92",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        769
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Название филиала\"",
+      "value": "Название филиала",
+      "fingerprint": "sha256:1365378215068e326116af0a1bb2a1944fd2980b9338fadf3c0584d8b8fa40c5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        775
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Например, Центр\"",
+      "value": "Например, Центр",
+      "fingerprint": "sha256:e61a6c677d774883449c7d441d7fa6b5800b27f9032ff338cd0240e2229f8f4d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        776
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Адрес\"",
+      "value": "Адрес",
+      "fingerprint": "sha256:da82e80563d75a61fbce09312eacb845cd9004e2e68839c57a00133596688c55",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        780
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Город, улица, дом\"",
+      "value": "Город, улица, дом",
+      "fingerprint": "sha256:00fbfc3f798a95d95275b9c9569317658797a74e22055fa89519cb01837733b3",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        781
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Описание\"",
+      "value": "Описание",
+      "fingerprint": "sha256:b3680f2cba5f35d05b8dde72b8109a73216f60b0d3bc2208afc7ee07ba90f3a9",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        786,
+        850
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Короткая заметка для администраторов\"",
+      "value": "Короткая заметка для администраторов",
+      "fingerprint": "sha256:fcff79af6d5e3cbe32a8f2a5a423ebb1713c92c5d66e95bc3b585e94d6516e1e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        788
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n            ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        794,
+        858
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить\n            ",
+      "value": "Сохранить",
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        801,
+        865
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новый зал'",
+      "value": "Новый зал",
+      "fingerprint": "sha256:58270ae4fa8a37aa954dec9ba2c1f47a3a31bd9cb6c2d1a03f5bfb279d5911e0",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        833
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактировать зал'",
+      "value": "Редактировать зал",
+      "fingerprint": "sha256:b199b4abba13c09aa6fee725678cfe740eeed894679bb6b9258f7730f25e7d9f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        833
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Филиал: ",
+      "value": "Филиал:",
+      "fingerprint": "sha256:40c98d2e63c971acf26b795b30a6f4401de94f0267f79d585143204c7143b613",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        840
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не выбран'",
+      "value": "Не выбран",
+      "fingerprint": "sha256:d77dfdcd175bc81e734ac4a1922b8d1ed662ccdb5cde04108daf3a7dd316d721",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        840
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Название зала\"",
+      "value": "Название зала",
+      "fingerprint": "sha256:7f0772774654755316dc9c42d371e149bde956dcd0e150d07e6eb13da096f971",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        844
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Например, Основной зал\"",
+      "value": "Например, Основной зал",
+      "fingerprint": "sha256:4b0e7dac21f84a08ef37ab13b8d1afa42031e67c68ff45c91ba8e13d345b3535",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        845
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Покрытие, вместимость или служебная заметка\"",
+      "value": "Покрытие, вместимость или служебная заметка",
+      "fingerprint": "sha256:caae3b66cc2faf4500d58635aeed3979707922093cb15b4e54131cd660702e38",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        852
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Настройки\"",
+      "value": "Настройки",
+      "fingerprint": "sha256:985b5e0f2ccf1ba08ac53253af32d2e9a600b846d3f3b99978f28d177388b9fa",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        65
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Абонементы\n            ",
+      "value": "Абонементы",
+      "fingerprint": "sha256:b2644036d79bf411bda39f4a5e31c29689314262fe0c034c26f2207e2b05d737",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        75
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Типы групп\n              ",
+      "value": "Типы групп",
+      "fingerprint": "sha256:99c433e6744fd7ee383662c3780bac8b777f30e527c16b44da1886906e1cdb0c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        82
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Филиалы и залы\n              ",
+      "value": "Филиалы и залы",
+      "fingerprint": "sha256:3e453a66e7ecc31e19277c0ac6b34ec51f7eff820905c4fe5f5a8bb39a988006",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        90
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Администраторы\n              ",
+      "value": "Администраторы",
+      "fingerprint": "sha256:0a3fd3c757393b340d4146007bb3c32fb8c6ce32c7fbc4f056f6c344be2d287b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        98
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите название типа.'",
+      "value": "Введите название типа.",
+      "fingerprint": "sha256:2fea0015ce61b01ff3bc10d5d3ac541c1efe239952d9b7b2cac3968339774662",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        161
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить типы групп.'",
+      "value": "Не удалось загрузить типы групп.",
+      "fingerprint": "sha256:aa06a03122de127acbee8786a8de25cd70a364c9d034076483b4d9e74cf086f2",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        182
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип группы обновлен'",
+      "value": "Тип группы обновлен",
+      "fingerprint": "sha256:0b22e53e3c5b2b92a3d9b4b639cda241af17a1ec3cd29078af667043aa390d8b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        245
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип группы создан'",
+      "value": "Тип группы создан",
+      "fingerprint": "sha256:33718ea55509925ef01c2fed58ffc26d4686cdcc1b6f5810185f660ce83ee7bb",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        245
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Справочник «${savedGroupType.name}» сохранен.`",
+      "value": "`Справочник «${savedGroupType.name}» сохранен.`",
+      "fingerprint": "sha256:eae6ee5521619d79ba75b71df5553d7e3730547d651046673c466d8c170c8053",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        246
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить тип группы.'",
+      "value": "Не удалось сохранить тип группы.",
+      "fingerprint": "sha256:a7a0522414bad93f02009c8d30f3d697160cf7a1d5f97d73edeb9fa532bdb043",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        256
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип группы удален'",
+      "value": "Тип группы удален",
+      "fingerprint": "sha256:a040ef93e109856e9fbdf23e6eaa26084a63decd2ec3706997b429025fde39c1",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        276
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Справочник «${groupTypeToDelete.name}» удален.`",
+      "value": "`Справочник «${groupTypeToDelete.name}» удален.`",
+      "fingerprint": "sha256:7c4f3bcafa26141b4c718c7abf92c78d72cb641e78caed648c981560315c2a24",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        277
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Удаление не выполнено'",
+      "value": "Удаление не выполнено",
+      "fingerprint": "sha256:cf16993b3354afcfcc7db744a975e9623b1f60840814586cd83ef439d54580ff",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        284
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось удалить тип группы.'",
+      "value": "Не удалось удалить тип группы.",
+      "fingerprint": "sha256:418d81495d6b36dc72549b027c2f2f9049d6a8210980713542f40f919aad8782",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        288
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Добавить тип\"",
+      "value": "Добавить тип",
+      "fingerprint": "sha256:ead26ac8e7428c74d128d921fa47a6c07741d8f5ea92be0cdec9555006422373",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        305
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем типы групп...\"",
+      "value": "Загружаем типы групп...",
+      "fingerprint": "sha256:81dcfe1aa029ac5b65c98a67cf1e1afb10fa51fefa6127713433f12361baeb44",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        312
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Типы групп не загрузились\"",
+      "value": "Типы групп не загрузились",
+      "fingerprint": "sha256:d81794fff27ea320ea3ba06657f198e29ea6719e02cb158606abb05a33a2d26b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        315
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Типы групп пока не заведены\"",
+      "value": "Типы групп пока не заведены",
+      "fingerprint": "sha256:534bb5eaebef4c3633a41fc423a26ac12ea5bb3254c65aad6eeea6b066da9bbe",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        321
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Групп: ",
+      "value": "Групп:",
+      "fingerprint": "sha256:c72164c0b72f040eefcf68735e3a1afc0800da545ef1547ecc985c97a73a3506",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        340
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Редактировать\n                      ",
+      "value": "Редактировать",
+      "fingerprint": "sha256:59792556fd0682484dde8d5ec7ddc8d312c6faa1c399a5ff26922a0c63f99757",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        356
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Удалить\n                      ",
+      "value": "Удалить",
+      "fingerprint": "sha256:be99b13612015a48305ed2eddee74aa89288783185407708cd30157daf7942c2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        365,
+        426
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новый тип группы'",
+      "value": "Новый тип группы",
+      "fingerprint": "sha256:3459cccce1824ffa14c7dcf0aa70daa38ccc062beb820ae4921e672b20519122",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        381
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование типа'",
+      "value": "Редактирование типа",
+      "fingerprint": "sha256:ed4e0fd46e6f170becf28e4aa854dcabd120b09b414a19e8db13a4db16ba5893",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        381
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранение не выполнено\"",
+      "value": "Сохранение не выполнено",
+      "fingerprint": "sha256:09e1875e6459e25d731db8efe457f31da522b97b5c3d3609ca67e24d6cb12eee",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        389
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Название\"",
+      "value": "Название",
+      "fingerprint": "sha256:0918b4ba92684eaa28459bf0d624ca4f720b413b839792afd9e11cdc62253995",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        396
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Например, Детская группа\"",
+      "value": "Например, Детская группа",
+      "fingerprint": "sha256:070fa4aa9706908df3bf3a4731ff50a0c07184d1e1800f3ac3c40fabbe8beeac",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        397
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Описание\"",
+      "value": "Описание",
+      "fingerprint": "sha256:b3680f2cba5f35d05b8dde72b8109a73216f60b0d3bc2208afc7ee07ba90f3a9",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        402
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Краткое пояснение для администраторов\"",
+      "value": "Краткое пояснение для администраторов",
+      "fingerprint": "sha256:00d135e455596000db793e09c8a0f5c0d41e6498e17e7f77d3c3b9a965511bc6",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        404
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n              ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        410
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить\n              ",
+      "value": "Сохранить",
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        417
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Тип «${groupTypeToDelete?.name ?? ''}» будет удален из справочника.`",
+      "value": "`Тип «${groupTypeToDelete?.name ?? ''}» будет удален из справочника.`",
+      "fingerprint": "sha256:2dd95e54852911ab13805ccc905746c4c830c9a1567c0734a26ef67860a9c186",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        427
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Удалить тип группы?\"",
+      "value": "Удалить тип группы?",
+      "fingerprint": "sha256:f99a8a6fe978731b515345e2eeba3911c09230229c0895e1e29d655512c600a3",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        432
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-branches",
+      "slice": "FE-10-settings-branches-shell",
+      "review_status": "proposed"
+    }
+  ]
+}

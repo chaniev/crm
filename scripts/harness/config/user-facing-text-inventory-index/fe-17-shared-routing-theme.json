@@ -1,0 +1,3027 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-17-shared-routing-theme",
+  "entry_count": 136,
+  "entries": [
+    {
+      "path": "frontend/src/features/shared/ActiveFiltersBar.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Активные фильтры\"",
+      "value": "Активные фильтры",
+      "fingerprint": "sha256:11c117e1f410af3ecfcfecb889849ae9ac6401295853c67c627a559abcc0096f",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        29
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ActiveFiltersBar.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Удалить фильтр «${filter.label}»`",
+      "value": "`Удалить фильтр «${filter.label}»`",
+      "fingerprint": "sha256:24308fe48611b1805c4cc8e60e7eb6c2ef4c7e9dbf7b4a7b36e71e137f34d155",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        38
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сбросить поисковый запрос\"",
+      "value": "Сбросить поисковый запрос",
+      "fingerprint": "sha256:428def6e5d7e4df3708136527f00e6f4861df7360181b2c89e57c5ebaeb60018",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открыть фильтры, активно ${activeFilterCount}`",
+      "value": "`Открыть фильтры, активно ${activeFilterCount}`",
+      "fingerprint": "sha256:e78405aee47ce39d2df0d89a5761bd67a7efe1bdbd6681ba6e10be99260b1380",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        100
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Открыть фильтры'",
+      "value": "Открыть фильтры",
+      "fingerprint": "sha256:1d04cab7a0a95fdc1c774bc1342259ca9adde858edb5bdbcd52bdc3f9283c6b7",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        101
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Фильтры",
+      "value": "Фильтры",
+      "fingerprint": "sha256:a69757b1dbe17b1462c04ba462fbc20126d5e452cdd481fbc073e4322bc214f8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ListRangeStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'есть ещё'",
+      "value": "есть ещё",
+      "fingerprint": "sha256:81a306d7264cdfe5a5ec4bca359a746dfb0edbcc814a058f210c007dcb36d39c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ListRangeStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'обновляем'",
+      "value": "обновляем",
+      "fingerprint": "sha256:eaa048e3aee25bc1c47fbcfdead4a2b55f9fd2ff95f684920897856204c98378",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        24
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ListRangeStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`из ${total}`",
+      "value": "`из ${total}`",
+      "fingerprint": "sha256:911657b5e22445de3f3a365a1f3c979b7ae25dd7fb63d4e6777a00df4ddd139e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        26
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ListRangeStatus.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "–",
+      "value": "–",
+      "fingerprint": "sha256:d4f85d36757c12f0c6dab57721287f327efbfc46ea8c0f820301067f8627fc0f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Мобильная навигация\"",
+      "value": "Мобильная навигация",
+      "fingerprint": "sha256:653566518fb63659f1e1855d00251383a0334243f7e33ca9bf757a36c47d0581",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        47
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Ещё, открыть остальные разделы\"",
+      "value": "Ещё, открыть остальные разделы",
+      "fingerprint": "sha256:da94ad109e00e1337e6c5708d27337bdc72a4df8f8af7d3f516d62d429d2aa07",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        74
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Ещё",
+      "value": "Ещё",
+      "fingerprint": "sha256:2071fb99050431712e60af0fe7ad59c29158386d28212c756f736de4f70586c7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        83
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Остальные разделы\"",
+      "value": "Остальные разделы",
+      "fingerprint": "sha256:9b2568a1fe81b4f67c1f5846ea80134655c8089a52ce799219b56fc4c3bb90e6",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        91,
+        112
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'mobile-bottom-nav__sheet-title'",
+      "value": "mobile-bottom-nav__sheet-title",
+      "fingerprint": "sha256:c1ee84891f39a7064356ca1896ef23054f7a5eaa1d16bbd0c1f57fc416e9c3de",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        99
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Закрыть остальные разделы'",
+      "value": "Закрыть остальные разделы",
+      "fingerprint": "sha256:f88e31a8d309a635fb30f6d6ed56fcd591df2e379c818957ceea9204842a4407",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        99
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/NavigationTabs.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Основная навигация'",
+      "value": "Основная навигация",
+      "fingerprint": "sha256:8fff0bba4454d28d6acd28aee587187982a6e69ee8f21b96c9cd8c899d0aa942",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        16
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/TaskToolbarActions.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Обновить'",
+      "value": "Обновить",
+      "fingerprint": "sha256:603e460bf59cac0fe7907c71e2f185d8003cc560d43e8cff37369d22462b70bd",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        72
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Готово'",
+      "value": "Готово",
+      "fingerprint": "sha256:ef05d57959cfde50d145153bdc66f9873ad699ce20c523cf040949ee5c404d4e",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        288
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Фильтры'",
+      "value": "Фильтры",
+      "fingerprint": "sha256:a69757b1dbe17b1462c04ba462fbc20126d5e452cdd481fbc073e4322bc214f8",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        292,
+        296
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ещё фильтры'",
+      "value": "Ещё фильтры",
+      "fingerprint": "sha256:190c22c647625e9d0055955060db735b95cd61311c7bd9ad1e24d9572a4abcb0",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        293
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сбросить'",
+      "value": "Сбросить",
+      "fingerprint": "sha256:407f871778d310700e1c7bd098be9d25e40f39c764c7f4879c0ec1aa4ca8401a",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        295
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Закрыть фильтры'",
+      "value": "Закрыть фильтры",
+      "fingerprint": "sha256:6772387862fc58be62ec3babe780ec1149d688d5694f2e014fa80ec43b6c1259",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        527
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        527,
+        841,
+        849
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Дальше'",
+      "value": "Дальше",
+      "fingerprint": "sha256:ea58bb0bc6d40423f5b97098bde287e26a1f1770290ed0ffeb187917cadb0c1a",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        808
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Назад'",
+      "value": "Назад",
+      "fingerprint": "sha256:1a9fb1f3cf8e189a74acd6849678ed4bdf80fde41ed2f9c35a85550b0e3586fa",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        812
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Страница ${pageNumber}, текущая`",
+      "value": "`Страница ${pageNumber}, текущая`",
+      "fingerprint": "sha256:15ddf70941bbe3285fb94dedba052dc61cbc8ec90ce21f11ce628d7e603a7052",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        864
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Страница ${pageNumber}`",
+      "value": "`Страница ${pageNumber}`",
+      "fingerprint": "sha256:5cfba733bf20c60043d041f621d2f0aa73cdcbd07677fe746898dff7deca08a6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        865
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загружаем данные...'",
+      "value": "Загружаем данные...",
+      "fingerprint": "sha256:648938b5c6c7fa37b6f244b775f0c63f1dd17ec7abc9f23e8c405e3bdb58bf2f",
+      "context": {
+        "kind": "BindingElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        935
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/administrators.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группа без названия'",
+      "value": "Группа без названия",
+      "fingerprint": "sha256:d8c07c442c6b11dc11eeb3a897e1df55ced73a3faaae4884081668a39696bb00",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        237
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Некорректный ответ списка занятий на сегодня.'",
+      "value": "Некорректный ответ списка занятий на сегодня.",
+      "fingerprint": "sha256:050a21f78d3d701a5f760c12dd9d54773bc157c990fd4ac91eadd4bac5c40bac",
+      "context": {
+        "kind": "call-argument",
+        "name": "requireRecord"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        44
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Некорректный ответ списка групп посещений.'",
+      "value": "Некорректный ответ списка групп посещений.",
+      "fingerprint": "sha256:277c36ba5560586e27b83778e0cca7e97e53f38528b06efdf4290b98b951977d",
+      "context": {
+        "kind": "call-argument",
+        "name": "requireRecord"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        58
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Некорректный ответ состава группы.'",
+      "value": "Некорректный ответ состава группы.",
+      "fingerprint": "sha256:91d6e39adeaa229b231dceed6f7cf52334f806020a000a44bc5760cc718b811a",
+      "context": {
+        "kind": "call-argument",
+        "name": "requireRecord"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        104
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Некорректный ответ сохранения посещения.'",
+      "value": "Некорректный ответ сохранения посещения.",
+      "fingerprint": "sha256:8f5495208a5a9d6bffdac1c1378c2e7494998355b27fb363af56b31a49b8fc74",
+      "context": {
+        "kind": "call-argument",
+        "name": "requireRecord"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        201,
+        263
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ответ состава группы не содержит группу.'",
+      "value": "Ответ состава группы не содержит группу.",
+      "fingerprint": "sha256:14d60c4c472fb9175441831e007ceafcf295458e197a84d1063125cd1c450c6b",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        212
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ответ состава группы не содержит дату занятия.'",
+      "value": "Ответ состава группы не содержит дату занятия.",
+      "fingerprint": "sha256:e0bd096d3e2123bf1519b2293545aee529363a5c578ea38a474fb4d711484a27",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        216
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ответ сохранения посещения не содержит группу.'",
+      "value": "Ответ сохранения посещения не содержит группу.",
+      "fingerprint": "sha256:8c0e01c128014f478ee241528c64ee8c709e38edda4f8167146cde5da2218bda",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        273
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ответ сохранения посещения не содержит дату.'",
+      "value": "Ответ сохранения посещения не содержит дату.",
+      "fingerprint": "sha256:9569db669dbb1fc5056f031a6329710a59b06ada55dd49fad62375c5e5a527fc",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        277
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ответ сохранения посещения содержит некорректную отметку.'",
+      "value": "Ответ сохранения посещения содержит некорректную отметку.",
+      "fingerprint": "sha256:6a2bab7fc2c4da937bc098b08fc4d7138077e0c0452c52edaa593685b2d4de11",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        296
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ответ состава группы содержит некорректное состояние посещения.'",
+      "value": "Ответ состава группы содержит некорректное состояние посещения.",
+      "fingerprint": "sha256:1592e0bfdd22ab6cb95beada6ff319ceb25aa07fd9980da8b84cc5379f411d51",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        465
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Без имени'",
+      "value": "Без имени",
+      "fingerprint": "sha256:0106f3ae25023cf58ed2b23e078a455399cb5da527c9f99cb9022733ba21a629",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        475
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/attendance.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ответ посещений не содержит календарную дату клуба.'",
+      "value": "Ответ посещений не содержит календарную дату клуба.",
+      "fingerprint": "sha256:4b13cbe81186d39e928cf467ef132e7e7b49e08a008c0ccf942abecf95b9e28d",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        549
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/audit.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Система'",
+      "value": "Система",
+      "fingerprint": "sha256:6da215b1bdac9524784ed4cafb60417fa10c0886c154601cac450ee623b20c97",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        196
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/clients.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Абонемент'",
+      "value": "Абонемент",
+      "fingerprint": "sha256:1139430b5881f6fea34f610bfa1f29b367173e25aa517749a3049cb9e00b83ce",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        545
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/clients.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Без имени'",
+      "value": "Без имени",
+      "fingerprint": "sha256:0106f3ae25023cf58ed2b23e078a455399cb5da527c9f99cb9022733ba21a629",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        763
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/clients.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Без групп'",
+      "value": "Без групп",
+      "fingerprint": "sha256:214235ceac5c75a5506590ce446c28e3abe1e04d1a855becd2e214afbc1fed78",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        825
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/clients.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${index + 1}. ${target.groupName || target.groupId}${index === 0 ? ' · отчётность' : ''}`",
+      "value": "`${index + 1}. ${target.groupName || target.groupId}${index === 0 ? ' · отчётность' : ''}`",
+      "fingerprint": "sha256:6080f2986b0d04795b6d9431c2f2adfd059ad798c827961afdc50447bc14fa88",
+      "context": {
+        "kind": "ArrowFunction",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        830
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/clients.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "' · отчётность'",
+      "value": " · отчётность",
+      "fingerprint": "sha256:c1136d0e710ccfb89c0899514986b8ed046c8f06565dead8b775da08224f25e9",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        830
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/clients.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Планово'",
+      "value": "Планово",
+      "fingerprint": "sha256:c19bb335acac7796dd21fbd2ff9f1d5d76a97754fe5c8e9a598abb055f779f45",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        923
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/clients.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группа без названия'",
+      "value": "Группа без названия",
+      "fingerprint": "sha256:d8c07c442c6b11dc11eeb3a897e1df55ced73a3faaae4884081668a39696bb00",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        1036
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/endpoints.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось выполнить запрос.'",
+      "value": "Не удалось выполнить запрос.",
+      "fingerprint": "sha256:747aa7a100a657d0d77b40cd0ad28b52083f593f2ba6eeb3f6d9bb68e4037a81",
+      "context": {
+        "kind": "variable",
+        "name": "DEFAULT_REQUEST_ERROR_MESSAGE"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        142
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/endpoints.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Проверьте значение поля.'",
+      "value": "Проверьте значение поля.",
+      "fingerprint": "sha256:8da2d9fc9d5f9abc553d0eacc28777310dc67d0d2a8d006a4939c418ccd8373c",
+      "context": {
+        "kind": "variable",
+        "name": "DEFAULT_FIELD_ERROR_MESSAGE"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        143
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/endpoints.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группа без названия'",
+      "value": "Группа без названия",
+      "fingerprint": "sha256:d8c07c442c6b11dc11eeb3a897e1df55ced73a3faaae4884081668a39696bb00",
+      "context": {
+        "kind": "variable",
+        "name": "DEFAULT_CLIENT_GROUP_NAME"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        147
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/groups.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Некорректный ответ списка групп.'",
+      "value": "Некорректный ответ списка групп.",
+      "fingerprint": "sha256:62ac1691390eab13a62dae1f59ba13882f197e399c2b35f604b1f7bb585f6389",
+      "context": {
+        "kind": "NewExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        328
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/api/mappers.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Без имени'",
+      "value": "Без имени",
+      "fingerprint": "sha256:0106f3ae25023cf58ed2b23e078a455399cb5da527c9f99cb9022733ba21a629",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        310
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Посещения'",
+      "value": "Посещения",
+      "fingerprint": "sha256:5f43e5f108583b8ff7ec0392d42ed9831978dc64530e9f1497ff2259d7913d7c",
+      "context": {
+        "kind": "property",
+        "name": "Attendance"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Внимание'",
+      "value": "Внимание",
+      "fingerprint": "sha256:f17ceff0aa95a3fd3a3a639c2ff55e4be2d4cd6514201adf1417b2bdd9363b55",
+      "context": {
+        "kind": "property",
+        "name": "Attention"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Расписание'",
+      "value": "Расписание",
+      "fingerprint": "sha256:924310227b1c2f4153d0a2cf602351ab502d9130ce266659cd242783d000091c",
+      "context": {
+        "kind": "property",
+        "name": "Schedule"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        97
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиенты'",
+      "value": "Клиенты",
+      "fingerprint": "sha256:ff296ddaedc5af313b4c04f0ab265913fc71e6dd924493d037940063d67ac80a",
+      "context": {
+        "kind": "property",
+        "name": "Clients"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        98
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группы'",
+      "value": "Группы",
+      "fingerprint": "sha256:cd8c587351082be473439ecec5b3c144b4723fc8943dec8c4c2adc5f578bbede",
+      "context": {
+        "kind": "property",
+        "name": "Groups"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        99
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тренеры'",
+      "value": "Тренеры",
+      "fingerprint": "sha256:0314946ceb6850434b1c2b611bcc56e8419d8a763bb5bcceeb37ee3418c87e0c",
+      "context": {
+        "kind": "property",
+        "name": "Users"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        100
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Журнал'",
+      "value": "Журнал",
+      "fingerprint": "sha256:97c459a6bb7c917406b8f58a8e65d077b9e2bef6bdf04a65d802eace908c889b",
+      "context": {
+        "kind": "property",
+        "name": "Audit"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        101
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Финансы'",
+      "value": "Финансы",
+      "fingerprint": "sha256:d833b857223fb9d7ecf79934ce79bc36c79b45c9d231ebab6f8b23051084b8b7",
+      "context": {
+        "kind": "property",
+        "name": "Finance"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        102
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Настройки'",
+      "value": "Настройки",
+      "fingerprint": "sha256:985b5e0f2ccf1ba08ac53253af32d2e9a600b846d3f3b99978f28d177388b9fa",
+      "context": {
+        "kind": "property",
+        "name": "Settings"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        103
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Смена пароля'",
+      "value": "Смена пароля",
+      "fingerprint": "sha256:354d5f5b7d50f47c8815a35e4383876fa435cda60b5ad2ae38516fa005e3acb1",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        602
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новый клиент'",
+      "value": "Новый клиент",
+      "fingerprint": "sha256:5a2595c21fb54a00c684164fd8867f4999accdbbab4e8381f8fe0109104552d5",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        612
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование клиента'",
+      "value": "Редактирование клиента",
+      "fingerprint": "sha256:6744d4263b7354eb99c956e43c937c80e4fdeb998b30d96b3ee41fd90b99ea71",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        614
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новая группа'",
+      "value": "Новая группа",
+      "fingerprint": "sha256:c9fd9fc0e5d2198dab9dcf985de7e5a46f30be1b4924072417ad0bcc8de99335",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        619
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование группы'",
+      "value": "Редактирование группы",
+      "fingerprint": "sha256:3f7f75d8a0d84a2bde4ea1b9a3e965dc1be34c0af21fb37c6c15aaf1b4895165",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        621
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новый тренер'",
+      "value": "Новый тренер",
+      "fingerprint": "sha256:1ae0c0dd80a1f4320114efbce2543e8bacfe6b29639a2a6afcbbd1460165adf8",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        623
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/appRoutes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование тренера'",
+      "value": "Редактирование тренера",
+      "fingerprint": "sha256:f303a27312124329dc7fa588191b1e198998ff7d312a5dedda315fb788d50a39",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        625
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Пн'",
+      "value": "Пн",
+      "fingerprint": "sha256:31a8ee2fb6b7b6f4631776e1213464bb4114b96814fcb43a9eb0d68e5a69f752",
+      "context": {
+        "kind": "property",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        122
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Вт'",
+      "value": "Вт",
+      "fingerprint": "sha256:839b2d5c5aa3d81f59ca580ea3a076ef15d518cf2eddb632b4692d3853bc7c24",
+      "context": {
+        "kind": "property",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        123
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ср'",
+      "value": "Ср",
+      "fingerprint": "sha256:7ec16b9e41ff461a1227082764da8cc9f6eae779e216683546f63fca490ab67a",
+      "context": {
+        "kind": "property",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        124
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Чт'",
+      "value": "Чт",
+      "fingerprint": "sha256:956618723dd8bbc19474b50c9819bfd11a259e85fb148de4f09203b8138cb462",
+      "context": {
+        "kind": "property",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        125
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Пт'",
+      "value": "Пт",
+      "fingerprint": "sha256:4ca114c23be8d9689a0ff81369971f88bcf9862b9fed53fe8bf87221e662d942",
+      "context": {
+        "kind": "property",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        126
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сб'",
+      "value": "Сб",
+      "fingerprint": "sha256:95dab017a4da8cfdbc731ae32e73e6f0e39e118370be8b1d680ca16e50b1e539",
+      "context": {
+        "kind": "property",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Вс'",
+      "value": "Вс",
+      "fingerprint": "sha256:7971972c7cbb98da65679b61aa17bbc52102a8d4d4cffd4f223dd739cad27a0a",
+      "context": {
+        "kind": "property",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        128
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Дни не заданы'",
+      "value": "Дни не заданы",
+      "fingerprint": "sha256:f783a57ebff741da46e298284319fb8700591a006e3dc3974bc7695c53ebe783",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        205
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Длительность не задана'",
+      "value": "Длительность не задана",
+      "fingerprint": "sha256:97041ad90f5d5a577d5d0fd9903ef27ef18f39dfa92c481694aa41bc1e327d8a",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        215
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${durationMinutes} мин`",
+      "value": "`${durationMinutes} мин`",
+      "fingerprint": "sha256:08b196b84413518ad4329c9dec7105c764d3a27d6439df1e751ef942aaba3f2e",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        218
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Время не задано'",
+      "value": "Время не задано",
+      "fingerprint": "sha256:8d62fb15df91c188cfebd5de90f2fdfa5839765547e421decaa738c2f8d0f11a",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        225
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`",
+      "value": "`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`",
+      "fingerprint": "sha256:6fdf41c83c33e71cbf151bc62541f2d487a3e5477f66e1cd65e5952df6bde902",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        262
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип не задан'",
+      "value": "Тип не задан",
+      "fingerprint": "sha256:e93b045d3b2e013ac36eee1b786c7d6cb54a4200cd0f68c82e8c3f78cb2f032b",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        382
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${group.hallName} · ${group.branchName}`",
+      "value": "`${group.hallName} · ${group.branchName}`",
+      "fingerprint": "sha256:eaceb28c7066193688a8692eecaa0411d1bf3f878d3f730781c954bfae9493fc",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        505
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/lib/groupSchedule.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Зал не задан'",
+      "value": "Зал не задан",
+      "fingerprint": "sha256:0b7f45bbfec2dbeb45265f543ce0815bfcff9fc542971ac7945a5078e1406168",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        1002
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/componentRecipes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Закрыть окно'",
+      "value": "Закрыть окно",
+      "fingerprint": "sha256:db9cc7b22ffdf3236e0eb6d4499400d10cb7929f5512b821817f735b2c5f93b2",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        256
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/componentRecipes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        256,
+        272
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/componentRecipes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Закрыть панель'",
+      "value": "Закрыть панель",
+      "fingerprint": "sha256:bf427bdba8a0c43a14f9608728e699e4a42cd954693523e97b0d00c8e8428351",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        272
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'page/primary'",
+      "value": "page/primary",
+      "fingerprint": "sha256:3d8c9d6399feaabc093102a405ab63c20a642f25678b38d780a4e85ee5120992",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        67
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Text'",
+      "value": "Text",
+      "fingerprint": "sha256:71988c4d8e0803ba4519f0b2864c1331c14a1890bf8694e251379177bfedb5c3",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        67,
+        68,
+        69,
+        70
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'page/secondary'",
+      "value": "page/secondary",
+      "fingerprint": "sha256:849a198051e4813ce2d37678a85ce96e41448c2bd7dcaa1ba87e88924bd6a18d",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        68
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'card/primary'",
+      "value": "card/primary",
+      "fingerprint": "sha256:5b0f2c6c71ea9bbcacae8db4f5c3516dd268d0b6e070fc30e5d81a59c6d61bea",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        69
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'card/secondary'",
+      "value": "card/secondary",
+      "fingerprint": "sha256:58362b3084c550f5dea0b01ff8b43e8db1e5d9326ef0d5ef13a681ac467454a8",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        70
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'default/primary'",
+      "value": "default/primary",
+      "fingerprint": "sha256:dbe46d5f452a759d6b144cefe38ba96ac0bc142f4e79e6d280185ae1aa7ee04c",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        71
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'ListRow'",
+      "value": "ListRow",
+      "fingerprint": "sha256:5e7b591e4951c79784494f64c7168ca90f569688c79f545e7279ca67520e4cc6",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        71,
+        72
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'default/secondary'",
+      "value": "default/secondary",
+      "fingerprint": "sha256:324d5afa6a79b8b106653dde1d8e5bbc60fbc269ed94f43f90ead2bb8081a771",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        72
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'filled/default'",
+      "value": "filled/default",
+      "fingerprint": "sha256:4cbbfe127e0436b282aa9bb375d4e90aa5e092c84fb62610924484772c768931",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        73
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Button'",
+      "value": "Button",
+      "fingerprint": "sha256:707eab0c23ecbf6e5382ba61a346bc76aefee81303280fc0e08e59df18afbf8a",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ],
+      "occurrences": 7,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'filled/hover'",
+      "value": "filled/hover",
+      "fingerprint": "sha256:2259b12e64010c297847949a779aca686a54f67e4ad500eff09f76a575fde630",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        74
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'filled/active'",
+      "value": "filled/active",
+      "fingerprint": "sha256:9387e6007d4ba0a69843adc4e041eeb3f97e3c86f229cf64558961390aad1455",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        75
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'filled/disabled'",
+      "value": "filled/disabled",
+      "fingerprint": "sha256:ef3f9a38deeb1ceb1cce26feded8b0d0420c8cc1cb39be575a5d373f11afcbfa",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        76
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'destructive/default'",
+      "value": "destructive/default",
+      "fingerprint": "sha256:e368e4e536924a8df62680d04cd78ee8d189d836df525b9f94a281f6dddf024b",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        77
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'destructive/hover'",
+      "value": "destructive/hover",
+      "fingerprint": "sha256:023c6df376c0d963819b68edb79c367db775856c7b8bb3ee8a21ed026af65ce6",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        78
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'destructive/active'",
+      "value": "destructive/active",
+      "fingerprint": "sha256:dec346fe47ab4301ac1e16b7b24a92ee4630923622d772aa0f662ec1e0572290",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        79
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'success/default'",
+      "value": "success/default",
+      "fingerprint": "sha256:ac9ea1cc7cd38124f4b6cbbd2664b22d0ef0211f0324db0b863930a8a3e9473c",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        80
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Badge'",
+      "value": "Badge",
+      "fingerprint": "sha256:002474e368210827e5f71950ba7cb0b2cafa82d71b047c356f46d37dd276a5f3",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        80,
+        81,
+        82
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'warning/default'",
+      "value": "warning/default",
+      "fingerprint": "sha256:8d8efcc14e8f36d0feea4aefdf4e3e643610c56d9f5b3066bdc02efea4a9ccb7",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        81
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'danger/default'",
+      "value": "danger/default",
+      "fingerprint": "sha256:3a1b17be9ddc584f79adf3d27a9a0a6572ff41c5ee728068c6147be426650b21",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        82,
+        84
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'info/default'",
+      "value": "info/default",
+      "fingerprint": "sha256:d51608dbd42896eb85b166a779ea37aac1755d815faf9cec82a44ba468e9ce9a",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        83
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Alert'",
+      "value": "Alert",
+      "fingerprint": "sha256:44a57b22e03d9a661c22ffc5ffea51b3e1e33de24a53609e70f690dea8f70872",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        83,
+        84
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'selected/default'",
+      "value": "selected/default",
+      "fingerprint": "sha256:ce583282df287b677442ac4514a822ee4e2dc07dd533db51f188a125d4d37b32",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        85
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Navigation'",
+      "value": "Navigation",
+      "fingerprint": "sha256:3db65f8c2a7d1861b4bca37da3adec5aa7905931eb6faddbc595a35f75e6ca40",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        85,
+        86
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'selected/hover'",
+      "value": "selected/hover",
+      "fingerprint": "sha256:61291e9df6a05a6e55fe454b1cbb3b367370c600645d3cccafc327d33b12edea",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        86
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'default/default'",
+      "value": "default/default",
+      "fingerprint": "sha256:2fbbe6822393e010726c715709ba485a331d33471fb3fbfb3a8e20315fd13704",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        87
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Link'",
+      "value": "Link",
+      "fingerprint": "sha256:a6a32dbc5618ea39f6df5b0f9808e3588b19e00d5f6f96c69492e40386e5aeab",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        87,
+        88
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'hover/default'",
+      "value": "hover/default",
+      "fingerprint": "sha256:db2889b529ead4e8fab47869db43261d2363e2bd73cb1a199433f86b24e21b4d",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        88
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'1/default'",
+      "value": "1/default",
+      "fingerprint": "sha256:bd3d1bc9966d7c3636cc5ab72b1410f76500a01ef7605edb95214899fc1474a4",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        89
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Accent'",
+      "value": "Accent",
+      "fingerprint": "sha256:a5c6fb18c9af89b22a791ba484c9cbc622ffa2af4267d0067883cf6a78d685ac",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        89,
+        90,
+        91,
+        92
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'2/default'",
+      "value": "2/default",
+      "fingerprint": "sha256:071d1ba13686bbde456b47a1576e392dc33185b07c6254b93d7181343cf7017a",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        90
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'3/default'",
+      "value": "3/default",
+      "fingerprint": "sha256:128e7ce7733e9bee16cb93a7a141368ee456e612f4a0b08a3d5894244e44be90",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        91
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'4/default'",
+      "value": "4/default",
+      "fingerprint": "sha256:ec79291aff15e1e3868c3980f65e0d6afa56c0f1d37abfcfb103a70f8682dd3a",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        92
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticTones.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Критично'",
+      "value": "Критично",
+      "fingerprint": "sha256:f186cf196afa160bcf16257c559fd1e82d2503b4637768699e9a1102ce41266a",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        21
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticTones.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Требует внимания'",
+      "value": "Требует внимания",
+      "fingerprint": "sha256:34dc848e18486460cf83c1b123dbe500e0c7594ab25999abcfb743539e9381dd",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        30
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticTones.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Успешно'",
+      "value": "Успешно",
+      "fingerprint": "sha256:4ad64e13c9a37f8de88f823cddae1baac31cee892fcb50f1a45c57e3ed483cdd",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        39
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticTones.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Информация'",
+      "value": "Информация",
+      "fingerprint": "sha256:0bf0fcb2ff78b2eb4038915c616ed494a96807cf49b9cfaaba699e210c3a03cd",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        48
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticTones.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Нейтрально'",
+      "value": "Нейтрально",
+      "fingerprint": "sha256:75a19e7a7c1acfff2b09df3a48ac79b0c30798f95af0dadd36c6e8902bc041bf",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        57
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'#EDF2EE'",
+      "value": "#EDF2EE",
+      "fingerprint": "sha256:b4f56a75c9f98b5e528b2e4b5cacf2475fa8a9da1f0af3eac1eef251b04e3a57",
+      "context": {
+        "kind": "property",
+        "name": "backgroundAlt"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        9
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'#17312D'",
+      "value": "#17312D",
+      "fingerprint": "sha256:2a6f82d480c680c6fc8e802cb94b5b4c224b5c0ef08db7dc269ebf968f212102",
+      "context": {
+        "kind": "property",
+        "name": "text"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        14
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'#171D27'",
+      "value": "#171D27",
+      "fingerprint": "sha256:dcd6499ff31b2b19aa14cdb4865771c4cc80b65070dbcebd9f5bb2f685392ebc",
+      "context": {
+        "kind": "property",
+        "name": "authText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        33
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'--crm-surface-page-alt'",
+      "value": "--crm-surface-page-alt",
+      "fingerprint": "sha256:06364c91621a719e67c745c5709c767ed79f1667bc190bdad5691ab9438584f4",
+      "context": {
+        "kind": "property",
+        "name": "--crm-surface-page-alt"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        105
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'--crm-text-heading'",
+      "value": "--crm-text-heading",
+      "fingerprint": "sha256:7593858d73217e86c38bbfd8a478c68cc888b6e73e884868f4958e5dadd291df",
+      "context": {
+        "kind": "property",
+        "name": "--crm-text-heading"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        142
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'--crm-auth-text'",
+      "value": "--crm-auth-text",
+      "fingerprint": "sha256:66927a9ed2670d6614d25d74f0a66b025ec02d65ed9bdebbc3224ea78df6225b",
+      "context": {
+        "kind": "property",
+        "name": "--crm-auth-text"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        183
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/typography.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Onest, ui-sans-serif, system-ui, sans-serif'",
+      "value": "Onest, ui-sans-serif, system-ui, sans-serif",
+      "fingerprint": "sha256:adc69f433d016342ee4b465479cfbfb20c26718a0cd6dba2b53f1b3277c31a71",
+      "context": {
+        "kind": "property",
+        "name": "heading"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        3
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/theme/typography.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'--crm-font-family-heading'",
+      "value": "--crm-font-family-heading",
+      "fingerprint": "sha256:36935063dd686bee45e753f2fd093a945199ee66201b849f99081a4e6c7091f9",
+      "context": {
+        "kind": "property",
+        "name": "--crm-font-family-heading"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "proposed"
+    }
+  ]
+}

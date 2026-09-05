@@ -1,0 +1,923 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "proposed",
+  "slice": "FE-9-attention",
+  "entry_count": 41,
+  "entries": [
+    {
+      "path": "frontend/src/features/attention/AttentionDashboard.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Внимание\"",
+      "value": "Внимание",
+      "fingerprint": "sha256:f17ceff0aa95a3fd3a3a639c2ff55e4be2d4cd6514201adf1417b2bdd9363b55",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        15
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Список клиентов\n        ",
+      "value": "Список клиентов",
+      "fingerprint": "sha256:b4533fb8e4cf9ba0a30a231d57fec9aaae87b5ff0b093f1bff404b53d7d212d8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        106
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Всего клиентов: ${clients.length}`",
+      "value": "`Всего клиентов: ${clients.length}`",
+      "fingerprint": "sha256:15a88e603005d1bff4d7c4f0fcd3d6e282781ba1accfe8d80003e1dc0ddc269f",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Всего: ",
+      "value": "Всего:",
+      "fingerprint": "sha256:f8ba76ae8e828191bdfab124ef21e36b8786b5c461a25a087582140abfc780ab",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        110
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Просроченных абонементов: ${expiredCount}`",
+      "value": "`Просроченных абонементов: ${expiredCount}`",
+      "fingerprint": "sha256:427c7cbf90393d83e2f7240578ea0e5fd97cfeef08b9d38be2fdd81f3a28f166",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        112
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Просрочен: ",
+      "value": "Просрочен:",
+      "fingerprint": "sha256:b625bade5fa9e47eabdcbefbf742a90efa3f1edfb9946a805a7deeef377d2dab",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        113
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверено: ",
+      "value": "Проверено:",
+      "fingerprint": "sha256:6fad7653b5f0c0be50829a8dceb03299512291d742db42fe87ce97ac4ac059c6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        117
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем клиентов...\"",
+      "value": "Загружаем клиентов...",
+      "fingerprint": "sha256:34e77243a7956785f8646eae458a65148a3bc04f4ef2392bd8b35b357d0e63eb",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        124
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Повторить\"",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Причины\"",
+      "value": "Причины",
+      "fingerprint": "sha256:93096e67cbbc4586e8caa5fabddc1edb7ac78fbd1965935f8542fe5235eb5013",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        205
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Причина не указана",
+      "value": "Причина не указана",
+      "fingerprint": "sha256:bffdeff3432b8cb2cd27f470f698d9d7ff82f6044f69cc5cf870ca231206e1c6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        210
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группы не указаны'",
+      "value": "Группы не указаны",
+      "fingerprint": "sha256:5047bc55c2f2dabe933cfcca808c67ecd617937fed8cee6fa268eb065f23e908",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        216,
+        217
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Телефон не указан'",
+      "value": "Телефон не указан",
+      "fingerprint": "sha256:1fc40e1a2ff38cef275205bb712dabf8bb02866d5236640e1353b0e369abc440",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        219,
+        220
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Нет заметок'",
+      "value": "Нет заметок",
+      "fingerprint": "sha256:20df618aa1e543fadf50b50fb5015c0811582b8860fc0cf816c61f079743328b",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        222,
+        223
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Сохраняем связь с ${client.fullName}`",
+      "value": "`Сохраняем связь с ${client.fullName}`",
+      "fingerprint": "sha256:a35598f8aff22ec7940e64c56d8bdf2816e9324ebd565ac06d07e479a625af8f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        231
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Связались с ${client.fullName}`",
+      "value": "`Связались с ${client.fullName}`",
+      "fingerprint": "sha256:0ad315126c5897e1dbbbb36afb7d0f467382d3506a2b19f413eb266080d6cae1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        232
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Связались'",
+      "value": "Связались",
+      "fingerprint": "sha256:82dd6adee8647fd4dd2581087a25169e3c17e1b834d131d4be25a7280ac0c2cb",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        238
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сохраняем…'",
+      "value": "Сохраняем…",
+      "fingerprint": "sha256:9c27c381dd8b333c876c4a2dac2d556ae96f17e42732a12314d56f5057de3e85",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        238
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Позвонить ${client.fullName}`",
+      "value": "`Позвонить ${client.fullName}`",
+      "fingerprint": "sha256:e50e96fc4bc0e23a29996712d4209571ca6027f04699cf75074b42742c35bb77",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243,
+        341
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Позвонить\n          ",
+      "value": "Позвонить",
+      "fingerprint": "sha256:0701381c8c21b48aa04499ecb94ae2a972233e0830c23bb0cc7a41055bd58b31",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        253,
+        347
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открыть Telegram ${client.fullName}`",
+      "value": "`Открыть Telegram ${client.fullName}`",
+      "fingerprint": "sha256:50ce20af6172ffef008e3849600849209a97202801d929db20567cc9a8fe34f8",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        258,
+        352
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Telegram\n          ",
+      "value": "Telegram",
+      "fingerprint": "sha256:acdd1e734125f341604c0efbabdcc4c4b0597e8f6235d66c2445edd1812838c1",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        270,
+        360
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открыть карточку ${client.fullName}`",
+      "value": "`Открыть карточку ${client.fullName}`",
+      "fingerprint": "sha256:a98de9df274f93397a32cd14d5bdf107205e040c629b89d6f1431cb2cb097aad",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        275,
+        365
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Карточка\n          ",
+      "value": "Карточка",
+      "fingerprint": "sha256:18c7accaf121f5a94a204b71b564eecb0d72793e842d7ae4a0590f7cf321b88c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        280
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ". Нажмите «Связались», чтобы повторить.\n        ",
+      "value": ". Нажмите «Связались», чтобы повторить.",
+      "fingerprint": "sha256:3a45c61a7ba6ba7e81dfc8065d4b36e8e2b0c44149f98d8486f544287e11d117",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        291
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Другие действия для ${client.fullName}`",
+      "value": "`Другие действия для ${client.fullName}`",
+      "fingerprint": "sha256:c6ca6019842c00ebe54752ccf11797b481acc9debe950e62994eb1535a67dd96",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        334
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Карточка клиента\n          ",
+      "value": "Карточка клиента",
+      "fingerprint": "sha256:a912ec8664f1d3b52b0b4c7b2a42f703b060b687c9686617aa4c3f4887c33edf",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        370
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Пропущено подряд: ${reason.missedCount}`",
+      "value": "`Пропущено подряд: ${reason.missedCount}`",
+      "fingerprint": "sha256:4cd3b5b42ca0deba3fe7cbb35aafa82d3ba6927228add826b14553e6115824a9",
+      "context": {
+        "kind": "variable",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        380
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Дата окончания прошла'",
+      "value": "Дата окончания прошла",
+      "fingerprint": "sha256:bb034c9763e45515c04228087c13bdad9bf11435408665899612ca657d27788f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        388
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Срок окончания приближается'",
+      "value": "Срок окончания приближается",
+      "fingerprint": "sha256:e77d1c5f9d3d5d20782dda043e2fde70de5b86185066bc60a6512ebaba4f23ac",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        389
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Истек сегодня'",
+      "value": "Истек сегодня",
+      "fingerprint": "sha256:8173243b6c4f3f44c50d4b08f7d55eb12b535a6fe50c3d46f29f7f315fc7547d",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        392
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Истекает сегодня'",
+      "value": "Истекает сегодня",
+      "fingerprint": "sha256:043dabe8be6cade450e6a9e79c4c091719e14d4fa6d97da869d9f642557b3a31",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        393
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Истек ${days} ${dayWord(days)} назад`",
+      "value": "`Истек ${days} ${dayWord(days)} назад`",
+      "fingerprint": "sha256:1182acc1628d8d4ecdb672de5153cdbb4952f17bef8ae1ebf07b642cde91a209",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        395
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Осталось ${days} ${dayWord(days)}`",
+      "value": "`Осталось ${days} ${dayWord(days)}`",
+      "fingerprint": "sha256:ccba39cda5781b95b45402d684324db8ef724b02ed481a21293af998d570b47c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        396
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${expired ? 'Истек' : 'Скоро истечет'}: ${detail}`",
+      "value": "`${expired ? 'Истек' : 'Скоро истечет'}: ${detail}`",
+      "fingerprint": "sha256:f3d8e459bdf64719872cb5e53ddd524a758f7b604dae52c46b748119a8a15d86",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        400
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Истек'",
+      "value": "Истек",
+      "fingerprint": "sha256:5321763595b502263ce4a48cb219d6cf34ab078e29cdc7a6153e1ec338511e56",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        400,
+        404
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Скоро истечет'",
+      "value": "Скоро истечет",
+      "fingerprint": "sha256:92e9102e73f2bd0f95e264ed46bb31a03fd445e8ac0840903f048938609bc1b4",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        400,
+        404
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'дней'",
+      "value": "дней",
+      "fingerprint": "sha256:c27d559b169947b2c1d612d3f2788c168a3a316d5e68a54822d450bcf34fbba5",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        413,
+        416
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'день'",
+      "value": "день",
+      "fingerprint": "sha256:8eae90e5e96cb43c8dea5e3a572ec4e380624c51f7a7d1ed2266c7d003efec8a",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        414
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'дня'",
+      "value": "дня",
+      "fingerprint": "sha256:748dc44ec9c2eb07e6d2598172aa66d7280dba6f8590bb07d6e5b918bbeb5345",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        415
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    },
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Нет данных'",
+      "value": "Нет данных",
+      "fingerprint": "sha256:76848548e29c0ad0e8412e594e072d8f1c1182d0ed7647203e11fc85122c150d",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        429
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "proposed"
+    }
+  ]
+}
