@@ -15,6 +15,8 @@ import type {
   FinanceScopeContext,
   FinanceScopeFilters,
 } from './FinanceReportScope'
+import { fe15FinanceText } from '../../resources/fe-15-finance'
+
 
 export type FinanceFailedRequest = {
   message: string
@@ -61,12 +63,12 @@ export function FinanceScopeHeader({
   isRefreshing,
   requestedScope,
 }: FinanceScopeHeaderProps) {
-  const reportPrefix = displayedReport ? 'Отчет' : 'Запрос'
+  const reportPrefix = displayedReport ? fe15FinanceText.financeReportPresentation_string_e6a83dba : fe15FinanceText.financeReportPresentation_string_e08bc1c8
   const periodLabel = displayedReport
     ? formatReportPeriod(displayedReport.period)
     : formatRequestedPeriod(requestedScope.filters)
   const scope = displayedScope ?? requestedScope
-  const scopeText = `Филиал: ${scope.branchLabel} · Тренер: ${scope.trainerLabel}`
+  const scopeText = fe15FinanceText.financeReportPresentation_scopeText_f9ca0c09(scope.branchLabel, scope.trainerLabel)
 
   return (
     <section
@@ -76,7 +78,7 @@ export function FinanceScopeHeader({
     >
       <Stack gap={4}>
         <Text className="finance-scope-header__period" fw={800}>
-          {reportPrefix}: {periodLabel}
+          {reportPrefix}{fe15FinanceText.financeReportPresentation_jsxText_e7ac0786}{periodLabel}
         </Text>
         <Text className="finance-scope-header__scope" c="dimmed" title={scopeText}>
           {scopeText}
@@ -88,7 +90,7 @@ export function FinanceScopeHeader({
             c="dimmed"
             size="sm"
           >
-            Обновляем для {formatScopeInline(requestedScope)},{' '}
+            {fe15FinanceText.financeReportPresentation_jsxText_3ad52700}{formatScopeInline(requestedScope)}{fe15FinanceText.financeReportPresentation_jsxText_d03502c4}{' '}
             {formatRequestedPeriod(requestedScope.filters)}
           </Text>
         ) : null}
@@ -108,15 +110,15 @@ export function FinanceReportSurface({
   report,
 }: FinanceReportSurfaceProps) {
   if (isInitialLoading) {
-    return <LoadingState label="Загружаем финансовый отчет..." />
+    return <LoadingState label={fe15FinanceText.financeReportPresentation_label_8f5cc749} />
   }
 
   if (!report && initialError) {
     return (
       <ErrorState
-        action={<RefreshButton label="Повторить" onClick={onRetry} />}
+        action={<RefreshButton label={fe15FinanceText.financeReportPresentation_label_5189135a} onClick={onRetry} />}
         message={initialError}
-        title="Отчет не загрузился"
+        title={fe15FinanceText.financeReportPresentation_title_22598730}
       />
     )
   }
@@ -135,7 +137,7 @@ export function FinanceReportSurface({
           className="finance-report-stale-alert"
           color="yellow"
           icon={<IconAlertCircle size={18} />}
-          title="Отчет не обновился"
+          title={fe15FinanceText.financeReportPresentation_title_9687bd44}
           variant="light"
         >
           <Stack gap="xs">
@@ -149,7 +151,7 @@ export function FinanceReportSurface({
             <Text c="dimmed" size="sm">
               {failedRequest.message}
             </Text>
-            <RefreshButton label="Повторить обновление" onClick={onRetry} />
+            <RefreshButton label={fe15FinanceText.financeReportPresentation_label_976e03d3} onClick={onRetry} />
           </Stack>
         </Alert>
       ) : null}
@@ -171,23 +173,23 @@ export function FinanceReportSurface({
 function FinanceKpiStrip({ report }: FinanceKpiStripProps) {
   const items: FinanceKpiItem[] = [
     {
-      label: 'Продано абонементов',
+      label: fe15FinanceText.financeReportPresentation_label_5a4cd443,
       value: formatCount(report.totals.soldMembershipCount),
     },
     {
-      label: 'Выручка',
+      label: fe15FinanceText.financeReportPresentation_label_6a187a49,
       value: formatMoney(report.totals.grossSales),
     },
     {
-      label: 'Возвраты',
+      label: fe15FinanceText.financeReportPresentation_label_e8fdd443,
       value: formatMoney(report.totals.refundTotal),
     },
     {
-      label: 'Чистая выручка',
+      label: fe15FinanceText.financeReportPresentation_label_eed36406,
       value: formatMoney(report.totals.netTotal),
     },
     {
-      label: 'Новые клиенты',
+      label: fe15FinanceText.financeReportPresentation_label_193f5e49,
       value: formatCount(report.totals.newClientsCount),
     },
   ]
@@ -223,9 +225,9 @@ function FinanceKpiStrip({ report }: FinanceKpiStripProps) {
 function FinanceEmptyReportState() {
   return (
     <EmptyState
-      description="Измените период или снимите фильтры."
+      description={fe15FinanceText.financeReportPresentation_description_be8c12e8}
       icon={<IconReportMoney size={28} />}
-      title="За выбранный период операций нет."
+      title={fe15FinanceText.financeReportPresentation_title_20c61586}
     />
   )
 }
@@ -246,23 +248,23 @@ function formatReportPeriod(period: FinancialReportPeriod) {
 
 function formatRequestedPeriod(filters: FinanceScopeFilters) {
   if (filters.periodPreset === 'custom') {
-    const from = filters.from ? formatDateValue(filters.from) : 'не задано'
-    const to = filters.to ? formatDateValue(filters.to) : 'не задано'
+    const from = filters.from ? formatDateValue(filters.from) : fe15FinanceText.financeReportPresentation_string_7739db0f
+    const to = filters.to ? formatDateValue(filters.to) : fe15FinanceText.financeReportPresentation_string_7739db0f
 
     return `${from}–${to}`
   }
 
   const presetLabel = {
-    month: 'Месяц',
-    quarter: 'Квартал',
-    year: 'Год',
+    month: fe15FinanceText.financeReportPresentation_month_c9086654,
+    quarter: fe15FinanceText.financeReportPresentation_quarter_2727c94f,
+    year: fe15FinanceText.financeReportPresentation_year_d3b04324,
   }[filters.periodPreset]
 
-  return `${presetLabel}, дата ${formatDateValue(filters.anchorDate)}`
+  return fe15FinanceText.financeReportPresentation_template_edb2357a(presetLabel, formatDateValue(filters.anchorDate))
 }
 
 function formatScopeInline(scope: FinanceScopeContext) {
-  return `Филиал: ${scope.branchLabel}, Тренер: ${scope.trainerLabel}`
+  return fe15FinanceText.financeReportPresentation_template_e68a10c0(scope.branchLabel, scope.trainerLabel)
 }
 
 function formatStaleMessage({
@@ -279,13 +281,13 @@ function formatStaleMessage({
     areScopeFiltersEqual(displayedScope.filters, requestedScope.filters)
 
   if (sameRequestContext) {
-    return `Не удалось обновить отчет. Показаны ранее загруженные данные за ${displayedPeriod}.`
+    return fe15FinanceText.financeReportPresentation_template_175bf575(displayedPeriod)
   }
 
   return [
-    `Не удалось загрузить отчет для ${formatScopeInline(requestedScope)},`,
+    fe15FinanceText.financeReportPresentation_template_a67459b7(formatScopeInline(requestedScope)),
     `${formatRequestedPeriod(requestedScope.filters)}.`,
-    `Показан предыдущий отчет: ${displayedPeriod},`,
+    fe15FinanceText.financeReportPresentation_template_d4e70149(displayedPeriod),
     `${formatScopeInline(displayedScope)}.`,
   ].join(' ')
 }
@@ -319,7 +321,7 @@ function areScopeFiltersEqual(
 
 function formatDateValue(value: string) {
   if (!value) {
-    return 'не задано'
+    return fe15FinanceText.financeReportPresentation_string_7739db0f
   }
 
   const [year, month, day] = value.split('-').map(Number)
