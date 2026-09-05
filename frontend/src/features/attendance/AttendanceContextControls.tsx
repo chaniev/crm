@@ -2,6 +2,8 @@ import { ActionIcon, Button, Group, Select, TextInput } from '@mantine/core'
 import { IconCalendar, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import type { ReactNode } from 'react'
 import type { AttendanceGroup } from '../../lib/api'
+import { fe4AttendanceText } from '../../resources/fe-4-attendance'
+
 
 type AttendanceContextControlsProps = {
   groups: AttendanceGroup[]
@@ -40,9 +42,9 @@ export function AttendanceContextControls({
       <Select
         data-testid="attendance-group-select"
         data={groups.map((group) => ({ value: group.id, label: group.name }))}
-        label="Группа"
+        label={fe4AttendanceText.attendanceContextControls_label_907efbd4}
         onChange={onGroupChange}
-        placeholder="Выберите группу"
+        placeholder={fe4AttendanceText.attendanceContextControls_placeholder_298a07c0}
         searchable
         size="md"
         value={selectedGroupId}
@@ -50,7 +52,7 @@ export function AttendanceContextControls({
       <div className="attendance-date-control">
         <TextInput
           data-testid="attendance-date-input"
-          label="Дата тренировки"
+          label={fe4AttendanceText.attendanceContextControls_label_a06b48f8}
           max={maxTrainingDate}
           min={minTrainingDate ?? undefined}
           onChange={(event) => onTrainingDateChange(event.currentTarget.value)}
@@ -60,39 +62,39 @@ export function AttendanceContextControls({
         />
         <Group className="attendance-date-actions" gap={8} wrap="nowrap">
           <ActionIcon
-            aria-label="Предыдущая дата"
+            aria-label={fe4AttendanceText.attendanceContextControls_ariaLabel_669d9acd}
             data-testid="attendance-date-previous"
             disabled={!trainingDate || Boolean(minTrainingDate && shiftIsoDate(trainingDate, -1) < minTrainingDate)}
             onClick={() => onTrainingDateChange(shiftIsoDate(trainingDate, -1))}
             size={44}
             title={
               minTrainingDate && shiftIsoDate(trainingDate, -1) < minTrainingDate
-                ? 'Дата вне доступного периода'
-                : 'Предыдущая дата'
+                ? fe4AttendanceText.attendanceContextControls_string_f9b11001
+                : fe4AttendanceText.attendanceContextControls_ariaLabel_669d9acd
             }
             variant="default"
           >
             <IconChevronLeft size={20} />
           </ActionIcon>
           <Button
-            aria-label="Сегодня"
+            aria-label={fe4AttendanceText.attendanceContextControls_ariaLabel_b688b4c0}
             data-testid="attendance-date-today"
             disabled={!today || trainingDate === today}
             leftSection={<IconCalendar aria-hidden="true" size={18} />}
             onClick={() => onTrainingDateChange(today)}
             size="md"
-            title="Сегодня"
+            title={fe4AttendanceText.attendanceContextControls_ariaLabel_b688b4c0}
             variant="default"
           >
-            <span className="attendance-date-today-label">Сегодня</span>
+            <span className="attendance-date-today-label">{fe4AttendanceText.attendanceContextControls_ariaLabel_b688b4c0}</span>
           </Button>
           <ActionIcon
-            aria-label="Следующая дата"
+            aria-label={fe4AttendanceText.attendanceContextControls_ariaLabel_47cce16a}
             data-testid="attendance-date-next"
             disabled={!trainingDate || !nextDate || nextDate > maxTrainingDate}
             onClick={() => onTrainingDateChange(nextDate)}
             size={44}
-            title={!trainingDate || !nextDate || nextDate > maxTrainingDate ? 'Будущие даты недоступны' : 'Следующая дата'}
+            title={!trainingDate || !nextDate || nextDate > maxTrainingDate ? fe4AttendanceText.attendanceContextControls_string_58b83677 : fe4AttendanceText.attendanceContextControls_ariaLabel_47cce16a}
             variant="default"
           >
             <IconChevronRight size={20} />

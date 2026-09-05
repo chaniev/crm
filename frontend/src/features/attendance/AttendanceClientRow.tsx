@@ -5,6 +5,8 @@ import { ClientAvatar } from '../shared/ux'
 import { AttendanceSaveStatus } from './AttendanceSaveStatus'
 import { AttendanceStateControl } from './AttendanceStateControl'
 import type { AttendanceClientRowState } from './types'
+import { fe4AttendanceText } from '../../resources/fe-4-attendance'
+
 
 type AttendanceClientRowProps = {
   row: AttendanceClientRowState
@@ -30,11 +32,11 @@ export function AttendanceClientRow({
       )
     : null
   const statusLabel = client.isProfessional
-    ? 'Профессиональный статус'
+    ? fe4AttendanceText.attendanceClientRow_string_81ee659f
     : client.membershipWarning
-      ? 'Есть предупреждение по абонементу'
+      ? fe4AttendanceText.attendanceClientRow_string_56e8a553
       : !client.hasActiveMembership
-        ? 'Нужна проверка статуса абонемента'
+        ? fe4AttendanceText.attendanceClientRow_string_64add130
         : null
 
   return (
@@ -59,9 +61,9 @@ export function AttendanceClientRow({
               {statusLabel ? <Text c="dimmed" size="sm">{statusLabel}</Text> : null}
             </div>
             <Group gap="xs" wrap="wrap">
-              {client.isProfessional ? <Badge color="blue" variant="light">Профессионал</Badge> : null}
+              {client.isProfessional ? <Badge color="blue" variant="light">{fe4AttendanceText.attendanceClientRow_jsxText_76fc7876}</Badge> : null}
               {client.membershipWarning ? (
-                <Badge color="yellow" variant="light">Проблема с абонементом</Badge>
+                <Badge color="yellow" variant="light">{fe4AttendanceText.attendanceClientRow_jsxText_7730c85c}</Badge>
               ) : null}
             </Group>
             {client.membershipWarningMessage ? (
@@ -85,7 +87,7 @@ export function AttendanceClientRow({
           {onOpenClient ? (
             <>
               <Button
-                aria-label={`Открыть карточку клиента ${client.fullName}`}
+                aria-label={fe4AttendanceText.attendanceClientRow_template_a4942e1b(client.fullName)}
                 aria-describedby={row.saveState === 'pending' ? pendingReasonId : undefined}
                 aria-disabled={row.saveState === 'pending'}
                 className="attendance-client-profile-action"
@@ -99,13 +101,11 @@ export function AttendanceClientRow({
                 variant="light"
               >
                 <span className="attendance-client-profile-action__label">
-                  Карточка клиента
-                </span>
+                  {fe4AttendanceText.attendanceClientRow_jsxText_a912ec86}</span>
               </Button>
               {row.saveState === 'pending' ? (
                 <Text className="visually-hidden" id={pendingReasonId}>
-                  Сначала дождитесь сохранения посещения
-                </Text>
+                  {fe4AttendanceText.attendanceClientRow_jsxText_15d9dcc3}</Text>
               ) : null}
             </>
           ) : null}

@@ -1,5 +1,7 @@
 import { Radio, Text } from '@mantine/core'
 import type { AttendanceState } from '../../lib/api'
+import { fe4AttendanceText } from '../../resources/fe-4-attendance'
+
 
 type AttendanceStateControlProps = {
   clientName: string
@@ -9,15 +11,15 @@ type AttendanceStateControlProps = {
 }
 
 const options: Array<{ label: string; value: AttendanceState }> = [
-  { label: 'Не отмечено', value: 'Unmarked' },
-  { label: 'Был', value: 'Present' },
-  { label: 'Не был', value: 'Absent' },
+  { label: fe4AttendanceText.attendanceStateControl_label_7c7cca86, value: 'Unmarked' },
+  { label: fe4AttendanceText.attendanceStateControl_label_ff13de89, value: 'Present' },
+  { label: fe4AttendanceText.attendanceStateControl_label_cd2e8ad3, value: 'Absent' },
 ]
 
 export function AttendanceStateControl({ clientName, disabled, value, onChange }: AttendanceStateControlProps) {
   return (
     <Radio.Group
-      aria-label={`Посещение: ${clientName}`}
+      aria-label={fe4AttendanceText.attendanceStateControl_template_63505065(clientName)}
       disabled={disabled}
       onChange={(nextValue) => onChange(nextValue as AttendanceState)}
       value={value}
