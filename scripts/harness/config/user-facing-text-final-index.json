@@ -1,0 +1,305 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "valid_categories": [
+    "resource",
+    "backend-owned propagated text",
+    "dynamic user/domain value",
+    "machine contract",
+    "telemetry-only",
+    "test fixture",
+    "persisted historical description"
+  ],
+  "generation_scope": {
+    "frontend": "TypeScript AST: Cyrillic literals, visible-context literals in any language, and existing resources; tests excluded.",
+    "backend": "All backend assemblies: comment-aware C# lexical candidate extraction plus every .resx value; enforcement uses Roslyn syntax parsing.",
+    "bot": "Python AST: Cyrillic literals and existing resource-module literals; docstrings/tests excluded."
+  },
+  "safety": "Ambiguous static literals are classified as resource candidates and never auto-allowlisted.",
+  "summary": {
+    "entry_count": 2809,
+    "occurrence_count": 3235,
+    "by_category": {
+      "resource": 2180,
+      "backend-owned propagated text": 0,
+      "dynamic user/domain value": 58,
+      "machine contract": 245,
+      "telemetry-only": 6,
+      "test fixture": 168,
+      "persisted historical description": 152
+    },
+    "by_slice": {
+      "BE-1-auth-users-access": 35,
+      "BE-2-clients": 24,
+      "BE-3-client-membership": 21,
+      "BE-4-attendance": 10,
+      "BE-5-groups": 47,
+      "BE-6-schedule": 36,
+      "BE-7-bot-internal-api": 6,
+      "BE-8-startup-reports-audit": 182,
+      "FE-1-app-shell-auth": 1,
+      "FE-11-settings-users": 1,
+      "FE-13-groups-core": 2,
+      "FE-16-audit": 3,
+      "FE-17-shared-routing-theme": 20,
+      "FE-2-schedule-core": 1,
+      "FE-3-schedule-mutations": 1,
+      "FE-5-client-list": 1,
+      "FE-7-client-membership": 9,
+      "FE-8-client-messenger-media": 1,
+      "FE-9-attention": 1,
+      "existing-resources": 2184,
+      "scanner-exceptions": 223
+    },
+    "cross_owner_duplicate_groups": 25,
+    "classified_exception_candidates": 194,
+    "proposed_allowlist_entries": 0,
+    "cyrillic_resource_candidates": 0,
+    "non_cyrillic_resource_candidates": 0
+  },
+  "inventory_files": [
+    {
+      "slice": "BE-1-auth-users-access",
+      "path": "scripts/harness/config/user-facing-text-final-index/be-1-auth-users-access.json",
+      "entry_count": 35,
+      "occurrence_count": 58,
+      "by_category": {
+        "dynamic user/domain value": 1,
+        "machine contract": 34
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "BE-2-clients",
+      "path": "scripts/harness/config/user-facing-text-final-index/be-2-clients.json",
+      "entry_count": 24,
+      "occurrence_count": 41,
+      "by_category": {
+        "machine contract": 23,
+        "telemetry-only": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "BE-3-client-membership",
+      "path": "scripts/harness/config/user-facing-text-final-index/be-3-client-membership.json",
+      "entry_count": 21,
+      "occurrence_count": 33,
+      "by_category": {
+        "machine contract": 20,
+        "telemetry-only": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "BE-4-attendance",
+      "path": "scripts/harness/config/user-facing-text-final-index/be-4-attendance.json",
+      "entry_count": 10,
+      "occurrence_count": 10,
+      "by_category": {
+        "machine contract": 10
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "BE-5-groups",
+      "path": "scripts/harness/config/user-facing-text-final-index/be-5-groups.json",
+      "entry_count": 47,
+      "occurrence_count": 76,
+      "by_category": {
+        "machine contract": 47
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "BE-6-schedule",
+      "path": "scripts/harness/config/user-facing-text-final-index/be-6-schedule.json",
+      "entry_count": 36,
+      "occurrence_count": 58,
+      "by_category": {
+        "machine contract": 36
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "BE-7-bot-internal-api",
+      "path": "scripts/harness/config/user-facing-text-final-index/be-7-bot-internal-api.json",
+      "entry_count": 6,
+      "occurrence_count": 6,
+      "by_category": {
+        "machine contract": 6
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "BE-8-startup-reports-audit",
+      "path": "scripts/harness/config/user-facing-text-final-index/be-8-startup-reports-audit.json",
+      "entry_count": 182,
+      "occurrence_count": 258,
+      "by_category": {
+        "dynamic user/domain value": 2,
+        "machine contract": 24,
+        "persisted historical description": 152,
+        "telemetry-only": 4
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-1-app-shell-auth",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-1-app-shell-auth.json",
+      "entry_count": 1,
+      "occurrence_count": 1,
+      "by_category": {
+        "machine contract": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-11-settings-users",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-11-settings-users.json",
+      "entry_count": 1,
+      "occurrence_count": 1,
+      "by_category": {
+        "machine contract": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-13-groups-core",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-13-groups-core.json",
+      "entry_count": 2,
+      "occurrence_count": 2,
+      "by_category": {
+        "machine contract": 2
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-16-audit",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-16-audit.json",
+      "entry_count": 3,
+      "occurrence_count": 3,
+      "by_category": {
+        "machine contract": 3
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-17-shared-routing-theme",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-17-shared-routing-theme.json",
+      "entry_count": 20,
+      "occurrence_count": 41,
+      "by_category": {
+        "machine contract": 20
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-2-schedule-core",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-2-schedule-core.json",
+      "entry_count": 1,
+      "occurrence_count": 1,
+      "by_category": {
+        "machine contract": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-3-schedule-mutations",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-3-schedule-mutations.json",
+      "entry_count": 1,
+      "occurrence_count": 1,
+      "by_category": {
+        "machine contract": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-5-client-list",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-5-client-list.json",
+      "entry_count": 1,
+      "occurrence_count": 1,
+      "by_category": {
+        "machine contract": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-7-client-membership",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-7-client-membership.json",
+      "entry_count": 9,
+      "occurrence_count": 9,
+      "by_category": {
+        "machine contract": 9
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-8-client-messenger-media",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-8-client-messenger-media.json",
+      "entry_count": 1,
+      "occurrence_count": 1,
+      "by_category": {
+        "machine contract": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "FE-9-attention",
+      "path": "scripts/harness/config/user-facing-text-final-index/fe-9-attention.json",
+      "entry_count": 1,
+      "occurrence_count": 2,
+      "by_category": {
+        "machine contract": 1
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "existing-resources",
+      "path": "scripts/harness/config/user-facing-text-final-index/existing-resources.json",
+      "entry_count": 2184,
+      "occurrence_count": 2385,
+      "by_category": {
+        "machine contract": 4,
+        "resource": 2180
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    },
+    {
+      "slice": "scanner-exceptions",
+      "path": "scripts/harness/config/user-facing-text-final-index/scanner-exceptions.json",
+      "entry_count": 223,
+      "occurrence_count": 247,
+      "by_category": {
+        "dynamic user/domain value": 55,
+        "test fixture": 168
+      },
+      "resource_candidate_entries": 0,
+      "resource_candidate_occurrences": 0
+    }
+  ],
+  "allowlist_file": "scripts/harness/config/user-facing-text-final-allowlist.json",
+  "duplicates_file": "scripts/harness/config/user-facing-text-final-duplicates.json"
+}

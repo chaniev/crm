@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "FE-1-app-shell-auth",
+  "entry_count": 1,
+  "entries": [
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "headcoach",
+      "value": "headcoach",
+      "fingerprint": "sha256:8290d294f0fde8c317219bdc5df2cc3a0c8676464cb907215f5168c5a3066f16",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        170
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    }
+  ]
+}

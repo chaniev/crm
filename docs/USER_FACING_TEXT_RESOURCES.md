@@ -158,7 +158,7 @@ explicit classifications.
 
 The final review package is stored in
 `scripts/harness/config/user-facing-text-final-index.json` and its shard
-directory. It records 3,227 occurrences and has zero Cyrillic and zero
+directory. It records 3,235 occurrences and has zero Cyrillic and zero
 non-Cyrillic `resource` candidates outside resource boundaries. Both the
 reviewed baseline and final allowlists are empty. TypeScript, Roslyn and Python
 AST guards are part of the canonical frontend, backend and bot check matrices.

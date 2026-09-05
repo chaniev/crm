@@ -1,0 +1,824 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "BE-6-schedule",
+  "entry_count": 36,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-series-not-found\"",
+      "value": "lesson-series-not-found",
+      "fingerprint": "sha256:616d9186f00b9535b2377fd76aaa94f237ed74ae791c93db65df8142532a7e0d",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonSeriesProblem(\"lesson-series-not-found\", StatusCodes.Status404NotFound);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        47,
+        82,
+        192
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"scope\"",
+      "value": "scope",
+      "fingerprint": "sha256:5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"scope\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine332D9e0e4b9];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        332
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"effectiveFrom\"",
+      "value": "effectiveFrom",
+      "fingerprint": "sha256:418fa75196f210145cbe64040290ef80ad944414a96230179690bb0d100bf9d7",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"effectiveFrom\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine340D48cb928];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        340
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"endsOn\"",
+      "value": "endsOn",
+      "fingerprint": "sha256:eb42dc9307f01d7614c3d2066b079f9889aa9b41f150b9c5b3e11d547734adbc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"endsOn\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine354Ebe48b29];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        354,
+        364
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"slots\"",
+      "value": "slots",
+      "fingerprint": "sha256:3b478a0a3fc655df9df052728812851b6b22ddf49daa1130ff37eafed057414f",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"slots\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine3696a78640e];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        369,
+        437
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.isoWeekday\"",
+      "value": "{prefix}.isoWeekday",
+      "fingerprint": "sha256:e38436b5f0015e3cd8356072a7599d8e8bbc9f8b3fad6d4a27c9ad9300bd2ecc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.isoWeekday\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine38103b7e917];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        381
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.startTime\"",
+      "value": "{prefix}.startTime",
+      "fingerprint": "sha256:8dcfce28f3baa3f5c0f078b2321d0f37d089554dfa0318e5290c9c69052fea63",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.startTime\"] = [GroupResources.TrainingStartTimeInvalid(GroupApiConstants.TrainingStartTimeDisplayFormat)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        387
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.durationMinutes\"",
+      "value": "{prefix}.durationMinutes",
+      "fingerprint": "sha256:e10dbe3f1da780faa5f80e0596efff7abb3cb18d0010dffd016ce87098735aec",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.durationMinutes\"] ="
+      },
+      "has_cyrillic": false,
+      "lines": [
+        392
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.hallId\"",
+      "value": "{prefix}.hallId",
+      "fingerprint": "sha256:c0fbb80c1d2144ac360fe5aec9dc3624a0b9fd600f5ab86f1e318fc4d41b1827",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.hallId\"] = [GroupResources.InvalidHallId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        398
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"slots.hallId.{missingHallId:D}\"",
+      "value": "slots.hallId.{missingHallId:D}",
+      "fingerprint": "sha256:ab4b67242962145380410441dd7ba2838ef1f01b63ab32fe289342eb78482388",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"slots.hallId.{missingHallId:D}\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine4245d2885e5];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        424
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"slots.hallId\"",
+      "value": "slots.hallId",
+      "fingerprint": "sha256:d01730a1df0bb168b9a05f5f21b8d18839b5171049c901f32bdf8f313166f007",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"slots.hallId\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine4298874f5c8];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        429
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/problems/{code}\"",
+      "value": "/problems/{code}",
+      "fingerprint": "sha256:6eeb2e2eaeace6055a5ed4b0babd97930dd12861ba34ec0f211446b87bce8cfc",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = $\"/problems/{code}\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        804
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-scheduled\"",
+      "value": "lesson-not-scheduled",
+      "fingerprint": "sha256:101886d2a398d9cda2b661f0c8fa448acd44e68521388aae0f638605e3f7f6f1",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-not-scheduled\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        582
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-attendance-state-conflict\"",
+      "value": "lesson-attendance-state-conflict",
+      "fingerprint": "sha256:9e162d8a16cb8ed97ca1068745559d98416df0069e449c5840033dc1cc13e5db",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-attendance-state-conflict\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        587,
+        1029,
+        1181
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-cancelled\"",
+      "value": "lesson-not-cancelled",
+      "fingerprint": "sha256:5b437d2f9167b803a6478a8249eacfb6b87ed1605fcb8530ae6fab8ada992b69",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-not-cancelled\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        711
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"action\"",
+      "value": "action",
+      "fingerprint": "sha256:bd938c688f49b77c7fc537c6b9222e2c97ebddd63076b87f2feaec66fb9c05d0",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"action\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine7995ae8af84];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        799,
+        919
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"expectedRevision\"",
+      "value": "expectedRevision",
+      "fingerprint": "sha256:25d906905cdafa3444ab1b02e94dfc281cf43d33cd63107e55b9d8f4707994a6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"expectedRevision\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine804F663a580];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        804,
+        924
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/lesson-occurrence-not-found\"",
+      "value": "/problems/lesson-occurrence-not-found",
+      "fingerprint": "sha256:fe59f2e0f19fdf45d6cc84d7fc549f6842984bbb74ddc18c1d442ba77a980a98",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = \"/problems/lesson-occurrence-not-found\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1897
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-trainer-substitution-conflict\"",
+      "value": "lesson-trainer-substitution-conflict",
+      "fingerprint": "sha256:0203b7728079c6b167f8962c53143a07eb15cbe03240b0e88868e23a63def072",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-trainer-substitution-conflict\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        204,
+        578
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"replacedTrainerId\"",
+      "value": "replacedTrainerId",
+      "fingerprint": "sha256:cfcf760e3c81eedf437d8da1ce759184860b81b3c9c74b181d5bacf915e2693c",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"replacedTrainerId\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine473791b67a1];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        473
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"substituteTrainerId\"",
+      "value": "substituteTrainerId",
+      "fingerprint": "sha256:191162013e7686da872115f3be8221bc18e456352c722018fd2f5b640848f0ed",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine478952f984f];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        478,
+        483
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"targets\"",
+      "value": "targets",
+      "fingerprint": "sha256:26cafb94003a654827f52047a9368c0821f01f4512828a68f7bd4b44e6a0afcf",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"targets\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine4881bd1c92d];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        488
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-scheduled\"",
+      "value": "lesson-not-scheduled",
+      "fingerprint": "sha256:101886d2a398d9cda2b661f0c8fa448acd44e68521388aae0f638605e3f7f6f1",
+      "context": {
+        "kind": "source-line",
+        "name": "return TrainerSubstitutionValidation.Failure(CreateLessonMutationProblem(\"lesson-not-scheduled\", StatusCodes.Status409Conflict));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        551
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-trainer-substitution-not-active\"",
+      "value": "lesson-trainer-substitution-not-active",
+      "fingerprint": "sha256:60dbaa6e4b9a69bac1a8528ebaa2ad41d36ba8483aa6b4074ffc1317b4494476",
+      "context": {
+        "kind": "source-line",
+        "name": "return TrainerSubstitutionCancellationValidation.Failure(CreateLessonMutationProblem(\"lesson-trainer-substitution-not-active\", StatusCodes.Status409Conflict));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        668
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"groupId\"",
+      "value": "groupId",
+      "fingerprint": "sha256:2f1b743e2d1a1a7c7540154a3366a86fd52c1438602f5f42929e7dd59f24bfb6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"groupId\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine28F39d9699];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        28,
+        76
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"hallId\"",
+      "value": "hallId",
+      "fingerprint": "sha256:8f446ba0bd3c1e2d31ac8eb45c4c56fa24ddeea329911392317a7a42121835c4",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"hallId\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine33482d5571];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        33,
+        91,
+        95,
+        138,
+        157,
+        161
+      ],
+      "occurrences": 6,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lessonDate\"",
+      "value": "lessonDate",
+      "fingerprint": "sha256:6fbc8e4c2115f50c9aba6b07241c182227fab6b3dbe97a9825a9f0ec4b0bb582",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"lessonDate\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine3928ddd147(LessonDateFormat)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        39
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"startTime\"",
+      "value": "startTime",
+      "fingerprint": "sha256:b5667446235d63e4f704a1b51b45743b0ed6c2e30362bd1ef0d648de29b54137",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"startTime\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine45B177fc71];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        45,
+        128
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"durationMinutes\"",
+      "value": "durationMinutes",
+      "fingerprint": "sha256:7bb6ef0a931a877175d776a3048d283dc05151622be9d669be16c73d4bda1476",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"durationMinutes\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine5076aa36d0];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        50,
+        60,
+        133,
+        148
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"scope\"",
+      "value": "scope",
+      "fingerprint": "sha256:5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"scope\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine11116e60781];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        111,
+        167
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"expectedRevision\"",
+      "value": "expectedRevision",
+      "fingerprint": "sha256:25d906905cdafa3444ab1b02e94dfc281cf43d33cd63107e55b9d8f4707994a6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"expectedRevision\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine116F663a580];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        116
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"newLessonDate\"",
+      "value": "newLessonDate",
+      "fingerprint": "sha256:47057ccc6c0600d6d62e29ae0b46edb7c6b9bc3142fdd6d6588300c6e2711194",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"newLessonDate\"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine12228ddd147(LessonDateFormat)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        122
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/problems/{code}\"",
+      "value": "/problems/{code}",
+      "fingerprint": "sha256:6eeb2e2eaeace6055a5ed4b0babd97930dd12861ba34ec0f211446b87bce8cfc",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = $\"/problems/{code}\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        777,
+        799
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-cancelled\"",
+      "value": "lesson-not-cancelled",
+      "fingerprint": "sha256:5b437d2f9167b803a6478a8249eacfb6b87ed1605fcb8530ae6fab8ada992b69",
+      "context": {
+        "kind": "source-line",
+        "name": ": CreateLessonMutationProblem(\"lesson-not-cancelled\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        829
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-scheduled\"",
+      "value": "lesson-not-scheduled",
+      "fingerprint": "sha256:101886d2a398d9cda2b661f0c8fa448acd44e68521388aae0f638605e3f7f6f1",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-not-scheduled\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        834
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/lesson-attendance-state-conflict\"",
+      "value": "/problems/lesson-attendance-state-conflict",
+      "fingerprint": "sha256:47c79c77ae34eb304fdb4fa416041206c5b050f711a38a17fb9088aca79f3ad9",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = \"/problems/lesson-attendance-state-conflict\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        857
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    }
+  ]
+}

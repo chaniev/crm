@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "FE-16-audit",
+  "entry_count": 3,
+  "entries": [
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'next'",
+      "value": "next",
+      "fingerprint": "sha256:c6c1c9a9c8543f1e4cd980064cf1625eeb61a90703b2464fff039f21682508b3",
+      "context": {
+        "kind": "call-argument",
+        "name": "getAuditPaginationControlLabel"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        453
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'previous'",
+      "value": "previous",
+      "fingerprint": "sha256:6da0633528deaa0144e7b058315f0b753ec0b945163a72bf96a0d18180f9de0d",
+      "context": {
+        "kind": "call-argument",
+        "name": "getAuditPaginationControlLabel"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        457
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        570
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/audit",
+      "slice": "FE-16-audit",
+      "review_status": "accepted"
+    }
+  ]
+}

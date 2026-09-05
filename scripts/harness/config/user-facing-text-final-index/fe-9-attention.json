@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "FE-9-attention",
+  "entry_count": 1,
+  "entries": [
+    {
+      "path": "frontend/src/features/attention/AttentionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Telegram\n          ",
+      "value": "Telegram",
+      "fingerprint": "sha256:acdd1e734125f341604c0efbabdcc4c4b0597e8f6235d66c2445edd1812838c1",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        270,
+        357
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/attention",
+      "slice": "FE-9-attention",
+      "review_status": "accepted"
+    }
+  ]
+}
