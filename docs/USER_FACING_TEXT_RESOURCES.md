@@ -146,6 +146,23 @@ characterization are present. Cross-owner duplicate decisions are resolved
 before either affected slice moves the literal. TASK-165 remains open until
 all slices and closure evidence are integrated.
 
+## Implemented closure
+
+The implementation also covered user-facing text discovered in
+`GymCrm.Application`, `GymCrm.Domain` and `GymCrm.Infrastructure`, which the
+original API-only backend collector did not enumerate. Those texts are owned
+by attendance, client-membership, bot, messenger and operational resource
+helpers in their producing assemblies. Machine contracts, generated migration
+history, persisted domain values and telemetry remain outside resources with
+explicit classifications.
+
+The final review package is stored in
+`scripts/harness/config/user-facing-text-final-index.json` and its shard
+directory. It records 3,227 occurrences and has zero Cyrillic and zero
+non-Cyrillic `resource` candidates outside resource boundaries. Both the
+reviewed baseline and final allowlists are empty. TypeScript, Roslyn and Python
+AST guards are part of the canonical frontend, backend and bot check matrices.
+
 ## Reproduction and review checklist
 
 After `frontend/node_modules` is installed from the lockfile, regenerate the

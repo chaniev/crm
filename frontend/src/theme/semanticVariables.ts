@@ -1,19 +1,16 @@
 import type { ThemeProfile } from './types'
 import { createFoundationVariables } from './foundations'
 import { createTypographyVariables } from './typography'
-import { fe17SharedRoutingThemeText } from '../resources/fe-17-shared-routing-theme'
-
-
 export type SemanticVariableMap = Record<`--crm-${string}`, string>
 
 export const semanticBaseColors = {
   background: '#F6F4EE',
-  backgroundAlt: fe17SharedRoutingThemeText.semanticVariables_backgroundAlt_b4f56a75,
+  backgroundAlt: '#EDF2EE',
   surface: '#FFFFFF',
   surfaceSubtle: '#F6FAF7',
   surfaceMuted: '#F7F8FA',
   surfaceDisabled: '#F3F4F6',
-  text: fe17SharedRoutingThemeText.semanticVariables_text_2a6f82d4,
+  text: '#17312D',
   textStrong: '#111827',
   textDisabled: '#596862',
   muted: '#64736D',
@@ -32,7 +29,7 @@ export const semanticBaseColors = {
   authAction: '#F26A21',
   authActionHover: '#D95C1F',
   authActionActive: '#BF4D17',
-  authText: fe17SharedRoutingThemeText.semanticVariables_authText_dcd6499f,
+  authText: '#171D27',
   authMuted: '#687083',
   authIconMuted: '#62708A',
   authBorder: '#D7DEE7',
@@ -104,7 +101,7 @@ export function createSemanticVariables(
     '--crm-focus-ring': primary[7],
 
     '--crm-surface-page': semanticBaseColors.background,
-    [fe17SharedRoutingThemeText.semanticVariables_crmSurfacePageAlt_06364c91]: semanticBaseColors.backgroundAlt,
+    '--crm-surface-page-alt': semanticBaseColors.backgroundAlt,
     '--crm-surface-card': semanticBaseColors.surface,
     '--crm-surface-subtle': semanticBaseColors.surfaceSubtle,
     '--crm-surface-muted': semanticBaseColors.surfaceMuted,
@@ -141,7 +138,7 @@ export function createSemanticVariables(
     '--crm-border-default': semanticBaseColors.border,
     '--crm-border-muted': semanticBaseColors.borderMuted,
     '--crm-border-strong': semanticBaseColors.borderStrong,
-    [fe17SharedRoutingThemeText.semanticVariables_crmTextHeading_7593858d]: semanticBaseColors.textStrong,
+    '--crm-text-heading': semanticBaseColors.textStrong,
     '--crm-text-primary': semanticBaseColors.text,
     '--crm-text-secondary': semanticBaseColors.muted,
     '--crm-text-disabled': semanticBaseColors.textDisabled,
@@ -182,7 +179,7 @@ export function createSemanticVariables(
     '--crm-auth-action': semanticBaseColors.authAction,
     '--crm-auth-action-hover': semanticBaseColors.authActionHover,
     '--crm-auth-action-active': semanticBaseColors.authActionActive,
-    [fe17SharedRoutingThemeText.semanticVariables_crmAuthText_66927a9e]: semanticBaseColors.authText,
+    '--crm-auth-text': semanticBaseColors.authText,
     '--crm-auth-muted': semanticBaseColors.authMuted,
     '--crm-auth-icon-muted': semanticBaseColors.authIconMuted,
     '--crm-auth-border': semanticBaseColors.authBorder,

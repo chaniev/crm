@@ -11,6 +11,8 @@ CONFIG = ROOT / "scripts/harness/config"
 INDEX_PATH = CONFIG / "user-facing-text-inventory-index.json"
 ALLOWLIST_PATH = CONFIG / "user-facing-text-allowlist.json"
 DUPLICATES_PATH = CONFIG / "user-facing-text-duplicates.json"
+FINAL_INDEX_PATH = CONFIG / "user-facing-text-final-index.json"
+FINAL_ALLOWLIST_PATH = CONFIG / "user-facing-text-final-allowlist.json"
 
 
 def load(path: Path) -> dict:
@@ -80,6 +82,17 @@ class UserFacingTextInventoryTests(unittest.TestCase):
             self.assertEqual("accepted", group["review_status"])
             for location in group["locations"]:
                 self.assertTrue((ROOT / location["path"]).is_file())
+
+    def test_final_inventory_has_no_copy_candidates_outside_resources(self) -> None:
+        index = load(FINAL_INDEX_PATH)
+        self.assertEqual("accepted", index["review_status"])
+        self.assertEqual(0, index["summary"]["cyrillic_resource_candidates"])
+        self.assertEqual(0, index["summary"]["non_cyrillic_resource_candidates"])
+        self.assertFalse(any(
+            item["resource_candidate_entries"] for item in index["inventory_files"]
+        ))
+        allowlist = load(FINAL_ALLOWLIST_PATH)
+        self.assertEqual([], allowlist["entries"])
 
 
 if __name__ == "__main__":

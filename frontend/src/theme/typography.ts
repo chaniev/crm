@@ -1,8 +1,6 @@
-
-import { fe17SharedRoutingThemeText } from '../resources/fe-17-shared-routing-theme'
 export const crmFontFamilies = {
   body: 'Onest, ui-sans-serif, system-ui, sans-serif',
-  heading: fe17SharedRoutingThemeText.typography_heading_adc69f43,
+  heading: 'Onest, ui-sans-serif, system-ui, sans-serif',
   mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace',
 } as const
 
@@ -95,7 +93,7 @@ export type TypographyVariableMap = Record<`--crm-${string}`, string>
 export function createTypographyVariables(): TypographyVariableMap {
   const variables: TypographyVariableMap = {
     '--crm-font-family-body': crmFontFamilies.body,
-    [fe17SharedRoutingThemeText.typography_crmFontFamilyHeading_36935063]: crmFontFamilies.heading,
+    '--crm-font-family-heading': crmFontFamilies.heading,
     '--crm-font-family-mono': crmFontFamilies.mono,
   }
 
