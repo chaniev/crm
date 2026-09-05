@@ -13,237 +13,72 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  requirements:
+  verification:
     runs-on: ubuntu-latest
+    outputs:
+      task_id: ${{ steps.selection.outputs.task_id }}
+      evidence_artifact: ${{ steps.evidence.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Validate requirements registry and active backlog
-        if: github.event_name != 'pull_request'
-        run: >-
-          python3 scripts/harness/verify_change.py
-          --profile full
-          --area requirements
-          --report .artifacts/verification/requirements.json
-
-      - name: Require changelog for requirement changes
-        if: github.event_name == 'pull_request'
-        run: >-
-          python3 scripts/harness/verify_change.py
-          --profile full
-          --area requirements
-          --base "${{ github.event.pull_request.base.sha }}"
-          --report .artifacts/verification/requirements.json
-
-      - name: Upload requirements verification evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: verification-requirements-${{ github.run_attempt }}
-          path: .artifacts/verification/requirements.json
-          if-no-files-found: error
-          retention-days: 14
-
-  harness:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Test verification harness
-        run: >-
-          python3 scripts/harness/verify_change.py
-          --profile full
-          --area harness
-          --report .artifacts/verification/harness.json
-
-      - name: Upload harness verification evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: verification-harness-${{ github.run_attempt }}
-          path: .artifacts/verification/harness.json
-          if-no-files-found: error
-          retention-days: 14
-
-  backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
+      - name: Select checks from the event diff and task contract
+        id: selection
+        run: python3 scripts/harness/ci_verification.py prepare
 
       - uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
-
-      - name: Run backend quality baseline
-        run: >-
-          python3 scripts/harness/verify_change.py
-          --profile full
-          --area backend
-          --report .artifacts/verification/backend.json
-
-      - name: Upload backend verification evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: verification-backend-${{ github.run_attempt }}
-          path: .artifacts/verification/backend.json
-          if-no-files-found: error
-          retention-days: 14
-
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Run frontend quality baseline
-        run: >-
-          python3 scripts/harness/verify_change.py
-          --profile full
-          --area frontend
-          --report .artifacts/verification/frontend.json
-
-      - name: Upload frontend verification evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: verification-frontend-${{ github.run_attempt }}
-          path: .artifacts/verification/frontend.json
-          if-no-files-found: error
-          retention-days: 14
-
-  bot:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.13"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          version: "0.12.5"
-          enable-cache: true
-          cache-dependency-glob: bot/uv.lock
-
-      - name: Run bot quality baseline
-        run: >-
-          python3 scripts/harness/verify_change.py
-          --profile full
-          --area bot
-          --report .artifacts/verification/bot.json
-
-      - name: Upload bot verification evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: verification-bot-${{ github.run_attempt }}
-          path: .artifacts/verification/bot.json
-          if-no-files-found: error
-          retention-days: 14
-
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Run deploy quality baseline
-        run: >-
-          python3 scripts/harness/verify_change.py
-          --profile full
-          --area deploy
-          --report .artifacts/verification/deploy.json
-
-      - name: Upload deploy verification evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: verification-deploy-${{ github.run_attempt }}
-          path: .artifacts/verification/deploy.json
-          if-no-files-found: error
-          retention-days: 14
-
-  task-verification:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-dotnet@v5
+        if: steps.selection.outputs.backend == 'true'
         with:
           global-json-file: global.json
 
       - uses: actions/setup-node@v7
+        if: steps.selection.outputs.frontend == 'true'
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
       - uses: actions/setup-python@v6
+        if: steps.selection.outputs.bot == 'true'
         with:
           python-version: "3.13"
 
       - name: Install uv
+        if: steps.selection.outputs.bot == 'true'
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           version: "0.12.5"
           enable-cache: true
           cache-dependency-glob: bot/uv.lock
 
-      - name: Resolve task identity
-        id: task
-        shell: bash
-        run: |
-          if [[ "$GITHUB_HEAD_REF" =~ (TASK-[0-9]+) ]]; then
-            echo "task_id=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          else
-            echo "Pull request branch must contain TASK-NNN" >&2
-            exit 1
-          fi
+      - name: Run selected baseline and task checks once
+        run: python3 scripts/harness/ci_verification.py run
 
-      - name: Run task verification contract
-        run: >-
-          python3 scripts/harness/verify_change.py
-          --base "${{ github.event.pull_request.base.sha }}"
-          --task-id "${{ steps.task.outputs.task_id }}"
-          --source-ref "$GITHUB_HEAD_REF"
-          --report ".artifacts/verification/${{ steps.task.outputs.task_id }}.json"
-
-      - name: Upload task verification evidence
+      - name: Upload verification evidence
+        id: evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: verification-task-${{ github.run_attempt }}
+          name: verification-${{ github.run_attempt }}
           path: .artifacts/verification/*.json
           if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload selection diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: selection-${{ github.run_attempt }}
+          path: .artifacts/ci/*.json
+          if-no-files-found: ignore
           retention-days: 14
 
       - name: Upload browser diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: diagnostics-task-${{ github.run_attempt }}
+          name: diagnostics-${{ github.run_attempt }}
           path: |
             frontend/test-results/
             frontend/playwright-report/
@@ -253,51 +88,33 @@ jobs:
   verification-gate:
     if: always()
     runs-on: ubuntu-latest
-    needs:
-      - requirements
-      - harness
-      - backend
-      - frontend
-      - bot
-      - deploy
-      - task-verification
+    needs: [verification]
     steps:
       - uses: actions/checkout@v7
 
       - name: Download verification evidence
         uses: actions/download-artifact@v7
         with:
-          pattern: verification-*
+          artifact-ids: ${{ needs.verification.outputs.evidence_artifact }}
           path: .artifacts/verification-input
           merge-multiple: true
 
-      - name: Resolve required task evidence
-        id: task
+      - name: Aggregate merge-gate evidence
+        env:
+          VERIFICATION_RESULT: ${{ needs.verification.result }}
+          REQUIRED_TASK_ID: ${{ needs.verification.outputs.task_id }}
         shell: bash
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            if [[ "$GITHUB_HEAD_REF" =~ (TASK-[0-9]+) ]]; then
-              echo "arguments=--require-task-id ${BASH_REMATCH[1]} --require-report ${BASH_REMATCH[1]}.json" >> "$GITHUB_OUTPUT"
-            else
-              echo "Pull request branch must contain TASK-NNN" >&2
-              exit 1
-            fi
-          else
-            echo "arguments=" >> "$GITHUB_OUTPUT"
+          arguments=()
+          if [[ -n "$REQUIRED_TASK_ID" ]]; then
+            arguments+=(--require-task-id "$REQUIRED_TASK_ID")
           fi
-
-      - name: Aggregate merge-gate evidence
-        run: >-
-          python3 scripts/harness/aggregate_evidence.py
-          --input-dir .artifacts/verification-input
-          --report .artifacts/verification-gate.json
-          --require-report requirements.json
-          --require-report harness.json
-          --require-report backend.json
-          --require-report frontend.json
-          --require-report bot.json
-          --require-report deploy.json
-          ${{ steps.task.outputs.arguments }}
+          python3 scripts/harness/aggregate_evidence.py \
+            --input-dir .artifacts/verification-input \
+            --report .artifacts/verification-gate.json \
+            --require-report verification.json \
+            "${arguments[@]}"
+          test "$VERIFICATION_RESULT" = success
 
       - name: Upload aggregate merge-gate evidence
         if: always()

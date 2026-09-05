@@ -191,6 +191,13 @@ invokes that matrix through the harness. Scoped `AGENTS.md` files define
 required outcomes and additional scenario coverage, not duplicate shell
 commands.
 
+Descriptive documentation, requirements, backlog, and Markdown agent/skill
+instructions use the knowledge checks selected by the harness, without installing
+or testing unchanged applications. Mixed changes take the union of affected
+areas. Executable resources, runtime configuration, shared contracts, explicit
+task-contract additions, and unknown paths retain their required checks.
+Changes to selectors or knowledge validators also run harness regression tests.
+
 Use `python3 scripts/harness/verify_change.py --base origin/main --task-id
 TASK-NNN` as the default local entry point when the task has a verification
 contract; otherwise omit `--task-id`. Use `--dry-run` to inspect the selected

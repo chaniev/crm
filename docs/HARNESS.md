@@ -220,34 +220,58 @@ python3 scripts/harness/verify_change.py \
 
 | Changed boundary | Selected areas |
 |---|---|
-| Repository knowledge or backlog | requirements |
-| Harness tests | requirements, harness |
-| Harness implementation or command matrix | full baseline |
+| Documentation, requirements, backlog, Markdown AGENTS/skill instructions | requirements |
+| Harness tests, selector, CI selection adapter, knowledge validators | requirements, harness |
+| Harness execution core, command matrix, CI workflows, unknown infrastructure | full baseline |
+| Shared user-facing-text guard data | requirements, harness, backend, frontend, bot |
 | Backend implementation | requirements, backend |
 | Staff API request/response/endpoint contract | requirements, backend, frontend |
 | Internal Bot API contract | requirements, backend, bot |
-| Frontend | requirements, frontend |
-| Bot | requirements, bot |
+| Frontend implementation, config or runtime assets | requirements, frontend |
+| Bot implementation, config or runtime assets | requirements, bot |
 | Deploy or Compose | requirements, deploy |
 | Service Dockerfile | owning layer plus deploy |
-| Root `AGENTS.md`, cross-cutting skill, CI, unknown script or unclassified path | full baseline |
-| Scoped `AGENTS.md` | requirements, owning layer |
-| Backlog-only `AGENTS.md` or skill | requirements |
-| Scoped backend/frontend skill | requirements, owning layer |
+
+Knowledge routing happens before layer-prefix routing. It includes root README
+and contribution/security/change-log files, AGENTS files, Markdown skill
+instructions/references, `.github` Markdown templates, top-level layer Markdown
+files and layer `docs/` directories. It does not treat arbitrary Markdown below
+`src/`, `public/` or resource directories as documentation: those may be runtime
+inputs. Executable skill scripts and unknown metadata keep the full fallback.
+
+The mapping is additive. A README alongside an API change cannot remove backend
+or consumer validation. Both sides of renames, deletions and untracked files
+still participate. Explicit `--profile full` still selects every area. A task
+contract can still add areas, runtime, Playwright and manual checks to a
+knowledge-only diff; it is never silently filtered to save time.
 
 Staff API detection includes transport contracts under `GymCrm.Api` plus the
 application contract locations listed in `backend/AGENTS.md`. Internal Bot API
 paths are evaluated first so Bot contracts do not select frontend checks.
+Add a focused regression test for every new path class and keep its owning
+instructions synchronized.
 
-The mapping is conservative. Add or change a path or rule only with a focused
-unit test under `scripts/harness/tests/` and keep the owning scoped
-`AGENTS.md` synchronized.
+### Excessive scenarios corrected
 
-The cross-cutting skill set includes
-`.agents/skills/architecture-decision/`. Changes to that workflow select the
-full baseline because they can alter decisions across every producer and
-consumer layer. ADR documents themselves are repository knowledge and select
-the requirements area, which includes ADR validation.
+| Scenario | Previous unnecessary work | Current required work |
+|---|---|---|
+| Root `README.md` or contribution document | Full fallback because the root README was unclassified | Knowledge validation |
+| README, DESIGN or diagnostic Markdown at a service root | Service install, audit, build and tests due to prefix ordering | Knowledge validation |
+| Root or scoped `AGENTS.md` | Full baseline or the entire owning service | Instruction routing/references and knowledge validation |
+| Cross-cutting or previously unknown Markdown skill/reference | Full application baseline | Knowledge validation |
+| Frontend/backend skill prose | Owning application's entire baseline | Knowledge validation |
+| Selector or standalone requirements/plan/ADR validator | Full application baseline (or missing harness regression coverage) | Knowledge validation plus harness tests |
+| Shared text-guard data | Unrelated Compose/deploy checks | Guard consumer layers plus harness tests |
+| Requirements/backlog/docs-only PR or push | CI ran all six area jobs regardless of local selection | The same diff-aware selection as local verification |
+| Lightweight PR without a verification contract | Forced artificial task/contract just to enter CI | Canonical knowledge/harness checks; existing contracts still apply |
+| Task PR with a verification contract | Layer baseline in area jobs and again in task-verification | One combined baseline plus task-specific checks |
+| Documentation-only CI | Setup of .NET, Node, Python-for-bot and uv | Only tools required by selected checks |
+
+Product requirement approval and plan-readiness checks remain mandatory. A change
+to desired behavior in a requirement card does not implement that behavior and
+therefore does not require testing unchanged application code. Its later
+implementation gets all normal producer/consumer checks.
+
 
 Impact analysis intentionally does not guess individual Playwright specs. For a
 changed user workflow, enumerate the affected desktop and target-iPhone specs
@@ -280,18 +304,34 @@ validated content, SHA-256 digest, expected branch, verified HEAD/tree, manual
 statuses and selection reasons for every automated check. This lets any coding
 agent or CI job prove which diff rules and task requirements produced the run.
 
-Every Quality workflow job writes a unique report, appends its outcome to the
-GitHub job summary, and uploads the JSON as a 14-day artifact even when a check
-fails. Pull requests additionally run the discovered task contract from the
-detached checkout and upload Playwright diagnostics.
+Quality prepares a dry-run selection in `.artifacts/ci/plan.json`, installs
+only selected runtimes, then invokes the canonical runner once. The executable
+run recomputes the selection; a dry-run plan is never accepted as test evidence.
+The prepared HEAD must still match the checkout. Canonical and task-specific
+checks share one report at `.artifacts/verification/verification.json`; nested
+runtime reports and browser diagnostics remain available as artifacts. Reports
+are retained for 14 days even on failure.
 
-`scripts/harness/aggregate_evidence.py` is the final merge gate. It downloads
-and combines all required reports, rejects missing evidence, failures,
-unconfirmed manual checks, mixed HEAD/tree identities, mixed contract digests,
-or a missing task ID, and writes one immutable aggregate JSON result. A pull
-request branch must contain `TASK-NNN`; this keeps task discovery portable for
-Claude Code, Codex, OpenCode, Zed and other coding agents without relying on a
-vendor-specific runtime or metadata format.
+PR selection uses the PR base SHA; push selection uses the event's `before`
+SHA, not `origin/main` after checkout. Missing or non-ancestor push history uses
+the full baseline. Application/infrastructure PRs still require a unique
+`TASK-NNN` branch identity and verification contract. A knowledge/harness-only
+PR may omit these when no contract exists. Existing contracts are always loaded
+and validated, including their manual requirements; deleted, malformed,
+ambiguous and stale contracts are not a route to lightweight verification.
+
+`scripts/harness/aggregate_evidence.py` remains the final `verification-gate`.
+It requires `verification.json`, plus the selected task identity when there is
+a contract, and rejects missing evidence, failures, unconfirmed manual checks,
+dirty checkouts, mixed HEAD/tree identities or mixed contract digests. The gate
+also requires the verification job itself to succeed. Selection diagnostics
+are uploaded separately so their dry-run status cannot masquerade as passed
+verification evidence. The gate downloads the artifact ID produced by its
+verification job, so reports from earlier workflow attempts cannot overwrite it.
+One runner executes the combined checks sequentially; full push validation no
+longer has separate parallel area jobs, while task PRs lose their duplicate
+baseline. Branch protection should require `verification-gate`;
+legacy individual area jobs no longer exist.
 
 ## Plan decision readiness
 

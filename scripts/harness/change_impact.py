@@ -15,30 +15,30 @@ ALL_AREAS = (
     "deploy",
 )
 
-SCOPED_AGENT_AREAS = {
-    "backend/AGENTS.md": ("backend",),
-    "frontend/AGENTS.md": ("frontend",),
-    "bot/AGENTS.md": ("bot",),
-    "deploy/AGENTS.md": ("deploy",),
-    "backlog/AGENTS.md": (),
+# Only descriptive paths are exempt; arbitrary Markdown in runtime resources
+# and executable skill files retain their owning area or the safe fallback.
+DOCUMENT_NAMES = {"README.md", "README.rst", "README.txt", "AGENTS.md"}
+ROOT_DOCUMENTS = {
+    "README.md",
+    "README.rst",
+    "README.txt",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
+    "LICENSE",
+    "LICENSE.md",
 }
-
-SCOPED_SKILL_AREAS = {
-    ".agents/skills/codex-backlog-skill/": (),
-    ".agents/skills/tasks-ready-to-implementation/": (),
-    ".agents/skills/csharp-xunit/": ("backend",),
-    ".agents/skills/crm-mobile-first-ui/": ("frontend",),
-    ".agents/skills/design-first-ui-prompting/": ("frontend",),
-    ".agents/skills/react-best-practices/": ("frontend",),
-    ".agents/skills/web-design-guidelines/": ("frontend",),
+LAYER_DOCUMENTS = {"frontend/DESIGN.md", "deploy/SERVER_INSTALL.md"}
+KNOWLEDGE_HARNESS_MODULES = {
+    "scripts/validate_requirements.py",
+    "scripts/harness/change_impact.py",
+    "scripts/harness/ci_verification.py",
+    "scripts/harness/validate_agent_instructions.py",
+    "scripts/harness/validate_architecture_decisions.py",
+    "scripts/harness/validate_plan_readiness.py",
 }
-
-CROSS_CUTTING_SKILL_PREFIXES = (
-    ".agents/skills/architecture-decision/",
-    ".agents/skills/deploy-project/",
-    ".agents/skills/implement-release-plan/",
-    ".agents/skills/task-worktree/",
-)
 
 STAFF_APPLICATION_CONTRACT_PREFIXES = (
     "backend/src/GymCrm.Application/Authorization/",
@@ -90,11 +90,27 @@ def _is_internal_bot_api_boundary(path: str) -> bool:
     )
 
 
-def _add_scoped_infrastructure(
-    impact: ChangeImpact, path: str, areas: tuple[str, ...]
-) -> None:
-    for area in areas:
-        impact.add(area, f"scoped agent infrastructure changed: {path}")
+def _is_documentation(path: str) -> bool:
+    parts = PurePosixPath(path)
+    if path in ROOT_DOCUMENTS or path in LAYER_DOCUMENTS:
+        return True
+    if (
+        len(parts.parts) == 2
+        and parts.parts[0] in {"backend", "frontend", "bot", "deploy"}
+        and parts.suffix == ".md"
+    ):
+        return True
+    if parts.name in DOCUMENT_NAMES:
+        return True
+    if path.startswith(("docs/", "backlog/")):
+        return True
+    if path.startswith(".agents/skills/") and parts.suffix == ".md":
+        return True
+    if path.startswith(".github/") and parts.suffix == ".md":
+        return True
+    return path.startswith(
+        ("backend/docs/", "frontend/docs/", "bot/docs/", "deploy/docs/")
+    )
 
 
 def analyze_paths(paths: list[str], *, full: bool = False) -> ChangeImpact:
@@ -110,36 +126,28 @@ def analyze_paths(paths: list[str], *, full: bool = False) -> ChangeImpact:
     for raw_path in paths:
         path = _normalize(raw_path)
 
-        if path == "AGENTS.md":
-            impact.add_full_baseline(f"root agent instructions changed: {path}")
+        if _is_documentation(path):
+            impact.add("requirements", f"documentation or instructions changed: {path}")
             continue
 
-        if path in SCOPED_AGENT_AREAS:
-            _add_scoped_infrastructure(impact, path, SCOPED_AGENT_AREAS[path])
+        if path in KNOWLEDGE_HARNESS_MODULES or path.startswith(
+            "scripts/harness/tests/"
+        ):
+            impact.add(
+                "harness",
+                f"selector, knowledge validator or harness tests changed: {path}",
+            )
             continue
 
-        if path.startswith(CROSS_CUTTING_SKILL_PREFIXES):
-            impact.add_full_baseline(f"cross-cutting skill changed: {path}")
-            continue
-
-        matched_skill = next(
-            (prefix for prefix in SCOPED_SKILL_AREAS if path.startswith(prefix)),
-            None,
-        )
-        if matched_skill is not None:
-            _add_scoped_infrastructure(impact, path, SCOPED_SKILL_AREAS[matched_skill])
-            continue
-
-        if path.startswith("scripts/harness/tests/"):
-            impact.add("harness", f"verification harness tests changed: {path}")
+        if path.startswith("scripts/harness/config/user-facing-text"):
+            for area in ("harness", "backend", "frontend", "bot"):
+                impact.add(area, f"shared user-facing text guard data changed: {path}")
             continue
 
         if path.startswith("scripts/harness/"):
-            impact.add_full_baseline(f"verification harness changed: {path}")
-            continue
-
-        if path == "scripts/validate_requirements.py":
-            impact.add("requirements", f"requirements validator changed: {path}")
+            impact.add_full_baseline(
+                f"verification execution infrastructure changed: {path}"
+            )
             continue
 
         if path.startswith("backend/") or path == "global.json":
@@ -168,11 +176,7 @@ def analyze_paths(paths: list[str], *, full: bool = False) -> ChangeImpact:
             impact.add("deploy", f"deployment contract changed: {path}")
             continue
 
-        if path.startswith("docs/") or path.startswith("backlog/"):
-            impact.add("requirements", f"repository knowledge changed: {path}")
-            continue
-
-        if path == ".gitignore" or path.endswith("/README.md"):
+        if path == ".gitignore":
             impact.add("requirements", f"repository metadata changed: {path}")
             continue
 
