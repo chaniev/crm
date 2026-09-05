@@ -247,7 +247,7 @@ internal static class ClientLifecycleRequestValidation
 
     private static ProblemHttpResult CreateInvalidUpsertJsonProblem() =>
         TypedResults.Problem(
-            title: "Bad Request",
+            title: global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientLifecycleRequestValidationLine2507c41b898,
             type: "https://tools.ietf.org/html/rfc9110#section-15.5.1",
             statusCode: StatusCodes.Status400BadRequest);
 

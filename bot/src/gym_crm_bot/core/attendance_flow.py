@@ -12,6 +12,7 @@ from gym_crm_bot.core.service_types import BotResponse
 from gym_crm_bot.crm.client import CrmBotApiClient
 from gym_crm_bot.crm.errors import CrmClientError
 from gym_crm_bot.crm.models import AttendanceGroup, AttendanceLesson, AttendanceMarkRequest
+from gym_crm_bot.resources import bot_2_attendance as bot_2_attendance_text
 from gym_crm_bot.resources.keyboards import (
     render_attendance_dates_keyboard,
     render_attendance_groups_keyboard,
@@ -60,7 +61,7 @@ class AttendanceFlow:
             },
         )
         return BotResponse(
-            text="Выберите дату тренировки.",
+            text=bot_2_attendance_text.ATTENDANCE_FLOW_LINE_63_62EAB7BE,
             reply_markup=render_attendance_dates_keyboard(
                 today=date_window.today,
                 min_training_date=date_window.min_training_date,
@@ -230,16 +231,15 @@ class AttendanceFlow:
 
         await self._state_store.clear_all(event)
         warnings = "\n".join(f"- {item}" for item in response.warnings)
-        summary = (
-            f"Посещения сохранены.\n"
-            f"Группа: {response.group_name}\n"
-            f"Дата: {response.training_date.strftime('%d.%m.%Y')}\n"
-            f"Отмечено: {response.marked_count}\n"
-            f"Были: {response.present_count}\n"
-            f"Не были: {response.absent_count}"
+        summary = bot_2_attendance_text.ATTENDANCE_FLOW_LINE_234_7E385447(
+            response.group_name,
+            response.training_date.strftime("%d.%m.%Y"),
+            response.marked_count,
+            response.present_count,
+            response.absent_count,
         )
         if warnings:
-            summary += f"\nПредупреждения:\n{warnings}"
+            summary += bot_2_attendance_text.ATTENDANCE_FLOW_LINE_242_89CE99C4(warnings)
         return BotResponse(text=summary, replace_existing=True)
 
     async def _require_draft(self, event: NormalizedTelegramEvent) -> dict[str, Any] | None:
@@ -264,10 +264,22 @@ class AttendanceFlow:
         marks: list[dict[str, Any]],
     ) -> str:
         if not marks:
-            return f"Группа {group_name} на {training_date.strftime('%d.%m.%Y')}: список пуст."
-        lines = [f"Группа: {group_name}", f"Дата: {training_date.strftime('%d.%m.%Y')}", ""]
+            return bot_2_attendance_text.ATTENDANCE_FLOW_LINE_267_56B0987A(
+                group_name, training_date.strftime("%d.%m.%Y")
+            )
+        lines = [
+            bot_2_attendance_text.ATTENDANCE_FLOW_LINE_268_AA9476A6(group_name),
+            bot_2_attendance_text.ATTENDANCE_FLOW_LINE_268_A8949993(
+                training_date.strftime("%d.%m.%Y")
+            ),
+            "",
+        ]
         for item in marks:
-            marker = "Был" if item["is_present"] else "Не был"
+            marker = (
+                bot_2_attendance_text.ATTENDANCE_FLOW_LINE_270_FF13DE89
+                if item["is_present"]
+                else bot_2_attendance_text.ATTENDANCE_FLOW_LINE_270_CD2E8AD3
+            )
             line = f"{item['full_name']}: {marker}"
             if item.get("warning"):
                 line += f" ({item['warning']})"
@@ -279,12 +291,14 @@ def render_attendance_groups_text(
     training_date: date,
     groups: list[AttendanceGroup] | list[AttendanceLesson],
 ) -> str:
-    lines = [f"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите занятие."]
+    lines = [
+        bot_2_attendance_text.ATTENDANCE_FLOW_LINE_282_8951FBCA(training_date.strftime("%d.%m.%Y"))
+    ]
     for group in groups:
         if isinstance(group, AttendanceLesson):
             details = [
-                f"старт {group.start_time}",
-                f"{group.duration_minutes} мин",
+                bot_2_attendance_text.ATTENDANCE_FLOW_LINE_286_A3486BF2(group.start_time),
+                bot_2_attendance_text.ATTENDANCE_FLOW_LINE_287_9B75002F(group.duration_minutes),
                 group.hall_name,
                 group.branch_name,
             ]
@@ -292,9 +306,11 @@ def render_attendance_groups_text(
                 trainer_names = ", ".join(
                     trainer.display_name for trainer in group.effective_trainers
                 )
-                details.append(f"тренеры: {trainer_names}")
+                details.append(
+                    bot_2_attendance_text.ATTENDANCE_FLOW_LINE_295_12B8B72F(trainer_names)
+                )
             if group.status == "Cancelled":
-                details.append("отменено")
+                details.append(bot_2_attendance_text.ATTENDANCE_FLOW_LINE_297_8A097230)
             lines.append(f"{group.group_name}: {' · '.join(details)}")
             continue
 

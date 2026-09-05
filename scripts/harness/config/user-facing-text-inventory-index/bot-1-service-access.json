@@ -1,0 +1,186 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "BOT-1-service-access",
+  "entry_count": 8,
+  "entries": [
+    {
+      "path": "bot/src/gym_crm_bot/core/crm_error_mapping.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Запрос уже обрабатывается. Обновите меню и проверьте результат.\"",
+      "value": "Запрос уже обрабатывается. Обновите меню и проверьте результат.",
+      "fingerprint": "sha256:299baaec6873fdbc4f70937078f556163b51ec21007d65bc8e4d708530f72f73",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        69
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/service-access",
+      "slice": "BOT-1-service-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/service.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Используйте /start или кнопки меню.\"",
+      "value": "Используйте /start или кнопки меню.",
+      "fingerprint": "sha256:48f52aa0c3e519eb9fa1cd0fd564a02f8d1bdefdf53905a2b1e5cc5b3220ef55",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        64
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/service-access",
+      "slice": "BOT-1-service-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/service.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Поддерживаются команды /start и /id.\"",
+      "value": "Поддерживаются команды /start и /id.",
+      "fingerprint": "sha256:e61a499d688e6a9ce92b2b966dc486bde4be6f8ff1448f99c6175750d82bb186",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        71
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/service-access",
+      "slice": "BOT-1-service-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/service.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Команда не поддерживается.\"",
+      "value": "Команда не поддерживается.",
+      "fingerprint": "sha256:21bb98ee92b8129809eed8128e2f0ddd278d830066f9ecee889e5a81ebc33cc4",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        103
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/service-access",
+      "slice": "BOT-1-service-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/service.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"{context.display_name}, выберите действие.\"",
+      "value": "f\"{context.display_name}, выберите действие.\"",
+      "fingerprint": "sha256:37141bf2c7db22ec0d3ab682315b1bd20df2b52bde984a6c19293b6cc0c5ffbd",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        146
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/service-access",
+      "slice": "BOT-1-service-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/service.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"{context.display_name}, выберите действие.\"",
+      "value": ", выберите действие.",
+      "fingerprint": "sha256:5ca4b2dba0f805e24457ec30d482a85e541aeb0e7e952e8a38066282a2b876aa",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        146
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/service-access",
+      "slice": "BOT-1-service-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/crm/models.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"{self.full_name} (замена)\"",
+      "value": "f\"{self.full_name} (замена)\"",
+      "fingerprint": "sha256:4aa725cb6c1ef2013bd8315fc68ba64093f9844ba15ee6360de2e15a9272d274",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/service-access",
+      "slice": "BOT-1-service-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/crm/models.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"{self.full_name} (замена)\"",
+      "value": " (замена)",
+      "fingerprint": "sha256:b580f83fd890feb11eff90a512703b0d41ffa9997189ec0ac0483f5304a7d80a",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/service-access",
+      "slice": "BOT-1-service-access",
+      "review_status": "accepted"
+    }
+  ]
+}

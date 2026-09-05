@@ -231,7 +231,7 @@ internal static partial class ScheduleEndpoints
                     "LessonOccurrenceTrainerSubstitutionCreated",
                     "LessonOccurrenceTrainerSubstitution",
                     substitution.Id.ToString(),
-                    $"Пользователь '{currentUser.Login}' назначил замену тренера на занятие.",
+                    global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine234Dc3b2af8(currentUser.Login),
                     NewValueJson: JsonSerializer.Serialize(new
                     {
                         substitution.Id,
@@ -417,7 +417,7 @@ internal static partial class ScheduleEndpoints
                     "LessonOccurrenceTrainerSubstitutionCancelled",
                     "LessonOccurrenceTrainerSubstitution",
                     item.Substitution.Id.ToString(),
-                    $"Пользователь '{currentUser.Login}' отменил замену тренера на занятие.",
+                    global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine4201c0b9ac5(currentUser.Login),
                     OldValueJson: JsonSerializer.Serialize(new
                     {
                         item.Substitution.Id,
@@ -470,22 +470,22 @@ internal static partial class ScheduleEndpoints
         var errors = new Dictionary<string, string[]>();
         if (!replacedTrainerId.HasValue || replacedTrainerId == Guid.Empty)
         {
-            errors["replacedTrainerId"] = ["Заменяемый тренер обязателен."];
+            errors["replacedTrainerId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine473791b67a1];
         }
 
         if (!substituteTrainerId.HasValue || substituteTrainerId == Guid.Empty)
         {
-            errors["substituteTrainerId"] = ["Замещающий тренер обязателен."];
+            errors["substituteTrainerId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine478952f984f];
         }
 
         if (replacedTrainerId.HasValue && substituteTrainerId.HasValue && replacedTrainerId.Value == substituteTrainerId.Value)
         {
-            errors["substituteTrainerId"] = ["Замещающий тренер должен отличаться от заменяемого."];
+            errors["substituteTrainerId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine483645d1598];
         }
 
         if (targets is null || targets.Count == 0)
         {
-            errors["targets"] = ["Передайте хотя бы одно занятие."];
+            errors["targets"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine4881bd1c92d];
         }
 
         if (errors.Count > 0)
@@ -500,7 +500,7 @@ internal static partial class ScheduleEndpoints
         {
             return TrainerSubstitutionValidation.Failure(TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["substituteTrainerId"] = ["Замещающий тренер не найден или неактивен."]
+                ["substituteTrainerId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine503A3e36c0c]
             }));
         }
 
@@ -512,7 +512,7 @@ internal static partial class ScheduleEndpoints
             {
                 return TrainerSubstitutionValidation.Failure(TypedResults.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["targets"] = ["Каждая цель должна содержать lessonOccurrenceId и expectedRevision."]
+                    ["targets"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine51576fc4ebc]
                 }));
             }
 
@@ -521,7 +521,7 @@ internal static partial class ScheduleEndpoints
             {
                 return TrainerSubstitutionValidation.Failure(TypedResults.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["targets.lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                    ["targets.lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine52428ddd147(LessonDateFormat)]
                 }));
             }
 
@@ -559,7 +559,7 @@ internal static partial class ScheduleEndpoints
             {
                 return TrainerSubstitutionValidation.Failure(TypedResults.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["replacedTrainerId"] = ["Заменяемый тренер не является постоянным тренером группы на дату занятия."]
+                    ["replacedTrainerId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine562011248fe]
                 }));
             }
 
@@ -610,7 +610,7 @@ internal static partial class ScheduleEndpoints
         {
             return TrainerSubstitutionCancellationValidation.Failure(TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["targets"] = ["Передайте хотя бы одну замену."]
+                ["targets"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine6134d395d55]
             }));
         }
 
@@ -623,7 +623,7 @@ internal static partial class ScheduleEndpoints
             {
                 return TrainerSubstitutionCancellationValidation.Failure(TypedResults.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["targets"] = ["Каждая цель должна содержать lessonOccurrenceId, substitutionId и expectedRevision."]
+                    ["targets"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine6268e67e6a0]
                 }));
             }
 
@@ -632,7 +632,7 @@ internal static partial class ScheduleEndpoints
             {
                 return TrainerSubstitutionCancellationValidation.Failure(TypedResults.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["targets.lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                    ["targets.lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine63528ddd147(LessonDateFormat)]
                 }));
             }
 
@@ -705,7 +705,7 @@ internal static partial class ScheduleEndpoints
         {
             warnings.Add(new ScheduleWarningResponse(
                 "lesson_trainer_overlap",
-                "У замещающего тренера есть пересекающееся занятие."));
+                global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleLessonTrainerSubstitutionEndpointsLine708090713d0));
         }
 
         return warnings;

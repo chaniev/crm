@@ -24,6 +24,8 @@ import {
   GYM_CRM_NOTIFICATION_AUTO_CLOSE_MS,
   GYM_CRM_NOTIFICATION_LIMIT,
 } from './componentRecipeConstants'
+import { fe17SharedRoutingThemeText } from '../resources/fe-17-shared-routing-theme'
+
 
 const controlTransition = [
   'background-color var(--crm-motion-duration-fast) var(--crm-motion-easing-functional)',
@@ -253,7 +255,7 @@ export function createGymCrmComponentRecipes({
     defaultProps: {
       'data-crm-recipe': 'modal',
       closeButtonProps: {
-        'aria-label': 'Закрыть окно',
+        'aria-label': fe17SharedRoutingThemeText.componentRecipes_ariaLabel_db9cc7b2,
       },
       overlayProps: {
         backgroundOpacity: 0.18,
@@ -269,7 +271,7 @@ export function createGymCrmComponentRecipes({
     defaultProps: {
       'data-crm-recipe': 'drawer',
       closeButtonProps: {
-        'aria-label': 'Закрыть панель',
+        'aria-label': fe17SharedRoutingThemeText.componentRecipes_ariaLabel_bf427bdb,
       },
       overlayProps: {
         backgroundOpacity: 0.18,

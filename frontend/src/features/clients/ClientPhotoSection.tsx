@@ -13,6 +13,8 @@ import {
   formatFileSize,
   validateClientPhotoFile,
 } from './ClientManagement.formatting'
+import { fe8ClientMessengerMediaText } from '../../resources/fe-8-client-messenger-media'
+
 
 type ClientPhotoSectionProps = {
   canUpload: boolean
@@ -80,15 +82,15 @@ export function ClientPhotoSection({
 
       showAppNotification({
         id: 'client-photo-upload-success',
-        title: 'Фотография обновлена',
-        message: 'Карточка клиента получила новую фотографию.',
+        title: fe8ClientMessengerMediaText.clientPhotoSection_title_2fb80bcc,
+        message: fe8ClientMessengerMediaText.clientPhotoSection_message_9eb96d58,
         color: 'teal',
       })
     } catch (error) {
       setUploadError(
         error instanceof Error
           ? error.message
-          : 'Не удалось загрузить фотографию клиента.',
+          : fe8ClientMessengerMediaText.clientPhotoSection_string_5d9e3868,
       )
     } finally {
       setUploading(false)
@@ -103,11 +105,11 @@ export function ClientPhotoSection({
         opened={previewOpened && Boolean(previewUrl)}
         radius="8px"
         size="xl"
-        title={`Фотография клиента ${clientName}`}
+        title={fe8ClientMessengerMediaText.clientPhotoSection_template_b53a862a(clientName)}
       >
         {previewUrl ? (
           <img
-            alt={`Фотография клиента ${clientName}`}
+            alt={fe8ClientMessengerMediaText.clientPhotoSection_template_b53a862a(clientName)}
             className="client-photo-modal-image"
             src={previewUrl}
           />
@@ -126,20 +128,20 @@ export function ClientPhotoSection({
               <IconCamera size={20} />
             </ThemeIcon>
             <div>
-              <Text fw={700}>{variant === 'compact' ? 'Фото' : 'Фотография клиента'}</Text>
+              <Text fw={700}>{variant === 'compact' ? fe8ClientMessengerMediaText.clientPhotoSection_string_45c2f1fa : fe8ClientMessengerMediaText.clientPhotoSection_string_75f5b4ed}</Text>
               <Text c="dimmed" size="sm">
                 {canUpload
-                  ? 'Можно заменить фото клиента.'
+                  ? fe8ClientMessengerMediaText.clientPhotoSection_string_f71f0281
                   : clientId
-                    ? 'Фото доступно для просмотра.'
-                    : 'Фото можно добавить сразу после первичного сохранения карточки клиента.'}
+                    ? fe8ClientMessengerMediaText.clientPhotoSection_string_232091bb
+                    : fe8ClientMessengerMediaText.clientPhotoSection_string_6c6732f0}
               </Text>
             </div>
           </Group>
 
           {variant === 'default' ? (
             <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
-              {canUpload ? 'Загрузка' : 'Просмотр'}
+              {canUpload ? fe8ClientMessengerMediaText.clientPhotoSection_string_111213e7 : fe8ClientMessengerMediaText.clientPhotoSection_string_f1163738}
             </Badge>
           ) : null}
         </Group>
@@ -155,14 +157,14 @@ export function ClientPhotoSection({
 
               {previewStatus !== 'error' ? (
                 <button
-                  aria-label={`Открыть фотографию клиента ${clientName}`}
+                  aria-label={fe8ClientMessengerMediaText.clientPhotoSection_template_8864f585(clientName)}
                   className="client-photo-preview__button"
                   disabled={previewStatus !== 'ready'}
                   onClick={() => setPreviewOpened(true)}
                   type="button"
                 >
                   <img
-                    alt={`Фотография клиента ${clientName}`}
+                    alt={fe8ClientMessengerMediaText.clientPhotoSection_template_b53a862a(clientName)}
                     className="client-photo-preview__image"
                     onError={() => setPreviewStatus('error')}
                     onLoad={() => setPreviewStatus('ready')}
@@ -186,11 +188,11 @@ export function ClientPhotoSection({
               <ThemeIcon color="gray" radius="xl" size={42} variant="light">
                 <IconPhotoOff size={20} />
               </ThemeIcon>
-              <Text fw={600}>Фото пока не показано</Text>
+              <Text fw={600}>{fe8ClientMessengerMediaText.clientPhotoSection_jsxText_7ef83fc5}</Text>
               <Text c="dimmed" size="sm" ta="center">
                 {clientId
-                  ? 'Фотография еще не загружена или недоступна для просмотра.'
-                  : 'Сначала сохраните клиента, затем вернитесь в карточку или редактирование, чтобы загрузить фотографию.'}
+                  ? fe8ClientMessengerMediaText.clientPhotoSection_string_b96af1f1
+                  : fe8ClientMessengerMediaText.clientPhotoSection_string_62530367}
               </Text>
             </Stack>
           ) : null}
@@ -210,7 +212,7 @@ export function ClientPhotoSection({
             ) : null}
             {photo.uploadedAt ? (
               <Badge color="sand" radius="sm" variant="light">
-                Загружено: {formatDateTimeValue(photo.uploadedAt)}
+                {fe8ClientMessengerMediaText.clientPhotoSection_jsxText_69380add}{formatDateTimeValue(photo.uploadedAt)}
               </Badge>
             ) : null}
           </Group>
@@ -220,7 +222,7 @@ export function ClientPhotoSection({
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Фото не загружено"
+            title={fe8ClientMessengerMediaText.clientPhotoSection_title_0f50b2a8}
             variant="light"
           >
             {uploadError}
@@ -236,7 +238,7 @@ export function ClientPhotoSection({
                 loading={uploading}
                 variant="light"
               >
-                {photo ? 'Заменить фото' : 'Загрузить фото'}
+                {photo ? fe8ClientMessengerMediaText.clientPhotoSection_string_f61eb235 : fe8ClientMessengerMediaText.clientPhotoSection_string_bee0c752}
               </Button>
             </label>
             <input
@@ -248,8 +250,7 @@ export function ClientPhotoSection({
               type="file"
             />
             <Text c="dimmed" size="sm">
-              JPEG, PNG, WebP, HEIC, HEIF до 10 MB.
-            </Text>
+              {fe8ClientMessengerMediaText.clientPhotoSection_jsxText_5f0835c4}</Text>
           </Group>
         ) : null}
       </Stack>

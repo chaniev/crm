@@ -65,6 +65,8 @@ import {
   showPoliteStatusNotification,
 } from './features/shared/notifications'
 import './App.css'
+import { fe1AppShellAuthText } from './resources/fe-1-app-shell-auth'
+
 
 export type AppProps = {
   appConfig: AppConfigResponse
@@ -160,7 +162,7 @@ export function App({ appConfig, authBackground }: AppProps) {
         setBootstrapError(
           error instanceof Error
             ? error.message
-            : 'Не удалось связаться с сервером.',
+            : fe1AppShellAuthText.app_string_ac621ca1,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -200,7 +202,7 @@ export function App({ appConfig, authBackground }: AppProps) {
 
       showPoliteStatusNotification({
         id: `route-access-denied-${session.user.id}-${routeAccess.requestedPath}`,
-        title: 'Открыт доступный раздел',
+        title: fe1AppShellAuthText.app_title_8eefda54,
         message: getRouteAccessLossNotificationMessage(routeAccess),
         color: 'yellow',
       })
@@ -226,7 +228,7 @@ export function App({ appConfig, authBackground }: AppProps) {
       setBootstrapError(
         error instanceof Error
           ? error.message
-          : 'Не удалось связаться с сервером.',
+          : fe1AppShellAuthText.app_string_ac621ca1,
       )
     } finally {
       setLoadingSession(false)
@@ -291,10 +293,10 @@ export function App({ appConfig, authBackground }: AppProps) {
         if (postPasswordDecision.recoveryEvent) {
           showPoliteStatusNotification({
             id: 'auth-password-access-recovery',
-            title: 'Пароль обновлен, открыт доступный раздел',
-            message: `Пароль обновлен. ${getRouteAccessLossNotificationMessage(
+            title: fe1AppShellAuthText.app_title_619ea5c7,
+            message: fe1AppShellAuthText.app_message_1ffa77b1(getRouteAccessLossNotificationMessage(
               postPasswordDecision.recoveryEvent,
-            )}`,
+            )),
             color: 'yellow',
           })
           return
@@ -303,11 +305,11 @@ export function App({ appConfig, authBackground }: AppProps) {
 
       showAppNotification({
         id: `auth-password-${mode}`,
-        title: mode === 'forced' ? 'Первый вход завершен' : 'Пароль обновлен',
+        title: mode === 'forced' ? fe1AppShellAuthText.app_string_44c2ac7c : fe1AppShellAuthText.app_string_3ded90c0,
         message:
           mode === 'forced'
-            ? 'Новая сессия уже активна, можно продолжать работу.'
-            : 'Изменение сохранено и применено к текущей сессии.',
+            ? fe1AppShellAuthText.app_string_8ad4d05f
+            : fe1AppShellAuthText.app_string_e9d1ffdc,
         color: 'teal',
       })
     } finally {
@@ -330,18 +332,18 @@ export function App({ appConfig, authBackground }: AppProps) {
 
       showAppNotification({
         id: 'auth-logout-success',
-        title: 'Сессия завершена',
-        message: `Вы вышли из ${displayedClubName}.`,
+        title: fe1AppShellAuthText.app_title_311bf7c1,
+        message: fe1AppShellAuthText.app_message_1cfdd5fd(displayedClubName),
         color: 'gray',
       })
     } catch (error) {
       showAppNotification({
         id: 'auth-logout-error',
-        title: 'Не удалось завершить сессию',
+        title: fe1AppShellAuthText.app_title_7d2f9bda,
         message:
           error instanceof Error
             ? error.message
-            : 'Попробуйте выполнить выход еще раз.',
+            : fe1AppShellAuthText.app_string_125fb9c9,
         color: 'red',
       })
     } finally {
@@ -383,7 +385,7 @@ export function App({ appConfig, authBackground }: AppProps) {
     if (postPasswordDecision.recoveryEvent) {
       showPoliteStatusNotification({
         id: 'auth-password-back-access-recovery',
-        title: 'Открыт доступный раздел',
+        title: fe1AppShellAuthText.app_title_8eefda54,
         message: getRouteAccessLossNotificationMessage(
           postPasswordDecision.recoveryEvent,
         ),
@@ -403,18 +405,16 @@ export function App({ appConfig, authBackground }: AppProps) {
           <Stack gap="lg">
             <Stack gap={6}>
               <Text c="dimmed" fw={600} size="sm">
-                Вход временно недоступен
-              </Text>
-              <Title order={2}>Не удалось открыть экран входа</Title>
+                {fe1AppShellAuthText.app_jsxText_9e550fe5}</Text>
+              <Title order={2}>{fe1AppShellAuthText.app_jsxText_2bf6591e}</Title>
               <Text c="dimmed">
-                Проверьте подключение к сервису и повторите загрузку.
-              </Text>
+                {fe1AppShellAuthText.app_jsxText_10995e5b}</Text>
             </Stack>
 
             <Alert
               color="red"
               icon={<IconAlertCircle size={18} />}
-              title="Сервис недоступен"
+              title={fe1AppShellAuthText.app_title_42260baf}
               variant="light"
             >
               {bootstrapError}
@@ -424,8 +424,7 @@ export function App({ appConfig, authBackground }: AppProps) {
               onClick={() => void retrySessionLoad()}
               rightSection={<IconArrowRight size={18} />}
             >
-              Повторить загрузку
-            </Button>
+              {fe1AppShellAuthText.app_jsxText_298e4132}</Button>
           </Stack>
         </Paper>
       </StageFrame>
@@ -594,11 +593,11 @@ export default App
 
 function getMainLandmarkLabel(routeAccess: RouteAccessResolution) {
   if (routeAccess.kind === 'restricted') {
-    return 'Нет доступа'
+    return fe1AppShellAuthText.app_string_28e033b4
   }
 
   if (routeAccess.kind === 'not-found') {
-    return 'Страница не найдена'
+    return fe1AppShellAuthText.app_string_af9d3306
   }
 
   return routeAccess.requestedDestinationLabel

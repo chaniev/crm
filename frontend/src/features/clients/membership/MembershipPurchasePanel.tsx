@@ -31,6 +31,8 @@ import {
   loadAllActiveMembershipTargetGroups,
   pickTargetGroupError,
 } from './membershipTargetGroups'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 type MembershipPurchasePanelProps = {
   branchId: string
@@ -76,7 +78,7 @@ export function MembershipPurchasePanel({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить абонементы.',
+            : fe7ClientMembershipText.membershipPurchasePanel_string_1284aff0,
         ),
       )
       .finally(() => {
@@ -92,7 +94,7 @@ export function MembershipPurchasePanel({
       .catch((error) => {
         if (!isMembershipTargetLoadAbort(error)) {
           setLoadError(
-            error instanceof Error ? error.message : 'Не удалось загрузить группы.',
+            error instanceof Error ? error.message : fe7ClientMembershipText.membershipPurchasePanel_string_46bd9402,
           )
         }
       })
@@ -112,19 +114,19 @@ export function MembershipPurchasePanel({
       (selected !== undefined && selected.behaviorKind !== 'SingleVisit')
 
     if (needsValidity && !form.values.validFrom) {
-      errors.validFrom = 'Укажите начало срока.'
+      errors.validFrom = fe7ClientMembershipText.membershipPurchasePanel_string_c6401e27
     }
     if (needsValidity && !form.values.validTo) {
-      errors.validTo = 'Укажите окончание срока.'
+      errors.validTo = fe7ClientMembershipText.membershipPurchasePanel_string_fc65fc7d
     }
     if (
       selected?.behaviorKind === 'Professional' &&
       !form.values.professionalComment.trim()
     ) {
-      errors.professionalComment = 'Укажите комментарий.'
+      errors.professionalComment = fe7ClientMembershipText.membershipPurchasePanel_string_548872bd
     }
     if (!form.values.paymentDate) {
-      errors.paymentDate = 'Укажите дату оплаты.'
+      errors.paymentDate = fe7ClientMembershipText.membershipPurchasePanel_string_c17309b4
     }
     validateTargetGroups(form.values.targetGroupIds, targetBehaviorKind, errors)
     if (Object.keys(errors).length > 0) {
@@ -187,10 +189,9 @@ export function MembershipPurchasePanel({
       <form noValidate onSubmit={form.onSubmit(requestConfirmation)}>
         <Stack gap="md">
           <div>
-            <Text fw={700}>Оформить новый абонемент</Text>
+            <Text fw={700}>{fe7ClientMembershipText.membershipPurchasePanel_jsxText_00a991e3}</Text>
             <Text c="dimmed" size="sm">
-              Выберите способ расчёта и подтвердите фактическую сумму этой продажи.
-            </Text>
+              {fe7ClientMembershipText.membershipPurchasePanel_jsxText_a0517045}</Text>
           </div>
           {loadError ? <Alert color="red">{loadError}</Alert> : null}
           {formError ? <Alert color="red">{formError}</Alert> : null}
@@ -220,12 +221,12 @@ export function MembershipPurchasePanel({
           {needsValidity ? (
             <SimpleGrid cols={{ base: 1, md: 2 }}>
               <TextInput
-                label="Действует с"
+                label={fe7ClientMembershipText.membershipPurchasePanel_label_f79d7e9d}
                 type="date"
                 {...form.getInputProps('validFrom')}
               />
               <TextInput
-                label="Действует по"
+                label={fe7ClientMembershipText.membershipPurchasePanel_label_b9094c16}
                 type="date"
                 {...form.getInputProps('validTo')}
               />
@@ -233,7 +234,7 @@ export function MembershipPurchasePanel({
           ) : null}
           {selected?.behaviorKind === 'Professional' ? (
             <Textarea
-              label="Комментарий к профессиональному абонементу"
+              label={fe7ClientMembershipText.membershipPurchasePanel_label_e7a31570}
               {...form.getInputProps('professionalComment')}
             />
           ) : null}
@@ -245,11 +246,9 @@ export function MembershipPurchasePanel({
           />
           <ResponsiveButtonGroup justify="space-between">
             <Button onClick={onCancel} type="button" variant="subtle">
-              Отменить
-            </Button>
+              {fe7ClientMembershipText.membershipPurchasePanel_jsxText_7c47f729}</Button>
             <Button loading={pending} type="submit">
-              Оформить абонемент
-            </Button>
+              {fe7ClientMembershipText.membershipPurchasePanel_jsxText_63e29a54}</Button>
           </ResponsiveButtonGroup>
         </Stack>
       </form>

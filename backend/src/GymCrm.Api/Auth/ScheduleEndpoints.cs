@@ -165,7 +165,7 @@ internal static partial class ScheduleEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine16828ddd147(LessonDateFormat)]
             });
         }
 
@@ -497,7 +497,7 @@ internal static partial class ScheduleEndpoints
                 "LessonOccurrenceCreated",
                 "LessonOccurrence",
                 occurrence.Id.ToString(),
-                $"Пользователь '{currentUser.Login}' создал разовое занятие.",
+                global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine500Ee8753d1(currentUser.Login),
                 NewValueJson: JsonSerializer.Serialize(CreateLessonOccurrenceAuditState(occurrence), JsonOptions)),
             cancellationToken);
         if (transaction is not null)
@@ -559,7 +559,7 @@ internal static partial class ScheduleEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine56228ddd147(LessonDateFormat)]
             });
         }
 
@@ -626,7 +626,7 @@ internal static partial class ScheduleEndpoints
                 "LessonOccurrenceCancelled",
                 "LessonOccurrence",
                 occurrence.Id.ToString(),
-                $"Пользователь '{currentUser.Login}' отменил занятие.",
+                global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine6298c1eb014(currentUser.Login),
                 OldValueJson: JsonSerializer.Serialize(new { Status = LessonOccurrenceStatus.Scheduled.ToString() }, JsonOptions),
                 NewValueJson: JsonSerializer.Serialize(CreateLessonOccurrenceAuditState(occurrence), JsonOptions)),
             cancellationToken);
@@ -685,7 +685,7 @@ internal static partial class ScheduleEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine68828ddd147(LessonDateFormat)]
             });
         }
 
@@ -722,7 +722,7 @@ internal static partial class ScheduleEndpoints
                 "LessonOccurrenceRestored",
                 "LessonOccurrence",
                 target.Occurrence.Id.ToString(),
-                $"Пользователь '{currentUser.Login}' восстановил занятие.",
+                global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine725Ebb54a99(currentUser.Login),
                 OldValueJson: JsonSerializer.Serialize(new { Status = LessonOccurrenceStatus.Cancelled.ToString() }, JsonOptions),
                 NewValueJson: JsonSerializer.Serialize(CreateLessonOccurrenceAuditState(target.Occurrence), JsonOptions)),
             cancellationToken);
@@ -780,7 +780,7 @@ internal static partial class ScheduleEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine78328ddd147(LessonDateFormat)]
             });
         }
 
@@ -796,12 +796,12 @@ internal static partial class ScheduleEndpoints
             var errors = new Dictionary<string, string[]>();
             if (action is null)
             {
-                errors["action"] = ["Action должен быть Cancel или Restore."];
+                errors["action"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine7995ae8af84];
             }
 
             if (string.IsNullOrWhiteSpace(request.ExpectedRevision))
             {
-                errors["expectedRevision"] = ["expectedRevision обязателен."];
+                errors["expectedRevision"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine804F663a580];
             }
 
             return TypedResults.ValidationProblem(errors);
@@ -887,7 +887,7 @@ internal static partial class ScheduleEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine89028ddd147(LessonDateFormat)]
             });
         }
 
@@ -916,12 +916,12 @@ internal static partial class ScheduleEndpoints
             var errors = new Dictionary<string, string[]>();
             if (action is null)
             {
-                errors["action"] = ["Action должен быть Cancel или Restore."];
+                errors["action"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine9195ae8af84];
             }
 
             if (string.IsNullOrWhiteSpace(request.ExpectedRevision))
             {
-                errors["expectedRevision"] = ["expectedRevision обязателен."];
+                errors["expectedRevision"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine924F663a580];
             }
 
             return TypedResults.ValidationProblem(errors);
@@ -999,7 +999,7 @@ internal static partial class ScheduleEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine100228ddd147(LessonDateFormat)]
             });
         }
 
@@ -1122,7 +1122,7 @@ internal static partial class ScheduleEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine112528ddd147(LessonDateFormat)]
             });
         }
 
@@ -1264,7 +1264,7 @@ internal static partial class ScheduleEndpoints
                 "LessonOccurrenceChanged",
                 "LessonOccurrence",
                 occurrence.Id.ToString(),
-                $"Пользователь '{currentUser.Login}' изменил занятие.",
+                global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine1267D2280944(currentUser.Login),
                 NewValueJson: JsonSerializer.Serialize(CreateLessonOccurrenceAuditState(occurrence), JsonOptions)),
             cancellationToken);
         if (transaction is not null)
@@ -1885,8 +1885,8 @@ internal static partial class ScheduleEndpoints
     {
         return TypedResults.ValidationProblem(new Dictionary<string, string[]>
         {
-            ["from"] = [$"Диапазон расписания должен использовать {LessonDateFormat}, from <= to и не больше {MaxCalendarRangeDays} дней."],
-            ["to"] = [$"Диапазон расписания должен использовать {LessonDateFormat}, from <= to и не больше {MaxCalendarRangeDays} дней."]
+            ["from"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine18883aaab2cd(LessonDateFormat, MaxCalendarRangeDays)],
+            ["to"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine18893aaab2cd(LessonDateFormat, MaxCalendarRangeDays)]
         });
     }
 
@@ -1895,7 +1895,7 @@ internal static partial class ScheduleEndpoints
         return TypedResults.Problem(new ProblemDetails
         {
             Type = "/problems/lesson-occurrence-not-found",
-            Title = "Lesson occurrence was not found for the supplied date locator.",
+            Title = global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleEndpointsLine1898A0d4e31f,
             Status = StatusCodes.Status404NotFound,
             Extensions =
             {

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AdministratorAttendanceGroupGrantServiceLine350D50fc303" xml:space="preserve">
+    <value>Unknown group id was provided.</value>
+  </data>
+  <data name="AdministratorAttendanceGroupGrantServiceLine355D50fc303" xml:space="preserve">
+    <value>Unknown group id was provided.</value>
+  </data>
+  <data name="AttendanceTransitionServiceLine2466f693631" xml:space="preserve">
+    <value>Attendance transition row was mapped to an exact lesson occurrence.</value>
+  </data>
+  <data name="AttendanceTransitionServiceLine414C059f91d" xml:space="preserve">
+    <value>Trainer substitution transition report item was mapped to an exact lesson occurrence.</value>
+  </data>
+  <data name="AttendanceTransitionServiceLine629Feab3b2e" xml:space="preserve">
+    <value>Legacy trainer substitution was mapped to an exact lesson occurrence.</value>
+  </data>
+  <data name="AttendanceTransitionServiceLine941B4977fca" xml:space="preserve">
+    <value>Legacy attendance occurrence was created by transition repair.</value>
+  </data>
+  <data name="BotApiServiceLine832C2fbee88" xml:space="preserve">
+    <value>Укажите код запрещенного действия.</value>
+  </data>
+  <data name="ClientMembershipDetailsReaderLine347880ea76" xml:space="preserve">
+    <value>Client membership details for '{0}' were not found.</value>
+  </data>
+  <data name="ClientMembershipDetailsReaderLine447880ea76" xml:space="preserve">
+    <value>Client membership details for '{0}' were not found.</value>
+  </data>
+  <data name="ClientMembershipDetailsReaderLine557880ea76" xml:space="preserve">
+    <value>Client membership details for '{0}' were not found.</value>
+  </data>
+  <data name="ClientMessengerServiceLine16872d9a2ed" xml:space="preserve">
+    <value>Пользователь '{0}' создал ссылку подключения Telegram для клиента.</value>
+  </data>
+  <data name="ClientMessengerServiceLine30366461baa" xml:space="preserve">
+    <value>Пользователь '{0}' отправил сообщение клиенту через Telegram.</value>
+  </data>
+  <data name="ClientMessengerServiceLine368A1dab490" xml:space="preserve">
+    <value>Пользователь '{0}' открыл переписку клиента в Telegram.</value>
+  </data>
+  <data name="ClientMessengerServiceLine5350e41c90d" xml:space="preserve">
+    <value>Клиент подключил Telegram к карточке CRM.</value>
+  </data>
+  <data name="ClientMessengerServiceLine7159ac7fc45" xml:space="preserve">
+    <value>Skip cannot be negative.</value>
+  </data>
+  <data name="ClientMessengerServiceLine720626a2373" xml:space="preserve">
+    <value>Take must be between 1 and {0}.</value>
+  </data>
+  <data name="ClientTelegramBotApiTransportLine157Ab3a6efa" xml:space="preserve">
+    <value>Client Telegram bot is not configured.</value>
+  </data>
+  <data name="ClientTelegramBotApiTransportLine1917e219538" xml:space="preserve">
+    <value>Telegram sendMessage failed.</value>
+  </data>
+  <data name="ClientTelegramBotApiTransportLine195D094d7d0" xml:space="preserve">
+    <value>Telegram sendMessage returned an invalid response.</value>
+  </data>
+</root>

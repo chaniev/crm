@@ -21,6 +21,8 @@ import {
   withAttendanceTodayReturnSnapshot,
   withoutAttendanceTodayReturnSnapshot,
 } from './attendanceTodayReturnState'
+import { fe4AttendanceText } from '../../resources/fe-4-attendance'
+
 
 type AttendanceTodayWorklistProps = {
   onOpenLesson: (lessonOccurrenceId: string, lessonDate: string) => void
@@ -205,13 +207,13 @@ function AttendanceTodayRow({
       tabIndex={-1}
     >
       <Text className="attendance-today-row__time" fw={800}>
-        {lesson.startTime}–{lesson.endTime}
+        {lesson.startTime}{fe4AttendanceText.attendanceTodayWorklist_jsxText_d4f85d36}{lesson.endTime}
       </Text>
       <Text className="attendance-today-row__group" fw={800}>
         {lesson.groupName}
       </Text>
       <div className="attendance-today-row__details">
-        <Text size="sm">{lesson.branchName} · {lesson.hallName}</Text>
+        <Text size="sm">{lesson.branchName} {fe4AttendanceText.attendanceTodayWorklist_jsxText_a137f17a}{lesson.hallName}</Text>
         <Text c="dimmed" size="sm">{trainers}</Text>
       </div>
       <Text className="attendance-today-row__count" fw={700} size="sm">

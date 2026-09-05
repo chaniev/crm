@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BotApiServiceLine11285f43e5f1" xml:space="preserve">
+    <value>Посещения</value>
+  </data>
+  <data name="BotApiServiceLine1129f9344282" xml:space="preserve">
+    <value>Поиск клиента</value>
+  </data>
+  <data name="BotApiServiceLine113081484e50" xml:space="preserve">
+    <value>Заканчивающиеся</value>
+  </data>
+  <data name="BotApiServiceLine11345f43e5f1" xml:space="preserve">
+    <value>Посещения</value>
+  </data>
+  <data name="BotApiServiceLine1135f9344282" xml:space="preserve">
+    <value>Поиск клиента</value>
+  </data>
+  <data name="BotApiServiceLine113681484e50" xml:space="preserve">
+    <value>Заканчивающиеся</value>
+  </data>
+  <data name="BotApiServiceLine11405f43e5f1" xml:space="preserve">
+    <value>Посещения</value>
+  </data>
+  <data name="BotApiServiceLine1141f9344282" xml:space="preserve">
+    <value>Поиск клиента</value>
+  </data>
+  <data name="BotApiServiceLine11554f342e03" xml:space="preserve">
+    <value>Bot API MVP поддерживает только Telegram identity.</value>
+  </data>
+  <data name="BotApiServiceLine1160b06268ca" xml:space="preserve">
+    <value>Укажите Telegram user id.</value>
+  </data>
+  <data name="BotApiServiceLine1255b0e5ed19" xml:space="preserve">
+    <value>Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.</value>
+  </data>
+  <data name="BotApiServiceLine1257ef2f1afb" xml:space="preserve">
+    <value>У клиента нет подходящего абонемента для выбранной группы и даты.</value>
+  </data>
+  <data name="BotApiServiceLine1318d13b909e" xml:space="preserve">
+    <value>{0} абонемента</value>
+  </data>
+  <data name="BotApiServiceLine14443ee05d1f" xml:space="preserve">
+    <value>У клиента нет текущего абонемента.</value>
+  </data>
+  <data name="BotApiServiceLine1452027fb5dc" xml:space="preserve">
+    <value>Абонемент без целевых групп не даёт права посещения. Исправьте группы абонемента.</value>
+  </data>
+  <data name="BotApiServiceLine1457cc00242d" xml:space="preserve">
+    <value>Абонемент начнёт действовать позже выбранной даты.</value>
+  </data>
+  <data name="BotApiServiceLine1462623985c4" xml:space="preserve">
+    <value>Разовое посещение уже списано.</value>
+  </data>
+  <data name="BotApiServiceLine14657fdd2e77" xml:space="preserve">
+    <value>Абонемент истёк.</value>
+  </data>
+  <data name="BotApiServiceLine1487277d3a37" xml:space="preserve">
+    <value>Клиент без имени</value>
+  </data>
+  <data name="BotApiServiceLine40083588c51" xml:space="preserve">
+    <value>Передайте хотя бы одну отметку посещаемости.</value>
+  </data>
+  <data name="BotApiServiceLine459459f4ac6" xml:space="preserve">
+    <value>Часть клиентов не принадлежит выбранной группе.</value>
+  </data>
+  <data name="BotApiServiceLine468b0e5ed19" xml:space="preserve">
+    <value>Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.</value>
+  </data>
+  <data name="BotApiServiceLine47244fbf4c2" xml:space="preserve">
+    <value>Не удалось сохранить посещаемость из-за некорректных данных.</value>
+  </data>
+  <data name="BotApiServiceLine494ef2f1afb" xml:space="preserve">
+    <value>У клиента нет подходящего абонемента для выбранной группы и даты.</value>
+  </data>
+  <data name="BotApiServiceLine496b0e5ed19" xml:space="preserve">
+    <value>Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.</value>
+  </data>
+  <data name="BotApiServiceLine529be3a74eb" xml:space="preserve">
+    <value>Пользователь '{0}' сохранил посещаемость через бота для группы '{1}' за {2}.</value>
+  </data>
+  <data name="BotApiServiceLine592bd0975b8" xml:space="preserve">
+    <value>Параметры пагинации должны быть в диапазоне take 1..{0} и skip &gt;= 0.</value>
+  </data>
+  <data name="BotApiServiceLine863f0c57b5b" xml:space="preserve">
+    <value>Пользователь '{0}' получил отказ в доступе через бота при действии '{1}'.</value>
+  </data>
+</root>

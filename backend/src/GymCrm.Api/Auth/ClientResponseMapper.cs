@@ -513,9 +513,9 @@ internal static class ClientResponseMapper
         if (isProfessional)
         {
             hints.Add(new ClientActionHintResponse(
-                "Плановое сопровождение",
+                global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine5166bd8ee2e,
                 string.IsNullOrWhiteSpace(professionalComment)
-                    ? "Льготный оплаченный статус"
+                    ? global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine51867fa40bd
                     : professionalComment,
                 "blue",
                 "info",
@@ -524,8 +524,8 @@ internal static class ClientResponseMapper
             if (visibleGroupCount == 0)
             {
                 hints.Add(new ClientActionHintResponse(
-                    "Назначить группу",
-                    "Клиент пока без группы",
+                    global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine527C76b894e,
+                    global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine528F5e76471,
                     "blue",
                     "group",
                     null));
@@ -537,8 +537,8 @@ internal static class ClientResponseMapper
         if (currentMemberships.Count == 0)
         {
             hints.Add(new ClientActionHintResponse(
-                "Оформить абонемент",
-                "Нет текущего абонемента",
+                global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine54063e29a54,
+                global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine541202af31a,
                 "orange",
                 "membership",
                 null));
@@ -557,8 +557,8 @@ internal static class ClientResponseMapper
                 if (daysUntilExpiration < 0)
                 {
                     hints.Add(new ClientActionHintResponse(
-                        "Продлить абонемент",
-                        "Абонемент просрочен",
+                        global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine560B62f978a,
+                        global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine561818b63db,
                         "orange",
                         "membership",
                         daysUntilExpiration));
@@ -566,10 +566,10 @@ internal static class ClientResponseMapper
                 else if (daysUntilExpiration < ClientMembershipQueryConstants.ExpiringMembershipWindowDays)
                 {
                     hints.Add(new ClientActionHintResponse(
-                        "Продлить абонемент",
+                        global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine569B62f978a,
                         daysUntilExpiration == 0
-                            ? "Абонемент заканчивается сегодня"
-                            : $"Осталось {daysUntilExpiration} дн.",
+                            ? global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine571679f07cb
+                            : global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine572D51da79f(daysUntilExpiration),
                         "yellow",
                         "membership",
                         daysUntilExpiration));
@@ -581,8 +581,8 @@ internal static class ClientResponseMapper
                     membership.SingleVisitUsed))
             {
                 hints.Add(new ClientActionHintResponse(
-                    "Оформить абонемент",
-                    "Пробное посещение уже использовано",
+                    global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine58463e29a54,
+                    global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine585Fa507898,
                     "orange",
                     "membership",
                     null));
@@ -591,8 +591,8 @@ internal static class ClientResponseMapper
             if (currentMemberships.Any(membership => membership.TargetGroups.Count == 0))
             {
                 hints.Add(new ClientActionHintResponse(
-                    "Исправить группы",
-                    "Абонемент без целевых групп не даёт права посещения",
+                    global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine594De3830e7,
+                    global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine5952baf9f33,
                     "orange",
                     "membership",
                     null));
@@ -602,8 +602,8 @@ internal static class ClientResponseMapper
         if (visibleGroupCount == 0)
         {
             hints.Add(new ClientActionHintResponse(
-                "Назначить группу",
-                "Клиент пока без группы",
+                global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine605C76b894e,
+                global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine606F5e76471,
                 "blue",
                 "group",
                 null));
@@ -612,8 +612,8 @@ internal static class ClientResponseMapper
         if (hints.Count == 0)
         {
             hints.Add(new ClientActionHintResponse(
-                "Планово",
-                "Срочных действий нет",
+                global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine615C19bb335,
+                global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientResponseMapperLine61688f78723,
                 "gray",
                 "check",
                 null));

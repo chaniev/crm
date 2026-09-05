@@ -17,7 +17,7 @@ internal static class AttendanceValidationProblems
     {
         return TypedResults.ValidationProblem(new Dictionary<string, string[]>
         {
-            ["lessonDate"] = [$"Дата занятия должна быть в формате {lessonDateFormat}."]
+            ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceValidationProblemsLine20E5c8412a(lessonDateFormat)]
         });
     }
 
@@ -41,7 +41,7 @@ internal static class AttendanceValidationProblems
     {
         return TypedResults.ValidationProblem(new Dictionary<string, string[]>
         {
-            ["trainingDate"] = ["Дата посещаемости недоступна для роли пользователя."]
+            ["trainingDate"] = [global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceValidationProblemsLine441cd5b8f3]
         });
     }
 
@@ -50,7 +50,7 @@ internal static class AttendanceValidationProblems
         return TypedResults.Problem(new ProblemDetails
         {
             Type = "/problems/attendance-group-forbidden",
-            Title = "Attendance group is not available for the current user.",
+            Title = global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceValidationProblemsLine53Bfcdb657,
             Status = StatusCodes.Status403Forbidden,
             Extensions =
             {

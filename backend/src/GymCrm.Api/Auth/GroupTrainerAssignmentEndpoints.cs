@@ -298,7 +298,7 @@ internal static class GroupTrainerAssignmentEndpoints
 
         if (requestAssignments is null)
         {
-            errors["assignments"] = ["assignments обязателен."];
+            errors["assignments"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine30168f9f19a];
             return new TrainerAssignmentValidation(errors, parsed);
         }
 
@@ -313,7 +313,7 @@ internal static class GroupTrainerAssignmentEndpoints
 
             if (!TryParseDate(assignment.ValidFrom, out var validFrom))
             {
-                errors[$"{prefix}.validFrom"] = ["validFrom должен быть в формате yyyy-MM-dd."];
+                errors[$"{prefix}.validFrom"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine316A371b159];
                 continue;
             }
 
@@ -322,7 +322,7 @@ internal static class GroupTrainerAssignmentEndpoints
             {
                 if (!TryParseDate(assignment.ValidTo, out var parsedValidTo))
                 {
-                    errors[$"{prefix}.validTo"] = ["validTo должен быть в формате yyyy-MM-dd."];
+                    errors[$"{prefix}.validTo"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine3259f8d97b8];
                     continue;
                 }
 
@@ -331,12 +331,12 @@ internal static class GroupTrainerAssignmentEndpoints
 
             if (validFrom < today)
             {
-                errors[$"{prefix}.validFrom"] = ["validFrom не может быть раньше текущей даты."];
+                errors[$"{prefix}.validFrom"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine334B78611ed];
             }
 
             if (validTo.HasValue && validTo.Value < validFrom)
             {
-                errors[$"{prefix}.validTo"] = ["validTo должен быть не раньше validFrom."];
+                errors[$"{prefix}.validTo"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine3399eb638bc];
             }
 
             if (assignment.TrainerId.HasValue && assignment.TrainerId.Value != Guid.Empty)
@@ -356,7 +356,7 @@ internal static class GroupTrainerAssignmentEndpoints
                      .SelectMany(group => group.SelectMany((left, leftIndex) => group.Skip(leftIndex + 1).Select(right => (left, right))))
                      .Where(pair => DateRangesOverlap(pair.left.ValidFrom, pair.left.ValidTo, pair.right.ValidFrom, pair.right.ValidTo)))
         {
-            errors["assignments"] = [$"Trainer '{overlap.left.TrainerId:D}' has overlapping assignment periods in this request."];
+            errors["assignments"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine3593a8042c5(overlap.left.TrainerId)];
             break;
         }
 
@@ -401,7 +401,7 @@ internal static class GroupTrainerAssignmentEndpoints
         return assignments.Any(request => existing.Any(candidate =>
             candidate.TrainerId == request.TrainerId &&
             DateRangesOverlap(request.ValidFrom, request.ValidTo, candidate.ValidFrom, candidate.ValidTo)))
-            ? [new ScheduleWarningResponse("group_trainer_assignment_overlap", "У тренера есть пересекающееся постоянное назначение в другой группе.")]
+            ? [new ScheduleWarningResponse("group_trainer_assignment_overlap", global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine40496c9bf50)]
             : [];
     }
 
@@ -671,7 +671,7 @@ internal static class GroupTrainerAssignmentEndpoints
         return TypedResults.Problem(new Microsoft.AspNetCore.Mvc.ProblemDetails
         {
             Type = $"/problems/{code}",
-            Title = "Group trainer assignment preview token is not valid for this mutation.",
+            Title = global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine67454fd709c,
             Status = statusCode,
             Extensions =
             {

@@ -52,6 +52,8 @@ import {
   type NavigateOptions,
   type PendingClientProfileReturn,
 } from './useAppRoute'
+import { fe1AppShellAuthText } from '../resources/fe-1-app-shell-auth'
+
 
 type UseAppReturnNavigationOptions = {
   canManageClients: boolean
@@ -102,10 +104,10 @@ export function getClientProfileBackLabel(
     !isAppRoute(route) ||
     !isClientProfileScopedRoute(route, context)
   ) {
-    return 'К списку клиентов'
+    return fe1AppShellAuthText.useAppReturnNavigation_string_fde25c93
   }
 
-  return context.origin.kind === 'attendance' ? 'К посещениям' : 'К группе'
+  return context.origin.kind === 'attendance' ? fe1AppShellAuthText.useAppReturnNavigation_string_fc6d18f1 : fe1AppShellAuthText.useAppReturnNavigation_string_bd4176c8
 }
 
 export function useAppReturnNavigation({

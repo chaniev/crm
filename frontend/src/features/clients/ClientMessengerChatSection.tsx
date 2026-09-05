@@ -38,6 +38,8 @@ import {
 import { copyTextToClipboard } from '../shared/clipboard'
 import { PageSection } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
+import { fe8ClientMessengerMediaText } from '../../resources/fe-8-client-messenger-media'
+
 
 type ClientMessengerChatSectionProps = {
   clientId: string
@@ -46,11 +48,11 @@ type ClientMessengerChatSectionProps = {
 const messagesTake = 50
 
 const messageStatusLabels: Record<ClientMessengerMessage['status'], string> = {
-  Received: 'Получено',
-  Queued: 'В очереди',
-  Sending: 'Отправка',
-  SentToTelegram: 'Отправлено',
-  Failed: 'Ошибка',
+  Received: fe8ClientMessengerMediaText.clientMessengerChatSection_received_06124cee,
+  Queued: fe8ClientMessengerMediaText.clientMessengerChatSection_queued_b22a2454,
+  Sending: fe8ClientMessengerMediaText.clientMessengerChatSection_sending_9ef21e53,
+  SentToTelegram: fe8ClientMessengerMediaText.clientMessengerChatSection_sentToTelegram_13b9719a,
+  Failed: fe8ClientMessengerMediaText.clientMessengerChatSection_failed_bf22dfee,
 }
 
 const messageStatusColors: Record<ClientMessengerMessage['status'], string> = {
@@ -62,7 +64,7 @@ const messageStatusColors: Record<ClientMessengerMessage['status'], string> = {
 }
 
 const telegramShareText =
-  'Откройте ссылку, чтобы подключить Telegram-чат к CRM.'
+  fe8ClientMessengerMediaText.clientMessengerChatSection_telegramShareText_b8bb4077
 
 export function ClientMessengerChatSection({
   clientId,
@@ -143,7 +145,7 @@ export function ClientMessengerChatSection({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить переписку.',
+            : fe8ClientMessengerMediaText.clientMessengerChatSection_string_33c27632,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -216,7 +218,7 @@ export function ClientMessengerChatSection({
       setLoadError(
         error instanceof Error
           ? error.message
-          : 'Не удалось загрузить переписку.',
+          : fe8ClientMessengerMediaText.clientMessengerChatSection_string_33c27632,
       )
     } finally {
       setLoading(false)
@@ -238,11 +240,11 @@ export function ClientMessengerChatSection({
     } catch (error) {
       showAppNotification({
         id: `client-messenger-load-more-${clientId}`,
-        title: 'Переписка не загрузилась',
+        title: fe8ClientMessengerMediaText.clientMessengerChatSection_title_c3386376,
         message:
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить более ранние сообщения.',
+            : fe8ClientMessengerMediaText.clientMessengerChatSection_string_43bf26a8,
         color: 'red',
       })
     } finally {
@@ -269,7 +271,7 @@ export function ClientMessengerChatSection({
       )
     } catch (error) {
       setLinkError(
-        getApiErrorMessage(error, 'Не удалось создать ссылку подключения.'),
+        getApiErrorMessage(error, fe8ClientMessengerMediaText.clientMessengerChatSection_getApiErrorMessage_850ac5ad),
       )
     } finally {
       setLinkCreating(false)
@@ -311,7 +313,7 @@ export function ClientMessengerChatSection({
     if (!copied) {
       setLinkCopied(false)
       setLinkCopyError(
-        'Не удалось скопировать автоматически. Выделите ссылку и скопируйте вручную.',
+        fe8ClientMessengerMediaText.clientMessengerChatSection_setLinkCopyError_fe355f11,
       )
       return
     }
@@ -349,7 +351,7 @@ export function ClientMessengerChatSection({
 
     try {
       await navigator.share({
-        title: 'Подключение Telegram',
+        title: fe8ClientMessengerMediaText.clientMessengerChatSection_title_2d65bc85,
         text: telegramShareText,
         url: linkToken.deepLinkUrl,
       })
@@ -359,7 +361,7 @@ export function ClientMessengerChatSection({
       }
 
       setLinkShareError(
-        'Не удалось открыть системное меню. Отправьте ссылку в Telegram или скопируйте ее.',
+        fe8ClientMessengerMediaText.clientMessengerChatSection_setLinkShareError_b9df5845,
       )
     }
   }
@@ -407,7 +409,7 @@ export function ClientMessengerChatSection({
       setSendError(
         error instanceof Error
           ? error.message
-          : 'Не удалось отправить сообщение.',
+          : fe8ClientMessengerMediaText.clientMessengerChatSection_string_a78ea756,
       )
     } finally {
       setSending(false)
@@ -444,8 +446,7 @@ export function ClientMessengerChatSection({
               onClick={() => void refresh()}
               variant="light"
             >
-              Обновить
-            </Button>
+              {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_603e460b}</Button>
             {canCreateLink && !connected ? (
               <Button
                 leftSection={<IconQrcode size={18} />}
@@ -453,8 +454,7 @@ export function ClientMessengerChatSection({
                 onClick={() => void createLinkToken()}
                 variant="light"
               >
-                Ссылка и QR
-              </Button>
+                {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_0465921b}</Button>
             ) : null}
           </Group>
         </Group>
@@ -463,8 +463,7 @@ export function ClientMessengerChatSection({
           <Group justify="center" py="xl">
             <Loader color="var(--crm-action-primary)" />
             <Text c="dimmed" size="sm">
-              Загружаем переписку...
-            </Text>
+              {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_bb442dee}</Text>
           </Group>
         ) : null}
 
@@ -472,15 +471,14 @@ export function ClientMessengerChatSection({
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Не удалось загрузить переписку."
+            title={fe8ClientMessengerMediaText.clientMessengerChatSection_string_33c27632}
             variant="light"
           >
             <Stack gap="sm">
               <Text size="sm">{loadError}</Text>
               <Group>
                 <Button onClick={() => void refresh()} variant="light">
-                  Повторить
-                </Button>
+                  {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_5189135a}</Button>
               </Group>
             </Stack>
           </Alert>
@@ -494,16 +492,16 @@ export function ClientMessengerChatSection({
                 icon={<IconMessageCircle size={18} />}
                 title={
                   pendingLink
-                    ? 'Клиент еще не открыл чат в Telegram.'
-                    : 'Telegram не подключен.'
+                    ? fe8ClientMessengerMediaText.clientMessengerChatSection_string_c917e434
+                    : fe8ClientMessengerMediaText.clientMessengerChatSection_string_d33ec712
                 }
                 variant="light"
               >
                 <Stack gap="sm">
                   <Text size="sm">
                     {canCreateLink
-                      ? 'Сгенерируйте ссылку или покажите QR-код, чтобы клиент начал диалог.'
-                      : 'Доступ к переписке появится после подключения клиента.'}
+                      ? fe8ClientMessengerMediaText.clientMessengerChatSection_string_4b14a61e
+                      : fe8ClientMessengerMediaText.clientMessengerChatSection_string_9372e5cf}
                   </Text>
                   {linkError ? (
                     <Text c="red" size="sm">
@@ -517,8 +515,7 @@ export function ClientMessengerChatSection({
                         loading={linkCreating}
                         onClick={() => void createLinkToken()}
                       >
-                        Ссылка и QR
-                      </Button>
+                        {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_0465921b}</Button>
                     </Group>
                   ) : null}
                 </Stack>
@@ -529,8 +526,7 @@ export function ClientMessengerChatSection({
               <Stack gap="md">
                 <Group gap="xs" wrap="wrap">
                   <Badge color="teal" radius="xl" variant="light">
-                    Чат подключен
-                  </Badge>
+                    {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_a9a7ca66}</Badge>
                   {summary?.connection.telegramDisplayName ? (
                     <Text c="dimmed" size="sm">
                       {summary.connection.telegramDisplayName}
@@ -538,7 +534,7 @@ export function ClientMessengerChatSection({
                   ) : null}
                   {summary?.connection.telegramUsername ? (
                     <Text c="dimmed" size="sm">
-                      @{summary.connection.telegramUsername}
+                      {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_c3641f85}{summary.connection.telegramUsername}
                     </Text>
                   ) : null}
                 </Group>
@@ -558,8 +554,7 @@ export function ClientMessengerChatSection({
                             size="xs"
                             variant="subtle"
                           >
-                            Загрузить еще
-                          </Button>
+                            {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_010ff624}</Button>
                         </Group>
                       ) : null}
 
@@ -569,8 +564,7 @@ export function ClientMessengerChatSection({
                         ))
                       ) : (
                         <Text c="dimmed" py="lg" ta="center">
-                          Чат подключен, сообщений пока нет.
-                        </Text>
+                          {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_0994139f}</Text>
                       )}
                     </Stack>
                   </ScrollArea.Autosize>
@@ -584,7 +578,7 @@ export function ClientMessengerChatSection({
                       maxRows={6}
                       minRows={2}
                       onChange={(event) => setDraft(event.currentTarget.value)}
-                      placeholder="Введите сообщение клиенту"
+                      placeholder={fe8ClientMessengerMediaText.clientMessengerChatSection_placeholder_aac0c410}
                       ref={textareaRef}
                       value={draft}
                     />
@@ -600,14 +594,13 @@ export function ClientMessengerChatSection({
                         loading={sending}
                         onClick={() => void sendMessage()}
                       >
-                        {sending ? 'Отправка...' : 'Отправить'}
+                        {sending ? fe8ClientMessengerMediaText.clientMessengerChatSection_string_8192855b : fe8ClientMessengerMediaText.clientMessengerChatSection_string_ceb68a92}
                       </Button>
                     </Group>
                   </Stack>
                 ) : (
                   <Alert color="gray" variant="light">
-                    Доступ только для чтения. Отправка сообщений доступна администратору.
-                  </Alert>
+                    {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_3b46e89c}</Alert>
                 )}
               </Stack>
             ) : null}
@@ -621,13 +614,12 @@ export function ClientMessengerChatSection({
         opened={linkModalOpened}
         radius="8px"
         size="lg"
-        title="Подключение Telegram"
+        title={fe8ClientMessengerMediaText.clientMessengerChatSection_title_2d65bc85}
       >
         {linkToken ? (
           <Stack gap="md">
             <Text c="dimmed" size="sm">
-              Отправьте клиенту ссылку или дайте отсканировать QR-код.
-            </Text>
+              {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_af9f52ba}</Text>
             <Group align="flex-start" gap="lg" wrap="wrap">
               <div
                 className="client-messenger-qr"
@@ -638,15 +630,14 @@ export function ClientMessengerChatSection({
                   {linkToken.deepLinkUrl}
                 </Text>
                 <Text c="dimmed" size="sm">
-                  Действует до {formatDateTime(linkToken.expiresAt)}
+                  {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_97b87834}{formatDateTime(linkToken.expiresAt)}
                 </Text>
                 <Button
                   fullWidth
                   leftSection={<IconBrandTelegram size={18} />}
                   onClick={openTelegramShare}
                 >
-                  Отправить в Telegram
-                </Button>
+                  {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_420572a1}</Button>
                 {canUseNativeShare ? (
                   <Button
                     fullWidth
@@ -654,8 +645,7 @@ export function ClientMessengerChatSection({
                     onClick={() => void shareLink()}
                     variant="light"
                   >
-                    Поделиться
-                  </Button>
+                    {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_dc120821}</Button>
                 ) : null}
                 <Button
                   fullWidth
@@ -663,8 +653,7 @@ export function ClientMessengerChatSection({
                   onClick={openTelegramLink}
                   variant="light"
                 >
-                  Открыть Telegram
-                </Button>
+                  {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_fb72b78f}</Button>
                 <Button
                   color={linkCopied ? 'teal' : 'brand'}
                   fullWidth
@@ -673,7 +662,7 @@ export function ClientMessengerChatSection({
                   onClick={() => void copyLink()}
                   variant="light"
                 >
-                  {linkCopied ? 'Скопировано' : 'Скопировать ссылку'}
+                  {linkCopied ? fe8ClientMessengerMediaText.clientMessengerChatSection_string_d2d08c71 : fe8ClientMessengerMediaText.clientMessengerChatSection_string_8d810136}
                 </Button>
                 {linkCopyError ? (
                   <Text c="red" size="sm">
@@ -698,7 +687,7 @@ function MessageCard({ message }: { message: ClientMessengerMessage }) {
   const outbound = message.direction === 'Outbound'
   const title = outbound
     ? message.createdByUserName ?? 'CRM'
-    : message.telegramDisplayName ?? message.telegramUsername ?? 'Клиент'
+    : message.telegramDisplayName ?? message.telegramUsername ?? fe8ClientMessengerMediaText.clientMessengerChatSection_string_3e622aec
 
   return (
     <Paper
@@ -744,25 +733,25 @@ function MessageCard({ message }: { message: ClientMessengerMessage }) {
 
 function getConnectionText(summary: ClientMessengerSummary | null) {
   if (!summary) {
-    return 'Telegram-чат клиента'
+    return fe8ClientMessengerMediaText.clientMessengerChatSection_string_1fe35c6e
   }
 
   if (summary.connection.status === 'Connected') {
-    return 'Чат подключен'
+    return fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_a9a7ca66
   }
 
   if (summary.connection.status === 'PendingLink') {
     return summary.connection.pendingLinkExpiresAt
-      ? `Ожидаем подключение до ${formatDateTime(summary.connection.pendingLinkExpiresAt)}`
-      : 'Ожидаем подключение клиента'
+      ? fe8ClientMessengerMediaText.clientMessengerChatSection_template_e9da7455(formatDateTime(summary.connection.pendingLinkExpiresAt))
+      : fe8ClientMessengerMediaText.clientMessengerChatSection_string_2a93cc16
   }
 
-  return 'Клиент еще не подключил Telegram'
+  return fe8ClientMessengerMediaText.clientMessengerChatSection_string_64db2165
 }
 
 function formatDateTime(value?: string | null) {
   if (!value) {
-    return 'дата не указана'
+    return fe8ClientMessengerMediaText.clientMessengerChatSection_string_89439c68
   }
 
   const date = new Date(value)

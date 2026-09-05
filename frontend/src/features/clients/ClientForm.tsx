@@ -14,6 +14,8 @@ import {
   formatBranchOptionLabel,
   formatGroupOptionLabel,
 } from './ClientManagement.formatting'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 type ClientFormProps = {
   form: UseFormReturnType<ClientFormValues>
@@ -92,7 +94,7 @@ export function ClientForm({
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Сохранение не выполнено"
+            title={fe6ClientProfileText.clientForm_title_09e1875e}
             variant="light"
           >
             {formError}
@@ -103,26 +105,26 @@ export function ClientForm({
           <Stack gap="md">
             <SimpleGrid cols={{ base: 1, md: 3 }}>
               <TextInput
-                label="Фамилия"
-                placeholder="Иванов"
+                label={fe6ClientProfileText.clientForm_label_353eafa3}
+                placeholder={fe6ClientProfileText.clientForm_placeholder_37f3ddd4}
                 {...form.getInputProps('lastName')}
               />
               <TextInput
-                label="Имя"
-                placeholder="Иван"
+                label={fe6ClientProfileText.clientForm_label_1da7e937}
+                placeholder={fe6ClientProfileText.clientForm_placeholder_cc078195}
                 {...form.getInputProps('firstName')}
               />
               <TextInput
-                label="Отчество"
-                placeholder="Иванович"
+                label={fe6ClientProfileText.clientForm_label_e1739d0a}
+                placeholder={fe6ClientProfileText.clientForm_placeholder_52028dbd}
                 {...form.getInputProps('middleName')}
               />
             </SimpleGrid>
 
             <SimpleGrid cols={{ base: 1, md: 2 }}>
               <TextInput
-                label="Телефон"
-                placeholder="+7(999) 000-00-00"
+                label={fe6ClientProfileText.clientForm_label_822f9fd9}
+                placeholder={fe6ClientProfileText.clientForm_placeholder_29def5ac}
                 {...form.getInputProps('phone')}
               />
 
@@ -134,9 +136,9 @@ export function ClientForm({
                   disabled: branch.isArchived,
                 }))}
                 disabled={lockBranch}
-                label="Филиал"
+                label={fe6ClientProfileText.clientForm_label_2f17c4d2}
                 onChange={updateBranch}
-                placeholder="Выберите филиал"
+                placeholder={fe6ClientProfileText.clientForm_placeholder_4c5ee5d8}
                 searchable
                 value={selectedBranchId || null}
                 error={form.errors.branchId}
@@ -150,17 +152,17 @@ export function ClientForm({
                   label: formatGroupOptionLabel(group),
                 }))}
                 disabled={!selectedBranchId}
-                label="Группы клиента"
+                label={fe6ClientProfileText.clientForm_label_ab308eef}
                 placeholder={
                   selectedBranchId
-                    ? 'Выберите группы'
-                    : 'Сначала выберите филиал'
+                    ? fe6ClientProfileText.clientForm_string_3d8d006f
+                    : fe6ClientProfileText.clientForm_string_74f8ad03
                 }
                 searchable
                 {...form.getInputProps('groupIds')}
               />
               <TextInput
-                label="Дата рождения"
+                label={fe6ClientProfileText.clientForm_label_1ae72066}
                 type="date"
                 {...form.getInputProps('birthDate')}
               />
@@ -168,9 +170,9 @@ export function ClientForm({
 
             <Textarea
               autosize
-              label="Рабочая заметка"
+              label={fe6ClientProfileText.clientForm_label_6d7987c1}
               minRows={4}
-              placeholder="Например: предпочитает связь после 18:00, важные детали по посещениям или оплате."
+              placeholder={fe6ClientProfileText.clientForm_placeholder_0e86ea4c}
               {...form.getInputProps('notes')}
             />
           </Stack>
@@ -182,10 +184,9 @@ export function ClientForm({
           <Stack gap="md">
             <Group justify="space-between" wrap="wrap">
               <div>
-                <Text fw={700}>Контактные лица</Text>
+                <Text fw={700}>{fe6ClientProfileText.clientForm_jsxText_c50d9f78}</Text>
                 <Text c="dimmed" size="sm">
-                  Можно указать до двух контактов. Пустые строки не будут сохранены.
-                </Text>
+                  {fe6ClientProfileText.clientForm_jsxText_a00f32e0}</Text>
               </div>
 
               <Button
@@ -195,23 +196,21 @@ export function ClientForm({
                 type="button"
                 variant="light"
               >
-                Добавить контакт
-              </Button>
+                {fe6ClientProfileText.clientForm_jsxText_63492f28}</Button>
             </Group>
 
             {form.values.contacts.length === 0 ? (
               <Text c="dimmed" size="sm">
-                Контактные лица пока не добавлены.
-              </Text>
+                {fe6ClientProfileText.clientForm_jsxText_14efba42}</Text>
             ) : (
               <Stack gap="sm">
                 {form.values.contacts.map((_, index) => (
                   <Paper className="list-row-card" key={index} radius="8px" withBorder>
                     <Stack gap="md">
                       <Group justify="space-between" wrap="wrap">
-                        <Text fw={700}>Контакт #{index + 1}</Text>
+                        <Text fw={700}>{fe6ClientProfileText.clientForm_jsxText_2c73c938}{index + 1}</Text>
                         <ActionIcon
-                          aria-label={`Удалить контакт ${index + 1}`}
+                          aria-label={fe6ClientProfileText.clientForm_template_8b452ad2(index + 1)}
                           color="red"
                           onClick={() => removeContact(index)}
                           type="button"
@@ -223,18 +222,18 @@ export function ClientForm({
 
                       <SimpleGrid cols={{ base: 1, md: 3 }}>
                         <TextInput
-                          label="Тип контакта"
-                          placeholder="Мама / Папа / Другой"
+                          label={fe6ClientProfileText.clientForm_label_1a4f2dd4}
+                          placeholder={fe6ClientProfileText.clientForm_placeholder_a3f088c6}
                           {...form.getInputProps(`contacts.${index}.type`)}
                         />
                         <TextInput
-                          label="ФИО контактного лица"
-                          placeholder="Анна Иванова"
+                          label={fe6ClientProfileText.clientForm_label_3ab1fb44}
+                          placeholder={fe6ClientProfileText.clientForm_placeholder_e23f3a45}
                           {...form.getInputProps(`contacts.${index}.fullName`)}
                         />
                         <TextInput
-                          label="Телефон контакта"
-                          placeholder="+7(999) 000-00-01"
+                          label={fe6ClientProfileText.clientForm_label_a49c980a}
+                          placeholder={fe6ClientProfileText.clientForm_placeholder_59073e3a}
                           {...form.getInputProps(`contacts.${index}.phone`)}
                         />
                       </SimpleGrid>

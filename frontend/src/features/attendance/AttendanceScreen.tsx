@@ -35,6 +35,8 @@ import {
 } from './AttendanceRosterViewControl'
 import type { AttendanceClientRowState } from './types'
 import { AttendanceTodayWorklist } from './AttendanceTodayWorklist'
+import { fe4AttendanceText } from '../../resources/fe-4-attendance'
+
 
 type AttendanceScreenProps = {
   initialReturnContext?: ClientProfileReturnContext | null
@@ -58,14 +60,14 @@ export function AttendanceScreen({
 }: AttendanceScreenProps) {
   if (!lessonTarget) {
     return (
-      <PageLayout data-testid="attendance-screen" showHeader={false} title="Посещения">
+      <PageLayout data-testid="attendance-screen" showHeader={false} title={fe4AttendanceText.attendanceScreen_title_5f43e5f1}>
         <AttendanceTodayWorklist onOpenLesson={onOpenLesson ?? (() => undefined)} />
       </PageLayout>
     )
   }
 
   return (
-    <PageLayout data-testid="attendance-screen" showHeader={false} title="Посещения">
+    <PageLayout data-testid="attendance-screen" showHeader={false} title={fe4AttendanceText.attendanceScreen_title_5f43e5f1}>
       <AttendanceWorkspace
         initialReturnContext={initialReturnContext}
         lessonTarget={lessonTarget}
@@ -166,7 +168,7 @@ export function AttendanceWorkspace({
       } catch (error) {
         if (controller.signal.aborted) return
         setGroups([])
-        setGroupsError(error instanceof Error ? error.message : 'Не удалось загрузить доступные группы для посещений.')
+        setGroupsError(error instanceof Error ? error.message : fe4AttendanceText.attendanceScreen_string_e6a18bf5)
       } finally {
         if (!controller.signal.aborted) setGroupsLoading(false)
       }
@@ -240,7 +242,7 @@ export function AttendanceWorkspace({
           return
         }
 
-        setRosterError(error instanceof Error ? error.message : 'Не удалось загрузить клиентов группы на выбранную дату.')
+        setRosterError(error instanceof Error ? error.message : fe4AttendanceText.attendanceScreen_string_72edaa61)
       } finally {
         if (!controller.signal.aborted && contextVersion === contextVersionRef.current) setRosterLoading(false)
       }
@@ -280,7 +282,7 @@ export function AttendanceWorkspace({
       if (contextKeyRef.current !== contextKey || actionVersionsRef.current[clientId] !== actionVersion) return
       setCurrentRosterGroupId(response.groupId)
       const authoritativeState = response.attendanceMarks.find((mark) => mark.clientId === clientId)?.state
-      if (!authoritativeState) throw new Error('Сервер не вернул сохраненное состояние.')
+      if (!authoritativeState) throw new Error(fe4AttendanceText.attendanceScreen_string_04540f1a)
       setMaxTrainingDate(response.maxTrainingDate)
       setToday(response.today)
       setMinTrainingDate(response.minTrainingDate)
@@ -304,7 +306,7 @@ export function AttendanceWorkspace({
         ...row,
         saveState: 'failed',
         attemptedState,
-        errorMessage: error instanceof Error ? error.message : 'Не удалось сохранить отметку.',
+        errorMessage: error instanceof Error ? error.message : fe4AttendanceText.attendanceScreen_string_ae751111,
       })))
     }
   }
@@ -370,7 +372,7 @@ export function AttendanceWorkspace({
     setRosterLoading(false)
     setRosterError(null)
     setRosterRefreshError(false)
-    setScopeChangeMessage('Доступ к группе изменился')
+    setScopeChangeMessage(fe4AttendanceText.attendanceScreen_setScopeChangeMessage_b4b5eb68)
     setGroupsReloadKey((key) => key + 1)
   }
 
@@ -394,7 +396,7 @@ export function AttendanceWorkspace({
       frequentActions={(
         <TaskToolbarRefreshAction
           disabled={hasPendingSave}
-          label="Обновить список"
+          label={fe4AttendanceText.attendanceScreen_label_163a016f}
           loading={rosterLoading && rosterLoaded}
           onClick={refreshRoster}
         />
@@ -457,7 +459,7 @@ export function AttendanceWorkspace({
       {lessonTarget ? (
         <PageSection>
           <Stack gap={4}>
-            <Text fw={800}>Посещаемость занятия</Text>
+            <Text fw={800}>{fe4AttendanceText.attendanceScreen_jsxText_1c26bf07}</Text>
             <Text c="dimmed" size="sm">
               {formatAttendanceLessonContext(trainingDate)}
             </Text>
@@ -467,18 +469,18 @@ export function AttendanceWorkspace({
       {groupsError ? (
         <PageSection>
           <ErrorState
-            action={<Button onClick={() => setGroupsReloadKey((key) => key + 1)} variant="light">Повторить загрузку групп</Button>}
+            action={<Button onClick={() => setGroupsReloadKey((key) => key + 1)} variant="light">{fe4AttendanceText.attendanceScreen_jsxText_9df82800}</Button>}
             message={groupsError}
-            title="Группы для посещений не загрузились"
+            title={fe4AttendanceText.attendanceScreen_title_63e4ed16}
           />
         </PageSection>
       ) : null}
       {scopeChangeMessage ? (
         <PageSection>
-          <ErrorState message="Список доступных групп обновлен." title={scopeChangeMessage} />
+          <ErrorState message={fe4AttendanceText.attendanceScreen_message_5530460b} title={scopeChangeMessage} />
         </PageSection>
       ) : null}
-      {groupsLoading ? <PageSection><LoadingState label="Загружаем доступные группы..." /></PageSection> : null}
+      {groupsLoading ? <PageSection><LoadingState label={fe4AttendanceText.attendanceScreen_label_ccdc603e} /></PageSection> : null}
       {!lessonTarget && !groupsLoading && !groupsError && groups.length === 0 ? (
         <PageSection>
           <EmptyState
@@ -525,22 +527,22 @@ export function AttendanceWorkspace({
             ) : null}
             {rosterRefreshError ? (
               <div aria-live="polite" className="attendance-roster-stale">
-                <Text fw={600} size="sm">Не удалось обновить список после сохранения.</Text>
-                <Button onClick={refreshRoster} variant="light">Повторить обновление списка</Button>
+                <Text fw={600} size="sm">{fe4AttendanceText.attendanceScreen_jsxText_1abc9cf0}</Text>
+                <Button onClick={refreshRoster} variant="light">{fe4AttendanceText.attendanceScreen_jsxText_31de5844}</Button>
               </div>
             ) : null}
-            {rosterError ? <ErrorState message={rosterError} title="Список клиентов не загрузился" /> : null}
-            {rosterLoading && !rosterLoaded ? <LoadingState label="Загружаем состав группы..." /> : null}
+            {rosterError ? <ErrorState message={rosterError} title={fe4AttendanceText.attendanceScreen_title_d81f487a} /> : null}
+            {rosterLoading && !rosterLoaded ? <LoadingState label={fe4AttendanceText.attendanceScreen_label_f63b7eb9} /> : null}
             {!rosterLoading && !rosterError && rosterLoaded && allRows.length === 0 ? (
-              <EmptyState description="Состав группы на эту дату пуст." icon={<IconUsers size={24} />} title="В выбранной группе пока нет клиентов" />
+              <EmptyState description={fe4AttendanceText.attendanceScreen_description_acbeac4d} icon={<IconUsers size={24} />} title={fe4AttendanceText.attendanceScreen_title_59fc779f} />
             ) : null}
             {!rosterLoading && !rosterError && rosterLoaded && allRows.length > 0 && visibleRows.length === 0 && rosterView === 'unmarked' ? (
               <div aria-live="polite">
                 <EmptyState
-                  action={<Button onClick={() => setRosterView('all')} variant="light">Показать всех</Button>}
-                  description="Можно проверить сохраненные отметки или изменить их в полном списке."
+                  action={<Button onClick={() => setRosterView('all')} variant="light">{fe4AttendanceText.attendanceScreen_jsxText_752358df}</Button>}
+                  description={fe4AttendanceText.attendanceScreen_description_823cc7d3}
                   icon={<IconCircleCheck size={24} />}
-                  title="Все клиенты отмечены"
+                  title={fe4AttendanceText.attendanceScreen_title_32340c90}
                 />
               </div>
             ) : null}
@@ -603,13 +605,13 @@ function getRestoredAttendanceContext(
   }
 
   const changedFields = [
-    groupAllowed ? null : 'группа изменена',
-    dateAllowed ? null : 'дата изменена',
+    groupAllowed ? null : fe4AttendanceText.attendanceScreen_string_9fedff60,
+    dateAllowed ? null : fe4AttendanceText.attendanceScreen_string_78cbcd82,
   ].filter(Boolean)
   const message =
     changedFields.length === 0
       ? null
-      : `${changedFields.join(' и ')}. Контекст посещений выбран заново.`
+      : fe4AttendanceText.attendanceScreen_template_97cc5be8(changedFields.join(fe4AttendanceText.attendanceScreen_changedFieldsJoin_21db14e4))
 
   return {
     anchorClientId: origin.anchorClientId,
@@ -689,26 +691,26 @@ function mergeManualRefresh(
 
 function getEmptyAttendanceTitle(user: AuthenticatedUser) {
   if (user.role === 'Administrator') {
-    return 'Нет групп для отметки посещений'
+    return fe4AttendanceText.attendanceScreen_string_aace5a72
   }
 
   if (user.role === 'Coach') {
-    return 'Назначенные группы отсутствуют'
+    return fe4AttendanceText.attendanceScreen_string_3fab1709
   }
 
-  return 'Доступные группы пока отсутствуют'
+  return fe4AttendanceText.attendanceScreen_string_60cfcc47
 }
 
 function getEmptyAttendanceDescription(user: AuthenticatedUser) {
   if (user.role === 'Administrator') {
-    return 'Главный тренер или суперадминистратор назначит группы, после этого они появятся здесь.'
+    return fe4AttendanceText.attendanceScreen_string_11527668
   }
 
   if (user.role === 'Coach') {
-    return 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'
+    return fe4AttendanceText.attendanceScreen_string_e7fdd82a
   }
 
-  return 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'
+  return fe4AttendanceText.attendanceScreen_string_33b50a40
 }
 
 function isAttendanceGroupForbidden(error: unknown) {
@@ -719,19 +721,19 @@ function getAttendanceEditDeniedReason(reason: string | null) {
   switch (reason) {
     case 'future-lesson':
     case 'attendance-future-read-only':
-      return 'Будущее занятие доступно только для просмотра.'
+      return fe4AttendanceText.attendanceScreen_string_e978a33c
     case 'lesson-cancelled':
-      return 'Отмененное занятие доступно только для просмотра.'
+      return fe4AttendanceText.attendanceScreen_string_cbea104a
     case 'forbidden':
     case 'attendance-forbidden':
-      return 'Сервер не разрешил изменять посещаемость этого занятия.'
+      return fe4AttendanceText.attendanceScreen_string_8558b70f
     default:
       return reason
-        ? `Редактирование недоступно: ${reason}.`
-        : 'Редактирование посещаемости недоступно.'
+        ? fe4AttendanceText.attendanceScreen_template_3fdd7a08(reason)
+        : fe4AttendanceText.attendanceScreen_string_4f753af9
   }
 }
 
 function formatAttendanceLessonContext(lessonDate: string) {
-  return `Дата ${lessonDate}`
+  return fe4AttendanceText.attendanceScreen_template_a4d8a706(lessonDate)
 }

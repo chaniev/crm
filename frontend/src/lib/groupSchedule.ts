@@ -1,4 +1,6 @@
 import type { TrainingGroupListItem } from './api'
+import { fe17SharedRoutingThemeText } from '../resources/fe-17-shared-routing-theme'
+
 
 export const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const
 const DEFAULT_VISIBLE_START_HOUR = 8
@@ -119,13 +121,13 @@ export const SCHEDULE_MIN_READABLE_CARD_HEIGHT_PX = 84
 export const SCHEDULE_MIN_VISUAL_CARD_HEIGHT_PX = 54
 
 export const WEEKDAY_LABELS: Record<number, string> = {
-  1: 'Пн',
-  2: 'Вт',
-  3: 'Ср',
-  4: 'Чт',
-  5: 'Пт',
-  6: 'Сб',
-  7: 'Вс',
+  1: fe17SharedRoutingThemeText.groupSchedule_string_31a8ee2f,
+  2: fe17SharedRoutingThemeText.groupSchedule_string_839b2d5c,
+  3: fe17SharedRoutingThemeText.groupSchedule_string_7ec16b9e,
+  4: fe17SharedRoutingThemeText.groupSchedule_string_95661872,
+  5: fe17SharedRoutingThemeText.groupSchedule_string_4ca114c2,
+  6: fe17SharedRoutingThemeText.groupSchedule_string_95dab017,
+  7: fe17SharedRoutingThemeText.groupSchedule_string_7971972c,
 }
 
 export const WEEKDAY_OPTIONS = Object.entries(WEEKDAY_LABELS).map(
@@ -202,7 +204,7 @@ export type ScheduleGroupLike = Pick<
 
 export function formatWeekdays(weekdays?: readonly number[] | null) {
   if (!weekdays || weekdays.length === 0) {
-    return 'Дни не заданы'
+    return fe17SharedRoutingThemeText.groupSchedule_string_f783a57e
   }
 
   return weekdays
@@ -212,17 +214,17 @@ export function formatWeekdays(weekdays?: readonly number[] | null) {
 
 export function formatDurationMinutes(durationMinutes?: number | null) {
   if (typeof durationMinutes !== 'number') {
-    return 'Длительность не задана'
+    return fe17SharedRoutingThemeText.groupSchedule_string_97041ad9
   }
 
-  return `${durationMinutes} мин`
+  return fe17SharedRoutingThemeText.groupSchedule_template_08b196b8(durationMinutes)
 }
 
 export function formatTrainingStartTime(trainingStartTime?: string | null) {
   const parsedTime = parseTrainingStartTime(trainingStartTime)
 
   if (!parsedTime) {
-    return trainingStartTime?.trim() || 'Время не задано'
+    return trainingStartTime?.trim() || fe17SharedRoutingThemeText.groupSchedule_string_8d62fb15
   }
 
   return parsedTime.label
@@ -259,7 +261,7 @@ export function parseTrainingStartTime(trainingStartTime?: string | null) {
     hours,
     minutes,
     totalMinutes: (hours * 60) + minutes,
-    label: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
+    label: fe17SharedRoutingThemeText.groupSchedule_label_6fdf41c8(String(hours).padStart(2, '0'), String(minutes).padStart(2, '0')),
   }
 }
 
@@ -379,7 +381,7 @@ export function getScheduleTypeKey(group: Pick<ScheduleGroupLike, 'groupTypeId'>
 }
 
 export function getScheduleTypeLabel(group: Pick<ScheduleGroupLike, 'groupTypeName'>) {
-  return group.groupTypeName.trim() || 'Тип не задан'
+  return group.groupTypeName.trim() || fe17SharedRoutingThemeText.groupSchedule_string_e93b045d
 }
 
 export function getScheduleTypePalette(groupOrKey: Pick<
@@ -502,7 +504,7 @@ export function buildScheduleFilterOptions<TGroup extends ScheduleGroupLike>(
         hallId: null,
       }).map((group) => ({
         value: group.hallId,
-        label: `${group.hallName} · ${group.branchName}`,
+        label: fe17SharedRoutingThemeText.groupSchedule_label_eaceb28c(group.hallName, group.branchName),
       })),
     ),
     trainers: toSortedOptions(
@@ -999,7 +1001,7 @@ function buildScheduleHallLoad<TGroup extends Pick<
 
   for (const entry of entries) {
     const key = entry.group.hallId.trim() || 'unknown'
-    const label = entry.group.hallName.trim() || 'Зал не задан'
+    const label = entry.group.hallName.trim() || fe17SharedRoutingThemeText.groupSchedule_string_0b7f45bb
     const existingItem = items.get(key)
 
     if (existingItem) {

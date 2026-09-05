@@ -1,0 +1,697 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "review_status": "accepted",
+  "group_count": 25,
+  "groups": [
+    {
+      "fingerprint": "sha256:1a9fb1f3cf8e189a74acd6849678ed4bdf80fde41ed2f9c35a85550b0e3586fa",
+      "value": "Назад",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/keyboards.py",
+          "lines": [
+            103,
+            138
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            110
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-5-client-list.ts",
+          "lines": [
+            56
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:202af31a78c78dea36e9c74b5fb7dcdd317743bafd940090b8e4ace2615d3683",
+      "value": "Нет текущего абонемента",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/UserFacingText/Resources/BE2ClientsText.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-5-client-list.ts",
+          "lines": [
+            19
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:259085f98217b4ed6017e66fcbddae0595b8bc2ef88b41ed243ab8b2b14fe4da",
+      "value": "Укажите ФИО контактного лица.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ClientResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-6-client-profile.ts",
+          "lines": [
+            131
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:31a8ee2fb6b7b6f4631776e1213464bb4114b96814fcb43a9eb0d68e5a69f752",
+      "value": "Пн",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            116
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            79
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:4ca114c23be8d9689a0ff81369971f88bcf9862b9fed53fe8bf87221e662d942",
+      "value": "Пт",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            124
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            80
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:50f59e98280b6fe4f4d05e5807933f8d93af811e1e71993242f223880aad9653",
+      "value": "Допустимы только JPEG, PNG, WebP, HEIC и HEIF.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ClientResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-6-client-profile.ts",
+          "lines": [
+            140
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:5f43e5f108583b8ff7ec0392d42ed9831978dc64530e9f1497ff2259d7913d7c",
+      "value": "Посещения",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Infrastructure/UserFacingText/Resources/BotText.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-1-app-shell-auth.ts",
+          "lines": [
+            88
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            5
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-4-attendance.ts",
+          "lines": [
+            63
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:63e29a541bf25f760c607bae8d8c187c6fa749d126e9846dfc5fe348a0483c0e",
+      "value": "Оформить абонемент",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/UserFacingText/Resources/BE2ClientsText.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-5-client-list.ts",
+          "lines": [
+            22
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6bd8ee2e79ab242b9b29cf0baa7ecf22dc9de56fd705e0778f2330ad2d7af2a6",
+      "value": "Плановое сопровождение",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/UserFacingText/Resources/BE2ClientsText.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-5-client-list.ts",
+          "lines": [
+            23
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6d7112785e9f61bb8cca201b86b77016b9cd9f706d4d771dfaf4319fbd0c67ec",
+      "value": "Главный тренер",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Startup/Resources/StartupResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            58
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-1-app-shell-auth.ts",
+          "lines": [
+            23
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:735598db9324ba6ddf31bd49612799ac7d5948a7d2f7a8fc94035cd168f9e34d",
+      "value": "Укажите телефон контактного лица.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ClientResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-6-client-profile.ts",
+          "lines": [
+            132
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:7971972c7cbb98da65679b61aa17bbc52102a8d4d4cffd4f223dd739cad27a0a",
+      "value": "Вс",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            128
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            81
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:7ec16b9e41ff461a1227082764da8cc9f6eae779e216683546f63fca490ab67a",
+      "value": "Ср",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            120
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            82
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:839b2d5c5aa3d81f59ca580ea3a076ef15d518cf2eddb632b4692d3853bc7c24",
+      "value": "Вт",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            118
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            83
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:92f64d0d0d54ceb88fb2eeea7b5be026657f2226a5158b6b28c5a88e58b2c121",
+      "value": "Без варианта каталога",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Domain/UserFacingText/Resources/ClientMembershipDisplayText.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-6-client-profile.ts",
+          "lines": [
+            143
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-7-client-membership.ts",
+          "lines": [
+            109
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:956618723dd8bbc19474b50c9819bfd11a259e85fb148de4f09203b8138cb462",
+      "value": "Чт",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            122
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            85
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:95dab017a4da8cfdbc731ae32e73e6f0e39e118370be8b1d680ca16e50b1e539",
+      "value": "Сб",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            126
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            86
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:96c9bf503ac6f2c93849030f854535d6e74b18bd1e06dc3914298956c7fe97f0",
+      "value": "У тренера есть пересекающееся постоянное назначение в другой группе.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/UserFacingText/Resources/BE5GroupsText.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-2-schedule-core.ts",
+          "lines": [
+            142
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "value": "Сохранить",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/keyboards.py",
+          "lines": [
+            79
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-12-settings-membership.ts",
+          "lines": [
+            4
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c19bb335acac7796dd21fbd2ff9f1d5d76a97754fe5c8e9a598abb055f779f45",
+      "value": "Планово",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/UserFacingText/Resources/BE2ClientsText.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            38
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-5-client-list.ts",
+          "lines": [
+            13
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:cd2e8ad3c648098fe1eb53a077d3858d5e89b967383667139471415e38b53ae2",
+      "value": "Не был",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+          "lines": [
+            44
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            94
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-4-attendance.ts",
+          "lines": [
+            67
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:de3830e75332f2b2c545d9463e9edf3e8e7c2b5ad6d6008ee25d1bbf810c29d8",
+      "value": "Исправить группы",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/UserFacingText/Resources/BE2ClientsText.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-7-client-membership.ts",
+          "lines": [
+            20
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ea58bb0bc6d40423f5b97098bde287e26a1f1770290ed0ffeb187917cadb0c1a",
+      "value": "Дальше",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/keyboards.py",
+          "lines": [
+            107,
+            145
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-17-shared-routing-theme.ts",
+          "lines": [
+            114
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-5-client-list.ts",
+          "lines": [
+            65
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f638f9f2a2192959cc796d3ec256696bc86a195f23223f2242a005d406dea147",
+      "value": "Укажите тип контактного лица.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ClientResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-6-client-profile.ts",
+          "lines": [
+            136
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ff13de896146db550b0bdddbcd09b8f1543f4ddd279ea5febac6d03106e8cf3c",
+      "value": "Был",
+      "owners": [
+        "bot/resources",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+          "lines": [
+            46
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/resources/bot_3_clients_rendering.py",
+          "lines": [
+            96
+          ],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/resources/fe-4-attendance.ts",
+          "lines": [
+            68
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    }
+  ]
+}

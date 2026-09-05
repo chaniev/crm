@@ -55,6 +55,8 @@ import {
   TaskToolbarRefreshAction,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
+import { fe10SettingsBranchesShellText } from '../../resources/fe-10-settings-branches-shell'
+
 
 type BranchFormValues = {
   name: string
@@ -150,7 +152,7 @@ export function BranchSettingsScreen({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить филиалы и залы.',
+            : fe10SettingsBranchesShellText.branchSettingsScreen_string_bcb7882e,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -233,9 +235,9 @@ export function BranchSettingsScreen({
         id: `settings-branch-${branchModal.mode}`,
         title:
           branchModal.mode === 'create'
-            ? 'Филиал создан'
-            : 'Филиал обновлен',
-        message: `Филиал «${savedBranch.name}» сохранен.`,
+            ? fe10SettingsBranchesShellText.branchSettingsScreen_string_e5873c80
+            : fe10SettingsBranchesShellText.branchSettingsScreen_string_a3a972ea,
+        message: fe10SettingsBranchesShellText.branchSettingsScreen_message_6443763c(savedBranch.name),
         color: 'teal',
       })
     } catch (error) {
@@ -245,7 +247,7 @@ export function BranchSettingsScreen({
         return
       }
 
-      setActionError('Не удалось сохранить филиал.')
+      setActionError(fe10SettingsBranchesShellText.branchSettingsScreen_setActionError_edc2801e)
     } finally {
       setBranchSubmitting(false)
     }
@@ -280,8 +282,8 @@ export function BranchSettingsScreen({
 
       showAppNotification({
         id: `settings-hall-${hallModal.mode}`,
-        title: hallModal.mode === 'create' ? 'Зал создан' : 'Зал обновлен',
-        message: `Зал «${savedHall.name}» сохранен.`,
+        title: hallModal.mode === 'create' ? fe10SettingsBranchesShellText.branchSettingsScreen_string_b6a816b2 : fe10SettingsBranchesShellText.branchSettingsScreen_string_0143b43b,
+        message: fe10SettingsBranchesShellText.branchSettingsScreen_message_9055dca1(savedHall.name),
         color: 'teal',
       })
       setReloadKey((currentKey) => currentKey + 1)
@@ -292,7 +294,7 @@ export function BranchSettingsScreen({
         return
       }
 
-      setActionError('Не удалось сохранить зал.')
+      setActionError(fe10SettingsBranchesShellText.branchSettingsScreen_setActionError_860660d3)
     } finally {
       setHallSubmitting(false)
     }
@@ -311,16 +313,16 @@ export function BranchSettingsScreen({
       showAppNotification({
         id: `settings-branch-archive-${branch.id}`,
         title: updatedBranch.isArchived
-          ? 'Филиал архивирован'
-          : 'Филиал возвращен',
-        message: `Филиал «${updatedBranch.name}» обновлен.`,
+          ? fe10SettingsBranchesShellText.branchSettingsScreen_string_47862d95
+          : fe10SettingsBranchesShellText.branchSettingsScreen_string_fdb40bc2,
+        message: fe10SettingsBranchesShellText.branchSettingsScreen_message_f9bc60e6(updatedBranch.name),
         color: 'teal',
       })
     } catch (error) {
       setActionError(
         error instanceof Error
           ? error.message
-          : 'Не удалось изменить статус филиала.',
+          : fe10SettingsBranchesShellText.branchSettingsScreen_string_866cb8e4,
       )
     } finally {
       setBranchPendingId(null)
@@ -339,15 +341,15 @@ export function BranchSettingsScreen({
       setHalls((currentHalls) => upsertById(currentHalls, updatedHall))
       showAppNotification({
         id: `settings-hall-archive-${hall.id}`,
-        title: updatedHall.isArchived ? 'Зал архивирован' : 'Зал возвращен',
-        message: `Зал «${updatedHall.name}» обновлен.`,
+        title: updatedHall.isArchived ? fe10SettingsBranchesShellText.branchSettingsScreen_string_4824b8e0 : fe10SettingsBranchesShellText.branchSettingsScreen_string_da34740b,
+        message: fe10SettingsBranchesShellText.branchSettingsScreen_message_cf9f9867(updatedHall.name),
         color: 'teal',
       })
     } catch (error) {
       setActionError(
         error instanceof Error
           ? error.message
-          : 'Не удалось изменить статус зала.',
+          : fe10SettingsBranchesShellText.branchSettingsScreen_string_b1511003,
       )
     } finally {
       setHallPendingId(null)
@@ -369,8 +371,8 @@ export function BranchSettingsScreen({
       )
       showAppNotification({
         id: `settings-hall-delete-${hallToDelete.id}`,
-        title: 'Зал удален',
-        message: `Зал «${hallToDelete.name}» удален из филиала.`,
+        title: fe10SettingsBranchesShellText.branchSettingsScreen_title_4229f026,
+        message: fe10SettingsBranchesShellText.branchSettingsScreen_message_204edcc3(hallToDelete.name),
         color: 'teal',
       })
       setHallToDelete(null)
@@ -379,7 +381,7 @@ export function BranchSettingsScreen({
       setActionError(
         error instanceof Error
           ? error.message
-          : 'Не удалось удалить зал.',
+          : fe10SettingsBranchesShellText.branchSettingsScreen_string_a2ba13b7,
       )
       setHallToDelete(null)
     } finally {
@@ -391,7 +393,7 @@ export function BranchSettingsScreen({
     <TaskToolbarActions
       frequentActions={(
         <TaskToolbarRefreshAction
-          label="Обновить"
+          label={fe10SettingsBranchesShellText.branchSettingsScreen_label_603e460b}
           loading={loading}
           onClick={() => setReloadKey((currentKey) => currentKey + 1)}
         />
@@ -399,7 +401,7 @@ export function BranchSettingsScreen({
       primaryAction={(
         <TaskToolbarAction
           icon={<IconPlus size={18} />}
-          label="Добавить филиал"
+          label={fe10SettingsBranchesShellText.branchSettingsScreen_label_4a7c4927}
           onClick={openCreateBranch}
           priority="primary"
         />
@@ -417,14 +419,14 @@ export function BranchSettingsScreen({
             <Alert
               color="red"
               icon={<IconAlertCircle size={18} />}
-              title="Действие не выполнено"
+              title={fe10SettingsBranchesShellText.branchSettingsScreen_title_7530f803}
               variant="light"
             >
               {actionError}
             </Alert>
           ) : null}
 
-          {loading ? <LoadingState label="Загружаем филиалы и залы..." /> : null}
+          {loading ? <LoadingState label={fe10SettingsBranchesShellText.branchSettingsScreen_label_9b4fd5a5} /> : null}
 
           {!loading && loadError ? (
             <ErrorState
@@ -434,19 +436,18 @@ export function BranchSettingsScreen({
                   onClick={() => setReloadKey((currentKey) => currentKey + 1)}
                   variant="pill"
                 >
-                  Повторить
-                </Button>
+                  {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_5189135a}</Button>
               )}
               message={loadError}
-              title="Настройки не загрузились"
+              title={fe10SettingsBranchesShellText.branchSettingsScreen_title_b1c39526}
             />
           ) : null}
 
           {!loading && !loadError && branches.length === 0 ? (
             <EmptyState
-              description="После создания филиала можно будет добавить залы и использовать их в формах CRM."
+              description={fe10SettingsBranchesShellText.branchSettingsScreen_description_c4393b12}
               icon={<IconBuildingStore size={24} />}
-              title="Филиалы пока не созданы"
+              title={fe10SettingsBranchesShellText.branchSettingsScreen_title_82d9adbb}
             />
           ) : null}
 
@@ -458,7 +459,7 @@ export function BranchSettingsScreen({
 
                   return (
                     <Paper
-                      aria-label={`Открыть филиал ${branch.name}`}
+                      aria-label={fe10SettingsBranchesShellText.branchSettingsScreen_template_47c56444(branch.name)}
                       aria-selected={selected}
                       className="settings-branch-row"
                       data-selected={selected || undefined}
@@ -483,14 +484,14 @@ export function BranchSettingsScreen({
                               radius="sm"
                               variant="light"
                             >
-                              {branch.isArchived ? 'Архивный' : 'Активный'}
+                              {branch.isArchived ? fe10SettingsBranchesShellText.branchSettingsScreen_string_0909dfc7 : fe10SettingsBranchesShellText.branchSettingsScreen_string_be6881d5}
                             </Badge>
                           </Group>
                           <Text c="dimmed" size="sm">
-                            {branch.address || 'Адрес не указан'}
+                            {branch.address || fe10SettingsBranchesShellText.branchSettingsScreen_string_51f4db1b}
                           </Text>
                           <Text c="dimmed" size="sm">
-                            Залов: {branch.hallCount} · Групп: {branch.groupCount} · Клиентов: {branch.clientCount}
+                            {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_f8d072c0}{branch.hallCount} {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_0d7606f3}{branch.groupCount} {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_6ea69b07}{branch.clientCount}
                           </Text>
                         </Stack>
                       </Group>
@@ -539,17 +540,17 @@ export function BranchSettingsScreen({
 
       <ConfirmActionModal
         confirmColor="red"
-        confirmLabel="Удалить зал"
+        confirmLabel={fe10SettingsBranchesShellText.branchSettingsScreen_confirmLabel_d15a5f04}
         description={
           hallToDelete
-            ? `Backend не удалит зал «${hallToDelete.name}», если он уже используется группами.`
-            : 'Удалить выбранный зал?'
+            ? fe10SettingsBranchesShellText.branchSettingsScreen_template_978bfaa1(hallToDelete.name)
+            : fe10SettingsBranchesShellText.branchSettingsScreen_string_4e52991b
         }
         onClose={() => setHallToDelete(null)}
         onConfirm={() => void confirmDeleteHall()}
         opened={Boolean(hallToDelete)}
         pending={hallPendingId === hallToDelete?.id}
-        title="Удалить зал?"
+        title={fe10SettingsBranchesShellText.branchSettingsScreen_title_137fecae}
       />
     </>
   )
@@ -559,7 +560,7 @@ export function BranchSettingsScreen({
       <PageLayout
         actions={headerActions}
         data-testid="settings-screen"
-        title="Филиалы и залы"
+        title={fe10SettingsBranchesShellText.branchSettingsScreen_title_3e453a66}
       >
         {content}
       </PageLayout>
@@ -598,8 +599,7 @@ function BranchDetailsPanel({
     return (
       <Paper className="settings-branch-details" withBorder>
         <Text c="dimmed" size="sm">
-          Выберите филиал в списке.
-        </Text>
+          {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_5ef59352}</Text>
       </Paper>
     )
   }
@@ -615,7 +615,7 @@ function BranchDetailsPanel({
             <div>
               <Text fw={800}>{branch.name}</Text>
               <Text c="dimmed" size="sm">
-                {branch.address || 'Адрес не указан'}
+                {branch.address || fe10SettingsBranchesShellText.branchSettingsScreen_string_51f4db1b}
               </Text>
             </div>
           </Group>
@@ -626,8 +626,7 @@ function BranchDetailsPanel({
               onClick={() => onEditBranch(branch)}
               variant="pill"
             >
-              Редактировать
-            </Button>
+              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_59792556}</Button>
             <Button
               color={branch.isArchived ? 'teal' : 'gray'}
               leftSection={
@@ -637,7 +636,7 @@ function BranchDetailsPanel({
               onClick={() => onArchiveBranch(branch)}
               variant="pill"
             >
-              {branch.isArchived ? 'Вернуть' : 'В архив'}
+              {branch.isArchived ? fe10SettingsBranchesShellText.branchSettingsScreen_string_5ae0e885 : fe10SettingsBranchesShellText.branchSettingsScreen_string_1ca66519}
             </Button>
           </ResponsiveButtonGroup>
         </Group>
@@ -646,16 +645,14 @@ function BranchDetailsPanel({
           <Text size="sm">{branch.description}</Text>
         ) : (
           <Text c="dimmed" size="sm">
-            Описание филиала пока не добавлено.
-          </Text>
+            {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_5ae41424}</Text>
         )}
 
         <Group justify="space-between" wrap="wrap">
           <div>
-            <Text fw={800}>Залы филиала</Text>
+            <Text fw={800}>{fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_a7076496}</Text>
             <Text c="dimmed" size="sm">
-              Зал выбирается в форме тренировочной группы.
-            </Text>
+              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_a47c0b9b}</Text>
           </div>
           <Button
             disabled={branch.isArchived}
@@ -663,15 +660,14 @@ function BranchDetailsPanel({
             onClick={() => onCreateHall(branch.id)}
             variant="pill"
           >
-            Добавить зал
-          </Button>
+            {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_fd79d4d5}</Button>
         </Group>
 
         {halls.length === 0 ? (
           <EmptyState
-            description="Создайте первый зал, чтобы группы могли ссылаться на место тренировок."
+            description={fe10SettingsBranchesShellText.branchSettingsScreen_description_29f03982}
             icon={<IconMapPin size={24} />}
-            title="Залы пока не созданы"
+            title={fe10SettingsBranchesShellText.branchSettingsScreen_title_387e19a9}
           />
         ) : (
           <Stack gap="sm">
@@ -686,20 +682,20 @@ function BranchDetailsPanel({
                         radius="sm"
                         variant="light"
                       >
-                        {hall.isArchived ? 'Архивный' : 'Активный'}
+                        {hall.isArchived ? fe10SettingsBranchesShellText.branchSettingsScreen_string_0909dfc7 : fe10SettingsBranchesShellText.branchSettingsScreen_string_be6881d5}
                       </Badge>
                       <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
-                        Групп: {hall.groupCount}
+                        {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_c72164c0}{hall.groupCount}
                       </Badge>
                     </Group>
                     <Text c="dimmed" size="sm">
-                      {hall.description || 'Описание не добавлено'}
+                      {hall.description || fe10SettingsBranchesShellText.branchSettingsScreen_string_15106c19}
                     </Text>
                   </Stack>
 
                   <Group gap={8} wrap="nowrap">
                     <ActionIcon
-                      aria-label={`Редактировать зал ${hall.name}`}
+                      aria-label={fe10SettingsBranchesShellText.branchSettingsScreen_template_1b633f97(hall.name)}
                       onClick={() => onEditHall(hall)}
                       size={44}
                       variant="light"
@@ -709,8 +705,8 @@ function BranchDetailsPanel({
                     <ActionIcon
                       aria-label={
                         hall.isArchived
-                          ? `Вернуть зал ${hall.name}`
-                          : `Архивировать зал ${hall.name}`
+                          ? fe10SettingsBranchesShellText.branchSettingsScreen_template_c34fa15a(hall.name)
+                          : fe10SettingsBranchesShellText.branchSettingsScreen_template_1cc27ebf(hall.name)
                       }
                       color={hall.isArchived ? 'teal' : 'gray'}
                       loading={hallPending === hall.id}
@@ -725,7 +721,7 @@ function BranchDetailsPanel({
                       )}
                     </ActionIcon>
                     <ActionIcon
-                      aria-label={`Удалить зал ${hall.name}`}
+                      aria-label={fe10SettingsBranchesShellText.branchSettingsScreen_template_723fe81a(hall.name)}
                       color="red"
                       disabled={hallPending === hall.id}
                       onClick={() => onDeleteHall(hall)}
@@ -766,40 +762,38 @@ function BranchFormModal({
       onClose={onClose}
       opened={Boolean(modal)}
       radius="8px"
-      title={modal?.mode === 'edit' ? 'Редактировать филиал' : 'Новый филиал'}
+      title={modal?.mode === 'edit' ? fe10SettingsBranchesShellText.branchSettingsScreen_string_0cafa321 : fe10SettingsBranchesShellText.branchSettingsScreen_string_53340e79}
       withCloseButton={!pending}
     >
       <form onSubmit={form.onSubmit((values) => void onSubmit(values))}>
         <Stack gap="md">
           <TextInput
-            label="Название филиала"
-            placeholder="Например, Центр"
+            label={fe10SettingsBranchesShellText.branchSettingsScreen_label_13653782}
+            placeholder={fe10SettingsBranchesShellText.branchSettingsScreen_placeholder_e61a6c67}
             {...form.getInputProps('name')}
           />
           <TextInput
-            label="Адрес"
-            placeholder="Город, улица, дом"
+            label={fe10SettingsBranchesShellText.branchSettingsScreen_label_da82e805}
+            placeholder={fe10SettingsBranchesShellText.branchSettingsScreen_placeholder_00fbfc3f}
             {...form.getInputProps('address')}
           />
           <Textarea
             autosize
-            label="Описание"
+            label={fe10SettingsBranchesShellText.branchSettingsScreen_label_b3680f2c}
             minRows={3}
-            placeholder="Короткая заметка для администраторов"
+            placeholder={fe10SettingsBranchesShellText.branchSettingsScreen_placeholder_fcff79af}
             {...form.getInputProps('description')}
           />
 
           <ResponsiveButtonGroup justify="space-between">
             <Button disabled={pending} onClick={onClose} type="button" variant="ghost">
-              Отменить
-            </Button>
+              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_7c47f729}</Button>
             <Button
               leftSection={<IconDeviceFloppy size={18} />}
               loading={pending}
               type="submit"
             >
-              Сохранить
-            </Button>
+              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_b4d30cae}</Button>
           </ResponsiveButtonGroup>
         </Stack>
       </form>
@@ -830,40 +824,38 @@ function HallFormModal({
       onClose={onClose}
       opened={Boolean(modal)}
       radius="8px"
-      title={modal?.mode === 'edit' ? 'Редактировать зал' : 'Новый зал'}
+      title={modal?.mode === 'edit' ? fe10SettingsBranchesShellText.branchSettingsScreen_string_b199b4ab : fe10SettingsBranchesShellText.branchSettingsScreen_string_58270ae4}
       withCloseButton={!pending}
     >
       <form onSubmit={form.onSubmit((values) => void onSubmit(values))}>
         <Stack gap="md">
           <Paper className="hint-card" radius="8px" withBorder>
             <Text c="dimmed" size="sm">
-              Филиал: {selectedBranch?.name ?? 'Не выбран'}
+              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_40c98d2e}{selectedBranch?.name ?? fe10SettingsBranchesShellText.branchSettingsScreen_string_d77dfdcd}
             </Text>
           </Paper>
           <TextInput
-            label="Название зала"
-            placeholder="Например, Основной зал"
+            label={fe10SettingsBranchesShellText.branchSettingsScreen_label_7f077277}
+            placeholder={fe10SettingsBranchesShellText.branchSettingsScreen_placeholder_4b0e7dac}
             {...form.getInputProps('name')}
           />
           <Textarea
             autosize
-            label="Описание"
+            label={fe10SettingsBranchesShellText.branchSettingsScreen_label_b3680f2c}
             minRows={3}
-            placeholder="Покрытие, вместимость или служебная заметка"
+            placeholder={fe10SettingsBranchesShellText.branchSettingsScreen_placeholder_caae3b66}
             {...form.getInputProps('description')}
           />
 
           <ResponsiveButtonGroup justify="space-between">
             <Button disabled={pending} onClick={onClose} type="button" variant="ghost">
-              Отменить
-            </Button>
+              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_7c47f729}</Button>
             <Button
               leftSection={<IconDeviceFloppy size={18} />}
               loading={pending}
               type="submit"
             >
-              Сохранить
-            </Button>
+              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_b4d30cae}</Button>
           </ResponsiveButtonGroup>
         </Stack>
       </form>

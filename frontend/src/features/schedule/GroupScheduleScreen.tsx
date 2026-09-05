@@ -84,6 +84,8 @@ import {
 import {
   ScheduleMoreActionsSurface,
 } from './ScheduleMoreActionsSurface'
+import { fe2ScheduleCoreText } from '../../resources/fe-2-schedule-core'
+
 
 type GroupScheduleScreenProps = {
   canManageGroups: boolean
@@ -214,7 +216,7 @@ export function GroupScheduleScreen({
           return
         }
 
-        setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить расписание.')
+        setError(loadError instanceof Error ? loadError.message : fe2ScheduleCoreText.groupScheduleScreen_string_c8822d97)
       } finally {
         if (!controller.signal.aborted) {
           isFirstLoadRef.current = false
@@ -322,8 +324,8 @@ export function GroupScheduleScreen({
       <Button
         aria-label={
           activeFilterCount > 0
-            ? `Параметры календаря, активных фильтров: ${activeFilterCount}`
-            : 'Параметры календаря'
+            ? fe2ScheduleCoreText.groupScheduleScreen_template_99ecdb89(activeFilterCount)
+            : fe2ScheduleCoreText.groupScheduleScreen_string_1d51e161
         }
         className="schedule-day-summary__filter"
         data-active={activeFilterCount > 0 ? 'true' : undefined}
@@ -335,8 +337,7 @@ export function GroupScheduleScreen({
         variant="light"
         leftSection={<IconSettings size={18} />}
       >
-        Фильтры
-        {activeFilterCount > 0 ? (
+        {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a69757b1}{activeFilterCount > 0 ? (
           <span className="schedule-day-summary__filter-count">{activeFilterCount}</span>
         ) : null}
       </Button>
@@ -348,7 +349,7 @@ export function GroupScheduleScreen({
       className="schedule-screen"
       data-testid="schedule-screen"
       showHeader={false}
-      title="Расписание"
+      title={fe2ScheduleCoreText.groupScheduleScreen_title_92431022}
     >
       {toolbar}
       {daySummary}
@@ -399,7 +400,7 @@ export function GroupScheduleScreen({
       {loading && lessons.length === 0 ? (
         <PageSection
           aria-busy="true"
-          aria-label="Загружаем занятия"
+          aria-label={fe2ScheduleCoreText.groupScheduleScreen_ariaLabel_b645736b}
           className="schedule-board--occurrences"
         >
           <div className="schedule-skeleton-list" data-testid="schedule-skeleton-list">
@@ -425,9 +426,9 @@ export function GroupScheduleScreen({
       {error ? (
         <PageSection>
           <ErrorState
-            action={<Button onClick={refresh} variant="light">Повторить</Button>}
+            action={<Button onClick={refresh} variant="light">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_5189135a}</Button>}
             message={error}
-            title={hasStaleLessons ? 'Не удалось обновить расписание' : 'Расписание не загрузилось'}
+            title={hasStaleLessons ? fe2ScheduleCoreText.groupScheduleScreen_string_7ee7c6c8 : fe2ScheduleCoreText.groupScheduleScreen_string_4edf0ecf}
           />
         </PageSection>
       ) : null}
@@ -440,13 +441,12 @@ export function GroupScheduleScreen({
           fw={700}
           size="sm"
         >
-          Данные могут быть устаревшими
-        </Text>
+          {fe2ScheduleCoreText.groupScheduleScreen_jsxText_bd4bec1c}</Text>
       ) : null}
 
       {!loading && (!error || hasStaleLessons) ? (
         <PageSection
-          aria-label="Расписание занятий"
+          aria-label={fe2ScheduleCoreText.groupScheduleScreen_ariaLabel_1be1fa3b}
           className="schedule-board schedule-board--occurrences"
           data-testid="schedule-board"
           density="compact"
@@ -549,7 +549,7 @@ export function ScheduleLessonDetailScreen({
         }
       } catch (loadError) {
         if (!controller.signal.aborted) {
-          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить занятие.')
+          setError(loadError instanceof Error ? loadError.message : fe2ScheduleCoreText.groupScheduleScreen_string_314ea9f7)
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -568,16 +568,16 @@ export function ScheduleLessonDetailScreen({
       className="schedule-screen"
       data-testid="schedule-lesson-detail-screen"
       showHeader
-      title="Занятие"
+      title={fe2ScheduleCoreText.groupScheduleScreen_title_56995ff3}
     >
       {loading ? (
         <PageSection>
-          <LoadingState label="Загружаем занятие..." />
+          <LoadingState label={fe2ScheduleCoreText.groupScheduleScreen_label_ef0c9403} />
         </PageSection>
       ) : null}
       {error ? (
         <PageSection>
-          <ErrorState message={error} title="Занятие не загрузилось" />
+          <ErrorState message={error} title={fe2ScheduleCoreText.groupScheduleScreen_title_c2de061e} />
         </PageSection>
       ) : null}
       {lesson ? (
@@ -586,15 +586,15 @@ export function ScheduleLessonDetailScreen({
             <Stack gap={4}>
               <Text fw={900} size="xl">{lesson.groupName}</Text>
               <Text c="dimmed" fw={700}>
-                {formatLongDate(lesson.lessonDate)} · {formatTimeRange(lesson)}
+                {formatLongDate(lesson.lessonDate)} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{formatTimeRange(lesson)}
               </Text>
             </Stack>
             <Group gap="xs" wrap="wrap">
-              {lesson.status === 'Cancelled' ? <Badge color="gray">Отменено</Badge> : null}
-              {lesson.hasAttendanceMarks ? <Badge color="teal">Отметки есть</Badge> : null}
+              {lesson.status === 'Cancelled' ? <Badge color="gray">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_23a2a9bf}</Badge> : null}
+              {lesson.hasAttendanceMarks ? <Badge color="teal">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_0d7d0a5f}</Badge> : null}
               <Badge variant="light">{lesson.groupTypeName}</Badge>
             </Group>
-            <Text>{lesson.hallName} · {lesson.branchName}</Text>
+            <Text>{lesson.hallName} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{lesson.branchName}</Text>
             <Text>{formatEffectiveTrainers(lesson)}</Text>
             <Group gap="sm" wrap="wrap">
               {lesson.allowedActions.edit.allowed ? (
@@ -604,8 +604,7 @@ export function ScheduleLessonDetailScreen({
                   type="button"
                   variant="light"
                 >
-                  Изменить
-                </Button>
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_b8b151d4}</Button>
               ) : null}
               {lesson.allowedActions.move.allowed ? (
                 <Button
@@ -614,8 +613,7 @@ export function ScheduleLessonDetailScreen({
                   type="button"
                   variant="light"
                 >
-                  Перенести
-                </Button>
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_758cc605}</Button>
               ) : null}
               {lesson.lessonSeriesId && lesson.allowedActions.edit.allowed ? (
                 <Button
@@ -624,8 +622,7 @@ export function ScheduleLessonDetailScreen({
                   type="button"
                   variant="light"
                 >
-                  Серия
-                </Button>
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a7bdff84}</Button>
               ) : null}
               {lesson.allowedActions.assignTrainerSubstitution.allowed ? (
                 <Button
@@ -634,8 +631,7 @@ export function ScheduleLessonDetailScreen({
                   type="button"
                   variant="light"
                 >
-                  Замена
-                </Button>
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_9b994009}</Button>
               ) : null}
               {lesson.allowedActions.cancelTrainerSubstitution.allowed ? (
                 <Button
@@ -644,8 +640,7 @@ export function ScheduleLessonDetailScreen({
                   type="button"
                   variant="light"
                 >
-                  Снять замену
-                </Button>
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_ab7a9be4}</Button>
               ) : null}
               {lesson.allowedActions.cancel.allowed ? (
                 <Button
@@ -655,8 +650,7 @@ export function ScheduleLessonDetailScreen({
                   type="button"
                   variant="light"
                 >
-                  Отменить
-                </Button>
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_7c47f729}</Button>
               ) : null}
               {lesson.allowedActions.restore.allowed ? (
                 <Button
@@ -666,16 +660,14 @@ export function ScheduleLessonDetailScreen({
                   type="button"
                   variant="light"
                 >
-                  Восстановить
-                </Button>
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_76f55a98}</Button>
               ) : null}
               <Button
                 disabled={!lesson.allowedActions.viewAttendance.allowed}
                 leftSection={<IconUsers size={18} />}
                 onClick={() => onOpenAttendance(lesson.lessonOccurrenceId, lesson.lessonDate)}
               >
-                Посещаемость
-              </Button>
+                {fe2ScheduleCoreText.groupScheduleScreen_jsxText_9a72d56b}</Button>
             </Group>
           </Stack>
         </PageSection>
@@ -739,7 +731,7 @@ export function ScheduleLessonCreateScreen({
         }
       } catch (loadError) {
         if (!controller.signal.aborted) {
-          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить параметры занятия.')
+          setError(loadError instanceof Error ? loadError.message : fe2ScheduleCoreText.groupScheduleScreen_string_d993628b)
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -758,24 +750,24 @@ export function ScheduleLessonCreateScreen({
       className="schedule-screen"
       data-testid="schedule-lesson-create-screen"
       showHeader
-      title="Разовое занятие"
+      title={fe2ScheduleCoreText.groupScheduleScreen_title_4196b8be}
     >
       {loading ? (
         <PageSection>
-          <LoadingState label="Загружаем параметры занятия..." />
+          <LoadingState label={fe2ScheduleCoreText.groupScheduleScreen_label_45868810} />
         </PageSection>
       ) : null}
       {error ? (
         <PageSection>
-          <ErrorState message={error} title="Параметры не загрузились" />
+          <ErrorState message={error} title={fe2ScheduleCoreText.groupScheduleScreen_title_3ea07537} />
         </PageSection>
       ) : null}
       {!loading && !error && createAllowed === false ? (
         <PageSection>
           <ErrorState
-            action={<Button onClick={onBack} variant="light">Вернуться к расписанию</Button>}
-            message="Сервер не разрешил создание разового занятия для текущего пользователя."
-            title="Создание недоступно"
+            action={<Button onClick={onBack} variant="light">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_9b431254}</Button>}
+            message={fe2ScheduleCoreText.groupScheduleScreen_message_0fe8ae69}
+            title={fe2ScheduleCoreText.groupScheduleScreen_title_d17d52ca}
           />
         </PageSection>
       ) : null}
@@ -845,7 +837,7 @@ export function ScheduleLessonChangeRouteScreen({
         }
       } catch (loadError) {
         if (!controller.signal.aborted) {
-          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить занятие.')
+          setError(loadError instanceof Error ? loadError.message : fe2ScheduleCoreText.groupScheduleScreen_string_314ea9f7)
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -869,7 +861,7 @@ export function ScheduleLessonChangeRouteScreen({
       ? lesson.allowedActions.move.reason
       : lesson.allowedActions.edit.reason
     : null
-  const title = mode === 'move' ? 'Перенос занятия' : 'Изменение занятия'
+  const title = mode === 'move' ? fe2ScheduleCoreText.groupScheduleScreen_string_c0c26d68 : fe2ScheduleCoreText.groupScheduleScreen_string_148e56cb
 
   return (
     <PageLayout
@@ -880,23 +872,23 @@ export function ScheduleLessonChangeRouteScreen({
     >
       {loading ? (
         <PageSection>
-          <LoadingState label="Загружаем занятие..." />
+          <LoadingState label={fe2ScheduleCoreText.groupScheduleScreen_label_ef0c9403} />
         </PageSection>
       ) : null}
       {error ? (
         <PageSection>
-          <ErrorState message={error} title="Занятие не загрузилось" />
+          <ErrorState message={error} title={fe2ScheduleCoreText.groupScheduleScreen_title_c2de061e} />
         </PageSection>
       ) : null}
       {lesson && !actionAllowed ? (
         <PageSection>
           <ErrorState
-            action={<Button onClick={onBack} variant="light">Вернуться к расписанию</Button>}
+            action={<Button onClick={onBack} variant="light">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_9b431254}</Button>}
             message={
               formatScheduleActionUnavailableReason(unavailableReason) ??
-              'Сервер не разрешил это изменение занятия.'
+              fe2ScheduleCoreText.groupScheduleScreen_string_ad9d22f9
             }
-            title={mode === 'move' ? 'Перенос недоступен' : 'Изменение недоступно'}
+            title={mode === 'move' ? fe2ScheduleCoreText.groupScheduleScreen_string_cc2b2849 : fe2ScheduleCoreText.groupScheduleScreen_string_b1bdd1a5}
           />
         </PageSection>
       ) : null}
@@ -985,7 +977,7 @@ export function ScheduleSeriesEditScreen({
         setDirty(false)
       } catch (loadError) {
         if (!controller.signal.aborted) {
-          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить серию занятий.')
+          setError(loadError instanceof Error ? loadError.message : fe2ScheduleCoreText.groupScheduleScreen_string_1b31d0c9)
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -1138,12 +1130,12 @@ export function ScheduleSeriesEditScreen({
       focusFirstSeriesInvalidField(nextErrors)
       setFormError(
         formatScheduleProblemCode(formErrorValue.code) ??
-        'Не удалось проверить серию занятий. Проверьте поля и попробуйте снова.',
+        fe2ScheduleCoreText.groupScheduleScreen_string_055792ee,
       )
       return
     }
 
-    setFormError('Не удалось проверить серию занятий. Проверьте поля и попробуйте снова.')
+    setFormError(fe2ScheduleCoreText.groupScheduleScreen_string_055792ee)
   }
 
   function focusFirstSeriesInvalidField(errors: SeriesFieldErrors) {
@@ -1160,7 +1152,7 @@ export function ScheduleSeriesEditScreen({
   }
 
   function cancel() {
-    if (dirty && !window.confirm('Отменить изменение серии и потерять черновик?')) {
+    if (dirty && !window.confirm(fe2ScheduleCoreText.groupScheduleScreen_windowConfirm_9ca4aaac)) {
       return
     }
 
@@ -1172,19 +1164,19 @@ export function ScheduleSeriesEditScreen({
       className="schedule-screen"
       data-testid="schedule-series-edit-screen"
       showHeader
-      title="Изменение серии"
+      title={fe2ScheduleCoreText.groupScheduleScreen_title_cd3e4306}
     >
       {loading ? (
         <PageSection>
-          <LoadingState label="Загружаем серию занятий..." />
+          <LoadingState label={fe2ScheduleCoreText.groupScheduleScreen_label_82cba72b} />
         </PageSection>
       ) : null}
       {error ? (
         <PageSection>
           <ErrorState
-            action={<Button onClick={onBack} variant="light">Вернуться к расписанию</Button>}
+            action={<Button onClick={onBack} variant="light">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_9b431254}</Button>}
             message={error}
-            title="Серия не загрузилась"
+            title={fe2ScheduleCoreText.groupScheduleScreen_title_f1cab840}
           />
         </PageSection>
       ) : null}
@@ -1201,17 +1193,17 @@ export function ScheduleSeriesEditScreen({
               <Stack gap={4}>
                 <Text fw={900}>{series.groupName}</Text>
                 <Text c="dimmed" size="sm">
-                  Серия с {formatShortDate(series.startsOn)}
-                  {series.endsOn ? ` по ${formatShortDate(series.endsOn)}` : ''}
-                  {lessonOccurrenceId ? ` · источник ${formatShortDate(lessonDate ?? series.businessDate)}` : ''}
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_4b5f3a17}{formatShortDate(series.startsOn)}
+                  {series.endsOn ? fe2ScheduleCoreText.groupScheduleScreen_template_aea1f902(formatShortDate(series.endsOn)) : ''}
+                  {lessonOccurrenceId ? fe2ScheduleCoreText.groupScheduleScreen_template_705c7b4e(formatShortDate(lessonDate ?? series.businessDate)) : ''}
                 </Text>
               </Stack>
 
               <SegmentedControl
-                aria-label="Область изменения серии"
+                aria-label={fe2ScheduleCoreText.groupScheduleScreen_ariaLabel_a6a7cac1}
                 data={[
-                  { value: 'ThisAndFuture', label: 'С этого дня' },
-                  { value: 'EntireSeries', label: 'Вся серия' },
+                  { value: 'ThisAndFuture', label: fe2ScheduleCoreText.groupScheduleScreen_label_eafa287c },
+                  { value: 'EntireSeries', label: fe2ScheduleCoreText.groupScheduleScreen_label_a2706736 },
                 ]}
                 disabled={pending}
                 onChange={(value) => {
@@ -1233,7 +1225,7 @@ export function ScheduleSeriesEditScreen({
                 <TextInput
                   disabled={pending || draft.scope === 'EntireSeries'}
                   error={fieldErrors.effectiveFrom}
-                  label="Дата начала изменения"
+                  label={fe2ScheduleCoreText.groupScheduleScreen_label_b8a6c0dc}
                   max="9999-12-31"
                   min="1900-01-01"
                   onChange={(event) => updateDraft('effectiveFrom', event.currentTarget.value)}
@@ -1244,7 +1236,7 @@ export function ScheduleSeriesEditScreen({
                 <TextInput
                   disabled={pending}
                   error={fieldErrors.endsOn}
-                  label="Дата окончания серии"
+                  label={fe2ScheduleCoreText.groupScheduleScreen_label_6ac938c0}
                   max="9999-12-31"
                   min="1900-01-01"
                   onChange={(event) => updateDraft('endsOn', event.currentTarget.value)}
@@ -1256,7 +1248,7 @@ export function ScheduleSeriesEditScreen({
 
               <Stack gap="sm">
                 <Group align="center" justify="space-between">
-                  <Text fw={900}>Слоты серии</Text>
+                  <Text fw={900}>{fe2ScheduleCoreText.groupScheduleScreen_jsxText_38aaedce}</Text>
                   <Button
                     className="schedule-series-slot__action"
                     disabled={pending}
@@ -1265,13 +1257,11 @@ export function ScheduleSeriesEditScreen({
                     type="button"
                     variant="light"
                   >
-                    Добавить слот
-                  </Button>
+                    {fe2ScheduleCoreText.groupScheduleScreen_jsxText_61f9839e}</Button>
                 </Group>
                 {draft.slots.length === 0 ? (
                   <Alert color="red" icon={<IconAlertTriangle size={18} />}>
-                    В серии должен быть хотя бы один слот. Добавьте слот, чтобы сохранить расписание.
-                  </Alert>
+                    {fe2ScheduleCoreText.groupScheduleScreen_jsxText_25d150a9}</Alert>
                 ) : draft.slots.map((slot, index) => {
                   const removeDisabled = pending || draft.slots.length <= 1
 
@@ -1287,7 +1277,7 @@ export function ScheduleSeriesEditScreen({
                         <Select
                           data={WEEKDAY_OPTIONS}
                           disabled={pending}
-                          label="День недели"
+                          label={fe2ScheduleCoreText.groupScheduleScreen_label_68c27d77}
                           onChange={(value) =>
                             updateSlot(index, 'isoWeekday', value ? Number(value) : slot.isoWeekday)}
                           value={String(slot.isoWeekday)}
@@ -1295,14 +1285,14 @@ export function ScheduleSeriesEditScreen({
                         <Group align="flex-start" grow>
                           <TextInput
                             disabled={pending}
-                            label="Время начала"
+                            label={fe2ScheduleCoreText.groupScheduleScreen_label_1635ad1f}
                             onChange={(event) => updateSlot(index, 'startTime', event.currentTarget.value)}
                             type="time"
                             value={trimSeconds(slot.startTime)}
                           />
                           <NumberInput
                             disabled={pending}
-                            label="Длительность, минут"
+                            label={fe2ScheduleCoreText.groupScheduleScreen_label_86301601}
                             min={1}
                             onChange={(value) =>
                               updateSlot(index, 'durationMinutes', typeof value === 'number' ? value : '')}
@@ -1312,7 +1302,7 @@ export function ScheduleSeriesEditScreen({
                         <Select
                           data={hallOptions}
                           disabled={pending}
-                          label="Зал"
+                          label={fe2ScheduleCoreText.groupScheduleScreen_label_182f7c57}
                           onChange={(value) => updateSlot(index, 'hallId', value ?? '')}
                           searchable
                           value={slot.hallId || null}
@@ -1326,16 +1316,14 @@ export function ScheduleSeriesEditScreen({
                           type="button"
                           variant="light"
                         >
-                          Удалить слот
-                        </Button>
+                          {fe2ScheduleCoreText.groupScheduleScreen_jsxText_333afd46}</Button>
                         {removeDisabled ? (
                           <Text
                             c="dimmed"
                             id={`schedule-series-remove-reason-${index}`}
                             size="sm"
                           >
-                            В серии должен остаться хотя бы один слот.
-                          </Text>
+                            {fe2ScheduleCoreText.groupScheduleScreen_jsxText_3fbb07c9}</Text>
                         ) : null}
                       </Stack>
                     </Paper>
@@ -1361,16 +1349,14 @@ export function ScheduleSeriesEditScreen({
                     onClick={() => void confirmSeriesChange()}
                     type="button"
                   >
-                    Подтвердить изменение серии
-                  </Button>
+                    {fe2ScheduleCoreText.groupScheduleScreen_jsxText_8e72e5a3}</Button>
                 ) : (
                   <Button loading={submitting === 'preview'} type="submit">
-                    {formError ? 'Обновить предпросмотр' : 'Получить предпросмотр'}
+                    {formError ? fe2ScheduleCoreText.groupScheduleScreen_string_62b92aa4 : fe2ScheduleCoreText.groupScheduleScreen_string_857a90c1}
                   </Button>
                 )}
                 secondaryAction={<Button disabled={pending} onClick={cancel} type="button" variant="light">
-                  Отмена
-                </Button>}
+                  {fe2ScheduleCoreText.groupScheduleScreen_jsxText_8fbe9b75}</Button>}
               />
             </Stack>
           </form>
@@ -1445,14 +1431,14 @@ function ScheduleTrainerSubstitutionDrawer({
   const isAssign = action === 'Assign'
   const copy = isAssign
     ? {
-      title: 'Замена тренера',
-      preview: 'Получить предпросмотр',
-      confirm: 'Назначить замену',
+      title: fe2ScheduleCoreText.groupScheduleScreen_title_1a4e8dc8,
+      preview: fe2ScheduleCoreText.groupScheduleScreen_string_857a90c1,
+      confirm: fe2ScheduleCoreText.groupScheduleScreen_confirm_1fad63df,
     }
     : {
-      title: 'Снять замену тренера',
-      preview: 'Получить предпросмотр',
-      confirm: 'Снять замену',
+      title: fe2ScheduleCoreText.groupScheduleScreen_title_37c25119,
+      preview: fe2ScheduleCoreText.groupScheduleScreen_string_857a90c1,
+      confirm: fe2ScheduleCoreText.groupScheduleScreen_jsxText_ab7a9be4,
     }
   const replacementOptions = permanentTrainers.map((trainer) => ({
     value: trainer.trainerId,
@@ -1462,7 +1448,7 @@ function ScheduleTrainerSubstitutionDrawer({
     .filter((option) => option.value !== replacedTrainerId)
   const activeSubstitutionOptions = activeSubstitutions.map((trainer) => ({
     value: trainer.substitutionId!,
-    label: `${trainer.fullName}${trainer.replacedTrainerId ? ` вместо ${findTrainerName(activeLesson, trainer.replacedTrainerId)}` : ''}`,
+    label: fe2ScheduleCoreText.groupScheduleScreen_label_0c96696a(trainer.fullName, trainer.replacedTrainerId ? fe2ScheduleCoreText.groupScheduleScreen_template_ee5718b6(findTrainerName(activeLesson, trainer.replacedTrainerId)) : ''),
   }))
 
   function markDirty() {
@@ -1555,12 +1541,12 @@ function ScheduleTrainerSubstitutionDrawer({
       focusFirstSubstitutionInvalidField(nextErrors)
       setFormError(
         formatScheduleProblemCode(formErrorValue.code) ??
-        'Не удалось проверить замену тренера. Проверьте поля и попробуйте снова.',
+        fe2ScheduleCoreText.groupScheduleScreen_string_3e7f6ab3,
       )
       return
     }
 
-    setFormError('Не удалось проверить замену тренера. Проверьте поля и попробуйте снова.')
+    setFormError(fe2ScheduleCoreText.groupScheduleScreen_string_3e7f6ab3)
   }
 
   function focusFirstSubstitutionInvalidField(errors: SubstitutionFieldErrors) {
@@ -1578,7 +1564,7 @@ function ScheduleTrainerSubstitutionDrawer({
   }
 
   function cancel() {
-    if (dirty && !window.confirm('Отменить действие с заменой и потерять черновик?')) {
+    if (dirty && !window.confirm(fe2ScheduleCoreText.groupScheduleScreen_windowConfirm_f4d4ec01)) {
       return
     }
 
@@ -1605,10 +1591,10 @@ function ScheduleTrainerSubstitutionDrawer({
           <Stack gap={4}>
             <Text fw={900}>{lesson.groupName}</Text>
             <Text c="dimmed" size="sm">
-              {formatLongDate(lesson.lessonDate)} · {formatTimeRange(lesson)}
+              {formatLongDate(lesson.lessonDate)} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{formatTimeRange(lesson)}
             </Text>
             <Text c="dimmed" size="sm">
-              {lesson.hallName} · {lesson.branchName}
+              {lesson.hallName} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{lesson.branchName}
             </Text>
           </Stack>
 
@@ -1618,12 +1604,12 @@ function ScheduleTrainerSubstitutionDrawer({
                 data={replacementOptions}
                 disabled={pending}
                 error={fieldErrors.replacedTrainerId}
-                label="Кого заменить"
+                label={fe2ScheduleCoreText.groupScheduleScreen_label_8809248a}
                 onChange={(value) => {
                   setReplacedTrainerId(value ?? '')
                   markDirty()
                 }}
-                placeholder="Выберите постоянного тренера"
+                placeholder={fe2ScheduleCoreText.groupScheduleScreen_placeholder_d014731e}
                 ref={replacedRef}
                 searchable
                 value={replacedTrainerId || null}
@@ -1632,12 +1618,12 @@ function ScheduleTrainerSubstitutionDrawer({
                 data={substituteOptions}
                 disabled={pending}
                 error={fieldErrors.substituteTrainerId}
-                label="Кто проведёт занятие"
+                label={fe2ScheduleCoreText.groupScheduleScreen_label_19aac587}
                 onChange={(value) => {
                   setSubstituteTrainerId(value ?? '')
                   markDirty()
                 }}
-                placeholder="Выберите тренера на замену"
+                placeholder={fe2ScheduleCoreText.groupScheduleScreen_placeholder_5f1f1111}
                 ref={substituteRef}
                 searchable
                 value={substituteTrainerId || null}
@@ -1649,19 +1635,19 @@ function ScheduleTrainerSubstitutionDrawer({
                 data={activeSubstitutionOptions}
                 disabled={pending}
                 error={fieldErrors.substitutionId}
-                label="Активная замена"
+                label={fe2ScheduleCoreText.groupScheduleScreen_label_5db04205}
                 onChange={(value) => {
                   setSubstitutionId(value ?? '')
                   markDirty()
                 }}
-                placeholder="Выберите замену"
+                placeholder={fe2ScheduleCoreText.groupScheduleScreen_placeholder_53042571}
                 ref={substitutionRef}
                 searchable
                 value={substitutionId || null}
               />
               <TextInput
                 disabled={pending}
-                label="Причина"
+                label={fe2ScheduleCoreText.groupScheduleScreen_label_442e7ad5}
                 onChange={(event) => {
                   setReason(event.currentTarget.value)
                   markDirty()
@@ -1692,12 +1678,11 @@ function ScheduleTrainerSubstitutionDrawer({
               </Button>
             ) : (
               <Button loading={submitting === 'preview'} type="submit">
-                {formError ? 'Обновить предпросмотр' : copy.preview}
+                {formError ? fe2ScheduleCoreText.groupScheduleScreen_string_62b92aa4 : copy.preview}
               </Button>
             )}
             <Button disabled={pending} onClick={cancel} type="button" variant="light">
-              Отмена
-            </Button>
+              {fe2ScheduleCoreText.groupScheduleScreen_jsxText_8fbe9b75}</Button>
           </Group>
         </Stack>
       </form>
@@ -1742,13 +1727,13 @@ const SUBSTITUTION_FIELD_ALIASES = {
 } satisfies Record<string, keyof SubstitutionFieldErrors>
 
 const WEEKDAY_OPTIONS = [
-  { value: '1', label: 'Понедельник' },
-  { value: '2', label: 'Вторник' },
-  { value: '3', label: 'Среда' },
-  { value: '4', label: 'Четверг' },
-  { value: '5', label: 'Пятница' },
-  { value: '6', label: 'Суббота' },
-  { value: '7', label: 'Воскресенье' },
+  { value: '1', label: fe2ScheduleCoreText.groupScheduleScreen_label_a59b45a7 },
+  { value: '2', label: fe2ScheduleCoreText.groupScheduleScreen_label_cdfa593d },
+  { value: '3', label: fe2ScheduleCoreText.groupScheduleScreen_label_d606a9df },
+  { value: '4', label: fe2ScheduleCoreText.groupScheduleScreen_label_12be87c8 },
+  { value: '5', label: fe2ScheduleCoreText.groupScheduleScreen_label_abbd2e86 },
+  { value: '6', label: fe2ScheduleCoreText.groupScheduleScreen_label_ddb0ee8e },
+  { value: '7', label: fe2ScheduleCoreText.groupScheduleScreen_label_f4276ba4 },
 ]
 
 function buildSeriesDraft(
@@ -1833,34 +1818,31 @@ function SeriesPreviewPanel({ preview }: { preview: GroupLessonSeriesPreviewResp
     <Paper className="schedule-series-preview" data-testid="schedule-series-preview" radius="md" withBorder>
       <Stack gap="sm">
         <Stack gap={2}>
-          <Text fw={900}>Проверьте изменение серии</Text>
+          <Text fw={900}>{fe2ScheduleCoreText.groupScheduleScreen_jsxText_d66006ce}</Text>
           <Text c="dimmed" size="sm">
-            Область: {preview.scope === 'EntireSeries' ? 'вся серия' : 'с этого дня'} ·
-            {' '}с {formatShortDate(preview.effectiveFrom)}
-            {preview.endsOn ? ` по ${formatShortDate(preview.endsOn)}` : ''}
+            {fe2ScheduleCoreText.groupScheduleScreen_jsxText_720752c6}{preview.scope === 'EntireSeries' ? fe2ScheduleCoreText.groupScheduleScreen_string_648188fd : fe2ScheduleCoreText.groupScheduleScreen_string_9d63ad76} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{' '}{fe2ScheduleCoreText.groupScheduleScreen_jsxText_a1f5d39a}{formatShortDate(preview.effectiveFrom)}
+            {preview.endsOn ? fe2ScheduleCoreText.groupScheduleScreen_template_855e5a61(formatShortDate(preview.endsOn)) : ''}
           </Text>
           <Text c="dimmed" size="sm">
-            Затронуто занятий: {preview.impact.totalAffectedOccurrences}.
-            Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
-          </Text>
+            {fe2ScheduleCoreText.groupScheduleScreen_jsxText_672a522d}{preview.impact.totalAffectedOccurrences}{fe2ScheduleCoreText.groupScheduleScreen_jsxText_901e768a}{formatExpiresAt(preview.expiresAt)}{fe2ScheduleCoreText.groupScheduleScreen_jsxText_cdb4ee2a}</Text>
         </Stack>
         {preview.warnings.length > 0 ? <WarningList warnings={preview.warnings} /> : null}
         {preview.impact.examples.length > 0 ? (
           <Stack gap={4}>
-            <Text fw={800} size="sm">Примеры занятий</Text>
+            <Text fw={800} size="sm">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_4e848f28}</Text>
             {preview.impact.examples.slice(0, 3).map((occurrence) => (
               <Text c="dimmed" key={`${occurrence.lessonOccurrenceId}:${occurrence.lessonDate}`} size="sm">
-                {formatShortDate(occurrence.lessonDate)} · {trimSeconds(occurrence.startTime)} · {occurrence.hallName}
+                {formatShortDate(occurrence.lessonDate)} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{trimSeconds(occurrence.startTime)} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{occurrence.hallName}
               </Text>
             ))}
           </Stack>
         ) : null}
         {preview.impact.skipped.length > 0 ? (
           <Stack gap={4}>
-            <Text fw={800} size="sm">Пропущено</Text>
+            <Text fw={800} size="sm">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_4c414dbf}</Text>
             {preview.impact.skipped.slice(0, 3).map((occurrence) => (
               <Text c="dimmed" key={`${occurrence.lessonOccurrenceId}:${occurrence.lessonDate}`} size="sm">
-                {formatShortDate(occurrence.lessonDate)} · {formatSkippedReason(occurrence.reason)}
+                {formatShortDate(occurrence.lessonDate)} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{formatSkippedReason(occurrence.reason)}
               </Text>
             ))}
           </Stack>
@@ -1882,15 +1864,14 @@ function SubstitutionPreviewPanel({
     <Paper className="schedule-substitution-preview" data-testid="schedule-substitution-preview" radius="md" withBorder>
       <Stack gap="sm">
         <Stack gap={2}>
-          <Text fw={900}>Проверьте замену перед подтверждением</Text>
+          <Text fw={900}>{fe2ScheduleCoreText.groupScheduleScreen_jsxText_05b83392}</Text>
           {target ? (
             <Text c="dimmed" size="sm">
-              {target.groupName} · {formatShortDate(target.lessonDate)}
+              {target.groupName} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{formatShortDate(target.lessonDate)}
             </Text>
           ) : null}
           <Text c="dimmed" size="sm">
-            Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
-          </Text>
+            {fe2ScheduleCoreText.groupScheduleScreen_jsxText_cce698e3}{formatExpiresAt(preview.expiresAt)}{fe2ScheduleCoreText.groupScheduleScreen_jsxText_cdb4ee2a}</Text>
         </Stack>
         {preview.warnings.length > 0 ? <WarningList warnings={preview.warnings} /> : null}
         {target?.warnings.length ? <WarningList warnings={target.warnings} /> : null}
@@ -1922,11 +1903,11 @@ function buildSubstitutionTarget(lesson: ScheduleLesson) {
 }
 
 function findTrainerName(lesson: ScheduleLesson, trainerId: string) {
-  return lesson.effectiveTrainers.find((trainer) => trainer.trainerId === trainerId)?.fullName ?? 'тренера'
+  return lesson.effectiveTrainers.find((trainer) => trainer.trainerId === trainerId)?.fullName ?? fe2ScheduleCoreText.groupScheduleScreen_string_10e82072
 }
 
 function formatSkippedReason(reason: string) {
-  return formatScheduleProblemCode(reason) ?? 'Занятие не может быть изменено в составе этой операции.'
+  return formatScheduleProblemCode(reason) ?? fe2ScheduleCoreText.groupScheduleScreen_string_d2da32db
 }
 
 type ScheduleToolbarProps = {
@@ -1962,7 +1943,7 @@ function ScheduleToolbar({
     >
       <div className="schedule-toolbar__date-group">
         <ActionIcon
-          aria-label={view === 'week' ? 'Предыдущая неделя' : 'Предыдущий день'}
+          aria-label={view === 'week' ? fe2ScheduleCoreText.groupScheduleScreen_string_bdc4bb60 : fe2ScheduleCoreText.groupScheduleScreen_string_2bb606b0}
           className="schedule-toolbar__button"
           disabled={disabled}
           onClick={onPrevious}
@@ -1973,7 +1954,7 @@ function ScheduleToolbar({
           <IconChevronLeft size={20} />
         </ActionIcon>
         <TextInput
-          aria-label="Дата расписания"
+          aria-label={fe2ScheduleCoreText.groupScheduleScreen_ariaLabel_5c290213}
           className="schedule-toolbar__date-input"
           leftSection={<IconCalendarEvent size={18} />}
           max="9999-12-31"
@@ -1987,7 +1968,7 @@ function ScheduleToolbar({
           value={date}
         />
         <ActionIcon
-          aria-label={view === 'week' ? 'Следующая неделя' : 'Следующий день'}
+          aria-label={view === 'week' ? fe2ScheduleCoreText.groupScheduleScreen_string_904286db : fe2ScheduleCoreText.groupScheduleScreen_string_5ad6c3a3}
           className="schedule-toolbar__button"
           disabled={disabled}
           onClick={onNext}
@@ -2000,7 +1981,7 @@ function ScheduleToolbar({
       </div>
       {onCreate ? (
         <Button
-          aria-label="Создать разовое занятие"
+          aria-label={fe2ScheduleCoreText.groupScheduleScreen_ariaLabel_ce0f52ac}
           className="schedule-toolbar__create"
           data-testid="schedule-create-trigger"
           leftSection={<IconPlus size={18} />}
@@ -2008,8 +1989,7 @@ function ScheduleToolbar({
           ref={createTriggerRef}
           type="button"
         >
-          Создать
-        </Button>
+          {fe2ScheduleCoreText.groupScheduleScreen_jsxText_e2be3497}</Button>
       ) : null}
     </div>
   )
@@ -2051,28 +2031,26 @@ function CalendarToolsSurface({
       opened={opened}
       position="bottom"
       size="auto"
-      title="Параметры календаря"
+      title={fe2ScheduleCoreText.groupScheduleScreen_string_1d51e161}
       withinPortal
     >
       <Stack gap="md">
         <Group grow>
           <Button leftSection={<IconCalendarEvent size={18} />} onClick={onToday} variant="light">
-            Сегодня
-          </Button>
+            {fe2ScheduleCoreText.groupScheduleScreen_jsxText_b688b4c0}</Button>
           <Button
             disabled={refreshDisabled}
             leftSection={<IconRefresh size={18} />}
             onClick={onRefresh}
             variant="light"
           >
-            Обновить
-          </Button>
+            {fe2ScheduleCoreText.groupScheduleScreen_jsxText_603e460b}</Button>
         </Group>
         <SegmentedControl
-          aria-label="Вид календаря"
+          aria-label={fe2ScheduleCoreText.groupScheduleScreen_ariaLabel_d9fc5a1d}
           data={[
-            { value: 'day', label: 'День' },
-            { value: 'week', label: 'Неделя' },
+            { value: 'day', label: fe2ScheduleCoreText.groupScheduleScreen_label_63ad4f82 },
+            { value: 'week', label: fe2ScheduleCoreText.groupScheduleScreen_label_ff2e564d },
           ]}
           onChange={onViewChange}
           value={view}
@@ -2080,40 +2058,39 @@ function CalendarToolsSurface({
         <Stack gap="sm">
           <ScheduleFilterSelect
             data={filterOptions.branches}
-            label="Филиал"
+            label={fe2ScheduleCoreText.groupScheduleScreen_label_2f17c4d2}
             onChange={(value) => onFilterChange('branchId', value)}
             value={filters.branchId}
           />
           <ScheduleFilterSelect
             data={filterOptions.halls}
-            label="Зал"
+            label={fe2ScheduleCoreText.groupScheduleScreen_label_182f7c57}
             onChange={(value) => onFilterChange('hallId', value)}
             value={filters.hallId}
           />
           <ScheduleFilterSelect
             data={filterOptions.trainers}
-            label="Тренер"
+            label={fe2ScheduleCoreText.groupScheduleScreen_label_894d7ecc}
             onChange={(value) => onFilterChange('trainerId', value)}
             value={filters.trainerId}
           />
           <ScheduleFilterSelect
             data={filterOptions.groups}
-            label="Группа"
+            label={fe2ScheduleCoreText.groupScheduleScreen_label_907efbd4}
             onChange={(value) => onFilterChange('groupId', value)}
             value={filters.groupId}
           />
           <ScheduleFilterSelect
             data={filterOptions.groupTypes}
-            label="Тип группы"
+            label={fe2ScheduleCoreText.groupScheduleScreen_label_a642a677}
             onChange={(value) => onFilterChange('groupTypeId', value)}
             value={filters.groupTypeId}
           />
         </Stack>
         <Group className="schedule-tools-drawer__footer" grow>
-          <Button onClick={onClose}>Готово</Button>
+          <Button onClick={onClose}>{fe2ScheduleCoreText.groupScheduleScreen_jsxText_ef05d579}</Button>
           <Button disabled={!activeFilters} onClick={onResetFilters} variant="light">
-            Сбросить фильтры
-          </Button>
+            {fe2ScheduleCoreText.groupScheduleScreen_jsxText_cd45ec78}</Button>
         </Group>
       </Stack>
     </Drawer>
@@ -2224,7 +2201,7 @@ function ScheduleDayList({
       ) : null}
       {lessons.length === 0 ? (
         <div className="schedule-day-section__empty">
-          <Text c="dimmed" fw={600} size="sm">В этот день занятий нет</Text>
+          <Text c="dimmed" fw={600} size="sm">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_61b682d8}</Text>
         </div>
       ) : (
         <Stack gap="sm">
@@ -2299,7 +2276,7 @@ function ScheduleOccurrenceCard({
   const trainers = formatEffectiveTrainers(lesson)
   const isCancelled = lesson.status === 'Cancelled'
   const timeRange = formatTimeRange(lesson)
-  const accessibleContext = `${lesson.groupName}, ${timeRange}`
+  const accessibleContext = fe2ScheduleCoreText.groupScheduleScreen_accessibleContext_fc66225b(lesson.groupName, timeRange)
   const deferredActions = buildScheduleDeferredActions(lesson, {
     onMoveLesson,
     onEditSeries,
@@ -2309,8 +2286,8 @@ function ScheduleOccurrenceCard({
   const rowActions = lesson.allowedActions.edit.allowed && !useDesktopRowActions
     ? [{
         id: 'edit' as const,
-        label: 'Изменить',
-        accessibleName: `Изменить занятие: ${accessibleContext}`,
+        label: fe2ScheduleCoreText.groupScheduleScreen_jsxText_b8b151d4,
+        accessibleName: fe2ScheduleCoreText.groupScheduleScreen_accessibleName_0c4c88a4(accessibleContext),
         icon: <IconEdit size={18} />,
         danger: false,
         run: () => onChangeLesson(lesson),
@@ -2328,7 +2305,7 @@ function ScheduleOccurrenceCard({
       tabIndex={-1}
     >
       <button
-        aria-label={`Открыть занятие: ${accessibleContext}`}
+        aria-label={fe2ScheduleCoreText.groupScheduleScreen_template_5aec8f4b(accessibleContext)}
         className="schedule-occurrence-card__body"
         onClick={() => onOpenDetail(lesson.lessonOccurrenceId, lesson.lessonDate)}
         ref={bodyRef}
@@ -2341,7 +2318,7 @@ function ScheduleOccurrenceCard({
                 {lesson.groupName}
               </Text>
               <Text c="dimmed" data-testid="schedule-location" size="sm">
-                {lesson.hallName} · {lesson.branchName}
+                {lesson.hallName} {fe2ScheduleCoreText.groupScheduleScreen_jsxText_a137f17a}{lesson.branchName}
               </Text>
               <Text c="dimmed" data-testid="schedule-trainers" size="sm">
                 {trainers}
@@ -2358,10 +2335,10 @@ function ScheduleOccurrenceCard({
           </Group>
           {isCancelled || useDesktopRowActions ? (
             <Group gap={6} wrap="wrap">
-              {isCancelled ? <Badge color="gray" variant="light">Отменено</Badge> : null}
+              {isCancelled ? <Badge color="gray" variant="light">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_23a2a9bf}</Badge> : null}
               {useDesktopRowActions ? <Badge variant="light">{lesson.groupTypeName}</Badge> : null}
               {useDesktopRowActions ? (
-                <Badge variant="outline">{lesson.sourceKind === 'OneOff' ? 'Разовое' : 'Регулярное'}</Badge>
+                <Badge variant="outline">{lesson.sourceKind === 'OneOff' ? fe2ScheduleCoreText.groupScheduleScreen_string_301ca990 : fe2ScheduleCoreText.groupScheduleScreen_string_274aa551}</Badge>
               ) : null}
             </Group>
           ) : null}
@@ -2369,7 +2346,7 @@ function ScheduleOccurrenceCard({
       </button>
       <Group className="schedule-occurrence-card__actions" gap="xs">
         <Badge className="schedule-occurrence-card__attendance-status" color="gray" variant="light">
-          {lesson.hasAttendanceMarks ? 'Отметки есть' : 'Без отметок'}
+          {lesson.hasAttendanceMarks ? fe2ScheduleCoreText.groupScheduleScreen_jsxText_0d7d0a5f : fe2ScheduleCoreText.groupScheduleScreen_string_ffa4f44c}
         </Badge>
         <Button
           aria-describedby={attendanceReason ? attendanceReasonId : undefined}
@@ -2384,15 +2361,14 @@ function ScheduleOccurrenceCard({
         </Button>
         {lesson.allowedActions.edit.allowed && useDesktopRowActions ? (
           <Button
-            aria-label={`Изменить занятие: ${accessibleContext}`}
+            aria-label={fe2ScheduleCoreText.groupScheduleScreen_accessibleName_0c4c88a4(accessibleContext)}
             className="schedule-occurrence-card__secondary"
             leftSection={<IconEdit size={18} />}
             onClick={() => onChangeLesson(lesson)}
             type="button"
             variant="light"
           >
-            Изменить
-          </Button>
+            {fe2ScheduleCoreText.groupScheduleScreen_jsxText_b8b151d4}</Button>
         ) : null}
         <ScheduleMoreActionsSurface
           accessibleContext={accessibleContext}
@@ -2426,9 +2402,9 @@ function ScheduleEmptyState({
   if (activeFilters) {
     return (
       <EmptyState
-        description="Сбросьте часть фильтров, чтобы снова увидеть занятия."
+        description={fe2ScheduleCoreText.groupScheduleScreen_description_e328b6b5}
         icon={<IconCalendarEvent size={24} />}
-        title="По выбранным фильтрам занятий нет"
+        title={fe2ScheduleCoreText.groupScheduleScreen_title_87f0bc93}
       />
     )
   }
@@ -2436,18 +2412,18 @@ function ScheduleEmptyState({
   if (viewerRole === 'Coach') {
     return (
       <EmptyState
-        description="Когда сервер даст доступ к вашим занятиям или заменам, они появятся здесь."
+        description={fe2ScheduleCoreText.groupScheduleScreen_description_8fd05e01}
         icon={<IconCalendarEvent size={24} />}
-        title="Для вас занятий нет"
+        title={fe2ScheduleCoreText.groupScheduleScreen_title_53c1cb1e}
       />
     )
   }
 
   return (
     <EmptyState
-      description="Занятия появятся после создания расписания или разового занятия."
+      description={fe2ScheduleCoreText.groupScheduleScreen_description_222a0bea}
       icon={<IconCalendarEvent size={24} />}
-      title="Расписание пока пустое"
+      title={fe2ScheduleCoreText.groupScheduleScreen_title_8c75c82d}
     />
   )
 }
@@ -2583,13 +2559,13 @@ function sortLessons(items: readonly ScheduleLesson[]) {
 
 function formatEffectiveTrainers(lesson: ScheduleLesson) {
   if (lesson.effectiveTrainers.length === 0) {
-    return 'Тренер не назначен'
+    return fe2ScheduleCoreText.groupScheduleScreen_string_a674b477
   }
 
   return lesson.effectiveTrainers
     .map((trainer) =>
       trainer.kind === 'Substitute'
-        ? `${trainer.fullName} · замена`
+        ? fe2ScheduleCoreText.groupScheduleScreen_template_23948761(trainer.fullName)
         : trainer.fullName,
     )
     .join(', ')
@@ -2608,9 +2584,9 @@ function trimSeconds(value: string) {
 }
 
 function formatLessonCount(count: number) {
-  if (count === 1) return '1 занятие'
-  if (count >= 2 && count <= 4) return `${count} занятия`
-  return `${count} занятий`
+  if (count === 1) return fe2ScheduleCoreText.groupScheduleScreen_string_404398f9
+  if (count >= 2 && count <= 4) return fe2ScheduleCoreText.groupScheduleScreen_template_f806750d(count)
+  return fe2ScheduleCoreText.groupScheduleScreen_template_73ed7940(count)
 }
 
 function formatWeekday(date: string) {
@@ -2636,7 +2612,7 @@ function formatLongDate(date: string) {
 function formatExpiresAt(value: string) {
   const expiresAt = new Date(value)
   if (Number.isNaN(expiresAt.getTime())) {
-    return 'окончания срока предпросмотра'
+    return fe2ScheduleCoreText.groupScheduleScreen_string_4371fe93
   }
 
   return new Intl.DateTimeFormat('ru-RU', {

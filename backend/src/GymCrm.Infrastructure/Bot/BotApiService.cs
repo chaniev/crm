@@ -397,7 +397,7 @@ internal sealed class BotApiService(
         {
             return BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
             {
-                ["attendanceMarks"] = ["Передайте хотя бы одну отметку посещаемости."]
+                ["attendanceMarks"] = [global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine40083588c51]
             });
         }
 
@@ -456,7 +456,7 @@ internal sealed class BotApiService(
                     AttendanceBatchMutationError.LessonOccurrenceMissing => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound),
                     AttendanceBatchMutationError.ClientOutsideGroup => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
                     {
-                        ["attendanceMarks"] = ["Часть клиентов не принадлежит выбранной группе."]
+                        ["attendanceMarks"] = [global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine459459f4ac6]
                     }),
                     AttendanceBatchMutationError.TrainingDateInFuture => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
                     AttendanceBatchMutationError.TrainingDateUnavailable => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
@@ -465,11 +465,11 @@ internal sealed class BotApiService(
                     AttendanceBatchMutationError.SingleVisitRestoreConflict => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.SingleVisitRestoreConflict),
                     AttendanceBatchMutationError.MembershipEntitlementInvariantConflict => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
                     {
-                        ["attendanceMarks"] = ["Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору."]
+                        ["attendanceMarks"] = [global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine468b0e5ed19]
                     }),
                     _ => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
                     {
-                        ["attendanceMarks"] = ["Не удалось сохранить посещаемость из-за некорректных данных."]
+                        ["attendanceMarks"] = [global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine47244fbf4c2]
                     })
                 };
             }
@@ -491,9 +491,9 @@ internal sealed class BotApiService(
                 var message = entitlement.Status switch
                 {
                     ClientMembershipEntitlementResolutionStatus.NoEntitlement =>
-                        "У клиента нет подходящего абонемента для выбранной группы и даты.",
+                        global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine494ef2f1afb,
                     ClientMembershipEntitlementResolutionStatus.InvariantConflict =>
-                        "Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.",
+                        global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine496b0e5ed19,
                     _ => null
                 };
                 if (message is not null)
@@ -526,7 +526,7 @@ internal sealed class BotApiService(
                 BotAuditConstants.BotAttendanceSavedAction,
                 "Attendance",
                 groupId.ToString(),
-                $"Пользователь '{user.Login}' сохранил посещаемость через бота для группы '{group.Name}' за {trainingDate.ToString(DateFormat, CultureInfo.InvariantCulture)}.",
+                global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine529be3a74eb(user.Login, group.Name, trainingDate.ToString(DateFormat, CultureInfo.InvariantCulture)),
                 null,
                 JsonSerializer.Serialize(response, SerializerOptions),
                 cancellationToken);
@@ -589,7 +589,7 @@ internal sealed class BotApiService(
         {
             return BotApiResult<BotClientSearchResponse>.Validation(new Dictionary<string, string[]>
             {
-                ["paging"] = [$"Параметры пагинации должны быть в диапазоне take 1..{MaxSearchTake} и skip >= 0."]
+                ["paging"] = [global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine592bd0975b8(MaxSearchTake)]
             });
         }
 
@@ -829,7 +829,7 @@ internal sealed class BotApiService(
         {
             return BotApiResult<BotAccessDeniedAuditResponse>.Validation(new Dictionary<string, string[]>
             {
-                ["actionCode"] = ["Укажите код запрещенного действия."]
+                ["actionCode"] = [global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.BotApiServiceLine832C2fbee88]
             });
         }
 
@@ -860,7 +860,7 @@ internal sealed class BotApiService(
             BotAuditConstants.BotAccessDeniedAction,
             string.IsNullOrWhiteSpace(request.EntityType) ? "BotAction" : request.EntityType.Trim(),
             string.IsNullOrWhiteSpace(request.EntityId) ? null : request.EntityId.Trim(),
-            $"Пользователь '{user.Login}' получил отказ в доступе через бота при действии '{request.ActionCode.Trim()}'.",
+            global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine863f0c57b5b(user.Login, request.ActionCode.Trim()),
             null,
             JsonSerializer.Serialize(request, SerializerOptions),
             cancellationToken);
@@ -1125,20 +1125,20 @@ internal sealed class BotApiService(
         {
             UserRole.HeadCoach or UserRole.SuperAdministrator =>
             [
-                new BotMenuItem("attendance", "Посещения"),
-                new BotMenuItem("client_search", "Поиск клиента"),
-                new BotMenuItem("expiring_memberships", "Заканчивающиеся")
+                new BotMenuItem("attendance", global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine11285f43e5f1),
+                new BotMenuItem("client_search", global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1129f9344282),
+                new BotMenuItem("expiring_memberships", global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine113081484e50)
             ],
             UserRole.Administrator =>
             [
-                new BotMenuItem("attendance", "Посещения"),
-                new BotMenuItem("client_search", "Поиск клиента"),
-                new BotMenuItem("expiring_memberships", "Заканчивающиеся")
+                new BotMenuItem("attendance", global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine11345f43e5f1),
+                new BotMenuItem("client_search", global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1135f9344282),
+                new BotMenuItem("expiring_memberships", global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine113681484e50)
             ],
             UserRole.Coach =>
             [
-                new BotMenuItem("attendance", "Посещения"),
-                new BotMenuItem("client_search", "Поиск клиента")
+                new BotMenuItem("attendance", global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine11405f43e5f1),
+                new BotMenuItem("client_search", global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1141f9344282)
             ],
             _ => []
         };
@@ -1152,12 +1152,12 @@ internal sealed class BotApiService(
 
         if (!string.Equals(platform, BotAuditConstants.TelegramPlatform, StringComparison.OrdinalIgnoreCase))
         {
-            errors["platform"] = ["Bot API MVP поддерживает только Telegram identity."];
+            errors["platform"] = [global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine11554f342e03];
         }
 
         if (string.IsNullOrWhiteSpace(platformUserId))
         {
-            errors["platformUserId"] = ["Укажите Telegram user id."];
+            errors["platformUserId"] = [global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1160b06268ca];
         }
 
         return new NormalizedIdentity(
@@ -1252,9 +1252,9 @@ internal sealed class BotApiService(
         var warning = entitlement.Status switch
         {
             ClientMembershipEntitlementResolutionStatus.InvariantConflict =>
-                new MembershipWarningResult(true, "Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору."),
+                new MembershipWarningResult(true, global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1255b0e5ed19),
             ClientMembershipEntitlementResolutionStatus.NoEntitlement =>
-                new MembershipWarningResult(true, "У клиента нет подходящего абонемента для выбранной группы и даты."),
+                new MembershipWarningResult(true, global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1257ef2f1afb),
             _ => new MembershipWarningResult(false, null)
         };
         var isPresent = client.AttendanceEntries.Any(attendance =>
@@ -1315,7 +1315,7 @@ internal sealed class BotApiService(
             singleMembership is not null
                 ? ClientMembershipSaleDisplay.GetMembershipName(singleMembership.Sale)
                 : currentMemberships.Count > 1
-                    ? $"{currentMemberships.Count} абонемента"
+                    ? global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1318d13b909e(currentMemberships.Count)
                     : null);
     }
 
@@ -1441,7 +1441,7 @@ internal sealed class BotApiService(
 
         if (memberships.Count == 0)
         {
-            return new MembershipWarningResult(true, "У клиента нет текущего абонемента.");
+            return new MembershipWarningResult(true, global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine14443ee05d1f);
         }
 
         var states = memberships
@@ -1449,20 +1449,20 @@ internal sealed class BotApiService(
             .ToHashSet();
         if (states.Contains(ClientMembershipEntitlementState.LegacyTargetMissing))
         {
-            return new MembershipWarningResult(true, "Абонемент без целевых групп не даёт права посещения. Исправьте группы абонемента.");
+            return new MembershipWarningResult(true, global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1452027fb5dc);
         }
 
         if (states.Contains(ClientMembershipEntitlementState.Future))
         {
-            return new MembershipWarningResult(true, "Абонемент начнёт действовать позже выбранной даты.");
+            return new MembershipWarningResult(true, global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1457cc00242d);
         }
 
         if (states.Contains(ClientMembershipEntitlementState.UsedSingleVisit))
         {
-            return new MembershipWarningResult(true, "Разовое посещение уже списано.");
+            return new MembershipWarningResult(true, global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1462623985c4);
         }
 
-        return new MembershipWarningResult(true, "Абонемент истёк.");
+        return new MembershipWarningResult(true, global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine14657fdd2e77);
     }
 
     private static IReadOnlyList<ClientMembership> GetCurrentMemberships(Client client)
@@ -1484,7 +1484,7 @@ internal sealed class BotApiService(
                 .Select(part => part!.Trim()));
 
         return string.IsNullOrWhiteSpace(fullName)
-            ? "Клиент без имени"
+            ? global::GymCrm.Infrastructure.UserFacingText.BotText.BotApiServiceLine1487277d3a37
             : fullName;
     }
 

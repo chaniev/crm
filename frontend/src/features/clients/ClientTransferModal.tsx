@@ -13,6 +13,8 @@ import {
   formatGroupOptionLabel,
 } from './ClientManagement.formatting'
 import { InfoItem } from './ClientSharedInfo'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 type ClientTransferModalProps = {
   branchOptions: Branch[]
@@ -55,7 +57,7 @@ export function ClientTransferModal({
 
   function submitAssignment(values: ClientTransferFormValues) {
     if (!values.branchId) {
-      form.setErrors({ branchId: 'Выберите целевой филиал.' })
+      form.setErrors({ branchId: fe6ClientProfileText.clientTransferModal_branchId_02733009 })
       return
     }
     void onSubmit(values)
@@ -67,7 +69,7 @@ export function ClientTransferModal({
       onClose={onClose}
       opened={opened}
       radius="8px"
-      title="Перевод клиента"
+      title={fe6ClientProfileText.clientTransferModal_title_5df21aa1}
       withCloseButton={!submitting}
     >
       <form noValidate onSubmit={form.onSubmit(submitAssignment)}>
@@ -75,12 +77,12 @@ export function ClientTransferModal({
           <Paper className="hint-card" radius="8px" withBorder>
             <SimpleGrid cols={{ base: 1, sm: 2 }}>
               <InfoItem
-                label="Текущий филиал"
-                value={client.branchName || 'Не указан'}
+                label={fe6ClientProfileText.clientTransferModal_label_e054a7e5}
+                value={client.branchName || fe6ClientProfileText.clientTransferModal_string_0d836c15}
               />
               <InfoItem
-                label="Текущая группа"
-                value={currentGroup?.name ?? 'Без группы'}
+                label={fe6ClientProfileText.clientTransferModal_label_4ebcb19f}
+                value={currentGroup?.name ?? fe6ClientProfileText.clientTransferModal_string_9ed5aecd}
               />
             </SimpleGrid>
           </Paper>
@@ -89,7 +91,7 @@ export function ClientTransferModal({
             <Alert
               color="red"
               icon={<IconAlertCircle size={18} />}
-              title="Перевод не выполнен"
+              title={fe6ClientProfileText.clientTransferModal_title_3451ed5f}
               variant="light"
             >
               {formError}
@@ -104,9 +106,9 @@ export function ClientTransferModal({
               disabled: branch.isArchived,
             }))}
             disabled={loadingOptions}
-            label="Целевой филиал"
+            label={fe6ClientProfileText.clientTransferModal_label_9caac9e2}
             onChange={updateBranch}
-            placeholder={loadingOptions ? 'Загружаем филиалы' : 'Выберите филиал'}
+            placeholder={loadingOptions ? fe6ClientProfileText.clientTransferModal_string_00d475e1 : fe6ClientProfileText.clientTransferModal_string_4c5ee5d8}
             searchable
             value={form.values.branchId || null}
             error={form.errors.branchId}
@@ -120,12 +122,12 @@ export function ClientTransferModal({
               disabled: !group.isActive,
             }))}
             disabled={!selectedBranchId || loadingOptions}
-            label="Новая группа"
+            label={fe6ClientProfileText.clientTransferModal_label_c9fd9fc0}
             onChange={(groupId) => form.setFieldValue('groupId', groupId ?? '')}
             placeholder={
               selectedBranchId
-                ? 'Можно оставить без группы'
-                : 'Сначала выберите филиал'
+                ? fe6ClientProfileText.clientTransferModal_string_49b5e8d1
+                : fe6ClientProfileText.clientTransferModal_string_74f8ad03
             }
             searchable
             value={form.values.groupId || null}
@@ -134,15 +136,13 @@ export function ClientTransferModal({
 
           <ResponsiveButtonGroup justify="space-between">
             <Button disabled={submitting} onClick={onClose} type="button" variant="subtle">
-              Отменить
-            </Button>
+              {fe6ClientProfileText.clientTransferModal_jsxText_7c47f729}</Button>
             <Button
               leftSection={<IconGitBranch size={18} />}
               loading={submitting || loadingOptions}
               type="submit"
             >
-              Перевести клиента
-            </Button>
+              {fe6ClientProfileText.clientTransferModal_jsxText_a8186ce3}</Button>
           </ResponsiveButtonGroup>
         </Stack>
       </form>

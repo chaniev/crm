@@ -48,6 +48,8 @@ import {
   getSemanticToneComponentProps,
 } from '../../theme/semanticTones'
 import { Button, type SharedButtonProps } from './Button'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 type ResponsiveButtonGroupProps = {
   children: ReactNode
@@ -285,15 +287,15 @@ const compactFilterMobileQuery = '(max-width: 47.99em), (max-height: 30rem) and 
 
 export function CompactFilterPanel({
   actions,
-  applyLabel = 'Готово',
+  applyLabel = fe17SharedRoutingThemeText.ux_string_ef05d579,
   primary,
   secondary = [],
   className,
-  mobileLabel = 'Фильтры',
-  moreLabel = 'Ещё фильтры',
+  mobileLabel = fe17SharedRoutingThemeText.ux_string_a69757b1,
+  moreLabel = fe17SharedRoutingThemeText.ux_string_190c22c6,
   onReset,
-  resetLabel = 'Сбросить',
-  sheetTitle = 'Фильтры',
+  resetLabel = fe17SharedRoutingThemeText.ux_string_407f8717,
+  sheetTitle = fe17SharedRoutingThemeText.ux_string_a69757b1,
   showReset = true,
   ...props
 }: CompactFilterPanelProps) {
@@ -524,7 +526,7 @@ export function CompactFilterPanel({
             header: 'compact-filter-panel__sheet-header',
           }}
           closeButtonProps={{
-            'aria-label': 'Закрыть фильтры',
+            'aria-label': fe17SharedRoutingThemeText.ux_ariaLabel_67723878,
             className: 'temporary-surface-close compact-filter-panel__sheet-close',
           }}
           closeOnEscape
@@ -805,11 +807,11 @@ export function AppPagination({
   className,
   disabled,
   label,
-  nextLabel = 'Дальше',
+  nextLabel = fe17SharedRoutingThemeText.ux_string_ea58bb0b,
   onChange,
   page,
   pageLabel = getDefaultPageLabel,
-  previousLabel = 'Назад',
+  previousLabel = fe17SharedRoutingThemeText.ux_string_1a9fb1f3,
   summary,
   total,
   ...props
@@ -861,8 +863,8 @@ export function AppPagination({
 
 function getDefaultPageLabel(pageNumber: number, currentPage: number) {
   return pageNumber === currentPage
-    ? `Страница ${pageNumber}, текущая`
-    : `Страница ${pageNumber}`
+    ? fe17SharedRoutingThemeText.ux_template_15ddf709(pageNumber)
+    : fe17SharedRoutingThemeText.ux_template_5cfba733(pageNumber)
 }
 
 type ClientAvatarProps = Omit<
@@ -932,7 +934,7 @@ type LoadingStateProps = {
 
 export function LoadingState({
   description,
-  label = 'Загружаем данные...',
+  label = fe17SharedRoutingThemeText.ux_string_648938b5,
 }: LoadingStateProps) {
   return (
     <Group

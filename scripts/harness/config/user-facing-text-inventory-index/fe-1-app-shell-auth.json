@@ -1,0 +1,2305 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "FE-1-app-shell-auth",
+  "entry_count": 104,
+  "entries": [
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось связаться с сервером.'",
+      "value": "Не удалось связаться с сервером.",
+      "fingerprint": "sha256:ac621ca1491333421be0e45c965e5a369bca2a7ac41f7e2eaca68409b3cc4632",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        163,
+        229
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Открыт доступный раздел'",
+      "value": "Открыт доступный раздел",
+      "fingerprint": "sha256:8eefda5416906612535ff108db85fed7eb27f46037fb767b86525e2879de9651",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        203,
+        386
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Пароль обновлен, открыт доступный раздел'",
+      "value": "Пароль обновлен, открыт доступный раздел",
+      "fingerprint": "sha256:619ea5c75b9af115ef1e14518fa4051f4eb0b58a8dbdfb7cf7e87c5433a08b13",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        294
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Пароль обновлен. ${getRouteAccessLossNotificationMessage(\n              postPasswordDecision.recoveryEvent,\n            )}`",
+      "value": "`Пароль обновлен. ${getRouteAccessLossNotificationMessage(\n              postPasswordDecision.recoveryEvent,\n            )}`",
+      "fingerprint": "sha256:1ffa77b1cb446a94973ff669f11d8ae8cf20d68e3064e2257c9f7430b12d77f8",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        295
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Пароль обновлен'",
+      "value": "Пароль обновлен",
+      "fingerprint": "sha256:3ded90c0f1a2bd4e0a49e089c25d2d49a18279e4cd16e3f61a523cb2a952cee2",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        306
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Первый вход завершен'",
+      "value": "Первый вход завершен",
+      "fingerprint": "sha256:44c2ac7c7a4b81f5025c8c5b047b767155b5b0a9bc00bd8e0fe9d5c0d010f449",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        306
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новая сессия уже активна, можно продолжать работу.'",
+      "value": "Новая сессия уже активна, можно продолжать работу.",
+      "fingerprint": "sha256:8ad4d05fe1eaa341341e97bc429910b9007aa3033e1b69114f6c2b021835cdc8",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        309
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Изменение сохранено и применено к текущей сессии.'",
+      "value": "Изменение сохранено и применено к текущей сессии.",
+      "fingerprint": "sha256:e9d1ffdc1d0fd49b3b658e7777687cec47bd3d28b37508654b464ae1a11dc28c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        310
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сессия завершена'",
+      "value": "Сессия завершена",
+      "fingerprint": "sha256:311bf7c1c116da645af9e4bb1742a761b1a7f8189179f3683fd3045269874424",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        333
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Вы вышли из ${displayedClubName}.`",
+      "value": "`Вы вышли из ${displayedClubName}.`",
+      "fingerprint": "sha256:1cfdd5fdd017a08ed61c3e66f8145e579314cd27c84e16a2bf7d1190895b1102",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        334
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось завершить сессию'",
+      "value": "Не удалось завершить сессию",
+      "fingerprint": "sha256:7d2f9bdaf11c2a3ae5c74079521142e60cdb1ac36a2d50fa2bc82974fbc9b3c3",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        340
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Попробуйте выполнить выход еще раз.'",
+      "value": "Попробуйте выполнить выход еще раз.",
+      "fingerprint": "sha256:125fb9c9b44dbca63e3fe42ce8151c3c927b9ac0551a80fb22b1bc2021abc596",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        344
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Вход временно недоступен\n              ",
+      "value": "Вход временно недоступен",
+      "fingerprint": "sha256:9e550fe59d4c36deaee1c6c63f0f23123281d312922f69ced6145e88d46e89b7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        406
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Не удалось открыть экран входа",
+      "value": "Не удалось открыть экран входа",
+      "fingerprint": "sha256:2bf6591e0a29ddfaf443d5e6dc95907e960decf4fe1b4bc3a223ac9485feee77",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        408
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверьте подключение к сервису и повторите загрузку.\n              ",
+      "value": "Проверьте подключение к сервису и повторите загрузку.",
+      "fingerprint": "sha256:10995e5b757ac776cf2a357b12dc81c249554985cc9ba17e7e1c2a30df401f08",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        410
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сервис недоступен\"",
+      "value": "Сервис недоступен",
+      "fingerprint": "sha256:42260baf19ae07ca9d1f686d0e0d67bddbd4145be9d3eeabdf0d42d32a3976be",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        417
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить загрузку\n            ",
+      "value": "Повторить загрузку",
+      "fingerprint": "sha256:298e41327feeb685c4dcfe96a5dad0c4b80dca07cbcd8041547119ce309f4bb8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        427
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Нет доступа'",
+      "value": "Нет доступа",
+      "fingerprint": "sha256:28e033b4e1c5ab090dac2d8212441015f2e0ee5580cdf5f90b5aadc23f6a2c34",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        597
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Страница не найдена'",
+      "value": "Страница не найдена",
+      "fingerprint": "sha256:af9d33066ad69a3ec7523920934ec440f8b61871f8219b584721bcfa2a275d5b",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        601
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите логин.'",
+      "value": "Введите логин.",
+      "fingerprint": "sha256:c9715294c80034faef38dceadaba3cc5a739b12159685b03bb84f1bc9f5861ab",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        72
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите пароль.'",
+      "value": "Введите пароль.",
+      "fingerprint": "sha256:24155137a930b1247e592bd9a37721fdfe144e468368fb382b6b78b3cd56ff0f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        73
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось выполнить вход. Попробуйте еще раз.'",
+      "value": "Не удалось выполнить вход. Попробуйте еще раз.",
+      "fingerprint": "sha256:5e80ed291df27a5ff089d3ce735fa0a22f9d1f6c9d2b45072916c1738f9e0d1e",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        93
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Добро пожаловать!\n          ",
+      "value": "Добро пожаловать!",
+      "fingerprint": "sha256:389f991be4907c678b545b245cf667664a522550fae8bc294216cce5ed4592f2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        105
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Вход не выполнен\"",
+      "value": "Вход не выполнен",
+      "fingerprint": "sha256:e0d7dae936af6dfcf3d1a2395b52dd1209c148c87cdfac1b8731e29ec2b1f1d1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        113
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Логин\"",
+      "value": "Логин",
+      "fingerprint": "sha256:5be12bfe49ea673f88eeb9e05adf6a347f7af04165deb33c158ac7ca070f68a1",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        125
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Введите логин\"",
+      "value": "Введите логин",
+      "fingerprint": "sha256:468937a8e7a66fdd691bb30cf491fe1e21f43f5e46cd9f0213448f53ca747a85",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Пароль\"",
+      "value": "Пароль",
+      "fingerprint": "sha256:cb1a2074b3a027ffa7d7d9c54682c3835fffc7f6d620d8a38532f075cc2f17a0",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        133
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Введите пароль\"",
+      "value": "Введите пароль",
+      "fingerprint": "sha256:f741291a0a696755ae5fb9c4ec3287c9d2d1709316ee07cecd8e30acc02a71a8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        135
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Войти\n            ",
+      "value": "Войти",
+      "fingerprint": "sha256:8fc9ab2eeb38ad7a5ee16c668e0b80d52041249411f886b28981e93ff32d52b9",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        147
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Первый запуск системы",
+      "value": "Первый запуск системы",
+      "fingerprint": "sha256:709f75bea87126b3176fbc59fa98e54bacd6532750cc7a26a9dbe561e85dc606",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        161
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Стартовые данные",
+      "value": "Стартовые данные",
+      "fingerprint": "sha256:6c1c312c6629badd350287d5736125285e53340ad197e8875d82ff1eb32dfca0",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        167
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Если логин первого пользователя не переопределен на сервере,\n          используйте ",
+      "value": "Если логин первого пользователя не переопределен на сервере, используйте",
+      "fingerprint": "sha256:a415bb3d39aa630f4279cae1fb055d4d194568d6d3cf60cbd7e7fddd7d0f7b9e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        170
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ". Стартовый пароль: ",
+      "value": ". Стартовый пароль:",
+      "fingerprint": "sha256:4c52deff6a52bbaeca79b62a6bb75ddddf361c5529ee6a9b3c4abaf1d9d57aca",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "headcoach",
+      "value": "headcoach",
+      "fingerprint": "sha256:8290d294f0fde8c317219bdc5df2cc3a0c8676464cb907215f5168c5a3066f16",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ".\n        ",
+      "value": ".",
+      "fingerprint": "sha256:cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "12345678",
+      "value": "12345678",
+      "fingerprint": "sha256:ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите текущий пароль.'",
+      "value": "Введите текущий пароль.",
+      "fingerprint": "sha256:d184317156b2b54d09c8fd74ed0890dcfb17468b5b5916a5c9ca8d4755511392",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        206
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите новый пароль.'",
+      "value": "Введите новый пароль.",
+      "fingerprint": "sha256:55d5440acf6fea6b092fd9268d9d370467b1b2967cf73bc7f741926743a1dd13",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        207
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Пароли должны совпадать.'",
+      "value": "Пароли должны совпадать.",
+      "fingerprint": "sha256:652892571505f7f4bdb11ea973fdc5f96324a3c87e9cccb46e3ecadfbaab6bfc",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        209
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить новый пароль. Попробуйте еще раз.'",
+      "value": "Не удалось сохранить новый пароль. Попробуйте еще раз.",
+      "fingerprint": "sha256:fbaf82031db75a3a289c39bdd2390ef96df0af5814dc5cd8e1e7556e9aed19c7",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        232
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Смените пароль'",
+      "value": "Смените пароль",
+      "fingerprint": "sha256:8783d8abc4a2fd2d7d197f4de6c47631f75badb8b07bb8a7bb7e8017464eea8b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        238
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Смена пароля из профиля'",
+      "value": "Смена пароля из профиля",
+      "fingerprint": "sha256:8715c92b95a9aa5b4c21391bbe240ba273dbb20d6129d17e8b1616456c382a8a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        239
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите текущий временный пароль и задайте новый для дальнейшей работы.'",
+      "value": "Введите текущий временный пароль и задайте новый для дальнейшей работы.",
+      "fingerprint": "sha256:5e5117320ac69ad62cccb1b2bf222da06151575dbb0251f477799a579b9a67c2",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        242
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Обновите пароль, который будете использовать при следующих входах.'",
+      "value": "Обновите пароль, который будете использовать при следующих входах.",
+      "fingerprint": "sha256:468abab8da6ab0c79ec008f8b0f308f01fc34a6105089aef95e4d51f7f0f4706",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Назад\n            ",
+      "value": "Назад",
+      "fingerprint": "sha256:1a9fb1f3cf8e189a74acd6849678ed4bdf80fde41ed2f9c35a85550b0e3586fa",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        265
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Изменение не сохранено\"",
+      "value": "Изменение не сохранено",
+      "fingerprint": "sha256:36349dab4ba29c613d32f69ea60620ba5a294e73ebfbd9b4be37303697e39d14",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        274
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Текущий пароль\"",
+      "value": "Текущий пароль",
+      "fingerprint": "sha256:d83e5a22c025548076dcb2be9b1cd66dac1cd22bec6b445340df237a0b0447be",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        285
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Введите текущий пароль\"",
+      "value": "Введите текущий пароль",
+      "fingerprint": "sha256:b45783ad1a35725627ac6eb32e2b2200aee79137593d5dc3162d30cae4756f8a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        286
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Новый пароль\"",
+      "value": "Новый пароль",
+      "fingerprint": "sha256:f104cf99dcdb5ddf9fa773b945af43ae4ffce913de98824e708364f8ac93f6f7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        291
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Придумайте новый пароль\"",
+      "value": "Придумайте новый пароль",
+      "fingerprint": "sha256:63cd6ea96b3f7d2e0affafced00b44915b4eb9cf3cb21b1a7538f382a647b802",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        292
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Повторите новый пароль\"",
+      "value": "Повторите новый пароль",
+      "fingerprint": "sha256:fb22627cf996c16b119fb23e339de3ce58de97a3caf04c6f3a7436c7c3efbfd7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        297,
+        298
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сменить пароль и продолжить'",
+      "value": "Сменить пароль и продолжить",
+      "fingerprint": "sha256:40402c8b50d59d65056701cce26e2e9e4ba88c9531efaa880085c013db88a706",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        308
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сохранить новый пароль'",
+      "value": "Сохранить новый пароль",
+      "fingerprint": "sha256:4a13b77b437904af99a1fe4d66949849686e93fed99c8de6bf2fcab1132c9b9c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        308
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Пароль обновится сразу",
+      "value": "Пароль обновится сразу",
+      "fingerprint": "sha256:71f070e52939bc6e691aad80d8b442e7b3c3f272111d864e396195053bc55afe",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        318
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Используйте новый пароль при следующих входах.\n                  ",
+      "value": "Используйте новый пароль при следующих входах.",
+      "fingerprint": "sha256:7814c992f16d6d70c8df25237e0f6ee110acc1816c1381489d4c886657a4b1bb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        321
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открываем ${clubName}`",
+      "value": "`Открываем ${clubName}`",
+      "fingerprint": "sha256:144a149c2ea1627a6c71f88c19b6d92ee47cb10cc8b0d51f83951282d5e94710",
+      "context": {
+        "kind": "variable",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        339
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthStages.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверяем, есть ли активный вход, и готовим экран авторизации.\n            ",
+      "value": "Проверяем, есть ли активный вход, и готовим экран авторизации.",
+      "fingerprint": "sha256:74b948873118cdb94b81f9b1457ba80f4bed6c29ef895291c9466f9d5a7ca966",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        354
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthenticatedShell.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Главный тренер'",
+      "value": "Главный тренер",
+      "fingerprint": "sha256:6d7112785e9f61bb8cca201b86b77016b9cd9f706d4d771dfaf4319fbd0c67ec",
+      "context": {
+        "kind": "property",
+        "name": "roleLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        24
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthenticatedShell.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Суперадминистратор'",
+      "value": "Суперадминистратор",
+      "fingerprint": "sha256:ba0c95d4cc4c9b3f1552a15bf6aad26ddd72391eb5aaa12b48f54f1f406d7689",
+      "context": {
+        "kind": "property",
+        "name": "roleLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        27
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthenticatedShell.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Администратор'",
+      "value": "Администратор",
+      "fingerprint": "sha256:6c7719973e580a03eb26e53ef83406492abc3b6d8ba0bd30fb268b8977ff8993",
+      "context": {
+        "kind": "property",
+        "name": "roleLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        30
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthenticatedShell.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тренер'",
+      "value": "Тренер",
+      "fingerprint": "sha256:894d7eccc6a450518d78c6b44df0db619bf344c90febf5067a0cd6a2cfd99c05",
+      "context": {
+        "kind": "property",
+        "name": "roleLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        33
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthenticatedShell.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открыть профильное меню пользователя ${user.fullName}`",
+      "value": "`Открыть профильное меню пользователя ${user.fullName}`",
+      "fingerprint": "sha256:4d237756b841cd44c42b3440a410632ca235f3f8dc8db3e46836f38c91f5fc3d",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        79
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthenticatedShell.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Смена пароля\n        ",
+      "value": "Смена пароля",
+      "fingerprint": "sha256:354d5f5b7d50f47c8815a35e4383876fa435cda60b5ad2ae38516fa005e3acb1",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthenticatedShell.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Завершаем сессию...'",
+      "value": "Завершаем сессию...",
+      "fingerprint": "sha256:29b1d990110213b29a60a3a4cc6d013d9eeb0ad65f58bd5ea1a4bb652183b892",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        103
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/AuthenticatedShell.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выход'",
+      "value": "Выход",
+      "fingerprint": "sha256:75cd24c315d4591c6f315f54599c0aa852c88c6cd7f72f49f52e16006a264902",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        103
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`У вас нет доступа к разделу «${access.requestedDestinationLabel}».`",
+      "value": "`У вас нет доступа к разделу «${access.requestedDestinationLabel}».`",
+      "fingerprint": "sha256:c832959f9ee1828f9d4c16151de204c2de9fd005bcac51b92857bd750419b30a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        452
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`У вас нет доступа к операции «${access.requestedDestinationLabel}».`",
+      "value": "`У вас нет доступа к операции «${access.requestedDestinationLabel}».`",
+      "fingerprint": "sha256:4bb78ad04acd403f86d860d80b4f1406e4e4a3077207ba804afd167f9cc0762c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        453
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Нет доступа\"",
+      "value": "Нет доступа",
+      "fingerprint": "sha256:28e033b4e1c5ab090dac2d8212441015f2e0ee5580cdf5f90b5aadc23f6a2c34",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        460,
+        471
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Открыть ",
+      "value": "Открыть",
+      "fingerprint": "sha256:ea1f40824607e0d18612d54247dd283d22e97e26da13b8625ae0b9548ab6e618",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        468,
+        500
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Страница не найдена\"",
+      "value": "Страница не найдена",
+      "fingerprint": "sha256:af9d33066ad69a3ec7523920934ec440f8b61871f8219b584721bcfa2a275d5b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        492,
+        503
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Такой страницы нет или ссылка устарела.\"",
+      "value": "Такой страницы нет или ссылка устарела.",
+      "fingerprint": "sha256:b66231cd0e8c770d93c473e5aa33e3b50621a07f11317823ff31e10b1d4e0194",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        496
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Раздел\"",
+      "value": "Раздел",
+      "fingerprint": "sha256:cd7d7203e910ecf06f9fd4dc3dbaa76cd6fa73c7fa5ac1f3eeb38264225b40aa",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        512
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Раздел пока недоступен\"",
+      "value": "Раздел пока недоступен",
+      "fingerprint": "sha256:8b737d659c84bfd483e598ceeb0eb63aae7f5be694ea94f0c7bcbfaad187b2d3",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        518
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/RouteViewport.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Экран будет подключен отдельным обновлением.\n          ",
+      "value": "Экран будет подключен отдельным обновлением.",
+      "fingerprint": "sha256:d1441734ac0e0b9169dd062357493d6d4ab8cf04e09335694fc9f858074be52d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        521
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppReturnNavigation.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'К списку клиентов'",
+      "value": "К списку клиентов",
+      "fingerprint": "sha256:fde25c93ff0348f15f0aa7ba7915b35c5fe0339211b09d2aca05697027571b79",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        105
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppReturnNavigation.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'К группе'",
+      "value": "К группе",
+      "fingerprint": "sha256:bd4176c850e8eaca0875958f5e6d3edbf1c66e3f5418dadfdd390a5ccb0923f0",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        108
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppReturnNavigation.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'К посещениям'",
+      "value": "К посещениям",
+      "fingerprint": "sha256:fc6d18f10800ed979b212d5a5f5a44b39265759e4f6d54988855ef62260884d8",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        108
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Раздел «${access.requestedDestinationLabel}»`",
+      "value": "`Раздел «${access.requestedDestinationLabel}»`",
+      "fingerprint": "sha256:49c566c16b5b52316b6720ec9686fc0b23f68f0d67b332f956804c966f29fb64",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        208
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Операция «${access.requestedDestinationLabel}»`",
+      "value": "`Операция «${access.requestedDestinationLabel}»`",
+      "fingerprint": "sha256:f613365a5db93cdd2e647b3aedf95e31a0a2745d4150222b15ed35c8769ef743",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        209
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Больше нет доступа: ${deniedSubject}. Открыт доступный раздел «${access.recoveryLabel}».`",
+      "value": "`Больше нет доступа: ${deniedSubject}. Открыт доступный раздел «${access.recoveryLabel}».`",
+      "fingerprint": "sha256:94c1356c9b5109239a93c154b771f0f03791f3627a30110a4635d4420807c827",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        211
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Смена пароля'",
+      "value": "Смена пароля",
+      "fingerprint": "sha256:354d5f5b7d50f47c8815a35e4383876fa435cda60b5ad2ae38516fa005e3acb1",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        219
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Посещения'",
+      "value": "Посещения",
+      "fingerprint": "sha256:5f43e5f108583b8ff7ec0392d42ed9831978dc64530e9f1497ff2259d7913d7c",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        221
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Занятие'",
+      "value": "Занятие",
+      "fingerprint": "sha256:56995ff3e0c8695085f9c9fcedc9c1530754e9e410b62395586bc58d63990089",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        223
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Разовое занятие'",
+      "value": "Разовое занятие",
+      "fingerprint": "sha256:4196b8be8df2faffa215379ec39274cfb7a67db3260cb16625d3b3b39406ed68",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        225
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Изменение занятия'",
+      "value": "Изменение занятия",
+      "fingerprint": "sha256:148e56cb8c55366b8ba35ce2741ea3517f56ba2efbd8c8962cea9657e165672c",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        227
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Перенос занятия'",
+      "value": "Перенос занятия",
+      "fingerprint": "sha256:c0c26d68261d7b0691e3710241c81ff5580e3a06f6f0dc93807c58b49bfdd5a8",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        229
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Изменение серии'",
+      "value": "Изменение серии",
+      "fingerprint": "sha256:cd3e43064ec4069dd2b52f5c2f5e3f0a1a4b4de8e83c1277f83a1af78752838b",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        231
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новый клиент'",
+      "value": "Новый клиент",
+      "fingerprint": "sha256:5a2595c21fb54a00c684164fd8867f4999accdbbab4e8381f8fe0109104552d5",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        233
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Краткая карточка клиента'",
+      "value": "Краткая карточка клиента",
+      "fingerprint": "sha256:5008cfdcf4ccfb725aeb033c06f5af7ef44ec10dd632a6c455705204c0355fd4",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        235
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Карточка клиента'",
+      "value": "Карточка клиента",
+      "fingerprint": "sha256:a912ec8664f1d3b52b0b4c7b2a42f703b060b687c9686617aa4c3f4887c33edf",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        237
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование клиента'",
+      "value": "Редактирование клиента",
+      "fingerprint": "sha256:6744d4263b7354eb99c956e43c937c80e4fdeb998b30d96b3ee41fd90b99ea71",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        239
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новая группа'",
+      "value": "Новая группа",
+      "fingerprint": "sha256:c9fd9fc0e5d2198dab9dcf985de7e5a46f30be1b4924072417ad0bcc8de99335",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        241
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование группы'",
+      "value": "Редактирование группы",
+      "fingerprint": "sha256:3f7f75d8a0d84a2bde4ea1b9a3e965dc1be34c0af21fb37c6c15aaf1b4895165",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новый тренер'",
+      "value": "Новый тренер",
+      "fingerprint": "sha256:1ae0c0dd80a1f4320114efbce2543e8bacfe6b29639a2a6afcbbd1460165adf8",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        245
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование тренера'",
+      "value": "Редактирование тренера",
+      "fingerprint": "sha256:f303a27312124329dc7fa588191b1e198998ff7d312a5dedda315fb788d50a39",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        247
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открываем ${clubName}`",
+      "value": "`Открываем ${clubName}`",
+      "fingerprint": "sha256:144a149c2ea1627a6c71f88c19b6d92ee47cb10cc8b0d51f83951282d5e94710",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        272
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Вход недоступен • ${clubName}`",
+      "value": "`Вход недоступен • ${clubName}`",
+      "fingerprint": "sha256:eae52a62e1a3309824b0da39aa1b1a64be6703892fb19499253e806b2da697ce",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        276
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Войти в ${clubName}`",
+      "value": "`Войти в ${clubName}`",
+      "fingerprint": "sha256:1ad27b0058158346c3c7cbb9ead2ca06ba281b8e5c0d354e40eb77eff67bfcca",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        280
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Смените пароль • ${clubName}`",
+      "value": "`Смените пароль • ${clubName}`",
+      "fingerprint": "sha256:eb919eb4b52027553e5838651d7c790da93af8330c5babe9171250982f07088c",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        284
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${routeAccess.requestedDestinationLabel} — нет доступа • ${clubName}`",
+      "value": "`${routeAccess.requestedDestinationLabel} — нет доступа • ${clubName}`",
+      "fingerprint": "sha256:4e209ac02ee25b67237eb92b4223a23c9bac984f59ffddfb1ab29bcb2290ec63",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        288
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Страница не найдена • ${clubName}`",
+      "value": "`Страница не найдена • ${clubName}`",
+      "fingerprint": "sha256:ff77bda7641480ed027665f60ed10294a01d50dfc77add6dd3e9d7b4f98e6cdc",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        292,
+        304
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/app/useAppRoute.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Смена пароля • ${clubName}`",
+      "value": "`Смена пароля • ${clubName}`",
+      "fingerprint": "sha256:821c2666b67af902dd6363f7e668e962ea1935754b1f4b8fa28ce1bd20fb74ca",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        296
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/bootstrap/ConfigThemeBootstrap.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Открываем CRM",
+      "value": "Открываем CRM",
+      "fingerprint": "sha256:482341a522d319a94ca1a55615bf09b3aa86305a40ece6478dd458b4ef2b81d8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        190
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/bootstrap/ConfigThemeBootstrap.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Готовим оформление и экран авторизации.\n          ",
+      "value": "Готовим оформление и экран авторизации.",
+      "fingerprint": "sha256:177a93631243623130934d803e99745890ab6433594d43cb9e399069366cd6f1",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        192
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/app-shell-auth",
+      "slice": "FE-1-app-shell-auth",
+      "review_status": "accepted"
+    }
+  ]
+}

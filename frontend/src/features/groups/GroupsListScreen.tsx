@@ -44,6 +44,8 @@ import {
 } from './groupListQuery'
 import type { GroupListReturnSnapshot } from './groupListReturnState'
 import { useGroupsListState, type GroupsListState } from './useGroupsListState'
+import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
+
 
 export type GroupsListScreenProps = {
   initialReturnSnapshot?: GroupListReturnSnapshot | null
@@ -76,9 +78,9 @@ export function GroupsListScreen({
     !state.error &&
     state.groups.length === 0
   const statusOptions = [
-    { value: 'all', label: 'Все' },
-    { value: 'active', label: 'Активные' },
-    { value: 'inactive', label: 'Неактивные' },
+    { value: 'all', label: fe13GroupsCoreText.groupsListScreen_label_215816bf },
+    { value: 'active', label: fe13GroupsCoreText.groupsListScreen_label_eeaeb976 },
+    { value: 'inactive', label: fe13GroupsCoreText.groupsListScreen_label_4b6feb75 },
   ] satisfies Array<{ value: GroupStatusFilter; label: string }>
 
   useEffect(() => {
@@ -128,17 +130,17 @@ export function GroupsListScreen({
       className="groups-screen"
       data-testid="groups-screen"
       showHeader={false}
-      title="Группы"
+      title={fe13GroupsCoreText.groupsListScreen_title_cd8c5873}
     >
       <div className="groups-list-controls" data-testid="groups-list-controls">
         <EntityLocatorBar
-          accessibleLabel="Поиск групп по названию"
+          accessibleLabel={fe13GroupsCoreText.groupsListScreen_accessibleLabel_ebbe1ead}
           activeFilterCount={state.activeFilterCount}
           className="groups-list-locator"
           disabled={showFirstLoad}
           frequentActions={(
             <TaskToolbarRefreshAction
-              label="Обновить список групп"
+              label={fe13GroupsCoreText.groupsListScreen_label_afde8d3f}
               loading={state.loading}
               onClick={state.reload}
             />
@@ -147,11 +149,11 @@ export function GroupsListScreen({
           onClear={state.clearSearchQuery}
           onInputBlur={state.applySearchNow}
           onOpenFilters={() => setFiltersOpened(true)}
-          placeholder="Название группы"
+          placeholder={fe13GroupsCoreText.groupsListScreen_placeholder_d45e66ab}
           primaryAction={(
             <TaskToolbarAction
               icon={<IconPlus size={18} />}
-              label="Новая группа"
+              label={fe13GroupsCoreText.groupsListScreen_label_c9fd9fc0}
               onClick={onCreate}
               priority="primary"
             />
@@ -163,7 +165,7 @@ export function GroupsListScreen({
         <ActiveFiltersBar
           filters={activeFilters}
           onReset={state.resetFilters}
-          resetLabel="Сбросить все"
+          resetLabel={fe13GroupsCoreText.groupsListScreen_resetLabel_51d41686}
         />
       </div>
 
@@ -174,7 +176,7 @@ export function GroupsListScreen({
           header: 'groups-filters-drawer__header',
         }}
         closeButtonProps={{
-          'aria-label': 'Закрыть фильтры групп',
+          'aria-label': fe13GroupsCoreText.groupsListScreen_ariaLabel_82f96580,
           className: 'temporary-surface-close groups-filters-drawer__close',
         }}
         closeOnClickOutside
@@ -185,7 +187,7 @@ export function GroupsListScreen({
         position="bottom"
         returnFocus
         size="min(28rem, 100dvh)"
-        title="Фильтры групп"
+        title={fe13GroupsCoreText.groupsListScreen_title_7514e29a}
         trapFocus
         withCloseButton
         zIndex={300}
@@ -193,7 +195,7 @@ export function GroupsListScreen({
         <div className="groups-filters-drawer__fields">
           <Select
             data={statusOptions}
-            label="Статус"
+            label={fe13GroupsCoreText.groupsListScreen_label_225077c6}
             onChange={(value) =>
               state.updateFilters({
                 isActive: fromGroupStatusFilter(
@@ -205,7 +207,7 @@ export function GroupsListScreen({
           />
           <Switch
             checked={state.filters.withoutTrainer}
-            label="Без тренера"
+            label={fe13GroupsCoreText.groupsListScreen_label_732e659e}
             onChange={(event) =>
               state.updateFilters({
                 withoutTrainer: event.currentTarget.checked,
@@ -216,8 +218,7 @@ export function GroupsListScreen({
         <TemporarySurfaceFooter
           primaryAction={(
             <Button onClick={() => setFiltersOpened(false)} type="button">
-              Готово
-            </Button>
+              {fe13GroupsCoreText.groupsListScreen_jsxText_ef05d579}</Button>
           )}
           secondaryAction={(
             <Button
@@ -226,14 +227,13 @@ export function GroupsListScreen({
               type="button"
               variant="secondary"
             >
-              Сбросить
-            </Button>
+              {fe13GroupsCoreText.groupsListScreen_jsxText_407f8717}</Button>
           )}
         />
       </Drawer>
 
       <section aria-labelledby="groups-list-title" className="groups-list-section">
-        <h2 className="groups-screen__visually-hidden" id="groups-list-title">Список групп</h2>
+        <h2 className="groups-screen__visually-hidden" id="groups-list-title">{fe13GroupsCoreText.groupsListScreen_jsxText_bae09e03}</h2>
         <PageSection className="groups-list-surface" variant="plain">
           <Stack gap="xs">
             <div
@@ -250,39 +250,38 @@ export function GroupsListScreen({
                 <span
                   aria-label={
                     state.summary
-                      ? `Всего групп: ${state.summary.totalCount}`
+                      ? fe13GroupsCoreText.groupsListScreen_template_314bfdaa(state.summary.totalCount)
                       : state.totalCount === null
-                        ? 'Всего групп: обновляем'
-                        : `Всего групп: ${state.totalCount}`
+                        ? fe13GroupsCoreText.groupsListScreen_string_e2d00d68
+                        : fe13GroupsCoreText.groupsListScreen_template_0405138b(state.totalCount)
                   }
                 >
-                  Всего: {state.summary?.totalCount ?? state.totalCount ?? '—'}
+                  {fe13GroupsCoreText.groupsListScreen_jsxText_f8ba76ae}{state.summary?.totalCount ?? state.totalCount ?? '—'}
                 </span>
                 <span
                   aria-label={
                     state.summary
-                      ? `Активных групп без тренера: ${state.summary.activeWithoutTrainerCount}`
-                      : 'Активных групп без тренера: обновляем'
+                      ? fe13GroupsCoreText.groupsListScreen_template_f84f017b(state.summary.activeWithoutTrainerCount)
+                      : fe13GroupsCoreText.groupsListScreen_string_4a9db5ba
                   }
                 >
-                  Без тренера: {state.summary?.activeWithoutTrainerCount ?? '—'}
+                  {fe13GroupsCoreText.groupsListScreen_jsxText_26c38cb9}{state.summary?.activeWithoutTrainerCount ?? '—'}
                 </span>
               </div>
             </div>
 
             {showFirstLoad ? (
-              <LoadingState label="Загружаем список групп..." />
+              <LoadingState label={fe13GroupsCoreText.groupsListScreen_label_0cf113c5} />
             ) : null}
 
             {showBlockingError ? (
               <ErrorState
                 action={(
                   <Button data-group-return-recovery="true" onClick={state.reload}>
-                    Повторить
-                  </Button>
+                    {fe13GroupsCoreText.groupsListScreen_jsxText_5189135a}</Button>
                 )}
-                message={state.error ?? 'Не удалось загрузить список групп.'}
-                title="Список групп не загрузился"
+                message={state.error ?? fe13GroupsCoreText.groupsListScreen_string_85b97c29}
+                title={fe13GroupsCoreText.groupsListScreen_title_214164fa}
               />
             ) : null}
 
@@ -290,14 +289,13 @@ export function GroupsListScreen({
               <Alert
                 color="red"
                 icon={<IconAlertCircle size={18} />}
-                title="Обновление списка не загрузилось"
+                title={fe13GroupsCoreText.groupsListScreen_title_3fdee84e}
                 variant="light"
               >
                 <Group gap="sm" justify="space-between">
                   <Text size="sm">{state.error}</Text>
                   <Button data-group-return-recovery="true" onClick={state.reload} variant="secondary">
-                    Повторить
-                  </Button>
+                    {fe13GroupsCoreText.groupsListScreen_jsxText_5189135a}</Button>
                 </Group>
               </Alert>
             ) : null}
@@ -310,27 +308,25 @@ export function GroupsListScreen({
                     onClick={state.clearSearchQuery}
                     variant="secondary"
                   >
-                    Очистить поиск
-                  </Button>
+                    {fe13GroupsCoreText.groupsListScreen_jsxText_6e1f7baa}</Button>
                 ) : (
                   <Button
                     data-group-return-recovery="true"
                     onClick={state.resetFilters}
                     variant="secondary"
                   >
-                    Сбросить все
-                  </Button>
+                    {fe13GroupsCoreText.groupsListScreen_resetLabel_51d41686}</Button>
                 )}
                 description={
                   state.isFirstRunEmpty
-                    ? 'Создайте первую группу, чтобы закрепить тренеров и подготовить основу для сценария посещений.'
-                    : 'Измените поисковый запрос или фильтры, чтобы расширить список.'
+                    ? fe13GroupsCoreText.groupsListScreen_string_69da2f93
+                    : fe13GroupsCoreText.groupsListScreen_string_401b50ae
                 }
                 icon={<IconUsersGroup size={24} />}
                 title={
                   state.isFirstRunEmpty
-                    ? 'Группы пока не созданы'
-                    : 'Группы не найдены'
+                    ? fe13GroupsCoreText.groupsListScreen_string_33e84aeb
+                    : fe13GroupsCoreText.groupsListScreen_string_ed2efb2d
                 }
               />
             ) : null}
@@ -346,12 +342,12 @@ export function GroupsListScreen({
                   tabIndex={-1}
                 >
                   <div className="groups-list-header" role="presentation">
-                    <span>Группа</span>
-                    <span>Филиал и зал</span>
-                    <span>Расписание</span>
-                    <span>Тренеры</span>
-                    <span>Статус</span>
-                    <span>Редактировать</span>
+                    <span>{fe13GroupsCoreText.groupsListScreen_jsxText_907efbd4}</span>
+                    <span>{fe13GroupsCoreText.groupsListScreen_jsxText_f7642da6}</span>
+                    <span>{fe13GroupsCoreText.groupsListScreen_jsxText_92431022}</span>
+                    <span>{fe13GroupsCoreText.groupsListScreen_jsxText_0314946c}</span>
+                    <span>{fe13GroupsCoreText.groupsListScreen_label_225077c6}</span>
+                    <span>{fe13GroupsCoreText.groupsListScreen_jsxText_59792556}</span>
                   </div>
                   {state.groups.map((group) => (
                     <GroupRegistryRow
@@ -366,7 +362,7 @@ export function GroupsListScreen({
                 <AppPagination
                   className="groups-list-pagination"
                   disabled={state.loading}
-                  label="Страницы списка групп"
+                  label={fe13GroupsCoreText.groupsListScreen_label_2e31d9a4}
                   onChange={state.goToPage}
                   page={state.page}
                   total={state.pageCount}
@@ -392,7 +388,7 @@ function GroupRegistryRow({
   const trainerText =
     group.trainerNames.length > 0
       ? group.trainerNames.join(', ')
-      : 'Тренер не назначен'
+      : fe13GroupsCoreText.groupsListScreen_string_a674b477
   const scheduleText = formatGroupSchedule(group.weekdays, group.durationMinutes)
 
   return (
@@ -413,7 +409,7 @@ function GroupRegistryRow({
         c="dimmed"
         title={`${group.branchName} · ${group.hallName}`}
       >
-        {group.branchName} · {group.hallName}
+        {group.branchName} {fe13GroupsCoreText.groupsListScreen_jsxText_a137f17a}{group.hallName}
       </Text>
       <Text
         className="group-registry-row__meta group-registry-row__schedule"
@@ -446,7 +442,7 @@ function GroupRegistryRow({
         className="group-registry-row__edit"
         data-group-edit-action="true"
         icon={<IconEdit size={18} />}
-        label={`Редактировать группу «${group.name}»`}
+        label={fe13GroupsCoreText.groupsListScreen_template_5d140dac(group.name)}
         onClick={() => onEdit(group.id)}
         size={44}
         variant="light"
@@ -461,7 +457,7 @@ function buildActiveGroupFilters(state: GroupsListState): ActiveFilter[] {
   if (state.filters.appliedQuery) {
     filters.push({
       id: 'query',
-      label: `Поиск: ${state.filters.appliedQuery}`,
+      label: fe13GroupsCoreText.groupsListScreen_label_3a3cdea7(state.filters.appliedQuery),
       onRemove: state.clearSearchQuery,
     })
   }
@@ -469,7 +465,7 @@ function buildActiveGroupFilters(state: GroupsListState): ActiveFilter[] {
   if (state.filters.isActive !== null) {
     filters.push({
       id: 'isActive',
-      label: state.filters.isActive ? 'Активные' : 'Неактивные',
+      label: state.filters.isActive ? fe13GroupsCoreText.groupsListScreen_label_eeaeb976 : fe13GroupsCoreText.groupsListScreen_label_4b6feb75,
       onRemove: () => state.updateFilters({ isActive: null }),
     })
   }
@@ -477,7 +473,7 @@ function buildActiveGroupFilters(state: GroupsListState): ActiveFilter[] {
   if (state.filters.withoutTrainer) {
     filters.push({
       id: 'withoutTrainer',
-      label: 'Без тренера',
+      label: fe13GroupsCoreText.groupsListScreen_label_732e659e,
       onRemove: () => state.updateFilters({ withoutTrainer: false }),
     })
   }

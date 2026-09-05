@@ -11,6 +11,8 @@ import type {
   MembershipRenewFormValues,
 } from '../ClientManagement.types'
 import { mapMembershipTargetsToGroupIds } from './membershipTargetGroups'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 export type MembershipPurchaseFormValues = MembershipSalePricingValues & {
   validFrom: string
@@ -63,17 +65,17 @@ export function validateMembershipCorrectionForm(
   const errors: Record<string, string> = {}
 
   if (!values.validFrom) {
-    errors.validFrom = 'Укажите начало срока.'
+    errors.validFrom = fe7ClientMembershipText.membershipForms_string_c6401e27
   }
 
   if (isExpirationRequired(behaviorKind)) {
     if (!values.validTo) {
-      errors.validTo = 'Укажите дату окончания.'
+      errors.validTo = fe7ClientMembershipText.membershipForms_string_0a04a7f3
     }
   }
 
   if (!values.paymentDate) {
-    errors.paymentDate = 'Укажите дату оплаты.'
+    errors.paymentDate = fe7ClientMembershipText.membershipForms_string_c17309b4
   }
 
   validateTargetGroups(values.targetGroupIds, behaviorKind, errors)
@@ -91,14 +93,14 @@ export function validateTargetGroups(
   errors: Record<string, string>,
 ) {
   if (targetGroupIds.length === 0) {
-    errors.targetGroupIds = 'Выберите хотя бы одну группу'
+    errors.targetGroupIds = fe7ClientMembershipText.membershipForms_string_95193c08
   }
 
   if (behaviorKind === 'SingleVisit' && targetGroupIds.length !== 1) {
-    errors.targetGroupIds = 'Разовое посещение действует только в одной группе'
+    errors.targetGroupIds = fe7ClientMembershipText.membershipForms_string_f603ddac
   }
 
   if (behaviorKind !== 'SingleVisit' && targetGroupIds.length > 5) {
-    errors.targetGroupIds = 'Можно выбрать не больше 5 групп'
+    errors.targetGroupIds = fe7ClientMembershipText.membershipForms_string_55dc184c
   }
 }

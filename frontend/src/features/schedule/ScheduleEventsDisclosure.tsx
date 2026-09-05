@@ -23,6 +23,8 @@ import {
   formatScheduleClientCount,
   formatScheduleEntryCount,
 } from './schedulePresentation'
+import { fe3ScheduleMutationsText } from '../../resources/fe-3-schedule-mutations'
+
 
 type ScheduleEventsDisclosureProps = {
   dateLabel: string
@@ -58,8 +60,8 @@ export function ScheduleEventsDisclosure({
   const style = buildDisclosureStyle(group, visibleHourRange, hourHeight)
   const accessibleName = [
     `${weekdayLabel} ${dateLabel}, ${timeRange}:`,
-    `${formatScheduleEntryCount(group.count)} в интервале.`,
-    'Открыть детали',
+    fe3ScheduleMutationsText.scheduleEventsDisclosure_template_4c5bfbe1(formatScheduleEntryCount(group.count)),
+    fe3ScheduleMutationsText.scheduleEventsDisclosure_string_89ce76b3,
   ].join(' ')
 
   useEffect(() => {
@@ -117,14 +119,14 @@ export function ScheduleEventsDisclosure({
           type="button"
         >
           <span className="schedule-events-disclosure__time">
-            {timeRange} · {formatScheduleEntryCount(group.count)}
+            {timeRange} {fe3ScheduleMutationsText.scheduleEventsDisclosure_jsxText_a137f17a}{formatScheduleEntryCount(group.count)}
           </span>
           <span className="schedule-events-disclosure__names">
             {visibleEntries.map((entry) => (
               <span key={entry.key}>{entry.group.name}</span>
             ))}
             {remainingCount > 0 ? (
-              <span className="schedule-events-disclosure__more">+{remainingCount}</span>
+              <span className="schedule-events-disclosure__more">{fe3ScheduleMutationsText.scheduleEventsDisclosure_jsxText_a318c242}{remainingCount}</span>
             ) : null}
           </span>
         </button>
@@ -147,14 +149,13 @@ export function ScheduleEventsDisclosure({
         <Group align="flex-start" justify="space-between" wrap="nowrap">
           <Stack gap={2}>
             <Text fw={900} id={titleId}>
-              Занятия в интервале
-            </Text>
+              {fe3ScheduleMutationsText.scheduleEventsDisclosure_jsxText_65b19bb3}</Text>
             <Text c="dimmed" size="sm">
-              {timeRange} · {formatScheduleEntryCount(group.count)}
+              {timeRange} {fe3ScheduleMutationsText.scheduleEventsDisclosure_jsxText_a137f17a}{formatScheduleEntryCount(group.count)}
             </Text>
           </Stack>
           <CloseButton
-            aria-label="Закрыть детали занятий"
+            aria-label={fe3ScheduleMutationsText.scheduleEventsDisclosure_ariaLabel_15189e3f}
             onClick={onClose}
             ref={closeButtonRef}
             size={44}
@@ -189,7 +190,7 @@ function ScheduleEventsDisclosureRow({
     `${group.hallName} · ${group.branchName}`,
     trainerNames,
     formatScheduleClientCount(group.clientCount),
-    group.isActive ? '' : 'Неактивна',
+    group.isActive ? '' : fe3ScheduleMutationsText.scheduleEventsDisclosure_string_4f049897,
   ].filter(Boolean).join(', ')
 
   return (
@@ -210,12 +211,11 @@ function ScheduleEventsDisclosureRow({
           </span>
           {!group.isActive ? (
             <Badge color="gray" radius="xl" size="xs" variant="light">
-              Неактивна
-            </Badge>
+              {fe3ScheduleMutationsText.scheduleEventsDisclosure_string_4f049897}</Badge>
           ) : null}
         </Group>
         <Text c="dimmed" size="sm">
-          {group.hallName} · {group.branchName}
+          {group.hallName} {fe3ScheduleMutationsText.scheduleEventsDisclosure_jsxText_a137f17a}{group.branchName}
         </Text>
         <Text c="dimmed" size="sm">
           {trainerNames}
@@ -253,7 +253,7 @@ function formatScheduleDisclosureTimeRange(
 }
 
 function getScheduleTypeLabelForDetails(group: TrainingGroupListItem) {
-  return group.groupTypeName.trim() || 'Тип не задан'
+  return group.groupTypeName.trim() || fe3ScheduleMutationsText.scheduleEventsDisclosure_string_e93b045d
 }
 
 function formatTrainerNamesForDetails(group: TrainingGroupListItem) {
@@ -265,5 +265,5 @@ function formatTrainerNamesForDetails(group: TrainingGroupListItem) {
     return group.trainers.map((trainer) => trainer.fullName).join(', ')
   }
 
-  return 'Тренер не назначен'
+  return fe3ScheduleMutationsText.scheduleEventsDisclosure_string_a674b477
 }

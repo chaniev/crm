@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "task_id": "TASK-165",
+  "expected_branch": "refactor/TASK-165-user-facing-text-resources",
+  "areas": ["backend", "frontend", "bot", "harness", "requirements"],
+  "manual_checks": []
+}

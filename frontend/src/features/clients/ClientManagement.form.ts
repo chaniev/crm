@@ -1,5 +1,7 @@
 import { useForm } from '@mantine/form'
 import type { ClientDetails, UpsertClientRequest } from '../../lib/api'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 export const maxContacts = 2
 
@@ -40,11 +42,11 @@ export function useClientForm() {
       contacts: [],
     },
     validate: {
-      phone: (value) => (value.trim() ? null : 'Укажите телефон клиента.'),
+      phone: (value) => (value.trim() ? null : fe6ClientProfileText.clientManagementForm_string_13f09c7f),
       lastName: (_, values) =>
         hasClientName(values)
           ? null
-          : 'Укажите хотя бы одно из полей ФИО клиента.',
+          : fe6ClientProfileText.clientManagementForm_string_91e74fb3,
     },
   })
 }
@@ -54,15 +56,15 @@ export function validateClientForm(values: ClientFormValues) {
   const normalizedContacts = normalizeContacts(values.contacts)
 
   if (!values.phone.trim()) {
-    errors.phone = 'Укажите телефон клиента.'
+    errors.phone = fe6ClientProfileText.clientManagementForm_string_13f09c7f
   }
 
   if (!hasClientName(values)) {
-    errors.lastName = 'Укажите хотя бы одно из полей ФИО клиента.'
+    errors.lastName = fe6ClientProfileText.clientManagementForm_string_91e74fb3
   }
 
   if (normalizedContacts.length > maxContacts) {
-    errors.contacts = 'Можно сохранить не более двух контактных лиц.'
+    errors.contacts = fe6ClientProfileText.clientManagementForm_string_acb35e79
   }
 
   values.contacts.forEach((contact, index) => {
@@ -81,16 +83,16 @@ export function validateClientForm(values: ClientFormValues) {
     }
 
     if (!trimmedContact.type) {
-      errors[`contacts.${index}.type`] = 'Укажите тип контактного лица.'
+      errors[`contacts.${index}.type`] = fe6ClientProfileText.clientManagementForm_string_f638f9f2
     }
 
     if (!trimmedContact.fullName) {
       errors[`contacts.${index}.fullName`] =
-        'Укажите ФИО контактного лица.'
+        fe6ClientProfileText.clientManagementForm_string_259085f9
     }
 
     if (!trimmedContact.phone) {
-      errors[`contacts.${index}.phone`] = 'Укажите телефон контактного лица.'
+      errors[`contacts.${index}.phone`] = fe6ClientProfileText.clientManagementForm_string_735598db
     }
   })
 
@@ -158,7 +160,7 @@ export function buildDraftClientName(values: ClientFormValues) {
     .filter(Boolean)
     .join(' ')
 
-  return fullName || 'нового клиента'
+  return fullName || fe6ClientProfileText.clientManagementForm_string_db15274f
 }
 
 function hasClientName(

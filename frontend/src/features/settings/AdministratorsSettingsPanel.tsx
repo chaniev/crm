@@ -60,6 +60,8 @@ import {
   toUpdateUserPayload,
 } from '../users/UserManagement.mappers'
 import { AdministratorAttendanceScopeModal } from './AdministratorAttendanceScopeModal'
+import { fe11SettingsUsersText } from '../../resources/fe-11-settings-users'
+
 
 type AdministratorModalState =
   | { mode: 'create' }
@@ -100,13 +102,13 @@ export function AdministratorsSettingsPanel({
   const createForm = useForm<CreateUserFormValues>({
     initialValues: buildCreateInitialValues('Administrator', ''),
     validate: {
-      fullName: (value) => (value.trim() ? null : 'Введите ФИО администратора.'),
-      login: (value) => (value.trim() ? null : 'Введите логин.'),
-      password: (value) => (value ? null : 'Введите стартовый пароль.'),
-      role: (value) => (value ? null : 'Выберите роль.'),
+      fullName: (value) => (value.trim() ? null : fe11SettingsUsersText.administratorsSettingsPanel_string_9447dd32),
+      login: (value) => (value.trim() ? null : fe11SettingsUsersText.administratorsSettingsPanel_string_c9715294),
+      password: (value) => (value ? null : fe11SettingsUsersText.administratorsSettingsPanel_string_ae1e2dac),
+      role: (value) => (value ? null : fe11SettingsUsersText.administratorsSettingsPanel_string_e7040772),
       branchId: (value, values) =>
         values.role === 'Administrator' && !value
-          ? 'Выберите филиал администратора.'
+          ? fe11SettingsUsersText.administratorsSettingsPanel_string_14c70922
           : null,
     },
   })
@@ -122,11 +124,11 @@ export function AdministratorsSettingsPanel({
       isActive: true,
     },
     validate: {
-      fullName: (value) => (value.trim() ? null : 'Введите ФИО администратора.'),
-      role: (value) => (value ? null : 'Выберите роль.'),
+      fullName: (value) => (value.trim() ? null : fe11SettingsUsersText.administratorsSettingsPanel_string_9447dd32),
+      role: (value) => (value ? null : fe11SettingsUsersText.administratorsSettingsPanel_string_e7040772),
       branchId: (value, values) =>
         values.role === 'Administrator' && !value
-          ? 'Выберите филиал администратора.'
+          ? fe11SettingsUsersText.administratorsSettingsPanel_string_14c70922
           : null,
     },
   })
@@ -150,7 +152,7 @@ export function AdministratorsSettingsPanel({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить администраторов.',
+            : fe11SettingsUsersText.administratorsSettingsPanel_string_d64134c2,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -182,7 +184,7 @@ export function AdministratorsSettingsPanel({
         setBranchesError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить филиалы.',
+            : fe11SettingsUsersText.administratorsSettingsPanel_string_eb5b2e75,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -300,8 +302,8 @@ export function AdministratorsSettingsPanel({
       setModalState(null)
       showAppNotification({
         id: `settings-administrator-create-success-${createdAdministrator.id}`,
-        title: `${userRoleLabels[createdAdministrator.role]} создан`,
-        message: `Пользователь «${createdAdministrator.fullName}» добавлен.`,
+        title: fe11SettingsUsersText.administratorsSettingsPanel_title_baf4888f(userRoleLabels[createdAdministrator.role]),
+        message: fe11SettingsUsersText.administratorsSettingsPanel_message_4fb25546(createdAdministrator.fullName),
         color: 'teal',
       })
     } catch (error) {
@@ -313,7 +315,7 @@ export function AdministratorsSettingsPanel({
         return
       }
 
-      setFormError('Не удалось создать администратора.')
+      setFormError(fe11SettingsUsersText.administratorsSettingsPanel_setFormError_7b41d62c)
     } finally {
       submittingRef.current = false
       setSubmitting(false)
@@ -362,8 +364,8 @@ export function AdministratorsSettingsPanel({
       setModalState(null)
       showAppNotification({
         id: `settings-administrator-edit-success-${updatedAdministrator.id}`,
-        title: `${userRoleLabels[updatedAdministrator.role]} обновлен`,
-        message: `Изменения «${updatedAdministrator.fullName}» сохранены.`,
+        title: fe11SettingsUsersText.administratorsSettingsPanel_title_7ccf0bed(userRoleLabels[updatedAdministrator.role]),
+        message: fe11SettingsUsersText.administratorsSettingsPanel_message_00a3576f(updatedAdministrator.fullName),
         color: 'teal',
       })
     } catch (error) {
@@ -373,8 +375,8 @@ export function AdministratorsSettingsPanel({
           setReloadKey((key) => key + 1)
           showAppNotification({
             id: `settings-administrator-stale-${modalState.administrator.id}`,
-            title: 'Запись изменилась',
-            message: 'Администратор больше не доступен в этом разделе. Список обновляется.',
+            title: fe11SettingsUsersText.administratorsSettingsPanel_title_8bb025fe,
+            message: fe11SettingsUsersText.administratorsSettingsPanel_message_435c8ca7,
             color: 'yellow',
           })
           return
@@ -387,7 +389,7 @@ export function AdministratorsSettingsPanel({
         return
       }
 
-      setFormError('Не удалось сохранить администратора.')
+      setFormError(fe11SettingsUsersText.administratorsSettingsPanel_setFormError_1cfc073d)
     } finally {
       submittingRef.current = false
       setSubmitting(false)
@@ -408,7 +410,7 @@ export function AdministratorsSettingsPanel({
             primaryAction={canCreateAdministrator ? (
               <TaskToolbarAction
                 icon={<IconUserPlus size={18} />}
-                label="Добавить администратора"
+                label={fe11SettingsUsersText.administratorsSettingsPanel_label_d8506f3e}
                 onClick={openCreateModal}
                 priority="primary"
               />
@@ -416,20 +418,20 @@ export function AdministratorsSettingsPanel({
           />
 
           {loading ? (
-            <LoadingState label="Загружаем администраторов..." />
+            <LoadingState label={fe11SettingsUsersText.administratorsSettingsPanel_label_6fbc47d4} />
           ) : null}
 
           {!loading && loadError ? (
             <ErrorState
               message={loadError}
-              title="Администраторы не загрузились"
+              title={fe11SettingsUsersText.administratorsSettingsPanel_title_9d13455a}
             />
           ) : null}
 
           {!loading && !loadError && administrators.length === 0 ? (
             <EmptyState
               icon={<IconUserCog size={24} />}
-              title="Администраторы пока не добавлены"
+              title={fe11SettingsUsersText.administratorsSettingsPanel_title_f3d522b4}
             />
           ) : null}
 
@@ -455,16 +457,16 @@ export function AdministratorsSettingsPanel({
                           radius="xl"
                           variant="light"
                         >
-                          {administrator.isActive ? 'Активен' : 'Отключен'}
+                          {administrator.isActive ? fe11SettingsUsersText.administratorsSettingsPanel_string_a87a4b39 : fe11SettingsUsersText.administratorsSettingsPanel_string_c62edde1}
                         </Badge>
                       </Group>
                       <Text c="dimmed" size="sm">
-                        Логин: {administrator.login}
+                        {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_8541e28c}{administrator.login}
                       </Text>
                       {administrator.role === 'Administrator' ? (
                         <>
                           <Text c="dimmed" size="sm">
-                            Филиал: {administrator.branchName ?? 'не назначен'}
+                            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_40c98d2e}{administrator.branchName ?? fe11SettingsUsersText.administratorsSettingsPanel_string_b921a80b}
                           </Text>
                           <Text c="dimmed" size="sm">
                             {formatAttendanceScopeSummary(administrator)}
@@ -472,12 +474,11 @@ export function AdministratorsSettingsPanel({
                         </>
                       ) : (
                         <Text c="dimmed" size="sm">
-                          Доступ: все филиалы
-                        </Text>
+                          {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_9f488310}</Text>
                       )}
                       {administrator.messengerPlatformUserId ? (
                         <Text c="dimmed" size="sm">
-                          Telegram ID: {administrator.messengerPlatformUserId}
+                          {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_a19c2c9d}{administrator.messengerPlatformUserId}
                         </Text>
                       ) : null}
                     </Stack>
@@ -490,8 +491,7 @@ export function AdministratorsSettingsPanel({
                             onClick={() => setScopeAdministrator(administrator)}
                             variant="pill"
                           >
-                            Группы посещений
-                          </Button>
+                            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_c50470cc}</Button>
                         ) : null}
                         {canEditStaffTarget(administrator) ? (
                           <Button
@@ -499,14 +499,12 @@ export function AdministratorsSettingsPanel({
                             onClick={(event) => openEditModal(administrator, event.currentTarget)}
                             variant="pill"
                           >
-                            Редактировать
-                          </Button>
+                            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_59792556}</Button>
                         ) : null}
                       </ResponsiveButtonGroup>
                     ) : (
                       <Badge color="gray" radius="xl" variant="light">
-                        Только просмотр
-                      </Badge>
+                        {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_65329f77}</Badge>
                     )}
                   </Group>
                 </Paper>
@@ -669,7 +667,7 @@ function AdministratorFormError({
     <Alert
       color="red"
       icon={<IconAlertCircle size={18} />}
-      title="Сохранение не выполнено"
+      title={fe11SettingsUsersText.administratorsSettingsPanel_title_09e1875e}
       variant="light"
     >
       <Stack gap="sm">
@@ -681,8 +679,7 @@ function AdministratorFormError({
               onClick={onOpenAttendanceScope}
               variant="secondary"
             >
-              Открыть группы посещений
-            </Button>
+              {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_5336bb8f}</Button>
           </div>
         ) : null}
       </Stack>
@@ -726,15 +723,14 @@ function AdministratorBranchField({
       <Alert
         color="red"
         icon={<IconAlertCircle size={18} />}
-        title="Филиалы не загрузились"
+        title={fe11SettingsUsersText.administratorsSettingsPanel_title_9d518c0f}
         variant="light"
       >
         <Stack gap="sm">
           <Text size="sm">{branchesError}</Text>
           <div>
             <Button leftSection={<IconRefresh size={18} />} onClick={onRetry} variant="secondary">
-              Повторить
-            </Button>
+              {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_5189135a}</Button>
           </div>
         </Stack>
       </Alert>
@@ -746,26 +742,22 @@ function AdministratorBranchField({
       <Alert
         color="yellow"
         icon={<IconAlertCircle size={18} />}
-        title="Филиал обязателен"
+        title={fe11SettingsUsersText.administratorsSettingsPanel_title_1f20f670}
         variant="light"
       >
         <Stack gap="sm">
           <Text fw={700} size="sm">
-            Нет активных филиалов
-          </Text>
+            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_b934965b}</Text>
           <Text size="sm">
-            Для администратора нужен активный филиал. Суперадминистратор сохраняется без филиала.
-          </Text>
+            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_af8fd683}</Text>
           {onOpenBranches ? (
             <div>
               <Button onClick={onOpenBranches} variant="secondary">
-                Открыть филиалы и залы
-              </Button>
+                {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_1ec6f510}</Button>
             </div>
           ) : (
             <Text c="dimmed" size="sm">
-              Попросите главного тренера создать или восстановить филиал.
-            </Text>
+              {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_c1f3ef35}</Text>
           )}
         </Stack>
       </Alert>
@@ -778,9 +770,9 @@ function AdministratorBranchField({
       data={buildAdministratorBranchOptions(branches, administrator)}
       disabled={branchesLoading}
       error={error}
-      label="Филиал администратора"
+      label={fe11SettingsUsersText.administratorsSettingsPanel_label_3301ad7a}
       onChange={(nextValue) => onChange(nextValue ?? '')}
-      placeholder={branchesLoading ? 'Загружаем филиалы...' : 'Выберите филиал'}
+      placeholder={branchesLoading ? fe11SettingsUsersText.administratorsSettingsPanel_string_13116bcf : fe11SettingsUsersText.administratorsSettingsPanel_string_4c5ee5d8}
       value={value || null}
     />
   )
@@ -804,13 +796,11 @@ function SettingsFormActions({
           loading={submitting}
           type="submit"
         >
-          Сохранить
-        </Button>
+          {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_b4d30cae}</Button>
       )}
       secondaryAction={(
         <Button disabled={submitting} onClick={onCancel} variant="secondary">
-          Отменить
-        </Button>
+          {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_7c47f729}</Button>
       )}
     />
   )
@@ -861,13 +851,13 @@ function resolveModalTitle(
   role: UserRole | null,
 ) {
   if (modalState?.mode === 'create') {
-    return 'Новый администратор'
+    return fe11SettingsUsersText.administratorsSettingsPanel_string_c1351bd6
   }
 
   if (modalState?.mode === 'edit') {
     return role === 'SuperAdministrator'
-      ? 'Редактирование суперадминистратора'
-      : 'Редактирование администратора'
+      ? fe11SettingsUsersText.administratorsSettingsPanel_string_7ff6dab6
+      : fe11SettingsUsersText.administratorsSettingsPanel_string_22f2b253
   }
 
   return undefined
@@ -875,8 +865,8 @@ function resolveModalTitle(
 
 function resolveActiveLabel(role: UserRole | null) {
   return role === 'SuperAdministrator'
-    ? 'Суперадминистратор активен'
-    : 'Администратор активен'
+    ? fe11SettingsUsersText.administratorsSettingsPanel_string_d9ac9f77
+    : fe11SettingsUsersText.administratorsSettingsPanel_string_b7e3374d
 }
 
 function isAdministratorBranchBlocked(
@@ -955,8 +945,8 @@ function formatAttendanceScopeSummary(user: UserListItem) {
   const count = user.attendanceGroupGrantCount ?? 0
 
   return count > 0
-    ? `Посещения: ${formatGroupWord(count)}`
-    : 'Посещения: не назначены'
+    ? fe11SettingsUsersText.administratorsSettingsPanel_template_8a059471(formatGroupWord(count))
+    : fe11SettingsUsersText.administratorsSettingsPanel_string_9a4fb41a
 }
 
 function formatGroupWord(count: number) {
@@ -964,14 +954,14 @@ function formatGroupWord(count: number) {
   const mod100 = count % 100
 
   if (mod10 === 1 && mod100 !== 11) {
-    return `${count} группа`
+    return fe11SettingsUsersText.administratorsSettingsPanel_template_67192921(count)
   }
 
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return `${count} группы`
+    return fe11SettingsUsersText.administratorsSettingsPanel_template_2c46082c(count)
   }
 
-  return `${count} групп`
+  return fe11SettingsUsersText.administratorsSettingsPanel_template_8b720813(count)
 }
 
 function buildAdministratorBranchOptions(
@@ -990,8 +980,8 @@ function buildAdministratorBranchOptions(
     options.push({
       value: administrator.branchId,
       label: administrator.branchName
-        ? `${administrator.branchName} (архивный)`
-        : 'Архивный филиал',
+        ? fe11SettingsUsersText.administratorsSettingsPanel_template_cc8da12a(administrator.branchName)
+        : fe11SettingsUsersText.administratorsSettingsPanel_string_0a14a43a,
     })
   }
 

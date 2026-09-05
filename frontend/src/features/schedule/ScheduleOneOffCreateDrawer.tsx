@@ -23,6 +23,8 @@ import {
 } from '../../lib/api'
 import { formatScheduleProblemCode } from './scheduleActionReasons'
 import { StickyFormActions } from '../shared/ux'
+import { fe3ScheduleMutationsText } from '../../resources/fe-3-schedule-mutations'
+
 
 type ScheduleOneOffCreateDrawerProps = {
   defaultDate: string
@@ -81,7 +83,7 @@ export function ScheduleOneOffCreateDrawer({
       opened={opened}
       position="bottom"
       size="auto"
-      title="Разовое занятие"
+      title={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_title_4196b8be}
       withinPortal
     >
       <ScheduleOneOffCreateForm
@@ -208,12 +210,12 @@ export function ScheduleOneOffCreateForm({
       focusFirstInvalidField(nextErrors)
       setFormError(
         formatScheduleProblemCode(error.code) ??
-        'Не удалось проверить разовое занятие. Проверьте поля и попробуйте снова.',
+        fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_string_69d77b83,
       )
       return
     }
 
-    setFormError('Не удалось проверить разовое занятие.')
+    setFormError(fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_setFormError_39b8f8e7)
   }
 
   function focusFirstInvalidField(errors: OneOffFieldErrors) {
@@ -234,7 +236,7 @@ export function ScheduleOneOffCreateForm({
   }
 
   function cancel() {
-    if (dirty && !window.confirm('Отменить создание занятия и потерять черновик?')) {
+    if (dirty && !window.confirm(fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_windowConfirm_f91e8f20)) {
       return
     }
 
@@ -252,9 +254,9 @@ export function ScheduleOneOffCreateForm({
           <Select
             data={filterOptions.groups}
             error={fieldErrors.groupId}
-            label="Группа"
+            label={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_label_907efbd4}
             onChange={(value) => updateDraft('groupId', value ?? '')}
-            placeholder="Выберите группу"
+            placeholder={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_placeholder_298a07c0}
             ref={groupRef}
             searchable
             value={draft.groupId || null}
@@ -262,7 +264,7 @@ export function ScheduleOneOffCreateForm({
           <Group align="flex-start" grow>
             <TextInput
               error={fieldErrors.lessonDate}
-              label="Дата"
+              label={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_label_232a0ead}
               max="9999-12-31"
               min="1900-01-01"
               onChange={(event) => updateDraft('lessonDate', event.currentTarget.value)}
@@ -272,7 +274,7 @@ export function ScheduleOneOffCreateForm({
             />
             <TextInput
               error={fieldErrors.startTime}
-              label="Время"
+              label={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_label_6711f073}
               onChange={(event) => updateDraft('startTime', event.currentTarget.value)}
               ref={timeRef}
               type="time"
@@ -283,22 +285,22 @@ export function ScheduleOneOffCreateForm({
             <NumberInput
               allowDecimal={false}
               error={fieldErrors.durationMinutes}
-              label="Длительность"
+              label={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_label_2a326071}
               max={180}
               min={1}
               onChange={(value) =>
                 updateDraft('durationMinutes', typeof value === 'number' ? value : '')
               }
               ref={durationRef}
-              suffix=" мин"
+              suffix={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_suffix_84d5d93d}
               value={draft.durationMinutes}
             />
             <Select
               data={filterOptions.halls}
               error={fieldErrors.hallId}
-              label="Зал"
+              label={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_label_182f7c57}
               onChange={(value) => updateDraft('hallId', value ?? '')}
-              placeholder="Выберите зал"
+              placeholder={fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_placeholder_d52c67f8}
               ref={hallRef}
               searchable
               value={draft.hallId || null}
@@ -315,12 +317,12 @@ export function ScheduleOneOffCreateForm({
             <Paper className="schedule-create-preview" radius="md" withBorder>
               <Stack gap="sm">
                 <Stack gap={2}>
-                  <Text fw={900}>Проверьте занятие перед созданием</Text>
+                  <Text fw={900}>{fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_jsxText_21ebe345}</Text>
                   <Text c="dimmed" size="sm">
-                    {preview.lesson.groupName} · {formatLessonDate(preview.lesson.lessonDate)} · {formatTimeRange(preview.lesson)}
+                    {preview.lesson.groupName} {fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_jsxText_a137f17a}{formatLessonDate(preview.lesson.lessonDate)} {fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_jsxText_a137f17a}{formatTimeRange(preview.lesson)}
                   </Text>
                   <Text c="dimmed" size="sm">
-                    {preview.lesson.hallName} · {preview.lesson.branchName}
+                    {preview.lesson.hallName} {fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_jsxText_a137f17a}{preview.lesson.branchName}
                   </Text>
                 </Stack>
                 {preview.warnings.length > 0 ? (
@@ -331,14 +333,13 @@ export function ScheduleOneOffCreateForm({
                         icon={<IconAlertTriangle size={18} />}
                         key={`${warning.code}:${index}`}
                       >
-                        {warning.message || 'Проверьте предупреждение перед подтверждением.'}
+                        {warning.message || fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_string_52af7b72}
                       </Alert>
                     ))}
                   </Stack>
                 ) : null}
                 <Text c="dimmed" size="sm">
-                  Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
-                </Text>
+                  {fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_jsxText_cce698e3}{formatExpiresAt(preview.expiresAt)}{fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_jsxText_cdb4ee2a}</Text>
               </Stack>
             </Paper>
           ) : null}
@@ -353,20 +354,18 @@ export function ScheduleOneOffCreateForm({
                 onClick={() => void confirmCreate()}
                 type="button"
               >
-                Создать занятие
-              </Button>
+                {fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_jsxText_16568d17}</Button>
             ) : (
               <Button
                 leftSection={<IconCalendarPlus size={18} />}
                 loading={submitting === 'preview'}
                 type="submit"
               >
-                {formError ? 'Обновить предпросмотр' : 'Получить предпросмотр'}
+                {formError ? fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_string_62b92aa4 : fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_string_857a90c1}
               </Button>
             )}
             secondaryAction={<Button disabled={pending} onClick={cancel} type="button" variant="light">
-              Отмена
-            </Button>}
+              {fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_jsxText_8fbe9b75}</Button>}
           />
         </Stack>
       </form>
@@ -443,7 +442,7 @@ function parseIsoDate(value: string) {
 function formatExpiresAt(value: string) {
   const expiresAt = new Date(value)
   if (Number.isNaN(expiresAt.getTime())) {
-    return 'окончания срока предпросмотра'
+    return fe3ScheduleMutationsText.scheduleOneOffCreateDrawer_string_4371fe93
   }
 
   return new Intl.DateTimeFormat('ru-RU', {

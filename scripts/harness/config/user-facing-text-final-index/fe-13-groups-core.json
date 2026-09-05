@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "FE-13-groups-core",
+  "entry_count": 2,
+  "entries": [
+    {
+      "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        348
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        179
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/groups",
+      "slice": "FE-13-groups-core",
+      "review_status": "accepted"
+    }
+  ]
+}

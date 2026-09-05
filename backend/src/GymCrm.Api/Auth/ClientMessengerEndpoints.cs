@@ -149,18 +149,18 @@ internal static class ClientMessengerEndpoints
             ClientMessengerError.Forbidden => TypedResults.Forbid(),
             ClientMessengerError.Validation => TypedResults.ValidationProblem(result.ValidationErrors ?? new Dictionary<string, string[]>()),
             ClientMessengerError.NotConnected => TypedResults.Problem(
-                title: "Telegram is not connected.",
-                detail: "Connect the client Telegram account before sending messages.",
+                title: global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientMessengerEndpointsLine15293f6981b,
+                detail: global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientMessengerEndpointsLine15360d64715,
                 statusCode: StatusCodes.Status409Conflict),
             ClientMessengerError.IdempotencyConflict => TypedResults.Problem(
-                title: "Idempotency conflict.",
-                detail: "A message with the same idempotency key has different content.",
+                title: global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientMessengerEndpointsLine156D513a3a1,
+                detail: global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientMessengerEndpointsLine157538bb04e,
                 statusCode: StatusCodes.Status409Conflict),
             ClientMessengerError.BotNotConfigured => TypedResults.Problem(
-                title: "Client Telegram bot is not configured.",
+                title: global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientMessengerEndpointsLine160Ab3a6efa,
                 statusCode: StatusCodes.Status503ServiceUnavailable),
             ClientMessengerError.TelegramTransportFailure => TypedResults.Problem(
-                title: "Telegram request failed.",
+                title: global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientMessengerEndpointsLine16378914546,
                 statusCode: StatusCodes.Status502BadGateway),
             _ => TypedResults.Problem(statusCode: StatusCodes.Status500InternalServerError)
         };

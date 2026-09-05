@@ -28,6 +28,8 @@ import {
   formatScheduleProblemCode,
 } from './scheduleActionReasons'
 import { StickyFormActions } from '../shared/ux'
+import { fe3ScheduleMutationsText } from '../../resources/fe-3-schedule-mutations'
+
 
 type ScheduleLessonChangeDrawerProps = {
   hallOptions: Array<{ value: string; label: string }>
@@ -81,7 +83,7 @@ export function ScheduleLessonChangeDrawer({
       opened={opened}
       position="bottom"
       size="auto"
-      title="Изменить занятие"
+      title={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_title_06a7be8a}
       withinPortal
     >
       <ScheduleLessonChangeForm
@@ -212,12 +214,12 @@ export function ScheduleLessonChangeForm({
       focusFirstInvalidField(nextErrors)
       setFormError(
         formatScheduleProblemCode(error.code) ??
-        'Не удалось проверить изменение занятия. Проверьте поля и попробуйте снова.',
+        fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_7242539b,
       )
       return
     }
 
-    setFormError('Не удалось проверить изменение занятия. Проверьте поля и попробуйте снова.')
+    setFormError(fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_7242539b)
   }
 
   function focusFirstInvalidField(errors: ChangeFieldErrors) {
@@ -236,7 +238,7 @@ export function ScheduleLessonChangeForm({
   }
 
   function cancel() {
-    if (dirty && !window.confirm('Отменить изменение занятия и потерять черновик?')) {
+    if (dirty && !window.confirm(fe3ScheduleMutationsText.scheduleLessonChangeDrawer_windowConfirm_762d3769)) {
       return
     }
 
@@ -254,15 +256,15 @@ export function ScheduleLessonChangeForm({
           <Stack gap={2}>
             <Text fw={900}>{lesson.groupName}</Text>
             <Text c="dimmed" size="sm">
-              Сейчас: {formatLessonDate(lesson.lessonDate)} · {formatTimeRange(lesson)}
+              {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_2aa98ec1}{formatLessonDate(lesson.lessonDate)} {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_a137f17a}{formatTimeRange(lesson)}
             </Text>
           </Stack>
           <SegmentedControl
-            aria-label="Область изменения расписания"
+            aria-label={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_ariaLabel_594acbf8}
             data={[
-              { value: 'Occurrence', label: 'Это занятие' },
-              { value: 'ThisAndFuture', label: 'С этого дня' },
-              { value: 'EntireSeries', label: 'Вся серия' },
+              { value: 'Occurrence', label: fe3ScheduleMutationsText.scheduleLessonChangeDrawer_label_66e7112f },
+              { value: 'ThisAndFuture', label: fe3ScheduleMutationsText.scheduleLessonChangeDrawer_label_eafa287c },
+              { value: 'EntireSeries', label: fe3ScheduleMutationsText.scheduleLessonChangeDrawer_label_a2706736 },
             ]}
             disabled={lockScope}
             onChange={(value) =>
@@ -271,13 +273,12 @@ export function ScheduleLessonChangeForm({
           />
           {draft.scope !== 'Occurrence' ? (
             <Alert color="blue" icon={<IconAlertTriangle size={18} />}>
-              Изменяются параметры серии занятий. Поля тренеров здесь не меняются.
-            </Alert>
+              {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_c26ffc1f}</Alert>
           ) : null}
           <Group align="flex-start" grow>
             <TextInput
               error={fieldErrors.newLessonDate}
-              label="Дата"
+              label={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_label_232a0ead}
               max="9999-12-31"
               min="1900-01-01"
               onChange={(event) => updateDraft('newLessonDate', event.currentTarget.value)}
@@ -287,7 +288,7 @@ export function ScheduleLessonChangeForm({
             />
             <TextInput
               error={fieldErrors.startTime}
-              label="Время"
+              label={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_label_6711f073}
               onChange={(event) => updateDraft('startTime', event.currentTarget.value)}
               ref={timeRef}
               type="time"
@@ -298,22 +299,22 @@ export function ScheduleLessonChangeForm({
             <NumberInput
               allowDecimal={false}
               error={fieldErrors.durationMinutes}
-              label="Длительность"
+              label={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_label_2a326071}
               max={180}
               min={1}
               onChange={(value) =>
                 updateDraft('durationMinutes', typeof value === 'number' ? value : '')
               }
               ref={durationRef}
-              suffix=" мин"
+              suffix={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_suffix_84d5d93d}
               value={draft.durationMinutes}
             />
             <Select
               data={options}
               error={fieldErrors.hallId}
-              label="Зал"
+              label={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_label_182f7c57}
               onChange={(value) => updateDraft('hallId', value ?? '')}
-              placeholder="Выберите зал"
+              placeholder={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_placeholder_d52c67f8}
               ref={hallRef}
               searchable
               value={draft.hallId || null}
@@ -330,12 +331,12 @@ export function ScheduleLessonChangeForm({
             <Paper className="schedule-change-preview" radius="md" withBorder>
               <Stack gap="sm">
                 <Stack gap={2}>
-                  <Text fw={900}>Проверьте изменение перед сохранением</Text>
+                  <Text fw={900}>{fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_6cce5c5e}</Text>
                   <Text c="dimmed" size="sm">
-                    {preview.lesson.groupName} · {formatLessonDate(preview.lesson.lessonDate)} · {formatTimeRange(preview.lesson)}
+                    {preview.lesson.groupName} {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_a137f17a}{formatLessonDate(preview.lesson.lessonDate)} {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_a137f17a}{formatTimeRange(preview.lesson)}
                   </Text>
                   <Text c="dimmed" size="sm">
-                    {preview.lesson.hallName} · {preview.lesson.branchName}
+                    {preview.lesson.hallName} {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_a137f17a}{preview.lesson.branchName}
                   </Text>
                 </Stack>
                 {preview.warnings.length > 0 ? (
@@ -352,8 +353,7 @@ export function ScheduleLessonChangeForm({
                   </Stack>
                 ) : null}
                 <Text c="dimmed" size="sm">
-                  Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
-                </Text>
+                  {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_cce698e3}{formatExpiresAt(preview.expiresAt)}{fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_cdb4ee2a}</Text>
                 <SeriesImpactSummary impact={preview.impact} />
               </Stack>
             </Paper>
@@ -369,20 +369,18 @@ export function ScheduleLessonChangeForm({
                 onClick={() => void confirmChange()}
                 type="button"
               >
-                Сохранить изменение
-              </Button>
+                {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_3c2e873d}</Button>
             ) : (
               <Button
                 leftSection={<IconEdit size={18} />}
                 loading={submitting === 'preview'}
                 type="submit"
               >
-                {formError ? 'Обновить предпросмотр' : 'Получить предпросмотр'}
+                {formError ? fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_62b92aa4 : fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_857a90c1}
               </Button>
             )}
             secondaryAction={<Button disabled={pending} onClick={cancel} type="button" variant="light">
-              Отмена
-            </Button>}
+              {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_8fbe9b75}</Button>}
           />
         </Stack>
       </form>
@@ -430,16 +428,14 @@ function SeriesImpactSummary({
   return (
     <Stack gap="xs">
       <Text fw={800} size="sm">
-        Область: {formatScopeLabel(impact.scope)}
+        {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_720752c6}{formatScopeLabel(impact.scope)}
       </Text>
       <Text c="dimmed" size="sm">
-        Изменение применяется с {formatLessonDate(impact.startsOn)}.
-        {impact.affectsFutureProjection ? ' Будущие занятия будут пересчитаны.' : ''}
+        {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_247c84d3}{formatLessonDate(impact.startsOn)}{fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_cdb4ee2a}{impact.affectsFutureProjection ? fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_ab0f3256 : ''}
       </Text>
       {skippedCount > 0 ? (
         <Alert color="yellow" icon={<IconAlertTriangle size={18} />}>
-          Пропущено занятий: {skippedCount}. Первое: {formatLessonDate(impact.skipped[0].lessonDate)} — {formatSkippedReason(impact.skipped[0].reason)}.
-        </Alert>
+          {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_ed0812c0}{skippedCount}{fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_fc3d1d5a}{formatLessonDate(impact.skipped[0].lessonDate)} {fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_bda05058}{formatSkippedReason(impact.skipped[0].reason)}{fe3ScheduleMutationsText.scheduleLessonChangeDrawer_jsxText_cdb4ee2a}</Alert>
       ) : null}
     </Stack>
   )
@@ -447,14 +443,14 @@ function SeriesImpactSummary({
 
 function formatScopeLabel(scope: ScheduleLessonChangeRequest['scope']) {
   if (scope === 'ThisAndFuture') {
-    return 'с этого дня'
+    return fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_9d63ad76
   }
 
   if (scope === 'EntireSeries') {
-    return 'вся серия'
+    return fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_648188fd
   }
 
-  return 'только это занятие'
+  return fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_5e90afd8
 }
 
 function formatSkippedReason(reason: string) {
@@ -501,7 +497,7 @@ function parseIsoDate(value: string) {
 function formatExpiresAt(value: string) {
   const expiresAt = new Date(value)
   if (Number.isNaN(expiresAt.getTime())) {
-    return 'окончания срока предпросмотра'
+    return fe3ScheduleMutationsText.scheduleLessonChangeDrawer_string_4371fe93
   }
 
   return new Intl.DateTimeFormat('ru-RU', {

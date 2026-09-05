@@ -17,6 +17,8 @@ import { MembershipCorrectionPanel } from './MembershipCorrectionPanel'
 import { MembershipGroupTransferSurface } from './MembershipGroupTransferSurface'
 import { MembershipPurchasePanel } from './MembershipPurchasePanel'
 import { MembershipRenewPanel } from './MembershipRenewPanel'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 type ClientMembershipSectionProps = {
   actionMode: MembershipActionMode | null
@@ -54,14 +56,13 @@ export function ClientMembershipSection({
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <div>
-            <Text fw={700}>История абонемента</Text>
+            <Text fw={700}>{fe7ClientMembershipText.clientMembershipSection_jsxText_bf6f178a}</Text>
             <Text c="dimmed" size="sm">
-              Изменения срока, суммы и оплаты по клиенту.
-            </Text>
+              {fe7ClientMembershipText.clientMembershipSection_jsxText_55ab75c7}</Text>
           </div>
 
           <Badge color="sand" radius="sm" variant="light">
-            Версий: {client.membershipHistory.length}
+            {fe7ClientMembershipText.clientMembershipSection_jsxText_2239797e}{client.membershipHistory.length}
           </Badge>
           {canPurchaseMembership ? (
             <Button
@@ -69,8 +70,7 @@ export function ClientMembershipSection({
               onClick={() => onActionModeChange('purchase')}
               variant={actionMode === 'purchase' ? 'filled' : 'light'}
             >
-              Новый абонемент
-            </Button>
+              {fe7ClientMembershipText.clientMembershipSection_jsxText_a946d490}</Button>
           ) : null}
         </Group>
 
@@ -111,8 +111,7 @@ export function ClientMembershipSection({
         <Stack gap="sm">
           {currentMemberships.length === 0 ? (
             <Text c="dimmed" size="sm">
-              Текущих абонементов нет.
-            </Text>
+              {fe7ClientMembershipText.clientMembershipSection_jsxText_10110ccf}</Text>
           ) : (
             currentMemberships.map((membership) => (
               <CurrentMembershipCard
@@ -184,33 +183,30 @@ function CurrentMembershipCard({
             </Badge>
             {membership.coverageKind === 'AllGroups' ? (
               <Badge color="blue" radius="sm" variant="light">
-                Все группы
-              </Badge>
+                {fe7ClientMembershipText.clientMembershipSection_jsxText_d71b0c68}</Badge>
             ) : null}
           </Group>
         </Group>
         {membership.entitlementState === 'LegacyTargetMissing' ? (
           <Text c="var(--crm-status-warning)" size="sm">
-            Абонемент без групп не даёт доступ. Исправьте группы перед использованием.
-          </Text>
+            {fe7ClientMembershipText.clientMembershipSection_jsxText_71606622}</Text>
         ) : null}
         <div className="membership-target-chip-list">
           {membership.targetGroups.length === 0 ? (
             <Badge color="yellow" radius="sm" variant="light">
-              Абонемент без групп
-            </Badge>
+              {fe7ClientMembershipText.clientMembershipSection_jsxText_9a0b1924}</Badge>
           ) : (
             membership.targetGroups.map((target) => (
               <Badge key={`${membership.id}-${target.groupId}`} radius="sm" variant="light">
-                {target.position + 1} {target.position === 0 ? 'Отчётность · ' : ''}{target.groupName}
+                {target.position + 1} {target.position === 0 ? fe7ClientMembershipText.clientMembershipSection_string_68f7b035 : ''}{target.groupName}
               </Badge>
             ))
           )}
         </div>
         <SimpleGrid cols={{ base: 1, sm: 3 }}>
-          <Info label="Сумма" value={formatCurrencyValue(membership.grossAmount)} />
-          <Info label="Расчёт" value={formatMembershipPricingProvenance(membership)} />
-          <Info label="Дата оплаты" value={formatDateValue(membership.paymentDate)} />
+          <Info label={fe7ClientMembershipText.clientMembershipSection_label_46a0edbb} value={formatCurrencyValue(membership.grossAmount)} />
+          <Info label={fe7ClientMembershipText.clientMembershipSection_label_b3ae4c00} value={formatMembershipPricingProvenance(membership)} />
+          <Info label={fe7ClientMembershipText.clientMembershipSection_label_6611d56d} value={formatDateValue(membership.paymentDate)} />
         </SimpleGrid>
         <Group gap="sm" wrap="wrap">
           {canRenew ? (
@@ -219,8 +215,7 @@ function CurrentMembershipCard({
               onClick={() => onActionModeChange('renew', membership.id)}
               variant={actionMode === 'renew' && isSelected ? 'filled' : 'light'}
             >
-              Продлить
-            </Button>
+              {fe7ClientMembershipText.clientMembershipSection_jsxText_659ad690}</Button>
           ) : null}
           {canCorrect ? (
             <Button
@@ -228,7 +223,7 @@ function CurrentMembershipCard({
               onClick={() => onActionModeChange('correct', membership.id)}
               variant={actionMode === 'correct' && isSelected ? 'filled' : 'light'}
             >
-              {membership.entitlementState === 'LegacyTargetMissing' ? 'Исправить группы' : 'Исправить'}
+              {membership.entitlementState === 'LegacyTargetMissing' ? fe7ClientMembershipText.clientMembershipSection_string_de3830e7 : fe7ClientMembershipText.clientMembershipSection_string_8d0e3e8b}
             </Button>
           ) : null}
         </Group>
@@ -238,11 +233,11 @@ function CurrentMembershipCard({
 }
 
 const entitlementStateLabels: Record<ClientMembership['entitlementState'], string> = {
-  Active: 'Активен',
-  Future: 'Будущий',
-  Expired: 'Истёк',
-  UsedSingleVisit: 'Разовое использовано',
-  LegacyTargetMissing: 'Без групп',
+  Active: fe7ClientMembershipText.clientMembershipSection_active_a87a4b39,
+  Future: fe7ClientMembershipText.clientMembershipSection_future_a01345ca,
+  Expired: fe7ClientMembershipText.clientMembershipSection_expired_85d3fd5f,
+  UsedSingleVisit: fe7ClientMembershipText.clientMembershipSection_usedSingleVisit_a091d291,
+  LegacyTargetMissing: fe7ClientMembershipText.clientMembershipSection_legacyTargetMissing_214235ce,
 }
 
 function Info({ label, value }: { label: string; value: string }) {

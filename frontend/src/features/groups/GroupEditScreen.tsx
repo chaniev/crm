@@ -45,6 +45,8 @@ import {
   useGroupForm,
   type GroupFormValues,
 } from './groupFormMapping'
+import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
+
 
 export type GroupEditScreenProps = {
   groupId: string
@@ -67,7 +69,7 @@ export function GroupEditScreen({
   const [groupTypeOptions, setGroupTypeOptions] = useState<GroupType[]>([])
   const [groupClients, setGroupClients] = useState<GroupClient[]>([])
   const [groupDetails, setGroupDetails] = useState<TrainingGroupDetails | null>(null)
-  const [groupName, setGroupName] = useState(GROUPS_DEFAULT_NAME)
+  const [groupName, setGroupName] = useState<string>(GROUPS_DEFAULT_NAME)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
@@ -125,7 +127,7 @@ export function GroupEditScreen({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить данные группы.',
+            : fe13GroupsCoreText.groupEditScreen_string_6685ec5f,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -184,8 +186,8 @@ export function GroupEditScreen({
 
       showAppNotification({
         id: `group-edit-success-${groupId}`,
-        title: 'Группа обновлена',
-        message: `Изменения группы «${updatedGroup.name}» сохранены.`,
+        title: fe13GroupsCoreText.groupEditScreen_title_3440e0c0,
+        message: fe13GroupsCoreText.groupEditScreen_message_cd1b9038(updatedGroup.name),
         color: 'teal',
       })
 
@@ -204,7 +206,7 @@ export function GroupEditScreen({
         return false
       }
 
-      setFormError('Не удалось сохранить изменения группы.')
+      setFormError(fe13GroupsCoreText.groupEditScreen_setFormError_4200416e)
       focusGroupFormRecovery()
       return false
     } finally {
@@ -267,7 +269,7 @@ export function GroupEditScreen({
     const validation = form.validate()
     if (validation.hasErrors) {
       setPendingClientId(null)
-      setFormError('Проверьте обязательные поля группы.')
+      setFormError(fe13GroupsCoreText.groupEditScreen_setFormError_e9c0fdee)
       focusGroupFormRecovery()
       return
     }
@@ -313,15 +315,14 @@ export function GroupEditScreen({
           onClick={onBack}
           variant="default"
         >
-          К списку групп
-        </Button>
+          {fe13GroupsCoreText.groupEditScreen_jsxText_322693c9}</Button>
       )}
-      title={`Настройка группы «${groupName}»`}
+      title={fe13GroupsCoreText.groupEditScreen_template_3afee36c(groupName)}
     >
 
       {loading ? (
         <PageSection>
-          <LoadingState label="Загружаем группу..." />
+          <LoadingState label={fe13GroupsCoreText.groupEditScreen_label_03b534a0} />
         </PageSection>
       ) : null}
 
@@ -329,7 +330,7 @@ export function GroupEditScreen({
         <PageSection>
           <ErrorState
             message={loadError}
-            title="Экран редактирования не загрузился"
+            title={fe13GroupsCoreText.groupEditScreen_title_9728304a}
           />
         </PageSection>
       ) : null}
@@ -344,7 +345,7 @@ export function GroupEditScreen({
               header: 'group-client-navigation-modal__header',
             }}
             closeButtonProps={{
-              'aria-label': 'Отменить переход к карточке клиента',
+              'aria-label': fe13GroupsCoreText.groupEditScreen_ariaLabel_08e8f4e9,
               disabled: submitting,
             }}
             closeOnClickOutside={!submitting}
@@ -354,15 +355,14 @@ export function GroupEditScreen({
             overlayProps={{ backgroundOpacity: 0.18, blur: 2 }}
             returnFocus={false}
             size="min(34rem, calc(100vw - 32px))"
-            title="Сохранить изменения в группе?"
+            title={fe13GroupsCoreText.groupEditScreen_title_2122d00c}
             trapFocus
             transitionProps={{ duration: 0 }}
             withCloseButton
           >
             <Stack gap="lg">
               <Text size="sm">
-                Перед открытием карточки выберите, что сделать с текущими изменениями группы.
-              </Text>
+                {fe13GroupsCoreText.groupEditScreen_jsxText_e4748b11}</Text>
               <div className="group-client-navigation-modal__actions">
                 <ResponsiveButtonGroup>
                   <Button
@@ -370,24 +370,21 @@ export function GroupEditScreen({
                     onClick={() => void saveAndOpenPendingClient()}
                     type="button"
                   >
-                    Сохранить
-                  </Button>
+                    {fe13GroupsCoreText.groupEditScreen_jsxText_b4d30cae}</Button>
                   <Button
                     disabled={submitting}
                     onClick={discardAndOpenPendingClient}
                     type="button"
                     variant="secondary"
                   >
-                    Не сохранять
-                  </Button>
+                    {fe13GroupsCoreText.groupEditScreen_jsxText_735b1ef6}</Button>
                   <Button
                     disabled={submitting}
                     onClick={cancelPendingClientNavigation}
                     type="button"
                     variant="subtle"
                   >
-                    Отмена
-                  </Button>
+                    {fe13GroupsCoreText.groupEditScreen_jsxText_8fbe9b75}</Button>
                 </ResponsiveButtonGroup>
               </div>
             </Stack>
@@ -405,7 +402,7 @@ export function GroupEditScreen({
               showHallField={false}
               showScheduleFields={false}
               showTrainerField={false}
-              submitLabel="Сохранить изменения"
+              submitLabel={fe13GroupsCoreText.groupEditScreen_submitLabel_744cf2b2}
               submitting={submitting}
               trainerOptions={trainerOptions}
             />
@@ -433,17 +430,17 @@ export function GroupEditScreen({
               <SectionHeader
                 actions={(
                   <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
-                    Всего: {groupClients.length}
+                    {fe13GroupsCoreText.groupEditScreen_jsxText_f8ba76ae}{groupClients.length}
                   </Badge>
                 )}
-                title="Клиенты группы"
+                title={fe13GroupsCoreText.groupEditScreen_title_c9c7719c}
               />
 
               {groupClients.length === 0 ? (
                 <EmptyState
-                  description="После этапов клиентской базы здесь будет виден фактический состав группы."
+                  description={fe13GroupsCoreText.groupEditScreen_description_a64fe90a}
                   icon={<IconUsers size={24} />}
-                  title="В группе пока нет клиентов"
+                  title={fe13GroupsCoreText.groupEditScreen_title_48aff34a}
                 />
               ) : (
                 <Stack gap="sm">

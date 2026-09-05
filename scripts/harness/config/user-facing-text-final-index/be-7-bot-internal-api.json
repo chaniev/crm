@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "BE-7-bot-internal-api",
+  "entry_count": 6,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"BotInternalApiTokenMissing\"",
+      "value": "BotInternalApiTokenMissing",
+      "fingerprint": "sha256:bc9a0ec69329e2e3f00f75298ae30522f379007acf7bd5ed783d4dbaf48037d1",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"BotInternalApiTokenMissing\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        53
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"TelegramUserNotConfigured\"",
+      "value": "TelegramUserNotConfigured",
+      "fingerprint": "sha256:9c03c8797e5822136aad9113fbf718e3f9ebe59302c18cf53f426a245193b26c",
+      "context": {
+        "kind": "source-line",
+        "name": "title = \"TelegramUserNotConfigured\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        355
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"CrmUserInactive\"",
+      "value": "CrmUserInactive",
+      "fingerprint": "sha256:1d4ac2c0dd09b40187a92870efca1d79f623725878b85b42b83c724a2efd4d9d",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"CrmUserInactive\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        359
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"PasswordChangeRequired\"",
+      "value": "PasswordChangeRequired",
+      "fingerprint": "sha256:5c613e883f93a969a539cd5d6cf34fb6eb98e7618a20bbf30c41f9868656bfb5",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"PasswordChangeRequired\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        363
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"IdempotencyConflict\"",
+      "value": "IdempotencyConflict",
+      "fingerprint": "sha256:689c77bcc8f4217ccf3304615061f00fa90d1216997dd5b5b652b9e11a65102a",
+      "context": {
+        "kind": "source-line",
+        "name": "title = \"IdempotencyConflict\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        379
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"TemporaryBackendError\"",
+      "value": "TemporaryBackendError",
+      "fingerprint": "sha256:51ce3ae4877c311101e8aeb5192ef692ce87feb6726b930e4474fcc38d6384df",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"TemporaryBackendError\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        391
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    }
+  ]
+}

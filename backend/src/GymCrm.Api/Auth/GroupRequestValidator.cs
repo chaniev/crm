@@ -14,7 +14,7 @@ internal static class GroupRequestValidator
 
         if (hasPageFamily && hasOffsetFamily)
         {
-            errors["paging"] = ["Use either page/pageSize or skip/take paging parameters, not both."];
+            errors["paging"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupRequestValidatorLine1798418554];
             return errors;
         }
 
@@ -37,7 +37,7 @@ internal static class GroupRequestValidator
                 var skipValue = ((long)resolvedPage - 1) * resolvedPageSize;
                 if (skipValue > int.MaxValue)
                 {
-                    errors["page"] = ["Resolved paging offset is too large."];
+                    errors["page"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupRequestValidatorLine407fd48611];
                 }
             }
 

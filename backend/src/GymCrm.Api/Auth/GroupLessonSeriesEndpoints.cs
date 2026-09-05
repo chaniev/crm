@@ -256,7 +256,7 @@ internal static class GroupLessonSeriesEndpoints
                     "LessonSeriesUpdated",
                     "LessonSeries",
                     series.Id.ToString(),
-                    $"Пользователь '{currentUser.Login}' изменил расписание группы '{series.Group.Name}'.",
+                    global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine25959efe004(currentUser.Login, series.Group.Name),
                     oldState,
                     JsonSerializer.Serialize(CreateAuditState(updatedSeries), JsonOptions)),
                 cancellationToken);
@@ -329,7 +329,7 @@ internal static class GroupLessonSeriesEndpoints
         var scope = rawScope?.Trim();
         if (scope is not ("ThisAndFuture" or "EntireSeries"))
         {
-            errors["scope"] = ["scope должен быть ThisAndFuture или EntireSeries."];
+            errors["scope"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine332D9e0e4b9];
         }
 
         DateOnly effectiveFrom = series.StartsOn;
@@ -337,7 +337,7 @@ internal static class GroupLessonSeriesEndpoints
         {
             if (!TryParseDate(rawEffectiveFrom, out effectiveFrom))
             {
-                errors["effectiveFrom"] = ["effectiveFrom должен быть в формате yyyy-MM-dd."];
+                errors["effectiveFrom"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine340D48cb928];
             }
         }
 
@@ -351,7 +351,7 @@ internal static class GroupLessonSeriesEndpoints
         {
             if (!TryParseDate(rawEndsOn, out var parsedEndsOn))
             {
-                errors["endsOn"] = ["endsOn должен быть в формате yyyy-MM-dd."];
+                errors["endsOn"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine354Ebe48b29];
             }
             else
             {
@@ -361,12 +361,12 @@ internal static class GroupLessonSeriesEndpoints
 
         if (endsOn.HasValue && errors.Count == 0 && endsOn.Value < effectiveFrom)
         {
-            errors["endsOn"] = ["endsOn должен быть не раньше effectiveFrom."];
+            errors["endsOn"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine364C751802f];
         }
 
         if (rawSlots is null || rawSlots.Count == 0)
         {
-            errors["slots"] = ["Нужно передать хотя бы один slot."];
+            errors["slots"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine3696a78640e];
         }
 
         var slots = new List<LessonSeriesSlotCandidate>();
@@ -378,7 +378,7 @@ internal static class GroupLessonSeriesEndpoints
                 var prefix = $"slots[{index}]";
                 if (slot.IsoWeekday is < 1 or > 7 or null)
                 {
-                    errors[$"{prefix}.isoWeekday"] = ["isoWeekday должен быть от 1 до 7."];
+                    errors[$"{prefix}.isoWeekday"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine38103b7e917];
                 }
 
                 var startTime = GroupRequestValidator.ParseTrainingStartTime(slot.StartTime);
@@ -421,12 +421,12 @@ internal static class GroupLessonSeriesEndpoints
 
             foreach (var missingHallId in hallIds.Except(halls.Select(hall => hall.Id)))
             {
-                errors[$"slots.hallId.{missingHallId:D}"] = ["Зал не найден."];
+                errors[$"slots.hallId.{missingHallId:D}"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine4245d2885e5];
             }
 
             if (halls.Any(hall => hall.BranchId != series.Group.BranchId))
             {
-                errors["slots.hallId"] = ["Все залы расписания должны принадлежать филиалу группы."];
+                errors["slots.hallId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine4298874f5c8];
             }
 
             foreach (var overlap in slots
@@ -434,7 +434,7 @@ internal static class GroupLessonSeriesEndpoints
                          .SelectMany(group => group.SelectMany((left, leftIndex) => group.Skip(leftIndex + 1).Select(right => (left, right))))
                          .Where(pair => ScheduleTimeRangePolicy.Overlaps(pair.left.StartTime, pair.left.DurationMinutes, pair.right.StartTime, pair.right.DurationMinutes)))
             {
-                errors["slots"] = [$"Slots for ISO weekday {overlap.left.IsoWeekday} overlap."];
+                errors["slots"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine437371250ec(overlap.left.IsoWeekday)];
                 break;
             }
 
@@ -477,7 +477,7 @@ internal static class GroupLessonSeriesEndpoints
                 slot.HallId == existing.HallId &&
                 slot.IsoWeekday == existing.IsoWeekday &&
                 ScheduleTimeRangePolicy.Overlaps(slot.StartTime, slot.DurationMinutes, existing.StartTime, existing.DurationMinutes)))
-            ? [new ScheduleWarningResponse("lesson_hall_overlap", "В выбранном зале есть пересекающееся занятие.")]
+            ? [new ScheduleWarningResponse("lesson_hall_overlap", global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine4804ea9330e)]
             : [];
     }
 
@@ -802,7 +802,7 @@ internal static class GroupLessonSeriesEndpoints
         return TypedResults.Problem(new Microsoft.AspNetCore.Mvc.ProblemDetails
         {
             Type = $"/problems/{code}",
-            Title = "Lesson series mutation failed.",
+            Title = global::GymCrm.Api.UserFacingText.BE6ScheduleText.GroupLessonSeriesEndpointsLine805969f994a,
             Status = statusCode,
             Extensions =
             {

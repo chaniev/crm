@@ -36,6 +36,8 @@ import {
   LoadingState,
   ResponsiveButtonGroup,
 } from '../shared/ux'
+import { fe11SettingsUsersText } from '../../resources/fe-11-settings-users'
+
 
 type AdministratorAttendanceScopeModalProps = {
   administrator: UserListItem | null
@@ -99,7 +101,7 @@ export function AdministratorAttendanceScopeModal({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить группы посещений.',
+            : fe11SettingsUsersText.administratorAttendanceScopeModal_string_eb314df7,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -179,7 +181,7 @@ export function AdministratorAttendanceScopeModal({
         return
       }
 
-      setSaveError('Не удалось сохранить группы посещений.')
+      setSaveError(fe11SettingsUsersText.administratorAttendanceScopeModal_setSaveError_d1a1bde7)
     } finally {
       setSaving(false)
     }
@@ -240,7 +242,7 @@ export function AdministratorAttendanceScopeModal({
       opened
       radius={isMobile ? 0 : '16px'}
       size="720px"
-      title="Группы посещений"
+      title={fe11SettingsUsersText.administratorAttendanceScopeModal_title_c50470cc}
       withCloseButton={!saving}
       yOffset={isMobile ? 0 : '2dvh'}
       zIndex={320}
@@ -249,24 +251,24 @@ export function AdministratorAttendanceScopeModal({
           <Stack gap={4}>
             <Text fw={700}>{activeAdministrator.fullName}</Text>
             <Text c="dimmed" size="sm">
-              Филиал: {scope?.branch?.name ?? activeAdministrator.branchName ?? 'не назначен'}
+              {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_40c98d2e}{scope?.branch?.name ?? activeAdministrator.branchName ?? fe11SettingsUsersText.administratorAttendanceScopeModal_string_b921a80b}
             </Text>
           </Stack>
 
-          {loading ? <LoadingState label="Загружаем группы посещений..." /> : null}
+          {loading ? <LoadingState label={fe11SettingsUsersText.administratorAttendanceScopeModal_label_be99fd52} /> : null}
           {!loading && loadError ? (
-            <ErrorState message={loadError} title="Группы не загрузились" />
+            <ErrorState message={loadError} title={fe11SettingsUsersText.administratorAttendanceScopeModal_title_fc37228e} />
           ) : null}
 
           {!loading && !loadError && scope ? (
             <Stack gap="md">
               <Group justify="space-between" wrap="wrap">
                 <Badge aria-live="polite" color="teal" radius="xl" role="status" variant="light">
-                  Выбрано: {selectedCount}
+                  {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_c9c7225b}{selectedCount}
                 </Badge>
                 {revokedGroupIds.length > 0 ? (
                   <Badge color="red" radius="xl" variant="light">
-                    К отзыву: {revokedGroupIds.length}
+                    {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_f3dd59ed}{revokedGroupIds.length}
                   </Badge>
                 ) : null}
               </Group>
@@ -275,7 +277,7 @@ export function AdministratorAttendanceScopeModal({
                 <Alert
                   color="red"
                   icon={<IconAlertCircle size={18} />}
-                  title="Сохранение не выполнено"
+                  title={fe11SettingsUsersText.administratorAttendanceScopeModal_title_09e1875e}
                   variant="light"
                 >
                   {saveError}
@@ -292,35 +294,34 @@ export function AdministratorAttendanceScopeModal({
                     onClick={() => void reloadScopeFromBackend()}
                     variant="secondary"
                   >
-                    Обновить данные
-                  </Button>
+                    {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_aa4fb6df}</Button>
                 </Alert>
               ) : null}
 
               <TextInput
                 leftSection={<IconSearch size={18} />}
-                label="Поиск группы"
+                label={fe11SettingsUsersText.administratorAttendanceScopeModal_label_b7466cdb}
                 onChange={(event) => setQuery(event.currentTarget.value)}
-                placeholder="Название группы"
+                placeholder={fe11SettingsUsersText.administratorAttendanceScopeModal_placeholder_d45e66ab}
                 value={query}
               />
 
               {scope.groups.length === 0 && scope.unavailableGrants.length === 0 ? (
                 <EmptyState
                   icon={<IconUsersGroup size={24} />}
-                  title="В филиале нет групп для назначения"
+                  title={fe11SettingsUsersText.administratorAttendanceScopeModal_title_8898e6fc}
                 />
               ) : null}
 
               {showSearchEmpty ? (
                 <EmptyState
                   icon={<IconSearch size={24} />}
-                  title="По совпадению ничего не найдено"
+                  title={fe11SettingsUsersText.administratorAttendanceScopeModal_title_3bd7378e}
                 />
               ) : null}
 
               <ScrollArea.Autosize mah="52vh" type="auto">
-                <Stack gap="sm" role="group" aria-label="Группы посещений администратора">
+                <Stack gap="sm" role="group" aria-label={fe11SettingsUsersText.administratorAttendanceScopeModal_ariaLabel_0df3659f}>
                   {visibleGroups.map((group) => (
                     <GroupGrantRow
                       checked={selectedSet.has(group.id)}
@@ -358,14 +359,12 @@ export function AdministratorAttendanceScopeModal({
                 role="status"
               >
                 {confirmRevokeOpen ? (
-                  <Alert color="red" title="Отозвать доступ к группам?" variant="light">
-                    Будет отозван доступ к {formatGroupCount(revokedGroupIds.length)}. Доступ администратора к этим группам для посещений прекратится сразу после сохранения.
-                  </Alert>
+                  <Alert color="red" title={fe11SettingsUsersText.administratorAttendanceScopeModal_title_76100b9d} variant="light">
+                    {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_d1e4b91d}{formatGroupCount(revokedGroupIds.length)}{fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_775fdb20}</Alert>
                 ) : null}
                 {saving ? (
                   <Text c="dimmed" size="sm">
-                    Сохраняем изменения...
-                  </Text>
+                    {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_dc6602c5}</Text>
                 ) : null}
                 {confirmRevokeOpen ? (
                   <ResponsiveButtonGroup justify="flex-end">
@@ -375,25 +374,21 @@ export function AdministratorAttendanceScopeModal({
                       onClick={() => setConfirmRevokeOpen(false)}
                       variant="secondary"
                     >
-                      Вернуться
-                    </Button>
+                      {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_6c99e7d8}</Button>
                     <Button color="red" loading={saving} onClick={() => void submit()}>
-                      Отозвать и сохранить
-                    </Button>
+                      {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_7725c76d}</Button>
                   </ResponsiveButtonGroup>
                 ) : (
                   <ResponsiveButtonGroup justify="flex-end">
                     <Button disabled={saving} onClick={onClose} variant="secondary">
-                      Отменить
-                    </Button>
+                      {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_7c47f729}</Button>
                     <Button
                       disabled={!changed}
                       leftSection={<IconDeviceFloppy size={18} />}
                       loading={saving}
                       onClick={() => void submit()}
                     >
-                      Сохранить
-                    </Button>
+                      {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_b4d30cae}</Button>
                   </ResponsiveButtonGroup>
                 )}
               </Stack>
@@ -428,8 +423,7 @@ function GroupGrantRow({
               <Text fw={700}>{group.name}</Text>
               {!group.isActive ? (
                 <Badge color="gray" radius="xl" variant="light">
-                  Неактивна
-                </Badge>
+                  {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_4f049897}</Badge>
               ) : null}
             </Group>
             <Text c="dimmed" size="sm">
@@ -469,9 +463,9 @@ function UnavailableGrantRow({
         disabled={disabled}
         label={(
           <Stack gap={4}>
-            <Text fw={700}>Недоступное сохраненное назначение</Text>
+            <Text fw={700}>{fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_2693c65e}</Text>
             <Text c="dimmed" size="sm">
-              ID группы: {groupId}
+              {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_5a3cdcb1}{groupId}
             </Text>
             <Text c="dimmed" size="sm">
               {formatDisabledReason(reason)}
@@ -488,39 +482,39 @@ function UnavailableGrantRow({
 function formatScopeGroupDescription(group: AdministratorAttendanceScopeGroup) {
   const details: string[] = []
   if (group.trainingStartTime) {
-    details.push(`Старт ${group.trainingStartTime}`)
+    details.push(fe11SettingsUsersText.administratorAttendanceScopeModal_detailsPush_48f11e95(group.trainingStartTime))
   }
   if (group.weekdays && typeof group.durationMinutes === 'number') {
     details.push(formatGroupSchedule(group.weekdays, group.durationMinutes))
   }
 
-  return details.join(', ') || 'Расписание не указано'
+  return details.join(', ') || fe11SettingsUsersText.administratorAttendanceScopeModal_string_34482a84
 }
 
 function formatDisabledReason(reason: string) {
   if (reason === 'inactive_group' || reason === 'group_inactive') {
-    return 'Группа отключена'
+    return fe11SettingsUsersText.administratorAttendanceScopeModal_string_3ff106d7
   }
 
   if (reason === 'inactive_administrator') {
-    return 'Администратор отключен.'
+    return fe11SettingsUsersText.administratorAttendanceScopeModal_string_c37eb247
   }
 
   if (reason === 'archived_branch') {
-    return 'Филиал в архиве.'
+    return fe11SettingsUsersText.administratorAttendanceScopeModal_string_9c664ee0
   }
 
   if (reason === 'grant_scope_invalid') {
-    return 'Назначение больше не входит в допустимую область.'
+    return fe11SettingsUsersText.administratorAttendanceScopeModal_string_863611e5
   }
 
-  return 'Назначение недоступно.'
+  return fe11SettingsUsersText.administratorAttendanceScopeModal_string_7964adff
 }
 
 function formatGroupCount(count: number) {
   if (count === 1) {
-    return '1 группе'
+    return fe11SettingsUsersText.administratorAttendanceScopeModal_string_46ad0080
   }
 
-  return `${count} группам`
+  return fe11SettingsUsersText.administratorAttendanceScopeModal_template_9959259e(count)
 }

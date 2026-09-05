@@ -7,6 +7,8 @@ import {
   compareAttendanceHistory,
   formatDateValue,
 } from './ClientManagement.formatting'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 type ClientAttendanceHistorySectionProps = {
   canManage: boolean
@@ -29,20 +31,20 @@ export function ClientAttendanceHistorySection({
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <div>
-            <Text fw={700}>История посещений</Text>
+            <Text fw={700}>{fe6ClientProfileText.clientAttendanceHistorySection_jsxText_85242586}</Text>
             <Text c="dimmed" size="sm">
               {canManage
-                ? 'Карточка показывает дату тренировки, группу и признак посещения.'
-                : 'Тренеру доступны только дата тренировки, назначенная группа и признак посещения.'}
+                ? fe6ClientProfileText.clientAttendanceHistorySection_string_8428fe4a
+                : fe6ClientProfileText.clientAttendanceHistorySection_string_34866051}
             </Text>
           </div>
 
           <Group gap="sm" wrap="wrap">
             <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
-              {canManage ? 'Полная карточка' : 'Режим тренера'}
+              {canManage ? fe6ClientProfileText.clientAttendanceHistorySection_string_d78acecd : fe6ClientProfileText.clientAttendanceHistorySection_string_f46c76fc}
             </Badge>
             <Badge color="sand" radius="xl" variant="light">
-              Всего: {totalHistoryCount}
+              {fe6ClientProfileText.clientAttendanceHistorySection_jsxText_f8ba76ae}{totalHistoryCount}
             </Badge>
           </Group>
         </Group>
@@ -51,15 +53,13 @@ export function ClientAttendanceHistorySection({
           <Alert
             color="blue"
             icon={<IconCheck size={18} />}
-            title="История пока не загружена"
+            title={fe6ClientProfileText.clientAttendanceHistorySection_title_b7367866}
             variant="light"
           >
-            История посещений появится здесь после загрузки данных.
-          </Alert>
+            {fe6ClientProfileText.clientAttendanceHistorySection_jsxText_f4f7179e}</Alert>
         ) : history.length === 0 ? (
           <Text c="dimmed" size="sm">
-            По этому клиенту пока нет отмеченных посещений.
-          </Text>
+            {fe6ClientProfileText.clientAttendanceHistorySection_jsxText_001835f0}</Text>
         ) : (
           <Stack gap="sm">
             {history.map((entry) => (
@@ -73,7 +73,7 @@ export function ClientAttendanceHistorySection({
                         radius="xl"
                         variant="light"
                       >
-                        {entry.isPresent ? 'Присутствовал' : 'Отсутствовал'}
+                        {entry.isPresent ? fe6ClientProfileText.clientAttendanceHistorySection_string_f1cfa3af : fe6ClientProfileText.clientAttendanceHistorySection_string_439e3b4c}
                       </Badge>
                     </Group>
 
@@ -89,8 +89,7 @@ export function ClientAttendanceHistorySection({
 
         {hasPartialHistory ? (
           <Text c="dimmed" size="sm">
-            Показана текущая порция истории: {history.length} из {totalHistoryCount}.
-          </Text>
+            {fe6ClientProfileText.clientAttendanceHistorySection_jsxText_511e94e0}{history.length} {fe6ClientProfileText.clientAttendanceHistorySection_jsxText_7f4adf31}{totalHistoryCount}{fe6ClientProfileText.clientAttendanceHistorySection_jsxText_cdb4ee2a}</Text>
         ) : null}
       </Stack>
     </PageSection>

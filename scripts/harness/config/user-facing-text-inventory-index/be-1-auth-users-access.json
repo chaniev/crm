@@ -1,0 +1,803 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "BE-1-auth-users-access",
+  "entry_count": 35,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuditLogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"dateFrom\"",
+      "value": "dateFrom",
+      "fingerprint": "sha256:201c069cdaf7ea8e74cb566eb1dfe769d08eac21b00c002fa814f094574a64e1",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"dateFrom\"] = [AuditLogResources.DateMustUseFormat(AuditLogApiConstants.DateFormat)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        49
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuditLogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"dateTo\"",
+      "value": "dateTo",
+      "fingerprint": "sha256:63a56af2901228600056adcd955e016ba7957686354c88cb1a6c17477296e3b4",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"dateTo\"] = [AuditLogResources.DateMustUseFormat(AuditLogApiConstants.DateFormat)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        54,
+        59
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuditLogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"userId\"",
+      "value": "userId",
+      "fingerprint": "sha256:6ccb21214ffd60b0fc2c1607cf6a05be6a0fed9c74819eb6a92e1bd6717b28eb",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"userId\"] = [AuditLogResources.UserIdInvalid];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        67
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuditLogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"page\"",
+      "value": "page",
+      "fingerprint": "sha256:3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"page\"] = [AuditLogResources.PageMustBeGreaterThanZero];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        263
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuditLogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"pageSize\"",
+      "value": "pageSize",
+      "fingerprint": "sha256:8a00a4a803eb50c899e2732116c7534b451938d8b9219749e786fa47d24b0f2b",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"pageSize\"] = [AuditLogResources.PageSizeMustBeInRange(AuditLogApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        268
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuditLogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"skip\"",
+      "value": "skip",
+      "fingerprint": "sha256:42e93b9bb77d8a73e8412111b8f3d6befab66bf48fdcdefa80bb111819aa0cb1",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"skip\"] = [AuditLogResources.SkipCannotBeNegative];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        276
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuditLogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"take\"",
+      "value": "take",
+      "fingerprint": "sha256:d1905cf90af29a5ac3f99e105830eecc5b3b415b24e2d166a7ce4cf72b2f32e6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"take\"] = [AuditLogResources.TakeMustBeInRange(AuditLogApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        281
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"InvalidCredentials\"",
+      "value": "InvalidCredentials",
+      "fingerprint": "sha256:cc91af8f91a01a78fc1ed58e4a59a082b22c6938c3ecf6acfc8ed790d51fca4d",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string InvalidCredentialsProblemTitle = \"InvalidCredentials\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        23
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"InvalidCsrfToken\"",
+      "value": "InvalidCsrfToken",
+      "fingerprint": "sha256:39d604d1a068ceb9c0535d6433effc712ee0cb52946147e898409ad6b1da6bd5",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string InvalidCsrfProblemTitle = \"InvalidCsrfToken\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        24
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"PasswordChangeRequired\"",
+      "value": "PasswordChangeRequired",
+      "fingerprint": "sha256:5c613e883f93a969a539cd5d6cf34fb6eb98e7618a20bbf30c41f9868656bfb5",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string PasswordChangeRequiredProblemTitle = \"PasswordChangeRequired\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BootstrapUserOptions.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Главный тренер\"",
+      "value": "Главный тренер",
+      "fingerprint": "sha256:6d7112785e9f61bb8cca201b86b77016b9cd9f706d4d771dfaf4319fbd0c67ec",
+      "context": {
+        "kind": "source-line",
+        "name": "public string FullName { get; init; } = \"Главный тренер\";"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        8
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Configurable bootstrap identity becomes persisted user/domain data.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"name\"",
+      "value": "name",
+      "fingerprint": "sha256:82a3537ff0dbce7eec35d69edc3a189ee6f17d82f353a553f9aa96cb0be3ce89",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"name\"] = [BranchResources.BranchNameRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        735,
+        739,
+        774,
+        778
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"address\"",
+      "value": "address",
+      "fingerprint": "sha256:d80c9bf910f144738ef983724bc04bd6bd3f17c5c83ed57bedee1b1b9278e811",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"address\"] = [BranchResources.BranchAddressTooLong];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        744
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"description\"",
+      "value": "description",
+      "fingerprint": "sha256:c9046f7a37ad0ea7cee73355984fa5428982f8b37c8f7bcec91f7ac71a7cd104",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"description\"] = [BranchResources.BranchDescriptionTooLong];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        749,
+        783
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"branchId\"",
+      "value": "branchId",
+      "fingerprint": "sha256:9afcbf86367dc02ab44d394652ce9df69ccc9ebc2d71c79e2b30889a4dd526c9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"branchId\"] = [BranchResources.HallBranchRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        765,
+        769,
+        803,
+        807
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ReportsEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"to\"",
+      "value": "to",
+      "fingerprint": "sha256:663ea1bfffe5038f3f0cf667f14c4257eff52d77ce7f2a218f72e9286616ea39",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"to\"] = [ReportsResources.ToCannotBeBeforeFrom];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        92,
+        221,
+        239
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ReportsEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"periodPreset\"",
+      "value": "periodPreset",
+      "fingerprint": "sha256:30a16232ece999d8591f3ed0347df0fc8fc0bec9fa273204a5cee55118af1c3b",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"periodPreset\"] = [ReportsResources.PeriodPresetRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        133,
+        149
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ReportsEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"anchorDate\"",
+      "value": "anchorDate",
+      "fingerprint": "sha256:a50f2e10a783179308daa9b3cd8e010632bd94da1c9ff9535c920898a7b708f9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"anchorDate\"] = [ReportsResources.AnchorDateNotAllowedForCustom];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        211,
+        229
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ReportsEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"from\"",
+      "value": "from",
+      "fingerprint": "sha256:75857a45899985be4c4d941e90b6b396d6c92a4c7437aaf0bf102089fe21379d",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"from\"] = [ReportsResources.FromRequiredForCustom];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        216,
+        234
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ReportsEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"branchId\"",
+      "value": "branchId",
+      "fingerprint": "sha256:9afcbf86367dc02ab44d394652ce9df69ccc9ebc2d71c79e2b30889a4dd526c9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"branchId\"] = [ReportsResources.BranchMustExist];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        258
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ReportsEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"trainerId\"",
+      "value": "trainerId",
+      "fingerprint": "sha256:71faad56a1a986cb65baac3ceab8ff37b895f64b5dff02f7023850464f55d02b",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"trainerId\"] = [ReportsResources.TrainerMustExist];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        275,
+        279
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/StaffProblemDetails.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/staff-management-forbidden\"",
+      "value": "/problems/staff-management-forbidden",
+      "fingerprint": "sha256:61b86a1714756e372562ba6e02aae8b9463c81c0d7845e16039a23b45b69c3ee",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/staff-management-forbidden\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        15,
+        45
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/StaffProblemDetails.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/staff-target-forbidden\"",
+      "value": "/problems/staff-target-forbidden",
+      "fingerprint": "sha256:0b5ae407887884088d17a6d791c5a7e95e2ffe808ad172f1c59e0529bfdde64f",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/staff-target-forbidden\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        20
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/StaffProblemDetails.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/staff-self-mutation-forbidden\"",
+      "value": "/problems/staff-self-mutation-forbidden",
+      "fingerprint": "sha256:79a494e8519d85f90212d63cb0c79cba9f4bf01975c48db1469145ec5b3d5235",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/staff-self-mutation-forbidden\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/StaffProblemDetails.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/staff-role-transition-forbidden\"",
+      "value": "/problems/staff-role-transition-forbidden",
+      "fingerprint": "sha256:491bd2cbd04d08ccc94a7d6ff529cb68f5f496eb011602446e77e72f4abc00d6",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/staff-role-transition-forbidden\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        30
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/StaffProblemDetails.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/branch-scope-forbidden\"",
+      "value": "/problems/branch-scope-forbidden",
+      "fingerprint": "sha256:9d0c6be19170b11198e96af381ec3938accb516a8768a8cec20d9852d6059618",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/branch-scope-forbidden\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/StaffProblemDetails.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/attendance-grants-must-be-revoked\"",
+      "value": "/problems/attendance-grants-must-be-revoked",
+      "fingerprint": "sha256:0e8890cbee23039a004033545b716b954e2c973f0648a917a6db5afa495afb72",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/attendance-grants-must-be-revoked\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        40
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/StaffProblemDetails.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/staff-not-found\"",
+      "value": "/problems/staff-not-found",
+      "fingerprint": "sha256:0b3f4d5e9ed673e5311b15e4b37c17a20caeede81c70b4afa5b8578785ad1fca",
+      "context": {
+        "kind": "source-line",
+        "name": "\"/problems/staff-not-found\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        55
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/UserRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"fullName\"",
+      "value": "fullName",
+      "fingerprint": "sha256:ffc2a51bfd02b0a2c710255baa45d689ffdc3e28d7d5a078eec0d62d17bbf8b7",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"fullName\"] = [UserResources.FullNameRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        23,
+        74
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/UserRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"login\"",
+      "value": "login",
+      "fingerprint": "sha256:428821350e9691491f616b754cd8315fb86d797ab35d843479e732ef90665324",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"login\"] = [UserResources.LoginRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        28,
+        34,
+        79,
+        83
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/UserRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"password\"",
+      "value": "password",
+      "fingerprint": "sha256:5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"password\"] = [UserResources.PasswordRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        39
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/UserRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"role\"",
+      "value": "role",
+      "fingerprint": "sha256:4b168d88dc872a7753c2bc35b36a2d4249487af55baf78f247f38cae2fe962da",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"role\"] = [UserResources.InvalidRole];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        45,
+        89
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/UserRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"isActive\"",
+      "value": "isActive",
+      "fingerprint": "sha256:9442331fe398b259a1a1dd4ddc062049fca67f4e6d6c783dd838394cb547cb05",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"isActive\"] = [UserResources.HeadCoachCannotBeDeactivated];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/UserRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"messengerPlatform\"",
+      "value": "messengerPlatform",
+      "fingerprint": "sha256:52e82b7f4bae212b2eea61e9006d39003827167b55658f26ab1f425f2034c328",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"messengerPlatform\"] = [UserResources.MessengerPlatformRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        171,
+        177
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/UserRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"messengerPlatformUserId\"",
+      "value": "messengerPlatformUserId",
+      "fingerprint": "sha256:3572fb54c97f008285609d561100b2c3388f534aae1ec23eec2dd7e456579014",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"messengerPlatformUserId\"] = [UserResources.MessengerPlatformUserIdRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        183,
+        189,
+        202
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/auth-users-access",
+      "slice": "BE-1-auth-users-access",
+      "review_status": "accepted"
+    }
+  ]
+}

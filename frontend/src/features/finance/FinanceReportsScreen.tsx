@@ -57,6 +57,8 @@ import {
   resolveFinanceScopeLabels,
   type FinanceScopeContext,
 } from './FinanceReportScope'
+import { fe15FinanceText } from '../../resources/fe-15-finance'
+
 
 type FinanceReportsScreenProps = {
   user: AuthenticatedUser
@@ -92,14 +94,14 @@ const periodOptions: Array<{
   value: FinancialReportPeriodPreset
   label: string
 }> = [
-  { value: 'month', label: 'Месяц' },
-  { value: 'quarter', label: 'Квартал' },
-  { value: 'year', label: 'Год' },
-  { value: 'custom', label: 'Период' },
+  { value: 'month', label: fe15FinanceText.financeReportsScreen_label_c9086654 },
+  { value: 'quarter', label: fe15FinanceText.financeReportsScreen_label_2727c94f },
+  { value: 'year', label: fe15FinanceText.financeReportsScreen_label_d3b04324 },
+  { value: 'custom', label: fe15FinanceText.financeReportsScreen_label_e97ca72e },
 ]
 
 const duplicatedBreakdownHint =
-  'Итоги сверху считаются без дублей. В разбивке по группам и тренерам одна и та же продажа может попасть в несколько строк, если клиент был связан с несколькими группами или тренерами в выбранный период. Поэтому сумма строк в этих таблицах может быть больше итогов.'
+  fe15FinanceText.financeReportsScreen_duplicatedBreakdownHint_17d94038
 
 const moneyFormatter = new Intl.NumberFormat('ru-RU', {
   currency: 'RUB',
@@ -191,7 +193,7 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
         const message =
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить списки фильтров.'
+            : fe15FinanceText.financeReportsScreen_string_74c10e83
 
         optionsErrorRef.current = message
         setOptionsError(message)
@@ -319,7 +321,7 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
         const message =
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить финансовый отчет.'
+            : fe15FinanceText.financeReportsScreen_string_0e92a776
 
         if (error instanceof ApiError) {
           const nextFieldErrors = applyFieldErrors(error.fieldErrors)
@@ -389,11 +391,11 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
 
   if (!canViewFinance) {
     return (
-      <PageLayout data-testid="finance-screen" showHeader={false} title="Финансы">
+      <PageLayout data-testid="finance-screen" showHeader={false} title={fe15FinanceText.financeReportsScreen_title_d833b857}>
         <PageSection>
           <ErrorState
-            message="Этот экран доступен только пользователям, которым backend выдал доступ к разделу финансов."
-            title="Финансовые отчеты недоступны"
+            message={fe15FinanceText.financeReportsScreen_message_8808f048}
+            title={fe15FinanceText.financeReportsScreen_title_662a562c}
           />
         </PageSection>
       </PageLayout>
@@ -410,9 +412,9 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
     requestedScopeResolution.kind === 'valid'
       ? requestedScopeResolution.scope
       : displayedReport?.scope ?? {
-          branchLabel: 'Все филиалы',
+          branchLabel: fe15FinanceText.financeReportsScreen_branchLabel_1b93eb9a,
           filters: appliedFilters,
-          trainerLabel: 'Все тренеры',
+          trainerLabel: fe15FinanceText.financeReportsScreen_trainerLabel_0b471d0c,
         }
   const activeFilterCount = getActiveFilterCount(
     appliedFilters,
@@ -432,11 +434,11 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
   const primaryFilters = [
     {
       key: 'periodPreset',
-      label: 'Быстрый период',
+      label: fe15FinanceText.financeReportsScreen_label_4885445c,
       render: (placement) => (
-        <CompactFilterField label="Быстрый период" placement={placement}>
+        <CompactFilterField label={fe15FinanceText.financeReportsScreen_label_4885445c} placement={placement}>
           <SegmentedControl
-            aria-label="Быстрый период"
+            aria-label={fe15FinanceText.financeReportsScreen_label_4885445c}
             data={periodOptions}
             onChange={(value) =>
               updateFilters({
@@ -450,16 +452,16 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
     },
     {
       key: 'branchId',
-      label: 'Филиал',
+      label: fe15FinanceText.financeReportsScreen_label_2f17c4d2,
       render: () => (
         <Select
           clearable
           data={branchOptions}
           disabled={optionsLoading}
-          label="Филиал"
+          label={fe15FinanceText.financeReportsScreen_label_2f17c4d2}
           name="branchId"
           onChange={(value) => updateFilters({ branchId: value })}
-          placeholder="Все филиалы"
+          placeholder={fe15FinanceText.financeReportsScreen_branchLabel_1b93eb9a}
           searchable
           value={form.values.branchId}
         />
@@ -467,16 +469,16 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
     },
     {
       key: 'trainerId',
-      label: 'Тренер',
+      label: fe15FinanceText.financeReportsScreen_label_894d7ecc,
       render: () => (
         <Select
           clearable
           data={trainerOptions}
           disabled={optionsLoading}
-          label="Тренер"
+          label={fe15FinanceText.financeReportsScreen_label_894d7ecc}
           name="trainerId"
           onChange={(value) => updateFilters({ trainerId: value })}
-          placeholder="Все тренеры"
+          placeholder={fe15FinanceText.financeReportsScreen_trainerLabel_0b471d0c}
           searchable
           value={form.values.trainerId}
         />
@@ -488,11 +490,11 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
       ? [
           {
             key: 'from',
-            label: 'С',
+            label: fe15FinanceText.financeReportsScreen_label_07b8c0e6,
             render: (placement: CompactFilterPlacement) => (
               <TextInput
                 error={placement === 'inline' ? undefined : form.errors.from}
-                label="С"
+                label={fe15FinanceText.financeReportsScreen_label_07b8c0e6}
                 leftSection={<IconCalendarEvent size={16} />}
                 name="from"
                 onChange={(event) => updateFilters({ from: event.currentTarget.value })}
@@ -503,11 +505,11 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
           },
           {
             key: 'to',
-            label: 'По',
+            label: fe15FinanceText.financeReportsScreen_label_b60ab9b4,
             render: (placement: CompactFilterPlacement) => (
               <TextInput
                 error={placement === 'inline' ? undefined : form.errors.to}
-                label="По"
+                label={fe15FinanceText.financeReportsScreen_label_b60ab9b4}
                 leftSection={<IconCalendarEvent size={16} />}
                 name="to"
                 onChange={(event) => updateFilters({ to: event.currentTarget.value })}
@@ -520,11 +522,11 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
       : [
           {
             key: 'anchorDate',
-            label: 'Дата в периоде',
+            label: fe15FinanceText.financeReportsScreen_label_0d21a5dd,
             render: (placement: CompactFilterPlacement) => (
               <TextInput
                 error={placement === 'inline' ? undefined : form.errors.anchorDate}
-                label="Дата в периоде"
+                label={fe15FinanceText.financeReportsScreen_label_0d21a5dd}
                 leftSection={<IconCalendarEvent size={16} />}
                 name="anchorDate"
                 onChange={(event) =>
@@ -539,13 +541,13 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
   ] satisfies CompactFilterItem[]
 
   return (
-    <PageLayout data-testid="finance-screen" showHeader={false} title="Финансы">
+    <PageLayout data-testid="finance-screen" showHeader={false} title={fe15FinanceText.financeReportsScreen_title_d833b857}>
       <Stack gap="sm">
         {optionsError ? (
           <Alert
             color="yellow"
             icon={<IconAlertCircle size={18} />}
-            title="Списки фильтров не загрузились"
+            title={fe15FinanceText.financeReportsScreen_title_63c4a3fc}
             variant="light"
           >
             {optionsError}
@@ -556,7 +558,7 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Проверьте фильтры"
+            title={fe15FinanceText.financeReportsScreen_title_2c77fd50}
             variant="light"
           >
             <Stack gap={4}>
@@ -572,7 +574,7 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Нельзя подтвердить scope финансового отчета"
+            title={fe15FinanceText.financeReportsScreen_title_22162cc7}
             variant="light"
           >
             {scopeTrustError}
@@ -591,15 +593,14 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
             <Group className="finance-report-toolbar__actions" gap="xs" wrap="nowrap">
               {usesMobileFilterLayout && hasActiveFilters ? (
                 <Button
-                  aria-label="Сбросить фильтры финансового отчета"
+                  aria-label={fe15FinanceText.financeReportsScreen_ariaLabel_bb6ea168}
                   className="finance-report-toolbar__mobile-reset"
                   leftSection={<IconFilterOff size={16} />}
                   onClick={handleResetFilters}
                   type="button"
                   variant="secondary"
                 >
-                  Сбросить
-                </Button>
+                  {fe15FinanceText.financeReportsScreen_jsxText_407f8717}</Button>
               ) : null}
               <TaskToolbarRefreshAction
                 loading={reportLoading}
@@ -609,10 +610,10 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
           }
           className="finance-report-toolbar"
           data-testid="finance-filter-panel"
-          mobileLabel={hasActiveFilters ? `Фильтры · ${activeFilterCount}` : 'Фильтры'}
+          mobileLabel={hasActiveFilters ? fe15FinanceText.financeReportsScreen_template_a545b6f5(activeFilterCount) : fe15FinanceText.financeReportsScreen_string_a69757b1}
           onReset={handleResetFilters}
           primary={primaryFilters}
-          resetLabel="Сбросить"
+          resetLabel={fe15FinanceText.financeReportsScreen_jsxText_407f8717}
           secondary={secondaryFilters}
           showReset={hasActiveFilters}
         />
@@ -678,19 +679,19 @@ function MobileBreakdowns({ report }: { report: FinancialReportResponse }) {
       variant="separated"
     >
       <Accordion.Item value="branches">
-        <Accordion.Control>По филиалам</Accordion.Control>
+        <Accordion.Control>{fe15FinanceText.financeReportsScreen_jsxText_46b59b71}</Accordion.Control>
         <Accordion.Panel>
           <BranchBreakdownSection mobile rows={report.branchBreakdown} />
         </Accordion.Panel>
       </Accordion.Item>
       <Accordion.Item value="trainers">
-        <Accordion.Control>По тренерам</Accordion.Control>
+        <Accordion.Control>{fe15FinanceText.financeReportsScreen_jsxText_fffad4a1}</Accordion.Control>
         <Accordion.Panel>
           <TrainerBreakdownSection mobile rows={report.trainerBreakdown} />
         </Accordion.Panel>
       </Accordion.Item>
       <Accordion.Item value="groups">
-        <Accordion.Control>По группам</Accordion.Control>
+        <Accordion.Control>{fe15FinanceText.financeReportsScreen_jsxText_ece838e8}</Accordion.Control>
         <Accordion.Panel>
           <GroupBreakdownSection mobile rows={report.groupBreakdown} />
         </Accordion.Panel>
@@ -711,12 +712,12 @@ function BranchBreakdownSection({
       columns={[
         {
           key: 'branch',
-          label: 'Филиал',
+          label: fe15FinanceText.financeReportsScreen_label_2f17c4d2,
           render: (row) => row.branchName,
         },
         ...totalsColumns<FinancialReportBranchBreakdownRow>(),
       ]}
-      emptyText="По филиалам нет строк за выбранный период."
+      emptyText={fe15FinanceText.financeReportsScreen_emptyText_3b975c5b}
       getRowId={(row, index) => `finance-branch-row-${row.branchId}-${index}`}
       getSubtitle={() => null}
       getTitle={(row) => row.branchName}
@@ -724,7 +725,7 @@ function BranchBreakdownSection({
       mobile={mobile}
       rows={rows}
       testId="finance-branch-breakdown"
-      title="По филиалам"
+      title={fe15FinanceText.financeReportsScreen_jsxText_46b59b71}
     />
   )
 }
@@ -741,18 +742,18 @@ function GroupBreakdownSection({
       columns={[
         {
           key: 'branch',
-          label: 'Филиал',
+          label: fe15FinanceText.financeReportsScreen_label_2f17c4d2,
           render: (row) => row.branchName,
         },
         {
           key: 'group',
-          label: 'Группа',
+          label: fe15FinanceText.financeReportsScreen_label_907efbd4,
           render: (row) => row.groupName,
         },
         ...totalsColumns<FinancialReportGroupBreakdownRow>(),
       ]}
       duplicateHint={duplicatedBreakdownHint}
-      emptyText="По группам нет строк за выбранный период."
+      emptyText={fe15FinanceText.financeReportsScreen_emptyText_f08244d4}
       getRowId={(row, index) => `finance-group-row-${row.groupId}-${index}`}
       getSubtitle={(row) => row.branchName}
       getTitle={(row) => row.groupName}
@@ -760,7 +761,7 @@ function GroupBreakdownSection({
       mobile={mobile}
       rows={rows}
       testId="finance-group-breakdown"
-      title="По группам"
+      title={fe15FinanceText.financeReportsScreen_jsxText_ece838e8}
     />
   )
 }
@@ -777,13 +778,13 @@ function TrainerBreakdownSection({
       columns={[
         {
           key: 'trainer',
-          label: 'Тренер',
+          label: fe15FinanceText.financeReportsScreen_label_894d7ecc,
           render: (row) => row.trainerName,
         },
         ...totalsColumns<FinancialReportTrainerBreakdownRow>(),
       ]}
       duplicateHint={duplicatedBreakdownHint}
-      emptyText="По тренерам нет строк за выбранный период."
+      emptyText={fe15FinanceText.financeReportsScreen_emptyText_77c767cb}
       getRowId={(row, index) => `finance-trainer-row-${row.trainerId}-${index}`}
       getSubtitle={() => null}
       getTitle={(row) => row.trainerName}
@@ -791,7 +792,7 @@ function TrainerBreakdownSection({
       mobile={mobile}
       rows={rows}
       testId="finance-trainer-breakdown"
-      title="По тренерам"
+      title={fe15FinanceText.financeReportsScreen_jsxText_fffad4a1}
     />
   )
 }
@@ -937,31 +938,31 @@ function totalsColumns<Row extends FinancialReportTotals>(): Array<
   return [
     {
       key: 'soldMembershipCount',
-      label: 'Продажи',
+      label: fe15FinanceText.financeReportsScreen_label_355eef19,
       numeric: true,
       render: (row) => formatCount(row.soldMembershipCount),
     },
     {
       key: 'grossSales',
-      label: 'Выручка',
+      label: fe15FinanceText.financeReportsScreen_label_6a187a49,
       numeric: true,
       render: (row) => formatMoney(row.grossSales),
     },
     {
       key: 'refundTotal',
-      label: 'Возвраты',
+      label: fe15FinanceText.financeReportsScreen_label_e8fdd443,
       numeric: true,
       render: (row) => formatMoney(row.refundTotal),
     },
     {
       key: 'netTotal',
-      label: 'Чистая',
+      label: fe15FinanceText.financeReportsScreen_label_a748e6aa,
       numeric: true,
       render: (row) => formatMoney(row.netTotal),
     },
     {
       key: 'newClientsCount',
-      label: 'Новые',
+      label: fe15FinanceText.financeReportsScreen_label_32d5a2ea,
       numeric: true,
       render: (row) => formatCount(row.newClientsCount),
     },
@@ -973,23 +974,23 @@ function totalsMobileMetrics<Row extends FinancialReportTotals>(): Array<
 > {
   return [
     {
-      label: 'Продажи',
+      label: fe15FinanceText.financeReportsScreen_label_355eef19,
       value: (row) => formatCount(row.soldMembershipCount),
     },
     {
-      label: 'Выручка',
+      label: fe15FinanceText.financeReportsScreen_label_6a187a49,
       value: (row) => formatMoney(row.grossSales),
     },
     {
-      label: 'Возвраты',
+      label: fe15FinanceText.financeReportsScreen_label_e8fdd443,
       value: (row) => formatMoney(row.refundTotal),
     },
     {
-      label: 'Чистая',
+      label: fe15FinanceText.financeReportsScreen_label_a748e6aa,
       value: (row) => formatMoney(row.netTotal),
     },
     {
-      label: 'Новые',
+      label: fe15FinanceText.financeReportsScreen_label_32d5a2ea,
       value: (row) => formatCount(row.newClientsCount),
     },
   ]

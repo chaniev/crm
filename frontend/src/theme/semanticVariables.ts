@@ -1,7 +1,6 @@
 import type { ThemeProfile } from './types'
 import { createFoundationVariables } from './foundations'
 import { createTypographyVariables } from './typography'
-
 export type SemanticVariableMap = Record<`--crm-${string}`, string>
 
 export const semanticBaseColors = {

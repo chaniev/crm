@@ -1,0 +1,484 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "BE-3-client-membership",
+  "entry_count": 21,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"comment\"",
+      "value": "comment",
+      "fingerprint": "sha256:c44bb2fd516909dab78ae0bfedcd5672b131b996c4b7a4328ee55fba170da776",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [\"comment\"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine1243117a1d9] });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        124
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"ClientMembershipCommentMetadata\"",
+      "value": "ClientMembershipCommentMetadata",
+      "fingerprint": "sha256:7078a3fd5c8fde1c416f79f177f5aa682bf5f6808cb4eef9dcca5bc3030983c8",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.Ok(ClientResponseMapper.MapDetails(client, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today, loggerFactory.CreateLogger(\"ClientMembershipCommentMetadata\")));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        142
+      ],
+      "occurrences": 1,
+      "category": "telemetry-only",
+      "reason": "Operational diagnostic text is not rendered to the user.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"targetGroupIds\"",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "source-line",
+        "name": "[result.Field ?? \"targetGroupIds\"] = [result.Message ?? global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine69145ea1663]"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        691
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"paymentStatus\"",
+      "value": "paymentStatus",
+      "fingerprint": "sha256:32368e058cdc7bd50e66080ba8108956a34d450e102c51cf99857ed6c3df0776",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"paymentStatus\"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine52D2ba0831];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        52,
+        57
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"membershipCatalogItemId\"",
+      "value": "membershipCatalogItemId",
+      "fingerprint": "sha256:ebeb70e0670128e17aec2f2a518dc2ab312ae413472155c88d38aed21c2d6874",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"membershipCatalogItemId\"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine99E2a18a30];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        99,
+        105
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"manualSaleAmount\"",
+      "value": "manualSaleAmount",
+      "fingerprint": "sha256:4bc9831e9d39e3717ca149d9a62a183cf61d21b204f01c48b4942e8f8d56cd08",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"manualSaleAmount\"] = [message];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        106,
+        113
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"validTo\"",
+      "value": "validTo",
+      "fingerprint": "sha256:b2328e5fe0090a88211adcdb997022924d7353600c52375a6a01ea3624efae7a",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"validTo\"] = [ClientResources.ExpirationBeforePurchaseDate];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        132
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"paymentDate\"",
+      "value": "paymentDate",
+      "fingerprint": "sha256:0543b5cddc258ce969c907af84dc8c65e56e881f770395abcd9929146b3f64e1",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"paymentDate\"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine151E5272767];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        151,
+        154
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"targetGroupIds\"",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"targetGroupIds\"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine165E59186fa];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        165,
+        171,
+        184
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"targetGroupIds[{index}]\"",
+      "value": "targetGroupIds[{index}]",
+      "fingerprint": "sha256:a73279c50e047b37a4bb1c34b379690cb66aa9041f9a0054267580c9f54f58b1",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"targetGroupIds[{index}]\"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine17862a0a730];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        178
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"amount\"",
+      "value": "amount",
+      "fingerprint": "sha256:cf38d95c9c6b1d9d5125c04d41a54df57727ef4cfb3f5116a602fe2b25115c13",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"amount\"] = [ClientResources.RefundAmountRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        194,
+        198
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"comment\"",
+      "value": "comment",
+      "fingerprint": "sha256:c44bb2fd516909dab78ae0bfedcd5672b131b996c4b7a4328ee55fba170da776",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"comment\"] = [ClientResources.RefundCommentTooLong];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        206
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"behaviorKind\"",
+      "value": "behaviorKind",
+      "fingerprint": "sha256:54278c88f6b38311912babe0bb67595ae7e26f90281ea49a8dcae05a86d77c90",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"behaviorKind\"] = [ClientResources.BehaviorKindRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        236,
+        243,
+        262,
+        268
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/MembershipCatalogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"behaviorKind\"",
+      "value": "behaviorKind",
+      "fingerprint": "sha256:54278c88f6b38311912babe0bb67595ae7e26f90281ea49a8dcae05a86d77c90",
+      "context": {
+        "kind": "source-line",
+        "name": "return Validation(\"behaviorKind\", global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.MembershipCatalogEndpointsLine70C1553788);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        70
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/MembershipCatalogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"branchId\"",
+      "value": "branchId",
+      "fingerprint": "sha256:9afcbf86367dc02ab44d394652ce9df69ccc9ebc2d71c79e2b30889a4dd526c9",
+      "context": {
+        "kind": "source-line",
+        "name": "return Validation(\"branchId\", global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.MembershipCatalogEndpointsLine7251d079c0);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        72
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/MembershipCatalogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"catalog\"",
+      "value": "catalog",
+      "fingerprint": "sha256:652f55016243bf1b9f1bbea46d5749ef892dbe394e46de9d66ab1aacf0b4af57",
+      "context": {
+        "kind": "source-line",
+        "name": "catch (ArgumentException exception) { return Validation(\"catalog\", exception.Message); }"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        79,
+        105
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/MembershipCatalogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"https://gym-crm.local/problems/membership-catalog-immutable\"",
+      "value": "https://gym-crm.local/problems/membership-catalog-immutable",
+      "fingerprint": "sha256:55e55a5b5f9e847e32d20816e96f87846f272c553d39959c19f9a51b1e3b209f",
+      "context": {
+        "kind": "source-line",
+        "name": "type: \"https://gym-crm.local/problems/membership-catalog-immutable\", extensions: new Dictionary<string, object?> { [\"code\"] = \"membership_catalog_immutable\" });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/MembershipCatalogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"membership_catalog_immutable\"",
+      "value": "membership_catalog_immutable",
+      "fingerprint": "sha256:8e89690a94b00aadcfb478da0fe751166ee1699534a6c45a92fa119ce8dde749",
+      "context": {
+        "kind": "source-line",
+        "name": "type: \"https://gym-crm.local/problems/membership-catalog-immutable\", extensions: new Dictionary<string, object?> { [\"code\"] = \"membership_catalog_immutable\" });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/MembershipCatalogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"code\"",
+      "value": "code",
+      "fingerprint": "sha256:5694d08a2e53ffcae0c3103e5ad6f6076abd960eb1f8a56577040bc1028f702b",
+      "context": {
+        "kind": "source-line",
+        "name": "type: \"https://gym-crm.local/problems/membership-catalog-immutable\", extensions: new Dictionary<string, object?> { [\"code\"] = \"membership_catalog_immutable\" });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        96,
+        126
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/MembershipCatalogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"membership_catalog_overlap\"",
+      "value": "membership_catalog_overlap",
+      "fingerprint": "sha256:abd5f0d1a8e75ed72fbec1f360239772db814f0ee216c2ca7c9d47a0d30e2f0e",
+      "context": {
+        "kind": "source-line",
+        "name": "type: \"https://gym-crm.local/problems/membership-catalog-overlap\", extensions: new Dictionary<string, object?> { [\"code\"] = \"membership_catalog_overlap\" });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        126
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/MembershipCatalogEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"https://gym-crm.local/problems/membership-catalog-overlap\"",
+      "value": "https://gym-crm.local/problems/membership-catalog-overlap",
+      "fingerprint": "sha256:c386c091c7c65d32cd924cda6eed7694eea4b5275b21d962b109db3ae91e5231",
+      "context": {
+        "kind": "source-line",
+        "name": "type: \"https://gym-crm.local/problems/membership-catalog-overlap\", extensions: new Dictionary<string, object?> { [\"code\"] = \"membership_catalog_overlap\" });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        126
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/client-membership",
+      "slice": "BE-3-client-membership",
+      "review_status": "accepted"
+    }
+  ]
+}

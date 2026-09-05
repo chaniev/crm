@@ -1,6 +1,8 @@
 import { IconRefresh } from '@tabler/icons-react'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { Button, type SharedButtonProps } from './Button'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 type TaskToolbarActionsProps = Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
   frequentActions?: ReactNode
@@ -69,7 +71,7 @@ type TaskToolbarRefreshActionProps = Omit<TaskToolbarActionProps, 'icon' | 'labe
 
 export function TaskToolbarRefreshAction({
   disabled,
-  label = 'Обновить',
+  label = fe17SharedRoutingThemeText.taskToolbarActions_string_603e460b,
   loading = false,
   ...props
 }: TaskToolbarRefreshActionProps) {

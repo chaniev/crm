@@ -1,0 +1,208 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "FE-7-client-membership",
+  "entry_count": 9,
+  "entries": [
+    {
+      "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'targetGroupIds'",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        246
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'pricingMode'",
+      "value": "pricingMode",
+      "fingerprint": "sha256:2d79cfe800d15885ef6c9b733d82d122b03184845749e66a2979a6963033b37c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        204
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'membershipCatalogItemId'",
+      "value": "membershipCatalogItemId",
+      "fingerprint": "sha256:ebeb70e0670128e17aec2f2a518dc2ab312ae413472155c88d38aed21c2d6874",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        205
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'manualSaleAmount'",
+      "value": "manualSaleAmount",
+      "fingerprint": "sha256:4bc9831e9d39e3717ca149d9a62a183cf61d21b204f01c48b4942e8f8d56cd08",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        206
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'targetGroupIds'",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        217
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'pricingMode'",
+      "value": "pricingMode",
+      "fingerprint": "sha256:2d79cfe800d15885ef6c9b733d82d122b03184845749e66a2979a6963033b37c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        209
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'membershipCatalogItemId'",
+      "value": "membershipCatalogItemId",
+      "fingerprint": "sha256:ebeb70e0670128e17aec2f2a518dc2ab312ae413472155c88d38aed21c2d6874",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        210
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'manualSaleAmount'",
+      "value": "manualSaleAmount",
+      "fingerprint": "sha256:4bc9831e9d39e3717ca149d9a62a183cf61d21b204f01c48b4942e8f8d56cd08",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        211
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'targetGroupIds'",
+      "value": "targetGroupIds",
+      "fingerprint": "sha256:7686665a89db3ad27f7242bf3865490aa1ddfdb82a0de6c2d768a69a2bd2ea5c",
+      "context": {
+        "kind": "call-argument",
+        "name": "form.clearFieldError"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        222
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-membership",
+      "slice": "FE-7-client-membership",
+      "review_status": "accepted"
+    }
+  ]
+}

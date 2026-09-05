@@ -347,12 +347,12 @@ internal sealed class AdministratorAttendanceGroupGrantService(GymCrmDbContext d
         var errors = new Dictionary<string, string[]>();
         if (unknownDesiredIds.Length > 0)
         {
-            errors["groupIds"] = ["Unknown group id was provided."];
+            errors["groupIds"] = [global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.AdministratorAttendanceGroupGrantServiceLine350D50fc303];
         }
 
         if (unknownExpectedIds.Length > 0)
         {
-            errors["expectedGroupIds"] = ["Unknown group id was provided."];
+            errors["expectedGroupIds"] = [global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.AdministratorAttendanceGroupGrantServiceLine355D50fc303];
         }
 
         return errors;

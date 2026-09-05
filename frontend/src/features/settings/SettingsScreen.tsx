@@ -51,6 +51,8 @@ import { showAppNotification } from '../shared/notifications'
 import { BranchSettingsScreen } from './BranchSettingsScreen'
 import { AdministratorsSettingsPanel } from './AdministratorsSettingsPanel'
 import { MembershipCatalogSettings } from './MembershipCatalogSettings'
+import { fe10SettingsBranchesShellText } from '../../resources/fe-10-settings-branches-shell'
+
 
 type SettingsTab = 'catalog' | 'group-types' | 'branches' | 'administrators'
 
@@ -62,7 +64,7 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
   const canManageHeadCoachSettings = user.createRoleOptions?.includes('SuperAdministrator') === true
 
   return (
-    <PageLayout data-testid="settings-screen" showHeader={false} title="Настройки">
+    <PageLayout data-testid="settings-screen" showHeader={false} title={fe10SettingsBranchesShellText.settingsScreen_title_985b5e0f}>
       <Tabs
         className="settings-tabs"
         keepMounted={false}
@@ -72,31 +74,27 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
         <PageSection>
           <Tabs.List className="settings-tabs__list" grow={isMobile}>
             <Tabs.Tab leftSection={<IconIdBadge2 size={18} />} value={'catalog' satisfies SettingsTab}>
-              Абонементы
-            </Tabs.Tab>
+              {fe10SettingsBranchesShellText.settingsScreen_jsxText_b2644036}</Tabs.Tab>
             {canManageGroupTypes ? (
               <Tabs.Tab
                 leftSection={<IconTags size={18} />}
                 value={'group-types' satisfies SettingsTab}
               >
-                Типы групп
-              </Tabs.Tab>
+                {fe10SettingsBranchesShellText.settingsScreen_jsxText_99c433e6}</Tabs.Tab>
             ) : null}
             {canManageHeadCoachSettings ? (
               <Tabs.Tab
                 leftSection={<IconSettings size={18} />}
                 value={'branches' satisfies SettingsTab}
               >
-                Филиалы и залы
-              </Tabs.Tab>
+                {fe10SettingsBranchesShellText.settingsScreen_jsxText_3e453a66}</Tabs.Tab>
             ) : null}
             {canManageAdministrators ? (
               <Tabs.Tab
                 leftSection={<IconUserCog size={18} />}
                 value={'administrators' satisfies SettingsTab}
               >
-                Администраторы
-              </Tabs.Tab>
+                {fe10SettingsBranchesShellText.settingsScreen_jsxText_0a3fd3c7}</Tabs.Tab>
             ) : null}
           </Tabs.List>
         </PageSection>
@@ -158,7 +156,7 @@ function GroupTypesSettingsPanel() {
       description: '',
     },
     validate: {
-      name: (value) => (value.trim() ? null : 'Введите название типа.'),
+      name: (value) => (value.trim() ? null : fe10SettingsBranchesShellText.settingsScreen_string_2fea0015),
     },
   })
 
@@ -179,7 +177,7 @@ function GroupTypesSettingsPanel() {
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить типы групп.',
+            : fe10SettingsBranchesShellText.settingsScreen_string_aa06a031,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -242,8 +240,8 @@ function GroupTypesSettingsPanel() {
 
       showAppNotification({
         id: `settings-group-type-${modalState.mode}`,
-        title: modalState.mode === 'create' ? 'Тип группы создан' : 'Тип группы обновлен',
-        message: `Справочник «${savedGroupType.name}» сохранен.`,
+        title: modalState.mode === 'create' ? fe10SettingsBranchesShellText.settingsScreen_string_33718ea5 : fe10SettingsBranchesShellText.settingsScreen_string_0b22e53e,
+        message: fe10SettingsBranchesShellText.settingsScreen_message_eae6ee55(savedGroupType.name),
         color: 'teal',
       })
     } catch (error) {
@@ -253,7 +251,7 @@ function GroupTypesSettingsPanel() {
         return
       }
 
-      setFormError('Не удалось сохранить тип группы.')
+      setFormError(fe10SettingsBranchesShellText.settingsScreen_setFormError_a7a05224)
     } finally {
       setSubmitting(false)
     }
@@ -273,19 +271,19 @@ function GroupTypesSettingsPanel() {
       )
       showAppNotification({
         id: 'settings-group-type-delete-success',
-        title: 'Тип группы удален',
-        message: `Справочник «${groupTypeToDelete.name}» удален.`,
+        title: fe10SettingsBranchesShellText.settingsScreen_title_a040ef93,
+        message: fe10SettingsBranchesShellText.settingsScreen_message_7c4f3bca(groupTypeToDelete.name),
         color: 'teal',
       })
       setGroupTypeToDelete(null)
     } catch (error) {
       showAppNotification({
         id: 'settings-group-type-delete-error',
-        title: 'Удаление не выполнено',
+        title: fe10SettingsBranchesShellText.settingsScreen_title_cf16993b,
         message:
           error instanceof Error
             ? error.message
-            : 'Не удалось удалить тип группы.',
+            : fe10SettingsBranchesShellText.settingsScreen_string_418d8149,
         color: 'red',
       })
     } finally {
@@ -302,23 +300,23 @@ function GroupTypesSettingsPanel() {
             primaryAction={(
               <TaskToolbarAction
                 icon={<IconTags size={18} />}
-                label="Добавить тип"
+                label={fe10SettingsBranchesShellText.settingsScreen_label_ead26ac8}
                 onClick={openCreateModal}
                 priority="primary"
               />
             )}
           />
 
-          {loading ? <LoadingState label="Загружаем типы групп..." /> : null}
+          {loading ? <LoadingState label={fe10SettingsBranchesShellText.settingsScreen_label_81dcfe1a} /> : null}
 
           {!loading && loadError ? (
-            <ErrorState message={loadError} title="Типы групп не загрузились" />
+            <ErrorState message={loadError} title={fe10SettingsBranchesShellText.settingsScreen_title_d81794ff} />
           ) : null}
 
           {!loading && !loadError && groupTypes.length === 0 ? (
             <EmptyState
               icon={<IconTags size={24} />}
-              title="Типы групп пока не заведены"
+              title={fe10SettingsBranchesShellText.settingsScreen_title_534bb5ea}
             />
           ) : null}
 
@@ -337,7 +335,7 @@ function GroupTypesSettingsPanel() {
                       <Group gap="sm" wrap="wrap">
                         <Text fw={700}>{groupType.name}</Text>
                         <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
-                          Групп: {groupType.groupCount}
+                          {fe10SettingsBranchesShellText.settingsScreen_jsxText_c72164c0}{groupType.groupCount}
                         </Badge>
                       </Group>
                       {groupType.description ? (
@@ -353,8 +351,7 @@ function GroupTypesSettingsPanel() {
                         onClick={() => openEditModal(groupType)}
                         variant="pill"
                       >
-                        Редактировать
-                      </Button>
+                        {fe10SettingsBranchesShellText.settingsScreen_jsxText_59792556}</Button>
                       <Button
                         color="red"
                         disabled={groupType.groupCount > 0}
@@ -362,8 +359,7 @@ function GroupTypesSettingsPanel() {
                         onClick={() => setGroupTypeToDelete(groupType)}
                         variant="pill"
                       >
-                        Удалить
-                      </Button>
+                        {fe10SettingsBranchesShellText.settingsScreen_jsxText_be99b136}</Button>
                     </ResponsiveButtonGroup>
                   </Group>
                 </Paper>
@@ -378,7 +374,7 @@ function GroupTypesSettingsPanel() {
         onClose={() => setModalState(null)}
         opened={Boolean(modalState)}
         radius="24px"
-        title={modalState?.mode === 'create' ? 'Новый тип группы' : 'Редактирование типа'}
+        title={modalState?.mode === 'create' ? fe10SettingsBranchesShellText.settingsScreen_string_3459cccc : fe10SettingsBranchesShellText.settingsScreen_string_ed4e0fd4}
       >
         <form onSubmit={form.onSubmit((values) => void submit(values))}>
           <Stack gap="lg">
@@ -386,36 +382,34 @@ function GroupTypesSettingsPanel() {
               <Alert
                 color="red"
                 icon={<IconAlertCircle size={18} />}
-                title="Сохранение не выполнено"
+                title={fe10SettingsBranchesShellText.settingsScreen_title_09e1875e}
                 variant="light"
               >
                 {formError}
               </Alert>
             ) : null}
             <TextInput
-              label="Название"
-              placeholder="Например, Детская группа"
+              label={fe10SettingsBranchesShellText.settingsScreen_label_0918b4ba}
+              placeholder={fe10SettingsBranchesShellText.settingsScreen_placeholder_070fa4aa}
               {...form.getInputProps('name')}
             />
             <Textarea
               autosize
-              label="Описание"
+              label={fe10SettingsBranchesShellText.settingsScreen_label_b3680f2c}
               minRows={3}
-              placeholder="Краткое пояснение для администраторов"
+              placeholder={fe10SettingsBranchesShellText.settingsScreen_placeholder_00d135e4}
               {...form.getInputProps('description')}
             />
 
             <ResponsiveButtonGroup justify="flex-end">
               <Button onClick={() => setModalState(null)} variant="secondary">
-                Отменить
-              </Button>
+                {fe10SettingsBranchesShellText.settingsScreen_jsxText_7c47f729}</Button>
               <Button
                 leftSection={<IconDeviceFloppy size={18} />}
                 loading={submitting}
                 type="submit"
               >
-                Сохранить
-              </Button>
+                {fe10SettingsBranchesShellText.settingsScreen_jsxText_b4d30cae}</Button>
             </ResponsiveButtonGroup>
           </Stack>
         </form>
@@ -423,13 +417,13 @@ function GroupTypesSettingsPanel() {
 
       <ConfirmActionModal
         confirmColor="red"
-        confirmLabel="Удалить"
-        description={`Тип «${groupTypeToDelete?.name ?? ''}» будет удален из справочника.`}
+        confirmLabel={fe10SettingsBranchesShellText.settingsScreen_jsxText_be99b136}
+        description={fe10SettingsBranchesShellText.settingsScreen_template_2dd95e54(groupTypeToDelete?.name ?? '')}
         onClose={() => setGroupTypeToDelete(null)}
         onConfirm={() => void confirmDeleteGroupType()}
         opened={Boolean(groupTypeToDelete)}
         pending={deletePending}
-        title="Удалить тип группы?"
+        title={fe10SettingsBranchesShellText.settingsScreen_title_f99a8a6f}
       />
     </Stack>
   )

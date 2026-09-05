@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="GroupEndpointsLine100703b7e917" xml:space="preserve">
+    <value>isoWeekday должен быть от 1 до 7.</value>
+  </data>
+  <data name="GroupEndpointsLine10129828a59b" xml:space="preserve">
+    <value>startTime должен быть в формате HH:mm.</value>
+  </data>
+  <data name="GroupEndpointsLine10615d2885e5" xml:space="preserve">
+    <value>Зал не найден.</value>
+  </data>
+  <data name="GroupEndpointsLine10668874f5c8" xml:space="preserve">
+    <value>Все залы расписания должны принадлежать филиалу группы.</value>
+  </data>
+  <data name="GroupEndpointsLine1078660b92f9" xml:space="preserve">
+    <value>Slots for ISO weekday {0} overlap.</value>
+  </data>
+  <data name="GroupEndpointsLine1130C1ec3b04" xml:space="preserve">
+    <value>Group preview token is not valid for this mutation.</value>
+  </data>
+  <data name="GroupEndpointsLine769Fb0d6e84" xml:space="preserve">
+    <value>Нельзя отключить группу, пока в ней есть действующие или будущие абонементы.</value>
+  </data>
+  <data name="GroupEndpointsLine774A5a49f77" xml:space="preserve">
+    <value>Группа используется в абонементах</value>
+  </data>
+  <data name="GroupEndpointsLine775Ffd3df9e" xml:space="preserve">
+    <value>Сначала перенесите или исправьте адресность действующих и будущих абонементов этой группы.</value>
+  </data>
+  <data name="GroupEndpointsLine7797157135b" xml:space="preserve">
+    <value>Откройте карточки клиентов из списка и перенесите абонементы на другую группу либо дождитесь окончания срока действия.</value>
+  </data>
+  <data name="GroupEndpointsLine9760e729b66" xml:space="preserve">
+    <value>Initial lesson series must include at least one slot.</value>
+  </data>
+  <data name="GroupEndpointsLine9822f1189ff" xml:space="preserve">
+    <value>startsOn должен быть в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="GroupEndpointsLine991Ebe48b29" xml:space="preserve">
+    <value>endsOn должен быть в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="GroupEndpointsLine9976ea9f71c" xml:space="preserve">
+    <value>endsOn должен быть не раньше startsOn.</value>
+  </data>
+  <data name="GroupRequestValidatorLine1798418554" xml:space="preserve">
+    <value>Use either page/pageSize or skip/take paging parameters, not both.</value>
+  </data>
+  <data name="GroupRequestValidatorLine407fd48611" xml:space="preserve">
+    <value>Resolved paging offset is too large.</value>
+  </data>
+  <data name="GroupTrainerAssignmentEndpointsLine30168f9f19a" xml:space="preserve">
+    <value>assignments обязателен.</value>
+  </data>
+  <data name="GroupTrainerAssignmentEndpointsLine316A371b159" xml:space="preserve">
+    <value>validFrom должен быть в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="GroupTrainerAssignmentEndpointsLine3259f8d97b8" xml:space="preserve">
+    <value>validTo должен быть в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="GroupTrainerAssignmentEndpointsLine334B78611ed" xml:space="preserve">
+    <value>validFrom не может быть раньше текущей даты.</value>
+  </data>
+  <data name="GroupTrainerAssignmentEndpointsLine3399eb638bc" xml:space="preserve">
+    <value>validTo должен быть не раньше validFrom.</value>
+  </data>
+  <data name="GroupTrainerAssignmentEndpointsLine3593a8042c5" xml:space="preserve">
+    <value>Trainer '{0:D}' has overlapping assignment periods in this request.</value>
+  </data>
+  <data name="GroupTrainerAssignmentEndpointsLine40496c9bf50" xml:space="preserve">
+    <value>У тренера есть пересекающееся постоянное назначение в другой группе.</value>
+  </data>
+  <data name="GroupTrainerAssignmentEndpointsLine67454fd709c" xml:space="preserve">
+    <value>Group trainer assignment preview token is not valid for this mutation.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine1867e830ea8" xml:space="preserve">
+    <value>Пользователь '{0}' создал замещение тренера группы.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine2641d60c817" xml:space="preserve">
+    <value>Группа должна быть активной.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine28080144680" xml:space="preserve">
+    <value>Дата начала должна быть сегодня или позже.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine3319dcc937d" xml:space="preserve">
+    <value>Пользователь '{0}' изменил замещение тренера группы.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine41840f3e7c0" xml:space="preserve">
+    <value>Пользователь '{0}' отменил замещение тренера группы.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine44780144680" xml:space="preserve">
+    <value>Дата начала должна быть сегодня или позже.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine4791d60c817" xml:space="preserve">
+    <value>Группа должна быть активной.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine485688b34f5" xml:space="preserve">
+    <value>Укажите замещающего тренера.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine496C99d3372" xml:space="preserve">
+    <value>Замещающий тренер должен быть активным тренером или главным тренером.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine500F66e630f" xml:space="preserve">
+    <value>Основной тренер этой группы не может быть выбран замещающим.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine50783c61e4f" xml:space="preserve">
+    <value>Укажите дату начала в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine513Df370b9a" xml:space="preserve">
+    <value>Укажите дату окончания в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine518De43f4f3" xml:space="preserve">
+    <value>Дата окончания не может быть раньше даты начала.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine6495ee85073" xml:space="preserve">
+    <value>Период пересекается с другим замещением этого тренера.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionEndpointsLine6505ee85073" xml:space="preserve">
+    <value>Период пересекается с другим замещением этого тренера.</value>
+  </data>
+</root>

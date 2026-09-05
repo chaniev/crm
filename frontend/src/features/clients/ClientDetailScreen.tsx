@@ -46,6 +46,8 @@ import { ClientOverviewSection } from './ClientOverviewSection'
 import { ClientMembershipSection } from './membership'
 import { ClientAttendanceHistorySection } from './ClientAttendanceHistorySection'
 import { useClientActionSubmissionKey } from './useClientActionSubmissionKey'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 type ClientDetailScreenProps = {
   backLabel?: string
@@ -56,7 +58,7 @@ type ClientDetailScreenProps = {
 }
 
 export function ClientDetailScreen({
-  backLabel = 'К списку клиентов',
+  backLabel = fe6ClientProfileText.clientDetailScreen_string_fde25c93,
   clientId,
   canManage,
   onBack,
@@ -120,7 +122,7 @@ export function ClientDetailScreen({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить карточку клиента.',
+            : fe6ClientProfileText.clientDetailScreen_string_63fa9b9e,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -166,19 +168,19 @@ export function ClientDetailScreen({
         id: `client-archive-toggle-${client.id}`,
         title:
           nextStatus === 'Archived'
-            ? 'Клиент переведен в архив'
-            : 'Клиент возвращен в активные',
+            ? fe6ClientProfileText.clientDetailScreen_string_9a24f729
+            : fe6ClientProfileText.clientDetailScreen_string_a1149493,
         message:
           nextStatus === 'Archived'
-            ? 'Карточка остается доступной для просмотра.'
-            : 'Клиент снова помечен как активный.',
+            ? fe6ClientProfileText.clientDetailScreen_string_840e7ca3
+            : fe6ClientProfileText.clientDetailScreen_string_ee9b8461,
         color: 'teal',
       })
     } catch (error) {
       setActionError(
         error instanceof Error
           ? error.message
-          : 'Не удалось изменить статус клиента.',
+          : fe6ClientProfileText.clientDetailScreen_string_da7e2d4f,
       )
     } finally {
       setActionPending(false)
@@ -210,7 +212,7 @@ export function ClientDetailScreen({
       setTransferFormError(
         error instanceof Error
           ? error.message
-          : 'Не удалось загрузить филиалы и группы.',
+          : fe6ClientProfileText.clientDetailScreen_string_a2e2cac2,
       )
     } finally {
       setTransferOptionsLoading(false)
@@ -244,8 +246,8 @@ export function ClientDetailScreen({
 
       showAppNotification({
         id: `client-transfer-${client.id}`,
-        title: 'Клиент переведен',
-        message: 'Филиал и группа клиента обновлены.',
+        title: fe6ClientProfileText.clientDetailScreen_title_a6f3283a,
+        message: fe6ClientProfileText.clientDetailScreen_message_66eefff6,
         color: 'teal',
       })
     } catch (error) {
@@ -264,7 +266,7 @@ export function ClientDetailScreen({
         return
       }
 
-      setTransferFormError('Не удалось перевести клиента.')
+      setTransferFormError(fe6ClientProfileText.clientDetailScreen_setTransferFormError_3cbae865)
     } finally {
       setTransferSubmitting(false)
     }
@@ -296,17 +298,17 @@ export function ClientDetailScreen({
       const feedback =
         submission.kind === 'purchase'
           ? {
-              title: 'Абонемент оформлен',
-              message: 'Текущий абонемент и история клиента обновлены.',
+              title: fe6ClientProfileText.clientDetailScreen_title_7d8a509d,
+              message: fe6ClientProfileText.clientDetailScreen_message_43ee725f,
             }
           : submission.kind === 'renew'
             ? {
-                title: 'Абонемент продлен',
-                message: 'Новая версия абонемента появилась в карточке клиента.',
+                title: fe6ClientProfileText.clientDetailScreen_title_3c069df0,
+                message: fe6ClientProfileText.clientDetailScreen_message_e33f1080,
               }
             : {
-                title: 'Данные абонемента исправлены',
-                message: 'Карточка клиента обновлена.',
+                title: fe6ClientProfileText.clientDetailScreen_title_db7198dc,
+                message: fe6ClientProfileText.clientDetailScreen_message_154f1c05,
               }
 
       showAppNotification({
@@ -319,7 +321,7 @@ export function ClientDetailScreen({
       setActionError(
         error instanceof Error
           ? error.message
-          : 'Не удалось выполнить действие с абонементом.',
+          : fe6ClientProfileText.clientDetailScreen_string_07dec05f,
       )
       throw error
     } finally {
@@ -370,8 +372,7 @@ export function ClientDetailScreen({
               onClick={() => onEdit(client.id)}
               variant="light"
             >
-              Редактировать
-            </Button>
+              {fe6ClientProfileText.clientDetailScreen_jsxText_59792556}</Button>
           ) : null}
           {canManage && client ? (
             <Button
@@ -380,8 +381,7 @@ export function ClientDetailScreen({
               onClick={() => void openTransferModal()}
               variant="light"
             >
-              Перевести
-            </Button>
+              {fe6ClientProfileText.clientDetailScreen_jsxText_4ac45591}</Button>
           ) : null}
           {canManage && client ? (
             <Button
@@ -398,26 +398,26 @@ export function ClientDetailScreen({
               variant="light"
             >
               {client.status === 'Active'
-                ? 'В архив'
-                : 'Вернуть в активные'}
+                ? fe6ClientProfileText.clientDetailScreen_string_1ca66519
+                : fe6ClientProfileText.clientDetailScreen_string_b2b51d6b}
             </Button>
           ) : null}
         </ResponsiveButtonGroup>
       }
-      title={client ? client.fullName : 'Детали клиента'}
+      title={client ? client.fullName : fe6ClientProfileText.clientDetailScreen_string_48186f7a}
     >
       {canManage && client ? (
         <ConfirmActionModal
           confirmColor={client.status === 'Active' ? 'gray' : 'teal'}
           confirmLabel={
             client.status === 'Active'
-              ? 'Перевести в архив'
-              : 'Вернуть в активные'
+              ? fe6ClientProfileText.clientDetailScreen_string_592928a6
+              : fe6ClientProfileText.clientDetailScreen_string_b2b51d6b
           }
           description={
             client.status === 'Active'
-              ? 'Клиент исчезнет из активных выборок, но карточка и история останутся доступны.'
-              : 'Клиент снова появится в активных списках и рабочих сценариях.'
+              ? fe6ClientProfileText.clientDetailScreen_string_f868f3a1
+              : fe6ClientProfileText.clientDetailScreen_string_62845e23
           }
           onClose={() => setArchiveConfirmOpened(false)}
           onConfirm={() => void toggleArchive()}
@@ -425,8 +425,8 @@ export function ClientDetailScreen({
           pending={actionPending}
           title={
             client.status === 'Active'
-              ? 'Перевести клиента в архив?'
-              : 'Вернуть клиента в активные?'
+              ? fe6ClientProfileText.clientDetailScreen_string_2f986cea
+              : fe6ClientProfileText.clientDetailScreen_string_f988138d
           }
         />
       ) : null}
@@ -459,7 +459,7 @@ export function ClientDetailScreen({
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Карточка клиента не загрузилась"
+            title={fe6ClientProfileText.clientDetailScreen_title_6c247ce7}
             variant="light"
           >
             {loadError}
@@ -473,7 +473,7 @@ export function ClientDetailScreen({
             <Alert
               color="red"
               icon={<IconAlertCircle size={18} />}
-              title="Действие не выполнено"
+              title={fe6ClientProfileText.clientDetailScreen_title_7530f803}
               variant="light"
             >
               {actionError}

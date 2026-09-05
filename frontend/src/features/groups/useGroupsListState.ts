@@ -21,6 +21,8 @@ import {
   createGroupListReturnSnapshot,
   type GroupListReturnSnapshot,
 } from './groupListReturnState'
+import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
+
 
 export type GroupsListState = ReturnType<typeof useGroupsListState>
 
@@ -150,7 +152,7 @@ export function useGroupsListState({
         setError(
           loadError instanceof Error
             ? loadError.message
-            : 'Не удалось загрузить список групп.',
+            : fe13GroupsCoreText.useGroupsListState_string_85b97c29,
         )
       } finally {
         if (!controller.signal.aborted && requestId === requestIdRef.current) {

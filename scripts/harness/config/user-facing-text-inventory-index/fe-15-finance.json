@@ -1,0 +1,1552 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "FE-15-finance",
+  "entry_count": 69,
+  "entries": [
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Запрос'",
+      "value": "Запрос",
+      "fingerprint": "sha256:e08bc1c8b18c165bc8b785bc6baad6dcbd8aa0872101df4c3c1cca3b3fee7a22",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        64
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отчет'",
+      "value": "Отчет",
+      "fingerprint": "sha256:e6a83dbab149338c4a2737043ef5d538f9fe6fed9dc95604c7c10588915e9e80",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        64
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Филиал: ${scope.branchLabel} · Тренер: ${scope.trainerLabel}`",
+      "value": "`Филиал: ${scope.branchLabel} · Тренер: ${scope.trainerLabel}`",
+      "fingerprint": "sha256:f9ca0c09ba0e95232ea7f454017b269fc91bbf3cdaa6fdce4602d6b50e3ae598",
+      "context": {
+        "kind": "variable",
+        "name": "scopeText"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        69
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ": ",
+      "value": ":",
+      "fingerprint": "sha256:e7ac0786668e0ff0f02b62bd04f45ff636fd82db63b1104601c975dc005f3a67",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        79
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Обновляем для ",
+      "value": "Обновляем для",
+      "fingerprint": "sha256:3ad527006a3556615dd404f73f695bec2b4548ec96813ed587657b2668952e70",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        91
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ",",
+      "value": ",",
+      "fingerprint": "sha256:d03502c43d74a30b936740a9517dc4ea2b2ad7168caa0a774cefe793ce0b33e7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        91
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем финансовый отчет...\"",
+      "value": "Загружаем финансовый отчет...",
+      "fingerprint": "sha256:8f5cc749ff02a1eb94caceed2041c1da8c0e999c836971125597319719840751",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        111
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Повторить\"",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        117
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Отчет не загрузился\"",
+      "value": "Отчет не загрузился",
+      "fingerprint": "sha256:22598730034ffdd9ed8084ac5f8e0d2e6cf5d89c289ce2d9c1de1d8bb85e87c4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        119
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Отчет не обновился\"",
+      "value": "Отчет не обновился",
+      "fingerprint": "sha256:9687bd4469500216319a5839de847e4ad72fb867385a79b356c4808906291c9e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        138
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Повторить обновление\"",
+      "value": "Повторить обновление",
+      "fingerprint": "sha256:976e03d39c011af6b0ad7db3d9fc470d6deb58cab4b9a1aa7dbead3dd4e75821",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        152
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Продано абонементов'",
+      "value": "Продано абонементов",
+      "fingerprint": "sha256:5a4cd44374c01e2d8f1b72efaeb851c111c541e2e54cef6794b0b31211d8bec7",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        174
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выручка'",
+      "value": "Выручка",
+      "fingerprint": "sha256:6a187a492750eae211de813720a0c95659b8904d927bf1878833a8919d0b6e5e",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        178
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Возвраты'",
+      "value": "Возвраты",
+      "fingerprint": "sha256:e8fdd4435960aac9d48b0cc4dab2aa5d9a905ae3bb4c8f9b1aa625c43a8b0ba1",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        182
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Чистая выручка'",
+      "value": "Чистая выручка",
+      "fingerprint": "sha256:eed36406aa3e6c5ff40d9e0ee806601cf25fbb124d2db603b220723a9b48a92a",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        186
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новые клиенты'",
+      "value": "Новые клиенты",
+      "fingerprint": "sha256:193f5e49625631d1ca099e6fec0b28248b17ad623af1ae9e4adc4ce7ff721f83",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        190
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Измените период или снимите фильтры.\"",
+      "value": "Измените период или снимите фильтры.",
+      "fingerprint": "sha256:be8c12e874704b5ea6ebd922979fd1d1e46e51d944a7b70ab38eb77fb83b2635",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        226
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"За выбранный период операций нет.\"",
+      "value": "За выбранный период операций нет.",
+      "fingerprint": "sha256:20c615869930fab91e15883066ba69bb97121ca5526bd38b2e8983bc5f836239",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        228
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'не задано'",
+      "value": "не задано",
+      "fingerprint": "sha256:7739db0ff0d95b3295da520fd47e5a922dcad93fd84870d7098cb1db1caf116a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        249,
+        250,
+        322
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Месяц'",
+      "value": "Месяц",
+      "fingerprint": "sha256:c90866545244fc5da9f0154b99d58b96ba049acb6482b5ddcf7deb112d0a9b3a",
+      "context": {
+        "kind": "property",
+        "name": "month"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        256
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Квартал'",
+      "value": "Квартал",
+      "fingerprint": "sha256:2727c94fa62a2ac195724fa65cbb8fddec9e16f90f0a4a384c81082d0e2e1ff7",
+      "context": {
+        "kind": "property",
+        "name": "quarter"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        257
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Год'",
+      "value": "Год",
+      "fingerprint": "sha256:d3b04324f281618f3fc30d278808a59d17e23341147a468574656a6af52f2ba6",
+      "context": {
+        "kind": "property",
+        "name": "year"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        258
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${presetLabel}, дата ${formatDateValue(filters.anchorDate)}`",
+      "value": "`${presetLabel}, дата ${formatDateValue(filters.anchorDate)}`",
+      "fingerprint": "sha256:edb2357a69a026795bbd810bd36cd63924aa1f4f64a5d049a8feebc4905d8459",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        261
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Филиал: ${scope.branchLabel}, Тренер: ${scope.trainerLabel}`",
+      "value": "`Филиал: ${scope.branchLabel}, Тренер: ${scope.trainerLabel}`",
+      "fingerprint": "sha256:e68a10c0be693e439208e4a7e6df66274d0aa97c5d75c36d913d0c1574a16b29",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        265
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Не удалось обновить отчет. Показаны ранее загруженные данные за ${displayedPeriod}.`",
+      "value": "`Не удалось обновить отчет. Показаны ранее загруженные данные за ${displayedPeriod}.`",
+      "fingerprint": "sha256:175bf575cf5e1c357d869b8e1e3a70d01efc5219da43e38ba901c38f826b468f",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        282
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Не удалось загрузить отчет для ${formatScopeInline(requestedScope)},`",
+      "value": "`Не удалось загрузить отчет для ${formatScopeInline(requestedScope)},`",
+      "fingerprint": "sha256:a67459b7189f63b90e356ce918e3babf962e908ba7054ea4005339a01eb0c078",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        286
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Показан предыдущий отчет: ${displayedPeriod},`",
+      "value": "`Показан предыдущий отчет: ${displayedPeriod},`",
+      "fingerprint": "sha256:d4e70149d4be4b4902638452b32f8cc12981a365878d9e2af0bff699c3aa5928",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        288
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportScope.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все филиалы'",
+      "value": "Все филиалы",
+      "fingerprint": "sha256:1b93eb9afadcfdd8173bad09fca06d8c692f67644708735448ab34ec7a29a71f",
+      "context": {
+        "kind": "property",
+        "name": "allLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        36
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportScope.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'филиала'",
+      "value": "филиала",
+      "fingerprint": "sha256:186f706775955c538c5979acb44755fac6997d983328a68f271d8603077c2f5b",
+      "context": {
+        "kind": "property",
+        "name": "fieldLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        37
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportScope.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все тренеры'",
+      "value": "Все тренеры",
+      "fingerprint": "sha256:0b471d0ca4576f35725254177beccefef5dd1e0ed2f3654e9ef8bd8ddb870ac6",
+      "context": {
+        "kind": "property",
+        "name": "allLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        47
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportScope.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'тренера'",
+      "value": "тренера",
+      "fingerprint": "sha256:10e82072fd6f783cc58572e8cc8d70b3d79ba81f7d5ffa2c286e57c0c3e21125",
+      "context": {
+        "kind": "property",
+        "name": "fieldLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        48
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportScope.ts",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Нельзя подтвердить scope финансового отчета: выбранный id ${fieldLabel} не найден в доступных backend списках.`",
+      "value": "`Нельзя подтвердить scope финансового отчета: выбранный id ${fieldLabel} не найден в доступных backend списках.`",
+      "fingerprint": "sha256:c9d28435e17c6c620ca8b770db6799a645afb57bd0ee24df576823e8fc8d88fc",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        92
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Месяц'",
+      "value": "Месяц",
+      "fingerprint": "sha256:c90866545244fc5da9f0154b99d58b96ba049acb6482b5ddcf7deb112d0a9b3a",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Квартал'",
+      "value": "Квартал",
+      "fingerprint": "sha256:2727c94fa62a2ac195724fa65cbb8fddec9e16f90f0a4a384c81082d0e2e1ff7",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Год'",
+      "value": "Год",
+      "fingerprint": "sha256:d3b04324f281618f3fc30d278808a59d17e23341147a468574656a6af52f2ba6",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        97
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Период'",
+      "value": "Период",
+      "fingerprint": "sha256:e97ca72e2ca5bbe157cac2f8d362f6c6b0c549a7e9268f5257683a248fa122b8",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        98
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Итоги сверху считаются без дублей. В разбивке по группам и тренерам одна и та же продажа может попасть в несколько строк, если клиент был связан с несколькими группами или тренерами в выбранный период. Поэтому сумма строк в этих таблицах может быть больше итогов.'",
+      "value": "Итоги сверху считаются без дублей. В разбивке по группам и тренерам одна и та же продажа может попасть в несколько строк, если клиент был связан с несколькими группами или тренерами в выбранный период. Поэтому сумма строк в этих таблицах может быть больше итогов.",
+      "fingerprint": "sha256:17d940387622c54089037297a42e7086812a48538dca2a8a439193a3edd36132",
+      "context": {
+        "kind": "variable",
+        "name": "duplicatedBreakdownHint"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        102
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить списки фильтров.'",
+      "value": "Не удалось загрузить списки фильтров.",
+      "fingerprint": "sha256:74c10e83cf86689985f0cf91e7c80674a19f0b302790327079b80bdbf80defa6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        194
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить финансовый отчет.'",
+      "value": "Не удалось загрузить финансовый отчет.",
+      "fingerprint": "sha256:0e92a7766cf8d15b8719c8d8ff729019cca975e2ca1b261e8f16c0af80cfdc4b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        322
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Финансы\"",
+      "value": "Финансы",
+      "fingerprint": "sha256:d833b857223fb9d7ecf79934ce79bc36c79b45c9d231ebab6f8b23051084b8b7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        392,
+        542
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Этот экран доступен только пользователям, которым backend выдал доступ к разделу финансов.\"",
+      "value": "Этот экран доступен только пользователям, которым backend выдал доступ к разделу финансов.",
+      "fingerprint": "sha256:8808f0489799b9cd5757b50f4c3cbc8ba5adeeb34594c1015c3294cbad6721e5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        395
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Финансовые отчеты недоступны\"",
+      "value": "Финансовые отчеты недоступны",
+      "fingerprint": "sha256:662a562c8bd1f529b3515cfeb6df7fb40d2489da0233904c2e36a44652c49191",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        396
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все филиалы'",
+      "value": "Все филиалы",
+      "fingerprint": "sha256:1b93eb9afadcfdd8173bad09fca06d8c692f67644708735448ab34ec7a29a71f",
+      "context": {
+        "kind": "property",
+        "name": "branchLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        413,
+        462
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все тренеры'",
+      "value": "Все тренеры",
+      "fingerprint": "sha256:0b471d0ca4576f35725254177beccefef5dd1e0ed2f3654e9ef8bd8ddb870ac6",
+      "context": {
+        "kind": "property",
+        "name": "trainerLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        415,
+        479
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Быстрый период'",
+      "value": "Быстрый период",
+      "fingerprint": "sha256:4885445c32399918a54986a8129cc930471094e7cb516866952d0a9856618c27",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        435,
+        437,
+        439
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Филиал'",
+      "value": "Филиал",
+      "fingerprint": "sha256:2f17c4d223aa7d914d5a9aa05e1137606b1e614d1fd739a4b4104cb56b089af6",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        453,
+        459,
+        714,
+        744
+      ],
+      "occurrences": 4,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тренер'",
+      "value": "Тренер",
+      "fingerprint": "sha256:894d7eccc6a450518d78c6b44df0db619bf344c90febf5067a0cd6a2cfd99c05",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        470,
+        476,
+        780
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'С'",
+      "value": "С",
+      "fingerprint": "sha256:07b8c0e68d5c16c22ba76b8120bda74c2dd64173f14edf5ba00191cefe2e0444",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        491,
+        495
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'По'",
+      "value": "По",
+      "fingerprint": "sha256:b60ab9b42e521df064ef38802226b8850f0139bdb285fd598244fccf329812e2",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        506,
+        510
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Дата в периоде'",
+      "value": "Дата в периоде",
+      "fingerprint": "sha256:0d21a5dddf95a6946aedc7ce989052cc98eba6d61443808fd93e7aea703ca3aa",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        523,
+        527
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Списки фильтров не загрузились\"",
+      "value": "Списки фильтров не загрузились",
+      "fingerprint": "sha256:63c4a3fcb9519106890d755dfda0618dd7ec0c34db8e3de0fca25ba0876487fd",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        548
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Проверьте фильтры\"",
+      "value": "Проверьте фильтры",
+      "fingerprint": "sha256:2c77fd501e10ca0fa36a29b27f9f73aa7c533c01575d579e3e5e418875ef4129",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        559
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Нельзя подтвердить scope финансового отчета\"",
+      "value": "Нельзя подтвердить scope финансового отчета",
+      "fingerprint": "sha256:22162cc7466672a675cb9f5b505f67796447c57c82a119e2e3a407a52285b5a4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        575
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сбросить фильтры финансового отчета\"",
+      "value": "Сбросить фильтры финансового отчета",
+      "fingerprint": "sha256:bb6ea1680115eef04390e48b3f11ceb21e9e712935f4b95a772ad3d24313e5cb",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        594
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сбросить\n                ",
+      "value": "Сбросить",
+      "fingerprint": "sha256:407f871778d310700e1c7bd098be9d25e40f39c764c7f4879c0ec1aa4ca8401a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        601,
+        615
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Фильтры · ${activeFilterCount}`",
+      "value": "`Фильтры · ${activeFilterCount}`",
+      "fingerprint": "sha256:a545b6f5361e815cf3d07aa3db76d6b5015a0c2374d28408b7009b77f0f1f483",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        612
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Фильтры'",
+      "value": "Фильтры",
+      "fingerprint": "sha256:a69757b1dbe17b1462c04ba462fbc20126d5e452cdd481fbc073e4322bc214f8",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        612
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "По филиалам",
+      "value": "По филиалам",
+      "fingerprint": "sha256:46b59b7131bc2c44ffc572e2552bb0976fe2b41b9ba7044193a472ffaf194db9",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        681,
+        727
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "По тренерам",
+      "value": "По тренерам",
+      "fingerprint": "sha256:fffad4a1de1e99c233f582c3b873c7c124eae6519694314a38c3ea9fec606159",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        687,
+        794
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "По группам",
+      "value": "По группам",
+      "fingerprint": "sha256:ece838e8442b1a86e5085e015e9f5c525ed42bf6f78f28f6047ccaa74576d7e4",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        693,
+        763
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"По филиалам нет строк за выбранный период.\"",
+      "value": "По филиалам нет строк за выбранный период.",
+      "fingerprint": "sha256:3b975c5b2dee987d9314c593aadf0f59a438681a8b577eed7115540efbb696c7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "emptyText"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        719
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группа'",
+      "value": "Группа",
+      "fingerprint": "sha256:907efbd4ce48253bae87d64dafe6c538bc0a77b9df23ecd6ea903d46c12a4c56",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        749
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"По группам нет строк за выбранный период.\"",
+      "value": "По группам нет строк за выбранный период.",
+      "fingerprint": "sha256:f08244d478b86cd33b27b8385f20fbee60e8e3ed2af0a4fd8eb052056e4cd7b3",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "emptyText"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        755
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"По тренерам нет строк за выбранный период.\"",
+      "value": "По тренерам нет строк за выбранный период.",
+      "fingerprint": "sha256:77c767cbe33318d029307c5f37d778d990fc4ec39a971f75e5f0641f7ebcd6c0",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "emptyText"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        786
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Продажи'",
+      "value": "Продажи",
+      "fingerprint": "sha256:355eef1942114f7e6154d1af8feb6e0a97fb2dedec10b767482b7abacb4b7417",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        940,
+        976
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выручка'",
+      "value": "Выручка",
+      "fingerprint": "sha256:6a187a492750eae211de813720a0c95659b8904d927bf1878833a8919d0b6e5e",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        946,
+        980
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Возвраты'",
+      "value": "Возвраты",
+      "fingerprint": "sha256:e8fdd4435960aac9d48b0cc4dab2aa5d9a905ae3bb4c8f9b1aa625c43a8b0ba1",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        952,
+        984
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Чистая'",
+      "value": "Чистая",
+      "fingerprint": "sha256:a748e6aa785fdc13d459ac8e16248684ad5b472d9ae233a7f9b83e62e2455684",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        958,
+        988
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новые'",
+      "value": "Новые",
+      "fingerprint": "sha256:32d5a2ea7ad3cfa91b6a68f25a8ad4467c3850d37d5d173f9b2b794d41257822",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        964,
+        992
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/finance",
+      "slice": "FE-15-finance",
+      "review_status": "accepted"
+    }
+  ]
+}

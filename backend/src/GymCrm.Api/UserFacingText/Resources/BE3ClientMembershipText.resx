@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ClientMembershipEndpointsLine1243117a1d9" xml:space="preserve">
+    <value>Comment must not exceed 2000 characters.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine1374E266e0bf" xml:space="preserve">
+    <value>Сначала перенесите целевые группы активных и будущих абонементов отдельной операцией, затем повторите перевод клиента.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine4088cf17618" xml:space="preserve">
+    <value>Операция возврата не выполнена.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine5183eeff138" xml:space="preserve">
+    <value>Этот Idempotency-Key уже использован для другой операции.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine527339319fd" xml:space="preserve">
+    <value>Такая операция уже выполняется. Повторите позже.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine584339319fd" xml:space="preserve">
+    <value>Такая операция уже выполняется. Повторите позже.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine63016aaa323" xml:space="preserve">
+    <value>Пользователь {0} перенёс группу в абонементах клиента {1}.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine6611c294390" xml:space="preserve">
+    <value>Перенос группы абонемента не выполнен.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine69145ea1663" xml:space="preserve">
+    <value>Проверьте группы для переноса.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine702E708b0d9" xml:space="preserve">
+    <value>Перенос группы абонемента невозможен.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine7293e0cd008" xml:space="preserve">
+    <value>Клиент не найден.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine8792a8c74ae" xml:space="preserve">
+    <value>Операция отмены возврата не выполнена.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine9203eeff138" xml:space="preserve">
+    <value>Этот Idempotency-Key уже использован для другой операции.</value>
+  </data>
+  <data name="ClientMembershipEndpointsLine929339319fd" xml:space="preserve">
+    <value>Такая операция уже выполняется. Повторите позже.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine10413f4bf32" xml:space="preserve">
+    <value>Choose a catalog item or provide a manual sale amount.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine151E5272767" xml:space="preserve">
+    <value>Payment date is required.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine154264b3a42" xml:space="preserve">
+    <value>Payment date cannot be in the future.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine165E59186fa" xml:space="preserve">
+    <value>Выберите хотя бы одну группу.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine1716a88c317" xml:space="preserve">
+    <value>Можно выбрать не больше 5 групп.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine17862a0a730" xml:space="preserve">
+    <value>Identifier is required for this membership operation.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine184Fec81fab" xml:space="preserve">
+    <value>Группа уже выбрана.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine198502b7239" xml:space="preserve">
+    <value>Refund amount must be a positive whole number of RUB within the supported range.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine31962a0a730" xml:space="preserve">
+    <value>Identifier is required for this membership operation.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine52D2ba0831" xml:space="preserve">
+    <value>Payment status is no longer accepted. Remove paymentStatus and send paymentDate.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine57Beebccea" xml:space="preserve">
+    <value>Unpaid membership status was removed.</value>
+  </data>
+  <data name="ClientMembershipRequestValidationLine99E2a18a30" xml:space="preserve">
+    <value>Membership catalog item id is invalid.</value>
+  </data>
+  <data name="MembershipCatalogEndpointsLine1252f820c7b" xml:space="preserve">
+    <value>Catalog availability overlaps</value>
+  </data>
+  <data name="MembershipCatalogEndpointsLine70C1553788" xml:space="preserve">
+    <value>Only SingleVisit or Term can be created.</value>
+  </data>
+  <data name="MembershipCatalogEndpointsLine7251d079c0" xml:space="preserve">
+    <value>Active branch is required.</value>
+  </data>
+  <data name="MembershipCatalogEndpointsLine9572de6d77" xml:space="preserve">
+    <value>Immutable catalog field</value>
+  </data>
+</root>

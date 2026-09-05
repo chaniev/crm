@@ -40,6 +40,8 @@ import {
   type TrainerPasswordFilter,
   type TrainerStatusFilter,
 } from './trainerListSearch'
+import { fe11SettingsUsersText } from '../../resources/fe-11-settings-users'
+
 
 export type TrainerListReturnRequest = {
   trainerId: string | null
@@ -222,7 +224,7 @@ export function UsersListScreen({
     <PageLayout
       data-testid="users-screen"
       showHeader={false}
-      title="Тренеры"
+      title={fe11SettingsUsersText.usersListScreen_title_0314946c}
     >
       <PageSection variant="plain">
         <EntityLocatorBar
@@ -313,15 +315,14 @@ export function UsersListScreen({
               type="button"
               variant="secondary"
             >
-              Сбросить
-            </Button>
+              {fe11SettingsUsersText.usersListScreen_jsxText_407f8717}</Button>
           )}
         />
       </Drawer>
 
       <div
         aria-busy={loading || undefined}
-        aria-label="Результаты поиска тренеров"
+        aria-label={fe11SettingsUsersText.usersListScreen_ariaLabel_544fa84d}
         id="coaches-results"
         ref={resultsRef}
         role="region"
@@ -330,19 +331,18 @@ export function UsersListScreen({
         <PageSection>
           <Stack gap="lg">
           {loading && !response ? (
-            <LoadingState label="Загружаем тренеров..." />
+            <LoadingState label={fe11SettingsUsersText.usersListScreen_label_d85336e3} />
           ) : null}
 
           {!loading && error && !response ? (
             <ErrorState
               action={(
                 <Button
-                  aria-label="Повторить загрузку списка тренеров"
+                  aria-label={fe11SettingsUsersText.usersListScreen_ariaLabel_49234431}
                   onClick={reload}
                   variant="light"
                 >
-                  Повторить
-                </Button>
+                  {fe11SettingsUsersText.usersListScreen_jsxText_5189135a}</Button>
               )}
               message={error}
               title={resources.users.list.loadingErrorTitle}
@@ -361,8 +361,7 @@ export function UsersListScreen({
                 <Text size="sm">{error}</Text>
                 <Group>
                   <Button onClick={reload} variant="light">
-                    Повторить
-                  </Button>
+                    {fe11SettingsUsersText.usersListScreen_jsxText_5189135a}</Button>
                 </Group>
               </Stack>
             </Alert>
@@ -384,8 +383,7 @@ export function UsersListScreen({
                   onClick={() => onQueryChange('')}
                   variant="light"
                 >
-                  Очистить поиск
-                </Button>
+                  {fe11SettingsUsersText.usersListScreen_jsxText_6e1f7baa}</Button>
               ) : undefined}
               description={hasActiveFilters
                 ? resources.users.list.emptyFilteredDescription
@@ -451,7 +449,7 @@ function UserListCard({
   if (canEditUser(user)) {
     return (
       <button
-        aria-label={`Редактировать тренера «${user.fullName}»`}
+        aria-label={fe11SettingsUsersText.usersListScreen_template_1fa0371e(user.fullName)}
         className="coach-registry-row coach-registry-row--editable list-row-card crm-list-row-surface"
         data-testid={`user-card-${user.id}`}
         data-trainer-id={user.id}
@@ -508,11 +506,11 @@ function UserRowContent({
         ))}
       </span>
       <span className="coach-registry-row__meta">
-        {resources.users.list.loginPrefix}: {user.login}
+        {resources.users.list.loginPrefix}{fe11SettingsUsersText.usersListScreen_jsxText_e7ac0786}{user.login}
       </span>
       {user.messengerPlatformUserId ? (
         <span className="coach-registry-row__meta">
-          {resources.users.list.telegramIdPrefix}: {user.messengerPlatformUserId}
+          {resources.users.list.telegramIdPrefix}{fe11SettingsUsersText.usersListScreen_jsxText_e7ac0786}{user.messengerPlatformUserId}
         </span>
       ) : null}
     </span>

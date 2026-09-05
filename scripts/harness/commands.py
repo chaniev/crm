@@ -82,6 +82,22 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     timeout_seconds=600,
                 ),
                 CheckSpec(
+                    "backend.user-facing-text",
+                    "backend",
+                    (
+                        "dotnet",
+                        "run",
+                        "--project",
+                        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+                        "--configuration",
+                        "Release",
+                        "--no-restore",
+                        "--",
+                        ".",
+                    ),
+                    timeout_seconds=300,
+                ),
+                CheckSpec(
                     "backend.format",
                     "backend",
                     (
@@ -154,6 +170,13 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     300,
                 ),
                 CheckSpec(
+                    "frontend.user-facing-text",
+                    "frontend",
+                    ("npm", "run", "check:user-facing-text"),
+                    "frontend",
+                    120,
+                ),
+                CheckSpec(
                     "frontend.check",
                     "frontend",
                     ("npm", "run", "check"),
@@ -179,6 +202,22 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     ("uv", "run", "--locked", "--extra", "dev", "ruff", "check", "."),
                     "bot",
                     300,
+                ),
+                CheckSpec(
+                    "bot.user-facing-text",
+                    "bot",
+                    (
+                        "uv",
+                        "run",
+                        "--locked",
+                        "--extra",
+                        "dev",
+                        "python",
+                        "scripts/check_user_facing_text.py",
+                        "..",
+                    ),
+                    "bot",
+                    120,
                 ),
                 CheckSpec(
                     "bot.format",

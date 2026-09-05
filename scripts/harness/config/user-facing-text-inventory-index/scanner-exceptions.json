@@ -1,0 +1,4973 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "scanner-exceptions",
+  "entry_count": 223,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskyAdministratorSeed.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Администратор Ленинский {number}\"",
+      "value": "Администратор Ленинский {number}",
+      "fingerprint": "sha256:feb5b06f12b449b52e307bd20fff9a8152d8572767b579a9fb44281bc87f2099",
+      "context": {
+        "kind": "source-line",
+        "name": "user.FullName = $\"Администратор Ленинский {number}\";"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        54
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskyBranchSeed.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Тестовый филиал.\"",
+      "value": "Тестовый филиал.",
+      "fingerprint": "sha256:ad03d4657734a8fb3cbebf84a8dd61727f0f860ddb48431d223550442aa7e326",
+      "context": {
+        "kind": "source-line",
+        "name": "Description = \"Тестовый филиал.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        23
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Ленинский\"",
+      "value": "Ленинский",
+      "fingerprint": "sha256:d7c306abd3954353fe85a0ebf591c98726b7b628ae4488aaa9a48a0dc6f0753d",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string BranchName = \"Ленинский\";"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        7
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Главный тренер\"",
+      "value": "Главный тренер",
+      "fingerprint": "sha256:6d7112785e9f61bb8cca201b86b77016b9cd9f706d4d771dfaf4319fbd0c67ec",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string HeadCoachFullName = \"Главный тренер\";"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        11
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Суперадминистратор\"",
+      "value": "Суперадминистратор",
+      "fingerprint": "sha256:ba0c95d4cc4c9b3f1552a15bf6aad26ddd72391eb5aaa12b48f54f1f406d7689",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string SuperAdministratorFullName = \"Суперадминистратор\";"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        13
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Пробная тренировка\"",
+      "value": "Пробная тренировка",
+      "fingerprint": "sha256:04095056afd6648818c7fffa355d6561975bbb0384da02053c067c87616e9ee4",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"Пробная тренировка\", 500m, MembershipBehaviorKind.SingleVisit),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        17
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Разовая\"",
+      "value": "Разовая",
+      "fingerprint": "sha256:7dd2a5404b2b678440d4aecc30902f13ea1dd7c4b7e57e5ce0fa0ef630f8446c",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"Разовая\", 1000m, MembershipBehaviorKind.SingleVisit),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        18
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"На месяц\"",
+      "value": "На месяц",
+      "fingerprint": "sha256:e238ede2a34c7751917074d6fe636fdd92148ae59c56c24f46c54bd1107c7824",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"На месяц\", 6000m, MembershipBehaviorKind.Term),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        19
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Второй час\"",
+      "value": "Второй час",
+      "fingerprint": "sha256:dfe622bd2d93a695616efdb8d317c8fe43156f80842a91a611867c3bbf0dcc7a",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"Второй час\", 1500m, MembershipBehaviorKind.SingleVisit),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        20
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Второй + третий\"",
+      "value": "Второй + третий",
+      "fingerprint": "sha256:299df6bc157321f18fe3374524b354967bbe277b3bb070caa265e63fae0b7332",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"Второй + третий\", 2500m, MembershipBehaviorKind.SingleVisit),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        21
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Пробная функциональные\"",
+      "value": "Пробная функциональные",
+      "fingerprint": "sha256:6b69c6f8f7c86a408a88fe22b70466000bf665f808151e0cea65f456a85dabbb",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"Пробная функциональные\", 850m, MembershipBehaviorKind.SingleVisit),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Разовая функциональные\"",
+      "value": "Разовая функциональные",
+      "fingerprint": "sha256:e49e0878dcf5288e043c2fc97c99d8fe22abbe36f759841f7c7d8f276225cfcc",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"Разовая функциональные\", 1500m, MembershipBehaviorKind.SingleVisit),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        23
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Месяц функциональные 8 тренировок\"",
+      "value": "Месяц функциональные 8 тренировок",
+      "fingerprint": "sha256:ae45330f6af3fca825dbfce29ac468e43a18d92f2db55586bf302b61f0952e54",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"Месяц функциональные 8 тренировок\", 6500m, MembershipBehaviorKind.Term),"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        24
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"12 тренировок\"",
+      "value": "12 тренировок",
+      "fingerprint": "sha256:574bccb385da8795863c6dc312e42e377a55b5f0e05fa1ed41aa64882b421ae4",
+      "context": {
+        "kind": "source-line",
+        "name": "(\"12 тренировок\", 8000m, MembershipBehaviorKind.Term)"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Иванов\"",
+      "value": "Иванов",
+      "fingerprint": "sha256:37f3ddd46f2434ef1d2581a98a6d538bdace6a39e69599b55bb8c35e9ff1a828",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Иванов\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        9
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Петров\"",
+      "value": "Петров",
+      "fingerprint": "sha256:d9a7cdac33d1f47941ee0f52a0083aaa4ef9c2cbab782a77899629051f85ccb6",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Петров\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        10
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Сидоров\"",
+      "value": "Сидоров",
+      "fingerprint": "sha256:4c638eb76cf4225a827173839de8d972e534c2f15feb45799e7c7be7c1ee8fee",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Сидоров\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        11
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Смирнов\"",
+      "value": "Смирнов",
+      "fingerprint": "sha256:b36bde2b3fe025e57c6c831128e3d79d5a18cc941f79bf8c1b961fb84e00c2b2",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Смирнов\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        12
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Кузнецов\"",
+      "value": "Кузнецов",
+      "fingerprint": "sha256:9096dc4f0accba0b9e337f5a5b0dd9a80016eb7e16194751f44b056087eece0c",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Кузнецов\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        13
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Попов\"",
+      "value": "Попов",
+      "fingerprint": "sha256:7f2dcd71ebda9378de8c5f978df46e2338ddb8a1d32f3fc9bc843bbfd09b0ab7",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Попов\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        14
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Васильев\"",
+      "value": "Васильев",
+      "fingerprint": "sha256:7ceb43bebbf32cc2b27de56e70a1e8f4c99ced88df242d9431d3dd04323b7122",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Васильев\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        15
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Новиков\"",
+      "value": "Новиков",
+      "fingerprint": "sha256:500f857728db05a6b100f98e05f21d4db317dddb7ad747b31b8bc46ea3968162",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Новиков\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        16
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Федоров\"",
+      "value": "Федоров",
+      "fingerprint": "sha256:b2ad2371efb74a7fe07289963b649842f13f2212e3cef88b722456bc8c386783",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Федоров\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        17
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Морозов\"",
+      "value": "Морозов",
+      "fingerprint": "sha256:e3cc181fc49a8589edf77eecab66811aa32cf4ff047e3f2474a6683aae3c4a39",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Морозов\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        18
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Волков\"",
+      "value": "Волков",
+      "fingerprint": "sha256:c9d8108122c0929ef9789e6ec76dbadcb605ca2c95b08c15fd0614e44c9bdb86",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Волков\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        19
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Алексеев\"",
+      "value": "Алексеев",
+      "fingerprint": "sha256:911024259d72bb67bbb413d38d06c19feee9154834f4dd1dbe3e17c1fce0b2fb",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Алексеев\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        20
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Лебедев\"",
+      "value": "Лебедев",
+      "fingerprint": "sha256:0c12f3c64fc5d97b6e342c3a72c32c280577f35633dde47bff11f5fdd3f15e3c",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Лебедев\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        21
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Семенов\"",
+      "value": "Семенов",
+      "fingerprint": "sha256:8cfaf4d7a983b138a4d7e29b58c01acc647c9c9538b67825cc5e8b9057a61ef9",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Семенов\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Егоров\"",
+      "value": "Егоров",
+      "fingerprint": "sha256:5804c6fd9f41e34333738d5f49dbd41f03fee136820859f6b1aa1803f0fd8f4b",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Егоров\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        23
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Алексей\"",
+      "value": "Алексей",
+      "fingerprint": "sha256:03ddca8492fbc7ac0ae989f9e0facb723ab1c5482853e0371fe1f9f799c50f6b",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Алексей\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        28
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Дмитрий\"",
+      "value": "Дмитрий",
+      "fingerprint": "sha256:2c040ac4f12399335dfd916b8f427e5a469ada1db710bed4ccef5b20e4ca0fc2",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Дмитрий\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        29
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Илья\"",
+      "value": "Илья",
+      "fingerprint": "sha256:2f3308d80f9c3cacd14672eed9fb8032cae1885311632275eefa79e802db1988",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Илья\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        30
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Максим\"",
+      "value": "Максим",
+      "fingerprint": "sha256:2545f6cad047b4701694af107b6f8eb15e93d4d64448f79e64fb1a10b32d0f8a",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Максим\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        31
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Никита\"",
+      "value": "Никита",
+      "fingerprint": "sha256:7682b3287b6ac3b06f4972dd309c0ea7028bdb23d7c3f0a05c4b4d9bfabe353b",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Никита\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        32
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Роман\"",
+      "value": "Роман",
+      "fingerprint": "sha256:96c28f2471d2c99e0d290c7e7612c5b018cc66425b12442847ed19068b3105b4",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Роман\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        33
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Сергей\"",
+      "value": "Сергей",
+      "fingerprint": "sha256:2a6a5197e1bceca343ed3d2bddc36ad8a96ba792e51f0a18d83fa9fa24670ace",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Сергей\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        34
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Андрей\"",
+      "value": "Андрей",
+      "fingerprint": "sha256:7951b5ab1eada31d7e5425ad3a4ff50e63a592411666ec597057db5c2a4ccf1d",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Андрей\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Павел\"",
+      "value": "Павел",
+      "fingerprint": "sha256:63c2c03c21d7b631804043699d959a191217124ef2f63aeb8b5aec0a868a1a9a",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Павел\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        36
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Кирилл\"",
+      "value": "Кирилл",
+      "fingerprint": "sha256:016da9926d640bceecf2a5b16ac2404e1b292a3591c92f95e4d2142cb9b9fabf",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Кирилл\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        37
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Анна\"",
+      "value": "Анна",
+      "fingerprint": "sha256:25f4b213274e11e1c2dde0e3c6f8c9fd264c86baf5eead720be98d91e728a330",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Анна\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        38
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Мария\"",
+      "value": "Мария",
+      "fingerprint": "sha256:e70124977db3d82b7a94a929a755d2ae06eea74ee17296c4807347749be5665f",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Мария\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        39
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Екатерина\"",
+      "value": "Екатерина",
+      "fingerprint": "sha256:4ceaf7d021e8b981521b7b10b505799aacb0d21e7fbe7b98dc4c2b518441e49e",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Екатерина\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        40
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Ольга\"",
+      "value": "Ольга",
+      "fingerprint": "sha256:995a67c41299e00c5aaa5031bf04e5e61027971693a0ee703b708e13f83394d1",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Ольга\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        41
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Дарья\"",
+      "value": "Дарья",
+      "fingerprint": "sha256:e696306c274b0d84c9ea91d74908861e23a073a6e29e80e2df3b9151b16ce523",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Дарья\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        42
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Александрович\"",
+      "value": "Александрович",
+      "fingerprint": "sha256:813246faaeffa7846493cb5342e3ea7179a41592fec6c24ed9a72896b03bcaf4",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Александрович\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        47
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Дмитриевич\"",
+      "value": "Дмитриевич",
+      "fingerprint": "sha256:bdab9219924da9529a62014a273eda922deebc7e5e678a109aa65251aec6f5ec",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Дмитриевич\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        48
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Ильич\"",
+      "value": "Ильич",
+      "fingerprint": "sha256:ecdc390e042812424783c0f56e4a82b5341506b83ab97ccd4929296037f1de4e",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Ильич\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        49
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Максимович\"",
+      "value": "Максимович",
+      "fingerprint": "sha256:b74108361c47e7a0a34b9f5b242e4a10ddf3507804ce049e6f22c115a43ab745",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Максимович\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        50
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Сергеевич\"",
+      "value": "Сергеевич",
+      "fingerprint": "sha256:ab9b60e8d83bde333647ae5f34c684cecbd82c993493eac19480f9090dc0d771",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Сергеевич\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        51
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Андреевич\"",
+      "value": "Андреевич",
+      "fingerprint": "sha256:dd8b93904bdb6a41df90b3e5321d3e74e4c352866fe8d9804bac0efb8296891e",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Андреевич\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        52
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Павлович\"",
+      "value": "Павлович",
+      "fingerprint": "sha256:94e7cb34580df563347dbd59c9c967c838da655f63116b0822abb317c4749255",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Павлович\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        53
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Александровна\"",
+      "value": "Александровна",
+      "fingerprint": "sha256:ca6cfcb995c03240c14a40f8acf84f711bb5c59c64382771a4316419679186db",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Александровна\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        54
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Дмитриевна\"",
+      "value": "Дмитриевна",
+      "fingerprint": "sha256:0f67f4c4c09bd113c1ff7982d49deac228cef6dc50d11cf6400acab639d371b8",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Дмитриевна\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        55
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Сергеевна\"",
+      "value": "Сергеевна",
+      "fingerprint": "sha256:30e4c43ad9ce1062fdfa5bbb6053e470b85a70ff10735e2f8c059434a0965df3",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Сергеевна\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        56
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/SeedDataOptionsParser.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Could not parse JSON configuration '{path}': {exception.Message}\"",
+      "value": "Could not parse JSON configuration '{path}': {exception.Message}",
+      "fingerprint": "sha256:5e0b9621cf7c699fd53147f0c7ce0cb40ec261a68eac0ed89064a984bedb62f9",
+      "context": {
+        "kind": "source-line",
+        "name": "throw new SeedDataOptionsException($\"Could not parse JSON configuration '{path}': {exception.Message}\");"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        235
+      ],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Seeded entity data becomes a domain value, not presentation copy.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataMembershipSeed.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Тестовый профессиональный абонемент.\"",
+      "value": "Тестовый профессиональный абонемент.",
+      "fingerprint": "sha256:3ac2ab54eb9c73d314d707d3dc2fe743d6887e00ae0534fa7766642e6b71451c",
+      "context": {
+        "kind": "source-line",
+        "name": "? \"Тестовый профессиональный абонемент.\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataMembershipSeed.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Годовой тестовый\"",
+      "value": "Годовой тестовый",
+      "fingerprint": "sha256:1deac56e1ad571d06ed26c0dd9db0d76efc5f0407311a6c0a2b07f07436ec74f",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Годовой тестовый\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        133,
+        165
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataMembershipSeed.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Месячный тестовый\"",
+      "value": "Месячный тестовый",
+      "fingerprint": "sha256:96c7c435a2eddbefaacfbe30af9e629de72195bafa7295c3225d8b13b27fa914",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Месячный тестовый\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        142,
+        175
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"ММА\"",
+      "value": "ММА",
+      "fingerprint": "sha256:a8816899f91000a4228a9428674c0713bff9a145d4a26a18dde50b0f67ad595a",
+      "context": {
+        "kind": "source-line",
+        "name": "\"ММА\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        19
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Вольная борьба\"",
+      "value": "Вольная борьба",
+      "fingerprint": "sha256:40f7f5bb644b03b7d8c1cfdbbed7cfbc5324d927e0d5d442dbc55635b716dcdb",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Вольная борьба\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        20
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Кикбоксинг\"",
+      "value": "Кикбоксинг",
+      "fingerprint": "sha256:06f56c66ba0fd7903d268261abf0810e578452826572f7175a8cd12a1523f712",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Кикбоксинг\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        21
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Боевое самбо\"",
+      "value": "Боевое самбо",
+      "fingerprint": "sha256:aec198b88cba394a339befb0f32b2a0f14e371047e30cd69f7803adb07aa0817",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Боевое самбо\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Филиал Центр\"",
+      "value": "Филиал Центр",
+      "fingerprint": "sha256:91653d207e0fe041aaa908b3e2a46bee6ff3e911dec21fa236ff5b55ac596332",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Филиал Центр\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        27
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Филиал Север\"",
+      "value": "Филиал Север",
+      "fingerprint": "sha256:52ff2d185d84ce11f3d65dd6081bc107eaed7afa9b3508ab04ca671bfe399028",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Филиал Север\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        28
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Филиал Юг\"",
+      "value": "Филиал Юг",
+      "fingerprint": "sha256:2d9a5076a90bad624daf814ca4166eb1fda163435c3cbf718a12af2b697e9d26",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Филиал Юг\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        29
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Филиал Запад\"",
+      "value": "Филиал Запад",
+      "fingerprint": "sha256:2a69a1b2da61fc8a7524dd297a3c79d46acbdd899fcb29aac2e8d6ca395a6fd2",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Филиал Запад\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        30
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"ул. Спортивная, 10\"",
+      "value": "ул. Спортивная, 10",
+      "fingerprint": "sha256:0e9a27be463a0ca75f3ba1aed80603a65a69ab6582573235b6e865dbee448dc1",
+      "context": {
+        "kind": "source-line",
+        "name": "\"ул. Спортивная, 10\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        35
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Северный проспект, 22\"",
+      "value": "Северный проспект, 22",
+      "fingerprint": "sha256:aada03297077911d3acad2d144d118cc55979b01c3b46d83713e8cb84a9b3bf0",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Северный проспект, 22\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        36
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Южная набережная, 7\"",
+      "value": "Южная набережная, 7",
+      "fingerprint": "sha256:238e957a5ac6bd9acb148b705103da6ccb9953ec2838a3d6b3f8b84adb6a0e6f",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Южная набережная, 7\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        37
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Западный бульвар, 15\"",
+      "value": "Западный бульвар, 15",
+      "fingerprint": "sha256:becfc648fcdff96c3ca27211464b3555cb2731e0c5c0c4e600b4e9b046f2823d",
+      "context": {
+        "kind": "source-line",
+        "name": "\"Западный бульвар, 15\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        38
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Тестовый тип групп: {name}.\"",
+      "value": "Тестовый тип групп: {name}.",
+      "fingerprint": "sha256:389ebf27910539832768a57b51608f99ba4392dcf82c7c1bf58c4b8822bf118a",
+      "context": {
+        "kind": "source-line",
+        "name": "Description = $\"Тестовый тип групп: {name}.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        430
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Тестовый филиал для демонстрационного набора данных.\"",
+      "value": "Тестовый филиал для демонстрационного набора данных.",
+      "fingerprint": "sha256:2660112fa5d51c6b43ca26ef67a3218f7f72946ae597b5e594711244696338e7",
+      "context": {
+        "kind": "source-line",
+        "name": "Description = \"Тестовый филиал для демонстрационного набора данных.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        449
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Зал {hallNumber}\"",
+      "value": "Зал {hallNumber}",
+      "fingerprint": "sha256:999838a100b534d4f75f81e3884b5efd3ccccbe7a58e0ded842ec69a105bbb1f",
+      "context": {
+        "kind": "source-line",
+        "name": "Name = $\"Зал {hallNumber}\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        468
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Тестовый зал {hallNumber} в филиале {branchNumber}.\"",
+      "value": "Тестовый зал {hallNumber} в филиале {branchNumber}.",
+      "fingerprint": "sha256:dfaecd5b24bc96068234d41f4982ea419b781b2ac6e527836a4fbeb9bfc128f0",
+      "context": {
+        "kind": "source-line",
+        "name": "Description = $\"Тестовый зал {hallNumber} в филиале {branchNumber}.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        469
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Администратор {number:00}\"",
+      "value": "Администратор {number:00}",
+      "fingerprint": "sha256:49af66534fca2873ba9a918255e7d20fbf9c976cb3e527058faefe97e39f4b22",
+      "context": {
+        "kind": "source-line",
+        "name": "FullName = $\"Администратор {number:00}\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        489
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Тренер {number:00}\"",
+      "value": "Тренер {number:00}",
+      "fingerprint": "sha256:493a0f987d1d237c2d8acdbb4ab3599fca8652db71d438854843dc7fd4cfad74",
+      "context": {
+        "kind": "source-line",
+        "name": "FullName = $\"Тренер {number:00}\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        514
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{groupType.Name} воскресенье 10:30\"",
+      "value": "{groupType.Name} воскресенье 10:30",
+      "fingerprint": "sha256:c73ab7ac1c523aaa63d4ab1adb5e6996e996bc21df0692c526f6069ee75c3e70",
+      "context": {
+        "kind": "source-line",
+        "name": "? $\"{groupType.Name} воскресенье 10:30\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        556
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{groupType.Name} группа {groupNumber:00} - {branch.Name}\"",
+      "value": "{groupType.Name} группа {groupNumber:00} - {branch.Name}",
+      "fingerprint": "sha256:afef91ee125a9e3fdf27d018e9338930701f5bbb535b60f3ddfdfb4728d79b82",
+      "context": {
+        "kind": "source-line",
+        "name": ": $\"{groupType.Name} группа {groupNumber:00} - {branch.Name}\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        557
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Тестовый клиент #{clientNumber:000}.\"",
+      "value": "Тестовый клиент #{clientNumber:000}.",
+      "fingerprint": "sha256:458489b7e7d65eab7b63c14f3058aa6c83f9e593c1afef3485bd12dbce476d4a",
+      "context": {
+        "kind": "source-line",
+        "name": "Notes = $\"Тестовый клиент #{clientNumber:000}.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        739
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Deterministic development/test seed fixture.",
+      "owner": "backend/seed-data",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Очень длинное название филиала «Северный спортивный центр имени команды чемпионов» — проверка переноса русского содержимого.'",
+      "value": "Очень длинное название филиала «Северный спортивный центр имени команды чемпионов» — проверка переноса русского содержимого.",
+      "fingerprint": "sha256:812518f3ef0941341d589777a65732f341ccfa9ac2e08cfd8c34667361692916",
+      "context": {
+        "kind": "variable",
+        "name": "longFixture"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        41
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Каталог дизайн-системы",
+      "value": "Каталог дизайн-системы",
+      "fingerprint": "sha256:8cb0034c6d4b613d380603b6e9b2d6eabe3aeb35ccfc4d55ac99de4537c97465",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        81
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Production foundations, recipes and audited shared component contracts.",
+      "value": "Production foundations, recipes and audited shared component contracts.",
+      "fingerprint": "sha256:4c38c5ef133127b8d0b2cb3a9128e20cfa370d4dc0072501fdde7799c139a16f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        82
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Docs: frontend/src/catalog/README.md",
+      "value": "Docs: frontend/src/catalog/README.md",
+      "fingerprint": "sha256:4aa52297f7de17ce54e398721f049ce0403e1141019dbbbbbf52367ffb90fb7b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        84
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Theme\n            ",
+      "value": "Theme",
+      "fingerprint": "sha256:efb52e7172b77731d996ff4f51cd7b3dcfd55fc6f07392994619418d58d170dd",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        89
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Viewport\n            ",
+      "value": "Viewport",
+      "fingerprint": "sha256:91e53b9065718a3c8684d13770c4f7a8c4ccf357ebca9cc9bd79e7f7f8b2fa17",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        95
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Motion\n            ",
+      "value": "Motion",
+      "fingerprint": "sha256:8ca344247c18317ebe13c11e1943cc39d955ce937100f53a8129768c9334819d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        101
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Content\n            ",
+      "value": "Content",
+      "fingerprint": "sha256:47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        107
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Открыть состояние",
+      "value": "Открыть состояние",
+      "fingerprint": "sha256:caee02d994fb349a856b2ac91b9e5279f8fc7dd056f588c3775b0b982ea8aad8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        112
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Стандартный пример содержимого'",
+      "value": "Стандартный пример содержимого",
+      "fingerprint": "sha256:51f4be81d3fdc6668531b3597d98122637a0c3bf67198782cc37cb6a56ab6c05",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        126
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Theme profile review links\"",
+      "value": "Theme profile review links",
+      "fingerprint": "sha256:91d7039d04e10a6776fb819688d1da921e091c9b1bfce99da7066d5809883b80",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        129
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Foundation registries\"",
+      "value": "Foundation registries",
+      "fingerprint": "sha256:6f627d76ba259e8f781f5643ef92a491376e22c10365c5b55de1ef7640d40888",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        141,
+        142
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Импортируются из production-модулей темы; локальные копии токенов отсутствуют.\n            ",
+      "value": "Импортируются из production-модулей темы; локальные копии токенов отсутствуют.",
+      "fingerprint": "sha256:8b492a02e8d9a0f5e810fa25feeeff6b261172df9febe72d92d4a657e2edfa7c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        144
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Spacing",
+      "value": "Spacing",
+      "fingerprint": "sha256:62a822a5830967227de02c62b8fcece522de83983a87c15d42944dd5ccea7174",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        146
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Mobile list rhythm",
+      "value": "Mobile list rhythm",
+      "fingerprint": "sha256:27dab797533f4c86cf65926c4f1ab88d3d6a43acc25b0d37fd7b885ed0ad9f94",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        148
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "8px (",
+      "value": "8px (",
+      "fingerprint": "sha256:55bc110dab421d1c0828818b5bb6c3b11c3559c93f118fd78b4835f866d4f512",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "--crm-space-2",
+      "value": "--crm-space-2",
+      "fingerprint": "sha256:63d27e4b4f01a96b9d615b1511be4f3012b2de2b2fa17f01a8919439a9b4be49",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ") внутри группы, 12px (\n              ",
+      "value": ") внутри группы, 12px (",
+      "fingerprint": "sha256:7fe221f3ae43409ad5c377a98af9e66d4fd0f3f22368844480083e0cc0a140f2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "--crm-space-3",
+      "value": "--crm-space-3",
+      "fingerprint": "sha256:49fd3ea0e9b4d37bcdb058f6d9fa47f6f41c815234cdf591ba838bbb82478cca",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        151
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ") между строками и 16–24px (\n              ",
+      "value": ") между строками и 16–24px (",
+      "fingerprint": "sha256:71783574e020b46b1fd65ced1c2a0d8a451cad3d4ca162170dfba9f11f62e87f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        151
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "--crm-space-6",
+      "value": "--crm-space-6",
+      "fingerprint": "sha256:40f7003eac5479a99e423b4b2be8f3a9662a05154291d1c42c1dcb13f5bc714b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        152
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "--crm-space-4",
+      "value": "--crm-space-4",
+      "fingerprint": "sha256:b3f9bb2e108317dc99c8bdf5c36a5ea33bc5e152c1a262a431a6e1a09321e46d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        152
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "…",
+      "value": "…",
+      "fingerprint": "sha256:b4935894c8ce16bde67bbffc672428b1533c4f1e1e8b1ce21a2933183db6bfa5",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        152
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ") между секциями.\n            ",
+      "value": ") между секциями.",
+      "fingerprint": "sha256:ef8d2f5c887a133ea1a0441b9cd860e60e5e8513f256cec65d46ce8279221a68",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        152
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Radii",
+      "value": "Radii",
+      "fingerprint": "sha256:2ca0f28f2b3ae447eef1be7bbc0cca928f9268b87f29fc42a1079d0b804657cf",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        154
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Surfaces",
+      "value": "Surfaces",
+      "fingerprint": "sha256:fbb4dbb2d84d354cb9e682a39182e8ba0e7cda8d02bdae0c4ebd80beae9408d9",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        156
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Elevation",
+      "value": "Elevation",
+      "fingerprint": "sha256:8a7d4c8ec458555419e62277e17ab9af0cf457889b3157e1f81bd1acf1c0dae9",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        163
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Layers",
+      "value": "Layers",
+      "fingerprint": "sha256:0bcd66e677f4ee7288547da02b6cd5594fd8b8c3abbc6482dfd42c788ecbe448",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        165
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Breakpoints",
+      "value": "Breakpoints",
+      "fingerprint": "sha256:aa40ffb1ed16f9a3a43e86960c0268272fc46dbb785c3364f8910cebcf3355eb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        167
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Semantic tones",
+      "value": "Semantic tones",
+      "fingerprint": "sha256:696cab0435b8be76201bd3c8bf34c2fa037d75d3a7a5667fa8458bb1e0078b97",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        169
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Typography",
+      "value": "Typography",
+      "fingerprint": "sha256:cab94aba84f97f7f8d3f46516a5f92c25363f39f9492415c4d76be84b2873883",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        176
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Съешь ещё этих мягких французских булок · 0123456789",
+      "value": "Съешь ещё этих мягких французских булок · 0123456789",
+      "fingerprint": "sha256:720efdbf2bfad0da6d778b844695fc135a761824cde42c2e4853e7b7ed1b7a41",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        192
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Surface modes\"",
+      "value": "Surface modes",
+      "fingerprint": "sha256:debc289fcd2bf5b535bc775a071ff037e17c0131dfc339248c2b5e3631a1a9b7",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        199,
+        203
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Строки повторяющихся списков разделяются тоном и тонкой границей без\n              тени. Focus-card сохраняет элевацию для detail, auth и временных или\n              плавающих поверхностей: drawer, modal, sticky bar и floating controls.\n            ",
+      "value": "Строки повторяющихся списков разделяются тоном и тонкой границей без тени. Focus-card сохраняет элевацию для detail, auth и временных или плавающих поверхностей: drawer, modal, sticky bar и floating controls.",
+      "fingerprint": "sha256:36b97500a6cc2079611e20002f86b54daae1b84f25f5cac13d977c481f3f968f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        205
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "List row",
+      "value": "List row",
+      "fingerprint": "sha256:bf0cbd6dab9add3b68cf89f8b3f33f93a18a32e790894299a657b8e1e5607cfe",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        214
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторяющаяся рабочая запись · без тени",
+      "value": "Повторяющаяся рабочая запись · без тени",
+      "fingerprint": "sha256:aaa69c417b81eba24c081f211eb8346fee1b4718c756fcdd3373b2b2f287bd09",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        215
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Focus card",
+      "value": "Focus card",
+      "fingerprint": "sha256:d8b101eeb03afb24a373694e8c3db0c192cf11de36095d155fc420c65525ed35",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        221
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/CatalogApp.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Detail или временная поверхность · с элевацией",
+      "value": "Detail или временная поверхность · с элевацией",
+      "fingerprint": "sha256:31948187bd3a478684ced72dac0c2b1b8bcf37d3557704c4bb933679e968ad1f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        222
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "source\n        ",
+      "value": "source",
+      "fingerprint": "sha256:41cf6794ba4200b839c53531555f0f3998df4cbb01a4d5cb0b94e3ca5e23947d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        100
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Mantine recipes",
+      "value": "Mantine recipes",
+      "fingerprint": "sha256:aaf26a2f750ca5fa952c1ce3beb72f5fca00868cae9e372f3742916b054bcea9",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        117
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Production recipes: default, focusable, loading, disabled and error semantics.",
+      "value": "Production recipes: default, focusable, loading, disabled and error semantics.",
+      "fingerprint": "sha256:7f8b3fb2a936c7d731631382a7fd7a47455fa46efd746067aef19df127333ded",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        118
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "componentRecipes.ts\n        ",
+      "value": "componentRecipes.ts",
+      "fingerprint": "sha256:b42164b603537b655e1b34e6e52c9dfefee6189f34bdb26100d50a07f17f2d2e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        125
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Form controls",
+      "value": "Form controls",
+      "fingerprint": "sha256:bfda9861dcc099a186a52a6a65bd62007b20902f3fb6c0118f0c169bdc081271",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        130
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Связанный helper text\"",
+      "value": "Связанный helper text",
+      "fingerprint": "sha256:3fd48b616e64fdc93b9d310b090797e745a1f7805fc87a262b433f93ae70da77",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        132
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Введите корректное имя клиента\"",
+      "value": "Введите корректное имя клиента",
+      "fingerprint": "sha256:1c91bfa48be43c37e3db2f2f086e9a61d68341f797736892c83188f9035d6341",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "error"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        133
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Имя клиента\"",
+      "value": "Имя клиента",
+      "fingerprint": "sha256:0e1206b8f8626ee1d65f70a1b0cdaac0c089700a0994ffaa52af18bc7fe14ebe",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        134
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Например, Александра\"",
+      "value": "Например, Александра",
+      "fingerprint": "sha256:24d217cf79824ab1907d3075c30e7e042ff7e63203ab757c8ae4c11f80ee49c0",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        135
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все группы'",
+      "value": "Все группы",
+      "fingerprint": "sha256:d71b0c68713c37b7ecfc098c1f043f9533896eaf5b6b468a47658c2dcfaf7f43",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        138,
+        139,
+        192,
+        193
+      ],
+      "occurrences": 4,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Утренняя группа'",
+      "value": "Утренняя группа",
+      "fingerprint": "sha256:0785b630a87fec0ddbce81196dcd4bf3ff49be541741b1811c152efb5161bed6",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        138,
+        192
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Вечерняя группа'",
+      "value": "Вечерняя группа",
+      "fingerprint": "sha256:b673811c69d5a939a18edfbf1b4988b6cb0fda663645ee92bd2b8578c220e1ac",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        138,
+        192
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группа\"",
+      "value": "Группа",
+      "fingerprint": "sha256:907efbd4ce48253bae87d64dafe6c538bc0a77b9df23ecd6ea903d46c12a4c56",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        140,
+        188
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Недоступное поле\"",
+      "value": "Недоступное поле",
+      "fingerprint": "sha256:b32d048382ae62eff8bca00a20da4681d6cb5fece1035991547ae43bb467ff73",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        142
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Управляется сервером\"",
+      "value": "Управляется сервером",
+      "fingerprint": "sha256:c0b2e9d46f1e3a5198831b3134479469f80319532ad1f86d6a0f5f1ce9f8bf12",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "value"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        142
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Feedback",
+      "value": "Feedback",
+      "fingerprint": "sha256:aac77df347205252b074d45aff7891debdba0ff1466cc0c351416d1662bb71ab",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        145
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Не удалось сохранить\"",
+      "value": "Не удалось сохранить",
+      "fingerprint": "sha256:6d1e3f7c5f123067abc5304785b0356b89e1dc4cfd4fd3563bd9657b58320592",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверьте соединение и повторите действие.\n          ",
+      "value": "Проверьте соединение и повторите действие.",
+      "fingerprint": "sha256:3f6460301c035911f9e29595e57af3887581aa8d3d00bcf94bcc4a04f421c136",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        152
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Нейтральный",
+      "value": "Нейтральный",
+      "fingerprint": "sha256:8b3362ae1711727b30da627cdafdd996306290beebc8a0087038ba886f1fd30c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        155
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранено",
+      "value": "Сохранено",
+      "fingerprint": "sha256:2fe8f2fd72439d26994fef576bcde922c88db9fca31d83b074f447247ef317e7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        156
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загрузка\"",
+      "value": "Загрузка",
+      "fingerprint": "sha256:111213e773d555d82f6babd7830a2a1419a5649d5fc5263433a81eb36ef82d6a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        157
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Расписание обновлено\"",
+      "value": "Расписание обновлено",
+      "fingerprint": "sha256:a434eb262e288b09155fa7e44ec025d0dff77267c2055d32f0c99485df047e25",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        161
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Новые занятия уже доступны тренерам.\n          ",
+      "value": "Новые занятия уже доступны тренерам.",
+      "fingerprint": "sha256:03e0b9d77107f475e07e75809c61505c633e9fb28027e2143dbe1e1dac27c55b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        164
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Северный спортивный центр имени команды чемпионов'",
+      "value": "Северный спортивный центр имени команды чемпионов",
+      "fingerprint": "sha256:098796b5d337c79592d046794f2ba2a0888432a0169edfac03998acffca01f11",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        175
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Александра'",
+      "value": "Александра",
+      "fingerprint": "sha256:4e04db73b4d1e023cad61e4681848db8b53d48964767e2f7e2a9d8d04ae04b29",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        176
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Только активные'",
+      "value": "Только активные",
+      "fingerprint": "sha256:7e11dceee2d52627f2df07f280dcdfb3d0254f97ecf10eee5e13b62767030131",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        181
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Утренняя группа с длинным названием'",
+      "value": "Утренняя группа с длинным названием",
+      "fingerprint": "sha256:31fe2ee84d39cd770fa9a3ad6344993e54d27c55071467658392afe59701edcf",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        182
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группа в compact filter\"",
+      "value": "Группа в compact filter",
+      "fingerprint": "sha256:5241ecc7158a1cfbc38b5b56df0a0425fef4bf53ee634358b3fa520a30538fca",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        191
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Статус'",
+      "value": "Статус",
+      "fingerprint": "sha256:225077c6d4791e693ff47d24e846cfc3198da287d2b8e77fd2bba435183f0d54",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        199,
+        350
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Статус в compact filter\"",
+      "value": "Статус в compact filter",
+      "fingerprint": "sha256:e22ed04be17c71e2159d03771e7483bb8e0a9ed7c116413dc7d3e21a652b7fac",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        202
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Приостановленные'",
+      "value": "Приостановленные",
+      "fingerprint": "sha256:9e60a496f3cd85aa91b03a108f9747fabf711518db3a883a0d3162c95667cd52",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        203
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все статусы'",
+      "value": "Все статусы",
+      "fingerprint": "sha256:2a013601f9a863c8c34bdc11538b65088a8fda978a832a8c656da9c822d9098a",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        203,
+        204
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активные'",
+      "value": "Активные",
+      "fingerprint": "sha256:eeaeb97638d821f4010f06325164fb78c0b628617737e7cc55ee2cd204686ba2",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        203,
+        350
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Authentication reference",
+      "value": "Authentication reference",
+      "fingerprint": "sha256:2780e0caa75dfb63a668c60695b509df96862fd885eb4a74e276f205cfe55edb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        219
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Production login screen with deterministic, image-free background.",
+      "value": "Production login screen with deterministic, image-free background.",
+      "fingerprint": "sha256:419af2382c6d646dd5cebb6066b16f083a129bf872a40dbdfe6254cca2d9c49f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        220
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Спортивный комплекс с очень длинным названием для проверки переноса'",
+      "value": "Спортивный комплекс с очень длинным названием для проверки переноса",
+      "fingerprint": "sha256:f799b11753f01e3bdd2d6c75a9f434a52a98f52925041e20f4eb52dde93f8f1e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        233
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Actions and feedback",
+      "value": "Actions and feedback",
+      "fingerprint": "sha256:0c42352d121bebf4dcf8e95ec10d566554658f256de8aff539c8d6ba169d8476",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        252
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Canonical hierarchy and observable pending, disabled and destructive states.",
+      "value": "Canonical hierarchy and observable pending, disabled and destructive states.",
+      "fingerprint": "sha256:f4944454bc5abb7bfd3ba6cf3cc006c4375267958bae3990dbc3daf56c0d17a4",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        253
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить",
+      "value": "Сохранить",
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        259,
+        488
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отмена",
+      "value": "Отмена",
+      "fingerprint": "sha256:8fbe9b75cbdfbfa6f57f060f286e00dee7e021068ebe378cfb495f3380d1e96b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        260,
+        482,
+        489
+      ],
+      "occurrences": 3,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Подробнее",
+      "value": "Подробнее",
+      "fingerprint": "sha256:59589fe2a5491f0c933923a8ae51d0d03f98877d9bb4d33eb31e937481c8e2c2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        261
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Удалить",
+      "value": "Удалить",
+      "fingerprint": "sha256:be99b13612015a48305ed2eddee74aa89288783185407708cd30157daf7942c2",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        262
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохраняем",
+      "value": "Сохраняем",
+      "fingerprint": "sha256:8d450700579d548fac5e8677d04ac04fa23cbf079e170214784238a065b513bb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        263
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Недоступно",
+      "value": "Недоступно",
+      "fingerprint": "sha256:2d953dfbc566e8d0adb24b9986be4811ec81966ccdd21a8155b2eb3b58a92723",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        264
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Добавить клиента\"",
+      "value": "Добавить клиента",
+      "fingerprint": "sha256:810826b6591b1eff7ebfc0b49042c8a3deb981148b3d40f39f3ef2261a386a65",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        269,
+        283,
+        331
+      ],
+      "occurrences": 3,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Обновить список\"",
+      "value": "Обновить список",
+      "fingerprint": "sha256:163a016f3df71adcf589f473a45df360fc7b9f41b751df911f94b8656c0e91df",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        270
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Удаление недоступно\"",
+      "value": "Удаление недоступно",
+      "fingerprint": "sha256:235a7977f362e10ef426cd151aa363baf24a2324b6ab277965c8e7d6f89c3f9c",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        271
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Применить",
+      "value": "Применить",
+      "fingerprint": "sha256:e15f960d93eb4ee826d90c49a6609bc93d0f2e434e455a5a0cbe246f7146e428",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        276,
+        481
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сбросить",
+      "value": "Сбросить",
+      "fingerprint": "sha256:407f871778d310700e1c7bd098be9d25e40f39c764c7f4879c0ec1aa4ca8401a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        277,
+        348
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Экспорт",
+      "value": "Экспорт",
+      "fingerprint": "sha256:d2ab5a1bb6394a4b5d64888b9446f9408a14eaee71837cc3eeecbb73ffa30de8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        282
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Создать группу\"",
+      "value": "Создать группу",
+      "fingerprint": "sha256:663c52481da0d6e3c56834fa7a8ed0dd497bfa6dd22b5f8a4033c72f47dfb38b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        287
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Обновить расписание\"",
+      "value": "Обновить расписание",
+      "fingerprint": "sha256:a7802b76d23ee1dd1ac23babd81d01936023646eb5c4c68c103b53bfb0057be3",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        290
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Повторить загрузку\"",
+      "value": "Повторить загрузку",
+      "fingerprint": "sha256:298e41327feeb685c4dcfe96a5dad0c4b80dca07cbcd8041547119ce309f4bb8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        293
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Открыть подтверждение\n            ",
+      "value": "Открыть подтверждение",
+      "fingerprint": "sha256:6facbcf2931af102e15925f2c2700c88b100bf59442ac8ae2e29055ef215f9ec",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        297
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Удалить запись\"",
+      "value": "Удалить запись",
+      "fingerprint": "sha256:5f3a315499cbb8cf10425e423ceb5a860b57c0dd4f1514ec8067dd31cb2f6c84",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "confirmLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        300
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Запись клиента исчезнет из текущего расписания.\"",
+      "value": "Запись клиента исчезнет из текущего расписания.",
+      "fingerprint": "sha256:ae82d59cfc8cb04dbbd7ac83262fc7f6ed4161cbb22ac740cde2a0e6972db733",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        301
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Удалить запись?\"",
+      "value": "Удалить запись?",
+      "fingerprint": "sha256:2612e4b2818860e750ac14a7cd6caac14ef88faba5eac6d38f7bfdecaf4e2a12",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        305
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Search, filters and collection controls",
+      "value": "Search, filters and collection controls",
+      "fingerprint": "sha256:8f1bb3d9e2ea4980238bf5d5644619e07cc278ebbee13650703d5fbd013a35de",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        318
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Long Russian values remain operable without horizontal page scrolling.",
+      "value": "Long Russian values remain operable without horizontal page scrolling.",
+      "fingerprint": "sha256:57efa0d6fe04de9cde34e6b380594773e6922d052b31f3533b73761445c4b353",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        319
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Найти клиента\"",
+      "value": "Найти клиента",
+      "fingerprint": "sha256:8d42e9a8ddc587a83cd1f34179d2dffadb0df9a82c50f5f9ed06a02da81aa62f",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "accessibleLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        325
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Имя или телефон\"",
+      "value": "Имя или телефон",
+      "fingerprint": "sha256:4d848c10467766e4ac651c373a2424a9c4b1b8a22e3657dba79a1284f1eae242",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        330
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сбросить фильтры\"",
+      "value": "Сбросить фильтры",
+      "fingerprint": "sha256:cd45ec7836b5cb5e86840b932b6480a4696cf5491eaaa6c25b6cecd65d2ba4f2",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "resetLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        344
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Поиск в toolbar\"",
+      "value": "Поиск в toolbar",
+      "fingerprint": "sha256:994187ec6a48bb2350f805e26882f570d2360d093d17c71f7824415999fea059",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        349
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Все'",
+      "value": "Все",
+      "fingerprint": "sha256:215816bf42103f1f2b24c168779f1fb0ea3afcb7a2c627e42e0bcd7fe07eb70a",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        350
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Страницы клиентов\"",
+      "value": "Страницы клиентов",
+      "fingerprint": "sha256:655793d5afe771f0c5ea3c9a588db60376b287465d3ee1678ea2863643676625",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        365
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "21–40 из 128",
+      "value": "21–40 из 128",
+      "fingerprint": "sha256:9729c2e10d1eca902e0cb1d9c7e9c381c894d1761eb4fda8e2b03931f1a17d85",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        368
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Content and operational states",
+      "value": "Content and operational states",
+      "fingerprint": "sha256:2a160089226ddceb15e273f03e28f2ddc32d2bd418977c8efb5316f675aeb17f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        382
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Identity, progress, empty, recovery and restricted contracts.",
+      "value": "Identity, progress, empty, recovery and restricted contracts.",
+      "fingerprint": "sha256:5b2a3d2fb86584a9f1bcbb35e3751888d5522ed0a4e9c23000707900daff955d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        383
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Александра Михайловна Долгополова\"",
+      "value": "Александра Михайловна Долгополова",
+      "fingerprint": "sha256:e6e814da23b7458de93653ccfe536a86c0db85a495b7f54b1e349e5e138cc3aa",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "name"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        389
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Иван\"",
+      "value": "Иван",
+      "fingerprint": "sha256:cc0781950ffebec65a7f552e099f5111dc6526384615f13801e3f0d25b38e960",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "name"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        390
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Открыть клиента Александра Долгополова\"",
+      "value": "Открыть клиента Александра Долгополова",
+      "fingerprint": "sha256:ee72f7be59d3003923dc50bc35c1e381373a9b30598a808ad8bbe812731b6e51",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "accessibleName"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        395
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Александра Михайловна Долгополова — персональная программа восстановления'",
+      "value": "Александра Михайловна Долгополова — персональная программа восстановления",
+      "fingerprint": "sha256:476e809c6469ab23dcf684d4535b55c6bf1b116e7d5f5a144c87cd1dd90b511b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        397
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Александра Долгополова'",
+      "value": "Александра Долгополова",
+      "fingerprint": "sha256:902352fd654a2e90d18856efd454cec17d49f7631fe361c616e64a8b29a7fe3f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        398,
+        404
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Утренняя группа · +7 999 123-45-67\"",
+      "value": "Утренняя группа · +7 999 123-45-67",
+      "fingerprint": "sha256:42d99e4cfa50a5451558ce448bbf2028046c30400d0e017ffd31d3abacfdd15d",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "metadata"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        405
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выбрано'",
+      "value": "Выбрано",
+      "fingerprint": "sha256:9cf249e2a881461670b489f0fc6edc2483825c589a3467c56efce45489383a25",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        406
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активен'",
+      "value": "Активен",
+      "fingerprint": "sha256:a87a4b39c30404ad618fe7f24800b8412cfa1cbc9c08d95242541b035730ecd1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        406
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Обновляем клиентов…\"",
+      "value": "Обновляем клиентов…",
+      "fingerprint": "sha256:023d9d987dd2bb15ad3c8498a6a67f9dd2f5d954254583ab8bc5c9af3b715463",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        410
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохраняем выбранные фильтры\"",
+      "value": "Сохраняем выбранные фильтры",
+      "fingerprint": "sha256:1d24425825268747d2f20dcbb6f1c568e220e8c008fc4b14689522da46589bba",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        410
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Добавить первого клиента",
+      "value": "Добавить первого клиента",
+      "fingerprint": "sha256:b6d73fcf37a0f0f7c8a1be4302b27263f26a93c49c3014561a3d8edecf5de317",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        417
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Клиенты не найдены\"",
+      "value": "Клиенты не найдены",
+      "fingerprint": "sha256:4c1f7bc0bce08068b91428e57e3922b783bba5c02e906a30a58fb48451ce9fe9",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        419
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Измените запрос или сбросьте фильтры.\"",
+      "value": "Измените запрос или сбросьте фильтры.",
+      "fingerprint": "sha256:b80d43f5e3e9f31434d8758eb213f2391a9cd01cd20f5649fdc1c5f789ecf56a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        420
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        425
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сервер временно недоступен. Введённые фильтры сохранены.\"",
+      "value": "Сервер временно недоступен. Введённые фильтры сохранены.",
+      "fingerprint": "sha256:43bf18b40de4a64f273edb4e2f6a0be8b68b97c9442a28c5544c20a922bb6401",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        426
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Не удалось загрузить клиентов\"",
+      "value": "Не удалось загрузить клиентов",
+      "fingerprint": "sha256:180fcaa4eea60db52784ae4cda7b1b69874a8c28153202c7051ea359d4827331",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        427
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Для просмотра журнала обратитесь к администратору клуба.\"",
+      "value": "Для просмотра журнала обратитесь к администратору клуба.",
+      "fingerprint": "sha256:9d791ab06458f160a02df07f7b0299a76369579c95e987c5ba6be7a46b424a83",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        432
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Вернуться к клиентам",
+      "value": "Вернуться к клиентам",
+      "fingerprint": "sha256:d6c043d92004dd62eaa840ad0b48309f6663bf5de24e658565124a118bc972f3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        433
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Нет доступа к журналу\"",
+      "value": "Нет доступа к журналу",
+      "fingerprint": "sha256:d1bb05feaf7e963e5d83a72a4bc877e41a89d90c41320742310e16507b387f4b",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        434
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Layout and navigation contracts",
+      "value": "Layout and navigation contracts",
+      "fingerprint": "sha256:89a5a2862d35cd8e6b565ca7d01cca475c85338253cd0438ebbbe4aa3f0381e7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        448
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Isolated fixture frames preserve production component markup and behavior.",
+      "value": "Isolated fixture frames preserve production component markup and behavior.",
+      "fingerprint": "sha256:55165aa1017bc86bd2b064e3c6433ca012cf261fc381ab34381fc645ecf9587f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        449
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Добавить",
+      "value": "Добавить",
+      "fingerprint": "sha256:71038c53bbc48d3ba24653a2095795623a74490f6a38e642f1a5cbf8b3090063",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        454
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Клиенты\"",
+      "value": "Клиенты",
+      "fingerprint": "sha256:ff296ddaedc5af313b4c04f0ab265913fc71e6dd924493d037940063d67ac80a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        454,
+        473
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Изменить",
+      "value": "Изменить",
+      "fingerprint": "sha256:b8b151d4174391f0dfe8dfae88406ba4a6823105247e3ac4e4ac4955d0df656d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        457
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Контакты\"",
+      "value": "Контакты",
+      "fingerprint": "sha256:fca8d5aa3c1aef3237e727b299bb330e74aaf71e545a439c1f918a5a31a87629",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        457
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Карточная секция с production spacing и elevation.",
+      "value": "Карточная секция с production spacing и elevation.",
+      "fingerprint": "sha256:cd688ec035f3e9d0440b1a1553cf019e4319659e9370c670989e3b5a40c93091",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        460
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Совместимый alias для существующих экранов.",
+      "value": "Совместимый alias для существующих экранов.",
+      "fingerprint": "sha256:35b73e3244ed7a44f66e47b4c182ce7d9b7113c04967d9a05f15caec54e86d55",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        463
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Создать",
+      "value": "Создать",
+      "fingerprint": "sha256:e2be34974ae4f61013d853f8da72deb68e9f6ef8491b57f3044461af2b8855ca",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        466
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группы\"",
+      "value": "Группы",
+      "fingerprint": "sha256:cd8c587351082be473439ecec5b3c144b4723fc8943dec8c4c2adc5f578bbede",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        466,
+        474
+      ],
+      "occurrences": 2,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Основное содержимое страницы",
+      "value": "Основное содержимое страницы",
+      "fingerprint": "sha256:56c41aa0e043a20f05d75f359b2a7e699f11cbf331f942a27d6b8b24ef90922f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        467
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Содержимое активной вкладки",
+      "value": "Содержимое активной вкладки",
+      "fingerprint": "sha256:e393de16955ff138a872ddfe15b1c2e6d540f6927887f3aba937e6d1974594be",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        476
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Навигация",
+      "value": "Навигация",
+      "fingerprint": "sha256:e638fc3afbee1219bd4b5e8bb6619cc0c7631563dba029ea4c54ce0270c9f589",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        496
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Профиль пользователя\"",
+      "value": "Профиль пользователя",
+      "fingerprint": "sha256:18fbf9ce2ae15a3a4fa466d71ece8476ebec4c9a8d73aefd730d4d4177f876af",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        497
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Пример основной навигации\"",
+      "value": "Пример основной навигации",
+      "fingerprint": "sha256:3014f94db959b15a8a186a883546e19bd8eb71a28120b9c870ec8001b24eaf41",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "ariaLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        503
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Shell header",
+      "value": "Shell header",
+      "fingerprint": "sha256:8e90b31977de014f17b9b32338c4f666b24ec29ac4a03f06709f1fb3bca3d325",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        521
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Пример содержимого приложения\"",
+      "value": "Пример содержимого приложения",
+      "fingerprint": "sha256:ec7b78eebce1b7ad4049e48860d8c114fdc938bd3e2e28cad2ff4c191349dc24",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "mainLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        522
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Navigation",
+      "value": "Navigation",
+      "fingerprint": "sha256:3db65f8c2a7d1861b4bca37da3adec5aa7905931eb6faddbc595a35f75e6ca40",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        523
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Task content",
+      "value": "Task content",
+      "fingerprint": "sha256:ae81ea5ea21b9ba42c388d742f43c09b8a3abfe62a68183e418153980bc67a9f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        526
+      ],
+      "occurrences": 1,
+      "category": "test fixture",
+      "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
+      "owner": "frontend/component-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Infrastructure/Persistence/Configurations/MembershipCatalogItemConfiguration.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Профессиональный\"",
+      "value": "Профессиональный",
+      "fingerprint": "sha256:f8305fac2963613dbda73731c5cfd2d5a81249ab9ba4c19544240ee825f2cbb9",
+      "context": { "kind": "seeded-domain-value", "name": "Name" },
+      "has_cyrillic": true,
+      "lines": [55],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Persisted system catalog name is domain data, not presentation copy.",
+      "owner": "backend/membership-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Infrastructure/Persistence/Configurations/MembershipCatalogItemConfiguration.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"ПРОФЕССИОНАЛЬНЫЙ\"",
+      "value": "ПРОФЕССИОНАЛЬНЫЙ",
+      "fingerprint": "sha256:635875d69af174854999eaf17db1444fd60e448d202ffdd62b653dee9e75062f",
+      "context": { "kind": "seeded-domain-value", "name": "NormalizedName" },
+      "has_cyrillic": true,
+      "lines": [56],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Persisted normalized system catalog name is domain data, not presentation copy.",
+      "owner": "backend/membership-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    }
+  ]
+}

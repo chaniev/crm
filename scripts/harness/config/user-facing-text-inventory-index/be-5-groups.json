@@ -1,0 +1,1868 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "BE-5-groups",
+  "entry_count": 83,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/{id:guid}\"",
+      "value": "/{id:guid}",
+      "fingerprint": "sha256:7680c5d46c4e6eea124aba53fad9fa0a65f7581c9ecc52330096d2cef054259d",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string DetailsRoute = \"/{id:guid}\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        11
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"HH:mm\"",
+      "value": "HH:mm",
+      "fingerprint": "sha256:7f135aeded40ff90735b4e13c12f6cb05f1b925877776ed04a6e85877a6c3c50",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string TrainingStartTimeDisplayFormat = \"HH:mm\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{GroupApiConstants.RoutePrefix}/{group.Id}\"",
+      "value": "{GroupApiConstants.RoutePrefix}/{group.Id}",
+      "fingerprint": "sha256:15c39a3f70fe19dbf5841759dc330fb69f669e32232023767ef841bf5cc5245f",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.Created($\"{GroupApiConstants.RoutePrefix}/{group.Id}\", MapDetails(createdGroup));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        435
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Нельзя отключить группу, пока в ней есть действующие или будущие абонементы.\"",
+      "value": "Нельзя отключить группу, пока в ней есть действующие или будущие абонементы.",
+      "fingerprint": "sha256:fb0d6e8451ee05db770d87716ad90116e93f60bf6d6ba1356561c3dd5bd973a3",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"isActive\"] = [\"Нельзя отключить группу, пока в ней есть действующие или будущие абонементы.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        769
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Группа используется в абонементах\"",
+      "value": "Группа используется в абонементах",
+      "fingerprint": "sha256:a5a49f77932c95ad3d9a6a66e96cd81f90ec1bcecfab84d3214781bdfb126d2e",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Группа используется в абонементах\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        774
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Сначала перенесите или исправьте адресность действующих и будущих абонементов этой группы.\"",
+      "value": "Сначала перенесите или исправьте адресность действующих и будущих абонементов этой группы.",
+      "fingerprint": "sha256:ffd3df9eef5d58376e311b894ff941c30c3f7434f315627032872772a5776cd3",
+      "context": {
+        "kind": "source-line",
+        "name": "Detail = \"Сначала перенесите или исправьте адресность действующих и будущих абонементов этой группы.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        775
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Откройте карточки клиентов из списка и перенесите абонементы на другую группу либо дождитесь окончания срока действия.\"",
+      "value": "Откройте карточки клиентов из списка и перенесите абонементы на другую группу либо дождитесь окончания срока действия.",
+      "fingerprint": "sha256:7157135b053839cfc4ae9b383c715a61e1300204a489388f64b96e8417c62bfe",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"recovery\"] = \"Откройте карточки клиентов из списка и перенесите абонементы на другую группу либо дождитесь окончания срока действия.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        779
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Initial lesson series must include at least one slot.\"",
+      "value": "Initial lesson series must include at least one slot.",
+      "fingerprint": "sha256:0e729b66a1f774d6354d5046020335be12ffdb2a00780a38e7ece18bde72a418",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.slots\"] = [\"Initial lesson series must include at least one slot.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        976
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"initialLessonSeries.slots\"",
+      "value": "initialLessonSeries.slots",
+      "fingerprint": "sha256:0b75ae467651f987f041d34063770690818bd784b4a91a991c627e8133a81ba5",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.slots\"] = [\"Initial lesson series must include at least one slot.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        976,
+        1078
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"startsOn должен быть в формате yyyy-MM-dd.\"",
+      "value": "startsOn должен быть в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:2f1189ff1e61163e86fa1b5ba1430bafdec0fdf4698b94fb6a8897fc8831f36a",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.startsOn\"] = [\"startsOn должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        982
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"initialLessonSeries.startsOn\"",
+      "value": "initialLessonSeries.startsOn",
+      "fingerprint": "sha256:45acbe0e93edb6e4fe29ce5648b1be637db56962b062a347ab3ab03251810703",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.startsOn\"] = [\"startsOn должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        982
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"endsOn должен быть в формате yyyy-MM-dd.\"",
+      "value": "endsOn должен быть в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:ebe48b29fb847349abc3bc917900f8f7895ec718b0438fc3837eb265ebdba31d",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.endsOn\"] = [\"endsOn должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        991
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"initialLessonSeries.endsOn\"",
+      "value": "initialLessonSeries.endsOn",
+      "fingerprint": "sha256:8cb0954a86b2f42ab7fb6da176a382f66b25ea489cc18247d4a99a90808ef8fd",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.endsOn\"] = [\"endsOn должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        991,
+        997
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"endsOn должен быть не раньше startsOn.\"",
+      "value": "endsOn должен быть не раньше startsOn.",
+      "fingerprint": "sha256:6ea9f71c0c8becef2534e215e5c821889799dc28b5263f969c29859252ab8dca",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.endsOn\"] = [\"endsOn должен быть не раньше startsOn.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        997
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"isoWeekday должен быть от 1 до 7.\"",
+      "value": "isoWeekday должен быть от 1 до 7.",
+      "fingerprint": "sha256:03b7e917fd908a4c7c8649085029317e77cb8368c391f5bb84bed47ce8acad26",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.isoWeekday\"] = [\"isoWeekday должен быть от 1 до 7.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        1007
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.isoWeekday\"",
+      "value": "{prefix}.isoWeekday",
+      "fingerprint": "sha256:e38436b5f0015e3cd8356072a7599d8e8bbc9f8b3fad6d4a27c9ad9300bd2ecc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.isoWeekday\"] = [\"isoWeekday должен быть от 1 до 7.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1007
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.startTime\"",
+      "value": "{prefix}.startTime",
+      "fingerprint": "sha256:8dcfce28f3baa3f5c0f078b2321d0f37d089554dfa0318e5290c9c69052fea63",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.startTime\"] = [\"startTime должен быть в формате HH:mm.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1012
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"startTime должен быть в формате HH:mm.\"",
+      "value": "startTime должен быть в формате HH:mm.",
+      "fingerprint": "sha256:9828a59bbd5d0d5b44adbe28393267a61729aa1f377f7f673e1583570fef7313",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.startTime\"] = [\"startTime должен быть в формате HH:mm.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        1012
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.durationMinutes\"",
+      "value": "{prefix}.durationMinutes",
+      "fingerprint": "sha256:e10dbe3f1da780faa5f80e0596efff7abb3cb18d0010dffd016ce87098735aec",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.durationMinutes\"] = [GroupResources.DurationMinutesOutOfRange(GroupApiConstants.MinDurationMinutes, GroupApiConstants.MaxDurationMinutes)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1017
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.hallId\"",
+      "value": "{prefix}.hallId",
+      "fingerprint": "sha256:c0fbb80c1d2144ac360fe5aec9dc3624a0b9fd600f5ab86f1e318fc4d41b1827",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.hallId\"] = [GroupResources.InvalidHallId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1022
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Зал не найден.\"",
+      "value": "Зал не найден.",
+      "fingerprint": "sha256:5d2885e5c486c82d2964cfa937fe224fdf1898b04264f450bf537473e959874f",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"initialLessonSeries.slots.hallId.{missingHallId:D}\"] = [\"Зал не найден.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        1061
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"initialLessonSeries.slots.hallId.{missingHallId:D}\"",
+      "value": "initialLessonSeries.slots.hallId.{missingHallId:D}",
+      "fingerprint": "sha256:acd9a10ce99868df7e0f1fe6df663f543f5f650148de049cd4b561f102b857f2",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"initialLessonSeries.slots.hallId.{missingHallId:D}\"] = [\"Зал не найден.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1061
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Все залы расписания должны принадлежать филиалу группы.\"",
+      "value": "Все залы расписания должны принадлежать филиалу группы.",
+      "fingerprint": "sha256:8874f5c8f4246a76e3b4fca97172b32819818b75fb2eb2544d6fa380ae6cbece",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.slots.hallId\"] = [\"Все залы расписания должны принадлежать филиалу группы.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        1066
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"initialLessonSeries.slots.hallId\"",
+      "value": "initialLessonSeries.slots.hallId",
+      "fingerprint": "sha256:95f73cdb002e904cd508c0b77fe2c48696236bd24fab08cb4a99ccd9f69058f2",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.slots.hallId\"] = [\"Все залы расписания должны принадлежать филиалу группы.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1066
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Slots for ISO weekday {group.Key} overlap.\"",
+      "value": "Slots for ISO weekday {group.Key} overlap.",
+      "fingerprint": "sha256:660b92f904ef3c2639716d54d0ef07c8a26cdb477981fc562c46fb4702d2cd18",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.slots\"] = [$\"Slots for ISO weekday {group.Key} overlap.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1078
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/problems/{code}\"",
+      "value": "/problems/{code}",
+      "fingerprint": "sha256:6eeb2e2eaeace6055a5ed4b0babd97930dd12861ba34ec0f211446b87bce8cfc",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = $\"/problems/{code}\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1129
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Group preview token is not valid for this mutation.\"",
+      "value": "Group preview token is not valid for this mutation.",
+      "fingerprint": "sha256:c1ec3b04cf0d13b8b91de61795c8968dd16885a62f768c70673a45c3ac0d7501",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Group preview token is not valid for this mutation.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1130
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"paging\"",
+      "value": "paging",
+      "fingerprint": "sha256:26ca59cbe63ebf7f690310861c5839ba1b9eefad7de66123534af716d47f8845",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"paging\"] = [\"Use either page/pageSize or skip/take paging parameters, not both.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        17
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Use either page/pageSize or skip/take paging parameters, not both.\"",
+      "value": "Use either page/pageSize or skip/take paging parameters, not both.",
+      "fingerprint": "sha256:98418554bcced93930b24f14316f7ff3d708199b84ef47dbb03cdb35700d36d9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"paging\"] = [\"Use either page/pageSize or skip/take paging parameters, not both.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        17
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"page\"",
+      "value": "page",
+      "fingerprint": "sha256:3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"page\"] = [GroupResources.PageMustBeGreaterThanZero];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25,
+        40
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"pageSize\"",
+      "value": "pageSize",
+      "fingerprint": "sha256:8a00a4a803eb50c899e2732116c7534b451938d8b9219749e786fa47d24b0f2b",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"pageSize\"] = [GroupResources.PageSizeMustBeInRange(GroupApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        30
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Resolved paging offset is too large.\"",
+      "value": "Resolved paging offset is too large.",
+      "fingerprint": "sha256:7fd48611715ac685abcb259fc41890117e789d8e84bdc899037ab89465226b8f",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"page\"] = [\"Resolved paging offset is too large.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        40
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"skip\"",
+      "value": "skip",
+      "fingerprint": "sha256:42e93b9bb77d8a73e8412111b8f3d6befab66bf48fdcdefa80bb111819aa0cb1",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"skip\"] = [GroupResources.SkipCannotBeNegative];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        49
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"take\"",
+      "value": "take",
+      "fingerprint": "sha256:d1905cf90af29a5ac3f99e105830eecc5b3b415b24e2d166a7ce4cf72b2f32e6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"take\"] = [GroupResources.TakeMustBeInRange(GroupApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        54
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"name\"",
+      "value": "name",
+      "fingerprint": "sha256:82a3537ff0dbce7eec35d69edc3a189ee6f17d82f353a553f9aa96cb0be3ce89",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"name\"] = [GroupResources.NameRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        82,
+        86
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"trainingStartTime\"",
+      "value": "trainingStartTime",
+      "fingerprint": "sha256:cccbf6880d2d126154b69070d31ed4124d6dfa4a84c5d1620605b6a8e2f5c127",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"trainingStartTime\"] = [GroupResources.TrainingStartTimeInvalid(GroupApiConstants.TrainingStartTimeDisplayFormat)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        93
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"branchId\"",
+      "value": "branchId",
+      "fingerprint": "sha256:9afcbf86367dc02ab44d394652ce9df69ccc9ebc2d71c79e2b30889a4dd526c9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"branchId\"] = [GroupResources.BranchRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        117,
+        121,
+        151,
+        157,
+        171,
+        220
+      ],
+      "occurrences": 6,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"hallId\"",
+      "value": "hallId",
+      "fingerprint": "sha256:8f446ba0bd3c1e2d31ac8eb45c4c56fa24ddeea329911392317a7a42121835c4",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"hallId\"] = [GroupResources.HallRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        126,
+        130,
+        189,
+        195,
+        201
+      ],
+      "occurrences": 5,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"groupTypeId\"",
+      "value": "groupTypeId",
+      "fingerprint": "sha256:fd3dacc48b17c6007acf2bcd7b7098882a76ca8ac4ef065f302911506447da86",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"groupTypeId\"] = [GroupResources.GroupTypeRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        232,
+        238,
+        248
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"trainerIds\"",
+      "value": "trainerIds",
+      "fingerprint": "sha256:e0124da431d34dc9ac1068b5f98e1eea1cce7129d558a304159f4a76baeeb6cc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"trainerIds\"] = [GroupResources.InvalidTrainerId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        262,
+        281
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"durationMinutes\"",
+      "value": "durationMinutes",
+      "fingerprint": "sha256:7bb6ef0a931a877175d776a3048d283dc05151622be9d669be16c73d4bda1476",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"durationMinutes\"] = [GroupResources.DurationMinutesRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        309,
+        313
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"weekdays\"",
+      "value": "weekdays",
+      "fingerprint": "sha256:c41d3f39558688dec65319af7b656bf77d12b27569f996944a2333b613ff9ced",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"weekdays\"] = [GroupResources.WeekdaysRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        319,
+        336
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"assignments обязателен.\"",
+      "value": "assignments обязателен.",
+      "fingerprint": "sha256:68f9f19a2e72ae13f6dc6a81c0b8a0ce90631e8ecfca549013d022a0e871926e",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"assignments\"] = [\"assignments обязателен.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        301
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"assignments\"",
+      "value": "assignments",
+      "fingerprint": "sha256:ef8dcf7162a955368a7a33b8596e363a92e03fa7a4f0820231a02124089c059c",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"assignments\"] = [\"assignments обязателен.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        301,
+        359
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.trainerId\"",
+      "value": "{prefix}.trainerId",
+      "fingerprint": "sha256:de9d55a974ca4ad1c5792d822076f4b536073409e857761c45d17569c5d55fbd",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.trainerId\"] = [GroupResources.InvalidTrainerId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        311
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"validFrom должен быть в формате yyyy-MM-dd.\"",
+      "value": "validFrom должен быть в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:a371b1595fd186c5ff2d70684088a62319eae65ad27e2e6492c6952ac7fec7ed",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.validFrom\"] = [\"validFrom должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        316
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.validFrom\"",
+      "value": "{prefix}.validFrom",
+      "fingerprint": "sha256:cb87b82e6300f271e3e5b6277b6c1b43a2ba20a06b18c1eb001f71b532ecd8a9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.validFrom\"] = [\"validFrom должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        316,
+        334
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"validTo должен быть в формате yyyy-MM-dd.\"",
+      "value": "validTo должен быть в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:9f8d97b85c86f673d3b397641f8895be0e13a56e901770c565c53a3f2aff0bed",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.validTo\"] = [\"validTo должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        325
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.validTo\"",
+      "value": "{prefix}.validTo",
+      "fingerprint": "sha256:aa1d1889a72867bf9c83c09a8bd33822f63506055ee40d6ff8ef23798930b594",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.validTo\"] = [\"validTo должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        325,
+        339
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"validFrom не может быть раньше текущей даты.\"",
+      "value": "validFrom не может быть раньше текущей даты.",
+      "fingerprint": "sha256:b78611ed81c3feeeee52af8101b8fe84f905f6f7ec441ee5d31cbd7276581ab6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.validFrom\"] = [\"validFrom не может быть раньше текущей даты.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        334
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"validTo должен быть не раньше validFrom.\"",
+      "value": "validTo должен быть не раньше validFrom.",
+      "fingerprint": "sha256:9eb638bc0e10fac2471cbf4683435582936e716e50bded6dce52ac40fd717842",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.validTo\"] = [\"validTo должен быть не раньше validFrom.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        339
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Trainer '{overlap.left.TrainerId:D}' has overlapping assignment periods in this request.\"",
+      "value": "Trainer '{overlap.left.TrainerId:D}' has overlapping assignment periods in this request.",
+      "fingerprint": "sha256:3a8042c56bf1a50c5d90b27ae9341a1a9a9e812cc8901dbe8715c3dcaec51a3b",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"assignments\"] = [$\"Trainer '{overlap.left.TrainerId:D}' has overlapping assignment periods in this request.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        359
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"У тренера есть пересекающееся постоянное назначение в другой группе.\"",
+      "value": "У тренера есть пересекающееся постоянное назначение в другой группе.",
+      "fingerprint": "sha256:96c9bf503ac6f2c93849030f854535d6e74b18bd1e06dc3914298956c7fe97f0",
+      "context": {
+        "kind": "source-line",
+        "name": "? [new ScheduleWarningResponse(\"group_trainer_assignment_overlap\", \"У тренера есть пересекающееся постоянное назначение в другой группе.\")]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        404
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/problems/{code}\"",
+      "value": "/problems/{code}",
+      "fingerprint": "sha256:6eeb2e2eaeace6055a5ed4b0babd97930dd12861ba34ec0f211446b87bce8cfc",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = $\"/problems/{code}\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        673
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Group trainer assignment preview token is not valid for this mutation.\"",
+      "value": "Group trainer assignment preview token is not valid for this mutation.",
+      "fingerprint": "sha256:54fd709c481044be46bdcbcb50d949cabd9ece6b7ff1dd263ba82534ba49c685",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Group trainer assignment preview token is not valid for this mutation.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        674
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/group-trainer-substitution-overlap\"",
+      "value": "/problems/group-trainer-substitution-overlap",
+      "fingerprint": "sha256:054a5d95ea6078a65c9ff34ecc78febb047f78616008d74bcc5617c78ce6e2b5",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string OverlapProblemType = \"/problems/group-trainer-substitution-overlap\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        19
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"group_trainer_substitution_overlap\"",
+      "value": "group_trainer_substitution_overlap",
+      "fingerprint": "sha256:985c6e80fcffaaac5dfa5715b7a5edcfd42cea3146aa06fc5c3053acee819770",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string OverlapProblemCode = \"group_trainer_substitution_overlap\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        20
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/group-trainer-substitution-no-changes\"",
+      "value": "/problems/group-trainer-substitution-no-changes",
+      "fingerprint": "sha256:a61e178e7e0c196d0222a12673a2ccec3110017896eea8195561eb5ade329141",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string NoChangesProblemType = \"/problems/group-trainer-substitution-no-changes\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        21
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"group_trainer_substitution_no_changes\"",
+      "value": "group_trainer_substitution_no_changes",
+      "fingerprint": "sha256:01b99986d567b290bcb7592c0312c3cfbd0ac416bd2e51f8d3733862e7f6a4a4",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string NoChangesProblemCode = \"group_trainer_substitution_no_changes\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/group-trainer-substitution-immutable\"",
+      "value": "/problems/group-trainer-substitution-immutable",
+      "fingerprint": "sha256:dedefc43e9d72a5120de14cabb1501cbbf603dca4ac84db173d215e1642f0d7d",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string ImmutableProblemType = \"/problems/group-trainer-substitution-immutable\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        23
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"group_trainer_substitution_immutable\"",
+      "value": "group_trainer_substitution_immutable",
+      "fingerprint": "sha256:dc449f8324b588f8f5f0a382c0b5f7232bebc248cb81808c9b49b7d1e03ccb95",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string ImmutableProblemCode = \"group_trainer_substitution_immutable\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        24
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/group-trainer-substitution-active-edit-conflict\"",
+      "value": "/problems/group-trainer-substitution-active-edit-conflict",
+      "fingerprint": "sha256:6ed15764ccd2957b27a48ec0fdc7e38bdcc0e2acb286b2732e5846fdd47c71c9",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string ActiveEditConflictProblemType = \"/problems/group-trainer-substitution-active-edit-conflict\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"group_trainer_substitution_active_edit_conflict\"",
+      "value": "group_trainer_substitution_active_edit_conflict",
+      "fingerprint": "sha256:09449b875d48ade65399b9c8fd735a1d09a94f20559680551068c3cb42e683f0",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string ActiveEditConflictProblemCode = \"group_trainer_substitution_active_edit_conflict\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        26
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' создал замещение тренера группы.\"",
+      "value": "Пользователь '{currentUser.Login}' создал замещение тренера группы.",
+      "fingerprint": "sha256:7e830ea841f1865d712297e0152471f1d63485e0768f4dde9efc3ba3f86b2469",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' создал замещение тренера группы.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        186
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Группа должна быть активной.\"",
+      "value": "Группа должна быть активной.",
+      "fingerprint": "sha256:1d60c817be2b773f17bab959fd2496dc4c676634111e62ee72182e1bb5785fba",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [\"groupId\"] = [\"Группа должна быть активной.\"] });"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        264,
+        479
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"groupId\"",
+      "value": "groupId",
+      "fingerprint": "sha256:2f1b743e2d1a1a7c7540154a3366a86fd52c1438602f5f42929e7dd59f24bfb6",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [\"groupId\"] = [\"Группа должна быть активной.\"] });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        264,
+        479
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Дата начала должна быть сегодня или позже.\"",
+      "value": "Дата начала должна быть сегодня или позже.",
+      "fingerprint": "sha256:80144680d4270a94ae9ba5ae6bca5630fb642bd307d106530e1213265fee2469",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [\"startsOn\"] = [\"Дата начала должна быть сегодня или позже.\"] });"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        280,
+        447
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"startsOn\"",
+      "value": "startsOn",
+      "fingerprint": "sha256:f6f83b9701a0fa7db9cc3032289227a18fc5ca7ba554df0cf5bde31133e8eb3c",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [\"startsOn\"] = [\"Дата начала должна быть сегодня или позже.\"] });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        280,
+        447,
+        507
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' изменил замещение тренера группы.\"",
+      "value": "Пользователь '{currentUser.Login}' изменил замещение тренера группы.",
+      "fingerprint": "sha256:9dcc937d24075d9faffd972e6f6bd5c4ca82cc92a71c6504e1c4548f2b6bc0d5",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' изменил замещение тренера группы.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        331
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' отменил замещение тренера группы.\"",
+      "value": "Пользователь '{currentUser.Login}' отменил замещение тренера группы.",
+      "fingerprint": "sha256:40f3e7c02d205205a0b9e7848680fed2acf5363f3d172a19019dbe9be93be34e",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' отменил замещение тренера группы.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        418
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Укажите замещающего тренера.\"",
+      "value": "Укажите замещающего тренера.",
+      "fingerprint": "sha256:688b34f53801c39e36f2869a821e54b809809b9b6a47cfa1133340f65e09236a",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [\"Укажите замещающего тренера.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        485
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"substituteTrainerId\"",
+      "value": "substituteTrainerId",
+      "fingerprint": "sha256:191162013e7686da872115f3be8221bc18e456352c722018fd2f5b640848f0ed",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [\"Укажите замещающего тренера.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        485,
+        496,
+        500
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Замещающий тренер должен быть активным тренером или главным тренером.\"",
+      "value": "Замещающий тренер должен быть активным тренером или главным тренером.",
+      "fingerprint": "sha256:c99d3372184e23278e60e036eceec35fd40169e41d8bff1f5e05b0ec4090781e",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [\"Замещающий тренер должен быть активным тренером или главным тренером.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        496
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Основной тренер этой группы не может быть выбран замещающим.\"",
+      "value": "Основной тренер этой группы не может быть выбран замещающим.",
+      "fingerprint": "sha256:f66e630f5e436953d34c489fdaf58f24cf04bb691a7374b5afd0fdba24285d21",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [\"Основной тренер этой группы не может быть выбран замещающим.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        500
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Укажите дату начала в формате yyyy-MM-dd.\"",
+      "value": "Укажите дату начала в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:83c61e4faa757804d7d903043eae962799439814b110f3eeb8f9b008d9f40781",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"startsOn\"] = [\"Укажите дату начала в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        507
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Укажите дату окончания в формате yyyy-MM-dd.\"",
+      "value": "Укажите дату окончания в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:df370b9a24ae6b0a010513dc527f6029c19308796641b57bbfa2763e0c7deef3",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"endsOn\"] = [\"Укажите дату окончания в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        513
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"endsOn\"",
+      "value": "endsOn",
+      "fingerprint": "sha256:eb42dc9307f01d7614c3d2066b079f9889aa9b41f150b9c5b3e11d547734adbc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"endsOn\"] = [\"Укажите дату окончания в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        513,
+        518
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Дата окончания не может быть раньше даты начала.\"",
+      "value": "Дата окончания не может быть раньше даты начала.",
+      "fingerprint": "sha256:de43f4f355154212501abe38e24f2bc507718ab74f9e65f3b48299537b145448",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"endsOn\"] = [\"Дата окончания не может быть раньше даты начала.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        518
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"historySkip\"",
+      "value": "historySkip",
+      "fingerprint": "sha256:8217766e95e158aab89ee68d9a4c0fdd2e37fd556d168e42a6b4e4d529bb2c72",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"historySkip\"] = [GroupResources.SkipCannotBeNegative];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        529
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"historyTake\"",
+      "value": "historyTake",
+      "fingerprint": "sha256:0ac91f75ba7f1edb9aee0af77525006e0e987a198266c36870858908eefcb9aa",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"historyTake\"] = [GroupResources.TakeMustBeInRange(GroupApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        534
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Период пересекается с другим замещением этого тренера.\"",
+      "value": "Период пересекается с другим замещением этого тренера.",
+      "fingerprint": "sha256:5ee85073259aff3cc1ac5a889223ce2386b9a6eb614702265f3b2d150d070a89",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"startsOn\"] = [\"Период пересекается с другим замещением этого тренера.\"],"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        649,
+        650
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"name\"",
+      "value": "name",
+      "fingerprint": "sha256:82a3537ff0dbce7eec35d69edc3a189ee6f17d82f353a553f9aa96cb0be3ce89",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"name\"] = [GroupTypeResources.NameRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        275,
+        279,
+        298
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"description\"",
+      "value": "description",
+      "fingerprint": "sha256:c9046f7a37ad0ea7cee73355984fa5428982f8b37c8f7bcec91f7ac71a7cd104",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"description\"] = [GroupTypeResources.DescriptionTooLong];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        284
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    }
+  ]
+}

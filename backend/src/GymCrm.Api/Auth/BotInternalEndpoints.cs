@@ -51,7 +51,7 @@ internal static class BotInternalEndpoints
         {
             return Results.Problem(
                 title: "BotInternalApiTokenMissing",
-                detail: "Internal Bot API token is not configured.",
+                detail: global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine546aec8af2,
                 statusCode: StatusCodes.Status503ServiceUnavailable);
         }
 
@@ -111,7 +111,7 @@ internal static class BotInternalEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["trainingDate"] = ["Укажите дату в формате yyyy-MM-dd."]
+                ["trainingDate"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine114512cc5e3]
             });
         }
 
@@ -134,7 +134,7 @@ internal static class BotInternalEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["trainingDate"] = ["Укажите дату в формате yyyy-MM-dd."]
+                ["trainingDate"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine137512cc5e3]
             });
         }
 
@@ -158,7 +158,7 @@ internal static class BotInternalEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = ["Укажите дату занятия в формате yyyy-MM-dd."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine161Ab7c6d65]
             });
         }
 
@@ -181,7 +181,7 @@ internal static class BotInternalEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["trainingDate"] = ["Укажите дату в формате yyyy-MM-dd."]
+                ["trainingDate"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine184512cc5e3]
             });
         }
 
@@ -190,7 +190,7 @@ internal static class BotInternalEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["idempotencyKey"] = ["Для изменяющего действия нужен Idempotency-Key."]
+                ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine1931584a20b]
             });
         }
 
@@ -221,7 +221,7 @@ internal static class BotInternalEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["lessonDate"] = ["Укажите дату занятия в формате yyyy-MM-dd."]
+                ["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine224Ab7c6d65]
             });
         }
 
@@ -230,7 +230,7 @@ internal static class BotInternalEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["idempotencyKey"] = ["Для изменяющего действия нужен Idempotency-Key."]
+                ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine2331584a20b]
             });
         }
 
@@ -325,7 +325,7 @@ internal static class BotInternalEndpoints
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["idempotencyKey"] = ["Для изменяющего действия нужен Idempotency-Key."]
+                ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine3281584a20b]
             });
         }
 
@@ -353,43 +353,43 @@ internal static class BotInternalEndpoints
             BotApiError.UnknownUser => Results.NotFound(new
             {
                 title = "TelegramUserNotConfigured",
-                detail = "Telegram user is not configured in CRM."
+                detail = global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine356Ea11992e
             }),
             BotApiError.UserInactive => Results.Problem(
                 title: "CrmUserInactive",
-                detail: "CRM user is inactive.",
+                detail: global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine360D01e6571,
                 statusCode: StatusCodes.Status403Forbidden),
             BotApiError.PasswordChangeRequired => Results.Problem(
                 title: "PasswordChangeRequired",
-                detail: "CRM user must change password in web UI first.",
+                detail: global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine364F7451b01,
                 statusCode: StatusCodes.Status403Forbidden),
             BotApiError.Forbidden => Results.Forbid(),
             BotApiError.InvalidAttendanceDate => Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["trainingDate"] = ["Дата посещаемости недоступна для роли пользователя."]
+                ["trainingDate"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine3691cd5b8f3]
             }),
             BotApiError.NotFound => Results.NotFound(),
             BotApiError.Validation => Results.ValidationProblem(
                 result.ValidationErrors ?? new Dictionary<string, string[]>
                 {
-                    ["request"] = ["Запрос не прошел бизнес-валидацию."]
+                    ["request"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine3759dc0b53c]
                 }),
             BotApiError.IdempotencyConflict => Results.Conflict(new
             {
                 title = "IdempotencyConflict",
-                detail = "Idempotency-Key уже использован для другого действия или payload."
+                detail = global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine3802642715d
             }),
             BotApiError.CurrentMembershipMissing => Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["currentMembership"] = ["У клиента нет текущего абонемента."]
+                ["currentMembership"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine3843ee05d1f]
             }),
             BotApiError.SingleVisitRestoreConflict => Results.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["attendanceMarks"] = ["Разовое посещение не восстановлено из-за последующих изменений абонемента."]
+                ["attendanceMarks"] = [global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine388E7d11beb]
             }),
             _ => Results.Problem(
                 title: "TemporaryBackendError",
-                detail: "Temporary backend error.",
+                detail: global::GymCrm.Api.UserFacingText.BE7BotInternalApiText.BotInternalEndpointsLine392A6463b42,
                 statusCode: StatusCodes.Status503ServiceUnavailable)
         };
     }

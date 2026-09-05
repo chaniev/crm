@@ -26,6 +26,8 @@ import {
   TaskToolbarActions,
   TaskToolbarRefreshAction,
 } from '../shared/ux'
+import { fe9AttentionText } from '../../resources/fe-9-attention'
+
 
 type AttentionPanelProps = { onOpenClient?: (clientId: string) => void }
 
@@ -103,28 +105,27 @@ export function AttentionPanel({ onOpenClient }: AttentionPanelProps) {
           ref={headingRef}
           tabIndex={-1}
         >
-          Список клиентов
-        </Text>
+          {fe9AttentionText.attentionPanel_jsxText_b4533fb8}</Text>
         <div className="attention-list-status" role="status">
-          <Text aria-label={`Всего клиентов: ${clients.length}`} component="span">
-            Всего: {clients.length}
+          <Text aria-label={fe9AttentionText.attentionPanel_template_15a88e60(clients.length)} component="span">
+            {fe9AttentionText.attentionPanel_jsxText_f8ba76ae}{clients.length}
           </Text>
-          <Text aria-label={`Просроченных абонементов: ${expiredCount}`} component="span">
-            Просрочен: {expiredCount}
+          <Text aria-label={fe9AttentionText.attentionPanel_template_427c7cbf(expiredCount)} component="span">
+            {fe9AttentionText.attentionPanel_jsxText_b625bade}{expiredCount}
           </Text>
           {lastSuccessfulCheck ? (
             <Text c="dimmed" component="span" data-testid="memberships-last-check">
-              Проверено: {lastSuccessfulCheck.toLocaleTimeString('ru-RU', {
+              {fe9AttentionText.attentionPanel_jsxText_6fad7653}{lastSuccessfulCheck.toLocaleTimeString('ru-RU', {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
             </Text>
           ) : null}
         </div>
-        {loading && !loaded.current ? <LoadingState label="Загружаем клиентов..." /> : null}
+        {loading && !loaded.current ? <LoadingState label={fe9AttentionText.attentionPanel_label_34e77243} /> : null}
         {!loading && error && !loaded.current ? (
           <ErrorState
-            action={<RefreshButton label="Повторить" onClick={() => setReloadKey((v) => v + 1)} />}
+            action={<RefreshButton label={fe9AttentionText.attentionPanel_label_5189135a} onClick={() => setReloadKey((v) => v + 1)} />}
             message={error}
             title={resources.attention.loadingErrorTitle}
           />
@@ -202,25 +203,25 @@ function AttentionClientRow({
         <Text className="attention-client-row__name" fw={800} title={client.fullName}>
           {client.fullName}
         </Text>
-        <div aria-label="Причины" className="attention-client-row__reasons">
+        <div aria-label={fe9AttentionText.attentionPanel_ariaLabel_93096e67} className="attention-client-row__reasons">
           {client.reasons.length > 0
             ? client.reasons.map((reason, index) => (
                 <ReasonSummary key={`${reason.type}-${index}`} reason={reason} />
               ))
-            : <Text component="span">Причина не указана</Text>}
+            : <Text component="span">{fe9AttentionText.attentionPanel_jsxText_bffdeff3}</Text>}
         </div>
         <div className="attention-client-row__metadata">
           <Text component="span" title={formatAttentionMembershipLabel(client)}>
             {formatAttentionMembershipLabel(client)}
           </Text>
-          <Text component="span" title={client.membership?.targetSummary ?? 'Группы не указаны'}>
-            {client.membership?.targetSummary ?? 'Группы не указаны'}
+          <Text component="span" title={client.membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55}>
+            {client.membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55}
           </Text>
-          <Text component="span" title={client.phone ?? 'Телефон не указан'}>
-            {client.phone ?? 'Телефон не указан'}
+          <Text component="span" title={client.phone ?? fe9AttentionText.attentionPanel_string_1fc40e1a}>
+            {client.phone ?? fe9AttentionText.attentionPanel_string_1fc40e1a}
           </Text>
-          <Text component="span" title={client.notes || 'Нет заметок'}>
-            {client.notes || 'Нет заметок'}
+          <Text component="span" title={client.notes || fe9AttentionText.attentionPanel_string_20df618a}>
+            {client.notes || fe9AttentionText.attentionPanel_string_20df618a}
           </Text>
         </div>
       </div>
@@ -228,19 +229,19 @@ function AttentionClientRow({
         {primaryKind === 'contacted' ? (
           <Button
             aria-label={pending
-              ? `Сохраняем связь с ${client.fullName}`
-              : `Связались с ${client.fullName}`}
+              ? fe9AttentionText.attentionPanel_template_a35598f8(client.fullName)
+              : fe9AttentionText.attentionPanel_template_0ad31512(client.fullName)}
             className="attention-client-row__primary"
             leftSection={<IconCheck size={18} />}
             loading={pending}
             onClick={onContacted}
           >
-            {pending ? 'Сохраняем…' : 'Связались'}
+            {pending ? fe9AttentionText.attentionPanel_string_9c27c381 : fe9AttentionText.attentionPanel_string_82dd6ade}
           </Button>
         ) : null}
         {primaryKind === 'phone' ? (
           <MantineButton
-            aria-label={`Позвонить ${client.fullName}`}
+            aria-label={fe9AttentionText.attentionPanel_template_e50e96fc(client.fullName)}
             className="attention-client-row__primary"
             color="var(--crm-action-primary)"
             component="a"
@@ -250,12 +251,11 @@ function AttentionClientRow({
             leftSection={<IconPhone size={18} />}
             radius="xl"
           >
-            Позвонить
-          </MantineButton>
+            {fe9AttentionText.attentionPanel_jsxText_0701381c}</MantineButton>
         ) : null}
         {primaryKind === 'telegram' ? (
           <MantineButton
-            aria-label={`Открыть Telegram ${client.fullName}`}
+            aria-label={fe9AttentionText.attentionPanel_template_50ce20af(client.fullName)}
             className="attention-client-row__primary"
             color="var(--crm-action-primary)"
             component="a"
@@ -272,13 +272,12 @@ function AttentionClientRow({
         ) : null}
         {primaryKind === 'profile' && onOpenClient ? (
           <Button
-            aria-label={`Открыть карточку ${client.fullName}`}
+            aria-label={fe9AttentionText.attentionPanel_template_a98de9df(client.fullName)}
             className="attention-client-row__primary"
             leftSection={<IconUserHeart size={18} />}
             onClick={() => onOpenClient(client.clientId)}
           >
-            Карточка
-          </Button>
+            {fe9AttentionText.attentionPanel_jsxText_18c7acca}</Button>
         ) : null}
         <AttentionActionsMenu
           client={client}
@@ -288,8 +287,7 @@ function AttentionClientRow({
       </div>
       {actionError ? (
         <Text aria-live="polite" className="attention-client-row__error" c="red">
-          {actionError}. Нажмите «Связались», чтобы повторить.
-        </Text>
+          {actionError}{fe9AttentionText.attentionPanel_jsxText_3a45c61a}</Text>
       ) : null}
     </Paper>
   )
@@ -331,25 +329,24 @@ function AttentionActionsMenu({
         <IconButton
           icon={<IconDotsVertical size={20} />}
           data-attention-menu-trigger={triggerKey}
-          label={`Другие действия для ${client.fullName}`}
+          label={fe9AttentionText.attentionPanel_template_c6ca6019(client.fullName)}
           variant="secondary"
         />
       </Menu.Target>
       <Menu.Dropdown>
         {hasPhoneAction ? (
           <Menu.Item
-            aria-label={`Позвонить ${client.fullName}`}
+            aria-label={fe9AttentionText.attentionPanel_template_e50e96fc(client.fullName)}
             className="attention-actions-menu__item"
             component="a"
             href={`tel:${client.phone}`}
             leftSection={<IconPhone size={18} />}
           >
-            Позвонить
-          </Menu.Item>
+            {fe9AttentionText.attentionPanel_jsxText_0701381c}</Menu.Item>
         ) : null}
         {hasTelegramAction ? (
           <Menu.Item
-            aria-label={`Открыть Telegram ${client.fullName}`}
+            aria-label={fe9AttentionText.attentionPanel_template_50ce20af(client.fullName)}
             className="attention-actions-menu__item"
             component="a"
             href={client.telegramLink ?? undefined}
@@ -362,13 +359,12 @@ function AttentionActionsMenu({
         ) : null}
         {hasProfileAction && onOpenClient ? (
           <Menu.Item
-            aria-label={`Открыть карточку ${client.fullName}`}
+            aria-label={fe9AttentionText.attentionPanel_template_a98de9df(client.fullName)}
             className="attention-actions-menu__item"
             leftSection={<IconUserHeart size={18} />}
             onClick={() => onOpenClient(client.clientId)}
           >
-            Карточка клиента
-          </Menu.Item>
+            {fe9AttentionText.attentionPanel_jsxText_a912ec86}</Menu.Item>
         ) : null}
       </Menu.Dropdown>
     </Menu>
@@ -377,7 +373,7 @@ function AttentionActionsMenu({
 
 function ReasonSummary({ reason }: { reason: ClientAttentionReason }) {
   if (reason.type === 'missedTraining') {
-    const label = `Пропущено подряд: ${reason.missedCount}`
+    const label = fe9AttentionText.attentionPanel_label_4cd3b5b4(reason.missedCount)
     return <Badge title={label} variant="light">{label}</Badge>
   }
 
@@ -385,23 +381,23 @@ function ReasonSummary({ reason }: { reason: ClientAttentionReason }) {
   const days = reason.daysUntilExpiration === null ? null : Math.abs(reason.daysUntilExpiration)
   const detail = days === null
     ? expired
-      ? 'Дата окончания прошла'
-      : 'Срок окончания приближается'
+      ? fe9AttentionText.attentionPanel_string_bb034c97
+      : fe9AttentionText.attentionPanel_string_e77d1c5f
     : days === 0
       ? expired
-        ? 'Истек сегодня'
-        : 'Истекает сегодня'
+        ? fe9AttentionText.attentionPanel_string_8173243b
+        : fe9AttentionText.attentionPanel_string_043dabe8
       : expired
-        ? `Истек ${days} ${dayWord(days)} назад`
-        : `Осталось ${days} ${dayWord(days)}`
+        ? fe9AttentionText.attentionPanel_template_1182acc1(days, dayWord(days))
+        : fe9AttentionText.attentionPanel_template_ccba39cd(days, dayWord(days))
 
   return (
     <span
-      aria-label={`${expired ? 'Истек' : 'Скоро истечет'}: ${detail}`}
+      aria-label={fe9AttentionText.attentionPanel_template_f3d8e459(expired ? fe9AttentionText.attentionPanel_string_53217635 : fe9AttentionText.attentionPanel_string_92e9102e, detail)}
       className="attention-client-row__reason"
       title={detail}
     >
-      <Badge variant="light">{expired ? 'Истек' : 'Скоро истечет'}</Badge>
+      <Badge variant="light">{expired ? fe9AttentionText.attentionPanel_string_53217635 : fe9AttentionText.attentionPanel_string_92e9102e}</Badge>
       <Text component="span">{detail}</Text>
     </span>
   )
@@ -410,10 +406,10 @@ function ReasonSummary({ reason }: { reason: ClientAttentionReason }) {
 function dayWord(value: number) {
   const n = value % 100
   const d = n % 10
-  if (n >= 11 && n <= 19) return 'дней'
-  if (d === 1) return 'день'
-  if (d >= 2 && d <= 4) return 'дня'
-  return 'дней'
+  if (n >= 11 && n <= 19) return fe9AttentionText.attentionPanel_string_c27d559b
+  if (d === 1) return fe9AttentionText.attentionPanel_string_8eae90e5
+  if (d >= 2 && d <= 4) return fe9AttentionText.attentionPanel_string_748dc44e
+  return fe9AttentionText.attentionPanel_string_c27d559b
 }
 
 function attentionItemKey(client: ClientAttentionItem) {
@@ -426,5 +422,5 @@ function formatAttentionMembershipLabel(client: ClientAttentionItem) {
   return client.membership
     ? (client.membership.membershipName
       || resources.common.membership.typeLabels[client.membership.behaviorKind])
-    : 'Нет данных'
+    : fe9AttentionText.attentionPanel_string_76848548
 }

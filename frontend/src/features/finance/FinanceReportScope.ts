@@ -1,3 +1,4 @@
+import { fe15FinanceText } from '../../resources/fe-15-finance'
 export type FinanceScopeFilters = {
   periodPreset: 'month' | 'quarter' | 'year' | 'custom'
   anchorDate: string
@@ -33,8 +34,8 @@ export function resolveFinanceScopeLabels({
   trainerOptions: Array<{ value: string; label: string }>
 }): FinanceScopeResolution {
   const branchLabel = resolveSelectedLabel({
-    allLabel: 'Все филиалы',
-    fieldLabel: 'филиала',
+    allLabel: fe15FinanceText.financeReportScope_allLabel_1b93eb9a,
+    fieldLabel: fe15FinanceText.financeReportScope_fieldLabel_186f7067,
     options: branchOptions,
     selectedId: filters.branchId,
   })
@@ -44,8 +45,8 @@ export function resolveFinanceScopeLabels({
   }
 
   const trainerLabel = resolveSelectedLabel({
-    allLabel: 'Все тренеры',
-    fieldLabel: 'тренера',
+    allLabel: fe15FinanceText.financeReportScope_allLabel_0b471d0c,
+    fieldLabel: fe15FinanceText.financeReportScope_fieldLabel_10e82072,
     options: trainerOptions,
     selectedId: filters.trainerId,
   })
@@ -89,6 +90,6 @@ function resolveSelectedLabel({
 
   return {
     kind: 'inconsistent',
-    message: `Нельзя подтвердить scope финансового отчета: выбранный id ${fieldLabel} не найден в доступных backend списках.`,
+    message: fe15FinanceText.financeReportScope_message_c9d28435(fieldLabel),
   }
 }

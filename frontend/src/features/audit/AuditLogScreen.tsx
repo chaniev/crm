@@ -33,6 +33,8 @@ import {
   TaskToolbarRefreshAction,
   type CompactFilterItem,
 } from '../shared/ux'
+import { fe16AuditText } from '../../resources/fe-16-audit'
+
 
 type AuditLogScreenProps = {
   user: AuthenticatedUser
@@ -143,11 +145,11 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
         const message =
           loadError instanceof Error
             ? loadError.message
-            : 'Не удалось загрузить журнал действий.'
+            : fe16AuditText.auditLogScreen_string_3c961410
         const currentSnapshot = responseSnapshotRef.current
 
         if (currentSnapshot?.key === requestKey) {
-          setStaleError('Не удалось обновить, показаны предыдущие данные')
+          setStaleError(fe16AuditText.auditLogScreen_setStaleError_13cc8e2d)
           setError(null)
         } else {
           storeResponseSnapshot(null)
@@ -215,11 +217,11 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
   if (!user.permissions.canViewAuditLog) {
     return (
-      <PageLayout data-testid="audit-screen" showHeader={false} title="Журнал">
+      <PageLayout data-testid="audit-screen" showHeader={false} title={fe16AuditText.auditLogScreen_title_97c459a6}>
         <PageSection>
           <ErrorState
-            message="Этот экран доступен главному тренеру и администратору."
-            title="Журнал действий недоступен"
+            message={fe16AuditText.auditLogScreen_message_9d346056}
+            title={fe16AuditText.auditLogScreen_title_509cc0db}
           />
         </PageSection>
       </PageLayout>
@@ -231,7 +233,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   const hasActiveFilters = hasAuditFilters(filters)
   const userSelectOptions = filterOptions.users.map((auditUser) => ({
     value: auditUser.id,
-    label: `${auditUser.fullName} (${auditUser.login})`,
+    label: fe16AuditText.auditLogScreen_label_0ce02910(auditUser.fullName, auditUser.login),
   }))
   const sourceOptions = filterOptions.sources.map((source) => ({
     value: source,
@@ -254,15 +256,15 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   const primaryFilters = [
     {
       key: 'userId',
-      label: 'Пользователь',
+      label: fe16AuditText.auditLogScreen_label_2a5c42af,
       render: () => (
         <Select
           clearable
           data={userSelectOptions}
-          label="Пользователь"
+          label={fe16AuditText.auditLogScreen_label_2a5c42af}
           leftSection={<IconSearch size={16} />}
           onChange={(value) => updateFilters({ userId: value })}
-          placeholder="Все пользователи"
+          placeholder={fe16AuditText.auditLogScreen_placeholder_f92b5e39}
           searchable
           value={filters.userId}
         />
@@ -270,14 +272,14 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     },
     {
       key: 'actionType',
-      label: 'Тип действия',
+      label: fe16AuditText.auditLogScreen_label_6fd845da,
       render: () => (
         <Select
           clearable
           data={actionTypeOptions}
-          label="Тип действия"
+          label={fe16AuditText.auditLogScreen_label_6fd845da}
           onChange={(value) => updateFilters({ actionType: value })}
-          placeholder="Все действия"
+          placeholder={fe16AuditText.auditLogScreen_placeholder_ca80a4db}
           searchable
           value={filters.actionType}
         />
@@ -285,10 +287,10 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     },
     {
       key: 'dateFrom',
-      label: 'Период с',
+      label: fe16AuditText.auditLogScreen_label_adf428d2,
       render: () => (
         <TextInput
-          label="Период с"
+          label={fe16AuditText.auditLogScreen_label_adf428d2}
           leftSection={<IconCalendarEvent size={16} />}
           onChange={(event) => updateFilters({ dateFrom: event.currentTarget.value })}
           type="date"
@@ -298,10 +300,10 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     },
     {
       key: 'dateTo',
-      label: 'Период по',
+      label: fe16AuditText.auditLogScreen_label_1c084473,
       render: () => (
         <TextInput
-          label="Период по"
+          label={fe16AuditText.auditLogScreen_label_1c084473}
           leftSection={<IconCalendarEvent size={16} />}
           onChange={(event) => updateFilters({ dateTo: event.currentTarget.value })}
           type="date"
@@ -313,14 +315,14 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   const secondaryFilters = [
     {
       key: 'source',
-      label: 'Источник',
+      label: fe16AuditText.auditLogScreen_label_56e46960,
       render: () => (
         <Select
           clearable
           data={sourceOptions}
-          label="Источник"
+          label={fe16AuditText.auditLogScreen_label_56e46960}
           onChange={(value) => updateFilters({ source: value })}
-          placeholder="Все источники"
+          placeholder={fe16AuditText.auditLogScreen_placeholder_71e214e1}
           searchable
           value={filters.source}
         />
@@ -328,14 +330,14 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     },
     {
       key: 'messengerPlatform',
-      label: 'Мессенджер',
+      label: fe16AuditText.auditLogScreen_label_8cfeb847,
       render: () => (
         <Select
           clearable
           data={messengerPlatformOptions}
-          label="Мессенджер"
+          label={fe16AuditText.auditLogScreen_label_8cfeb847}
           onChange={(value) => updateFilters({ messengerPlatform: value })}
-          placeholder="Все мессенджеры"
+          placeholder={fe16AuditText.auditLogScreen_placeholder_1627d7ae}
           searchable
           value={filters.messengerPlatform}
         />
@@ -343,14 +345,14 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     },
     {
       key: 'entityType',
-      label: 'Тип объекта',
+      label: fe16AuditText.auditLogScreen_label_802e7822,
       render: () => (
         <Select
           clearable
           data={entityTypeOptions}
-          label="Тип объекта"
+          label={fe16AuditText.auditLogScreen_label_802e7822}
           onChange={(value) => updateFilters({ entityType: value })}
-          placeholder="Все объекты"
+          placeholder={fe16AuditText.auditLogScreen_placeholder_520f22d9}
           searchable
           value={filters.entityType}
         />
@@ -359,7 +361,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   ] satisfies CompactFilterItem[]
 
   return (
-    <PageLayout data-testid="audit-screen" showHeader={false} title="Журнал">
+    <PageLayout data-testid="audit-screen" showHeader={false} title={fe16AuditText.auditLogScreen_title_97c459a6}>
       <CompactFilterPanel
         actions={<TaskToolbarRefreshAction loading={loading} onClick={handleRefresh} />}
         className="audit-filter-toolbar"
@@ -372,18 +374,17 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
       <PageSection>
         <Stack gap="lg">
           {loading ? (
-            <LoadingState label="Загружаем журнал действий..." />
+            <LoadingState label={fe16AuditText.auditLogScreen_label_141826fe} />
           ) : null}
 
           {!loading && error ? (
             <ErrorState
               action={
                 <Button onClick={handleRefresh} variant="secondary">
-                  Повторить
-                </Button>
+                  {fe16AuditText.auditLogScreen_jsxText_5189135a}</Button>
               }
               message={error}
-              title="Журнал не загрузился"
+              title={fe16AuditText.auditLogScreen_title_900936e9}
             />
           ) : null}
 
@@ -392,19 +393,18 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
               action={
                 hasActiveFilters ? (
                   <Button onClick={handleResetFilters} variant="secondary">
-                    Сбросить фильтры
-                  </Button>
+                    {fe16AuditText.auditLogScreen_jsxText_cd45ec78}</Button>
                 ) : null
               }
               description={
                 hasActiveFilters
-                  ? 'Сбросьте фильтры или обновите журнал после новых действий в системе.'
-                  : 'Обновите журнал после новых действий в системе.'
+                  ? fe16AuditText.auditLogScreen_string_27e93106
+                  : fe16AuditText.auditLogScreen_string_d0563fd0
               }
               title={
                 hasActiveFilters
-                  ? 'Под выбранные фильтры записей нет.'
-                  : 'В журнале пока нет записей'
+                  ? fe16AuditText.auditLogScreen_string_1ab37d8d
+                  : fe16AuditText.auditLogScreen_string_3cedc553
               }
             />
           ) : null}
@@ -413,26 +413,25 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             <ErrorState
               action={
                 <Button onClick={handleRefresh} variant="secondary">
-                  Повторить
-                </Button>
+                  {fe16AuditText.auditLogScreen_jsxText_5189135a}</Button>
               }
               message={staleError}
-              title="Данные могли устареть"
+              title={fe16AuditText.auditLogScreen_title_207b3102}
             />
           ) : null}
 
           {!error && entries.length > 0 ? (
             <div
-              aria-label="Журнал действий"
+              aria-label={fe16AuditText.auditLogScreen_ariaLabel_ac5dad76}
               className="audit-log-grid audit-log-list"
               data-testid="audit-log-grid"
               role="table"
             >
               <div className="audit-log-header" role="row">
-                <div role="columnheader">Дата</div>
-                <div role="columnheader">Описание</div>
-                <div role="columnheader">Пользователь</div>
-                <div role="columnheader">Детали</div>
+                <div role="columnheader">{fe16AuditText.auditLogScreen_jsxText_232a0ead}</div>
+                <div role="columnheader">{fe16AuditText.auditLogScreen_jsxText_b3680f2c}</div>
+                <div role="columnheader">{fe16AuditText.auditLogScreen_label_2a5c42af}</div>
+                <div role="columnheader">{fe16AuditText.auditLogScreen_jsxText_773190d8}</div>
               </div>
               {entries.map((entry) => (
                 <AuditLogGridRow
@@ -450,11 +449,11 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             <AppPagination
               className="audit-pagination-shell audit-pagination"
               gap={8}
-              label="Страницы журнала действий"
+              label={fe16AuditText.auditLogScreen_label_273ec7a8}
               nextLabel={getAuditPaginationControlLabel('next')}
               onChange={handlePageChange}
               page={page}
-              pageLabel={(pageNumber) => `Страница ${pageNumber} журнала`}
+              pageLabel={(pageNumber) => fe16AuditText.auditLogScreen_template_4fbaec54(pageNumber)}
               previousLabel={getAuditPaginationControlLabel('previous')}
               summary={formatPaginationSummary(response)}
               total={totalPages}
@@ -508,7 +507,7 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
       </Text>
 
       <div
-        aria-label={`Автор: ${presentation.actorAccessibleLabel}`}
+        aria-label={fe16AuditText.auditLogScreen_template_c1129cd4(presentation.actorAccessibleLabel)}
         className="audit-log-cell audit-log-cell--actor"
         data-testid="audit-log-actor-cell"
         role="cell"
@@ -521,7 +520,7 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
       <div className="audit-log-cell audit-log-cell--details" role="cell">
         <Button
           aria-haspopup="dialog"
-          aria-label={`Показать подробности записи: ${presentation.description}`}
+          aria-label={fe16AuditText.auditLogScreen_template_f73af74a(presentation.description)}
           className="audit-log-details-action"
           data-testid="audit-log-details-action"
           leftSection={<IconEye aria-hidden="true" size={18} />}
@@ -532,8 +531,7 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
           size="xs"
           variant="light"
         >
-          Детали
-        </Button>
+          {fe16AuditText.auditLogScreen_jsxText_773190d8}</Button>
       </div>
     </div>
   )
@@ -569,7 +567,7 @@ function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
     <Modal
       centered
       closeButtonProps={{
-        'aria-label': 'Закрыть подробности записи',
+        'aria-label': fe16AuditText.auditLogScreen_ariaLabel_8f65a33f,
         autoFocus: true,
       }}
       closeOnEscape={false}
@@ -577,7 +575,7 @@ function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
       opened={Boolean(entry)}
       returnFocus
       size="xl"
-      title="Подробности записи журнала"
+      title={fe16AuditText.auditLogScreen_title_a4383fdb}
     >
       {entry ? (
         <Stack data-testid="audit-log-details-modal" gap="lg">
@@ -612,7 +610,7 @@ function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
               </Text>
               {entry.entityId ? (
                 <Text c="dimmed" size="sm">
-                  ID объекта: {entry.entityId}
+                  {fe16AuditText.auditLogScreen_jsxText_7a4effe6}{entry.entityId}
                 </Text>
               ) : null}
             </Group>
@@ -620,13 +618,13 @@ function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
 
           <SimpleGrid cols={{ base: 1, md: 2 }}>
             <JsonPanel
-              emptyLabel="Для этой записи старые значения не переданы."
-              title="Старые значения"
+              emptyLabel={fe16AuditText.auditLogScreen_emptyLabel_7ec59469}
+              title={fe16AuditText.auditLogScreen_title_b1ac9321}
               value={entry.oldValueJson}
             />
             <JsonPanel
-              emptyLabel="Для этой записи новые значения не переданы."
-              title="Новые значения"
+              emptyLabel={fe16AuditText.auditLogScreen_emptyLabel_745d0810}
+              title={fe16AuditText.auditLogScreen_title_e4283670}
               value={entry.newValueJson}
             />
           </SimpleGrid>
@@ -736,28 +734,28 @@ function formatPaginationSummary(response: AuditLogListResponse | null) {
   }
 
   if (response.totalCount !== null) {
-    return `Страница ${response.page} из ${getTotalPages(response)}`
+    return fe16AuditText.auditLogScreen_template_58747b6a(response.page, getTotalPages(response))
   }
 
-  return `Страница ${response.page}`
+  return fe16AuditText.auditLogScreen_template_5456888e(response.page)
 }
 
 function getAuditPaginationControlLabel(
   control: 'first' | 'previous' | 'last' | 'next',
 ) {
   if (control === 'first') {
-    return 'Первая страница журнала'
+    return fe16AuditText.auditLogScreen_string_045eef2d
   }
 
   if (control === 'previous') {
-    return 'Предыдущая страница журнала'
+    return fe16AuditText.auditLogScreen_string_f94be165
   }
 
   if (control === 'next') {
-    return 'Следующая страница журнала'
+    return fe16AuditText.auditLogScreen_string_d04b363e
   }
 
-  return 'Последняя страница журнала'
+  return fe16AuditText.auditLogScreen_string_b2c30064
 }
 
 type AuditTokenPresentation = {
@@ -778,32 +776,32 @@ function buildAuditEntryPresentation(entry: AuditLogEntry): AuditEntryPresentati
   const userLogin = getUserLoginLabel(entry)
   const action = getAuditTokenPresentation({
     dictionary: resources.audit.actionLabels,
-    knownPrefix: 'Действие',
-    unknownPrefix: 'Тип действия из API',
+    knownPrefix: fe16AuditText.auditLogScreen_knownPrefix_6b53aafe,
+    unknownPrefix: fe16AuditText.auditLogScreen_unknownPrefix_6faaa941,
     value: entry.actionType,
   })
   const entity = getAuditTokenPresentation({
     dictionary: resources.audit.entityLabels,
-    knownPrefix: 'Объект',
-    unknownPrefix: 'Тип объекта из API',
+    knownPrefix: fe16AuditText.auditLogScreen_knownPrefix_cedecb91,
+    unknownPrefix: fe16AuditText.auditLogScreen_unknownPrefix_ee943359,
     value: entry.entityType,
   })
   const contextParts = [action, entity]
-  const accessibleParts = [`Описание: ${description}`, action.accessible, entity.accessible]
+  const accessibleParts = [fe16AuditText.auditLogScreen_template_41f458cd(description), action.accessible, entity.accessible]
 
   if (entry.entityId) {
     contextParts.push({
       visible: entry.entityId,
-      accessible: `ID объекта: ${entry.entityId}`,
+      accessible: fe16AuditText.auditLogScreen_accessible_279b9ae5(entry.entityId),
     })
-    accessibleParts.push(`ID объекта: ${entry.entityId}`)
+    accessibleParts.push(fe16AuditText.auditLogScreen_accessible_279b9ae5(entry.entityId))
   }
 
   if (entry.source) {
     const source = getAuditTokenPresentation({
       dictionary: resources.audit.sourceLabels,
-      knownPrefix: 'Источник',
-      unknownPrefix: 'Источник из API',
+      knownPrefix: fe16AuditText.auditLogScreen_label_56e46960,
+      unknownPrefix: fe16AuditText.auditLogScreen_unknownPrefix_6ce2dabd,
       value: entry.source,
     })
     contextParts.push(source)
@@ -813,8 +811,8 @@ function buildAuditEntryPresentation(entry: AuditLogEntry): AuditEntryPresentati
   if (entry.messengerPlatform) {
     const messengerPlatform = getAuditTokenPresentation({
       dictionary: resources.audit.messengerPlatformLabels,
-      knownPrefix: 'Мессенджер',
-      unknownPrefix: 'Мессенджер из API',
+      knownPrefix: fe16AuditText.auditLogScreen_label_8cfeb847,
+      unknownPrefix: fe16AuditText.auditLogScreen_unknownPrefix_597bec43,
       value: entry.messengerPlatform,
     })
     contextParts.push(messengerPlatform)
@@ -833,7 +831,7 @@ function buildAuditEntryPresentation(entry: AuditLogEntry): AuditEntryPresentati
 function getAuditDescription(entry: AuditLogEntry) {
   const description = entry.description
 
-  return description.trim() ? description : 'Описание не передано'
+  return description.trim() ? description : fe16AuditText.auditLogScreen_string_65ab7b28
 }
 
 function getAuditTokenPresentation({
@@ -906,7 +904,7 @@ function getUserLoginLabel(entry: AuditLogEntry) {
 function formatDateTimeParts(value: string) {
   if (!value) {
     return {
-      date: 'Дата не указана',
+      date: fe16AuditText.auditLogScreen_date_732063f1,
       time: '',
     }
   }

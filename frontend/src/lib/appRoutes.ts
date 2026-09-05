@@ -1,4 +1,6 @@
 import type { AppSection, AuthenticatedUser } from './api'
+import { fe17SharedRoutingThemeText } from '../resources/fe-17-shared-routing-theme'
+
 
 export type AppRoute =
   | { kind: 'section'; section: AppSection }
@@ -92,15 +94,15 @@ const USER_EDIT_ROUTE_PATTERN = /^\/coaches\/([^/]+)\/edit$/
 const CLIENT_DETAILS_ROUTE_PATTERN = /^\/clients\/([^/]+)$/
 
 export const APP_SECTION_LABELS: Record<AppSection, string> = {
-  Attendance: 'Посещения',
-  Attention: 'Внимание',
-  Schedule: 'Расписание',
-  Clients: 'Клиенты',
-  Groups: 'Группы',
-  Users: 'Тренеры',
-  Audit: 'Журнал',
-  Finance: 'Финансы',
-  Settings: 'Настройки',
+  Attendance: fe17SharedRoutingThemeText.appRoutes_attendance_5f43e5f1,
+  Attention: fe17SharedRoutingThemeText.appRoutes_attention_f17ceff0,
+  Schedule: fe17SharedRoutingThemeText.appRoutes_schedule_92431022,
+  Clients: fe17SharedRoutingThemeText.appRoutes_clients_ff296dda,
+  Groups: fe17SharedRoutingThemeText.appRoutes_groups_cd8c5873,
+  Users: fe17SharedRoutingThemeText.appRoutes_users_0314946c,
+  Audit: fe17SharedRoutingThemeText.appRoutes_audit_97c459a6,
+  Finance: fe17SharedRoutingThemeText.appRoutes_finance_d833b857,
+  Settings: fe17SharedRoutingThemeText.appRoutes_settings_985b5e0f,
 }
 
 export const APP_SECTION_PATHS: Record<AppSection, string> = {
@@ -599,7 +601,7 @@ function getRouteAccessReason(route: AppRoute): RouteAccessReason {
         label: APP_SECTION_LABELS[route.section],
       }
     case 'password':
-      return { kind: 'operation', label: 'Смена пароля' }
+      return { kind: 'operation', label: fe17SharedRoutingThemeText.appRoutes_label_354d5f5b }
     case 'attendanceLesson':
       return { kind: 'section', label: APP_SECTION_LABELS.Attendance }
     case 'scheduleLessonDetail':
@@ -609,20 +611,20 @@ function getRouteAccessReason(route: AppRoute): RouteAccessReason {
     case 'scheduleSeriesEdit':
       return { kind: 'section', label: APP_SECTION_LABELS.Schedule }
     case 'clientCreate':
-      return { kind: 'operation', label: 'Новый клиент' }
+      return { kind: 'operation', label: fe17SharedRoutingThemeText.appRoutes_label_5a2595c2 }
     case 'clientEdit':
-      return { kind: 'operation', label: 'Редактирование клиента' }
+      return { kind: 'operation', label: fe17SharedRoutingThemeText.appRoutes_label_6744d426 }
     case 'clientDetails':
     case 'clientPreview':
       return { kind: 'section', label: APP_SECTION_LABELS.Clients }
     case 'groupCreate':
-      return { kind: 'operation', label: 'Новая группа' }
+      return { kind: 'operation', label: fe17SharedRoutingThemeText.appRoutes_label_c9fd9fc0 }
     case 'groupEdit':
-      return { kind: 'operation', label: 'Редактирование группы' }
+      return { kind: 'operation', label: fe17SharedRoutingThemeText.appRoutes_label_3f7f75d8 }
     case 'userCreate':
-      return { kind: 'operation', label: 'Новый тренер' }
+      return { kind: 'operation', label: fe17SharedRoutingThemeText.appRoutes_label_1ae0c0dd }
     case 'userEdit':
-      return { kind: 'operation', label: 'Редактирование тренера' }
+      return { kind: 'operation', label: fe17SharedRoutingThemeText.appRoutes_label_f303a273 }
   }
 
   return assertNeverRoute(route)

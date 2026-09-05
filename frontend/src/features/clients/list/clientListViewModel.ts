@@ -9,6 +9,8 @@ import {
   type MembershipBehaviorKind,
 } from '../../../lib/api'
 import { resources } from '../../../lib/resources'
+import { fe5ClientListText } from '../../../resources/fe-5-client-list'
+
 
 export type ClientNextActionViewModel = {
   label: string
@@ -70,7 +72,7 @@ export function buildClientRowViewModel(
     photoUrl: buildClientListPhotoUrl(client),
     statusLabel: statusLabelMap[client.status],
     membershipLabel: client.isProfessional
-      ? 'Профессионал'
+      ? fe5ClientListText.clientListViewModel_string_76fc7876
       : resolveMembershipLabel(
           getSingleCurrentMembershipForLabel(client),
           client.hasCurrentMembership,
@@ -91,22 +93,22 @@ export function buildClientPreviewViewModel(
 
   return {
     fullName: client.fullName,
-    phoneLabel: canManage ? client.phone || 'Не указан' : null,
+    phoneLabel: canManage ? client.phone || fe5ClientListText.clientListViewModel_string_0d836c15 : null,
     photoUrl: buildClientListPhotoUrl(client),
     statusLabel: statusLabelMap[client.status],
     nextAction: resolveNextAction(client),
     facts: [
-      { label: 'Статус', value: statusLabelMap[client.status] },
+      { label: fe5ClientListText.clientListViewModel_label_225077c6, value: statusLabelMap[client.status] },
       {
-        label: 'Абонемент',
+        label: fe5ClientListText.clientListViewModel_label_1139430b,
         value: client.isProfessional
-          ? 'Профессионал'
+          ? fe5ClientListText.clientListViewModel_string_76fc7876
           : resolveMembershipLabel(membership, client.hasCurrentMembership),
       },
-      { label: 'Филиал', value: client.branchName || 'Не указан' },
-      { label: 'Группа', value: resolveGroupLabel(client) },
-      { label: 'Визит', value: resolveLastVisitLabel(lastVisit ?? client.lastVisitDate) },
-      { label: 'Контакты', value: canManage ? String(client.contactCount) : 'Скрыты' },
+      { label: fe5ClientListText.clientListViewModel_label_2f17c4d2, value: client.branchName || fe5ClientListText.clientListViewModel_string_0d836c15 },
+      { label: fe5ClientListText.clientListViewModel_label_907efbd4, value: resolveGroupLabel(client) },
+      { label: fe5ClientListText.clientListViewModel_label_87a3edde, value: resolveLastVisitLabel(lastVisit ?? client.lastVisitDate) },
+      { label: fe5ClientListText.clientListViewModel_label_fca8d5aa, value: canManage ? String(client.contactCount) : fe5ClientListText.clientListViewModel_string_19fc4b0c },
     ],
     events: buildPreviewEvents(client),
   }
@@ -122,8 +124,8 @@ export function buildClientCompactViewModel(
     showBranchIdentity: boolean
   },
 ): ClientCompactViewModel {
-  const phoneLabel = canSeePhone ? client.phone || 'Телефон не указан' : null
-  const branchLabel = showBranchIdentity ? client.branchName || 'Филиал не указан' : null
+  const phoneLabel = canSeePhone ? client.phone || fe5ClientListText.clientListViewModel_string_1fc40e1a : null
+  const branchLabel = showBranchIdentity ? client.branchName || fe5ClientListText.clientListViewModel_string_a560016c : null
   const nextAction = resolveCompactNextAction(client)
   const accessibleParts = [
     client.fullName,
@@ -133,7 +135,7 @@ export function buildClientCompactViewModel(
   ].filter(Boolean)
 
   return {
-    accessibleName: `Открыть клиента ${accessibleParts.join(', ')}`,
+    accessibleName: fe5ClientListText.clientListViewModel_accessibleName_50f65f53(accessibleParts.join(', ')),
     branchLabel,
     fullName: client.fullName,
     nextAction,
@@ -153,16 +155,16 @@ export function resolveHeaderCountsLabel(
   if (status === 'Active') {
     const baseCount = (activeCount ?? 0) + (archivedCount ?? 0)
 
-    return `${visibleCount} активных из ${baseCount}`
+    return fe5ClientListText.clientListViewModel_template_2564fff1(visibleCount, baseCount)
   }
 
   if (status === 'Archived') {
     const baseCount = (activeCount ?? 0) + (archivedCount ?? 0)
 
-    return `${visibleCount} в архиве из ${baseCount}`
+    return fe5ClientListText.clientListViewModel_template_1c66e7c6(visibleCount, baseCount)
   }
 
-  return `${visibleCount} всего`
+  return fe5ClientListText.clientListViewModel_template_8d3d1cda(visibleCount)
 }
 
 export function resolveNextAction(client: ClientListItem): ClientNextActionViewModel {
@@ -179,9 +181,9 @@ export function resolveNextAction(client: ClientListItem): ClientNextActionViewM
   }
 
   return {
-    label: 'Планово',
+    label: fe5ClientListText.clientListViewModel_label_c19bb335,
     tone: 'gray',
-    description: 'Нет подсказок от сервера',
+    description: fe5ClientListText.clientListViewModel_description_f6bf3dbb,
     iconKey: '',
     daysUntilExpiration: null,
   }
@@ -190,7 +192,7 @@ export function resolveNextAction(client: ClientListItem): ClientNextActionViewM
 function resolveCompactNextAction(client: ClientListItem): ClientNextActionViewModel {
   if (client.status === 'Archived') {
     return {
-      label: 'В архиве',
+      label: fe5ClientListText.clientListViewModel_label_34886925,
       tone: 'gray',
       description: statusLabelMap.Archived,
       iconKey: 'archive',
@@ -206,7 +208,7 @@ function resolveCompactNextAction(client: ClientListItem): ClientNextActionViewM
 
   if (hint.daysUntilExpiration !== null && hint.daysUntilExpiration >= 0) {
     return {
-      label: `До ${formatRelativeExpirationDate(hint.daysUntilExpiration)}`,
+      label: fe5ClientListText.clientListViewModel_label_ed73f50a(formatRelativeExpirationDate(hint.daysUntilExpiration)),
       tone: hint.tone || 'orange',
       description: hint.description,
       iconKey: hint.iconKey,
@@ -214,9 +216,9 @@ function resolveCompactNextAction(client: ClientListItem): ClientNextActionViewM
     }
   }
 
-  if (hint.iconKey === 'group' || hint.title === 'Без группы') {
+  if (hint.iconKey === 'group' || hint.title === fe5ClientListText.clientListViewModel_string_9ed5aecd) {
     return {
-      label: 'Без группы',
+      label: fe5ClientListText.clientListViewModel_string_9ed5aecd,
       tone: hint.tone || 'blue',
       description: hint.description,
       iconKey: hint.iconKey,
@@ -225,15 +227,15 @@ function resolveCompactNextAction(client: ClientListItem): ClientNextActionViewM
   }
 
   if (
-    hint.title === 'Без абонемента' ||
+    hint.title === fe5ClientListText.clientListViewModel_string_42be0520 ||
     (
       hint.iconKey === 'membership' &&
-      hint.title === 'Оформить абонемент' &&
-      hint.description === 'Нет текущего абонемента'
+      hint.title === fe5ClientListText.clientListViewModel_string_63e29a54 &&
+      hint.description === fe5ClientListText.clientListViewModel_string_202af31a
     )
   ) {
     return {
-      label: 'Без абонемента',
+      label: fe5ClientListText.clientListViewModel_string_42be0520,
       tone: hint.tone || 'yellow',
       description: hint.description,
       iconKey: hint.iconKey,
@@ -242,7 +244,7 @@ function resolveCompactNextAction(client: ClientListItem): ClientNextActionViewM
   }
 
   return {
-    label: hint.title || 'Активен',
+    label: hint.title || fe5ClientListText.clientListViewModel_string_a87a4b39,
     tone: hint.tone || 'gray',
     description: hint.description,
     iconKey: hint.iconKey,
@@ -252,9 +254,9 @@ function resolveCompactNextAction(client: ClientListItem): ClientNextActionViewM
 
 function buildActiveCompactAction(): ClientNextActionViewModel {
   return {
-    label: 'Активен',
+    label: fe5ClientListText.clientListViewModel_string_a87a4b39,
     tone: 'teal',
-    description: 'Нет подсказок от сервера',
+    description: fe5ClientListText.clientListViewModel_description_f6bf3dbb,
     iconKey: 'check',
     daysUntilExpiration: null,
   }
@@ -266,8 +268,8 @@ function isNonMeaningfulCompactHint(
   return (
     hint.tone === 'gray' ||
     hint.iconKey === 'check' ||
-    hint.title === 'Планово' ||
-    hint.title === 'Плановое сопровождение'
+    hint.title === fe5ClientListText.clientListViewModel_label_c19bb335 ||
+    hint.title === fe5ClientListText.clientListViewModel_string_6bd8ee2e
   )
 }
 
@@ -284,7 +286,7 @@ function formatRelativeExpirationDate(daysUntilExpiration: number) {
 
 export function formatDateValue(value?: string | null) {
   if (!value) {
-    return 'Не указана'
+    return fe5ClientListText.clientListViewModel_string_f16cbd32
   }
 
   const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -301,10 +303,10 @@ export function formatExpirationValue(
   expirationDate?: string | null,
 ) {
   if (behaviorKind === 'SingleVisit') {
-    return expirationDate ? formatDateValue(expirationDate) : 'По факту'
+    return expirationDate ? formatDateValue(expirationDate) : fe5ClientListText.clientListViewModel_string_6c2aee20
   }
 
-  return expirationDate ? formatDateValue(expirationDate) : 'Без даты'
+  return expirationDate ? formatDateValue(expirationDate) : fe5ClientListText.clientListViewModel_string_c3c76d85
 }
 
 function buildClientListPhotoUrl(client: Pick<ClientListItem, 'id' | 'photo' | 'updatedAt'>) {
@@ -321,7 +323,7 @@ function resolveMembershipLabel(
   hasCurrentMembership: boolean,
 ) {
   if (!hasCurrentMembership || !membership) {
-    return hasCurrentMembership ? 'Несколько абонементов' : 'Без абонемента'
+    return hasCurrentMembership ? fe5ClientListText.clientListViewModel_string_f409e458 : fe5ClientListText.clientListViewModel_string_42be0520
   }
 
   return behaviorKindLabels[membership.behaviorKind]
@@ -329,13 +331,13 @@ function resolveMembershipLabel(
 
 function resolveMembershipMeta(client: ClientListItem) {
   if (client.isProfessional) {
-    return client.professionalComment || 'Профессиональный статус'
+    return client.professionalComment || fe5ClientListText.clientListViewModel_string_81ee659f
   }
 
   const membership = getSingleCurrentMembershipForLabel(client)
 
   if (!membership) {
-    return client.hasCurrentMembership ? client.membershipState : 'Оформление не начато'
+    return client.hasCurrentMembership ? client.membershipState : fe5ClientListText.clientListViewModel_string_b36bd7f1
   }
 
   const expiration = formatExpirationValue(
@@ -344,7 +346,7 @@ function resolveMembershipMeta(client: ClientListItem) {
   )
   if (membership.behaviorKind === 'SingleVisit') {
     return membership.singleVisitUsed
-      ? `${expiration}, использован`
+      ? fe5ClientListText.clientListViewModel_template_0705739a(expiration)
       : expiration
   }
 
@@ -357,7 +359,7 @@ function resolveGroupLabel(
   const branchPrefix = client.branchName ? `${client.branchName} · ` : ''
 
   if (client.groupCount === 0 || client.groups.length === 0) {
-    return `${branchPrefix}Без группы`
+    return fe5ClientListText.clientListViewModel_template_538d6d18(branchPrefix)
   }
 
   const firstGroup = client.groups[0]
@@ -367,7 +369,7 @@ function resolveGroupLabel(
 }
 
 function resolveLastVisitLabel(value?: string | null) {
-  return value ? formatDateValue(value) : 'Нет визитов'
+  return value ? formatDateValue(value) : fe5ClientListText.clientListViewModel_string_48edd223
 }
 
 function getSingleCurrentMembershipForLabel(client: ClientListItem) {
@@ -380,7 +382,7 @@ function buildPreviewEvents(client: ClientDetails) {
     value: formatDateValue(membership.validFrom ?? membership.createdAt ?? membership.purchaseDate),
   }))
   const attendanceEvents = client.attendanceHistory.slice(0, 3).map((entry) => ({
-    label: entry.isPresent ? 'Визит' : 'Отметка',
+    label: entry.isPresent ? fe5ClientListText.clientListViewModel_label_87a3edde : fe5ClientListText.clientListViewModel_string_b0e01526,
     value: `${formatDateValue(entry.trainingDate)} · ${entry.groupName}`,
   }))
 
@@ -396,7 +398,7 @@ function getLatestAttendanceDate(entries: ClientAttendanceHistoryEntry[]) {
 
 function formatMembershipChangeReason(reason?: string) {
   if (!reason) {
-    return 'Абонемент'
+    return fe5ClientListText.clientListViewModel_label_1139430b
   }
 
   return membershipChangeReasonLabels[reason as ClientMembershipChangeReason] ?? reason

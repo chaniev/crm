@@ -11,6 +11,7 @@ class CommandMatrixTests(unittest.TestCase):
         self.assertEqual(
             [
                 "backend.restore",
+                "backend.user-facing-text",
                 "backend.format",
                 "backend.build",
                 "backend.test",
@@ -22,9 +23,19 @@ class CommandMatrixTests(unittest.TestCase):
     def test_frontend_preserves_install_audit_and_check(self) -> None:
         checks = checks_for({"frontend"})
         self.assertEqual(
-            ["frontend.install", "frontend.audit", "frontend.check"],
+            [
+                "frontend.install",
+                "frontend.audit",
+                "frontend.user-facing-text",
+                "frontend.check",
+            ],
             [check.identifier for check in checks],
         )
+
+    def test_bot_runs_user_facing_text_guard_after_locked_sync(self) -> None:
+        checks = checks_for({"bot"})
+        self.assertEqual("bot.sync", checks[0].identifier)
+        self.assertIn("bot.user-facing-text", [check.identifier for check in checks])
 
     def test_requirements_base_is_forwarded_to_validator(self) -> None:
         checks = checks_for({"requirements"}, base="base-sha")

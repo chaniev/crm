@@ -2,6 +2,8 @@ import { Badge, TextInput } from '@mantine/core'
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react'
 import { useRef, type ComponentPropsWithoutRef, type ReactNode } from 'react'
 import { TaskToolbarActions } from './TaskToolbarActions'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export type EntityLocatorBarProps = Omit<ComponentPropsWithoutRef<'div'>, 'onChange'> & {
   accessibleLabel: string
@@ -75,7 +77,7 @@ export function EntityLocatorBar({
           ref={inputRef}
           rightSection={value ? (
             <button
-              aria-label="Сбросить поисковый запрос"
+              aria-label={fe17SharedRoutingThemeText.entityLocatorBar_ariaLabel_428def6e}
               className="entity-locator-bar__clear"
               disabled={disabled}
               onBlur={onInputBlur}
@@ -97,8 +99,8 @@ export function EntityLocatorBar({
                 aria-haspopup="dialog"
                 aria-label={
                   activeFilterCount > 0
-                    ? `Открыть фильтры, активно ${activeFilterCount}`
-                    : 'Открыть фильтры'
+                    ? fe17SharedRoutingThemeText.entityLocatorBar_template_e78405ae(activeFilterCount)
+                    : fe17SharedRoutingThemeText.entityLocatorBar_string_1d04cab7
                 }
                 className="entity-locator-bar__filter"
                 disabled={disabled}
@@ -106,7 +108,7 @@ export function EntityLocatorBar({
                 type="button"
               >
                 <IconFilter aria-hidden="true" size={18} />
-                <span className="entity-locator-bar__filter-label">Фильтры</span>
+                <span className="entity-locator-bar__filter-label">{fe17SharedRoutingThemeText.entityLocatorBar_jsxText_a69757b1}</span>
                 {activeFilterCount > 0 ? (
                   <Badge
                     className="entity-locator-bar__filter-count"

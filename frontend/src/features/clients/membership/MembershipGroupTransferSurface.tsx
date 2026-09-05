@@ -16,6 +16,8 @@ import {
   isMembershipTargetLoadAbort,
   loadAllActiveMembershipTargetGroups,
 } from './membershipTargetGroups'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 type MembershipGroupTransferSurfaceProps = {
   client: ClientDetails
@@ -64,7 +66,7 @@ export function MembershipGroupTransferSurface({
       .then(setGroups)
       .catch((loadError) => {
         if (!isMembershipTargetLoadAbort(loadError)) {
-          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить группы.')
+          setError(loadError instanceof Error ? loadError.message : fe7ClientMembershipText.membershipGroupTransferSurface_string_46bd9402)
         }
       })
       .finally(() => {
@@ -75,7 +77,7 @@ export function MembershipGroupTransferSurface({
 
   async function loadPreview() {
     if (!sourceGroupId || !targetGroupId) {
-      setError('Выберите исходную и целевую группу.')
+      setError(fe7ClientMembershipText.membershipGroupTransferSurface_setError_265d66a7)
       return
     }
 
@@ -89,7 +91,7 @@ export function MembershipGroupTransferSurface({
       }))
     } catch (previewError) {
       setPreview(null)
-      setError(previewError instanceof Error ? previewError.message : 'Не удалось построить предпросмотр.')
+      setError(previewError instanceof Error ? previewError.message : fe7ClientMembershipText.membershipGroupTransferSurface_string_fb5e8413)
     } finally {
       setPreviewLoading(false)
     }
@@ -97,7 +99,7 @@ export function MembershipGroupTransferSurface({
 
   async function submitTransfer() {
     if (!sourceGroupId || !targetGroupId) {
-      setError('Выберите исходную и целевую группу.')
+      setError(fe7ClientMembershipText.membershipGroupTransferSurface_setError_265d66a7)
       return
     }
 
@@ -121,7 +123,7 @@ export function MembershipGroupTransferSurface({
     } catch (submitError) {
       setError(submitError instanceof ApiError || submitError instanceof Error
         ? submitError.message
-        : 'Не удалось перенести группу.')
+        : fe7ClientMembershipText.membershipGroupTransferSurface_string_8d75ef84)
     } finally {
       setSubmitLoading(false)
     }
@@ -131,33 +133,32 @@ export function MembershipGroupTransferSurface({
     <Paper className="membership-group-transfer-surface" radius="8px" withBorder>
       <Stack gap="md">
         <div>
-          <Text fw={700}>Перенести группу в абонементах</Text>
+          <Text fw={700}>{fe7ClientMembershipText.membershipGroupTransferSurface_jsxText_01c7a7e5}</Text>
           <Text c="dimmed" size="sm">
-            Операция не создаёт продажу и не меняет цену или оплату.
-          </Text>
+            {fe7ClientMembershipText.membershipGroupTransferSurface_jsxText_0d3bdb14}</Text>
         </div>
         {error ? <Alert color="red">{error}</Alert> : null}
         <Select
           data={sourceOptions}
           disabled={pending || previewLoading || submitLoading}
-          label="Исходная группа"
+          label={fe7ClientMembershipText.membershipGroupTransferSurface_label_874977d3}
           onChange={(value) => {
             setSourceGroupId(value)
             setPreview(null)
           }}
-          placeholder="Выберите группу"
+          placeholder={fe7ClientMembershipText.membershipGroupTransferSurface_placeholder_298a07c0}
           searchable
           value={sourceGroupId}
         />
         <Select
           data={targetOptions}
           disabled={pending || groupsLoading || previewLoading || submitLoading}
-          label="Целевая группа"
+          label={fe7ClientMembershipText.membershipGroupTransferSurface_label_1105fc2c}
           onChange={(value) => {
             setTargetGroupId(value)
             setPreview(null)
           }}
-          placeholder={groupsLoading ? 'Загружаем группы...' : 'Выберите группу'}
+          placeholder={groupsLoading ? fe7ClientMembershipText.membershipGroupTransferSurface_string_f6f37b0e : fe7ClientMembershipText.membershipGroupTransferSurface_placeholder_298a07c0}
           searchable
           value={targetGroupId}
         />
@@ -167,13 +168,13 @@ export function MembershipGroupTransferSurface({
               <Paper key={membership.membershipId} p="sm" radius="8px" withBorder>
                 <Stack gap="xs">
                   <Text fw={700} size="sm">{membership.membershipName}</Text>
-                  <TargetLine label="Было" targets={membership.beforeTargetGroups} />
-                  <TargetLine label="Станет" targets={membership.afterTargetGroups} />
+                  <TargetLine label={fe7ClientMembershipText.membershipGroupTransferSurface_label_4fae346e} targets={membership.beforeTargetGroups} />
+                  <TargetLine label={fe7ClientMembershipText.membershipGroupTransferSurface_label_66e855e0} targets={membership.afterTargetGroups} />
                 </Stack>
               </Paper>
             ))}
             {preview.affectedMemberships.length === 0 ? (
-              <Text c="dimmed" size="sm">Нет затронутых абонементов.</Text>
+              <Text c="dimmed" size="sm">{fe7ClientMembershipText.membershipGroupTransferSurface_jsxText_7c4fbae8}</Text>
             ) : null}
           </Stack>
         ) : null}
@@ -185,16 +186,14 @@ export function MembershipGroupTransferSurface({
             type="button"
             variant="light"
           >
-            Показать предпросмотр
-          </Button>
+            {fe7ClientMembershipText.membershipGroupTransferSurface_jsxText_4b8e058e}</Button>
           <Button
             disabled={pending || previewLoading || !preview}
             loading={submitLoading}
             onClick={() => void submitTransfer()}
             type="button"
           >
-            Перенести группу
-          </Button>
+            {fe7ClientMembershipText.membershipGroupTransferSurface_jsxText_52992c28}</Button>
         </ResponsiveButtonGroup>
       </Stack>
     </Paper>
@@ -213,7 +212,7 @@ function TargetLine({
       <Text c="dimmed" fw={600} size="xs">{label}</Text>
       {targets.map((target) => (
         <Text key={`${label}-${target.groupId}`} size="sm">
-          {target.position + 1} {target.position === 0 ? 'Отчётность · ' : ''}{target.groupName}
+          {target.position + 1} {target.position === 0 ? fe7ClientMembershipText.membershipGroupTransferSurface_string_68f7b035 : ''}{target.groupName}
         </Text>
       ))}
     </Group>

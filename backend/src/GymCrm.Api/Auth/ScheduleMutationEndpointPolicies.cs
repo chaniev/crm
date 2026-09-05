@@ -25,29 +25,29 @@ internal static partial class ScheduleEndpoints
         var errors = new Dictionary<string, string[]>();
         if (!request.GroupId.HasValue)
         {
-            errors["groupId"] = ["Группа обязательна."];
+            errors["groupId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine28F39d9699];
         }
 
         if (!request.HallId.HasValue)
         {
-            errors["hallId"] = ["Зал обязателен."];
+            errors["hallId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine33482d5571];
         }
 
         var lessonDate = ParseDate(request.LessonDate);
         if (!lessonDate.HasValue)
         {
-            errors["lessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."];
+            errors["lessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine3928ddd147(LessonDateFormat)];
         }
 
         var startTime = ParseStartTime(request.StartTime);
         if (!startTime.HasValue)
         {
-            errors["startTime"] = ["Время занятия должно быть в формате HH:mm."];
+            errors["startTime"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine45B177fc71];
         }
 
         if (request.DurationMinutes is null or < 1 or > 180)
         {
-            errors["durationMinutes"] = ["Длительность занятия должна быть от 1 до 180 минут."];
+            errors["durationMinutes"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine5076aa36d0];
         }
 
         if (errors.Count > 0)
@@ -57,7 +57,7 @@ internal static partial class ScheduleEndpoints
 
         if (!ScheduleTimeRangePolicy.EndsOnSameDay(startTime!.Value, request.DurationMinutes!.Value))
         {
-            errors["durationMinutes"] = ["Занятие должно завершаться в тот же календарный день."];
+            errors["durationMinutes"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine60D04166bb];
             return new OneOffLessonRequestValidation(errors, null, null, lessonDate, startTime, request.DurationMinutes);
         }
 
@@ -73,7 +73,7 @@ internal static partial class ScheduleEndpoints
             .SingleOrDefaultAsync(candidate => candidate.Id == groupId, cancellationToken);
         if (group is null)
         {
-            errors["groupId"] = ["Группа не найдена."];
+            errors["groupId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine7630b4e0b4];
         }
         else if (!GroupManagementScope.Contains(currentUser, group.BranchId))
         {
@@ -88,11 +88,11 @@ internal static partial class ScheduleEndpoints
             .SingleOrDefaultAsync(candidate => candidate.Id == hallId, cancellationToken);
         if (hall is null)
         {
-            errors["hallId"] = ["Зал не найден."];
+            errors["hallId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine915d2885e5];
         }
         else if (group is not null && hall.BranchId != group.BranchId)
         {
-            errors["hallId"] = ["Зал должен принадлежать филиалу группы."];
+            errors["hallId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine95A6285cbd];
         }
 
         return new OneOffLessonRequestValidation(errors, group, hall, lessonDate, startTime, request.DurationMinutes);
@@ -108,34 +108,34 @@ internal static partial class ScheduleEndpoints
         var scope = request.Scope?.Trim() ?? string.Empty;
         if (scope is not ("Occurrence" or "ThisAndFuture" or "EntireSeries"))
         {
-            errors["scope"] = ["Поддерживаются scope Occurrence, ThisAndFuture или EntireSeries."];
+            errors["scope"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine11116e60781];
         }
 
         if (string.IsNullOrWhiteSpace(request.ExpectedRevision))
         {
-            errors["expectedRevision"] = ["expectedRevision обязателен."];
+            errors["expectedRevision"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine116F663a580];
         }
 
         var newLessonDate = ParseDate(request.NewLessonDate);
         if (!newLessonDate.HasValue)
         {
-            errors["newLessonDate"] = [$"Дата занятия должна быть в формате {LessonDateFormat}."];
+            errors["newLessonDate"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine12228ddd147(LessonDateFormat)];
         }
 
         var startTime = ParseStartTime(request.StartTime);
         if (!startTime.HasValue)
         {
-            errors["startTime"] = ["Время занятия должно быть в формате HH:mm."];
+            errors["startTime"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine128B177fc71];
         }
 
         if (request.DurationMinutes is null or < 1 or > 180)
         {
-            errors["durationMinutes"] = ["Длительность занятия должна быть от 1 до 180 минут."];
+            errors["durationMinutes"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine13376aa36d0];
         }
 
         if (!request.HallId.HasValue)
         {
-            errors["hallId"] = ["Зал обязателен."];
+            errors["hallId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine138482d5571];
         }
 
         if (errors.Count > 0)
@@ -145,7 +145,7 @@ internal static partial class ScheduleEndpoints
 
         if (!ScheduleTimeRangePolicy.EndsOnSameDay(startTime!.Value, request.DurationMinutes!.Value))
         {
-            errors["durationMinutes"] = ["Занятие должно завершаться в тот же календарный день."];
+            errors["durationMinutes"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine148D04166bb];
         }
 
         var hallId = request.HallId.GetValueOrDefault();
@@ -154,17 +154,17 @@ internal static partial class ScheduleEndpoints
             .SingleOrDefaultAsync(candidate => candidate.Id == hallId, cancellationToken);
         if (hall is null)
         {
-            errors["hallId"] = ["Зал не найден."];
+            errors["hallId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine1575d2885e5];
         }
         else if (hall.BranchId != target.Group.BranchId)
         {
-            errors["hallId"] = ["Зал должен принадлежать филиалу группы."];
+            errors["hallId"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine161A6285cbd];
         }
 
         if (scope is "ThisAndFuture" or "EntireSeries" &&
             (target.Series is null || target.RuleVersion is null || target.Slot is null || target.Occurrence is not null))
         {
-            errors["scope"] = ["Series scope доступен только для projected recurring занятия без materialized exception."];
+            errors["scope"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine167E9858bca];
         }
 
         return new LessonChangeRequestValidation(errors, scope, hall, newLessonDate, startTime, request.DurationMinutes);
@@ -315,7 +315,7 @@ internal static partial class ScheduleEndpoints
         {
             warnings.TryAdd(
                 "lesson_hall_overlap",
-                new ScheduleWarningResponse("lesson_hall_overlap", "В выбранном зале есть пересекающееся занятие."));
+                new ScheduleWarningResponse("lesson_hall_overlap", global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine3184ea9330e));
         }
 
         if (candidateGroup.TrainerAssignments.Any(assignment =>
@@ -325,7 +325,7 @@ internal static partial class ScheduleEndpoints
         {
             warnings.TryAdd(
                 "lesson_trainer_overlap",
-                new ScheduleWarningResponse("lesson_trainer_overlap", "У тренера есть пересекающееся занятие."));
+                new ScheduleWarningResponse("lesson_trainer_overlap", global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine3280782c36f));
         }
     }
 
@@ -707,7 +707,7 @@ internal static partial class ScheduleEndpoints
                 "LessonScheduleSeriesChanged",
                 "LessonSeries",
                 currentRule.LessonSeriesId.ToString(),
-                $"Пользователь '{currentUser.Login}' изменил расписание серии занятий.",
+                global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine7102b1d8fc0(currentUser.Login),
                 OldValueJson: JsonSerializer.Serialize(new
                 {
                     RuleVersionId = currentRule.Id,
@@ -775,7 +775,7 @@ internal static partial class ScheduleEndpoints
         return TypedResults.Problem(new ProblemDetails
         {
             Type = $"/problems/{code}",
-            Title = "Schedule confirmation token is not valid for this mutation.",
+            Title = global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine7787a30e3b9,
             Status = statusCode,
             Extensions =
             {
@@ -788,7 +788,7 @@ internal static partial class ScheduleEndpoints
     {
         return TypedResults.ValidationProblem(new Dictionary<string, string[]>
         {
-            ["startTime"] = ["Занятие этой группы пересекается с другим занятием в выбранный день."]
+            ["startTime"] = [global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine791E0c07c34]
         });
     }
 
@@ -797,7 +797,7 @@ internal static partial class ScheduleEndpoints
         return TypedResults.Problem(new ProblemDetails
         {
             Type = $"/problems/{code}",
-            Title = "Lesson occurrence mutation cannot be applied.",
+            Title = global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine800F937dd9e,
             Status = statusCode,
             Extensions =
             {
@@ -855,7 +855,7 @@ internal static partial class ScheduleEndpoints
         return TypedResults.Problem(new ProblemDetails
         {
             Type = "/problems/lesson-attendance-state-conflict",
-            Title = "Lesson occurrence cannot be cancelled while attendance marks exist.",
+            Title = global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine85893a9c18e,
             Status = StatusCodes.Status409Conflict,
             Extensions =
             {
@@ -957,8 +957,8 @@ internal static partial class ScheduleEndpoints
                 "LessonOccurrence",
                 occurrence.Id.ToString(),
                 action == "Cancel"
-                    ? $"Пользователь '{currentUser.Login}' отменил занятие."
-                    : $"Пользователь '{currentUser.Login}' восстановил занятие.",
+                    ? global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine9608c1eb014(currentUser.Login)
+                    : global::GymCrm.Api.UserFacingText.BE6ScheduleText.ScheduleMutationEndpointPoliciesLine961Ebb54a99(currentUser.Login),
                 OldValueJson: JsonSerializer.Serialize(new
                 {
                     Status = action == "Cancel"

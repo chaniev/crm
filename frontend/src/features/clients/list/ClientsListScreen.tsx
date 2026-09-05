@@ -6,6 +6,8 @@ import { ClientsToolbar } from './ClientsToolbar'
 import { canUseClientsPreviewSplit } from './clientListPreviewLayout'
 import type { ClientListReturnSnapshot } from './clientListReturnState'
 import { useClientsListState } from './useClientsListState'
+import { fe5ClientListText } from '../../../resources/fe-5-client-list'
+
 
 type ClientsListScreenProps = {
   canManage: boolean
@@ -111,7 +113,7 @@ export function ClientsListScreen({
         : 'clients-v7-screen'}
       data-testid="clients-screen"
       showHeader={previewMode ? true : false}
-      title={previewMode ? 'Краткая карточка' : 'Клиенты'}
+      title={previewMode ? fe5ClientListText.clientsListScreen_string_24dfeca0 : fe5ClientListText.clientsListScreen_string_ff296dda}
     >
       <PageSection className="clients-v7-controls-section" variant="plain">
         <ClientsToolbar

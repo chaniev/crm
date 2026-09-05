@@ -3,6 +3,8 @@ import { Badge, Button, Group, Select, Stack, Text } from '@mantine/core'
 import { IconArrowDown, IconArrowUp, IconTrash } from '@tabler/icons-react'
 
 import type { MembershipBehaviorKind, TrainingGroupListItem } from '../../../lib/api'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 type MembershipTargetGroupsFieldProps = {
   behaviorKind: MembershipBehaviorKind
@@ -61,7 +63,7 @@ export function MembershipTargetGroupsField({
       return
     }
 
-    commit([...targetGroupIds, groupId], `Группа ${group.name} добавлена.`)
+    commit([...targetGroupIds, groupId], fe7ClientMembershipText.membershipTargetGroupsField_commit_4cc8c7c2(group.name))
     setSelectedOption(null)
   }
 
@@ -75,13 +77,13 @@ export function MembershipTargetGroupsField({
     const [moved] = nextIds.splice(index, 1)
     nextIds.splice(nextIndex, 0, moved)
     const group = selectedGroups[index]
-    commit(nextIds, `Группа ${group?.name ?? ''} перемещена на позицию ${nextIndex + 1}.`)
+    commit(nextIds, fe7ClientMembershipText.membershipTargetGroupsField_commit_2457468a(group?.name ?? '', nextIndex + 1))
   }
 
   function removeTarget(index: number) {
     const group = selectedGroups[index]
     const nextIds = targetGroupIds.filter((_, candidateIndex) => candidateIndex !== index)
-    commit(nextIds, `Группа ${group?.name ?? ''} удалена.`)
+    commit(nextIds, fe7ClientMembershipText.membershipTargetGroupsField_commit_e797a592(group?.name ?? ''))
 
     window.requestAnimationFrame(() => {
       const focusTarget =
@@ -96,37 +98,35 @@ export function MembershipTargetGroupsField({
 
   return (
     <fieldset className="membership-target-groups-field">
-      <legend>Группы абонемента</legend>
+      <legend>{fe7ClientMembershipText.membershipTargetGroupsField_jsxText_bb3893c5}</legend>
       <Stack gap="sm">
         <Text c="dimmed" size="sm">
           {describeTargetRules(behaviorKind)}
         </Text>
         {behaviorKind === 'Professional' ? (
           <Text c="dimmed" size="sm">
-            Доступ остаётся ко всем группам; выбранные группы нужны для отчётности.
-          </Text>
+            {fe7ClientMembershipText.membershipTargetGroupsField_jsxText_b558d46f}</Text>
         ) : null}
         <Select
           data={availableOptions}
           disabled={!canAdd}
           error={error}
-          label="Добавить группу"
+          label={fe7ClientMembershipText.membershipTargetGroupsField_label_90ad60fb}
           ref={addSelectRef}
           onChange={addTarget}
           placeholder={
             loading
-              ? 'Загружаем группы...'
+              ? fe7ClientMembershipText.membershipTargetGroupsField_string_f6f37b0e
               : targetGroupIds.length >= maxTargetGroups
-                ? 'Выбрано 5 групп'
-                : 'Найдите группу'
+                ? fe7ClientMembershipText.membershipTargetGroupsField_string_96ed57be
+                : fe7ClientMembershipText.membershipTargetGroupsField_string_3b566ca7
           }
           searchable
           value={selectedOption}
         />
         {selectedGroups.length === 0 ? (
           <Text c="dimmed" size="sm">
-            Нет выбранных групп.
-          </Text>
+            {fe7ClientMembershipText.membershipTargetGroupsField_jsxText_e8d73d0d}</Text>
         ) : (
           <Stack gap="xs">
             {selectedGroups.map((group, index) => (
@@ -143,14 +143,13 @@ export function MembershipTargetGroupsField({
                   </Text>
                   {index === 0 ? (
                     <Badge color="teal" radius="sm" size="sm" variant="light">
-                      Отчётность
-                    </Badge>
+                      {fe7ClientMembershipText.membershipTargetGroupsField_jsxText_3049ac8a}</Badge>
                   ) : null}
                 </div>
                 {isSingleVisit ? null : (
                   <Group className="membership-target-group-row__actions" gap={8} wrap="nowrap">
                     <Button
-                      aria-label={`Поднять группу ${group.name}`}
+                      aria-label={fe7ClientMembershipText.membershipTargetGroupsField_template_ed679b96(group.name)}
                       disabled={index === 0}
                       onClick={() => moveTarget(index, -1)}
                       variant="subtle"
@@ -158,7 +157,7 @@ export function MembershipTargetGroupsField({
                       <IconArrowUp aria-hidden size={18} />
                     </Button>
                     <Button
-                      aria-label={`Опустить группу ${group.name}`}
+                      aria-label={fe7ClientMembershipText.membershipTargetGroupsField_template_46df310f(group.name)}
                       disabled={index === selectedGroups.length - 1}
                       onClick={() => moveTarget(index, 1)}
                       variant="subtle"
@@ -171,7 +170,7 @@ export function MembershipTargetGroupsField({
                   ref={(node) => {
                     removeButtonRefs.current[group.id] = node
                   }}
-                  aria-label={`Удалить группу ${group.name}`}
+                  aria-label={fe7ClientMembershipText.membershipTargetGroupsField_template_27219159(group.name)}
                   onClick={() => removeTarget(index)}
                   variant="subtle"
                 >
@@ -191,10 +190,10 @@ export function MembershipTargetGroupsField({
 
 function describeTargetRules(behaviorKind: MembershipBehaviorKind) {
   if (behaviorKind === 'SingleVisit') {
-    return 'Разовое посещение действует только в выбранной группе.'
+    return fe7ClientMembershipText.membershipTargetGroupsField_string_11585e1a
   }
 
-  return 'Выберите от 1 до 5 групп одного филиала. Первая группа используется в финансовой разбивке.'
+  return fe7ClientMembershipText.membershipTargetGroupsField_string_240a0407
 }
 
 function formatTargetGroupOption(group: TrainingGroupListItem) {

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ClientMembershipTargetTransferServiceLine1123e0cd008" xml:space="preserve">
+    <value>Клиент не найден.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine130e0ff8ae2" xml:space="preserve">
+    <value>Целевая группа недоступна.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine1383f391c77" xml:space="preserve">
+    <value>Группа для переноса должна быть в том же филиале.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine1755972fb79" xml:space="preserve">
+    <value>Список абонементов изменился. Обновите предпросмотр и повторите перенос.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine188ce8cefa6" xml:space="preserve">
+    <value>Целевая группа уже есть в одном из затронутых абонементов.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine2297fb85c53" xml:space="preserve">
+    <value>Абонемент без групп нужно сначала исправить.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine23061297a89" xml:space="preserve">
+    <value>Перенос создаёт пересечение действующих абонементов.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine252bcc26641" xml:space="preserve">
+    <value>Исходная группа обязательна.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine2600cbf1777" xml:space="preserve">
+    <value>Целевая группа обязательна.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine268f91f4249" xml:space="preserve">
+    <value>Выберите другую целевую группу.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine2769aa45702" xml:space="preserve">
+    <value>Передайте список абонементов из предпросмотра.</value>
+  </data>
+  <data name="ClientMembershipTargetTransferServiceLine2856fff9be9" xml:space="preserve">
+    <value>Список абонементов содержит некорректные значения.</value>
+  </data>
+</root>

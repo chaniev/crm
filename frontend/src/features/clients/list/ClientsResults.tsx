@@ -26,6 +26,8 @@ import {
   buildClientCompactViewModel,
 } from './clientListViewModel'
 import type { ClientsListState } from './useClientsListState'
+import { fe5ClientListText } from '../../../resources/fe-5-client-list'
+
 
 type ClientsResultsProps = {
   canManage: boolean
@@ -128,11 +130,10 @@ export function ClientsResults({
             onClick={state.reload}
             variant="light"
           >
-            Повторить
-          </Button>
+            {fe5ClientListText.clientsResults_jsxText_5189135a}</Button>
         )}
         message={state.error}
-        title="Не удалось загрузить клиентов"
+        title={fe5ClientListText.clientsResults_title_180fcaa4}
       />
     )
   }
@@ -155,12 +156,12 @@ export function ClientsResults({
         description={
           state.isFirstRunEmpty
             ? canManage
-              ? 'Создайте первую карточку клиента.'
-              : 'Клиентов пока нет.'
+              ? fe5ClientListText.clientsResults_string_c0936f1b
+              : fe5ClientListText.clientsResults_string_517609e1
             : resolveEmptyDescription(hasSearchQuery, hasAdvancedFilters)
         }
         icon={<IconUsers size={24} />}
-        title={state.isFirstRunEmpty ? 'Клиентов пока нет' : 'Клиенты не найдены'}
+        title={state.isFirstRunEmpty ? fe5ClientListText.clientsResults_string_8d588d9f : fe5ClientListText.clientsResults_string_4c1f7bc0}
       />
     )
   }
@@ -168,10 +169,10 @@ export function ClientsResults({
   return (
     <Stack data-testid="clients-list" gap={isCompactLayout ? 8 : 'sm'}>
       <div className="clients-v7-table-header" aria-hidden="true">
-        <Text size="xs">Клиент</Text>
-        <Text size="xs">Филиал</Text>
-        <Text size="xs">Абонемент</Text>
-        <Text size="xs">Следующее действие</Text>
+        <Text size="xs">{fe5ClientListText.clientsResults_jsxText_3e622aec}</Text>
+        <Text size="xs">{fe5ClientListText.clientsResults_jsxText_2f17c4d2}</Text>
+        <Text size="xs">{fe5ClientListText.clientsResults_jsxText_1139430b}</Text>
+        <Text size="xs">{fe5ClientListText.clientsResults_jsxText_5ce0e345}</Text>
       </div>
 
       {state.clients.map((client) => {
@@ -187,7 +188,7 @@ export function ClientsResults({
           <Paper
             aria-label={isCompactLayout
               ? compactCard.accessibleName
-              : `Выбрать клиента ${client.fullName}`}
+              : fe5ClientListText.clientsResults_template_3a8e2e94(client.fullName)}
             aria-current={selected ? 'true' : undefined}
             className="clients-v7-row"
             data-client-branch-visible={
@@ -282,7 +283,7 @@ export function ClientsResults({
                     </Text>
                     {canManage ? (
                       <Text c="dimmed" className="clients-v7-row__secondary" size="sm">
-                        {client.phone || 'Телефон не указан'}
+                        {client.phone || fe5ClientListText.clientsResults_string_1fc40e1a}
                       </Text>
                     ) : null}
                   </div>
@@ -290,7 +291,7 @@ export function ClientsResults({
 
                 <div className="clients-v7-row__branch">
                   <Text className="clients-v7-row__primary" size="sm">
-                    {client.branchName || 'Филиал не указан'}
+                    {client.branchName || fe5ClientListText.clientsResults_string_a560016c}
                   </Text>
                   <Text c="dimmed" className="clients-v7-row__secondary" size="sm">
                     {groupLabel}
@@ -348,10 +349,9 @@ export function ClientsResults({
               }
               variant="default"
             >
-              Назад
-            </Button>
+              {fe5ClientListText.clientsResults_jsxText_1a9fb1f3}</Button>
             <Badge color="gray" radius="xl" variant="light">
-              Страница {state.page}
+              {fe5ClientListText.clientsResults_jsxText_41006963}{state.page}
             </Badge>
             <Button
               disabled={state.loading || !state.hasNextPage}
@@ -359,8 +359,7 @@ export function ClientsResults({
               rightSection={<IconChevronRight size={16} />}
               variant="default"
             >
-              Дальше
-            </Button>
+              {fe5ClientListText.clientsResults_jsxText_ea58bb0b}</Button>
             <ClientsPageSizeSelect state={state} />
           </Group>
         </Group>
@@ -410,8 +409,7 @@ function buildEmptyRecoveryActions({
         onClick={onClearSearch}
         variant="light"
       >
-        Очистить поиск
-      </Button>,
+        {fe5ClientListText.clientsResults_jsxText_6e1f7baa}</Button>,
     )
   }
 
@@ -423,8 +421,7 @@ function buildEmptyRecoveryActions({
         onClick={onResetAdvancedFilters}
         variant="light"
       >
-        Сбросить фильтры
-      </Button>,
+        {fe5ClientListText.clientsResults_jsxText_cd45ec78}</Button>,
     )
   }
 
@@ -444,14 +441,14 @@ function resolveEmptyDescription(
   hasAdvancedFilters: boolean,
 ) {
   if (hasSearchQuery && hasAdvancedFilters) {
-    return 'Можно очистить поиск или сбросить расширенные фильтры отдельно.'
+    return fe5ClientListText.clientsResults_string_155e2d79
   }
 
   if (hasSearchQuery) {
-    return 'Попробуйте другой запрос или очистите поиск.'
+    return fe5ClientListText.clientsResults_string_df8d8576
   }
 
-  return 'Попробуйте изменить или сбросить расширенные фильтры.'
+  return fe5ClientListText.clientsResults_string_6694f801
 }
 
 function ClientsPageSummary({ state }: { state: ClientsListState }) {
@@ -469,7 +466,7 @@ function ClientsPageSummary({ state }: { state: ClientsListState }) {
 function ClientsPageSizeSelect({ state }: { state: ClientsListState }) {
   return (
     <Select
-      aria-label="Размер страницы"
+      aria-label={fe5ClientListText.clientsResults_ariaLabel_3ff6b7f9}
       className="clients-v7-page-size"
       data={clientListPageSizeOptions}
       onChange={(value) => {
@@ -494,7 +491,7 @@ function MobileClientsPagination({ state }: { state: ClientsListState }) {
       <ClientsPageSummary state={state} />
       <Group className="clients-v7-mobile-pagination__pages" gap="xs" justify="center">
         <Button
-          aria-label="Назад"
+          aria-label={fe5ClientListText.clientsResults_jsxText_1a9fb1f3}
           disabled={state.loading || state.page <= 1}
           onClick={() =>
             state.setPage((currentPage) => Math.max(1, currentPage - 1))
@@ -510,12 +507,11 @@ function MobileClientsPagination({ state }: { state: ClientsListState }) {
               className="clients-v7-mobile-pagination__ellipsis"
               key={item}
             >
-              ...
-            </Text>
+              {fe5ClientListText.clientsResults_jsxText_ab5df625}</Text>
           ) : (
             <Button
               aria-current={item === state.page ? 'page' : undefined}
-              aria-label={`Страница ${item}`}
+              aria-label={fe5ClientListText.clientsResults_template_feafe754(item)}
               className="clients-v7-mobile-pagination__page"
               data-active={item === state.page || undefined}
               key={item}
@@ -527,7 +523,7 @@ function MobileClientsPagination({ state }: { state: ClientsListState }) {
           )
         ))}
         <Button
-          aria-label="Дальше"
+          aria-label={fe5ClientListText.clientsResults_jsxText_ea58bb0b}
           disabled={state.loading || !state.hasNextPage}
           onClick={() => state.setPage((currentPage) => currentPage + 1)}
           variant="default"

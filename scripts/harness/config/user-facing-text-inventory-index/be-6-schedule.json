@@ -1,0 +1,2051 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "BE-6-schedule",
+  "entry_count": 91,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-series-not-found\"",
+      "value": "lesson-series-not-found",
+      "fingerprint": "sha256:616d9186f00b9535b2377fd76aaa94f237ed74ae791c93db65df8142532a7e0d",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonSeriesProblem(\"lesson-series-not-found\", StatusCodes.Status404NotFound);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        47,
+        82,
+        192
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' изменил расписание группы '{series.Group.Name}'.\"",
+      "value": "Пользователь '{currentUser.Login}' изменил расписание группы '{series.Group.Name}'.",
+      "fingerprint": "sha256:59efe004db4a228abd8c093af948f65f41e59b8801357efc1392cec471909133",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' изменил расписание группы '{series.Group.Name}'.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        259
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"scope\"",
+      "value": "scope",
+      "fingerprint": "sha256:5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"scope\"] = [\"scope должен быть ThisAndFuture или EntireSeries.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        332
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"scope должен быть ThisAndFuture или EntireSeries.\"",
+      "value": "scope должен быть ThisAndFuture или EntireSeries.",
+      "fingerprint": "sha256:d9e0e4b9aeb39de6c300e774c7336c892e6120aa91e0d7fb7b8e101b22f11333",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"scope\"] = [\"scope должен быть ThisAndFuture или EntireSeries.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        332
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"effectiveFrom\"",
+      "value": "effectiveFrom",
+      "fingerprint": "sha256:418fa75196f210145cbe64040290ef80ad944414a96230179690bb0d100bf9d7",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"effectiveFrom\"] = [\"effectiveFrom должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        340
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"effectiveFrom должен быть в формате yyyy-MM-dd.\"",
+      "value": "effectiveFrom должен быть в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:d48cb928d3cec658055b21dd00ef0732d55b120dbb1269682743e22c08446822",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"effectiveFrom\"] = [\"effectiveFrom должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        340
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"endsOn должен быть в формате yyyy-MM-dd.\"",
+      "value": "endsOn должен быть в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:ebe48b29fb847349abc3bc917900f8f7895ec718b0438fc3837eb265ebdba31d",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"endsOn\"] = [\"endsOn должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        354
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"endsOn\"",
+      "value": "endsOn",
+      "fingerprint": "sha256:eb42dc9307f01d7614c3d2066b079f9889aa9b41f150b9c5b3e11d547734adbc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"endsOn\"] = [\"endsOn должен быть в формате yyyy-MM-dd.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        354,
+        364
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"endsOn должен быть не раньше effectiveFrom.\"",
+      "value": "endsOn должен быть не раньше effectiveFrom.",
+      "fingerprint": "sha256:c751802f86de196086bb30fab108de9e215bda9b6921ce7223fa816bb005d98c",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"endsOn\"] = [\"endsOn должен быть не раньше effectiveFrom.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        364
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Нужно передать хотя бы один slot.\"",
+      "value": "Нужно передать хотя бы один slot.",
+      "fingerprint": "sha256:6a78640e321915ad18f1bd1e885dac8a31901cc0686072eb91bc1555616e9048",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"slots\"] = [\"Нужно передать хотя бы один slot.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        369
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"slots\"",
+      "value": "slots",
+      "fingerprint": "sha256:3b478a0a3fc655df9df052728812851b6b22ddf49daa1130ff37eafed057414f",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"slots\"] = [\"Нужно передать хотя бы один slot.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        369,
+        437
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"isoWeekday должен быть от 1 до 7.\"",
+      "value": "isoWeekday должен быть от 1 до 7.",
+      "fingerprint": "sha256:03b7e917fd908a4c7c8649085029317e77cb8368c391f5bb84bed47ce8acad26",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.isoWeekday\"] = [\"isoWeekday должен быть от 1 до 7.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        381
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.isoWeekday\"",
+      "value": "{prefix}.isoWeekday",
+      "fingerprint": "sha256:e38436b5f0015e3cd8356072a7599d8e8bbc9f8b3fad6d4a27c9ad9300bd2ecc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.isoWeekday\"] = [\"isoWeekday должен быть от 1 до 7.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        381
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.startTime\"",
+      "value": "{prefix}.startTime",
+      "fingerprint": "sha256:8dcfce28f3baa3f5c0f078b2321d0f37d089554dfa0318e5290c9c69052fea63",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.startTime\"] = [GroupResources.TrainingStartTimeInvalid(GroupApiConstants.TrainingStartTimeDisplayFormat)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        387
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.durationMinutes\"",
+      "value": "{prefix}.durationMinutes",
+      "fingerprint": "sha256:e10dbe3f1da780faa5f80e0596efff7abb3cb18d0010dffd016ce87098735aec",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.durationMinutes\"] ="
+      },
+      "has_cyrillic": false,
+      "lines": [
+        392
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.hallId\"",
+      "value": "{prefix}.hallId",
+      "fingerprint": "sha256:c0fbb80c1d2144ac360fe5aec9dc3624a0b9fd600f5ab86f1e318fc4d41b1827",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.hallId\"] = [GroupResources.InvalidHallId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        398
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Зал не найден.\"",
+      "value": "Зал не найден.",
+      "fingerprint": "sha256:5d2885e5c486c82d2964cfa937fe224fdf1898b04264f450bf537473e959874f",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"slots.hallId.{missingHallId:D}\"] = [\"Зал не найден.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        424
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"slots.hallId.{missingHallId:D}\"",
+      "value": "slots.hallId.{missingHallId:D}",
+      "fingerprint": "sha256:ab4b67242962145380410441dd7ba2838ef1f01b63ab32fe289342eb78482388",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"slots.hallId.{missingHallId:D}\"] = [\"Зал не найден.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        424
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Все залы расписания должны принадлежать филиалу группы.\"",
+      "value": "Все залы расписания должны принадлежать филиалу группы.",
+      "fingerprint": "sha256:8874f5c8f4246a76e3b4fca97172b32819818b75fb2eb2544d6fa380ae6cbece",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"slots.hallId\"] = [\"Все залы расписания должны принадлежать филиалу группы.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        429
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"slots.hallId\"",
+      "value": "slots.hallId",
+      "fingerprint": "sha256:d01730a1df0bb168b9a05f5f21b8d18839b5171049c901f32bdf8f313166f007",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"slots.hallId\"] = [\"Все залы расписания должны принадлежать филиалу группы.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        429
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Slots for ISO weekday {overlap.left.IsoWeekday} overlap.\"",
+      "value": "Slots for ISO weekday {overlap.left.IsoWeekday} overlap.",
+      "fingerprint": "sha256:371250ec48fda246cc4d535506814a5b7d90496f75c027832cf077d96c9fb929",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"slots\"] = [$\"Slots for ISO weekday {overlap.left.IsoWeekday} overlap.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        437
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"В выбранном зале есть пересекающееся занятие.\"",
+      "value": "В выбранном зале есть пересекающееся занятие.",
+      "fingerprint": "sha256:4ea9330ef461c58e9ecb283a823136003c62513fb7c0673cb9be7d54a665fedf",
+      "context": {
+        "kind": "source-line",
+        "name": "? [new ScheduleWarningResponse(\"lesson_hall_overlap\", \"В выбранном зале есть пересекающееся занятие.\")]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        480
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/problems/{code}\"",
+      "value": "/problems/{code}",
+      "fingerprint": "sha256:6eeb2e2eaeace6055a5ed4b0babd97930dd12861ba34ec0f211446b87bce8cfc",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = $\"/problems/{code}\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        804
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Lesson series mutation failed.\"",
+      "value": "Lesson series mutation failed.",
+      "fingerprint": "sha256:969f994ad0628239c4acc78f7104502b3b43101b7108dc7af8d131dcb6b973cb",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Lesson series mutation failed.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        805
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Дата занятия должна быть в формате {LessonDateFormat}.\"",
+      "value": "Дата занятия должна быть в формате {LessonDateFormat}.",
+      "fingerprint": "sha256:28ddd147d7ec3ff15029a4593a24f3afcf739b00d1917388c4052c6ece696be9",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"lessonDate\"] = [$\"Дата занятия должна быть в формате {LessonDateFormat}.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        168,
+        562,
+        688,
+        783,
+        890,
+        1002,
+        1125
+      ],
+      "occurrences": 7,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' создал разовое занятие.\"",
+      "value": "Пользователь '{currentUser.Login}' создал разовое занятие.",
+      "fingerprint": "sha256:ee8753d1cd7efe57fcc47e25db9ca5067caeb797df09754a5baade73e59d814b",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' создал разовое занятие.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        500
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-scheduled\"",
+      "value": "lesson-not-scheduled",
+      "fingerprint": "sha256:101886d2a398d9cda2b661f0c8fa448acd44e68521388aae0f638605e3f7f6f1",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-not-scheduled\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        582
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-attendance-state-conflict\"",
+      "value": "lesson-attendance-state-conflict",
+      "fingerprint": "sha256:9e162d8a16cb8ed97ca1068745559d98416df0069e449c5840033dc1cc13e5db",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-attendance-state-conflict\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        587,
+        1029,
+        1181
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' отменил занятие.\"",
+      "value": "Пользователь '{currentUser.Login}' отменил занятие.",
+      "fingerprint": "sha256:8c1eb014e25daf650f14555fca7c62ca1de706b863f132a611530ae088740960",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' отменил занятие.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        629
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-cancelled\"",
+      "value": "lesson-not-cancelled",
+      "fingerprint": "sha256:5b437d2f9167b803a6478a8249eacfb6b87ed1605fcb8530ae6fab8ada992b69",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-not-cancelled\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        711
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' восстановил занятие.\"",
+      "value": "Пользователь '{currentUser.Login}' восстановил занятие.",
+      "fingerprint": "sha256:ebb54a99ec2cb5efe872f1d4a61afa514d533bc1505676e37ab41bc6f4b46a84",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' восстановил занятие.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        725
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Action должен быть Cancel или Restore.\"",
+      "value": "Action должен быть Cancel или Restore.",
+      "fingerprint": "sha256:5ae8af84e3c5b09b71f618117495d21962bec97a070b10d208e696e166c3b047",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"action\"] = [\"Action должен быть Cancel или Restore.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        799,
+        919
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"action\"",
+      "value": "action",
+      "fingerprint": "sha256:bd938c688f49b77c7fc537c6b9222e2c97ebddd63076b87f2feaec66fb9c05d0",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"action\"] = [\"Action должен быть Cancel или Restore.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        799,
+        919
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"expectedRevision\"",
+      "value": "expectedRevision",
+      "fingerprint": "sha256:25d906905cdafa3444ab1b02e94dfc281cf43d33cd63107e55b9d8f4707994a6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"expectedRevision\"] = [\"expectedRevision обязателен.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        804,
+        924
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"expectedRevision обязателен.\"",
+      "value": "expectedRevision обязателен.",
+      "fingerprint": "sha256:f663a5801a7b381966a44c13a94ddefe36255c3ef76c7f95a2699c8cc2c75f2a",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"expectedRevision\"] = [\"expectedRevision обязателен.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        804,
+        924
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' изменил занятие.\"",
+      "value": "Пользователь '{currentUser.Login}' изменил занятие.",
+      "fingerprint": "sha256:d22809443bbfd12eaa1dd556c78f7c5f42269fc115c0f2cc98c0f81c7906a4f2",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' изменил занятие.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        1267
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Диапазон расписания должен использовать {LessonDateFormat}, from <= to и не больше {MaxCalendarRangeDays} дней.\"",
+      "value": "Диапазон расписания должен использовать {LessonDateFormat}, from <= to и не больше {MaxCalendarRangeDays} дней.",
+      "fingerprint": "sha256:3aaab2cd0456c48ca8dbd1ceb4e57002b0fe212d6719d9c2370e6694346619f2",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"from\"] = [$\"Диапазон расписания должен использовать {LessonDateFormat}, from <= to и не больше {MaxCalendarRangeDays} дней.\"],"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        1888,
+        1889
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/lesson-occurrence-not-found\"",
+      "value": "/problems/lesson-occurrence-not-found",
+      "fingerprint": "sha256:fe59f2e0f19fdf45d6cc84d7fc549f6842984bbb74ddc18c1d442ba77a980a98",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = \"/problems/lesson-occurrence-not-found\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1897
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Lesson occurrence was not found for the supplied date locator.\"",
+      "value": "Lesson occurrence was not found for the supplied date locator.",
+      "fingerprint": "sha256:a0d4e31f1b7e44a1e261d25b7ba0fb0200d0eccd1ad87e483c89bc68b745f2af",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Lesson occurrence was not found for the supplied date locator.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1898
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-trainer-substitution-conflict\"",
+      "value": "lesson-trainer-substitution-conflict",
+      "fingerprint": "sha256:0203b7728079c6b167f8962c53143a07eb15cbe03240b0e88868e23a63def072",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-trainer-substitution-conflict\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        204,
+        578
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' назначил замену тренера на занятие.\"",
+      "value": "Пользователь '{currentUser.Login}' назначил замену тренера на занятие.",
+      "fingerprint": "sha256:dc3b2af801fa79d96f7da2e6bf69f107e46b96ec1ba228e1e822fe39cb4c96a3",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' назначил замену тренера на занятие.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' отменил замену тренера на занятие.\"",
+      "value": "Пользователь '{currentUser.Login}' отменил замену тренера на занятие.",
+      "fingerprint": "sha256:1c0b9ac5d022a26eb29be5a4217eadb39fd17afb91236c2780589c2a784d0c22",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' отменил замену тренера на занятие.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        420
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Заменяемый тренер обязателен.\"",
+      "value": "Заменяемый тренер обязателен.",
+      "fingerprint": "sha256:791b67a1f23528c88045010738ca14f486fc2c0de0060868771b2c4ee0a55879",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"replacedTrainerId\"] = [\"Заменяемый тренер обязателен.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        473
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"replacedTrainerId\"",
+      "value": "replacedTrainerId",
+      "fingerprint": "sha256:cfcf760e3c81eedf437d8da1ce759184860b81b3c9c74b181d5bacf915e2693c",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"replacedTrainerId\"] = [\"Заменяемый тренер обязателен.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        473
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Замещающий тренер обязателен.\"",
+      "value": "Замещающий тренер обязателен.",
+      "fingerprint": "sha256:952f984f2823a0ec0fefadd020a21620de04a577fcb31419f944a41824d100b0",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [\"Замещающий тренер обязателен.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        478
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"substituteTrainerId\"",
+      "value": "substituteTrainerId",
+      "fingerprint": "sha256:191162013e7686da872115f3be8221bc18e456352c722018fd2f5b640848f0ed",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [\"Замещающий тренер обязателен.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        478,
+        483
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Замещающий тренер должен отличаться от заменяемого.\"",
+      "value": "Замещающий тренер должен отличаться от заменяемого.",
+      "fingerprint": "sha256:645d1598de8a95697df39dea24ee624a5fb323f0c0000f6f594d7609be5a0e19",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [\"Замещающий тренер должен отличаться от заменяемого.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        483
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Передайте хотя бы одно занятие.\"",
+      "value": "Передайте хотя бы одно занятие.",
+      "fingerprint": "sha256:1bd1c92dfccc3bd8cde6508f16cc784913b81d91513d9b21ec0e5e6b6ec615f6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"targets\"] = [\"Передайте хотя бы одно занятие.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        488
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"targets\"",
+      "value": "targets",
+      "fingerprint": "sha256:26cafb94003a654827f52047a9368c0821f01f4512828a68f7bd4b44e6a0afcf",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"targets\"] = [\"Передайте хотя бы одно занятие.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        488
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Замещающий тренер не найден или неактивен.\"",
+      "value": "Замещающий тренер не найден или неактивен.",
+      "fingerprint": "sha256:a3e36c0c2608da68b19a0c694f8eb2df663db6af27fbfc229b71df7c7f3daa1b",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"substituteTrainerId\"] = [\"Замещающий тренер не найден или неактивен.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        503
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Каждая цель должна содержать lessonOccurrenceId и expectedRevision.\"",
+      "value": "Каждая цель должна содержать lessonOccurrenceId и expectedRevision.",
+      "fingerprint": "sha256:76fc4ebc2e6194a2d9029ef8afd169737a7a4fd4a616efb51005e9cbe2e88db5",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"targets\"] = [\"Каждая цель должна содержать lessonOccurrenceId и expectedRevision.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        515
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Дата занятия должна быть в формате {LessonDateFormat}.\"",
+      "value": "Дата занятия должна быть в формате {LessonDateFormat}.",
+      "fingerprint": "sha256:28ddd147d7ec3ff15029a4593a24f3afcf739b00d1917388c4052c6ece696be9",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"targets.lessonDate\"] = [$\"Дата занятия должна быть в формате {LessonDateFormat}.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        524,
+        635
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-scheduled\"",
+      "value": "lesson-not-scheduled",
+      "fingerprint": "sha256:101886d2a398d9cda2b661f0c8fa448acd44e68521388aae0f638605e3f7f6f1",
+      "context": {
+        "kind": "source-line",
+        "name": "return TrainerSubstitutionValidation.Failure(CreateLessonMutationProblem(\"lesson-not-scheduled\", StatusCodes.Status409Conflict));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        551
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Заменяемый тренер не является постоянным тренером группы на дату занятия.\"",
+      "value": "Заменяемый тренер не является постоянным тренером группы на дату занятия.",
+      "fingerprint": "sha256:011248feef84e765440411d42fffac141780fedb814f788893b1c1cf34df80ef",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"replacedTrainerId\"] = [\"Заменяемый тренер не является постоянным тренером группы на дату занятия.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        562
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Передайте хотя бы одну замену.\"",
+      "value": "Передайте хотя бы одну замену.",
+      "fingerprint": "sha256:4d395d553053f3536665adb142a624f69242b9c4ec0f1008311d766114f3ac3c",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"targets\"] = [\"Передайте хотя бы одну замену.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        613
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Каждая цель должна содержать lessonOccurrenceId, substitutionId и expectedRevision.\"",
+      "value": "Каждая цель должна содержать lessonOccurrenceId, substitutionId и expectedRevision.",
+      "fingerprint": "sha256:8e67e6a022330619776b41a8ad902ab2de0654863951bb1d2d9b7be4bb6f2988",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"targets\"] = [\"Каждая цель должна содержать lessonOccurrenceId, substitutionId и expectedRevision.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        626
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-trainer-substitution-not-active\"",
+      "value": "lesson-trainer-substitution-not-active",
+      "fingerprint": "sha256:60dbaa6e4b9a69bac1a8528ebaa2ad41d36ba8483aa6b4074ffc1317b4494476",
+      "context": {
+        "kind": "source-line",
+        "name": "return TrainerSubstitutionCancellationValidation.Failure(CreateLessonMutationProblem(\"lesson-trainer-substitution-not-active\", StatusCodes.Status409Conflict));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        668
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"У замещающего тренера есть пересекающееся занятие.\"",
+      "value": "У замещающего тренера есть пересекающееся занятие.",
+      "fingerprint": "sha256:090713d0453b49d2d2d8f562053507c28907f2b72306d5aa84d32cda31b34642",
+      "context": {
+        "kind": "source-line",
+        "name": "\"У замещающего тренера есть пересекающееся занятие.\"));"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        708
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Группа обязательна.\"",
+      "value": "Группа обязательна.",
+      "fingerprint": "sha256:f39d96994239757500be6342ca2e14661d06d15a054b267a0732f4e32907b161",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"groupId\"] = [\"Группа обязательна.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        28
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"groupId\"",
+      "value": "groupId",
+      "fingerprint": "sha256:2f1b743e2d1a1a7c7540154a3366a86fd52c1438602f5f42929e7dd59f24bfb6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"groupId\"] = [\"Группа обязательна.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        28,
+        76
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"hallId\"",
+      "value": "hallId",
+      "fingerprint": "sha256:8f446ba0bd3c1e2d31ac8eb45c4c56fa24ddeea329911392317a7a42121835c4",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"hallId\"] = [\"Зал обязателен.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        33,
+        91,
+        95,
+        138,
+        157,
+        161
+      ],
+      "occurrences": 6,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Зал обязателен.\"",
+      "value": "Зал обязателен.",
+      "fingerprint": "sha256:482d557122ed5919b58d9dbad0b990fa464cdb86c64adce8b80fcffec5c0970d",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"hallId\"] = [\"Зал обязателен.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        33,
+        138
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lessonDate\"",
+      "value": "lessonDate",
+      "fingerprint": "sha256:6fbc8e4c2115f50c9aba6b07241c182227fab6b3dbe97a9825a9f0ec4b0bb582",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"lessonDate\"] = [$\"Дата занятия должна быть в формате {LessonDateFormat}.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        39
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Дата занятия должна быть в формате {LessonDateFormat}.\"",
+      "value": "Дата занятия должна быть в формате {LessonDateFormat}.",
+      "fingerprint": "sha256:28ddd147d7ec3ff15029a4593a24f3afcf739b00d1917388c4052c6ece696be9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"lessonDate\"] = [$\"Дата занятия должна быть в формате {LessonDateFormat}.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        39,
+        122
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Время занятия должно быть в формате HH:mm.\"",
+      "value": "Время занятия должно быть в формате HH:mm.",
+      "fingerprint": "sha256:b177fc713329beb93c809357dd610ec6e23d0c217e54fc4b460947f9e5a8b004",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"startTime\"] = [\"Время занятия должно быть в формате HH:mm.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        45,
+        128
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"startTime\"",
+      "value": "startTime",
+      "fingerprint": "sha256:b5667446235d63e4f704a1b51b45743b0ed6c2e30362bd1ef0d648de29b54137",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"startTime\"] = [\"Время занятия должно быть в формате HH:mm.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        45,
+        128
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"durationMinutes\"",
+      "value": "durationMinutes",
+      "fingerprint": "sha256:7bb6ef0a931a877175d776a3048d283dc05151622be9d669be16c73d4bda1476",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"durationMinutes\"] = [\"Длительность занятия должна быть от 1 до 180 минут.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        50,
+        60,
+        133,
+        148
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Длительность занятия должна быть от 1 до 180 минут.\"",
+      "value": "Длительность занятия должна быть от 1 до 180 минут.",
+      "fingerprint": "sha256:76aa36d0524212b88f44d181fadc171721bdd7672dd90d1d9a96f354402a8e81",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"durationMinutes\"] = [\"Длительность занятия должна быть от 1 до 180 минут.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        50,
+        133
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Занятие должно завершаться в тот же календарный день.\"",
+      "value": "Занятие должно завершаться в тот же календарный день.",
+      "fingerprint": "sha256:d04166bbc0f420f12e90a22bb2e3566fc0152b2367522a94554ab19d2afcbe93",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"durationMinutes\"] = [\"Занятие должно завершаться в тот же календарный день.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        60,
+        148
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Группа не найдена.\"",
+      "value": "Группа не найдена.",
+      "fingerprint": "sha256:30b4e0b4ef0915a80e6c0b18129a99b7a46c0f993e250a08d96bc963daa89f73",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"groupId\"] = [\"Группа не найдена.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        76
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Зал не найден.\"",
+      "value": "Зал не найден.",
+      "fingerprint": "sha256:5d2885e5c486c82d2964cfa937fe224fdf1898b04264f450bf537473e959874f",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"hallId\"] = [\"Зал не найден.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        91,
+        157
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Зал должен принадлежать филиалу группы.\"",
+      "value": "Зал должен принадлежать филиалу группы.",
+      "fingerprint": "sha256:a6285cbdbcfaf62bbe29fa6585fd497608fdc8cf0503860e71baaf3857209d5a",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"hallId\"] = [\"Зал должен принадлежать филиалу группы.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        95,
+        161
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Поддерживаются scope Occurrence, ThisAndFuture или EntireSeries.\"",
+      "value": "Поддерживаются scope Occurrence, ThisAndFuture или EntireSeries.",
+      "fingerprint": "sha256:16e6078127ff9b8bf116fc25d5b3da6280cbf2df4baf75e05a4ad37597e135e8",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"scope\"] = [\"Поддерживаются scope Occurrence, ThisAndFuture или EntireSeries.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        111
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"scope\"",
+      "value": "scope",
+      "fingerprint": "sha256:5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"scope\"] = [\"Поддерживаются scope Occurrence, ThisAndFuture или EntireSeries.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        111,
+        167
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"expectedRevision\"",
+      "value": "expectedRevision",
+      "fingerprint": "sha256:25d906905cdafa3444ab1b02e94dfc281cf43d33cd63107e55b9d8f4707994a6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"expectedRevision\"] = [\"expectedRevision обязателен.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        116
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"expectedRevision обязателен.\"",
+      "value": "expectedRevision обязателен.",
+      "fingerprint": "sha256:f663a5801a7b381966a44c13a94ddefe36255c3ef76c7f95a2699c8cc2c75f2a",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"expectedRevision\"] = [\"expectedRevision обязателен.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        116
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"newLessonDate\"",
+      "value": "newLessonDate",
+      "fingerprint": "sha256:47057ccc6c0600d6d62e29ae0b46edb7c6b9bc3142fdd6d6588300c6e2711194",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"newLessonDate\"] = [$\"Дата занятия должна быть в формате {LessonDateFormat}.\"];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        122
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Series scope доступен только для projected recurring занятия без materialized exception.\"",
+      "value": "Series scope доступен только для projected recurring занятия без materialized exception.",
+      "fingerprint": "sha256:e9858bca04deb92219de88c2acfb799e196b1a4895a091123a41609f201901ab",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"scope\"] = [\"Series scope доступен только для projected recurring занятия без materialized exception.\"];"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        167
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"В выбранном зале есть пересекающееся занятие.\"",
+      "value": "В выбранном зале есть пересекающееся занятие.",
+      "fingerprint": "sha256:4ea9330ef461c58e9ecb283a823136003c62513fb7c0673cb9be7d54a665fedf",
+      "context": {
+        "kind": "source-line",
+        "name": "new ScheduleWarningResponse(\"lesson_hall_overlap\", \"В выбранном зале есть пересекающееся занятие.\"));"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        318
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"У тренера есть пересекающееся занятие.\"",
+      "value": "У тренера есть пересекающееся занятие.",
+      "fingerprint": "sha256:0782c36f8dea5ca1d7ece89f20518fadf912b85e31eba41bf089608ecbc93d55",
+      "context": {
+        "kind": "source-line",
+        "name": "new ScheduleWarningResponse(\"lesson_trainer_overlap\", \"У тренера есть пересекающееся занятие.\"));"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        328
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' изменил расписание серии занятий.\"",
+      "value": "Пользователь '{currentUser.Login}' изменил расписание серии занятий.",
+      "fingerprint": "sha256:2b1d8fc0c487e806f974fb7173df7ba9c11b4ec652abf658383bb4b07fea2eda",
+      "context": {
+        "kind": "source-line",
+        "name": "$\"Пользователь '{currentUser.Login}' изменил расписание серии занятий.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        710
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/problems/{code}\"",
+      "value": "/problems/{code}",
+      "fingerprint": "sha256:6eeb2e2eaeace6055a5ed4b0babd97930dd12861ba34ec0f211446b87bce8cfc",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = $\"/problems/{code}\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        777,
+        799
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Schedule confirmation token is not valid for this mutation.\"",
+      "value": "Schedule confirmation token is not valid for this mutation.",
+      "fingerprint": "sha256:7a30e3b91a863b9dc00460421f9bd69a1ec24c6448725b3ebd4726155bf184ec",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Schedule confirmation token is not valid for this mutation.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        778
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Занятие этой группы пересекается с другим занятием в выбранный день.\"",
+      "value": "Занятие этой группы пересекается с другим занятием в выбранный день.",
+      "fingerprint": "sha256:e0c07c340fc16621a5956df147668b6b1c93fc41decb566b34495f61231c3fe8",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"startTime\"] = [\"Занятие этой группы пересекается с другим занятием в выбранный день.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        791
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Lesson occurrence mutation cannot be applied.\"",
+      "value": "Lesson occurrence mutation cannot be applied.",
+      "fingerprint": "sha256:f937dd9e039ffa739341151685b3789dca5db7c9e039d35d6e7fa85fbd48ce57",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Lesson occurrence mutation cannot be applied.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        800
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-cancelled\"",
+      "value": "lesson-not-cancelled",
+      "fingerprint": "sha256:5b437d2f9167b803a6478a8249eacfb6b87ed1605fcb8530ae6fab8ada992b69",
+      "context": {
+        "kind": "source-line",
+        "name": ": CreateLessonMutationProblem(\"lesson-not-cancelled\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        829
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"lesson-not-scheduled\"",
+      "value": "lesson-not-scheduled",
+      "fingerprint": "sha256:101886d2a398d9cda2b661f0c8fa448acd44e68521388aae0f638605e3f7f6f1",
+      "context": {
+        "kind": "source-line",
+        "name": "return CreateLessonMutationProblem(\"lesson-not-scheduled\", StatusCodes.Status409Conflict);"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        834
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/lesson-attendance-state-conflict\"",
+      "value": "/problems/lesson-attendance-state-conflict",
+      "fingerprint": "sha256:47c79c77ae34eb304fdb4fa416041206c5b050f711a38a17fb9088aca79f3ad9",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = \"/problems/lesson-attendance-state-conflict\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        857
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Lesson occurrence cannot be cancelled while attendance marks exist.\"",
+      "value": "Lesson occurrence cannot be cancelled while attendance marks exist.",
+      "fingerprint": "sha256:93a9c18ed7454a71264db7bdca7c1439edce15dd6abf8a09d165b59a47562876",
+      "context": {
+        "kind": "source-line",
+        "name": "Title = \"Lesson occurrence cannot be cancelled while attendance marks exist.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        858
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' отменил занятие.\"",
+      "value": "Пользователь '{currentUser.Login}' отменил занятие.",
+      "fingerprint": "sha256:8c1eb014e25daf650f14555fca7c62ca1de706b863f132a611530ae088740960",
+      "context": {
+        "kind": "source-line",
+        "name": "? $\"Пользователь '{currentUser.Login}' отменил занятие.\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        960
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"Пользователь '{currentUser.Login}' восстановил занятие.\"",
+      "value": "Пользователь '{currentUser.Login}' восстановил занятие.",
+      "fingerprint": "sha256:ebb54a99ec2cb5efe872f1d4a61afa514d533bc1505676e37ab41bc6f4b46a84",
+      "context": {
+        "kind": "source-line",
+        "name": ": $\"Пользователь '{currentUser.Login}' восстановил занятие.\","
+      },
+      "has_cyrillic": true,
+      "lines": [
+        961
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/schedule",
+      "slice": "BE-6-schedule",
+      "review_status": "accepted"
+    }
+  ]
+}

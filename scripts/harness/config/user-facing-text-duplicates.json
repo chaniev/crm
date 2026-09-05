@@ -1,0 +1,6439 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "review_status": "accepted",
+  "group_count": 191,
+  "groups": [
+    {
+      "fingerprint": "sha256:00f9729f00689f96ce69e200fd63da9379bdc6fb0d51b82513821bb7393dc3d9",
+      "value": "Индивидуальная сумма",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+          "lines": [
+            144
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/MembershipSalePricing.ts",
+          "lines": [
+            18
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:0314946ceb6850434b1c2b611bcc56e8419d8a763bb5bcceeb37ee3418c87e0c",
+      "value": "Тренеры",
+      "owners": [
+        "frontend/groups",
+        "frontend/shared",
+        "frontend/shared-resources",
+        "frontend/users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/users/UsersListScreen.tsx",
+          "lines": [
+            225
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            322
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            352
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            100
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            84
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:03b7e917fd908a4c7c8649085029317e77cb8368c391f5bb84bed47ce8acad26",
+      "value": "isoWeekday должен быть от 1 до 7.",
+      "owners": [
+        "backend/groups",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+          "lines": [
+            1007
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+          "lines": [
+            381
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:0909dfc714fa81692efcb0443b666af8a939e43245676c03ccb0ed5aa4c3d5a9",
+      "value": "Архивный",
+      "owners": [
+        "frontend/settings-branches",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            486,
+            689
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            216
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:0918b4ba92684eaa28459bf0d624ca4f720b413b839792afd9e11cdc62253995",
+      "value": "Название",
+      "owners": [
+        "frontend/settings-branches",
+        "frontend/settings-membership"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/SettingsScreen.tsx",
+          "lines": [
+            396
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            252
+          ],
+          "slice": "FE-12-settings-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:09e1875e6459e25d731db8efe457f31da522b97b5c3d3609ca67e24d6cb12eee",
+      "value": "Сохранение не выполнено",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups",
+        "frontend/settings-branches",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/SettingsScreen.tsx",
+          "lines": [
+            389
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+          "lines": [
+            278
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            672
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            110
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientForm.tsx",
+          "lines": [
+            95
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:0d7d0a5fb51bf4b7d757885c43e3bc282c102056e0d27f63be085a79c961f6a3",
+      "value": "Отметки есть",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            594,
+            2372
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            167
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:0d836c1579f14bc01f8c010e81ae3b497c7d955539fdefbc4ede863e2c543d7e",
+      "value": "Не указан",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            94,
+            106
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+          "lines": [
+            107,
+            108
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+          "lines": [
+            79
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:10e82072fd6f783cc58572e8cc8d70b3d79ba81f7d5ffa2c286e57c0c3e21125",
+      "value": "тренера",
+      "owners": [
+        "frontend/finance",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/finance/FinanceReportScope.ts",
+          "lines": [
+            48
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1925
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:1139430b5881f6fea34f610bfa1f29b367173e25aa517749a3049cb9e00b83ce",
+      "value": "Абонемент",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-membership",
+        "frontend/shared",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/lib/api/clients.ts",
+          "lines": [
+            545
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            173
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            101,
+            399
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+          "lines": [
+            191
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            200
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:148e56cb8c55366b8ba35ce2741ea3517f56ba2efbd8c8962cea9657e165672c",
+      "value": "Изменение занятия",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            227
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            872
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:1635ad1f95a8174ba9c3fc35931283cfb6af1a2c2a82765e0a9fca8470b59d19",
+      "value": "Время начала",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            178
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1298
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:163a016f3df71adcf589f473a45df360fc7b9f41b751df911f94b8656c0e91df",
+      "value": "Обновить список",
+      "owners": [
+        "frontend/attendance",
+        "frontend/client-list",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+          "lines": [
+            397
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
+          "lines": [
+            231
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            30
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:182f7c572e4ff210f39e7a305be0e340afec5778bd9b214b6d9da04aa14c13a5",
+      "value": "Зал",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            141,
+            282
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1315,
+            2089
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            314
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            299
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:1a9fb1f3cf8e189a74acd6849678ed4bdf80fde41ed2f9c35a85550b0e3586fa",
+      "value": "Назад",
+      "owners": [
+        "bot/resources",
+        "frontend/app-shell-auth",
+        "frontend/client-list",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthStages.tsx",
+          "lines": [
+            265
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/shared/ux.tsx",
+          "lines": [
+            812
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            351,
+            497
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/resources/keyboards.py",
+          "lines": [
+            103,
+            138
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:1ae0c0dd80a1f4320114efbce2543e8bacfe6b29639a2a6afcbbd1460165adf8",
+      "value": "Новый тренер",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            245
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            623
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            110
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:1ca665192a6aa111880aadd7336d64d0bfc7bc985575ad8f2cbb4d89cfe7247a",
+      "value": "В архив",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/settings-branches"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            640
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+          "lines": [
+            401
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:1cd5b8f397cec0f8f3a29b995d705494209134912f1d7dd566abef8933be52fa",
+      "value": "Дата посещаемости недоступна для роли пользователя.",
+      "owners": [
+        "backend/attendance",
+        "backend/bot-internal-api"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
+          "lines": [
+            44
+          ],
+          "slice": "BE-4-attendance"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+          "lines": [
+            369
+          ],
+          "slice": "BE-7-bot-internal-api"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:1fc40e1a2ff38cef275205bb712dabf8bb02866d5236640e1353b0e369abc440",
+      "value": "Телефон не указан",
+      "owners": [
+        "frontend/attention",
+        "frontend/client-list"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            285
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            125
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/attention/AttentionPanel.tsx",
+          "lines": [
+            219,
+            220
+          ],
+          "slice": "FE-9-attention"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:202af31a78c78dea36e9c74b5fb7dcdd317743bafd940090b8e4ace2615d3683",
+      "value": "Нет текущего абонемента",
+      "owners": [
+        "backend/clients",
+        "frontend/client-list"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+          "lines": [
+            541
+          ],
+          "slice": "BE-2-clients"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            232
+          ],
+          "slice": "FE-5-client-list"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:2071fb99050431712e60af0fe7ad59c29158386d28212c756f736de4f70586c7",
+      "value": "Ещё",
+      "owners": [
+        "frontend/schedule-mutations",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+          "lines": [
+            83
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
+          "lines": [
+            103,
+            138
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:214235ceac5c75a5506590ce446c28e3abe1e04d1a855becd2e214afbc1fed78",
+      "value": "Без групп",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/lib/api/clients.ts",
+          "lines": [
+            825
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+          "lines": [
+            245
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:215816bf42103f1f2b24c168779f1fb0ea3afcb7a2c627e42e0bcd7fe07eb70a",
+      "value": "Все",
+      "owners": [
+        "frontend/attendance",
+        "frontend/groups",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            79
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceRosterViewControl.tsx",
+          "lines": [
+            26
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            77,
+            249
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:21bb98ee92b8129809eed8128e2f0ddd278d830066f9ecee889e5a81ebc33cc4",
+      "value": "Команда не поддерживается.",
+      "owners": [
+        "bot/clients",
+        "bot/service-access"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/service.py",
+          "lines": [
+            103
+          ],
+          "slice": "BOT-1-service-access"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/core/client_flow.py",
+          "lines": [
+            133
+          ],
+          "slice": "BOT-3-clients-rendering"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:225077c6d4791e693ff47d24e846cfc3198da287d2b8e77fd2bba435183f0d54",
+      "value": "Статус",
+      "owners": [
+        "frontend/client-list",
+        "frontend/groups",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            196,
+            353
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
+          "lines": [
+            155,
+            159
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            99
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            75
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:232a0ead182bb391403963b4c7ff6d23ae85ccc2acf73fc12d8305549e9079b4",
+      "value": "Дата",
+      "owners": [
+        "frontend/audit",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+          "lines": [
+            432
+          ],
+          "slice": "FE-16-audit"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            280
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            265
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:23a2a9bfcf74c4a1d09d4f60823bad9a2c1e02f9204a028507ad690d0374d8ed",
+      "value": "Отменено",
+      "owners": [
+        "frontend/group-staffing",
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+          "lines": [
+            31
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            593,
+            2361
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            165
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:259085f98217b4ed6017e66fcbddae0595b8bc2ef88b41ed243ab8b2b14fe4da",
+      "value": "Укажите ФИО контактного лица.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientManagement.form.ts",
+          "lines": [
+            89
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ClientResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:274b0f43b9068dacdc02ee680125812cec8c05e1cb02880c22f005e3c574b94a",
+      "value": "Абонемент на срок",
+      "owners": [
+        "frontend/settings-membership",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            34
+          ],
+          "slice": "FE-12-settings-membership"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            225
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:298a07c0ecfbe5db0750b83c522580c7b080330c1752d9cb1942b94837203462",
+      "value": "Выберите группу",
+      "owners": [
+        "frontend/attendance",
+        "frontend/client-membership",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            257
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+          "lines": [
+            45
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+          "lines": [
+            148,
+            160
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:29db7d589f4b13445a6e1c03f83b6caa6a7df18d636e08b8ccdd2af04275009b",
+      "value": "старт ",
+      "owners": [
+        "bot/attendance",
+        "bot/clients"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+          "lines": [
+            286
+          ],
+          "slice": "BOT-2-attendance"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            22
+          ],
+          "slice": "BOT-3-clients-rendering"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:2a32607189e0ff1e4d14745be34311fc6f0819f8577933dba92a5fcc44be782e",
+      "value": "Длительность",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            185,
+            310
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            301
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            286
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:2a5c42af7c00743bdbf29bf6cc16caaced557052833b6ef89f972feebb33eaa4",
+      "value": "Пользователь",
+      "owners": [
+        "frontend/audit",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+          "lines": [
+            257,
+            262,
+            434
+          ],
+          "slice": "FE-16-audit"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            197
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:2f17c4d223aa7d914d5a9aa05e1137606b1e614d1fd739a4b4104cb56b089af6",
+      "value": "Филиал",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-profile",
+        "frontend/finance",
+        "frontend/groups",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            125,
+            264
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+          "lines": [
+            453,
+            459,
+            714,
+            744
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2083
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            172
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            106
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientForm.tsx",
+          "lines": [
+            137
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+          "lines": [
+            108
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:301ca9904af3007aa597d1d62cba127c9eefd97211d04d7fc79d2741abb1fc0a",
+      "value": "Разовое",
+      "owners": [
+        "frontend/schedule",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2364
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            219
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:31a8ee2fb6b7b6f4631776e1213464bb4114b96814fcb43a9eb0d68e5a69f752",
+      "value": "Пн",
+      "owners": [
+        "bot/clients",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            32
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            122
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:353ad7d1834d6b5f214001241c2b1c31c29195db058373b130720a1e4319cd01",
+      "value": "Телефон:",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupClientRow.tsx",
+          "lines": [
+            23
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+          "lines": [
+            106
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:354d5f5b7d50f47c8815a35e4383876fa435cda60b5ad2ae38516fa005e3acb1",
+      "value": "Смена пароля",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthenticatedShell.tsx",
+          "lines": [
+            95
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            219
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            602
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            92,
+            174
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:3e622aecbf306ce2e0933e6e4a65dc5865cc8f1a852589b35bf4efa6e8a966cd",
+      "value": "Клиент",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-messenger-media",
+        "frontend/client-profile",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            171
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+          "lines": [
+            55
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+          "lines": [
+            701
+          ],
+          "slice": "FE-8-client-messenger-media"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            198
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:3f7f75d8a0d84a2bde4ea1b9a3e965dc1be34c0af21fb37c6c15aaf1b4895165",
+      "value": "Редактирование группы",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            243
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            621
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            182
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:401b50ae0d082203b91226ce562649d05cfbb76efa4dfb87bd5ee36cc4aba78a",
+      "value": "Измените поисковый запрос или фильтры, чтобы расширить список.",
+      "owners": [
+        "frontend/groups",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            327
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            72
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:407f871778d310700e1c7bd098be9d25e40f39c764c7f4879c0ec1aa4ca8401a",
+      "value": "Сбросить",
+      "owners": [
+        "frontend/client-list",
+        "frontend/finance",
+        "frontend/groups",
+        "frontend/shared",
+        "frontend/users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/users/UsersListScreen.tsx",
+          "lines": [
+            316
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            229
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+          "lines": [
+            601,
+            615
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/features/shared/ux.tsx",
+          "lines": [
+            295
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
+          "lines": [
+            303
+          ],
+          "slice": "FE-5-client-list"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:40c98d2e63c971acf26b795b30a6f4401de94f0267f79d585143204c7143b613",
+      "value": "Филиал:",
+      "owners": [
+        "frontend/settings-branches",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            840
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+          "lines": [
+            252
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            467
+          ],
+          "slice": "FE-11-settings-users"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:4196b8be8df2faffa215379ec39274cfb7a67db3260cb16625d3b3b39406ed68",
+      "value": "Разовое занятие",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            225
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            761
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            84
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:42be0520e602498c31bc81e0726cf2c8c0f7b6e28823d0a32f0f4e813776af6e",
+      "value": "Без абонемента",
+      "owners": [
+        "frontend/client-list",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            228,
+            236,
+            324
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            242
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:4371fe938d08dbeba5726d3b3bb8e08c2e6799d42399a11716760c2ba0063b0e",
+      "value": "окончания срока предпросмотра",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+          "lines": [
+            245
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2639
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            274
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            504
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            446
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:48f52aa0c3e519eb9fa1cd0fd564a02f8d1bdefdf53905a2b1e5cc5b3220ef55",
+      "value": "Используйте /start или кнопки меню.",
+      "owners": [
+        "bot/clients",
+        "bot/service-access"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/service.py",
+          "lines": [
+            64
+          ],
+          "slice": "BOT-1-service-access"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/core/client_flow.py",
+          "lines": [
+            51
+          ],
+          "slice": "BOT-3-clients-rendering"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:4c5ee5d81244b373bb3f6f57f94f35412ce9dde46aa27899a9ff490a4cab6fa1",
+      "value": "Выберите филиал",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            783
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            127
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientForm.tsx",
+          "lines": [
+            139
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+          "lines": [
+            109
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:4ca114c23be8d9689a0ff81369971f88bcf9862b9fed53fe8bf87221e662d942",
+      "value": "Пт",
+      "owners": [
+        "bot/clients",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            36
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            126
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:4ebaca56f260abf7b7a87fbc13aa319b897cec1f5516fc16be01d72082db1f7d",
+      "value": "архивный",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            390,
+            400
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+          "lines": [
+            199
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:4f049897a5bd5c24277eede0928f3601d91f29641e319ba674d025574370fe8c",
+      "value": "Неактивна",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/schedule-mutations",
+        "frontend/settings-users",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+          "lines": [
+            431
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+          "lines": [
+            192,
+            213
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+          "lines": [
+            171
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            257
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:50f59e98280b6fe4f4d05e5807933f8d93af811e1e71993242f223880aad9653",
+      "value": "Допустимы только JPEG, PNG, WebP, HEIC и HEIF.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+          "lines": [
+            256
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ClientResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "value": "Повторить",
+      "owners": [
+        "frontend/attendance",
+        "frontend/attention",
+        "frontend/audit",
+        "frontend/client-list",
+        "frontend/client-messenger-media",
+        "frontend/finance",
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/settings-branches",
+        "frontend/settings-users",
+        "frontend/shared-resources",
+        "frontend/users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            437
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            736
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/users/UsersListScreen.tsx",
+          "lines": [
+            344,
+            364
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            281,
+            299
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+          "lines": [
+            117
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+          "lines": [
+            382,
+            416
+          ],
+          "slice": "FE-16-audit"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            428
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
+          "lines": [
+            26
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+          "lines": [
+            87
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            131
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+          "lines": [
+            482
+          ],
+          "slice": "FE-8-client-messenger-media"
+        },
+        {
+          "path": "frontend/src/features/attention/AttentionPanel.tsx",
+          "lines": [
+            127
+          ],
+          "slice": "FE-9-attention"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            34
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:52af7b7292454f5fcffac97183ae5f7d52a6ecda2a3fcc0442dc3ad38628adf1",
+      "value": "Проверьте предупреждение перед подтверждением.",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+          "lines": [
+            213
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            334
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:56995ff3e0c8695085f9c9fcedc9c1530754e9e410b62395586bc58d63990089",
+      "value": "Занятие",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            223
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            571
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:59792556fd0682484dde8d5ec7ddc8d312c6faa1c399a5ff26922a0c63f99757",
+      "value": "Редактировать",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile",
+        "frontend/groups",
+        "frontend/settings-branches",
+        "frontend/settings-users",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            629
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/SettingsScreen.tsx",
+          "lines": [
+            356
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            502
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            354
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+          "lines": [
+            373
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+          "lines": [
+            86
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            104
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:5a2595c21fb54a00c684164fd8867f4999accdbbab4e8381f8fe0109104552d5",
+      "value": "Новый клиент",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/client-list",
+        "frontend/client-profile",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            233
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            612
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
+          "lines": [
+            245
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+          "lines": [
+            134
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:5be12bfe49ea673f88eeb9e05adf6a347f7af04165deb33c158ac7ca070f68a1",
+      "value": "Логин",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthStages.tsx",
+          "lines": [
+            125
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            102,
+            143
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:5d2885e5c486c82d2964cfa937fe224fdf1898b04264f450bf537473e959874f",
+      "value": "Зал не найден.",
+      "owners": [
+        "backend/groups",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+          "lines": [
+            1061
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+          "lines": [
+            424
+          ],
+          "slice": "BE-6-schedule"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
+          "lines": [
+            91,
+            157
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:5f43e5f108583b8ff7ec0392d42ed9831978dc64530e9f1497ff2259d7913d7c",
+      "value": "Посещения",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/attendance",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            221
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            95
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
+          "lines": [
+            61,
+            68
+          ],
+          "slice": "FE-4-attendance"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:603e460bf59cac0fe7907c71e2f185d8003cc560d43e8cff37369d22462b70bd",
+      "value": "Обновить",
+      "owners": [
+        "frontend/client-messenger-media",
+        "frontend/schedule",
+        "frontend/settings-branches",
+        "frontend/shared",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            394
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/shared/TaskToolbarActions.tsx",
+          "lines": [
+            72
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2068
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+          "lines": [
+            447
+          ],
+          "slice": "FE-8-client-messenger-media"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            6
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:62b92aa4ce7910b05b4f211f984a9a4cb0e45a1e19d3576efd6f022003c09158",
+      "value": "Обновить предпросмотр",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1368,
+            1695
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            218
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            380
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            364
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:63e29a541bf25f760c607bae8d8c187c6fa749d126e9846dfc5fe348a0483c0e",
+      "value": "Оформить абонемент",
+      "owners": [
+        "backend/clients",
+        "frontend/client-list",
+        "frontend/client-membership"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+          "lines": [
+            540,
+            584
+          ],
+          "slice": "BE-2-clients"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+          "lines": [
+            199
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            231
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+          "lines": [
+            251
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:648188fd487bb4a701b2db610e0114b2e239e6aad9083d35434374deac4bfdcd",
+      "value": "вся серия",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1838
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            454
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:65329f77aad11ffc77a19d66bce96cd8fa2305a341149328ab8ed0b98862f8d8",
+      "value": "Только просмотр",
+      "owners": [
+        "frontend/settings-users",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            508
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            107
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6611d56d6110e115950f2d8af335d615c93d64dcca0d8d04cd614fe388ecd973",
+      "value": "Дата оплаты",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+          "lines": [
+            52,
+            119
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+          "lines": [
+            213
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+          "lines": [
+            95
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6711f073ab8b7dfc9bc90586013d3a26082d60594a783e9f2cfa39d28b38480e",
+      "value": "Время",
+      "owners": [
+        "frontend/schedule-mutations",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            290
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            275
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            43
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:672a522d25a384dc524b7a4e71eca13ce811526a960ceee56ae4bc8254e2141b",
+      "value": "Затронуто занятий:",
+      "owners": [
+        "frontend/group-staffing",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+          "lines": [
+            326
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1843
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6744d4263b7354eb99c956e43c937c80e4fdeb998b30d96b3ee41fd90b99ea71",
+      "value": "Редактирование клиента",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            239
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            614
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            178
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:68f7b03502b0b99b840e3d3683ec79126114a5fe55d9ddb6a0068b4658d9f0dc",
+      "value": "Отчётность · ",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+          "lines": [
+            130
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+          "lines": [
+            205
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+          "lines": [
+            216
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+          "lines": [
+            190
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6b53aafe28bdd5aae6d9bbbe939aa46987d3fbe900d54c7106e1fbd7e31caeff",
+      "value": "Действие",
+      "owners": [
+        "frontend/audit",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+          "lines": [
+            781
+          ],
+          "slice": "FE-16-audit"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            47
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6bd8ee2e79ab242b9b29cf0baa7ecf22dc9de56fd705e0778f2330ad2d7af2a6",
+      "value": "Плановое сопровождение",
+      "owners": [
+        "backend/clients",
+        "frontend/client-list"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+          "lines": [
+            516
+          ],
+          "slice": "BE-2-clients"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            270
+          ],
+          "slice": "FE-5-client-list"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6c7719973e580a03eb26e53ef83406492abc3b6d8ba0bd30fb268b8977ff8993",
+      "value": "Администратор",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthenticatedShell.tsx",
+          "lines": [
+            30
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            60
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6d7112785e9f61bb8cca201b86b77016b9cd9f706d4d771dfaf4319fbd0c67ec",
+      "value": "Главный тренер",
+      "owners": [
+        "backend/api-resources",
+        "frontend/app-shell-auth",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthenticatedShell.tsx",
+          "lines": [
+            24
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Startup/Resources/StartupResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            58
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:6e1f7baa472fcfbbf59e4d3c3999ebafb9288365f34ccbdcfe068f893f1dafb6",
+      "value": "Очистить поиск",
+      "owners": [
+        "frontend/client-list",
+        "frontend/groups",
+        "frontend/users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/users/UsersListScreen.tsx",
+          "lines": [
+            387
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            313
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            413
+          ],
+          "slice": "FE-5-client-list"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:720752c6003da7a6fb9cb1875de41d2bbe1584d3fd95e47d53f73f4072bfac63",
+      "value": "Область:",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1838
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            433
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:735598db9324ba6ddf31bd49612799ac7d5948a7d2f7a8fc94035cd168f9e34d",
+      "value": "Укажите телефон контактного лица.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientManagement.form.ts",
+          "lines": [
+            93
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ClientResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:744cf2b219992c28613d6dd92c1f9a70e66937d4f664ddc60cb85da18d789e3d",
+      "value": "Сохранить изменения",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+          "lines": [
+            408
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+          "lines": [
+            201
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            128
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:74f8ad03e184e5cfc7fb33af1691cfbc3f726b88f0a3d1c34e4d35411265574a",
+      "value": "Сначала выберите филиал",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            143
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientForm.tsx",
+          "lines": [
+            157
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+          "lines": [
+            128
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:7530f803ba06c56fc9f37b01e650d538be036dbf6694848e967d1e1ce341bc27",
+      "value": "Действие не выполнено",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/group-staffing",
+        "frontend/settings-branches"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            420
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+          "lines": [
+            244
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+          "lines": [
+            476
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:758cc605c3217be547fabfee396407fcd00d49889b7d6565c24fed534a8cc011",
+      "value": "Перенести",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            617
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+          "lines": [
+            56
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:76f55a988f8ada62ee61eaffa32bc7ddec6e27ea70b38dd0dc274e1500dd6cfd",
+      "value": "Восстановить",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            669
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+          "lines": [
+            110
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:76fc78765f641cc0c92a13bad096515c9790fcba2b2d89907ab5a74cfa93796c",
+      "value": "Профессионал",
+      "owners": [
+        "bot/clients",
+        "frontend/attendance",
+        "frontend/client-list",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/client_flow.py",
+          "lines": [
+            207
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+          "lines": [
+            62
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            73,
+            103
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+          "lines": [
+            75,
+            97
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:7971972c7cbb98da65679b61aa17bbc52102a8d4d4cffd4f223dd739cad27a0a",
+      "value": "Вс",
+      "owners": [
+        "bot/clients",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            38
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            128
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "value": "Отменить",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile",
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations",
+        "frontend/settings-branches",
+        "frontend/settings-membership",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            794,
+            858
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/SettingsScreen.tsx",
+          "lines": [
+            410
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+          "lines": [
+            387
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            812
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            255
+          ],
+          "slice": "FE-12-settings-membership"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+          "lines": [
+            191
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            658
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+          "lines": [
+            101
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+          "lines": [
+            163
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+          "lines": [
+            137
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+          "lines": [
+            137
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+          "lines": [
+            271
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipPurchasePanel.tsx",
+          "lines": [
+            248
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+          "lines": [
+            243
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:7c7cca865d3f077a7268756d4acb3fa455418ea4ebd0f5091d3d7ebce5fe9867",
+      "value": "Не отмечено",
+      "owners": [
+        "frontend/attendance",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/attendance/AttendanceRosterViewControl.tsx",
+          "lines": [
+            25
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
+          "lines": [
+            12
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            40
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:7ec16b9e41ff461a1227082764da8cc9f6eae779e216683546f63fca490ab67a",
+      "value": "Ср",
+      "owners": [
+        "bot/clients",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            34
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            124
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:7f4adf318ef3f841fbcfdb9c5612e88124e15bd9f6885d50acdeb21e0ac52cbb",
+      "value": "из",
+      "owners": [
+        "frontend/attendance",
+        "frontend/client-profile",
+        "frontend/group-staffing"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+          "lines": [
+            206
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceProgress.tsx",
+          "lines": [
+            22
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+          "lines": [
+            92
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:81ee659fe4a482433bc92d670a1ff28b6c414862d86c838488b3746e76154117",
+      "value": "Профессиональный статус",
+      "owners": [
+        "frontend/attendance",
+        "frontend/client-list",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+          "lines": [
+            33
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            332
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+          "lines": [
+            100
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:839b2d5c5aa3d81f59ca580ea3a076ef15d518cf2eddb632b4692d3853bc7c24",
+      "value": "Вт",
+      "owners": [
+        "bot/clients",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            33
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            123
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:84d5d93d12778bd7c9d24a92e4eaa4a5f4f6fbce50e70c631ae308939e2b6c7e",
+      "value": " мин",
+      "owners": [
+        "bot/attendance",
+        "bot/clients",
+        "frontend/groups",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+          "lines": [
+            287
+          ],
+          "slice": "BOT-2-attendance"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            26
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            193
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            308
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            293
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:8541e28c522fdc6730eb62064c87475056e443d022f117579a1f958709d1a76f",
+      "value": "Логин:",
+      "owners": [
+        "frontend/group-staffing",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            462
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+          "lines": [
+            285
+          ],
+          "slice": "FE-14-group-staffing"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:857a90c114158486ca10d936cb5284fc239049b0932b822d81ff9d09eaa216ac",
+      "value": "Получить предпросмотр",
+      "owners": [
+        "frontend/group-staffing",
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+          "lines": [
+            194
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+          "lines": [
+            374
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1368,
+            1449,
+            1454
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            218
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            380
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            364
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:85b97c294565639a8b96174e6662fa13e9f76c641a231db4a7605bcb2caead73",
+      "value": "Не удалось загрузить список групп.",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            284
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/useGroupsListState.ts",
+          "lines": [
+            153
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+          "lines": [
+            72
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:8874f5c8f4246a76e3b4fca97172b32819818b75fb2eb2544d6fa380ae6cbece",
+      "value": "Все залы расписания должны принадлежать филиалу группы.",
+      "owners": [
+        "backend/groups",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+          "lines": [
+            1066
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+          "lines": [
+            429
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:894d7eccc6a450518d78c6b44df0db619bf344c90febf5067a0cd6a2cfd99c05",
+      "value": "Тренер",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/finance",
+        "frontend/schedule",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthenticatedShell.tsx",
+          "lines": [
+            33
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+          "lines": [
+            470,
+            476,
+            780
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2095
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            61
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:8cfeb84712d74ef4bb164d6bb569bcf1022de470fe900bbb120ccdd570bff441",
+      "value": "Мессенджер",
+      "owners": [
+        "frontend/audit",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+          "lines": [
+            331,
+            336,
+            816
+          ],
+          "slice": "FE-16-audit"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            145
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:8dcfce28f3baa3f5c0f078b2321d0f37d089554dfa0318e5290c9c69052fea63",
+      "value": "{prefix}.startTime",
+      "owners": [
+        "backend/groups",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+          "lines": [
+            1012
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+          "lines": [
+            387
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:8fbe9b75cbdfbfa6f57f060f286e00dee7e021068ebe378cfb495f3380d1e96b",
+      "value": "Отмена",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+          "lines": [
+            389
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1372,
+            1699
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            222
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            384
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            368
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+          "lines": [
+            86
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            4
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:907efbd4ce48253bae87d64dafe6c538bc0a77b9df23ecd6ea903d46c12a4c56",
+      "value": "Группа",
+      "owners": [
+        "frontend/attendance",
+        "frontend/client-list",
+        "frontend/finance",
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            349
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/groupManagement.constants.ts",
+          "lines": [
+            3
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+          "lines": [
+            749
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2101
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            255
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+          "lines": [
+            43
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
+          "lines": [
+            119,
+            124
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            107
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            44,
+            199
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:924310227b1c2f4153d0a2cf602351ab502d9130ce266659cd242783d000091c",
+      "value": "Расписание",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            351
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            97
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            351
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:92f64d0d0d54ceb88fb2eeea7b5be026657f2226a5158b6b28c5a88e58b2c121",
+      "value": "Без варианта каталога",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+          "lines": [
+            140
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/MembershipSalePricing.ts",
+          "lines": [
+            19
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:956618723dd8bbc19474b50c9819bfd11a259e85fb148de4f09203b8138cb462",
+      "value": "Чт",
+      "owners": [
+        "bot/clients",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            35
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            125
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:95dab017a4da8cfdbc731ae32e73e6f0e39e118370be8b1d680ca16e50b1e539",
+      "value": "Сб",
+      "owners": [
+        "bot/clients",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/rendering.py",
+          "lines": [
+            37
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            127
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:96c9bf503ac6f2c93849030f854535d6e74b18bd1e06dc3914298956c7fe97f0",
+      "value": "У тренера есть пересекающееся постоянное назначение в другой группе.",
+      "owners": [
+        "backend/groups",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+          "lines": [
+            404
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
+          "lines": [
+            20
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:97c459a6bb7c917406b8f58a8e65d077b9e2bef6bdf04a65d802eace908c889b",
+      "value": "Журнал",
+      "owners": [
+        "frontend/audit",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+          "lines": [
+            218,
+            362
+          ],
+          "slice": "FE-16-audit"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            101
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:983ec13068146e5f02e5a2525ea41695d2c6782f81f3f3b25ea177a231de253e",
+      "value": "Активна",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientDetailSections.tsx",
+          "lines": [
+            171
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            256
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:985b5e0f2ccf1ba08ac53253af32d2e9a600b846d3f3b99978f28d177388b9fa",
+      "value": "Настройки",
+      "owners": [
+        "frontend/settings-branches",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/SettingsScreen.tsx",
+          "lines": [
+            65
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            103
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:9b99400938eedf7c3acf25da2ed2bd795aaa1280531f401b580bd61c87af4761",
+      "value": "Замена",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            637
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+          "lines": [
+            78
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:9c27c381dd8b333c876c4a2dac2d556ae96f17e42732a12314d56f5057de3e85",
+      "value": "Сохраняем…",
+      "owners": [
+        "frontend/attendance",
+        "frontend/attention"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
+          "lines": [
+            18
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/attention/AttentionPanel.tsx",
+          "lines": [
+            238
+          ],
+          "slice": "FE-9-attention"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:9d518c0fa818bc373dc3d45d54b12612de95145dba8c277fbe43a612cb397363",
+      "value": "Филиалы не загрузились",
+      "owners": [
+        "frontend/settings-membership",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            729
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            173
+          ],
+          "slice": "FE-12-settings-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:9d63ad76b12b41314382ce1152c48eed169a1d6e5ce70e362f203a948a85bc07",
+      "value": "с этого дня",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1838
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            450
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:9ed5aecdd190af4cd49c0e5f005ed465e18f0a2d1ea79dab7194ef72dfef0284",
+      "value": "Без группы",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-profile",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            217,
+            219
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+          "lines": [
+            83
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            244
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a0d4e31f1b7e44a1e261d25b7ba0fb0200d0eccd1ad87e483c89bc68b745f2af",
+      "value": "Lesson occurrence was not found for the supplied date locator.",
+      "owners": [
+        "backend/attendance",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+          "lines": [
+            781
+          ],
+          "slice": "BE-4-attendance"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+          "lines": [
+            1898
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a0ff92ddd3c1e250915bcc34a657824d8aeb31cf6cea1dc073305d75c35c94e4",
+      "value": "`${trainer.fullName} (${trainer.login})`",
+      "owners": [
+        "frontend/group-staffing",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            241
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+          "lines": [
+            89
+          ],
+          "slice": "FE-14-group-staffing"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "value": "·",
+      "owners": [
+        "frontend/attendance",
+        "frontend/client-membership",
+        "frontend/client-messenger-media",
+        "frontend/group-staffing",
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            416
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+          "lines": [
+            345
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            589,
+            597,
+            1608,
+            1611,
+            1838,
+            1853,
+            1863,
+            1888,
+            2344
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+          "lines": [
+            120,
+            153,
+            218
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            156,
+            159,
+            186
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            257,
+            335,
+            338
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            320,
+            323
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceTodayWorklist.tsx",
+          "lines": [
+            214
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+          "lines": [
+            74
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+          "lines": [
+            127
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientNoteAttribution.tsx",
+          "lines": [
+            17
+          ],
+          "slice": "FE-8-client-messenger-media"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a1f5d39a12e8f6bed437ee6c16fa961dcd6a5af84e1518290a577a029e7501e2",
+      "value": "с",
+      "owners": [
+        "frontend/group-staffing",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+          "lines": [
+            289
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1839
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a27067367eb8cfe2649aa5c14a545444bd9e104419e790946da17f276f60a027",
+      "value": "Вся серия",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1214
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            265
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a4942e1b61203df65fbfd6433ad95df5fd8d7bf062b79aa9ec0bcd1f1a20348d",
+      "value": "`Открыть карточку клиента ${client.fullName}`",
+      "owners": [
+        "frontend/attendance",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupClientRow.tsx",
+          "lines": [
+            33
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+          "lines": [
+            88
+          ],
+          "slice": "FE-4-attendance"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a4dd0afc3d695dcce7ecc9e8029cb8fddc3e96c040820fd22d6ca31ee3b9a81b",
+      "value": "Разовое посещение",
+      "owners": [
+        "frontend/settings-membership",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            33
+          ],
+          "slice": "FE-12-settings-membership"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            11,
+            224
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a642a677237d98ee106692e707fd694eedcede81ba8839d0a2559a117dc7c018",
+      "value": "Тип группы",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            163
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2107
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a674b477389b8043bd74d56ec078d0265900af288e1daa2227b4efcb9a8c8ed9",
+      "value": "Тренер не назначен",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            395
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2586
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+          "lines": [
+            268
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a69757b1dbe17b1462c04ba462fbc20126d5e452cdd481fbc073e4322bc214f8",
+      "value": "Фильтры",
+      "owners": [
+        "frontend/finance",
+        "frontend/schedule",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+          "lines": [
+            612
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
+          "lines": [
+            109
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/shared/ux.tsx",
+          "lines": [
+            292,
+            296
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            338
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a7bdff844b2203554ce4e79187aafd731ada08ca0426c6153a6b330d82c68891",
+      "value": "Серия",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            627
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+          "lines": [
+            67
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a87a4b39c30404ad618fe7f24800b8412cfa1cbc9c08d95242541b035730ecd1",
+      "value": "Активен",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-membership",
+        "frontend/settings-users",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            458
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            245,
+            255
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+          "lines": [
+            241
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            17
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a912ec8664f1d3b52b0b4c7b2a42f703b060b687c9686617aa4c3f4887c33edf",
+      "value": "Карточка клиента",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/attendance",
+        "frontend/attention",
+        "frontend/client-profile",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            237
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupClientRow.tsx",
+          "lines": [
+            42
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
+          "lines": [
+            102
+          ],
+          "slice": "FE-4-attendance"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+          "lines": [
+            153
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/attention/AttentionPanel.tsx",
+          "lines": [
+            370
+          ],
+          "slice": "FE-9-attention"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:a946d490e650a3dcf897419f664b7aa26aeff901979880d0faa6ba0c6424c140",
+      "value": "Новый абонемент",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/settings-membership"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            250
+          ],
+          "slice": "FE-12-settings-membership"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+          "lines": [
+            72
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ab7a9be45c4bd6ad5e98626738c97c312a79f2c12404ab624765d0f942c8c5fb",
+      "value": "Снять замену",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            647,
+            1455
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+          "lines": [
+            89
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ae1e2dac6c30b35578390df9413a442c89ec453fd5e791dce9e0712d10b46685",
+      "value": "Введите стартовый пароль.",
+      "owners": [
+        "frontend/settings-users",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            105
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            165
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:b3680f2cba5f35d05b8dde72b8109a73216f60b0d3bc2208afc7ee07ba90f3a9",
+      "value": "Описание",
+      "owners": [
+        "frontend/audit",
+        "frontend/settings-branches"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            786,
+            850
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/SettingsScreen.tsx",
+          "lines": [
+            402
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+          "lines": [
+            433
+          ],
+          "slice": "FE-16-audit"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:b39773156ba8cd0ac9dd3a4170a7a897cea77b1d929d3cace83ce47cc77d9daa",
+      "value": "Исправление",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/membership/MembershipCorrectionPanel.tsx",
+          "lines": [
+            185
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            231,
+            238
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "value": "Сохранить",
+      "owners": [
+        "bot/resources",
+        "frontend/client-membership",
+        "frontend/groups",
+        "frontend/settings-branches",
+        "frontend/settings-membership",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            801,
+            865
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/SettingsScreen.tsx",
+          "lines": [
+            417
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+          "lines": [
+            395
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            807
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            255
+          ],
+          "slice": "FE-12-settings-membership"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+          "lines": [
+            373
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+          "lines": [
+            106
+          ],
+          "slice": "FE-7-client-membership"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/resources/keyboards.py",
+          "lines": [
+            79
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:b62f978a98d80ead1ae12dc1ec97e468e9d1fb87cf2ca7340b1a797689c30fad",
+      "value": "Продлить абонемент",
+      "owners": [
+        "backend/clients",
+        "frontend/client-membership"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+          "lines": [
+            560,
+            569
+          ],
+          "slice": "BE-2-clients"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipRenewPanel.tsx",
+          "lines": [
+            246
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:b688b4c0d7836656bb838d2b0a908b62b6d210fa7bc71dedd05fbf20b5f7b9b1",
+      "value": "Сегодня",
+      "owners": [
+        "frontend/attendance",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2060
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
+          "lines": [
+            78,
+            84,
+            87
+          ],
+          "slice": "FE-4-attendance"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:b8b151d4174391f0dfe8dfae88406ba4a6823105247e3ac4e4ac4955d0df656d",
+      "value": "Изменить",
+      "owners": [
+        "frontend/schedule",
+        "frontend/settings-membership"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            248
+          ],
+          "slice": "FE-12-settings-membership"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            607,
+            2312,
+            2394
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ba0c95d4cc4c9b3f1552a15bf6aad26ddd72391eb5aaa12b48f54f1f406d7689",
+      "value": "Суперадминистратор",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthenticatedShell.tsx",
+          "lines": [
+            27
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            59
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ba936c58412f215b7709f4a66ccdeef8da69fb2e25a87b21a75e2f29dbe02d1b",
+      "value": "Посещение",
+      "owners": [
+        "frontend/client-list",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+          "lines": [
+            213
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            53,
+            202
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:bb243bf54eeca843905ab207082949c94bb5434e4776ae9526e1ccd6439684d0",
+      "value": "Не удалось подготовить форму",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+          "lines": [
+            179
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+          "lines": [
+            149
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:bb3893c53d1c8ebe4cf98663765afbb5286d3833006bc01d8518ba97719e9053",
+      "value": "Группы абонемента",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+          "lines": [
+            126
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipTargetGroupsField.tsx",
+          "lines": [
+            99
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:bda050585a00f0f6cb502350559d75532ae3b244c9498b996e7c5df2d98dfc8d",
+      "value": "—",
+      "owners": [
+        "frontend/schedule-mutations",
+        "frontend/settings-membership"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            248
+          ],
+          "slice": "FE-12-settings-membership"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            441
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:be6881d53fa324cfa0468775e7a72e50282d67aed8163110a8210b3190c3353a",
+      "value": "Активный",
+      "owners": [
+        "frontend/settings-branches",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            486,
+            689
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            215
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:be99b13612015a48305ed2eddee74aa89288783185407708cd30157daf7942c2",
+      "value": "Удалить",
+      "owners": [
+        "frontend/group-staffing",
+        "frontend/settings-branches"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/SettingsScreen.tsx",
+          "lines": [
+            365,
+            426
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+          "lines": [
+            311
+          ],
+          "slice": "FE-14-group-staffing"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c0c26d68261d7b0691e3710241c81ff5580e3a06f6f0dc93807c58b49bfdd5a8",
+      "value": "Перенос занятия",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            229
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            872
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c0fbb80c1d2144ac360fe5aec9dc3624a0b9fd600f5ab86f1e318fc4d41b1827",
+      "value": "{prefix}.hallId",
+      "owners": [
+        "backend/groups",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+          "lines": [
+            1022
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+          "lines": [
+            398
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c19bb335acac7796dd21fbd2ff9f1d5d76a97754fe5c8e9a598abb055f779f45",
+      "value": "Планово",
+      "owners": [
+        "backend/clients",
+        "frontend/client-list",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+          "lines": [
+            615
+          ],
+          "slice": "BE-2-clients"
+        },
+        {
+          "path": "frontend/src/lib/api/clients.ts",
+          "lines": [
+            923
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            182,
+            269
+          ],
+          "slice": "FE-5-client-list"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c4c9abc154de659660863959e18ecddaaf5581dc304557a4c3b7371dedfe2463",
+      "value": "Запланировано",
+      "owners": [
+        "frontend/group-staffing",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+          "lines": [
+            29
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            165
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c62edde1c09b1b0b5c41179373510f4b2021f829af0d819705f9acabd8c4e32b",
+      "value": "Отключен",
+      "owners": [
+        "frontend/settings-users",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            458
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            18
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c9715294c80034faef38dceadaba3cc5a739b12159685b03bb84f1bc9f5861ab",
+      "value": "Введите логин.",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/settings-users",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthStages.tsx",
+          "lines": [
+            72
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            104
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            164
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c9bed940634525ca952096eccb656b2a51da5f41dd301690649ce0d9eaf10fe6",
+      "value": "Не удалось загрузить список тренеров.",
+      "owners": [
+        "frontend/groups",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+          "lines": [
+            97
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            98
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:c9fd9fc0e5d2198dab9dcf985de7e5a46f30be1b4924072417ad0bcc8de99335",
+      "value": "Новая группа",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/client-profile",
+        "frontend/groups",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            241
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+          "lines": [
+            167
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            154
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            619
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientTransferModal.tsx",
+          "lines": [
+            123
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:cb1a2074b3a027ffa7d7d9c54682c3835fffc7f6d620d8a38532f075cc2f17a0",
+      "value": "Пароль",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthStages.tsx",
+          "lines": [
+            133
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            76
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:cce698e378f17034478d49f55193d70ffb7efa78ac3fbb8a156128daf7116af3",
+      "value": "Подтвердить можно до",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1892
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            193
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            355
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            340
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:cd2e8ad3c648098fe1eb53a077d3858d5e89b967383667139471415e38b53ae2",
+      "value": "Не был",
+      "owners": [
+        "bot/attendance",
+        "bot/clients",
+        "frontend/attendance"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+          "lines": [
+            270
+          ],
+          "slice": "BOT-2-attendance"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/core/client_flow.py",
+          "lines": [
+            235
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
+          "lines": [
+            14
+          ],
+          "slice": "FE-4-attendance"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:cd3e43064ec4069dd2b52f5c2f5e3f0a1a4b4de8e83c1277f83a1af78752838b",
+      "value": "Изменение серии",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            231
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1175
+          ],
+          "slice": "FE-2-schedule-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:cd45ec7836b5cb5e86840b932b6480a4696cf5491eaaa6c25b6cecd65d2ba4f2",
+      "value": "Сбросить фильтры",
+      "owners": [
+        "frontend/audit",
+        "frontend/client-list",
+        "frontend/schedule",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/audit/AuditLogScreen.tsx",
+          "lines": [
+            395
+          ],
+          "slice": "FE-16-audit"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2115
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            426
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
+          "lines": [
+            257
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            7
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:cd8c587351082be473439ecec5b3c144b4723fc8943dec8c4c2adc5f578bbede",
+      "value": "Группы",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile",
+        "frontend/groups",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            131
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            99
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+          "lines": [
+            116
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+          "lines": [
+            93
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "value": ".",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/client-profile",
+        "frontend/group-staffing",
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthStages.tsx",
+          "lines": [
+            171
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
+          "lines": [
+            203
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupTrainerAssignmentsSection.tsx",
+          "lines": [
+            351
+          ],
+          "slice": "FE-14-group-staffing"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1844,
+            1892
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+          "lines": [
+            193
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            355,
+            436,
+            441
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            340
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+          "lines": [
+            92
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:d45e66ab5535c3a629cb30d45356815484c6fac84011f03a179929841d90599e",
+      "value": "Название группы",
+      "owners": [
+        "frontend/groups",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+          "lines": [
+            304
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            153
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            150
+          ],
+          "slice": "FE-13-groups-core"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:d4f85d36757c12f0c6dab57721287f327efbfc46ea8c0f820301067f8627fc0f",
+      "value": "–",
+      "owners": [
+        "frontend/attendance",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/shared/ListRangeStatus.tsx",
+          "lines": [
+            35
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceTodayWorklist.tsx",
+          "lines": [
+            208
+          ],
+          "slice": "FE-4-attendance"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:d52c67f8416a9a1915f98d7d92d9b2fcf4659c012a96893002ed72edb53c2645",
+      "value": "Выберите зал",
+      "owners": [
+        "frontend/groups",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            143
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            316
+          ],
+          "slice": "FE-3-schedule-mutations"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+          "lines": [
+            301
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:d71b0c68713c37b7ecfc098c1f043f9533896eaf5b6b468a47658c2dcfaf7f43",
+      "value": "Все группы",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-membership"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
+          "lines": [
+            126
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+          "lines": [
+            187
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:d77dfdcd175bc81e734ac4a1922b8d1ed662ccdb5cde04108daf3a7dd316d721",
+      "value": "Не выбран",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/groups",
+        "frontend/settings-branches"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/BranchSettingsScreen.tsx",
+          "lines": [
+            840
+          ],
+          "slice": "FE-10-settings-branches-shell"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupForm.tsx",
+          "lines": [
+            267,
+            276,
+            285
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+          "lines": [
+            107
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:d833b857223fb9d7ecf79934ce79bc36c79b45c9d231ebab6f8b23051084b8b7",
+      "value": "Финансы",
+      "owners": [
+        "frontend/finance",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+          "lines": [
+            392,
+            542
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            102
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:de3830e75332f2b2c545d9463e9edf3e8e7c2b5ad6d6008ee25d1bbf810c29d8",
+      "value": "Исправить группы",
+      "owners": [
+        "backend/clients",
+        "frontend/client-membership"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+          "lines": [
+            594
+          ],
+          "slice": "BE-2-clients"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/ClientMembershipSection.tsx",
+          "lines": [
+            231
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:de43f4f355154212501abe38e24f2bc507718ab74f9e65f3b48299537b145448",
+      "value": "Дата окончания не может быть раньше даты начала.",
+      "owners": [
+        "backend/api-resources",
+        "backend/groups"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+          "lines": [
+            518
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ReportsResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:de5a7f2f76f936749cf754235ea114d4e43e88e2d61ecb630cd854aba10fdee0",
+      "value": "Каталожная цена",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+          "lines": [
+            147
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/MembershipSalePricingFields.tsx",
+          "lines": [
+            104
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:e10dbe3f1da780faa5f80e0596efff7abb3cb18d0010dffd016ce87098735aec",
+      "value": "{prefix}.durationMinutes",
+      "owners": [
+        "backend/groups",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+          "lines": [
+            1017
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+          "lines": [
+            392
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:e38436b5f0015e3cd8356072a7599d8e8bbc9f8b3fad6d4a27c9ad9300bd2ecc",
+      "value": "{prefix}.isoWeekday",
+      "owners": [
+        "backend/groups",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+          "lines": [
+            1007
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+          "lines": [
+            381
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:e704077285159bcd3aa7bf18ad7a43eac3cb22173477722b7a3709bd7e2190a5",
+      "value": "Выберите роль.",
+      "owners": [
+        "frontend/settings-users",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            106,
+            126
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            166
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:e7ac0786668e0ff0f02b62bd04f45ff636fd82db63b1104601c975dc005f3a67",
+      "value": ":",
+      "owners": [
+        "frontend/finance",
+        "frontend/users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/users/UsersListScreen.tsx",
+          "lines": [
+            511,
+            515
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/finance/FinanceReportPresentation.tsx",
+          "lines": [
+            79
+          ],
+          "slice": "FE-15-finance"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:e93b045d3b2e013ac36eee1b786c7d6cb54a4200cd0f68c82e8c3f78cb2f032b",
+      "value": "Тип не задан",
+      "owners": [
+        "frontend/schedule-mutations",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            382
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+          "lines": [
+            256
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:e97ca72e2ca5bbe157cac2f8d362f6c6b0c549a7e9268f5257683a248fa122b8",
+      "value": "Период",
+      "owners": [
+        "frontend/client-membership",
+        "frontend/finance"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/finance/FinanceReportsScreen.tsx",
+          "lines": [
+            98
+          ],
+          "slice": "FE-15-finance"
+        },
+        {
+          "path": "frontend/src/features/clients/membership/MembershipHistory.tsx",
+          "lines": [
+            92
+          ],
+          "slice": "FE-7-client-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ea1f40824607e0d18612d54247dd283d22e97e26da13b8625ae0b9548ab6e618",
+      "value": "Открыть",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/RouteViewport.tsx",
+          "lines": [
+            468,
+            500
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            5,
+            41
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ea58bb0bc6d40423f5b97098bde287e26a1f1770290ed0ffeb187917cadb0c1a",
+      "value": "Дальше",
+      "owners": [
+        "bot/resources",
+        "frontend/client-list",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/shared/ux.tsx",
+          "lines": [
+            808
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsResults.tsx",
+          "lines": [
+            362,
+            530
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/resources/keyboards.py",
+          "lines": [
+            107,
+            145
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:eafa287ca3f0fd92b27262fb113fe2f5749724e56c0495528a2145f6ea4a966d",
+      "value": "С этого дня",
+      "owners": [
+        "frontend/schedule",
+        "frontend/schedule-mutations"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            1213
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+          "lines": [
+            264
+          ],
+          "slice": "FE-3-schedule-mutations"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:eb5b2e75dc3989b4034c063d6f37f60ea17eccb841aa4bf540c5255c390782d3",
+      "value": "Не удалось загрузить филиалы.",
+      "owners": [
+        "frontend/settings-membership",
+        "frontend/settings-users"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+          "lines": [
+            185
+          ],
+          "slice": "FE-11-settings-users"
+        },
+        {
+          "path": "frontend/src/features/settings/MembershipCatalogSettings.tsx",
+          "lines": [
+            89
+          ],
+          "slice": "FE-12-settings-membership"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ebe48b29fb847349abc3bc917900f8f7895ec718b0438fc3837eb265ebdba31d",
+      "value": "endsOn должен быть в формате yyyy-MM-dd.",
+      "owners": [
+        "backend/groups",
+        "backend/schedule"
+      ],
+      "locations": [
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+          "lines": [
+            991
+          ],
+          "slice": "BE-5-groups"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
+          "lines": [
+            354
+          ],
+          "slice": "BE-6-schedule"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:eeaeb97638d821f4010f06325164fb78c0b628617737e7cc55ee2cd204686ba2",
+      "value": "Активные",
+      "owners": [
+        "frontend/groups",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            80,
+            472
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            88,
+            248
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ef05d57959cfde50d145153bdc66f9873ad699ce20c523cf040949ee5c404d4e",
+      "value": "Готово",
+      "owners": [
+        "frontend/client-list",
+        "frontend/groups",
+        "frontend/schedule",
+        "frontend/shared",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            219
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/shared/ux.tsx",
+          "lines": [
+            288
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+          "lines": [
+            2113
+          ],
+          "slice": "FE-2-schedule-core"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
+          "lines": [
+            293
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            81
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f16cbd327049b31c8f77bbc0bc8f695338f72889a996cfef5acbf40986c55a41",
+      "value": "Не указана",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            287
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientManagement.formatting.ts",
+          "lines": [
+            55,
+            116
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+          "lines": [
+            43,
+            109
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientSharedInfo.tsx",
+          "lines": [
+            115
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f17ceff0aa95a3fd3a3a639c2ff55e4be2d4cd6514201adf1417b2bdd9363b55",
+      "value": "Внимание",
+      "owners": [
+        "frontend/attention",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            96
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/attention/AttentionDashboard.tsx",
+          "lines": [
+            15
+          ],
+          "slice": "FE-9-attention"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f303a27312124329dc7fa588191b1e198998ff7d312a5dedda315fb788d50a39",
+      "value": "Редактирование тренера",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppRoute.ts",
+          "lines": [
+            247
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            625
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f436b337a904a80b156e80fa73a7c719cf183d7d2b0807d82ad338ea6d27ffe1",
+      "value": "Изменения сохранены",
+      "owners": [
+        "frontend/client-profile",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientEditScreen.tsx",
+          "lines": [
+            115
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            131
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f638f9f2a2192959cc796d3ec256696bc86a195f23223f2242a005d406dea147",
+      "value": "Укажите тип контактного лица.",
+      "owners": [
+        "backend/api-resources",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/ClientManagement.form.ts",
+          "lines": [
+            84
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "backend/src/GymCrm.Api/Auth/Resources/ClientResources.resx",
+          "lines": [],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f741291a0a696755ae5fb9c4ec3287c9d2d1709316ee07cecd8e30acc02a71a8",
+      "value": "Введите пароль",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/AuthStages.tsx",
+          "lines": [
+            135
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            158
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f783a57ebff741da46e298284319fb8700591a006e3dc3974bc7695c53ebe783",
+      "value": "Дни не заданы",
+      "owners": [
+        "frontend/shared",
+        "frontend/shared-resources"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/lib/groupSchedule.ts",
+          "lines": [
+            205
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/lib/resources.ts",
+          "lines": [
+            262
+          ],
+          "slice": "existing-resources"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:f8ba76ae8e828191bdfab124ef21e36b8786b5c461a25a087582140abfc780ab",
+      "value": "Всего:",
+      "owners": [
+        "frontend/attention",
+        "frontend/client-profile",
+        "frontend/groups"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/groups/GroupEditScreen.tsx",
+          "lines": [
+            436
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/groups/GroupsListScreen.tsx",
+          "lines": [
+            259
+          ],
+          "slice": "FE-13-groups-core"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientAttendanceHistorySection.tsx",
+          "lines": [
+            45
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/attention/AttentionPanel.tsx",
+          "lines": [
+            110
+          ],
+          "slice": "FE-9-attention"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:fca8d5aa3c1aef3237e727b299bb330e74aaf71e545a439c1f918a5a31a87629",
+      "value": "Контакты",
+      "owners": [
+        "frontend/client-list",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/features/clients/list/clientListViewModel.ts",
+          "lines": [
+            109
+          ],
+          "slice": "FE-5-client-list"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientOverviewSection.tsx",
+          "lines": [
+            117
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:fde25c93ff0348f15f0aa7ba7915b35c5fe0339211b09d2aca05697027571b79",
+      "value": "К списку клиентов",
+      "owners": [
+        "frontend/app-shell-auth",
+        "frontend/client-profile"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/app/useAppReturnNavigation.ts",
+          "lines": [
+            105
+          ],
+          "slice": "FE-1-app-shell-auth"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientCreateScreen.tsx",
+          "lines": [
+            131
+          ],
+          "slice": "FE-6-client-profile"
+        },
+        {
+          "path": "frontend/src/features/clients/ClientDetailScreen.tsx",
+          "lines": [
+            59
+          ],
+          "slice": "FE-6-client-profile"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ff13de896146db550b0bdddbcd09b8f1543f4ddd279ea5febac6d03106e8cf3c",
+      "value": "Был",
+      "owners": [
+        "bot/attendance",
+        "bot/clients",
+        "frontend/attendance"
+      ],
+      "locations": [
+        {
+          "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+          "lines": [
+            270
+          ],
+          "slice": "BOT-2-attendance"
+        },
+        {
+          "path": "bot/src/gym_crm_bot/core/client_flow.py",
+          "lines": [
+            235
+          ],
+          "slice": "BOT-3-clients-rendering"
+        },
+        {
+          "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
+          "lines": [
+            13
+          ],
+          "slice": "FE-4-attendance"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    },
+    {
+      "fingerprint": "sha256:ff296ddaedc5af313b4c04f0ab265913fc71e6dd924493d037940063d67ac80a",
+      "value": "Клиенты",
+      "owners": [
+        "frontend/client-list",
+        "frontend/shared"
+      ],
+      "locations": [
+        {
+          "path": "frontend/src/lib/appRoutes.ts",
+          "lines": [
+            98
+          ],
+          "slice": "FE-17-shared-routing-theme"
+        },
+        {
+          "path": "frontend/src/features/clients/list/ClientsListScreen.tsx",
+          "lines": [
+            114
+          ],
+          "slice": "FE-5-client-list"
+        }
+      ],
+      "review_status": "accepted",
+      "decision": "keep feature-owned unless review proves two consumers share one meaning"
+    }
+  ]
+}

@@ -23,6 +23,8 @@ import {
 } from './ClientManagement.form'
 import { ClientForm } from './ClientForm'
 import { ClientPhotoSection } from './ClientPhotoSection'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 type ClientCreateScreenProps = {
   onCancel: () => void
@@ -69,7 +71,7 @@ export function ClientCreateScreen({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить список групп.',
+            : fe6ClientProfileText.clientCreateScreen_string_85b97c29,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -90,7 +92,7 @@ export function ClientCreateScreen({
     const validationErrors = validateClientForm(values)
     if (Object.keys(validationErrors).length > 0) {
       form.setErrors(validationErrors)
-      setFormError('Проверьте обязательные поля клиента и контактов.')
+      setFormError(fe6ClientProfileText.clientCreateScreen_setFormError_97732402)
       return
     }
 
@@ -101,8 +103,8 @@ export function ClientCreateScreen({
 
       showAppNotification({
         id: 'client-create-success',
-        title: 'Клиент создан',
-        message: 'Базовая карточка клиента сохранена.',
+        title: fe6ClientProfileText.clientCreateScreen_title_4f3100e0,
+        message: fe6ClientProfileText.clientCreateScreen_message_67cfd459,
         color: 'teal',
       })
 
@@ -114,7 +116,7 @@ export function ClientCreateScreen({
         return
       }
 
-      setFormError('Не удалось создать клиента. Попробуйте еще раз.')
+      setFormError(fe6ClientProfileText.clientCreateScreen_setFormError_bdd79cff)
     } finally {
       setSubmitting(false)
     }
@@ -128,17 +130,16 @@ export function ClientCreateScreen({
           onClick={onCancel}
           variant="default"
         >
-          К списку клиентов
-        </Button>
+          {fe6ClientProfileText.clientCreateScreen_jsxText_fde25c93}</Button>
       }
-      title="Новый клиент"
+      title={fe6ClientProfileText.clientCreateScreen_title_5a2595c2}
     >
       <PageSection>
         <Stack gap="lg">
           {loadingOptions ? (
             <LoadingState
-              description="Форма появится после загрузки филиалов и групп."
-              label="Готовим форму клиента..."
+              description={fe6ClientProfileText.clientCreateScreen_description_8c274e30}
+              label={fe6ClientProfileText.clientCreateScreen_label_28f0dd24}
             />
           ) : null}
 
@@ -146,7 +147,7 @@ export function ClientCreateScreen({
             <Alert
               color="red"
               icon={<IconAlertCircle size={18} />}
-              title="Не удалось подготовить форму"
+              title={fe6ClientProfileText.clientCreateScreen_title_bb243bf5}
               variant="light"
             >
               {loadError}
@@ -160,7 +161,7 @@ export function ClientCreateScreen({
               branchOptions={branchOptions}
               groupOptions={groupOptions}
               lockBranch={false}
-              cancelAction={{ label: 'Отменить', onClick: onCancel }}
+              cancelAction={{ label: fe6ClientProfileText.clientCreateScreen_label_7c47f729, onClick: onCancel }}
               photoSection={
                 <ClientPhotoSection
                   canUpload={false}
@@ -169,7 +170,7 @@ export function ClientCreateScreen({
                 />
               }
               onSubmit={submit}
-              submitLabel="Сохранить клиента"
+              submitLabel={fe6ClientProfileText.clientCreateScreen_submitLabel_40ba6630}
               submitting={submitting}
             />
           ) : null}

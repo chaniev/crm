@@ -1,0 +1,2224 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "FE-3-schedule-mutations",
+  "entry_count": 100,
+  "entries": [
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${formatScheduleEntryCount(group.count)} в интервале.`",
+      "value": "`${formatScheduleEntryCount(group.count)} в интервале.`",
+      "fingerprint": "sha256:4c5bfbe1a0cb6f71676a71d6f3b776210dcb9c2360bcd353caefef846374a001",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        61
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Открыть детали'",
+      "value": "Открыть детали",
+      "fingerprint": "sha256:89ce76b3ddc905af585846b041d8eb481a560756d69d6e205e4cf5330b1dcbe6",
+      "context": {
+        "kind": "ArrayLiteralExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        62
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        120,
+        153,
+        218
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "+",
+      "value": "+",
+      "fingerprint": "sha256:a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        127
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Занятия в интервале\n            ",
+      "value": "Занятия в интервале",
+      "fingerprint": "sha256:65b19bb32fef544359e0eb42d1c0d269ea6b14ea782f7b9db3c87f546e2f2971",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        150
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Закрыть детали занятий\"",
+      "value": "Закрыть детали занятий",
+      "fingerprint": "sha256:15189e3f5eb46b5f3346442bff7687affcc3b7bac82616a173033b7aca1bb853",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        157
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Неактивна'",
+      "value": "Неактивна",
+      "fingerprint": "sha256:4f049897a5bd5c24277eede0928f3601d91f29641e319ba674d025574370fe8c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        192,
+        213
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тип не задан'",
+      "value": "Тип не задан",
+      "fingerprint": "sha256:e93b045d3b2e013ac36eee1b786c7d6cb54a4200cd0f68c82e8c3f78cb2f032b",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        256
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Тренер не назначен'",
+      "value": "Тренер не назначен",
+      "fingerprint": "sha256:a674b477389b8043bd74d56ec078d0265900af288e1daa2227b4efcb9a8c8ed9",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        268
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось проверить действие с занятием. Обновите предпросмотр и попробуйте снова.'",
+      "value": "Не удалось проверить действие с занятием. Обновите предпросмотр и попробуйте снова.",
+      "fingerprint": "sha256:d585b2a56f3427a72c7bbd003b57e5ddda9edcd9c93a0193fff5b739c5961510",
+      "context": {
+        "kind": "variable",
+        "name": "GENERIC_CANCELLATION_ERROR"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        33
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        156,
+        159,
+        186
+      ],
+      "occurrences": 4,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменено'",
+      "value": "Отменено",
+      "fingerprint": "sha256:23a2a9bfcf74c4a1d09d4f60823bad9a2c1e02f9204a028507ad690d0374d8ed",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        165
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Запланировано'",
+      "value": "Запланировано",
+      "fingerprint": "sha256:c4c9abc154de659660863959e18ecddaaf5581dc304557a4c3b7371dedfe2463",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        165
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отметки есть",
+      "value": "Отметки есть",
+      "fingerprint": "sha256:0d7d0a5fb51bf4b7d757885c43e3bc282c102056e0d27f63be085a79c961f6a3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        167
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверьте действие перед подтверждением",
+      "value": "Проверьте действие перед подтверждением",
+      "fingerprint": "sha256:756d6c506b2174fdccb1b5bbd65a40cd832f67478301d54b293c9a44f5afdbb6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        184
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'занятие восстановлено'",
+      "value": "занятие восстановлено",
+      "fingerprint": "sha256:2d57c90a00e8d038f75e844073a0b58e6d00f2c6038e06feb5e722b861d7500e",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        189
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "После подтверждения: ",
+      "value": "После подтверждения:",
+      "fingerprint": "sha256:8b575c5b146f1c25ae99b7907f81b67c9a180cb99364f704348071bf39573267",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        189
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'занятие отменено'",
+      "value": "занятие отменено",
+      "fingerprint": "sha256:f6756db0b55827fd610fc814d4cfb34f1cd91269254c7673bb60e5a6afcd894d",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        189
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Подтвердить можно до ",
+      "value": "Подтвердить можно до",
+      "fingerprint": "sha256:cce698e378f17034478d49f55193d70ffb7efa78ac3fbb8a156128daf7116af3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        193
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ".\n              ",
+      "value": ".",
+      "fingerprint": "sha256:cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        193
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Обновить предпросмотр'",
+      "value": "Обновить предпросмотр",
+      "fingerprint": "sha256:62b92aa4ce7910b05b4f211f984a9a4cb0e45a1e19d3576efd6f022003c09158",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        218
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Получить предпросмотр'",
+      "value": "Получить предпросмотр",
+      "fingerprint": "sha256:857a90c114158486ca10d936cb5284fc239049b0932b822d81ff9d09eaa216ac",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        218
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отмена\n          ",
+      "value": "Отмена",
+      "fingerprint": "sha256:8fbe9b75cbdfbfa6f57f060f286e00dee7e021068ebe378cfb495f3380d1e96b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        222
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Восстановить занятие'",
+      "value": "Восстановить занятие",
+      "fingerprint": "sha256:b7179b956d8f65fa537fbdd2da53f859c1bc0d6759877f838a6db8589f7d67e6",
+      "context": {
+        "kind": "property",
+        "name": "confirmLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234,
+        237
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Занятие снова появится как запланированное. Проверьте точное занятие перед подтверждением.'",
+      "value": "Занятие снова появится как запланированное. Проверьте точное занятие перед подтверждением.",
+      "fingerprint": "sha256:06aebb09a6148fc44f7e596d55582c5e5401a4aa0fc3ec9da0e5330550da8c4f",
+      "context": {
+        "kind": "property",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        235
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменить занятие'",
+      "value": "Отменить занятие",
+      "fingerprint": "sha256:563bed0ca178b6617c362e113fcc11201775e8ef5505de19b436efc686b596b0",
+      "context": {
+        "kind": "property",
+        "name": "confirmLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243,
+        246
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменяется только это занятие. Если уже есть отметки посещаемости, сервер попросит сначала разобрать отметки.'",
+      "value": "Отменяется только это занятие. Если уже есть отметки посещаемости, сервер попросит сначала разобрать отметки.",
+      "fingerprint": "sha256:c3c2aa408121c7cd49afb6d1b2343951cfd22e7cfb91152ba3e1a8082b4e9bb6",
+      "context": {
+        "kind": "property",
+        "name": "description"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        244
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'окончания срока предпросмотра'",
+      "value": "окончания срока предпросмотра",
+      "fingerprint": "sha256:4371fe938d08dbeba5726d3b3bb8e08c2e6799d42399a11716760c2ba0063b0e",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        274
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Изменить занятие\"",
+      "value": "Изменить занятие",
+      "fingerprint": "sha256:06a7be8a8b27fea141ee4a059067867a553e957eda5519b04a71db2897e19dbd",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        84
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось проверить изменение занятия. Проверьте поля и попробуйте снова.'",
+      "value": "Не удалось проверить изменение занятия. Проверьте поля и попробуйте снова.",
+      "fingerprint": "sha256:7242539bf14bc839d07feebb1b919ab1e59cf3bbb5bec114e562a54b2145dbb4",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        215,
+        220
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменить изменение занятия и потерять черновик?'",
+      "value": "Отменить изменение занятия и потерять черновик?",
+      "fingerprint": "sha256:762d3769772f740819c76e9e65082220512806797ef7865100b6ea69a4a5fe5d",
+      "context": {
+        "kind": "call-argument",
+        "name": "window.confirm"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        239
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сейчас: ",
+      "value": "Сейчас:",
+      "fingerprint": "sha256:2aa98ec188e2526b77da4dbea991be12c9bb77ed11c2bf5bba9f5dbab6e79786",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        257
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        257,
+        335,
+        338
+      ],
+      "occurrences": 4,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Область изменения расписания\"",
+      "value": "Область изменения расписания",
+      "fingerprint": "sha256:594acbf80c88b182d448516351493fd3997fb3ef54a0da3bdd0f96d6c813d871",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        261
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Это занятие'",
+      "value": "Это занятие",
+      "fingerprint": "sha256:66e7112fc5c60537faeaaed4d143225ded03e89c3a52f865741621b74bcfb341",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        263
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'С этого дня'",
+      "value": "С этого дня",
+      "fingerprint": "sha256:eafa287ca3f0fd92b27262fb113fe2f5749724e56c0495528a2145f6ea4a966d",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        264
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Вся серия'",
+      "value": "Вся серия",
+      "fingerprint": "sha256:a27067367eb8cfe2649aa5c14a545444bd9e104419e790946da17f276f60a027",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        265
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Изменяются параметры серии занятий. Поля тренеров здесь не меняются.\n            ",
+      "value": "Изменяются параметры серии занятий. Поля тренеров здесь не меняются.",
+      "fingerprint": "sha256:c26ffc1fbb783208f05aa41f29fdc89699143dd074199a48a3fc6ed01fe766fb",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        274
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дата\"",
+      "value": "Дата",
+      "fingerprint": "sha256:232a0ead182bb391403963b4c7ff6d23ae85ccc2acf73fc12d8305549e9079b4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        280
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Время\"",
+      "value": "Время",
+      "fingerprint": "sha256:6711f073ab8b7dfc9bc90586013d3a26082d60594a783e9f2cfa39d28b38480e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        290
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Длительность\"",
+      "value": "Длительность",
+      "fingerprint": "sha256:2a32607189e0ff1e4d14745be34311fc6f0819f8577933dba92a5fcc44be782e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        301
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\" мин\"",
+      "value": " мин",
+      "fingerprint": "sha256:84d5d93d12778bd7c9d24a92e4eaa4a5f4f6fbce50e70c631ae308939e2b6c7e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "suffix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        308
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Зал\"",
+      "value": "Зал",
+      "fingerprint": "sha256:182f7c572e4ff210f39e7a305be0e340afec5778bd9b214b6d9da04aa14c13a5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        314
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите зал\"",
+      "value": "Выберите зал",
+      "fingerprint": "sha256:d52c67f8416a9a1915f98d7d92d9b2fcf4659c012a96893002ed72edb53c2645",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        316
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверьте изменение перед сохранением",
+      "value": "Проверьте изменение перед сохранением",
+      "fingerprint": "sha256:6cce5c5e8bf0615f397b60ac564ca61d3a3ea6cfe4e1d94e574ff10a64a5aeef",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        333
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Подтвердить можно до ",
+      "value": "Подтвердить можно до",
+      "fingerprint": "sha256:cce698e378f17034478d49f55193d70ffb7efa78ac3fbb8a156128daf7116af3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        355
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ".\n                ",
+      "value": ".",
+      "fingerprint": "sha256:cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        355,
+        436,
+        441
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить изменение\n              ",
+      "value": "Сохранить изменение",
+      "fingerprint": "sha256:3c2e873deba9648aafea44f5d468444b68d770df393160d91eec7035b39cfa87",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        372
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Обновить предпросмотр'",
+      "value": "Обновить предпросмотр",
+      "fingerprint": "sha256:62b92aa4ce7910b05b4f211f984a9a4cb0e45a1e19d3576efd6f022003c09158",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        380
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Получить предпросмотр'",
+      "value": "Получить предпросмотр",
+      "fingerprint": "sha256:857a90c114158486ca10d936cb5284fc239049b0932b822d81ff9d09eaa216ac",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        380
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отмена\n            ",
+      "value": "Отмена",
+      "fingerprint": "sha256:8fbe9b75cbdfbfa6f57f060f286e00dee7e021068ebe378cfb495f3380d1e96b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        384
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Область: ",
+      "value": "Область:",
+      "fingerprint": "sha256:720752c6003da7a6fb9cb1875de41d2bbe1584d3fd95e47d53f73f4072bfac63",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        433
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Изменение применяется с ",
+      "value": "Изменение применяется с",
+      "fingerprint": "sha256:247c84d35a913e223155f62c01ab3103e352270b16ee56d58d001906075112f5",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        436
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "' Будущие занятия будут пересчитаны.'",
+      "value": " Будущие занятия будут пересчитаны.",
+      "fingerprint": "sha256:ab0f32561d8d10579227d0d08aeda5324b1ce55964904c01fa77fa0313a8050b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        437
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "— ",
+      "value": "—",
+      "fingerprint": "sha256:bda050585a00f0f6cb502350559d75532ae3b244c9498b996e7c5df2d98dfc8d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        441
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Пропущено занятий: ",
+      "value": "Пропущено занятий:",
+      "fingerprint": "sha256:ed0812c074671c0222c0299f6c7dd41d365b51a77fdadba24d742459ee1ce7a4",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        441
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ". Первое: ",
+      "value": ". Первое:",
+      "fingerprint": "sha256:fc3d1d5a5d330503ec34e53cf1542de68950d99e43f90a446eedabc22a46f077",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        441
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'с этого дня'",
+      "value": "с этого дня",
+      "fingerprint": "sha256:9d63ad76b12b41314382ce1152c48eed169a1d6e5ce70e362f203a948a85bc07",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        450
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'вся серия'",
+      "value": "вся серия",
+      "fingerprint": "sha256:648188fd487bb4a701b2db610e0114b2e239e6aad9083d35434374deac4bfdcd",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        454
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'только это занятие'",
+      "value": "только это занятие",
+      "fingerprint": "sha256:5e90afd85acdf82f50ce0399faa93e4034c9b87caf3e572956a03c9bbbab9ca7",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        457
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'окончания срока предпросмотра'",
+      "value": "окончания срока предпросмотра",
+      "fingerprint": "sha256:4371fe938d08dbeba5726d3b3bb8e08c2e6799d42399a11716760c2ba0063b0e",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        504
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Ещё действий: ${accessibleContext}`",
+      "value": "`Ещё действий: ${accessibleContext}`",
+      "fingerprint": "sha256:0e137aa16cad1c83c8da270f153ea7ac503a185a982730710d7329ad272fcc17",
+      "context": {
+        "kind": "variable",
+        "name": "triggerLabel"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        71
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Ещё\n          ",
+      "value": "Ещё",
+      "fingerprint": "sha256:2071fb99050431712e60af0fe7ad59c29158386d28212c756f736de4f70586c7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        103,
+        138
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        143
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Закрыть дополнительные действия'",
+      "value": "Закрыть дополнительные действия",
+      "fingerprint": "sha256:d3b1083df802f3ce69489d2758cd60a3c69cd0a89b36b74620ce548d30f8dcf5",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        143
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Ещё действий\n          ",
+      "value": "Ещё действий",
+      "fingerprint": "sha256:ca0bc1ad17277e535810e81073bf0b3e4b7f0388ad7c23a4398a6c2113a314de",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Разовое занятие\"",
+      "value": "Разовое занятие",
+      "fingerprint": "sha256:4196b8be8df2faffa215379ec39274cfb7a67db3260cb16625d3b3b39406ed68",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        84
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось проверить разовое занятие. Проверьте поля и попробуйте снова.'",
+      "value": "Не удалось проверить разовое занятие. Проверьте поля и попробуйте снова.",
+      "fingerprint": "sha256:69d77b83f5666c2b6f6f2a82bf7b5971a1ffd62ac14004e8405ada3f6a4e2434",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        211
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось проверить разовое занятие.'",
+      "value": "Не удалось проверить разовое занятие.",
+      "fingerprint": "sha256:39b8f8e78ff5ee0fc15bc095f9be00bc06be136046681b624d68db40caa09a3c",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        216
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменить создание занятия и потерять черновик?'",
+      "value": "Отменить создание занятия и потерять черновик?",
+      "fingerprint": "sha256:f91e8f2036c623fc38efbae5ff98f19c92810ba6fc7588de2bebcc2fa9070826",
+      "context": {
+        "kind": "call-argument",
+        "name": "window.confirm"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        237
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группа\"",
+      "value": "Группа",
+      "fingerprint": "sha256:907efbd4ce48253bae87d64dafe6c538bc0a77b9df23ecd6ea903d46c12a4c56",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        255
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите группу\"",
+      "value": "Выберите группу",
+      "fingerprint": "sha256:298a07c0ecfbe5db0750b83c522580c7b080330c1752d9cb1942b94837203462",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        257
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Дата\"",
+      "value": "Дата",
+      "fingerprint": "sha256:232a0ead182bb391403963b4c7ff6d23ae85ccc2acf73fc12d8305549e9079b4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        265
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Время\"",
+      "value": "Время",
+      "fingerprint": "sha256:6711f073ab8b7dfc9bc90586013d3a26082d60594a783e9f2cfa39d28b38480e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        275
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Длительность\"",
+      "value": "Длительность",
+      "fingerprint": "sha256:2a32607189e0ff1e4d14745be34311fc6f0819f8577933dba92a5fcc44be782e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        286
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\" мин\"",
+      "value": " мин",
+      "fingerprint": "sha256:84d5d93d12778bd7c9d24a92e4eaa4a5f4f6fbce50e70c631ae308939e2b6c7e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "suffix"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        293
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Зал\"",
+      "value": "Зал",
+      "fingerprint": "sha256:182f7c572e4ff210f39e7a305be0e340afec5778bd9b214b6d9da04aa14c13a5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        299
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Выберите зал\"",
+      "value": "Выберите зал",
+      "fingerprint": "sha256:d52c67f8416a9a1915f98d7d92d9b2fcf4659c012a96893002ed72edb53c2645",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        301
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Проверьте занятие перед созданием",
+      "value": "Проверьте занятие перед созданием",
+      "fingerprint": "sha256:21ebe3455525fd914cd5c516e5098b667c41f038733e49d894860feb713a136d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        318
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        320,
+        323
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Проверьте предупреждение перед подтверждением.'",
+      "value": "Проверьте предупреждение перед подтверждением.",
+      "fingerprint": "sha256:52af7b7292454f5fcffac97183ae5f7d52a6ecda2a3fcc0442dc3ad38628adf1",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        334
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Подтвердить можно до ",
+      "value": "Подтвердить можно до",
+      "fingerprint": "sha256:cce698e378f17034478d49f55193d70ffb7efa78ac3fbb8a156128daf7116af3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        340
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ".\n                ",
+      "value": ".",
+      "fingerprint": "sha256:cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        340
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Создать занятие\n              ",
+      "value": "Создать занятие",
+      "fingerprint": "sha256:16568d17cbd63c451650256fd0fca8867fa75497b006cfca1a1b00a19c90f93b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        356
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Обновить предпросмотр'",
+      "value": "Обновить предпросмотр",
+      "fingerprint": "sha256:62b92aa4ce7910b05b4f211f984a9a4cb0e45a1e19d3576efd6f022003c09158",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        364
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Получить предпросмотр'",
+      "value": "Получить предпросмотр",
+      "fingerprint": "sha256:857a90c114158486ca10d936cb5284fc239049b0932b822d81ff9d09eaa216ac",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        364
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отмена\n            ",
+      "value": "Отмена",
+      "fingerprint": "sha256:8fbe9b75cbdfbfa6f57f060f286e00dee7e021068ebe378cfb495f3380d1e96b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        368
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'окончания срока предпросмотра'",
+      "value": "окончания срока предпросмотра",
+      "fingerprint": "sha256:4371fe938d08dbeba5726d3b3bb8e08c2e6799d42399a11716760c2ba0063b0e",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        446
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Перенести'",
+      "value": "Перенести",
+      "fingerprint": "sha256:758cc605c3217be547fabfee396407fcd00d49889b7d6565c24fed534a8cc011",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        56
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Перенести занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "value": "`Перенести занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "fingerprint": "sha256:1e00c5ab29a8097ee20c36a6b14c32d07d132671f333379e104593ebcd1585bb",
+      "context": {
+        "kind": "property",
+        "name": "accessibleName"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        57
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Серия'",
+      "value": "Серия",
+      "fingerprint": "sha256:a7bdff844b2203554ce4e79187aafd731ada08ca0426c6153a6b330d82c68891",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        67
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Изменить серию занятий: ${lesson.groupName}`",
+      "value": "`Изменить серию занятий: ${lesson.groupName}`",
+      "fingerprint": "sha256:990472d34e7099d8f152ba9a677b8588dc438b213857f8b9891ffbc070164f91",
+      "context": {
+        "kind": "property",
+        "name": "accessibleName"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        68
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Замена'",
+      "value": "Замена",
+      "fingerprint": "sha256:9b99400938eedf7c3acf25da2ed2bd795aaa1280531f401b580bd61c87af4761",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        78
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Назначить замену тренера: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "value": "`Назначить замену тренера: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "fingerprint": "sha256:9e998c3ebcb2e9f7eed06a886b77a08d603e6a8d385cc5b09530f3f9ce57afdc",
+      "context": {
+        "kind": "property",
+        "name": "accessibleName"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        79
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Снять замену'",
+      "value": "Снять замену",
+      "fingerprint": "sha256:ab7a9be45c4bd6ad5e98626738c97c312a79f2c12404ab624765d0f942c8c5fb",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        89
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Снять замену тренера: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "value": "`Снять замену тренера: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "fingerprint": "sha256:af6692f4b67d326f2dabf273cb3ace0eaac0eabde0df412df7b49a282c490840",
+      "context": {
+        "kind": "property",
+        "name": "accessibleName"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        90
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отменить'",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        101
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Отменить занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "value": "`Отменить занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "fingerprint": "sha256:9c8f53cb32538fdf73d56279aea7d19b5229bb0b8b5492f2062e3bd8b3664563",
+      "context": {
+        "kind": "property",
+        "name": "accessibleName"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        102
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Восстановить'",
+      "value": "Восстановить",
+      "fingerprint": "sha256:76f55a988f8ada62ee61eaffa32bc7ddec6e27ea70b38dd0dc274e1500dd6cfd",
+      "context": {
+        "kind": "property",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        110
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Восстановить занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "value": "`Восстановить занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`",
+      "fingerprint": "sha256:3954990016792b928719c110e8ba8fe32f2670a7ac64446b7ac4c02be24a2d5f",
+      "context": {
+        "kind": "property",
+        "name": "accessibleName"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        111
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/schedule-mutations",
+      "slice": "FE-3-schedule-mutations",
+      "review_status": "accepted"
+    }
+  ]
+}

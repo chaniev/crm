@@ -11,6 +11,8 @@ import {
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import type { MembershipSalePricingFieldErrors } from './MembershipSalePricing'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 export const clientPhotoMaxBytes = 10 * 1024 * 1024
 export const clientPhotoAcceptedMimeTypes = [
@@ -52,7 +54,7 @@ export function parseDateValue(value: string) {
 
 export function formatDateValue(value?: string | null) {
   if (!value) {
-    return 'Не указана'
+    return fe6ClientProfileText.clientManagementFormatting_string_f16cbd32
   }
 
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -72,7 +74,7 @@ export function formatDateValue(value?: string | null) {
 
 export function formatDateTimeValue(value?: string | null) {
   if (!value) {
-    return 'Не указано'
+    return fe6ClientProfileText.clientManagementFormatting_string_ba4d4bf6
   }
 
   const date = new Date(value)
@@ -110,10 +112,10 @@ export function formatExpirationValue(
   expirationDate?: string | null,
 ) {
   if (behaviorKind === 'SingleVisit') {
-    return expirationDate ? formatDateValue(expirationDate) : 'По факту использования'
+    return expirationDate ? formatDateValue(expirationDate) : fe6ClientProfileText.clientManagementFormatting_string_62c745d0
   }
 
-  return expirationDate ? formatDateValue(expirationDate) : 'Не указана'
+  return expirationDate ? formatDateValue(expirationDate) : fe6ClientProfileText.clientManagementFormatting_string_f16cbd32
 }
 
 export function formatCurrencyValue(value: number) {
@@ -127,7 +129,7 @@ export function formatCurrencyValue(value: number) {
 
 export function formatMembershipChangeReason(reason?: string) {
   if (!reason) {
-    return 'Версия абонемента'
+    return fe6ClientProfileText.clientManagementFormatting_string_a3c07b6d
   }
 
   return membershipChangeReasonLabels[
@@ -137,14 +139,14 @@ export function formatMembershipChangeReason(reason?: string) {
 
 export function formatMembershipPricingProvenance(membership: ClientMembership) {
   if (membership.pricingMode === 'AmountOnly') {
-    return 'Без варианта каталога'
+    return fe6ClientProfileText.clientManagementFormatting_string_92f64d0d
   }
 
   if (membership.pricingMode === 'CatalogOverride') {
-    return 'Индивидуальная сумма'
+    return fe6ClientProfileText.clientManagementFormatting_string_00f9729f
   }
 
-  return 'Каталожная цена'
+  return fe6ClientProfileText.clientManagementFormatting_string_de5a7f2f
 }
 
 export function pickPricingFieldErrors(
@@ -196,7 +198,7 @@ export function formatBranchOptionLabel(branch: Branch) {
   }
 
   if (branch.isArchived) {
-    parts.push('архивный')
+    parts.push(fe6ClientProfileText.clientManagementFormatting_partsPush_4ebaca56)
   }
 
   return parts.join(' · ')
@@ -231,7 +233,7 @@ export function formatGroupOptionLabel(group: TrainingGroupListItem) {
   }
 
   if (!group.isActive) {
-    parts.push('неактивна')
+    parts.push(fe6ClientProfileText.clientManagementFormatting_partsPush_bd36839e)
   }
 
   return parts.join(' • ')
@@ -239,7 +241,7 @@ export function formatGroupOptionLabel(group: TrainingGroupListItem) {
 
 export function validateClientPhotoFile(file: File) {
   if (file.size > clientPhotoMaxBytes) {
-    return 'Файл больше 10 MB. Выберите фотографию меньшего размера.'
+    return fe6ClientProfileText.clientManagementFormatting_string_5536d11b
   }
 
   const normalizedName = file.name.toLowerCase()
@@ -253,7 +255,7 @@ export function validateClientPhotoFile(file: File) {
     : false
 
   if (!hasAcceptedExtension && !hasAcceptedMimeType) {
-    return 'Допустимы только JPEG, PNG, WebP, HEIC и HEIF.'
+    return fe6ClientProfileText.clientManagementFormatting_string_50f59e98
   }
 
   return null

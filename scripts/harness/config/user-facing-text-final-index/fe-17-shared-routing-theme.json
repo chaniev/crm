@@ -1,0 +1,471 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "FE-17-shared-routing-theme",
+  "entry_count": 20,
+  "entries": [
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'mobile-bottom-nav__sheet-title'",
+      "value": "mobile-bottom-nav__sheet-title",
+      "fingerprint": "sha256:c1ee84891f39a7064356ca1896ef23054f7a5eaa1d16bbd0c1f57fc416e9c3de",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        98
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        101
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/shared/ux.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        529,
+        843,
+        851
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/componentRecipes.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        258,
+        274
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Text'",
+      "value": "Text",
+      "fingerprint": "sha256:71988c4d8e0803ba4519f0b2864c1331c14a1890bf8694e251379177bfedb5c3",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        69,
+        70,
+        71,
+        72
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'ListRow'",
+      "value": "ListRow",
+      "fingerprint": "sha256:5e7b591e4951c79784494f64c7168ca90f569688c79f545e7279ca67520e4cc6",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        73,
+        74
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Button'",
+      "value": "Button",
+      "fingerprint": "sha256:707eab0c23ecbf6e5382ba61a346bc76aefee81303280fc0e08e59df18afbf8a",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81
+      ],
+      "occurrences": 7,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Badge'",
+      "value": "Badge",
+      "fingerprint": "sha256:002474e368210827e5f71950ba7cb0b2cafa82d71b047c356f46d37dd276a5f3",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        82,
+        83,
+        84
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Alert'",
+      "value": "Alert",
+      "fingerprint": "sha256:44a57b22e03d9a661c22ffc5ffea51b3e1e33de24a53609e70f690dea8f70872",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        85,
+        86
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Navigation'",
+      "value": "Navigation",
+      "fingerprint": "sha256:3db65f8c2a7d1861b4bca37da3adec5aa7905931eb6faddbc595a35f75e6ca40",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        87,
+        88
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Link'",
+      "value": "Link",
+      "fingerprint": "sha256:a6a32dbc5618ea39f6df5b0f9808e3588b19e00d5f6f96c69492e40386e5aeab",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        89,
+        90
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/contrastMatrix.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Accent'",
+      "value": "Accent",
+      "fingerprint": "sha256:a5c6fb18c9af89b22a791ba484c9cbc622ffa2af4267d0067883cf6a78d685ac",
+      "context": {
+        "kind": "call-argument",
+        "name": "normalText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        91,
+        92,
+        93,
+        94
+      ],
+      "occurrences": 4,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'#EDF2EE'",
+      "value": "#EDF2EE",
+      "fingerprint": "sha256:b4f56a75c9f98b5e528b2e4b5cacf2475fa8a9da1f0af3eac1eef251b04e3a57",
+      "context": {
+        "kind": "property",
+        "name": "backgroundAlt"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        8
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'#17312D'",
+      "value": "#17312D",
+      "fingerprint": "sha256:2a6f82d480c680c6fc8e802cb94b5b4c224b5c0ef08db7dc269ebf968f212102",
+      "context": {
+        "kind": "property",
+        "name": "text"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        13
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'#171D27'",
+      "value": "#171D27",
+      "fingerprint": "sha256:dcd6499ff31b2b19aa14cdb4865771c4cc80b65070dbcebd9f5bb2f685392ebc",
+      "context": {
+        "kind": "property",
+        "name": "authText"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        32
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'--crm-surface-page-alt'",
+      "value": "--crm-surface-page-alt",
+      "fingerprint": "sha256:06364c91621a719e67c745c5709c767ed79f1667bc190bdad5691ab9438584f4",
+      "context": {
+        "kind": "property",
+        "name": "--crm-surface-page-alt"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        104
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'--crm-text-heading'",
+      "value": "--crm-text-heading",
+      "fingerprint": "sha256:7593858d73217e86c38bbfd8a478c68cc888b6e73e884868f4958e5dadd291df",
+      "context": {
+        "kind": "property",
+        "name": "--crm-text-heading"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        141
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/semanticVariables.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'--crm-auth-text'",
+      "value": "--crm-auth-text",
+      "fingerprint": "sha256:66927a9ed2670d6614d25d74f0a66b025ec02d65ed9bdebbc3224ea78df6225b",
+      "context": {
+        "kind": "property",
+        "name": "--crm-auth-text"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        182
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/typography.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Onest, ui-sans-serif, system-ui, sans-serif'",
+      "value": "Onest, ui-sans-serif, system-ui, sans-serif",
+      "fingerprint": "sha256:adc69f433d016342ee4b465479cfbfb20c26718a0cd6dba2b53f1b3277c31a71",
+      "context": {
+        "kind": "property",
+        "name": "heading"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        3
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/theme/typography.ts",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'--crm-font-family-heading'",
+      "value": "--crm-font-family-heading",
+      "fingerprint": "sha256:36935063dd686bee45e753f2fd093a945199ee66201b849f99081a4e6c7091f9",
+      "context": {
+        "kind": "property",
+        "name": "--crm-font-family-heading"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        96
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Theme token, color, font stack, or design-system identifier.",
+      "owner": "frontend/shared",
+      "slice": "FE-17-shared-routing-theme",
+      "review_status": "accepted"
+    }
+  ]
+}

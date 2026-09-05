@@ -31,6 +31,8 @@ import {
   toEditUserFormValues,
   toUpdateUserPayload,
 } from './UserManagement.mappers'
+import { fe11SettingsUsersText } from '../../resources/fe-11-settings-users'
+
 
 type UserEditScreenProps = {
   currentUserId: string
@@ -168,7 +170,7 @@ export function UserEditScreen({
       <PageSection>
         <Stack gap="lg">
           {loading ? (
-            <LoadingState label="Загружаем карточку тренера..." />
+            <LoadingState label={fe11SettingsUsersText.userEditScreen_label_aba60338} />
           ) : null}
 
           {!loading && loadError ? (
@@ -181,9 +183,8 @@ export function UserEditScreen({
           {!loading && !loadError ? (
             <>
               {user && !canMutateUser(user) ? (
-                <Alert color="gray" title="Карточка доступна только для просмотра" variant="light">
-                  Backend не разрешил действия изменения для этой учетной записи.
-                </Alert>
+                <Alert color="gray" title={fe11SettingsUsersText.userEditScreen_title_ee98a5ee} variant="light">
+                  {fe11SettingsUsersText.userEditScreen_jsxText_36d97fdf}</Alert>
               ) : null}
 
               {formError ? (

@@ -154,7 +154,7 @@ internal sealed class ClientTelegramBotApiTransport(
         var token = GetBotToken();
         if (token is null)
         {
-            return new ClientTelegramSendMessageResult(false, ErrorMessage: "Client Telegram bot is not configured.");
+            return new ClientTelegramSendMessageResult(false, ErrorMessage: global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientTelegramBotApiTransportLine157Ab3a6efa);
         }
 
         using var response = await httpClient.PostAsJsonAsync(
@@ -188,11 +188,11 @@ internal sealed class ClientTelegramBotApiTransport(
             }
 
             var description = ReadString(document.RootElement, "description");
-            return new ClientTelegramSendMessageResult(false, ErrorMessage: description ?? "Telegram sendMessage failed.");
+            return new ClientTelegramSendMessageResult(false, ErrorMessage: description ?? global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientTelegramBotApiTransportLine1917e219538);
         }
         catch (JsonException)
         {
-            return new ClientTelegramSendMessageResult(false, ErrorMessage: "Telegram sendMessage returned an invalid response.");
+            return new ClientTelegramSendMessageResult(false, ErrorMessage: global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientTelegramBotApiTransportLine195D094d7d0);
         }
         finally
         {

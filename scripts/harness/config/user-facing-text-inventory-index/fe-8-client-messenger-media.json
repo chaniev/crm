@@ -1,0 +1,1447 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "FE-8-client-messenger-media",
+  "entry_count": 65,
+  "entries": [
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Получено'",
+      "value": "Получено",
+      "fingerprint": "sha256:06124cee5f215e7b77e1b4fa504db4b694bd9ce5950e54a260d04c332dc29341",
+      "context": {
+        "kind": "property",
+        "name": "Received"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        49
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'В очереди'",
+      "value": "В очереди",
+      "fingerprint": "sha256:b22a2454bd69d992a2f4b15041b805d1450dcbe31c33e68895848e607f764810",
+      "context": {
+        "kind": "property",
+        "name": "Queued"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        50
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отправка'",
+      "value": "Отправка",
+      "fingerprint": "sha256:9ef21e535bb9054200f2d4a4f033046f315d1f54a41ccf9da24127a580580c46",
+      "context": {
+        "kind": "property",
+        "name": "Sending"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        51
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отправлено'",
+      "value": "Отправлено",
+      "fingerprint": "sha256:13b9719ae180bfbab022a426fccaad5b8cd2846449331d866ff88ab895ecb5fa",
+      "context": {
+        "kind": "property",
+        "name": "SentToTelegram"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        52
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ошибка'",
+      "value": "Ошибка",
+      "fingerprint": "sha256:bf22dfeeba8b85081505bd47f6c08ec80c510d3ca254784edcd0ffcb449dad5d",
+      "context": {
+        "kind": "property",
+        "name": "Failed"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        53
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Откройте ссылку, чтобы подключить Telegram-чат к CRM.'",
+      "value": "Откройте ссылку, чтобы подключить Telegram-чат к CRM.",
+      "fingerprint": "sha256:b8bb40776f2bf3f75c5c5fdff3e2340ed9a141c48ce6aa84139461942971c9d5",
+      "context": {
+        "kind": "variable",
+        "name": "telegramShareText"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        65
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить переписку.'",
+      "value": "Не удалось загрузить переписку.",
+      "fingerprint": "sha256:33c27632ce3bfb44876f30ba9cc4296fd4bff2360d02d3f13a4f04984bcf52c3",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        146,
+        219,
+        475
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Переписка не загрузилась'",
+      "value": "Переписка не загрузилась",
+      "fingerprint": "sha256:c338637667562d097f9ba4c76c51b7330a971afbddaa87c59ba36bcde6616c2a",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        241
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить более ранние сообщения.'",
+      "value": "Не удалось загрузить более ранние сообщения.",
+      "fingerprint": "sha256:43bf26a814ee6006fdb491ae69c76ffee8a1c004ab07720860ae0ce480c60856",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        245
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось создать ссылку подключения.'",
+      "value": "Не удалось создать ссылку подключения.",
+      "fingerprint": "sha256:850ac5add84b47a4fb30afce34c2e50fe77df217fca3785aaf3122fce08cad80",
+      "context": {
+        "kind": "call-argument",
+        "name": "getApiErrorMessage"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        272
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось скопировать автоматически. Выделите ссылку и скопируйте вручную.'",
+      "value": "Не удалось скопировать автоматически. Выделите ссылку и скопируйте вручную.",
+      "fingerprint": "sha256:fe355f11e205af88444c931655c7050d16fa8e7f9b5e4d2fc63b3a89e896a5e3",
+      "context": {
+        "kind": "call-argument",
+        "name": "setLinkCopyError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        314
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Подключение Telegram'",
+      "value": "Подключение Telegram",
+      "fingerprint": "sha256:2d65bc85c72f74705f0acbe71b55ea96a1ba39b1dbba434539948c4071b74e3b",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        352,
+        624
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось открыть системное меню. Отправьте ссылку в Telegram или скопируйте ее.'",
+      "value": "Не удалось открыть системное меню. Отправьте ссылку в Telegram или скопируйте ее.",
+      "fingerprint": "sha256:b9df58458401ea03804a38b6a9d6554d65f9b34cfa16ba255d985faeeb716511",
+      "context": {
+        "kind": "call-argument",
+        "name": "setLinkShareError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        362
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось отправить сообщение.'",
+      "value": "Не удалось отправить сообщение.",
+      "fingerprint": "sha256:a78ea75665da4800bcad8e80e843c475e8adab51aadfd101860d6a7c83a2d9b5",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        410
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Telegram",
+      "value": "Telegram",
+      "fingerprint": "sha256:acdd1e734125f341604c0efbabdcc4c4b0597e8f6235d66c2445edd1812838c1",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        427
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Обновить\n            ",
+      "value": "Обновить",
+      "fingerprint": "sha256:603e460bf59cac0fe7907c71e2f185d8003cc560d43e8cff37369d22462b70bd",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        447
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Ссылка и QR\n              ",
+      "value": "Ссылка и QR",
+      "fingerprint": "sha256:0465921bd127a437a33059aacd46b06831a126efc67ce1d69f93cee897147ff3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        456,
+        520
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Загружаем переписку...\n            ",
+      "value": "Загружаем переписку...",
+      "fingerprint": "sha256:bb442deeb04f3746bbf10e70c991d5aaccc8cba75e9e6f09e3b035fb939262ac",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        466
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить\n                ",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        482
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент еще не открыл чат в Telegram.'",
+      "value": "Клиент еще не открыл чат в Telegram.",
+      "fingerprint": "sha256:c917e4348b8e774e8f3c81472b162a94d4d4da14722ef4e8a3d7038d6b10dfdf",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        497
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Telegram не подключен.'",
+      "value": "Telegram не подключен.",
+      "fingerprint": "sha256:d33ec712836e6a77f51b6fe68275a71811856426d10f9d7f607a46c2694d615c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        498
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сгенерируйте ссылку или покажите QR-код, чтобы клиент начал диалог.'",
+      "value": "Сгенерируйте ссылку или покажите QR-код, чтобы клиент начал диалог.",
+      "fingerprint": "sha256:4b14a61e3667923c25932898c16b4b6657cd9320008a888ffeb8c5d191f98aa5",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        505
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Доступ к переписке появится после подключения клиента.'",
+      "value": "Доступ к переписке появится после подключения клиента.",
+      "fingerprint": "sha256:9372e5cf0513b960e2cd9b706a20838a102199190d5f4e6d5dbd8f34dee3c05f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        506
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Чат подключен\n                  ",
+      "value": "Чат подключен",
+      "fingerprint": "sha256:a9a7ca660eca509fd4e49c36ae97918e08cd37cdd40a755d616c388d97a96cb5",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        532,
+        751
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "@",
+      "value": "@",
+      "fingerprint": "sha256:c3641f8544d7c02f3580b07c0f9887f0c6a27ff5ab1d4a3e29caf197cfc299ae",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        541
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Загрузить еще\n                          ",
+      "value": "Загрузить еще",
+      "fingerprint": "sha256:010ff6247f97cfb5bba8ff97ed8b06a63914765cbe3a5bf6b870b3e1c5e46222",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        561
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Чат подключен, сообщений пока нет.\n                        ",
+      "value": "Чат подключен, сообщений пока нет.",
+      "fingerprint": "sha256:0994139fb73b13cbef1ff59531cb5651e9dabf3afac38a1c81201945dcd997f3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        572
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Введите сообщение клиенту\"",
+      "value": "Введите сообщение клиенту",
+      "fingerprint": "sha256:aac0c410b8de0a510452a230ad9bae08395b06ae84f48950eb812a8b836b5a1a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        587
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отправка...'",
+      "value": "Отправка...",
+      "fingerprint": "sha256:8192855bc55af2fba5fd6a568f97d18bea2d72a5bfe9acaae2f0c47c116b0c8c",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        603
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отправить'",
+      "value": "Отправить",
+      "fingerprint": "sha256:ceb68a9287da00d8f2c3a2d961cc75bf08c8c6c4f686f1340d639279ca6eacd4",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        603
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Доступ только для чтения. Отправка сообщений доступна администратору.\n                  ",
+      "value": "Доступ только для чтения. Отправка сообщений доступна администратору.",
+      "fingerprint": "sha256:3b46e89c654ad8e1db89bd09c9f1a44621282cca7c9dc88cf7190f3c344be4e0",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        609
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отправьте клиенту ссылку или дайте отсканировать QR-код.\n            ",
+      "value": "Отправьте клиенту ссылку или дайте отсканировать QR-код.",
+      "fingerprint": "sha256:af9f52ba0c438ff584686f13f277340166a3958d99d25d57563597575aaf87d7",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        629
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Действует до ",
+      "value": "Действует до",
+      "fingerprint": "sha256:97b8783453d5776f2eca1c404b424bb104800b31905e7a4c0272b96738c761aa",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        641
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отправить в Telegram\n                ",
+      "value": "Отправить в Telegram",
+      "fingerprint": "sha256:420572a1eef8b72f0de394bc1d302be9db8e116fa9843f92d2749b717e5d6e7d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        648
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Поделиться\n                  ",
+      "value": "Поделиться",
+      "fingerprint": "sha256:dc120821c212b41e01ad78e7fa8ab83ab684997b78ced61057f9733f2eaf7e33",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        657
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Открыть Telegram\n                ",
+      "value": "Открыть Telegram",
+      "fingerprint": "sha256:fb72b78fbd28dc0323c931bda3c6b0063706395a1636793712d06757487afe86",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        666
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Скопировать ссылку'",
+      "value": "Скопировать ссылку",
+      "fingerprint": "sha256:8d81013698ad41db687e94c17911721ab881109ebf03036bda9c1a5db2ca6ab4",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        676
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Скопировано'",
+      "value": "Скопировано",
+      "fingerprint": "sha256:d2d08c715ee66cbdc425b3af67b87f2f3c9fbe845a8a2b3414e8b737af54484b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        676
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент'",
+      "value": "Клиент",
+      "fingerprint": "sha256:3e622aecbf306ce2e0933e6e4a65dc5865cc8f1a852589b35bf4efa6e8a966cd",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        701
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Telegram-чат клиента'",
+      "value": "Telegram-чат клиента",
+      "fingerprint": "sha256:1fe35c6ee0d6e2057609ef155237540a732e61c2d59eb977177113e7f33cd53a",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        747
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Ожидаем подключение до ${formatDateTime(summary.connection.pendingLinkExpiresAt)}`",
+      "value": "`Ожидаем подключение до ${formatDateTime(summary.connection.pendingLinkExpiresAt)}`",
+      "fingerprint": "sha256:e9da7455b4dce58c16a2f87395b6594dd071024b2fc7a51e12372b220dd739d8",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        756
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Ожидаем подключение клиента'",
+      "value": "Ожидаем подключение клиента",
+      "fingerprint": "sha256:2a93cc16ea00d8af7d522511992041d913fe2e8897e846812646409268550b52",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        757
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Клиент еще не подключил Telegram'",
+      "value": "Клиент еще не подключил Telegram",
+      "fingerprint": "sha256:64db2165f3c316910417cb1bf28d866779c087536b5bd37cefb8236294de38e9",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        760
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'дата не указана'",
+      "value": "дата не указана",
+      "fingerprint": "sha256:89439c6859809630fdcd8a74a8595752fb52e0ebd28057423cbe72a1674198aa",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        765
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientNoteAttribution.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "· ",
+      "value": "·",
+      "fingerprint": "sha256:a137f17a19a09cbe511ba654931ed30fd9c52205140ec096fa6180f1a0577546",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        17
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Фотография обновлена'",
+      "value": "Фотография обновлена",
+      "fingerprint": "sha256:2fb80bcc10ca6c479928899b90967fd9c45735d463f7b3a761f07bed5b85a675",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        83
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Карточка клиента получила новую фотографию.'",
+      "value": "Карточка клиента получила новую фотографию.",
+      "fingerprint": "sha256:9eb96d580dd9200a843fa06822a814d6516c0a602776635f252daf032969b116",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        84
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить фотографию клиента.'",
+      "value": "Не удалось загрузить фотографию клиента.",
+      "fingerprint": "sha256:5d9e38685e324b0121136c26222e0f8114862cb82227be88dd64235d4fcc34d1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        91
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Фотография клиента ${clientName}`",
+      "value": "`Фотография клиента ${clientName}`",
+      "fingerprint": "sha256:b53a862af3b82d612a23595f4cf3ad30c1c1ea2c7a024b63f6658a80269dcccf",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        106,
+        110,
+        165
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Фото'",
+      "value": "Фото",
+      "fingerprint": "sha256:45c2f1fa658ef1bd31b68821f3e7c166a923569628f4d97563efe13c5ba025e3",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        129
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Фотография клиента'",
+      "value": "Фотография клиента",
+      "fingerprint": "sha256:75f5b4ed5c6e068c186c6cae8a51ca8d77b90910e573c5f86d519ef5ed0ea047",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        129
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Можно заменить фото клиента.'",
+      "value": "Можно заменить фото клиента.",
+      "fingerprint": "sha256:f71f0281a6cff4793fc891b8820a74e968309b41a9657c464f6f52279293a1a6",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        132
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Фото доступно для просмотра.'",
+      "value": "Фото доступно для просмотра.",
+      "fingerprint": "sha256:232091bbe155ba1c4bec6c1d7d77e91ee406ccccc831d360e1dd05ae830113ca",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        134
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Фото можно добавить сразу после первичного сохранения карточки клиента.'",
+      "value": "Фото можно добавить сразу после первичного сохранения карточки клиента.",
+      "fingerprint": "sha256:6c6732f0ff4d083340a9c72043a2baaaf7080c3069f57d50409a27b29d9c7c68",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        135
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загрузка'",
+      "value": "Загрузка",
+      "fingerprint": "sha256:111213e773d555d82f6babd7830a2a1419a5649d5fc5263433a81eb36ef82d6a",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        142
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Просмотр'",
+      "value": "Просмотр",
+      "fingerprint": "sha256:f1163738deb523a925685cd36b03b3e1522dd0447af4cb66293cf1b60934e58f",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        142
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Открыть фотографию клиента ${clientName}`",
+      "value": "`Открыть фотографию клиента ${clientName}`",
+      "fingerprint": "sha256:8864f5854e6894435b212c9ed15ebe11caa6fbe3c90d1b103844c3aa09e4a68b",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        158
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Фото пока не показано",
+      "value": "Фото пока не показано",
+      "fingerprint": "sha256:7ef83fc570ff943411107d8add5bd63eff64af8461b585090910ea0ea5c2c4e0",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        189
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Фотография еще не загружена или недоступна для просмотра.'",
+      "value": "Фотография еще не загружена или недоступна для просмотра.",
+      "fingerprint": "sha256:b96af1f1faadc1acc6fed83d949c81790c1c6fbbcb45deb515e69f8492296e34",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        192
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Сначала сохраните клиента, затем вернитесь в карточку или редактирование, чтобы загрузить фотографию.'",
+      "value": "Сначала сохраните клиента, затем вернитесь в карточку или редактирование, чтобы загрузить фотографию.",
+      "fingerprint": "sha256:6253036761c8984e51acbe46bd16c7399dc3f6d022550864b5003d22f863e2f3",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        193
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Загружено: ",
+      "value": "Загружено:",
+      "fingerprint": "sha256:69380addd332314c4564ef1a73b47ce39412b61d5ed442e97011fa78bb2347b3",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        213
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Фото не загружено\"",
+      "value": "Фото не загружено",
+      "fingerprint": "sha256:0f50b2a82ddfc2df8b4b58c3b2efa9a7ac262e99b10915b7fe86ce9a62f9f090",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        223
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загрузить фото'",
+      "value": "Загрузить фото",
+      "fingerprint": "sha256:bee0c752331c6b47faebfe47a7d87cafeabbbbac53e5564c43bb471392c77682",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        239
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Заменить фото'",
+      "value": "Заменить фото",
+      "fingerprint": "sha256:f61eb235c12b7aec8a790dc146d129cfbf4ebf53e53b10e9bdbe274696609a8d",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        239
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "JPEG, PNG, WebP, HEIC, HEIF до 10 MB.\n            ",
+      "value": "JPEG, PNG, WebP, HEIC, HEIF до 10 MB.",
+      "fingerprint": "sha256:5f0835c4e33fe1250486bb3c3d5953fe9e9c32457e5c6bb85674e890732528e9",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        251
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/client-messenger-media",
+      "slice": "FE-8-client-messenger-media",
+      "review_status": "accepted"
+    }
+  ]
+}

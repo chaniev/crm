@@ -17,6 +17,8 @@ import {
   ResponsiveButtonGroup,
   SectionHeader,
 } from '../shared/ux'
+import { fe14GroupStaffingText } from '../../resources/fe-14-group-staffing'
+
 
 const HISTORY_TAKE = 20
 
@@ -25,10 +27,10 @@ type GroupTrainerSubstitutionsSectionProps = {
 }
 
 const STATUS_LABELS: Record<GroupTrainerSubstitution['status'], string> = {
-  Active: 'Активно',
-  Upcoming: 'Запланировано',
-  Expired: 'Завершено',
-  Cancelled: 'Отменено',
+  Active: fe14GroupStaffingText.groupTrainerSubstitutionsSection_active_68505b6d,
+  Upcoming: fe14GroupStaffingText.groupTrainerSubstitutionsSection_upcoming_c4c9abc1,
+  Expired: fe14GroupStaffingText.groupTrainerSubstitutionsSection_expired_b459ff8f,
+  Cancelled: fe14GroupStaffingText.groupTrainerSubstitutionsSection_cancelled_23a2a9bf,
 }
 
 const STATUS_COLORS: Record<GroupTrainerSubstitution['status'], string> = {
@@ -65,7 +67,7 @@ export function GroupTrainerSubstitutionsSection({
         return
       }
 
-      setLoadError(error instanceof Error ? error.message : 'Не удалось загрузить замещения.')
+      setLoadError(error instanceof Error ? error.message : fe14GroupStaffingText.groupTrainerSubstitutionsSection_string_0cb0e0e6)
     } finally {
       if (!signal?.aborted) {
         setLoading(false)
@@ -106,7 +108,7 @@ export function GroupTrainerSubstitutionsSection({
       })
     } catch (error) {
       setHistoryError(
-        error instanceof Error ? error.message : 'Не удалось загрузить историю замещений.',
+        error instanceof Error ? error.message : fe14GroupStaffingText.groupTrainerSubstitutionsSection_string_e92898f1,
       )
     } finally {
       setHistoryLoading(false)
@@ -123,13 +125,13 @@ export function GroupTrainerSubstitutionsSection({
     <section aria-labelledby="group-trainer-substitutions-title">
       <Stack gap="lg">
         <SectionHeader
-          description="Старые периодные замещения доступны только для просмотра. Изменение тренера для конкретного занятия появится отдельным действием в календаре."
-          title="Временные замещения"
+          description={fe14GroupStaffingText.groupTrainerSubstitutionsSection_description_bfe9a56a}
+          title={fe14GroupStaffingText.groupTrainerSubstitutionsSection_title_4e2bc0cd}
           titleId="group-trainer-substitutions-title"
         />
 
         {loading ? (
-          <LoadingState label="Загружаем временные замещения..." />
+          <LoadingState label={fe14GroupStaffingText.groupTrainerSubstitutionsSection_label_10365fea} />
         ) : null}
 
         {!loading && loadError ? (
@@ -137,7 +139,7 @@ export function GroupTrainerSubstitutionsSection({
             color="red"
             icon={<IconAlertCircle size={18} />}
             role="alert"
-            title="Замещения не загрузились"
+            title={fe14GroupStaffingText.groupTrainerSubstitutionsSection_title_3b8a3e5b}
             variant="light"
           >
             <Stack gap="sm">
@@ -148,8 +150,7 @@ export function GroupTrainerSubstitutionsSection({
                   onClick={() => void loadFirstPage()}
                   variant="secondary"
                 >
-                  Повторить загрузку замещений
-                </Button>
+                  {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_34a89a26}</Button>
               </ResponsiveButtonGroup>
             </Stack>
           </Alert>
@@ -160,7 +161,7 @@ export function GroupTrainerSubstitutionsSection({
             color="red"
             icon={<IconAlertCircle size={18} />}
             role="alert"
-            title="История не загрузилась"
+            title={fe14GroupStaffingText.groupTrainerSubstitutionsSection_title_2e1514c4}
             variant="light"
           >
             {historyError}
@@ -170,22 +171,20 @@ export function GroupTrainerSubstitutionsSection({
         {!loading && !loadError && data ? (
           <Stack gap="md">
             <Alert color="gray" variant="light">
-              Создание, изменение и отмена периодных замещений отключены в календаре занятий.
-            </Alert>
+              {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_993cc81f}</Alert>
 
             <Stack gap="sm">
               <Text component="h3" fw={700} size="md">
-                Текущие и будущие
-              </Text>
+                {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_7ca077e4}</Text>
 
               {data.current.length === 0 ? (
                 <EmptyState
-                  description="Текущие и будущие временные назначения будут показаны здесь только для контроля старых данных."
+                  description={fe14GroupStaffingText.groupTrainerSubstitutionsSection_description_fcc54bde}
                   icon={<IconUserCheck size={24} />}
-                  title="Текущих и будущих замещений нет"
+                  title={fe14GroupStaffingText.groupTrainerSubstitutionsSection_title_38aa0143}
                 />
               ) : (
-                <Stack aria-label="Текущие и будущие замещения" gap="sm" role="list">
+                <Stack aria-label={fe14GroupStaffingText.groupTrainerSubstitutionsSection_ariaLabel_8c0dc67f} gap="sm" role="list">
                   {data.current.map((substitution) => (
                     <SubstitutionCard
                       key={substitution.id}
@@ -200,10 +199,9 @@ export function GroupTrainerSubstitutionsSection({
               <Group justify="space-between" wrap="wrap">
                 <Stack gap={2}>
                   <Text component="h3" fw={700} size="md">
-                    История
-                  </Text>
+                    {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_1417b779}</Text>
                   <Text c="dimmed" size="sm">
-                    Показано {historyItems.length} из {historyTotalCount}
+                    {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_1a48f320}{historyItems.length} {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_7f4adf31}{historyTotalCount}
                   </Text>
                 </Stack>
                 <Button
@@ -213,13 +211,13 @@ export function GroupTrainerSubstitutionsSection({
                   onClick={() => setHistoryOpened((opened) => !opened)}
                   variant="subtle"
                 >
-                  {historyOpened ? 'Скрыть историю замещений' : 'Показать историю замещений'}
+                  {historyOpened ? fe14GroupStaffingText.groupTrainerSubstitutionsSection_string_f3b6b22a : fe14GroupStaffingText.groupTrainerSubstitutionsSection_string_2d015c26}
                 </Button>
               </Group>
 
               {historyOpened ? (
                 <Stack
-                  aria-label="История временных замещений"
+                  aria-label={fe14GroupStaffingText.groupTrainerSubstitutionsSection_ariaLabel_c3c5b156}
                   gap="sm"
                   id="group-trainer-substitutions-history"
                   role="list"
@@ -238,8 +236,7 @@ export function GroupTrainerSubstitutionsSection({
                         onClick={() => void loadMoreHistory()}
                         variant="secondary"
                       >
-                        Показать ещё
-                      </Button>
+                        {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_c6826c78}</Button>
                     </ResponsiveButtonGroup>
                   ) : null}
                 </Stack>
@@ -277,21 +274,19 @@ function SubstitutionCard({
               </Badge>
               {!substitution.substituteTrainer.isActive ? (
                 <Badge color="gray" radius="xl" variant="outline">
-                  Неактивный тренер
-                </Badge>
+                  {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_5539f6e6}</Badge>
               ) : null}
             </Group>
             <Text c="dimmed" size="sm">
-              Логин: {substitution.substituteTrainer.login}
+              {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_8541e28c}{substitution.substituteTrainer.login}
             </Text>
             <Text c="dimmed" size="sm">
               <time dateTime={substitution.startsOn}>
-                с {formatDateOnly(substitution.startsOn)}
+                {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_a1f5d39a}{formatDateOnly(substitution.startsOn)}
               </time>
               {' - '}
               <time dateTime={substitution.endsOn}>
-                по {formatDateOnly(substitution.endsOn)} включительно
-              </time>
+                {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_51ad1397}{formatDateOnly(substitution.endsOn)} {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_e072195b}</time>
             </Text>
           </Stack>
         </Group>

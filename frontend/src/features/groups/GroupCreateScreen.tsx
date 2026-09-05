@@ -31,6 +31,8 @@ import {
   type GroupFormValues,
 } from './groupFormMapping'
 import { formatScheduleProblemCode } from '../schedule/scheduleActionReasons'
+import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
+
 
 export type GroupCreateScreenProps = {
   onCancel: () => void
@@ -94,7 +96,7 @@ export function GroupCreateScreen({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить список тренеров.',
+            : fe13GroupsCoreText.groupCreateScreen_string_c9bed940,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -130,8 +132,8 @@ export function GroupCreateScreen({
 
       showAppNotification({
         id: 'group-create-success',
-        title: 'Группа создана',
-        message: `Группа «${createdGroup.name}» уже доступна в списке.`,
+        title: fe13GroupsCoreText.groupCreateScreen_title_1f78cfd7,
+        message: fe13GroupsCoreText.groupCreateScreen_message_613f7cb9(createdGroup.name),
         color: 'teal',
       })
 
@@ -140,14 +142,14 @@ export function GroupCreateScreen({
       if (error instanceof ApiError) {
         form.setErrors(applyFieldErrors(error.fieldErrors, GROUP_CREATE_FIELD_ALIASES))
         const message = formatScheduleProblemCode(error.code) ??
-          'Не удалось проверить создание группы. Проверьте поля и попробуйте снова.'
+          fe13GroupsCoreText.groupCreateScreen_string_c6241417
         setPreview(null)
         previewPayloadKeyRef.current = null
         setFormError(message)
         return
       }
 
-      setFormError('Не удалось создать группу. Попробуйте еще раз.')
+      setFormError(fe13GroupsCoreText.groupCreateScreen_setFormError_ee875cc4)
     } finally {
       setSubmitting(false)
     }
@@ -161,22 +163,21 @@ export function GroupCreateScreen({
             onClick={onCancel}
             variant="default"
           >
-            К списку групп
-          </Button>
+            {fe13GroupsCoreText.groupCreateScreen_jsxText_322693c9}</Button>
         )}
-      title="Новая группа"
+      title={fe13GroupsCoreText.groupCreateScreen_title_c9fd9fc0}
     >
 
       <PageSection>
         <Stack gap="lg">
           {loadingOptions ? (
-            <LoadingState label="Подготавливаем форму группы..." />
+            <LoadingState label={fe13GroupsCoreText.groupCreateScreen_label_d8c36ed2} />
           ) : null}
 
           {!loadingOptions && loadError ? (
             <ErrorState
               message={loadError}
-              title="Не удалось подготовить форму"
+              title={fe13GroupsCoreText.groupCreateScreen_title_bb243bf5}
             />
           ) : null}
 
@@ -188,20 +189,19 @@ export function GroupCreateScreen({
                 branchOptions={branchOptions}
                 groupTypeOptions={groupTypeOptions}
                 hallOptions={hallOptions}
-              cancelAction={{ label: 'Отменить', onClick: onCancel }}
+              cancelAction={{ label: fe13GroupsCoreText.groupCreateScreen_label_7c47f729, onClick: onCancel }}
               onSubmit={submit}
               showInitialSeriesFields
-              submitLabel={preview ? 'Создать группу' : 'Получить предпросмотр'}
+              submitLabel={preview ? fe13GroupsCoreText.groupCreateScreen_string_663c5248 : fe13GroupsCoreText.groupCreateScreen_string_857a90c1}
               submitting={submitting}
               trainerOptions={trainerOptions}
             />
               {preview ? (
                 <Paper className="group-create-preview" radius="24px" withBorder>
                   <Stack gap="sm">
-                    <Text fw={900}>Проверьте расписание перед созданием</Text>
+                    <Text fw={900}>{fe13GroupsCoreText.groupCreateScreen_jsxText_23985cf1}</Text>
                     <Text c="dimmed" size="sm">
-                      Группа будет создана вместе с начальной серией занятий. Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
-                    </Text>
+                      {fe13GroupsCoreText.groupCreateScreen_jsxText_d5ff0d22}{formatExpiresAt(preview.expiresAt)}{fe13GroupsCoreText.groupCreateScreen_jsxText_cdb4ee2a}</Text>
                     {preview.warnings.length > 0 ? (
                       <Stack gap="xs">
                         {preview.warnings.map((warning, index) => (
@@ -210,14 +210,13 @@ export function GroupCreateScreen({
                             icon={<IconAlertTriangle size={18} />}
                             key={`${warning.code}:${index}`}
                           >
-                            {warning.message || 'Проверьте предупреждение перед подтверждением.'}
+                            {warning.message || fe13GroupsCoreText.groupCreateScreen_string_52af7b72}
                           </Alert>
                         ))}
                       </Stack>
                     ) : null}
                     <Text c="dimmed" size="sm">
-                      Нажмите «Создать группу», чтобы выполнить атомарное создание группы и расписания.
-                    </Text>
+                      {fe13GroupsCoreText.groupCreateScreen_jsxText_1faaa276}</Text>
                   </Stack>
                 </Paper>
               ) : null}
@@ -242,7 +241,7 @@ const GROUP_CREATE_FIELD_ALIASES = {
 function formatExpiresAt(value: string) {
   const expiresAt = new Date(value)
   if (Number.isNaN(expiresAt.getTime())) {
-    return 'окончания срока предпросмотра'
+    return fe13GroupsCoreText.groupCreateScreen_string_4371fe93
   }
 
   return new Intl.DateTimeFormat('ru-RU', {

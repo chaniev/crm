@@ -687,7 +687,7 @@ internal static class ClientQueryEndpoints
 
         if (!string.IsNullOrWhiteSpace(membershipState) && ParseMembershipState(membershipState) is null)
         {
-            errors["membershipState"] = ["Некорректное состояние абонемента."];
+            errors["membershipState"] = [global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientQueryEndpointsLine69059e5d707];
         }
 
         if (!string.IsNullOrWhiteSpace(behaviorKind) && ParseBehaviorKind(behaviorKind) is null)
@@ -745,7 +745,7 @@ internal static class ClientQueryEndpoints
         {
             errors["quickFilters"] =
             [
-                $"Неизвестные быстрые фильтры: {string.Join(", ", invalidFilters)}."
+                global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientQueryEndpointsLine748A4baec14(string.Join(", ", invalidFilters))
             ];
         }
 
@@ -848,7 +848,7 @@ internal static class ClientQueryEndpoints
         var parsedBehaviorKind = ParseBehaviorKind(behaviorKind);
         if (!parsedBehaviorKind.HasValue)
         {
-            errors["behaviorKind"] = ["Membership behavior kind is required."];
+            errors["behaviorKind"] = [global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientQueryEndpointsLine8514606f73e];
         }
 
         return parsedBehaviorKind;

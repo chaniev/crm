@@ -49,12 +49,12 @@ internal static class ClientMembershipRequestValidation
             !string.Equals(status.Trim(), "Paid", StringComparison.OrdinalIgnoreCase) &&
             !string.Equals(status.Trim(), "Unpaid", StringComparison.OrdinalIgnoreCase))
         {
-            errors["paymentStatus"] = ["Payment status is no longer accepted. Remove paymentStatus and send paymentDate."];
+            errors["paymentStatus"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine52D2ba0831];
         }
 
         if (string.Equals(status?.Trim(), "Unpaid", StringComparison.OrdinalIgnoreCase) || isPaid == false)
         {
-            errors["paymentStatus"] = ["Unpaid membership status was removed."];
+            errors["paymentStatus"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine57Beebccea];
         }
 
         ValidateRequiredPaymentDate(paymentDate, businessDate, errors);
@@ -96,12 +96,12 @@ internal static class ClientMembershipRequestValidation
     {
         if (membershipCatalogItemId == Guid.Empty)
         {
-            errors["membershipCatalogItemId"] = ["Membership catalog item id is invalid."];
+            errors["membershipCatalogItemId"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine99E2a18a30];
         }
 
         if (!membershipCatalogItemId.HasValue && !manualSaleAmount.HasValue)
         {
-            const string message = "Choose a catalog item or provide a manual sale amount.";
+            var message = global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine10413f4bf32;
             errors["membershipCatalogItemId"] = [message];
             errors["manualSaleAmount"] = [message];
             return;
@@ -148,10 +148,10 @@ internal static class ClientMembershipRequestValidation
         switch (ClientMembershipPaymentDatePolicy.Validate(parsedPaymentDate, businessDate))
         {
             case ClientMembershipPaymentDateValidationResult.Missing:
-                errors["paymentDate"] = ["Payment date is required."];
+                errors["paymentDate"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine151E5272767];
                 break;
             case ClientMembershipPaymentDateValidationResult.Future:
-                errors["paymentDate"] = ["Payment date cannot be in the future."];
+                errors["paymentDate"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine154264b3a42];
                 break;
         }
     }
@@ -162,26 +162,26 @@ internal static class ClientMembershipRequestValidation
     {
         if (targetGroupIds is null || targetGroupIds.Count == 0)
         {
-            errors["targetGroupIds"] = ["Выберите хотя бы одну группу."];
+            errors["targetGroupIds"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine165E59186fa];
             return;
         }
 
         if (targetGroupIds.Count > ClientMembershipTargetPolicy.MaxTargetCount)
         {
-            errors["targetGroupIds"] = ["Можно выбрать не больше 5 групп."];
+            errors["targetGroupIds"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine1716a88c317];
         }
 
         for (var index = 0; index < targetGroupIds.Count; index++)
         {
             if (targetGroupIds[index] == Guid.Empty)
             {
-                errors[$"targetGroupIds[{index}]"] = ["Identifier is required for this membership operation."];
+                errors[$"targetGroupIds[{index}]"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine17862a0a730];
             }
         }
 
         if (targetGroupIds.GroupBy(groupId => groupId).Any(group => group.Count() > 1))
         {
-            errors["targetGroupIds"] = ["Группа уже выбрана."];
+            errors["targetGroupIds"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine184Fec81fab];
         }
     }
 
@@ -195,7 +195,7 @@ internal static class ClientMembershipRequestValidation
         }
         else if (!RubMoneyPolicy.IsWholeAmount(request.Amount.Value, allowZero: false))
         {
-            errors["amount"] = ["Refund amount must be a positive whole number of RUB within the supported range."];
+            errors["amount"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine198502b7239];
         }
 
         ValidateRequiredDate(request.RefundDate, "refundDate", ClientResources.RefundDateRequired, errors);
@@ -316,7 +316,7 @@ internal static class ClientMembershipRequestValidation
     {
         if (!value.HasValue || value.Value == Guid.Empty)
         {
-            errors[key] = ["Identifier is required for this membership operation."];
+            errors[key] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine31962a0a730];
         }
     }
 

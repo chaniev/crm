@@ -30,6 +30,8 @@ import type {
   UpdateTrainingGroupIdentityRequest,
   UpsertTrainingGroupRequest,
 } from './types'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export async function getGroupSummary(signal?: AbortSignal) {
   const payload = await request<GroupSummaryResponsePayload>(
@@ -325,6 +327,6 @@ function assertGroupsListEnvelopePayload(
     typeof payload.skip !== 'number' ||
     typeof payload.take !== 'number'
   ) {
-    throw new Error('Некорректный ответ списка групп.')
+    throw new Error(fe17SharedRoutingThemeText.groups_string_62ac1691)
   }
 }

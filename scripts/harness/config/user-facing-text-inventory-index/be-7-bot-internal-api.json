@@ -1,0 +1,433 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "BE-7-bot-internal-api",
+  "entry_count": 19,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"BotInternalApiTokenMissing\"",
+      "value": "BotInternalApiTokenMissing",
+      "fingerprint": "sha256:bc9a0ec69329e2e3f00f75298ae30522f379007acf7bd5ed783d4dbaf48037d1",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"BotInternalApiTokenMissing\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        53
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Internal Bot API token is not configured.\"",
+      "value": "Internal Bot API token is not configured.",
+      "fingerprint": "sha256:6aec8af20763c9e7a13f4b20629cc81fa6a5caad15dbec4d03aab5ee42a48b29",
+      "context": {
+        "kind": "source-line",
+        "name": "detail: \"Internal Bot API token is not configured.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        54
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Укажите дату в формате yyyy-MM-dd.\"",
+      "value": "Укажите дату в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:512cc5e3661759f85c6b6cb9677a7f70564b3a2fc719893da5d3a9dd9f338984",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"trainingDate\"] = [\"Укажите дату в формате yyyy-MM-dd.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        114,
+        137,
+        184
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Укажите дату занятия в формате yyyy-MM-dd.\"",
+      "value": "Укажите дату занятия в формате yyyy-MM-dd.",
+      "fingerprint": "sha256:ab7c6d6540ee28c174274414be0f435a2dee493a247808e89a932667357ef11a",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"lessonDate\"] = [\"Укажите дату занятия в формате yyyy-MM-dd.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        161,
+        224
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Для изменяющего действия нужен Idempotency-Key.\"",
+      "value": "Для изменяющего действия нужен Idempotency-Key.",
+      "fingerprint": "sha256:1584a20b766b8038f9fa717dbe3e4181b6538965d09ed71b55829841076007e4",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"idempotencyKey\"] = [\"Для изменяющего действия нужен Idempotency-Key.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        193,
+        233,
+        328
+      ],
+      "occurrences": 3,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"TelegramUserNotConfigured\"",
+      "value": "TelegramUserNotConfigured",
+      "fingerprint": "sha256:9c03c8797e5822136aad9113fbf718e3f9ebe59302c18cf53f426a245193b26c",
+      "context": {
+        "kind": "source-line",
+        "name": "title = \"TelegramUserNotConfigured\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        355
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Telegram user is not configured in CRM.\"",
+      "value": "Telegram user is not configured in CRM.",
+      "fingerprint": "sha256:ea11992eaec8ea5f34c357b72cb73e83bf9aa51a1423ebd16f09cebf72f13401",
+      "context": {
+        "kind": "source-line",
+        "name": "detail = \"Telegram user is not configured in CRM.\""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        356
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"CrmUserInactive\"",
+      "value": "CrmUserInactive",
+      "fingerprint": "sha256:1d4ac2c0dd09b40187a92870efca1d79f623725878b85b42b83c724a2efd4d9d",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"CrmUserInactive\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        359
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"CRM user is inactive.\"",
+      "value": "CRM user is inactive.",
+      "fingerprint": "sha256:d01e6571805ee297b1c8f5f80e09dc6a11e405c9c18c004e1c6c3a4661a2944b",
+      "context": {
+        "kind": "source-line",
+        "name": "detail: \"CRM user is inactive.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        360
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"PasswordChangeRequired\"",
+      "value": "PasswordChangeRequired",
+      "fingerprint": "sha256:5c613e883f93a969a539cd5d6cf34fb6eb98e7618a20bbf30c41f9868656bfb5",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"PasswordChangeRequired\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        363
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"CRM user must change password in web UI first.\"",
+      "value": "CRM user must change password in web UI first.",
+      "fingerprint": "sha256:f7451b0134debcc7a31aca15aa0232c87bbf5609d7c5b5ca5ac9b23912ea16b0",
+      "context": {
+        "kind": "source-line",
+        "name": "detail: \"CRM user must change password in web UI first.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        364
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Дата посещаемости недоступна для роли пользователя.\"",
+      "value": "Дата посещаемости недоступна для роли пользователя.",
+      "fingerprint": "sha256:1cd5b8f397cec0f8f3a29b995d705494209134912f1d7dd566abef8933be52fa",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"trainingDate\"] = [\"Дата посещаемости недоступна для роли пользователя.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        369
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Запрос не прошел бизнес-валидацию.\"",
+      "value": "Запрос не прошел бизнес-валидацию.",
+      "fingerprint": "sha256:9dc0b53c47370b3d11c98dd2bffeb847bdfdbf7c36f7ee850771fb974a91e0c9",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"request\"] = [\"Запрос не прошел бизнес-валидацию.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        375
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"IdempotencyConflict\"",
+      "value": "IdempotencyConflict",
+      "fingerprint": "sha256:689c77bcc8f4217ccf3304615061f00fa90d1216997dd5b5b652b9e11a65102a",
+      "context": {
+        "kind": "source-line",
+        "name": "title = \"IdempotencyConflict\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        379
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Idempotency-Key уже использован для другого действия или payload.\"",
+      "value": "Idempotency-Key уже использован для другого действия или payload.",
+      "fingerprint": "sha256:2642715df04b93fbf3733e27f9bc59b80900f3ac87781d2eb9721386049ec3ad",
+      "context": {
+        "kind": "source-line",
+        "name": "detail = \"Idempotency-Key уже использован для другого действия или payload.\""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        380
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"У клиента нет текущего абонемента.\"",
+      "value": "У клиента нет текущего абонемента.",
+      "fingerprint": "sha256:3ee05d1fbd5795140fb7b95ccda4e827b06ae26913f9e6b57a7f8d17e9ee1ce4",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"currentMembership\"] = [\"У клиента нет текущего абонемента.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        384
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Разовое посещение не восстановлено из-за последующих изменений абонемента.\"",
+      "value": "Разовое посещение не восстановлено из-за последующих изменений абонемента.",
+      "fingerprint": "sha256:e7d11beb88fcf36105403286bc255c2d8a2f39f26918c48cff96cfa374fd99fe",
+      "context": {
+        "kind": "source-line",
+        "name": "[\"attendanceMarks\"] = [\"Разовое посещение не восстановлено из-за последующих изменений абонемента.\"]"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        388
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"TemporaryBackendError\"",
+      "value": "TemporaryBackendError",
+      "fingerprint": "sha256:51ce3ae4877c311101e8aeb5192ef692ce87feb6726b930e4474fcc38d6384df",
+      "context": {
+        "kind": "source-line",
+        "name": "title: \"TemporaryBackendError\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        391
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Temporary backend error.\"",
+      "value": "Temporary backend error.",
+      "fingerprint": "sha256:a6463b426a810fd4f5e41c265bd06dba2726755140bf2bdd3726904ad7033aad",
+      "context": {
+        "kind": "source-line",
+        "name": "detail: \"Temporary backend error.\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        392
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "backend/bot-internal-api",
+      "slice": "BE-7-bot-internal-api",
+      "review_status": "accepted"
+    }
+  ]
+}

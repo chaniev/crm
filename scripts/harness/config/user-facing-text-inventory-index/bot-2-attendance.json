@@ -1,0 +1,627 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "BOT-2-attendance",
+  "entry_count": 28,
+  "entries": [
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Выберите дату тренировки.\"",
+      "value": "Выберите дату тренировки.",
+      "fingerprint": "sha256:62eab7be45b6c42e906adf898f13e71c2986abd324d5f5e273671974136980de",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        63
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Посещения сохранены.\\n\"\n            f\"Группа: {response.group_name}\\n\"\n            f\"Дата: {response.training_date.strftime('%d.%m.%Y')}\\n\"\n            f\"Отмечено: {response.marked_count}\\n\"\n            f\"Были: {response.present_count}\\n\"\n            f\"Не были: {response.absent_count}\"",
+      "value": "Посещения сохранены.\nГруппа: ",
+      "fingerprint": "sha256:067b73483c012b3ff839743425b92c9a6b7b3a4549b9f6603f2306c996cffc9f",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Посещения сохранены.\\n\"\n            f\"Группа: {response.group_name}\\n\"\n            f\"Дата: {response.training_date.strftime('%d.%m.%Y')}\\n\"\n            f\"Отмечено: {response.marked_count}\\n\"\n            f\"Были: {response.present_count}\\n\"\n            f\"Не были: {response.absent_count}\"",
+      "value": "\nДата: ",
+      "fingerprint": "sha256:302a81da90590b042c4b33c646fb8b8888203486b134e0aaf300cb2d16a68a5b",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Посещения сохранены.\\n\"\n            f\"Группа: {response.group_name}\\n\"\n            f\"Дата: {response.training_date.strftime('%d.%m.%Y')}\\n\"\n            f\"Отмечено: {response.marked_count}\\n\"\n            f\"Были: {response.present_count}\\n\"\n            f\"Не были: {response.absent_count}\"",
+      "value": "\nНе были: ",
+      "fingerprint": "sha256:31e39e00b9944639717d19d81ab38dd3d5e1a7cec18a332fb3a041ae6e0494e9",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Посещения сохранены.\\n\"\n            f\"Группа: {response.group_name}\\n\"\n            f\"Дата: {response.training_date.strftime('%d.%m.%Y')}\\n\"\n            f\"Отмечено: {response.marked_count}\\n\"\n            f\"Были: {response.present_count}\\n\"\n            f\"Не были: {response.absent_count}\"",
+      "value": "f\"Посещения сохранены.\\n\"\n            f\"Группа: {response.group_name}\\n\"\n            f\"Дата: {response.training_date.strftime('%d.%m.%Y')}\\n\"\n            f\"Отмечено: {response.marked_count}\\n\"\n            f\"Были: {response.present_count}\\n\"\n            f\"Не были: {response.absent_count}\"",
+      "fingerprint": "sha256:7e3854476629c3e7fee7ecbaccc66b2e2c8722b8e761c128745b8abf4f3cdddc",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Посещения сохранены.\\n\"\n            f\"Группа: {response.group_name}\\n\"\n            f\"Дата: {response.training_date.strftime('%d.%m.%Y')}\\n\"\n            f\"Отмечено: {response.marked_count}\\n\"\n            f\"Были: {response.present_count}\\n\"\n            f\"Не были: {response.absent_count}\"",
+      "value": "\nОтмечено: ",
+      "fingerprint": "sha256:fbfba315f7e3e23225fd80b293decbf2cdca2937f07f31e11d407b664d08eabb",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Посещения сохранены.\\n\"\n            f\"Группа: {response.group_name}\\n\"\n            f\"Дата: {response.training_date.strftime('%d.%m.%Y')}\\n\"\n            f\"Отмечено: {response.marked_count}\\n\"\n            f\"Были: {response.present_count}\\n\"\n            f\"Не были: {response.absent_count}\"",
+      "value": "\nБыли: ",
+      "fingerprint": "sha256:fcd8b42c30743d089b745f98aa777b107ee2e2b714098846b6a46f286fa289a3",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        234
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"\\nПредупреждения:\\n{warnings}\"",
+      "value": "f\"\\nПредупреждения:\\n{warnings}\"",
+      "fingerprint": "sha256:89ce99c4508083819cd7d01b588a3baef5ae9fd9846bb302e405df1b8dfea292",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        242
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"\\nПредупреждения:\\n{warnings}\"",
+      "value": "\nПредупреждения:\n",
+      "fingerprint": "sha256:ff7042ebb9318fc1872ea684c397d970f18b25fd2e513709acb36b92ed89456e",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        242
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Группа {group_name} на {training_date.strftime('%d.%m.%Y')}: список пуст.\"",
+      "value": "f\"Группа {group_name} на {training_date.strftime('%d.%m.%Y')}: список пуст.\"",
+      "fingerprint": "sha256:56b0987a24e4997fa2dd762e7e2f8a74ee7f7f559c10734f7de56d0146faa783",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        267
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Группа {group_name} на {training_date.strftime('%d.%m.%Y')}: список пуст.\"",
+      "value": "Группа ",
+      "fingerprint": "sha256:6f057789c8edfd644b21095877aaf23fe3fd41ff15f9f8598d9722b87c20575b",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        267
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Группа {group_name} на {training_date.strftime('%d.%m.%Y')}: список пуст.\"",
+      "value": ": список пуст.",
+      "fingerprint": "sha256:acaea971b7efc33c4a58553ba4519f5d4b5fd455b6af182057fd3489ccd79fba",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        267
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Группа {group_name} на {training_date.strftime('%d.%m.%Y')}: список пуст.\"",
+      "value": " на ",
+      "fingerprint": "sha256:fbcb2658779af7d211a069e5b303bf8863aab1c188627c62fefee7a6932aa4c4",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        267
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Группа: {group_name}\"",
+      "value": "Группа: ",
+      "fingerprint": "sha256:8b0ed99b0575a5a28120e2f0387cca7ac1e92b7efe6d8e069902bc673adf4d2b",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        268
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Дата: {training_date.strftime('%d.%m.%Y')}\"",
+      "value": "f\"Дата: {training_date.strftime('%d.%m.%Y')}\"",
+      "fingerprint": "sha256:a89499934b6b62c707bd8a8006e4e44b7e9132b2fdb0169ca62b9db74dc48b1e",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        268
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Группа: {group_name}\"",
+      "value": "f\"Группа: {group_name}\"",
+      "fingerprint": "sha256:aa9476a64470742171919de751cbff762124a1a01c5917b1906daebf9e784887",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        268
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите занятие.\"",
+      "value": "Дата: ",
+      "fingerprint": "sha256:2a7c27ee666094d6739a5eb2e98ca32b823bffb70e62938bbc2517f00e96c935",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        268,
+        282
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Не был\"",
+      "value": "Не был",
+      "fingerprint": "sha256:cd2e8ad3c648098fe1eb53a077d3858d5e89b967383667139471415e38b53ae2",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        270
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"Был\"",
+      "value": "Был",
+      "fingerprint": "sha256:ff13de896146db550b0bdddbcd09b8f1543f4ddd279ea5febac6d03106e8cf3c",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        270
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите занятие.\"",
+      "value": "f\"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите занятие.\"",
+      "fingerprint": "sha256:8951fbca37bfe8b5acb5247e05a0450dfd11dcdad11c537e1b388d4ec1daf820",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        282
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите занятие.\"",
+      "value": ". Выберите занятие.",
+      "fingerprint": "sha256:c1a51ccf6da88259f72fc2d7e84a6609f5312785e0895fadb96db5c13344c92a",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        282
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"старт {group.start_time}\"",
+      "value": "старт ",
+      "fingerprint": "sha256:29db7d589f4b13445a6e1c03f83b6caa6a7df18d636e08b8ccdd2af04275009b",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        286
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"старт {group.start_time}\"",
+      "value": "f\"старт {group.start_time}\"",
+      "fingerprint": "sha256:a3486bf21ebeea34a3ff6ff86c46854a1dea774a2abf8e1b5474a6f132f9d920",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        286
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"{group.duration_minutes} мин\"",
+      "value": " мин",
+      "fingerprint": "sha256:84d5d93d12778bd7c9d24a92e4eaa4a5f4f6fbce50e70c631ae308939e2b6c7e",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        287
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"{group.duration_minutes} мин\"",
+      "value": "f\"{group.duration_minutes} мин\"",
+      "fingerprint": "sha256:9b75002f485a0c9d4b1100493038fe19e06c5d0df4e35395c82c54bb33116f6f",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        287
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "f-string",
+      "source_text": "f\"тренеры: {trainer_names}\"",
+      "value": "f\"тренеры: {trainer_names}\"",
+      "fingerprint": "sha256:12b8b72f8ff0739945af4e8a234b1020ec8885f913069951dabe21da616e1cf2",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        295
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "f\"тренеры: {trainer_names}\"",
+      "value": "тренеры: ",
+      "fingerprint": "sha256:7443ac2c9a65cdb41d4aaafb08a0156ba2c95b927dd7df203fb228034df0b106",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        295
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    },
+    {
+      "path": "bot/src/gym_crm_bot/core/attendance_flow.py",
+      "language": "python",
+      "literal_kind": "string",
+      "source_text": "\"отменено\"",
+      "value": "отменено",
+      "fingerprint": "sha256:8a097230170f87a69fa8dde1858a2f138dab0caafa7d8c05194e7015d8d4c60b",
+      "context": {
+        "kind": "NoneType",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        297
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "bot/attendance",
+      "slice": "BOT-2-attendance",
+      "review_status": "accepted"
+    }
+  ]
+}

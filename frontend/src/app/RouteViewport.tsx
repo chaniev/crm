@@ -41,6 +41,8 @@ import { FinanceReportsScreen } from '../features/finance/FinanceReportsScreen'
 import { SettingsScreen } from '../features/settings/SettingsScreen'
 import { PageLayout, PageSection } from '../features/shared/ux'
 import { RestrictedState } from '../features/shared/RestrictedState'
+import { fe1AppShellAuthText } from '../resources/fe-1-app-shell-auth'
+
 
 type RouteViewportProps = {
   route: Exclude<AppRoute, { kind: 'password' }>
@@ -449,15 +451,15 @@ type RouteAccessStateProps = {
 export function RouteAccessState({ access, onRecovery }: RouteAccessStateProps) {
   const description =
     access.reason.kind === 'section'
-      ? `У вас нет доступа к разделу «${access.requestedDestinationLabel}».`
-      : `У вас нет доступа к операции «${access.requestedDestinationLabel}».`
+      ? fe1AppShellAuthText.routeViewport_template_c832959f(access.requestedDestinationLabel)
+      : fe1AppShellAuthText.routeViewport_template_4bb78ad0(access.requestedDestinationLabel)
 
   return (
     <PageLayout
       className="route-state-layout"
       renderHiddenHeading={false}
       showHeader={false}
-      title="Нет доступа"
+      title={fe1AppShellAuthText.routeViewport_title_28e033b4}
     >
       <RestrictedState
         className="route-state"
@@ -465,10 +467,10 @@ export function RouteAccessState({ access, onRecovery }: RouteAccessStateProps) 
         focusOnMount="heading"
         primaryAction={(
           <Button fullWidth onClick={onRecovery}>
-            Открыть {access.recoveryLabel}
+            {fe1AppShellAuthText.routeViewport_jsxText_ea1f4082}{access.recoveryLabel}
           </Button>
         )}
-        title="Нет доступа"
+        title={fe1AppShellAuthText.routeViewport_title_28e033b4}
         titleOrder={1}
       />
     </PageLayout>
@@ -489,18 +491,18 @@ export function RouteNotFoundState({
       className="route-state-layout"
       renderHiddenHeading={false}
       showHeader={false}
-      title="Страница не найдена"
+      title={fe1AppShellAuthText.routeViewport_title_af9d3306}
     >
       <RestrictedState
         className="route-state"
-        description="Такой страницы нет или ссылка устарела."
+        description={fe1AppShellAuthText.routeViewport_description_b66231cd}
         focusOnMount="heading"
         primaryAction={(
           <Button fullWidth onClick={onRecovery}>
-            Открыть {recoveryLabel}
+            {fe1AppShellAuthText.routeViewport_jsxText_ea1f4082}{recoveryLabel}
           </Button>
         )}
-        title="Страница не найдена"
+        title={fe1AppShellAuthText.routeViewport_title_af9d3306}
         titleOrder={1}
       />
     </PageLayout>
@@ -509,17 +511,16 @@ export function RouteNotFoundState({
 
 function SectionPlaceholder() {
   return (
-    <PageLayout title="Раздел">
+    <PageLayout title={fe1AppShellAuthText.routeViewport_title_cd7d7203}>
       <PageSection>
         <Stack gap="md">
           <Alert
             color="blue"
             icon={<IconCheck size={18} />}
-            title="Раздел пока недоступен"
+            title={fe1AppShellAuthText.routeViewport_title_8b737d65}
             variant="light"
           >
-            Экран будет подключен отдельным обновлением.
-          </Alert>
+            {fe1AppShellAuthText.routeViewport_jsxText_d1441734}</Alert>
         </Stack>
       </PageSection>
     </PageLayout>

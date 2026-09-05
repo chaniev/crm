@@ -1,0 +1,2303 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
+  "review_status": "accepted",
+  "slice": "FE-11-settings-users",
+  "entry_count": 104,
+  "entries": [
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить группы посещений.'",
+      "value": "Не удалось загрузить группы посещений.",
+      "fingerprint": "sha256:eb314df787f98cc5539c9089dbfc9c86f9f6bca5a6e7b13a92b782fe9811d5ac",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        102
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить группы посещений.'",
+      "value": "Не удалось сохранить группы посещений.",
+      "fingerprint": "sha256:d1a1bde7054c1798aa516771682b06623b259de8a9e522da8475773ffd53daf1",
+      "context": {
+        "kind": "call-argument",
+        "name": "setSaveError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        182
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группы посещений\"",
+      "value": "Группы посещений",
+      "fingerprint": "sha256:c50470cc8e01dcfedcfebf1469a873c873be3204c7c8fbbe1133adfb760510d5",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        243
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Филиал: ",
+      "value": "Филиал:",
+      "fingerprint": "sha256:40c98d2e63c971acf26b795b30a6f4401de94f0267f79d585143204c7143b613",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        252
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'не назначен'",
+      "value": "не назначен",
+      "fingerprint": "sha256:b921a80b933d04114433669ba8052333c95ce5cd60826c833307423346b17f50",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        252
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем группы посещений...\"",
+      "value": "Загружаем группы посещений...",
+      "fingerprint": "sha256:be99fd52e63983a09bdc1be6237e9e686fbaa3fff1c7358f73bd291c900cda33",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        256
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группы не загрузились\"",
+      "value": "Группы не загрузились",
+      "fingerprint": "sha256:fc37228ebd6f9160c7f419d2ce34b295bec1f4384dd2cabff6b6e3fd3f6152fe",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        258
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Выбрано: ",
+      "value": "Выбрано:",
+      "fingerprint": "sha256:c9c7225b461c766d17f4f0b64d32beecdb36dbe797a4a284bd3f7da4c7cee169",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        265
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "К отзыву: ",
+      "value": "К отзыву:",
+      "fingerprint": "sha256:f3dd59ed519010390b353b832d065f03134ee37ddb021809a3d57f16a3c15b49",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        269
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранение не выполнено\"",
+      "value": "Сохранение не выполнено",
+      "fingerprint": "sha256:09e1875e6459e25d731db8efe457f31da522b97b5c3d3609ca67e24d6cb12eee",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        278
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Обновить данные\n                  ",
+      "value": "Обновить данные",
+      "fingerprint": "sha256:aa4fb6dff0f5059e5744dbdb9989adb32aae8b5bfadf2bf34484bedcff1a8148",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        295
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Поиск группы\"",
+      "value": "Поиск группы",
+      "fingerprint": "sha256:b7466cdb024bc13c1b8b770b250d3e9c4eac1aa23dc18d402c052cd069e03157",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        302
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Название группы\"",
+      "value": "Название группы",
+      "fingerprint": "sha256:d45e66ab5535c3a629cb30d45356815484c6fac84011f03a179929841d90599e",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "placeholder"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        304
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"В филиале нет групп для назначения\"",
+      "value": "В филиале нет групп для назначения",
+      "fingerprint": "sha256:8898e6fcaa5f22afae37a5fb9a477562e1617a5ef865b3405fad6a4c4e858949",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        311
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"По совпадению ничего не найдено\"",
+      "value": "По совпадению ничего не найдено",
+      "fingerprint": "sha256:3bd7378ea2e4698ab0ac5fb6bb64035430651cb15cae4d95f0a4ea0868e4addc",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        318
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Группы посещений администратора\"",
+      "value": "Группы посещений администратора",
+      "fingerprint": "sha256:0df3659f2fdae96938bce30972279ca76628849c91f4942712fc63a033eef014",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        323
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Отозвать доступ к группам?\"",
+      "value": "Отозвать доступ к группам?",
+      "fingerprint": "sha256:76100b9d16fbbe902aa7195c168938d955f412bfab6a57c4739dcc0fb5bf296c",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        361
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ". Доступ администратора к этим группам для посещений прекратится сразу после сохранения.\n                  ",
+      "value": ". Доступ администратора к этим группам для посещений прекратится сразу после сохранения.",
+      "fingerprint": "sha256:775fdb20e80036f5dd0a2224af1ed95375aa8e738bdfd792090281a99c72438c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        362
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Будет отозван доступ к ",
+      "value": "Будет отозван доступ к",
+      "fingerprint": "sha256:d1e4b91dd5f5309501732f4fdb11885c10fe9414d2edd781b9e6cbc4fe934113",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        362
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохраняем изменения...\n                  ",
+      "value": "Сохраняем изменения...",
+      "fingerprint": "sha256:dc6602c55ebef9bd1ad90bfb0fba2f910e1ea0f54a6da1ce1eabed53c68d36d8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        367
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Вернуться\n                    ",
+      "value": "Вернуться",
+      "fingerprint": "sha256:6c99e7d8fbd8fa269c234bfeacada5be40875fc15fc7af447428950e08d4c79d",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        378
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отозвать и сохранить\n                    ",
+      "value": "Отозвать и сохранить",
+      "fingerprint": "sha256:7725c76d07ddb63eadbca89a3b53a2cd8f1a78194deb9db4011a787b031482e8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        381
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n                    ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        387
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить\n                    ",
+      "value": "Сохранить",
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        395
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Неактивна\n                ",
+      "value": "Неактивна",
+      "fingerprint": "sha256:4f049897a5bd5c24277eede0928f3601d91f29641e319ba674d025574370fe8c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        431
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Недоступное сохраненное назначение",
+      "value": "Недоступное сохраненное назначение",
+      "fingerprint": "sha256:2693c65e589a8b951aa798534e761a663e73ac98bbea4ee810c8e30697e54322",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        472
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "ID группы: ",
+      "value": "ID группы:",
+      "fingerprint": "sha256:5a3cdcb1b477dd6c66d3fb245a01c2da12728d894d3848ad9c82c397913b865b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        474
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Старт ${group.trainingStartTime}`",
+      "value": "`Старт ${group.trainingStartTime}`",
+      "fingerprint": "sha256:48f11e95d15f478eebfd51a03a8f817a435798ca8faca86d20a603f6ec62c5c9",
+      "context": {
+        "kind": "call-argument",
+        "name": "details.push"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        491
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Расписание не указано'",
+      "value": "Расписание не указано",
+      "fingerprint": "sha256:34482a849ac7b3c13069d79937f49a63087c45b03c0395034672223c990e7060",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        497
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Группа отключена'",
+      "value": "Группа отключена",
+      "fingerprint": "sha256:3ff106d7193f67019100782fdca2eea55f7f2df1c80a948dfe2e4b94b3b12912",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        502
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Администратор отключен.'",
+      "value": "Администратор отключен.",
+      "fingerprint": "sha256:c37eb247996ad00b4a74d1c6c0a33bd95affe4868dba1a5d0c9752c35f8479bc",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        506
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Филиал в архиве.'",
+      "value": "Филиал в архиве.",
+      "fingerprint": "sha256:9c664ee0bdb76e5fa6ee189322a0c7658acae3fbbf9f88432d14d41658396373",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        510
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Назначение больше не входит в допустимую область.'",
+      "value": "Назначение больше не входит в допустимую область.",
+      "fingerprint": "sha256:863611e56c57346d14cca16639355cc7629a67727bea59f89f073afe1d193966",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        514
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Назначение недоступно.'",
+      "value": "Назначение недоступно.",
+      "fingerprint": "sha256:7964adff439f2ae89178632fc9e65a7b03854c0de13dbce0e3cfa167c1e49ee8",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        517
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'1 группе'",
+      "value": "1 группе",
+      "fingerprint": "sha256:46ad00801318cb4a59a45d767f71a062d3855b64b68b72de25a94fd5d2563016",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        522
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${count} группам`",
+      "value": "`${count} группам`",
+      "fingerprint": "sha256:9959259e7e6a06ec88b01377cfccd470a3aa490d2531d436b32b21bde14b8f8e",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        525
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите ФИО администратора.'",
+      "value": "Введите ФИО администратора.",
+      "fingerprint": "sha256:9447dd32548af817fd174a3436b6df1e492adeb1f1674b9f8e2130c4a02144e2",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        103,
+        125
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите логин.'",
+      "value": "Введите логин.",
+      "fingerprint": "sha256:c9715294c80034faef38dceadaba3cc5a739b12159685b03bb84f1bc9f5861ab",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        104
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Введите стартовый пароль.'",
+      "value": "Введите стартовый пароль.",
+      "fingerprint": "sha256:ae1e2dac6c30b35578390df9413a442c89ec453fd5e791dce9e0712d10b46685",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        105
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите роль.'",
+      "value": "Выберите роль.",
+      "fingerprint": "sha256:e704077285159bcd3aa7bf18ad7a43eac3cb22173477722b7a3709bd7e2190a5",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        106,
+        126
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите филиал администратора.'",
+      "value": "Выберите филиал администратора.",
+      "fingerprint": "sha256:14c709222435ed7c49b698ff3ead0dc9a64e1f3ef9fdf8832214c9f2227705e8",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        109,
+        129
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить администраторов.'",
+      "value": "Не удалось загрузить администраторов.",
+      "fingerprint": "sha256:d64134c2431a152b79eb95ad07a9880b4320b292ede7487b9c27ba739d1dd5c7",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        153
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось загрузить филиалы.'",
+      "value": "Не удалось загрузить филиалы.",
+      "fingerprint": "sha256:eb5b2e75dc3989b4034c063d6f37f60ea17eccb841aa4bf540c5255c390782d3",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        185
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${userRoleLabels[createdAdministrator.role]} создан`",
+      "value": "`${userRoleLabels[createdAdministrator.role]} создан`",
+      "fingerprint": "sha256:baf4888fe50994ae10ed4439a8c43ad663d2b7b52ce435f708a234447260a93c",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        303
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Пользователь «${createdAdministrator.fullName}» добавлен.`",
+      "value": "`Пользователь «${createdAdministrator.fullName}» добавлен.`",
+      "fingerprint": "sha256:4fb255463940b4406e54551a4ca4c1f235fe80e8cbe2080119ad00fedc5c3689",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        304
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось создать администратора.'",
+      "value": "Не удалось создать администратора.",
+      "fingerprint": "sha256:7b41d62c30abb402a438488ff4b964eeb17704aca263b35bc69c98bbbce83dac",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        316
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${userRoleLabels[updatedAdministrator.role]} обновлен`",
+      "value": "`${userRoleLabels[updatedAdministrator.role]} обновлен`",
+      "fingerprint": "sha256:7ccf0bed57806732f9d71c5f120d9bb293a157d0cf90430438a04ed81baab7f7",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        365
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Изменения «${updatedAdministrator.fullName}» сохранены.`",
+      "value": "`Изменения «${updatedAdministrator.fullName}» сохранены.`",
+      "fingerprint": "sha256:00a3576fae3e70a51b7d31b0c02164530e5982a45e6ab672ef8ac0a174020d97",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        366
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Запись изменилась'",
+      "value": "Запись изменилась",
+      "fingerprint": "sha256:8bb025fe357cf04a6e5bb6983eb6ba1b48c251b6864666ed5edb7d654ecbe964",
+      "context": {
+        "kind": "property",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        376
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Администратор больше не доступен в этом разделе. Список обновляется.'",
+      "value": "Администратор больше не доступен в этом разделе. Список обновляется.",
+      "fingerprint": "sha256:435c8ca76db76def55dc2271234a14d1606a76bb18cd8b7820ed2d3f65a7a736",
+      "context": {
+        "kind": "property",
+        "name": "message"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        377
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Не удалось сохранить администратора.'",
+      "value": "Не удалось сохранить администратора.",
+      "fingerprint": "sha256:1cfc073d58c468a31f78e83124ee94b06bb21b11d8a662bbdc9840d4a8169b08",
+      "context": {
+        "kind": "call-argument",
+        "name": "setFormError"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        390
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Добавить администратора\"",
+      "value": "Добавить администратора",
+      "fingerprint": "sha256:d8506f3e3b9952bfb6b6c1ee4c21e79b945c722f5d1261c463f4d3db88b20d30",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        411
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем администраторов...\"",
+      "value": "Загружаем администраторов...",
+      "fingerprint": "sha256:6fbc47d468ef3e4b0e9c346ff4cff7a5d2c922a9c7a591ba1b92ca954e751a36",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        419
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Администраторы не загрузились\"",
+      "value": "Администраторы не загрузились",
+      "fingerprint": "sha256:9d13455a966201e5a333673b326e5d18eecb4a9d5567a6a6cd4f1e306569aee9",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        425
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Администраторы пока не добавлены\"",
+      "value": "Администраторы пока не добавлены",
+      "fingerprint": "sha256:f3d522b4bddc29988154e0a5d6a6790d2ad0e25d85365dfd809d841bb23b40f4",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        432
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Активен'",
+      "value": "Активен",
+      "fingerprint": "sha256:a87a4b39c30404ad618fe7f24800b8412cfa1cbc9c08d95242541b035730ecd1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        458
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Отключен'",
+      "value": "Отключен",
+      "fingerprint": "sha256:c62edde1c09b1b0b5c41179373510f4b2021f829af0d819705f9acabd8c4e32b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        458
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Логин: ",
+      "value": "Логин:",
+      "fingerprint": "sha256:8541e28c522fdc6730eb62064c87475056e443d022f117579a1f958709d1a76f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        462
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Филиал: ",
+      "value": "Филиал:",
+      "fingerprint": "sha256:40c98d2e63c971acf26b795b30a6f4401de94f0267f79d585143204c7143b613",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        467
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'не назначен'",
+      "value": "не назначен",
+      "fingerprint": "sha256:b921a80b933d04114433669ba8052333c95ce5cd60826c833307423346b17f50",
+      "context": {
+        "kind": "BinaryExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        467
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Доступ: все филиалы\n                        ",
+      "value": "Доступ: все филиалы",
+      "fingerprint": "sha256:9f48831084314e1d21607f361f226d56dbb59bdb377bb33eec19a5d6be354594",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        475
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Telegram ID: ",
+      "value": "Telegram ID:",
+      "fingerprint": "sha256:a19c2c9d71573c40a1bc9f66c3c414e4840889d93a00233d82843732d2355dc8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        480
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Группы посещений\n                          ",
+      "value": "Группы посещений",
+      "fingerprint": "sha256:c50470cc8e01dcfedcfebf1469a873c873be3204c7c8fbbe1133adfb760510d5",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        493
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Редактировать\n                          ",
+      "value": "Редактировать",
+      "fingerprint": "sha256:59792556fd0682484dde8d5ec7ddc8d312c6faa1c399a5ff26922a0c63f99757",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        502
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Только просмотр\n                      ",
+      "value": "Только просмотр",
+      "fingerprint": "sha256:65329f77aad11ffc77a19d66bce96cd8fa2305a341149328ab8ed0b98862f8d8",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        508
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Сохранение не выполнено\"",
+      "value": "Сохранение не выполнено",
+      "fingerprint": "sha256:09e1875e6459e25d731db8efe457f31da522b97b5c3d3609ca67e24d6cb12eee",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        672
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Открыть группы посещений\n            ",
+      "value": "Открыть группы посещений",
+      "fingerprint": "sha256:5336bb8fb81ada4a8a465269539238a6eb7431cc71de8d8f25675e83af6723ce",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        684
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Филиалы не загрузились\"",
+      "value": "Филиалы не загрузились",
+      "fingerprint": "sha256:9d518c0fa818bc373dc3d45d54b12612de95145dba8c277fbe43a612cb397363",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        729
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить\n            ",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        736
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Филиал обязателен\"",
+      "value": "Филиал обязателен",
+      "fingerprint": "sha256:1f20f6704802ed41670fc6045fdb9af37414719607036cedfb2e5e0193cda0a8",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        749
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Нет активных филиалов\n          ",
+      "value": "Нет активных филиалов",
+      "fingerprint": "sha256:b934965be02e11c1557ab4e1f32ccaf21f529cb4ae52d6938f7214e1fc04f585",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        754
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Для администратора нужен активный филиал. Суперадминистратор сохраняется без филиала.\n          ",
+      "value": "Для администратора нужен активный филиал. Суперадминистратор сохраняется без филиала.",
+      "fingerprint": "sha256:af8fd683991886ce98d59d81a7826fd62daf225240e6934b04f5803cf297c84b",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        757
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Открыть филиалы и залы\n              ",
+      "value": "Открыть филиалы и залы",
+      "fingerprint": "sha256:1ec6f5102e465e9f8916e4037a9dab68065eba34469f28ece5f82f3942d4c413",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        762
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Попросите главного тренера создать или восстановить филиал.\n            ",
+      "value": "Попросите главного тренера создать или восстановить филиал.",
+      "fingerprint": "sha256:c1f3ef3573db032fac865b824209d707fea28f0286d6477643204d875c9b0e8c",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        767
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Филиал администратора\"",
+      "value": "Филиал администратора",
+      "fingerprint": "sha256:3301ad7aea947945293668f311ba19cc43bc8642e3696a792f939811dca50192",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        781
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Загружаем филиалы...'",
+      "value": "Загружаем филиалы...",
+      "fingerprint": "sha256:13116bcff9ff7a40730b5681429833ae152e32c5613a2176f28f6d443ae99822",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        783
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Выберите филиал'",
+      "value": "Выберите филиал",
+      "fingerprint": "sha256:4c5ee5d81244b373bb3f6f57f94f35412ce9dde46aa27899a9ff490a4cab6fa1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        783
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сохранить\n        ",
+      "value": "Сохранить",
+      "fingerprint": "sha256:b4d30cae52894cf0a87c1c072b864768dace8b01d2d800a9e8741a6f1b50791e",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        807
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Отменить\n        ",
+      "value": "Отменить",
+      "fingerprint": "sha256:7c47f7292ba4f2aea68a98e724879e78ca67a84dc3c5415714096c1321e2574f",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        812
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Новый администратор'",
+      "value": "Новый администратор",
+      "fingerprint": "sha256:c1351bd6ca689e87968aff17e714bd5f65dccf5677180841813fa43cbcefa092",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        864
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование суперадминистратора'",
+      "value": "Редактирование суперадминистратора",
+      "fingerprint": "sha256:7ff6dab6a206456a0ee1828affb97d6f83b923efb647b4584a69349ba7b0d8d5",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        869
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Редактирование администратора'",
+      "value": "Редактирование администратора",
+      "fingerprint": "sha256:22f2b253f457366c2b8d20f0d0a12b1caa422eb9768d148108b18e2f8e7b5cd4",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        870
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Суперадминистратор активен'",
+      "value": "Суперадминистратор активен",
+      "fingerprint": "sha256:d9ac9f77b39a065fbcc51d68153ece2e072788737fafb8c591fedb20ed28d6d1",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        878
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Администратор активен'",
+      "value": "Администратор активен",
+      "fingerprint": "sha256:b7e3374d947df748ce41a10a4298d7df93b3efe7d5b3bb991e9fd062356c920b",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        879
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Посещения: ${formatGroupWord(count)}`",
+      "value": "`Посещения: ${formatGroupWord(count)}`",
+      "fingerprint": "sha256:8a059471654a7c19eea99a2c8bb0e4c5a95a0a8911366771642808fb0460e322",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        958
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Посещения: не назначены'",
+      "value": "Посещения: не назначены",
+      "fingerprint": "sha256:9a4fb41affc0819bfe23af8c6b8e56844972c972cce9b8aab320c9f3cf8fd7c2",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        959
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${count} группа`",
+      "value": "`${count} группа`",
+      "fingerprint": "sha256:67192921e08c180c3da64776df325ea0cc54c1646449686e9e341320cd0a79dd",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        967
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${count} группы`",
+      "value": "`${count} группы`",
+      "fingerprint": "sha256:2c46082cce44905adf42b5de9f5fc5b43e870e45287e0c176f505f9c1547f305",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        971
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${count} групп`",
+      "value": "`${count} групп`",
+      "fingerprint": "sha256:8b72081363d2779dde2b8a6b889db624672500c29c64c1525fb3786f371d98db",
+      "context": {
+        "kind": "ReturnStatement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        974
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`${administrator.branchName} (архивный)`",
+      "value": "`${administrator.branchName} (архивный)`",
+      "fingerprint": "sha256:cc8da12a17a6cf6eb1d692a1ba38699979b54d8ffa1eb45e56f99c15de1a9cfb",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        993
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'Архивный филиал'",
+      "value": "Архивный филиал",
+      "fingerprint": "sha256:0a14a43ad8a015b788553873118bfeb6a9c8aa33cbf5e38f1c5b89880baff588",
+      "context": {
+        "kind": "ConditionalExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        994
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/settings-users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UserEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем карточку тренера...\"",
+      "value": "Загружаем карточку тренера...",
+      "fingerprint": "sha256:aba60338cf9261ac6c5eee2357123e03511d1f39d056fc15675c76c8b976c34a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        171
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UserEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Карточка доступна только для просмотра\"",
+      "value": "Карточка доступна только для просмотра",
+      "fingerprint": "sha256:ee98a5ee6488adf5f5baebc0d020711bd404cb4e291ed7b964c68dc870e8f559",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        184
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UserEditScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Backend не разрешил действия изменения для этой учетной записи.\n                ",
+      "value": "Backend не разрешил действия изменения для этой учетной записи.",
+      "fingerprint": "sha256:36d97fdff0d4197dad0e2074f400cc4e23e56e68040e598cadfd16d4705b4ffa",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        185
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Тренеры\"",
+      "value": "Тренеры",
+      "fingerprint": "sha256:0314946ceb6850434b1c2b611bcc56e8419d8a763bb5bcceeb37ee3418c87e0c",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "title"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        225
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "'aria-label'",
+      "value": "aria-label",
+      "fingerprint": "sha256:66ba2129a90d4a5810ec62bcf19ac63372c4ca9f44becbd2cf588b101cc8228d",
+      "context": {
+        "kind": "property",
+        "name": "aria-label"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        267
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Сбросить\n            ",
+      "value": "Сбросить",
+      "fingerprint": "sha256:407f871778d310700e1c7bd098be9d25e40f39c764c7f4879c0ec1aa4ca8401a",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        316
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Результаты поиска тренеров\"",
+      "value": "Результаты поиска тренеров",
+      "fingerprint": "sha256:544fa84d84f46f0e2f5ddd46bbeac3bad4a86327a0ce201a3710aba4f1fe34ec",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        324
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Загружаем тренеров...\"",
+      "value": "Загружаем тренеров...",
+      "fingerprint": "sha256:d85336e35d0a8d6c9bda0c177d5e21ec220329e2160936d8442c918a13a0402a",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        333
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "string",
+      "source_text": "\"Повторить загрузку списка тренеров\"",
+      "value": "Повторить загрузку списка тренеров",
+      "fingerprint": "sha256:492344313c227ecb29fd59a6e52b6fbc03e1545e8ae488a8c57d986c4c257b72",
+      "context": {
+        "kind": "jsx-attribute",
+        "name": "aria-label"
+      },
+      "has_cyrillic": true,
+      "lines": [
+        340
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Повторить\n                ",
+      "value": "Повторить",
+      "fingerprint": "sha256:5189135a6110bd31b69bbcb3487109995252165ac7ee7da59ead9d789f690248",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        344,
+        364
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": "Очистить поиск\n                ",
+      "value": "Очистить поиск",
+      "fingerprint": "sha256:6e1f7baa472fcfbbf59e4d3c3999ebafb9288365f34ccbdcfe068f893f1dafb6",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        387
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "template",
+      "source_text": "`Редактировать тренера «${user.fullName}»`",
+      "value": "`Редактировать тренера «${user.fullName}»`",
+      "fingerprint": "sha256:1fa0371e314b99681636ab23305d5b39272808a4acf6a8d8a0e723c33e0d8d97",
+      "context": {
+        "kind": "JsxExpression",
+        "name": ""
+      },
+      "has_cyrillic": true,
+      "lines": [
+        454
+      ],
+      "occurrences": 1,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    },
+    {
+      "path": "frontend/src/features/users/UsersListScreen.tsx",
+      "language": "typescript",
+      "literal_kind": "jsx-text",
+      "source_text": ": ",
+      "value": ":",
+      "fingerprint": "sha256:e7ac0786668e0ff0f02b62bd04f45ff636fd82db63b1104601c975dc005f3a67",
+      "context": {
+        "kind": "JsxElement",
+        "name": ""
+      },
+      "has_cyrillic": false,
+      "lines": [
+        511,
+        515
+      ],
+      "occurrences": 2,
+      "category": "resource",
+      "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
+      "owner": "frontend/users",
+      "slice": "FE-11-settings-users",
+      "review_status": "accepted"
+    }
+  ]
+}

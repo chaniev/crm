@@ -25,6 +25,8 @@ import {
   type ClientStatusFilter,
 } from './clientListFilters'
 import type { ClientsListState } from './useClientsListState'
+import { fe5ClientListText } from '../../../resources/fe-5-client-list'
+
 
 type ClientsToolbarProps = {
   canManage: boolean
@@ -116,14 +118,14 @@ export function ClientsToolbar({
   const filterItems: CompactFilterItem[] = [
     {
       key: 'groupId',
-      label: 'Группа',
+      label: fe5ClientListText.clientsToolbar_label_907efbd4,
       render: () => (
         <Select
           clearable
           data={state.availableGroupOptions}
-          label="Группа"
+          label={fe5ClientListText.clientsToolbar_label_907efbd4}
           onChange={(value) => state.updateFilters({ groupId: value })}
-          placeholder="Все группы"
+          placeholder={fe5ClientListText.clientsToolbar_placeholder_d71b0c68}
           searchable
           value={state.filters.groupId}
         />
@@ -131,10 +133,10 @@ export function ClientsToolbar({
     },
     {
       key: 'membershipExpiresFrom',
-      label: 'Истекает с',
+      label: fe5ClientListText.clientsToolbar_label_9c924cdc,
       render: () => (
         <TextInput
-          label="Истекает с"
+          label={fe5ClientListText.clientsToolbar_label_9c924cdc}
           onChange={(event) =>
             state.updateFilters({
               membershipExpiresFrom: event.currentTarget.value,
@@ -152,23 +154,23 @@ export function ClientsToolbar({
     })),
     {
       key: 'status',
-      label: 'Статус',
+      label: fe5ClientListText.clientsToolbar_label_225077c6,
       render: () => (
         <Select
           data={statusOptions}
-          label="Статус"
+          label={fe5ClientListText.clientsToolbar_label_225077c6}
           onChange={(value) => updateStatus((value as ClientStatusFilter | null) ?? 'all')}
-          placeholder="Все статусы"
+          placeholder={fe5ClientListText.clientsToolbar_placeholder_2a013601}
           value={state.filters.status}
         />
       ),
     },
     {
       key: 'membershipExpiresTo',
-      label: 'Истекает по',
+      label: fe5ClientListText.clientsToolbar_label_5c7aab91,
       render: () => (
         <TextInput
-          label="Истекает по"
+          label={fe5ClientListText.clientsToolbar_label_5c7aab91}
           onChange={(event) =>
             state.updateFilters({
               membershipExpiresTo: event.currentTarget.value,
@@ -181,11 +183,11 @@ export function ClientsToolbar({
     },
     {
       key: 'withoutPhoto',
-      label: 'Без фото',
+      label: fe5ClientListText.clientsToolbar_label_f2549c72,
       render: () => (
         <Switch
           checked={state.filters.withoutPhoto}
-          label="Без фото"
+          label={fe5ClientListText.clientsToolbar_label_f2549c72}
           onChange={(event) =>
             state.updateFilters({ withoutPhoto: event.currentTarget.checked })
           }
@@ -194,11 +196,11 @@ export function ClientsToolbar({
     },
     {
       key: 'pageSize',
-      label: 'Размер страницы',
+      label: fe5ClientListText.clientsToolbar_label_3ff6b7f9,
       render: () => (
         <Select
           data={clientListPageSizeOptions}
-          label="Размер страницы"
+          label={fe5ClientListText.clientsToolbar_label_3ff6b7f9}
           onChange={(value) => {
             if (value) {
               state.updateFilters({ pageSize: value })
@@ -221,14 +223,14 @@ export function ClientsToolbar({
       data-testid="clients-filter-panel"
     >
       <EntityLocatorBar
-        accessibleLabel={canManage ? 'Поиск по имени или телефону' : 'Поиск по имени'}
+        accessibleLabel={canManage ? fe5ClientListText.clientsToolbar_string_6890f945 : fe5ClientListText.clientsToolbar_string_ae8e30fb}
         activeFilterCount={advancedFilterCount}
         className="clients-v7-locator"
         data-client-search-mode={state.searchMode}
         data-loading={state.loading || undefined}
         frequentActions={(
           <TaskToolbarRefreshAction
-            label="Обновить список"
+            label={fe5ClientListText.clientsToolbar_label_163a016f}
             loading={state.loading}
             onClick={state.reload}
           />
@@ -238,11 +240,11 @@ export function ClientsToolbar({
         onInputBlur={handleSearchBlur}
         onInputFocus={() => state.setSearchFocused(true)}
         onOpenFilters={() => setFiltersOpened(true)}
-        placeholder={canManage ? 'Имя или телефон' : 'Имя клиента'}
+        placeholder={canManage ? fe5ClientListText.clientsToolbar_string_4d848c10 : fe5ClientListText.clientsToolbar_string_0e1206b8}
         primaryAction={canManage ? (
           <TaskToolbarAction
             icon={<IconPlus size={18} />}
-            label="Новый клиент"
+            label={fe5ClientListText.clientsToolbar_label_5a2595c2}
             onClick={onCreate}
             priority="primary"
           />
@@ -254,7 +256,7 @@ export function ClientsToolbar({
       <ActiveFiltersBar
         filters={activeAdvancedFilters}
         onReset={state.resetAdvancedFilters}
-        resetLabel="Сбросить фильтры"
+        resetLabel={fe5ClientListText.clientsToolbar_resetLabel_cd45ec78}
       />
 
       <Drawer
@@ -264,7 +266,7 @@ export function ClientsToolbar({
           header: 'clients-v7-filters-drawer__header',
         }}
         closeButtonProps={{
-          'aria-label': 'Закрыть фильтры клиентов',
+          'aria-label': fe5ClientListText.clientsToolbar_ariaLabel_fcf4cc1c,
           className: 'temporary-surface-close clients-v7-filters-drawer__close',
         }}
         closeOnClickOutside
@@ -275,7 +277,7 @@ export function ClientsToolbar({
         position="bottom"
         returnFocus
         size="min(34rem, 100dvh)"
-        title="Фильтры клиентов"
+        title={fe5ClientListText.clientsToolbar_title_ef76d1e3}
         trapFocus
         withCloseButton
         zIndex={300}
@@ -290,8 +292,7 @@ export function ClientsToolbar({
         <TemporarySurfaceFooter
           primaryAction={(
             <Button onClick={() => setFiltersOpened(false)} type="button">
-              Готово
-            </Button>
+              {fe5ClientListText.clientsToolbar_jsxText_ef05d579}</Button>
           )}
           secondaryAction={(
             <Button
@@ -300,8 +301,7 @@ export function ClientsToolbar({
               type="button"
               variant="secondary"
             >
-              Сбросить
-            </Button>
+              {fe5ClientListText.clientsToolbar_jsxText_407f8717}</Button>
           )}
         />
       </Drawer>
@@ -322,7 +322,7 @@ function buildActiveAdvancedFilters(
   if (filters.groupId) {
     activeFilters.push({
       id: 'groupId',
-      label: `Группа: ${groupLabel ?? 'выбрана'}`,
+      label: fe5ClientListText.clientsToolbar_label_ddeb6381(groupLabel ?? fe5ClientListText.clientsToolbar_string_ce01acee),
       onRemove: () => state.updateFilters({ groupId: null }),
     })
   }
@@ -330,7 +330,7 @@ function buildActiveAdvancedFilters(
   if (filters.membershipExpiresFrom) {
     activeFilters.push({
       id: 'membershipExpiresFrom',
-      label: `Истекает с ${filters.membershipExpiresFrom}`,
+      label: fe5ClientListText.clientsToolbar_label_01440154(filters.membershipExpiresFrom),
       onRemove: () => state.updateFilters({ membershipExpiresFrom: '' }),
     })
   }
@@ -338,7 +338,7 @@ function buildActiveAdvancedFilters(
   if (filters.membershipExpiresTo) {
     activeFilters.push({
       id: 'membershipExpiresTo',
-      label: `Истекает по ${filters.membershipExpiresTo}`,
+      label: fe5ClientListText.clientsToolbar_label_692fdce0(filters.membershipExpiresTo),
       onRemove: () => state.updateFilters({ membershipExpiresTo: '' }),
     })
   }
@@ -358,7 +358,7 @@ function buildActiveAdvancedFilters(
   if (filters.status !== 'Active') {
     activeFilters.push({
       id: 'status',
-      label: `Статус: ${statusOptions.find((option) => option.value === filters.status)?.label ?? filters.status}`,
+      label: fe5ClientListText.clientsToolbar_label_20f55670(statusOptions.find((option) => option.value === filters.status)?.label ?? filters.status),
       onRemove: () => state.setStatus('Active'),
     })
   }
@@ -366,7 +366,7 @@ function buildActiveAdvancedFilters(
   if (filters.withoutPhoto) {
     activeFilters.push({
       id: 'withoutPhoto',
-      label: 'Без фото',
+      label: fe5ClientListText.clientsToolbar_label_f2549c72,
       onRemove: () => state.updateFilters({ withoutPhoto: false }),
     })
   }

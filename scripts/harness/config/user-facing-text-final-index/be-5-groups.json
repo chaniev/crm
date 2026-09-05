@@ -1,0 +1,1073 @@
+{
+  "version": 1,
+  "task": "TASK-165",
+  "source_commit": "75367fc092bdadf968f742d0961d1a336207dd9d",
+  "review_status": "accepted",
+  "slice": "BE-5-groups",
+  "entry_count": 47,
+  "entries": [
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/{id:guid}\"",
+      "value": "/{id:guid}",
+      "fingerprint": "sha256:7680c5d46c4e6eea124aba53fad9fa0a65f7581c9ecc52330096d2cef054259d",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string DetailsRoute = \"/{id:guid}\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        11
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"HH:mm\"",
+      "value": "HH:mm",
+      "fingerprint": "sha256:7f135aeded40ff90735b4e13c12f6cb05f1b925877776ed04a6e85877a6c3c50",
+      "context": {
+        "kind": "source-line",
+        "name": "public const string TrainingStartTimeDisplayFormat = \"HH:mm\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{GroupApiConstants.RoutePrefix}/{group.Id}\"",
+      "value": "{GroupApiConstants.RoutePrefix}/{group.Id}",
+      "fingerprint": "sha256:15c39a3f70fe19dbf5841759dc330fb69f669e32232023767ef841bf5cc5245f",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.Created($\"{GroupApiConstants.RoutePrefix}/{group.Id}\", MapDetails(createdGroup));"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        435
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"initialLessonSeries.slots\"",
+      "value": "initialLessonSeries.slots",
+      "fingerprint": "sha256:0b75ae467651f987f041d34063770690818bd784b4a91a991c627e8133a81ba5",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.slots\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine9760e729b66];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        976,
+        1078
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"initialLessonSeries.startsOn\"",
+      "value": "initialLessonSeries.startsOn",
+      "fingerprint": "sha256:45acbe0e93edb6e4fe29ce5648b1be637db56962b062a347ab3ab03251810703",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.startsOn\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine9822f1189ff];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        982
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"initialLessonSeries.endsOn\"",
+      "value": "initialLessonSeries.endsOn",
+      "fingerprint": "sha256:8cb0954a86b2f42ab7fb6da176a382f66b25ea489cc18247d4a99a90808ef8fd",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.endsOn\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine991Ebe48b29];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        991,
+        997
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.isoWeekday\"",
+      "value": "{prefix}.isoWeekday",
+      "fingerprint": "sha256:e38436b5f0015e3cd8356072a7599d8e8bbc9f8b3fad6d4a27c9ad9300bd2ecc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.isoWeekday\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine100703b7e917];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1007
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.startTime\"",
+      "value": "{prefix}.startTime",
+      "fingerprint": "sha256:8dcfce28f3baa3f5c0f078b2321d0f37d089554dfa0318e5290c9c69052fea63",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.startTime\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine10129828a59b];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1012
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.durationMinutes\"",
+      "value": "{prefix}.durationMinutes",
+      "fingerprint": "sha256:e10dbe3f1da780faa5f80e0596efff7abb3cb18d0010dffd016ce87098735aec",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.durationMinutes\"] = [GroupResources.DurationMinutesOutOfRange(GroupApiConstants.MinDurationMinutes, GroupApiConstants.MaxDurationMinutes)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1017
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.hallId\"",
+      "value": "{prefix}.hallId",
+      "fingerprint": "sha256:c0fbb80c1d2144ac360fe5aec9dc3624a0b9fd600f5ab86f1e318fc4d41b1827",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.hallId\"] = [GroupResources.InvalidHallId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1022
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"initialLessonSeries.slots.hallId.{missingHallId:D}\"",
+      "value": "initialLessonSeries.slots.hallId.{missingHallId:D}",
+      "fingerprint": "sha256:acd9a10ce99868df7e0f1fe6df663f543f5f650148de049cd4b561f102b857f2",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"initialLessonSeries.slots.hallId.{missingHallId:D}\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine10615d2885e5];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1061
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"initialLessonSeries.slots.hallId\"",
+      "value": "initialLessonSeries.slots.hallId",
+      "fingerprint": "sha256:95f73cdb002e904cd508c0b77fe2c48696236bd24fab08cb4a99ccd9f69058f2",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"initialLessonSeries.slots.hallId\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine10668874f5c8];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1066
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/problems/{code}\"",
+      "value": "/problems/{code}",
+      "fingerprint": "sha256:6eeb2e2eaeace6055a5ed4b0babd97930dd12861ba34ec0f211446b87bce8cfc",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = $\"/problems/{code}\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        1129
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"paging\"",
+      "value": "paging",
+      "fingerprint": "sha256:26ca59cbe63ebf7f690310861c5839ba1b9eefad7de66123534af716d47f8845",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"paging\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupRequestValidatorLine1798418554];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        17
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"page\"",
+      "value": "page",
+      "fingerprint": "sha256:3660315a9af3df255d8f19ab077e4797822b41488a0e2a04bc6af71213c23274",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"page\"] = [GroupResources.PageMustBeGreaterThanZero];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25,
+        40
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"pageSize\"",
+      "value": "pageSize",
+      "fingerprint": "sha256:8a00a4a803eb50c899e2732116c7534b451938d8b9219749e786fa47d24b0f2b",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"pageSize\"] = [GroupResources.PageSizeMustBeInRange(GroupApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        30
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"skip\"",
+      "value": "skip",
+      "fingerprint": "sha256:42e93b9bb77d8a73e8412111b8f3d6befab66bf48fdcdefa80bb111819aa0cb1",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"skip\"] = [GroupResources.SkipCannotBeNegative];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        49
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"take\"",
+      "value": "take",
+      "fingerprint": "sha256:d1905cf90af29a5ac3f99e105830eecc5b3b415b24e2d166a7ce4cf72b2f32e6",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"take\"] = [GroupResources.TakeMustBeInRange(GroupApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        54
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"name\"",
+      "value": "name",
+      "fingerprint": "sha256:82a3537ff0dbce7eec35d69edc3a189ee6f17d82f353a553f9aa96cb0be3ce89",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"name\"] = [GroupResources.NameRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        82,
+        86
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"trainingStartTime\"",
+      "value": "trainingStartTime",
+      "fingerprint": "sha256:cccbf6880d2d126154b69070d31ed4124d6dfa4a84c5d1620605b6a8e2f5c127",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"trainingStartTime\"] = [GroupResources.TrainingStartTimeInvalid(GroupApiConstants.TrainingStartTimeDisplayFormat)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        93
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"branchId\"",
+      "value": "branchId",
+      "fingerprint": "sha256:9afcbf86367dc02ab44d394652ce9df69ccc9ebc2d71c79e2b30889a4dd526c9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"branchId\"] = [GroupResources.BranchRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        117,
+        121,
+        151,
+        157,
+        171,
+        220
+      ],
+      "occurrences": 6,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"hallId\"",
+      "value": "hallId",
+      "fingerprint": "sha256:8f446ba0bd3c1e2d31ac8eb45c4c56fa24ddeea329911392317a7a42121835c4",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"hallId\"] = [GroupResources.HallRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        126,
+        130,
+        189,
+        195,
+        201
+      ],
+      "occurrences": 5,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"groupTypeId\"",
+      "value": "groupTypeId",
+      "fingerprint": "sha256:fd3dacc48b17c6007acf2bcd7b7098882a76ca8ac4ef065f302911506447da86",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"groupTypeId\"] = [GroupResources.GroupTypeRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        232,
+        238,
+        248
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"trainerIds\"",
+      "value": "trainerIds",
+      "fingerprint": "sha256:e0124da431d34dc9ac1068b5f98e1eea1cce7129d558a304159f4a76baeeb6cc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"trainerIds\"] = [GroupResources.InvalidTrainerId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        262,
+        281
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"durationMinutes\"",
+      "value": "durationMinutes",
+      "fingerprint": "sha256:7bb6ef0a931a877175d776a3048d283dc05151622be9d669be16c73d4bda1476",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"durationMinutes\"] = [GroupResources.DurationMinutesRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        309,
+        313
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"weekdays\"",
+      "value": "weekdays",
+      "fingerprint": "sha256:c41d3f39558688dec65319af7b656bf77d12b27569f996944a2333b613ff9ced",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"weekdays\"] = [GroupResources.WeekdaysRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        319,
+        336
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"assignments\"",
+      "value": "assignments",
+      "fingerprint": "sha256:ef8dcf7162a955368a7a33b8596e363a92e03fa7a4f0820231a02124089c059c",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"assignments\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine30168f9f19a];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        301,
+        359
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.trainerId\"",
+      "value": "{prefix}.trainerId",
+      "fingerprint": "sha256:de9d55a974ca4ad1c5792d822076f4b536073409e857761c45d17569c5d55fbd",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.trainerId\"] = [GroupResources.InvalidTrainerId];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        311
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.validFrom\"",
+      "value": "{prefix}.validFrom",
+      "fingerprint": "sha256:cb87b82e6300f271e3e5b6277b6c1b43a2ba20a06b18c1eb001f71b532ecd8a9",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.validFrom\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine316A371b159];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        316,
+        334
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"{prefix}.validTo\"",
+      "value": "{prefix}.validTo",
+      "fingerprint": "sha256:aa1d1889a72867bf9c83c09a8bd33822f63506055ee40d6ff8ef23798930b594",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[$\"{prefix}.validTo\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerAssignmentEndpointsLine3259f8d97b8];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        325,
+        339
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "interpolated",
+      "source_text": "$\"/problems/{code}\"",
+      "value": "/problems/{code}",
+      "fingerprint": "sha256:6eeb2e2eaeace6055a5ed4b0babd97930dd12861ba34ec0f211446b87bce8cfc",
+      "context": {
+        "kind": "source-line",
+        "name": "Type = $\"/problems/{code}\","
+      },
+      "has_cyrillic": false,
+      "lines": [
+        673
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/group-trainer-substitution-overlap\"",
+      "value": "/problems/group-trainer-substitution-overlap",
+      "fingerprint": "sha256:054a5d95ea6078a65c9ff34ecc78febb047f78616008d74bcc5617c78ce6e2b5",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string OverlapProblemType = \"/problems/group-trainer-substitution-overlap\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        19
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"group_trainer_substitution_overlap\"",
+      "value": "group_trainer_substitution_overlap",
+      "fingerprint": "sha256:985c6e80fcffaaac5dfa5715b7a5edcfd42cea3146aa06fc5c3053acee819770",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string OverlapProblemCode = \"group_trainer_substitution_overlap\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        20
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/group-trainer-substitution-no-changes\"",
+      "value": "/problems/group-trainer-substitution-no-changes",
+      "fingerprint": "sha256:a61e178e7e0c196d0222a12673a2ccec3110017896eea8195561eb5ade329141",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string NoChangesProblemType = \"/problems/group-trainer-substitution-no-changes\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        21
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"group_trainer_substitution_no_changes\"",
+      "value": "group_trainer_substitution_no_changes",
+      "fingerprint": "sha256:01b99986d567b290bcb7592c0312c3cfbd0ac416bd2e51f8d3733862e7f6a4a4",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string NoChangesProblemCode = \"group_trainer_substitution_no_changes\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        22
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/group-trainer-substitution-immutable\"",
+      "value": "/problems/group-trainer-substitution-immutable",
+      "fingerprint": "sha256:dedefc43e9d72a5120de14cabb1501cbbf603dca4ac84db173d215e1642f0d7d",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string ImmutableProblemType = \"/problems/group-trainer-substitution-immutable\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        23
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"group_trainer_substitution_immutable\"",
+      "value": "group_trainer_substitution_immutable",
+      "fingerprint": "sha256:dc449f8324b588f8f5f0a382c0b5f7232bebc248cb81808c9b49b7d1e03ccb95",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string ImmutableProblemCode = \"group_trainer_substitution_immutable\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        24
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"/problems/group-trainer-substitution-active-edit-conflict\"",
+      "value": "/problems/group-trainer-substitution-active-edit-conflict",
+      "fingerprint": "sha256:6ed15764ccd2957b27a48ec0fdc7e38bdcc0e2acb286b2732e5846fdd47c71c9",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string ActiveEditConflictProblemType = \"/problems/group-trainer-substitution-active-edit-conflict\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        25
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"group_trainer_substitution_active_edit_conflict\"",
+      "value": "group_trainer_substitution_active_edit_conflict",
+      "fingerprint": "sha256:09449b875d48ade65399b9c8fd735a1d09a94f20559680551068c3cb42e683f0",
+      "context": {
+        "kind": "source-line",
+        "name": "private const string ActiveEditConflictProblemCode = \"group_trainer_substitution_active_edit_conflict\";"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        26
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"groupId\"",
+      "value": "groupId",
+      "fingerprint": "sha256:2f1b743e2d1a1a7c7540154a3366a86fd52c1438602f5f42929e7dd59f24bfb6",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [\"groupId\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine2641d60c817] });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        264,
+        479
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"startsOn\"",
+      "value": "startsOn",
+      "fingerprint": "sha256:f6f83b9701a0fa7db9cc3032289227a18fc5ca7ba554df0cf5bde31133e8eb3c",
+      "context": {
+        "kind": "source-line",
+        "name": "return TypedResults.ValidationProblem(new Dictionary<string, string[]> { [\"startsOn\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine28080144680] });"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        280,
+        447,
+        507
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"substituteTrainerId\"",
+      "value": "substituteTrainerId",
+      "fingerprint": "sha256:191162013e7686da872115f3be8221bc18e456352c722018fd2f5b640848f0ed",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"substituteTrainerId\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine485688b34f5];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        485,
+        496,
+        500
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"endsOn\"",
+      "value": "endsOn",
+      "fingerprint": "sha256:eb42dc9307f01d7614c3d2066b079f9889aa9b41f150b9c5b3e11d547734adbc",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"endsOn\"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine513Df370b9a];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        513,
+        518
+      ],
+      "occurrences": 2,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"historySkip\"",
+      "value": "historySkip",
+      "fingerprint": "sha256:8217766e95e158aab89ee68d9a4c0fdd2e37fd556d168e42a6b4e4d529bb2c72",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"historySkip\"] = [GroupResources.SkipCannotBeNegative];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        529
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"historyTake\"",
+      "value": "historyTake",
+      "fingerprint": "sha256:0ac91f75ba7f1edb9aee0af77525006e0e987a198266c36870858908eefcb9aa",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"historyTake\"] = [GroupResources.TakeMustBeInRange(GroupApiConstants.MaxTake)];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        534
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"name\"",
+      "value": "name",
+      "fingerprint": "sha256:82a3537ff0dbce7eec35d69edc3a189ee6f17d82f353a553f9aa96cb0be3ce89",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"name\"] = [GroupTypeResources.NameRequired];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        275,
+        279,
+        298
+      ],
+      "occurrences": 3,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"description\"",
+      "value": "description",
+      "fingerprint": "sha256:c9046f7a37ad0ea7cee73355984fa5428982f8b37c8f7bcec91f7ac71a7cd104",
+      "context": {
+        "kind": "source-line",
+        "name": "errors[\"description\"] = [GroupTypeResources.DescriptionTooLong];"
+      },
+      "has_cyrillic": false,
+      "lines": [
+        284
+      ],
+      "occurrences": 1,
+      "category": "machine contract",
+      "reason": "Identifier, route, code, enum, format, or protocol value.",
+      "owner": "backend/groups",
+      "slice": "BE-5-groups",
+      "review_status": "accepted"
+    }
+  ]
+}
