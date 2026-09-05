@@ -24,14 +24,16 @@ import {
   TaskToolbarActions,
   TaskToolbarRefreshAction,
 } from '../shared/ux'
+import { fe12SettingsMembershipText } from '../../resources/fe-12-settings-membership'
+
 
 type Props = { assignedBranchId?: string | null; canSelectBranch?: boolean }
 type FormValues = { name: string; price: number | string; behaviorKind: Exclude<MembershipBehaviorKind, 'Professional'>; availableFrom: string; availableTo: string }
 type ModalState = { mode: 'create' } | { mode: 'edit'; item: MembershipCatalogItem } | null
 
 const behaviorOptions = [
-  { value: 'SingleVisit', label: 'Разовое посещение' },
-  { value: 'Term', label: 'Абонемент на срок' },
+  { value: 'SingleVisit', label: fe12SettingsMembershipText.membershipCatalogSettings_label_a4dd0afc },
+  { value: 'Term', label: fe12SettingsMembershipText.membershipCatalogSettings_label_274b0f43 },
 ]
 
 export function MembershipCatalogSettings({
@@ -54,9 +56,9 @@ export function MembershipCatalogSettings({
   const form = useForm<FormValues>({
     initialValues: { name: '', price: 0, behaviorKind: 'Term', availableFrom: new Date().toISOString().slice(0, 10), availableTo: '' },
     validate: {
-      name: (value) => value.trim() ? null : 'Введите название.',
-      price: (value) => Number(value) > 0 ? null : 'Цена должна быть больше нуля.',
-      availableFrom: (value) => value ? null : 'Укажите дату начала.',
+      name: (value) => value.trim() ? null : fe12SettingsMembershipText.membershipCatalogSettings_string_61be650d,
+      price: (value) => Number(value) > 0 ? null : fe12SettingsMembershipText.membershipCatalogSettings_string_326a3ef9,
+      availableFrom: (value) => value ? null : fe12SettingsMembershipText.membershipCatalogSettings_string_b284dfda,
     },
   })
 
@@ -86,7 +88,7 @@ export function MembershipCatalogSettings({
         if (controller.signal.aborted) return
         setBranches([])
         setBranchId('')
-        setBranchesError(reason instanceof Error ? reason.message : 'Не удалось загрузить филиалы.')
+        setBranchesError(reason instanceof Error ? reason.message : fe12SettingsMembershipText.membershipCatalogSettings_string_eb5b2e75)
       })
       .finally(() => {
         if (!controller.signal.aborted) setBranchesLoading(false)
@@ -131,7 +133,7 @@ export function MembershipCatalogSettings({
       })
       .catch((reason) => {
         if (controller.signal.aborted || itemsRequestId.current !== requestId) return
-        setItemsError(reason instanceof Error ? reason.message : 'Не удалось загрузить каталог.')
+        setItemsError(reason instanceof Error ? reason.message : fe12SettingsMembershipText.membershipCatalogSettings_string_2998ba4c)
       })
       .finally(() => {
         if (!controller.signal.aborted && itemsRequestId.current === requestId) {
@@ -162,18 +164,18 @@ export function MembershipCatalogSettings({
     } catch (reason) {
       const candidate = reason as { fieldErrors?: Record<string, string[]>; message?: string }
       if (reason instanceof ApiError || candidate.fieldErrors) form.setErrors(applyFieldErrors(candidate.fieldErrors ?? {}))
-      setFormError(candidate.message ?? 'Не удалось сохранить абонемент.')
+      setFormError(candidate.message ?? fe12SettingsMembershipText.membershipCatalogSettings_string_018f2727)
     } finally { setSubmitting(false) }
   }
 
   const scopeResolved = Boolean(branch)
   const scopeStatus = branchesLoading
-    ? 'Загружаем филиалы…'
+    ? fe12SettingsMembershipText.membershipCatalogSettings_string_029764c0
     : branchesError
-      ? 'Филиалы не загрузились'
+      ? fe12SettingsMembershipText.membershipCatalogSettings_string_9d518c0f
       : scopeResolved
-        ? branch?.name ?? 'Нет доступного филиала'
-        : 'Нет доступного филиала'
+        ? branch?.name ?? fe12SettingsMembershipText.membershipCatalogSettings_string_271a3cca
+        : fe12SettingsMembershipText.membershipCatalogSettings_string_271a3cca
   const createDisabledReason = !scopeResolved && canSelectBranch ? scopeStatus : null
   const refreshLoading = branchesLoading || (scopeResolved && itemsLoading)
 
@@ -201,7 +203,7 @@ export function MembershipCatalogSettings({
               descriptionProps={{ className: 'visually-hidden' }}
               disabled={branchesLoading || Boolean(branchesError) || branches.length === 0}
               inputWrapperOrder={['label', 'input', 'description']}
-              label="Филиал каталога"
+              label={fe12SettingsMembershipText.membershipCatalogSettings_label_6c90f338}
               onChange={(value) => setBranchId(value ?? '')}
               placeholder={scopeStatus}
               value={branchId || null}
@@ -211,7 +213,7 @@ export function MembershipCatalogSettings({
               className="settings-catalog-scope__static"
               withBorder
             >
-              <Text c="dimmed" size="sm">Филиал каталога</Text>
+              <Text c="dimmed" size="sm">{fe12SettingsMembershipText.membershipCatalogSettings_label_6c90f338}</Text>
               <Text className="settings-catalog-scope__value" fw={700}>{scopeStatus}</Text>
             </Paper>
           )}
@@ -222,7 +224,7 @@ export function MembershipCatalogSettings({
           ) : null}
         </div>
         <TaskToolbarActions
-          aria-label={`Действия каталога абонементов: ${scopeStatus}`}
+          aria-label={fe12SettingsMembershipText.membershipCatalogSettings_template_6c24496b(scopeStatus)}
           role="group"
           frequentActions={(
             <TaskToolbarRefreshAction
@@ -234,25 +236,25 @@ export function MembershipCatalogSettings({
             <TaskToolbarAction
               disabled={!scopeResolved}
               icon={<IconPlus size={18} />}
-              label="Добавить абонемент"
+              label={fe12SettingsMembershipText.membershipCatalogSettings_label_cad58cd3}
               onClick={openCreate}
               priority="primary"
             />
           )}
         />
       </div>
-      {itemsLoading ? <LoadingState label="Загружаем каталог..."/> : null}
-      {branchesError ? <ErrorState title="Не удалось загрузить филиалы" message={branchesError}/> : null}
-      {scopeResolved && !itemsLoading && itemsError ? <ErrorState title="Каталог не загрузился" message={itemsError}/> : null}
-      {scopeResolved && !itemsLoading && !itemsError && items.length === 0 ? <EmptyState icon={<IconPlus size={24}/>} title="В этом филиале ещё нет абонементов"/> : null}
-      {scopeResolved && !itemsLoading && !itemsError ? <Stack>{items.map((item) => <Paper className="list-row-card" key={item.id} p="lg" withBorder><Group justify="space-between"><Stack gap={6}><Text fw={700}>{item.name}</Text><Text c="dimmed" size="sm">{formatPrice(item.price)} • {item.availableFrom} — {item.availableTo ?? 'бессрочно'}</Text></Stack><Button aria-label={`Редактировать ${item.name}`} leftSection={<IconEdit size={16}/>} onClick={() => openEdit(item)} variant="light">Изменить</Button></Group></Paper>)}</Stack> : null}
+      {itemsLoading ? <LoadingState label={fe12SettingsMembershipText.membershipCatalogSettings_label_2e4affe4}/> : null}
+      {branchesError ? <ErrorState title={fe12SettingsMembershipText.membershipCatalogSettings_title_63cfba6d} message={branchesError}/> : null}
+      {scopeResolved && !itemsLoading && itemsError ? <ErrorState title={fe12SettingsMembershipText.membershipCatalogSettings_title_db57eb5b} message={itemsError}/> : null}
+      {scopeResolved && !itemsLoading && !itemsError && items.length === 0 ? <EmptyState icon={<IconPlus size={24}/>} title={fe12SettingsMembershipText.membershipCatalogSettings_title_af483cf5}/> : null}
+      {scopeResolved && !itemsLoading && !itemsError ? <Stack>{items.map((item) => <Paper className="list-row-card" key={item.id} p="lg" withBorder><Group justify="space-between"><Stack gap={6}><Text fw={700}>{item.name}</Text><Text c="dimmed" size="sm">{formatPrice(item.price)} {fe12SettingsMembershipText.membershipCatalogSettings_jsxText_4f8865ab}{item.availableFrom} {fe12SettingsMembershipText.membershipCatalogSettings_jsxText_bda05058}{item.availableTo ?? fe12SettingsMembershipText.membershipCatalogSettings_string_a25d9d8a}</Text></Stack><Button aria-label={fe12SettingsMembershipText.membershipCatalogSettings_template_415f4687(item.name)} leftSection={<IconEdit size={16}/>} onClick={() => openEdit(item)} variant="light">{fe12SettingsMembershipText.membershipCatalogSettings_jsxText_b8b151d4}</Button></Group></Paper>)}</Stack> : null}
     </Stack></PageSection>
-    <Modal centered opened={Boolean(modal)} onClose={() => setModal(null)} returnFocus title={modal?.mode === 'edit' ? 'Редактирование абонемента' : 'Новый абонемент'}><form onSubmit={form.onSubmit((values) => void submit(values))}><Stack>
+    <Modal centered opened={Boolean(modal)} onClose={() => setModal(null)} returnFocus title={modal?.mode === 'edit' ? fe12SettingsMembershipText.membershipCatalogSettings_string_8cce07e6 : fe12SettingsMembershipText.membershipCatalogSettings_string_a946d490}><form onSubmit={form.onSubmit((values) => void submit(values))}><Stack>
       {formError ? <Alert color="red" icon={<IconAlertCircle size={18}/>}>{formError}</Alert> : null}
-      <TextInput label="Название" {...form.getInputProps('name')}/>
-      {modal?.mode === 'create' ? <SimpleGrid cols={2}><NumberInput label="Цена" min={0} {...form.getInputProps('price')}/><Select allowDeselect={false} data={behaviorOptions} label="Поведение" {...form.getInputProps('behaviorKind')}/></SimpleGrid> : null}
-      <SimpleGrid cols={2}><TextInput type="date" label="Доступен с" {...form.getInputProps('availableFrom')}/><TextInput type="date" label="Доступен по" {...form.getInputProps('availableTo')}/></SimpleGrid>
-      <ResponsiveButtonGroup justify="flex-end"><Button variant="secondary" onClick={() => setModal(null)}>Отменить</Button><Button type="submit" loading={submitting}>Сохранить</Button></ResponsiveButtonGroup>
+      <TextInput label={fe12SettingsMembershipText.membershipCatalogSettings_label_0918b4ba} {...form.getInputProps('name')}/>
+      {modal?.mode === 'create' ? <SimpleGrid cols={2}><NumberInput label={fe12SettingsMembershipText.membershipCatalogSettings_label_be0e705c} min={0} {...form.getInputProps('price')}/><Select allowDeselect={false} data={behaviorOptions} label={fe12SettingsMembershipText.membershipCatalogSettings_label_132b8f43} {...form.getInputProps('behaviorKind')}/></SimpleGrid> : null}
+      <SimpleGrid cols={2}><TextInput type="date" label={fe12SettingsMembershipText.membershipCatalogSettings_label_9d2be902} {...form.getInputProps('availableFrom')}/><TextInput type="date" label={fe12SettingsMembershipText.membershipCatalogSettings_label_4a3c0cb7} {...form.getInputProps('availableTo')}/></SimpleGrid>
+      <ResponsiveButtonGroup justify="flex-end"><Button variant="secondary" onClick={() => setModal(null)}>{fe12SettingsMembershipText.membershipCatalogSettings_jsxText_7c47f729}</Button><Button type="submit" loading={submitting}>{fe12SettingsMembershipText.membershipCatalogSettings_jsxText_b4d30cae}</Button></ResponsiveButtonGroup>
     </Stack></form></Modal>
   </Stack>
 }

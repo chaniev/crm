@@ -1,6 +1,8 @@
 import { Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
 import { IconUserCircle } from '@tabler/icons-react'
 import type { GroupClient } from '../../lib/api'
+import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
+
 
 type GroupClientRowProps = {
   client: GroupClient
@@ -20,7 +22,7 @@ export function GroupClientRow({ client, onOpenClient }: GroupClientRowProps) {
           <Text fw={700}>{client.fullName}</Text>
           {client.phone ? (
             <Text c="dimmed" size="sm">
-              Телефон: {client.phone}
+              {fe13GroupsCoreText.groupClientRow_jsxText_353ad7d1}{client.phone}
             </Text>
           ) : null}
         </Stack>
@@ -30,7 +32,7 @@ export function GroupClientRow({ client, onOpenClient }: GroupClientRowProps) {
             {client.status}
           </Badge>
           <Button
-            aria-label={`Открыть карточку клиента ${client.fullName}`}
+            aria-label={fe13GroupsCoreText.groupClientRow_template_a4942e1b(client.fullName)}
             className="group-client-profile-action"
             data-group-client-profile-action-id={client.id}
             leftSection={<IconUserCircle size={18} />}
@@ -39,8 +41,7 @@ export function GroupClientRow({ client, onOpenClient }: GroupClientRowProps) {
             variant="light"
           >
             <span className="group-client-profile-action__label">
-              Карточка клиента
-            </span>
+              {fe13GroupsCoreText.groupClientRow_jsxText_a912ec86}</span>
           </Button>
         </Group>
       </Group>

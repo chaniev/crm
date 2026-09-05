@@ -39,6 +39,8 @@ import {
   ResponsiveButtonGroup,
   SectionHeader,
 } from '../shared/ux'
+import { fe14GroupStaffingText } from '../../resources/fe-14-group-staffing'
+
 
 type GroupTrainerAssignmentsSectionProps = {
   groupId: string
@@ -56,7 +58,7 @@ type AssignmentDraft = {
 
 type AssignmentFieldErrors = Record<string, string>
 
-const GENERIC_ASSIGNMENT_ERROR = 'Не удалось сохранить назначения тренеров.'
+const GENERIC_ASSIGNMENT_ERROR = fe14GroupStaffingText.groupTrainerAssignmentsSection_gENERICASSIGNMENTERROR_b044e028
 
 export function GroupTrainerAssignmentsSection({
   groupId,
@@ -86,7 +88,7 @@ export function GroupTrainerAssignmentsSection({
     () =>
       trainerOptions.map((trainer) => ({
         value: trainer.id,
-        label: `${trainer.fullName} (${trainer.login})`,
+        label: fe14GroupStaffingText.groupTrainerAssignmentsSection_label_a0ff92dd(trainer.fullName, trainer.login),
       })),
     [trainerOptions],
   )
@@ -159,7 +161,7 @@ export function GroupTrainerAssignmentsSection({
 
   async function executeAssignments() {
     if (!preview) {
-      setFormError('Сначала получите предпросмотр назначений.')
+      setFormError(fe14GroupStaffingText.groupTrainerAssignmentsSection_setFormError_8c90a577)
       focusRecovery()
       return
     }
@@ -180,8 +182,8 @@ export function GroupTrainerAssignmentsSection({
 
       showAppNotification({
         id: `group-trainer-assignments-${groupId}`,
-        title: 'Назначения тренеров сохранены',
-        message: 'Постоянные периоды тренеров применены к группе.',
+        title: fe14GroupStaffingText.groupTrainerAssignmentsSection_title_759d829a,
+        message: fe14GroupStaffingText.groupTrainerAssignmentsSection_message_7a7b41bd,
         color: 'teal',
       })
     } catch (error) {
@@ -201,7 +203,7 @@ export function GroupTrainerAssignmentsSection({
       setFieldErrors(nextFieldErrors)
       setFormError(
         Object.keys(nextFieldErrors).length > 0
-          ? 'Проверьте поля назначений.'
+          ? fe14GroupStaffingText.groupTrainerAssignmentsSection_string_bd7d6747
           : generalError ?? codeMessage ?? GENERIC_ASSIGNMENT_ERROR,
       )
       setPreview(null)
@@ -228,11 +230,11 @@ export function GroupTrainerAssignmentsSection({
       <SectionHeader
         actions={(
           <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
-            Периодов: {drafts.length}
+            {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_a43d49ca}{drafts.length}
           </Badge>
         )}
-        description="Постоянные тренеры меняются отдельным подтверждаемым действием. Основные данные группы сохраняются выше без расписания и списка тренеров."
-        title="Постоянные назначения тренеров"
+        description={fe14GroupStaffingText.groupTrainerAssignmentsSection_description_72d93054}
+        title={fe14GroupStaffingText.groupTrainerAssignmentsSection_title_6f2a21ca}
       />
 
       {formError ? (
@@ -241,7 +243,7 @@ export function GroupTrainerAssignmentsSection({
           icon={<IconAlertCircle size={18} />}
           ref={recoveryRef}
           tabIndex={-1}
-          title="Действие не выполнено"
+          title={fe14GroupStaffingText.groupTrainerAssignmentsSection_title_7530f803}
           variant="light"
         >
           {formError}
@@ -250,9 +252,9 @@ export function GroupTrainerAssignmentsSection({
 
       {drafts.length === 0 ? (
         <EmptyState
-          description="Добавьте хотя бы один период, затем получите предпросмотр влияния на занятия."
+          description={fe14GroupStaffingText.groupTrainerAssignmentsSection_description_b5251bc5}
           icon={<IconUserStar size={24} />}
-          title="Периоды тренеров не заданы"
+          title={fe14GroupStaffingText.groupTrainerAssignmentsSection_title_eb93958c}
         />
       ) : (
         <Stack gap="sm">
@@ -268,18 +270,18 @@ export function GroupTrainerAssignmentsSection({
                   data={trainerData}
                   disabled={pending}
                   error={fieldErrors[`${index}.trainerId`]}
-                  label={`Тренер периода ${index + 1}`}
+                  label={fe14GroupStaffingText.groupTrainerAssignmentsSection_template_07b8af35(index + 1)}
                   onChange={(trainerId) =>
                     updateDraft(draft.key, 'trainerId', trainerId ?? '')
                   }
-                  placeholder="Выберите тренера"
+                  placeholder={fe14GroupStaffingText.groupTrainerAssignmentsSection_placeholder_3928a7cc}
                   searchable
                   value={draft.trainerId || null}
                 />
                 <TextInput
                   disabled={pending}
                   error={fieldErrors[`${index}.validFrom`]}
-                  label={`Начало периода ${index + 1}`}
+                  label={fe14GroupStaffingText.groupTrainerAssignmentsSection_template_bb0c93bf(index + 1)}
                   max="9999-12-31"
                   min="1900-01-01"
                   onChange={(event) =>
@@ -291,7 +293,7 @@ export function GroupTrainerAssignmentsSection({
                 <TextInput
                   disabled={pending}
                   error={fieldErrors[`${index}.validTo`]}
-                  label={`Окончание периода ${index + 1}`}
+                  label={fe14GroupStaffingText.groupTrainerAssignmentsSection_template_b016d5be(index + 1)}
                   max="9999-12-31"
                   min="1900-01-01"
                   onChange={(event) =>
@@ -308,8 +310,7 @@ export function GroupTrainerAssignmentsSection({
                     type="button"
                     variant="subtle"
                   >
-                    Удалить
-                  </Button>
+                    {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_be99b136}</Button>
                 </Group>
               </SimpleGrid>
             </Paper>
@@ -321,9 +322,9 @@ export function GroupTrainerAssignmentsSection({
         <Paper className="group-trainer-assignments-preview" radius="20px" withBorder>
           <Stack gap="sm">
             <Group justify="space-between">
-              <Text fw={700}>Предпросмотр изменений</Text>
+              <Text fw={700}>{fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_e9be6ac7}</Text>
               <Badge color="teal" variant="light">
-                Затронуто занятий: {preview.impact.totalAffectedOccurrences}
+                {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_672a522d}{preview.impact.totalAffectedOccurrences}
               </Badge>
             </Group>
             {preview.warnings.length > 0 ? (
@@ -336,20 +337,19 @@ export function GroupTrainerAssignmentsSection({
                 ))}
               </Stack>
             ) : (
-              <Text c="dimmed" size="sm">Предупреждений нет.</Text>
+              <Text c="dimmed" size="sm">{fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_f853b1ba}</Text>
             )}
             {preview.impact.examples.length > 0 ? (
               <Stack gap={4}>
                 {preview.impact.examples.map((example) => (
                   <Text key={example.lessonOccurrenceId} size="sm">
-                    {formatDateOnly(example.lessonDate)} · {example.startTime} · {example.hallName}
+                    {formatDateOnly(example.lessonDate)} {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_a137f17a}{example.startTime} {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_a137f17a}{example.hallName}
                   </Text>
                 ))}
               </Stack>
             ) : null}
             <Text c="dimmed" size="xs">
-              Подтверждение действует до {formatDateTime(preview.expiresAt)}.
-            </Text>
+              {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_fb7dfed4}{formatDateTime(preview.expiresAt)}{fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_cdb4ee2a}</Text>
           </Stack>
         </Paper>
       ) : null}
@@ -362,8 +362,7 @@ export function GroupTrainerAssignmentsSection({
           type="button"
           variant="secondary"
         >
-          Добавить период
-        </Button>
+          {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_0918d565}</Button>
         <Button
           leftSection={<IconRefresh size={18} />}
           loading={pendingAction === 'preview'}
@@ -371,8 +370,7 @@ export function GroupTrainerAssignmentsSection({
           type="button"
           variant="secondary"
         >
-          Получить предпросмотр
-        </Button>
+          {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_857a90c1}</Button>
         <Button
           disabled={!preview || pendingAction === 'preview'}
           leftSection={<IconDeviceFloppy size={18} />}
@@ -380,8 +378,7 @@ export function GroupTrainerAssignmentsSection({
           onClick={() => void executeAssignments()}
           type="button"
         >
-          Сохранить назначения
-        </Button>
+          {fe14GroupStaffingText.groupTrainerAssignmentsSection_jsxText_8b3890f6}</Button>
       </ResponsiveButtonGroup>
     </Stack>
   )
@@ -411,25 +408,25 @@ function validateDrafts(drafts: AssignmentDraft[]) {
   let formError: string | null = null
 
   if (drafts.length === 0) {
-    formError = 'Добавьте хотя бы один период назначения.'
+    formError = fe14GroupStaffingText.groupTrainerAssignmentsSection_string_eed7cd02
   }
 
   drafts.forEach((draft, index) => {
     if (!draft.trainerId) {
-      fieldErrors[`${index}.trainerId`] = 'Выберите тренера.'
+      fieldErrors[`${index}.trainerId`] = fe14GroupStaffingText.groupTrainerAssignmentsSection_string_11da4ac5
     }
     if (!isValidDateOnly(draft.validFrom)) {
-      fieldErrors[`${index}.validFrom`] = 'Укажите корректную дату начала.'
+      fieldErrors[`${index}.validFrom`] = fe14GroupStaffingText.groupTrainerAssignmentsSection_string_eb4a0393
     }
     if (draft.validTo && !isValidDateOnly(draft.validTo)) {
-      fieldErrors[`${index}.validTo`] = 'Укажите корректную дату окончания.'
+      fieldErrors[`${index}.validTo`] = fe14GroupStaffingText.groupTrainerAssignmentsSection_string_8858264c
     }
     if (
       isValidDateOnly(draft.validFrom) &&
       isValidDateOnly(draft.validTo) &&
       draft.validTo < draft.validFrom
     ) {
-      fieldErrors[`${index}.validTo`] = 'Дата окончания не может быть раньше начала.'
+      fieldErrors[`${index}.validTo`] = fe14GroupStaffingText.groupTrainerAssignmentsSection_string_a9adf0fb
     }
   })
 

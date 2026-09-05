@@ -4,6 +4,8 @@ import type {
   UpdateTrainingGroupIdentityRequest,
   UpsertTrainingGroupRequest,
 } from '../../lib/api'
+import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
+
 
 export type GroupFormValues = {
   branchId: string
@@ -35,10 +37,10 @@ export function useGroupForm() {
       trainerIds: [],
     },
     validate: {
-      name: (value) => (value.trim() ? null : 'Введите название группы.'),
+      name: (value) => (value.trim() ? null : fe13GroupsCoreText.groupFormMapping_string_6994b743),
       trainingStartTime: (value) =>
-        value.trim() ? null : 'Укажите время начала тренировки.',
-      groupTypeId: (value) => (value ? null : 'Выберите тип группы.'),
+        value.trim() ? null : fe13GroupsCoreText.groupFormMapping_string_d730d41d,
+      groupTypeId: (value) => (value ? null : fe13GroupsCoreText.groupFormMapping_string_9d3e66f4),
     },
   })
 }

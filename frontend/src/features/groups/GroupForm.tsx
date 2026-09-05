@@ -35,6 +35,8 @@ import {
   GROUPS_GRID_COLUMNS,
 } from './groupManagement.constants'
 import type { GroupFormValues } from './groupFormMapping'
+import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
+
 
 export type GroupFormProps = {
   form: UseFormReturnType<GroupFormValues>
@@ -107,7 +109,7 @@ export function GroupForm({
             color="red"
             icon={<IconAlertCircle size={18} />}
             tabIndex={-1}
-            title="Сохранение не выполнено"
+            title={fe13GroupsCoreText.groupForm_title_09e1875e}
             variant="light"
           >
             {formError}
@@ -122,9 +124,9 @@ export function GroupForm({
               label: formatBranchOptionLabel(branch),
               disabled: branch.isArchived,
             }))}
-            label="Филиал"
+            label={fe13GroupsCoreText.groupForm_label_2f17c4d2}
             onChange={updateBranch}
-            placeholder="Выберите филиал"
+            placeholder={fe13GroupsCoreText.groupForm_placeholder_4c5ee5d8}
             searchable
             value={selectedBranchId || null}
             error={form.errors.branchId}
@@ -138,9 +140,9 @@ export function GroupForm({
                 disabled: hall.isArchived,
               }))}
               disabled={!selectedBranchId}
-              label="Зал"
+              label={fe13GroupsCoreText.groupForm_label_182f7c57}
               onChange={(hallId) => form.setFieldValue('hallId', hallId ?? '')}
-              placeholder={selectedBranchId ? 'Выберите зал' : 'Сначала выберите филиал'}
+              placeholder={selectedBranchId ? fe13GroupsCoreText.groupForm_string_d52c67f8 : fe13GroupsCoreText.groupForm_string_74f8ad03}
               searchable
               value={form.values.hallId || null}
               error={form.errors.hallId}
@@ -150,8 +152,8 @@ export function GroupForm({
 
         <SimpleGrid cols={{ base: 1, md: 2 }}>
           <TextInput
-            label="Название группы"
-            placeholder="Например, Юниоры 18:00"
+            label={fe13GroupsCoreText.groupForm_label_d45e66ab}
+            placeholder={fe13GroupsCoreText.groupForm_placeholder_d9cf2b88}
             {...form.getInputProps('name')}
           />
           <Select
@@ -160,11 +162,11 @@ export function GroupForm({
               value: groupType.id,
               label: groupType.name,
             }))}
-            label="Тип группы"
+            label={fe13GroupsCoreText.groupForm_label_a642a677}
             onChange={(groupTypeId) =>
               form.setFieldValue('groupTypeId', groupTypeId ?? '')
             }
-            placeholder="Выберите тип группы"
+            placeholder={fe13GroupsCoreText.groupForm_placeholder_522e39df}
             searchable
             value={form.values.groupTypeId || null}
             error={form.errors.groupTypeId}
@@ -175,29 +177,29 @@ export function GroupForm({
           <>
             <SimpleGrid cols={{ base: 1, md: 2 }}>
               <TextInput
-                label="Время начала"
-                placeholder="18:00"
+                label={fe13GroupsCoreText.groupForm_label_1635ad1f}
+                placeholder={fe13GroupsCoreText.groupForm_placeholder_cf5d1124}
                 type="time"
                 {...form.getInputProps('trainingStartTime')}
               />
               <NumberInput
                 allowDecimal={false}
-                label="Длительность"
+                label={fe13GroupsCoreText.groupForm_label_2a326071}
                 onChange={(value) =>
                   form.setFieldValue(
                     'durationMinutes',
                     typeof value === 'number' ? value : '',
                   )
                 }
-                placeholder="60"
-                suffix=" мин"
+                placeholder={fe13GroupsCoreText.groupForm_placeholder_39fa9ec1}
+                suffix={fe13GroupsCoreText.groupForm_suffix_84d5d93d}
                 value={form.values.durationMinutes}
                 error={form.errors.durationMinutes}
               />
             </SimpleGrid>
 
             <Checkbox.Group
-              label="Дни недели"
+              label={fe13GroupsCoreText.groupForm_label_86f463be}
               onChange={(weekdays) => form.setFieldValue('weekdays', weekdays)}
               value={form.values.weekdays}
               error={form.errors.weekdays}
@@ -218,14 +220,14 @@ export function GroupForm({
         {showInitialSeriesFields ? (
           <SimpleGrid cols={{ base: 1, md: 2 }}>
             <TextInput
-              label="Начало расписания"
+              label={fe13GroupsCoreText.groupForm_label_3e2bef5c}
               max="9999-12-31"
               min="1900-01-01"
               type="date"
               {...form.getInputProps('initialSeriesStartsOn')}
             />
             <TextInput
-              label="Окончание расписания"
+              label={fe13GroupsCoreText.groupForm_label_da09e40b}
               max="9999-12-31"
               min="1900-01-01"
               type="date"
@@ -238,11 +240,11 @@ export function GroupForm({
           <MultiSelect
             data={trainerOptions.map((trainer) => ({
               value: trainer.id,
-              label: `${trainer.fullName} (${trainer.login})`,
+              label: fe13GroupsCoreText.groupForm_label_a0ff92dd(trainer.fullName, trainer.login),
             }))}
-            description="Можно выбрать несколько активных тренеров. Временное замещение на период настраивается отдельно и не меняет этот список."
-            label="Основные тренеры группы"
-            placeholder="Выберите тренеров"
+            description={fe13GroupsCoreText.groupForm_description_28716432}
+            label={fe13GroupsCoreText.groupForm_label_9fb9bbfa}
+            placeholder={fe13GroupsCoreText.groupForm_placeholder_06e7e5cc}
             searchable
             {...form.getInputProps('trainerIds')}
           />
@@ -251,7 +253,7 @@ export function GroupForm({
         <Switch
           checked={form.values.isActive}
           color="teal"
-          label="Группа активна"
+          label={fe13GroupsCoreText.groupForm_label_54ca642f}
           onChange={(event) =>
             form.setFieldValue('isActive', event.currentTarget.checked)
           }
@@ -261,28 +263,28 @@ export function GroupForm({
           <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
             <HintStat
               icon={<IconUsersGroup size={18} />}
-              label="Филиал"
+              label={fe13GroupsCoreText.groupForm_label_2f17c4d2}
               value={
                 branchOptions.find((branch) => branch.id === form.values.branchId)?.name ??
-                'Не выбран'
+                fe13GroupsCoreText.groupForm_string_d77dfdcd
               }
             />
             <HintStat
               icon={<IconUsersGroup size={18} />}
-              label="Тип"
+              label={fe13GroupsCoreText.groupForm_label_d4a6795c}
               value={
                 groupTypeOptions.find(
                   (groupType) => groupType.id === form.values.groupTypeId,
-                )?.name ?? 'Не выбран'
+                )?.name ?? fe13GroupsCoreText.groupForm_string_d77dfdcd
               }
             />
             {showHallField ? (
               <HintStat
                 icon={<IconUsersGroup size={18} />}
-                label="Зал"
+                label={fe13GroupsCoreText.groupForm_label_182f7c57}
                 value={
                   hallOptions.find((hall) => hall.id === form.values.hallId)?.name ??
-                  'Не выбран'
+                  fe13GroupsCoreText.groupForm_string_d77dfdcd
                 }
               />
             ) : null}
@@ -290,7 +292,7 @@ export function GroupForm({
               <>
                 <HintStat
                   icon={<IconClockHour4 size={18} />}
-                  label="Старт"
+                  label={fe13GroupsCoreText.groupForm_label_d8b0757a}
                   value={
                     form.values.trainingStartTime ||
                     GROUPS_FORM_FALLBACK_VALUES.trainingStartTime
@@ -298,7 +300,7 @@ export function GroupForm({
                 />
                 <HintStat
                   icon={<IconCalendarWeek size={18} />}
-                  label="Дни"
+                  label={fe13GroupsCoreText.groupForm_label_480102a9}
                   value={
                     form.values.weekdays.length > 0
                       ? formatWeekdays(form.values.weekdays.map(Number))
@@ -307,7 +309,7 @@ export function GroupForm({
                 />
                 <HintStat
                   icon={<IconClockHour4 size={18} />}
-                  label="Длительность"
+                  label={fe13GroupsCoreText.groupForm_label_2a326071}
                   value={
                     typeof form.values.durationMinutes === 'number'
                       ? formatDurationMinutes(form.values.durationMinutes)
@@ -319,7 +321,7 @@ export function GroupForm({
             {showTrainerField ? (
               <HintStat
                 icon={<IconUserStar size={18} />}
-                label="Тренеры"
+                label={fe13GroupsCoreText.groupForm_label_0314946c}
                 value={String(form.values.trainerIds.length)}
               />
             ) : null}
@@ -329,8 +331,8 @@ export function GroupForm({
         <Group justify="space-between" wrap="wrap">
           <Text c="dimmed" size="sm">
             {showTrainerField
-              ? 'После сохранения тренеры увидят назначенную группу в своем рабочем списке.'
-              : 'На этом экране сохраняются только название, филиал, тип и активность группы.'}
+              ? fe13GroupsCoreText.groupForm_string_86ad6462
+              : fe13GroupsCoreText.groupForm_string_96ac21d7}
           </Text>
 
           <StickyFormActions
@@ -387,7 +389,7 @@ function formatBranchOptionLabel(branch: Branch) {
   }
 
   if (branch.isArchived) {
-    parts.push('архивный')
+    parts.push(fe13GroupsCoreText.groupForm_partsPush_4ebaca56)
   }
 
   return parts.join(' · ')
@@ -397,7 +399,7 @@ function formatHallOptionLabel(hall: Hall) {
   const parts = [hall.name]
 
   if (hall.isArchived) {
-    parts.push('архивный')
+    parts.push(fe13GroupsCoreText.groupForm_partsPush_4ebaca56)
   }
 
   return parts.join(' · ')
