@@ -13,6 +13,7 @@ from gym_crm_bot.crm.errors import (
     CrmUserNotConfiguredError,
     CrmValidationError,
 )
+from gym_crm_bot.resources import bot_1_service_access as bot_1_service_access_text
 from gym_crm_bot.resources.messages import (
     FORBIDDEN_MESSAGE,
     INACTIVE_USER_MESSAGE,
@@ -66,7 +67,7 @@ class CrmErrorMapper:
             )
         if isinstance(error, CrmIdempotencyConflictError):
             return BotResponse(
-                text="Запрос уже обрабатывается. Обновите меню и проверьте результат.",
+                text=bot_1_service_access_text.CRM_ERROR_MAPPING_LINE_69_299BAAEC,
                 replace_existing=event.kind == "callback",
             )
         if isinstance(error, CrmTemporaryError):

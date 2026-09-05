@@ -14,6 +14,7 @@ from gym_crm_bot.crm.models import (
     ClientCardResponse,
     MembershipListResponse,
 )
+from gym_crm_bot.resources import bot_3_clients_rendering as bot_3_clients_rendering_text
 from gym_crm_bot.resources.keyboards import (
     render_membership_list_keyboard,
     render_search_results_keyboard,
@@ -48,7 +49,7 @@ class ClientFlow:
     async def handle_text(self, event: NormalizedTelegramEvent) -> BotResponse:
         search_state = await self._state_store.get(event, SEARCH_SCENARIO)
         if search_state is None:
-            return BotResponse(text="Используйте /start или кнопки меню.")
+            return BotResponse(text=bot_3_clients_rendering_text.CLIENT_FLOW_LINE_51_48F52AA0)
 
         query = (event.text or "").strip()
         if not query:
@@ -130,7 +131,10 @@ class ClientFlow:
         replace_existing: bool,
     ) -> BotResponse:
         if list_code != "expiring_memberships":
-            return BotResponse(text="Команда не поддерживается.", replace_existing=True)
+            return BotResponse(
+                text=bot_3_clients_rendering_text.CLIENT_FLOW_LINE_133_21BB98EE,
+                replace_existing=True,
+            )
 
         try:
             response = await self._crm_client.list_expiring_memberships(
@@ -152,7 +156,9 @@ class ClientFlow:
             return BotResponse(text=EXPIRING_EMPTY_MESSAGE, replace_existing=replace_existing)
 
         return BotResponse(
-            text=self._render_membership_list_text("Заканчивающиеся абонементы", response),
+            text=self._render_membership_list_text(
+                bot_3_clients_rendering_text.CLIENT_FLOW_LINE_155_26B65895, response
+            ),
             reply_markup=render_membership_list_keyboard(
                 response.items,
                 page=response.page,
@@ -168,10 +174,14 @@ class ClientFlow:
 
     @staticmethod
     def _render_search_results_text(query: str, items: list[Any], page: int) -> str:
-        lines = [f"Результаты поиска: {query}", f"Страница: {page}", ""]
+        lines = [
+            bot_3_clients_rendering_text.CLIENT_FLOW_LINE_171_0611725A(query),
+            bot_3_clients_rendering_text.CLIENT_FLOW_LINE_171_96D52036(page),
+            "",
+        ]
         for index, item in enumerate(items, start=1):
             if item.is_professional:
-                suffix = " | Профессионал"
+                suffix = bot_3_clients_rendering_text.CLIENT_FLOW_LINE_174_7216E7C9
             else:
                 suffix = f" | {item.membership_label}" if item.membership_label else ""
             lines.append(f"{index}. {item.full_name}{suffix}")
@@ -179,7 +189,11 @@ class ClientFlow:
 
     @staticmethod
     def _render_membership_list_text(title: str, response: MembershipListResponse) -> str:
-        lines = [title, f"Страница: {response.page}", ""]
+        lines = [
+            title,
+            bot_3_clients_rendering_text.CLIENT_FLOW_LINE_182_7F5B56A5(response.page),
+            "",
+        ]
         for index, item in enumerate(response.items, start=1):
             details = []
             if item.membership_label:
@@ -197,42 +211,60 @@ class ClientFlow:
 def render_client_card(card: ClientCardResponse) -> str:
     lines = [card.full_name]
     if card.phone:
-        lines.append(f"Телефон: {card.phone}")
+        lines.append(bot_3_clients_rendering_text.CLIENT_FLOW_LINE_200_76304C27(card.phone))
     if card.status:
-        lines.append(f"Статус: {card.status}")
+        lines.append(bot_3_clients_rendering_text.CLIENT_FLOW_LINE_202_0C1B5454(card.status))
     if card.groups:
-        lines.append("Группы: " + ", ".join(format_client_group(group) for group in card.groups))
+        lines.append(
+            bot_3_clients_rendering_text.CLIENT_FLOW_LINE_204_4110D7E9
+            + ", ".join(format_client_group(group) for group in card.groups)
+        )
     if card.is_professional:
         comment = f": {card.professional_comment}" if card.professional_comment else ""
-        lines.append(f"Профессионал{comment}")
+        lines.append(bot_3_clients_rendering_text.CLIENT_FLOW_LINE_207_15E8B16D(comment))
     if card.warning:
-        lines.append(f"Предупреждение: {card.warning}")
+        lines.append(bot_3_clients_rendering_text.CLIENT_FLOW_LINE_209_9FB41F94(card.warning))
     for membership in card.current_memberships:
         lines.append(
-            "Абонемент: "
-            f"{membership.type_label}, "
-            f"покупка {membership.purchase_date.strftime('%d.%m.%Y')}, "
-            f"оплата {membership.payment_date.strftime('%d.%m.%Y')}"
+            bot_3_clients_rendering_text.CLIENT_FLOW_LINE_212_1735BCE3(
+                membership.type_label,
+                membership.purchase_date.strftime("%d.%m.%Y"),
+                membership.payment_date.strftime("%d.%m.%Y"),
+            )
         )
         if membership.expiration_date is not None:
-            lines.append(f"Действует до: {membership.expiration_date.strftime('%d.%m.%Y')}")
+            lines.append(
+                bot_3_clients_rendering_text.CLIENT_FLOW_LINE_218_1D91AA1E(
+                    membership.expiration_date.strftime("%d.%m.%Y")
+                )
+            )
         if membership.coverage_kind == "AllGroups":
             reporting_group = next(
                 (target.group_name for target in membership.target_groups if target.position == 0),
                 None,
             )
             if reporting_group:
-                lines.append(f"Доступ: все группы; отчётность: {reporting_group}")
+                lines.append(
+                    bot_3_clients_rendering_text.CLIENT_FLOW_LINE_225_EC96BC1B(reporting_group)
+                )
             else:
-                lines.append("Доступ: все группы")
+                lines.append(bot_3_clients_rendering_text.CLIENT_FLOW_LINE_227_CA7E4776)
         elif membership.target_groups:
-            lines.append(f"Группы абонемента: {format_target_groups(membership.target_groups)}")
+            lines.append(
+                bot_3_clients_rendering_text.CLIENT_FLOW_LINE_229_2DEB9837(
+                    format_target_groups(membership.target_groups)
+                )
+            )
         if membership.entitlement_state == "LegacyTargetMissing":
-            lines.append("Предупреждение: абонемент без групп, требуется исправление")
+            lines.append(bot_3_clients_rendering_text.CLIENT_FLOW_LINE_231_7CBA89CC)
     if card.attendance_history:
-        lines.append("История посещений:")
+        lines.append(bot_3_clients_rendering_text.CLIENT_FLOW_LINE_233_8F049FB2)
         for item in card.attendance_history[:5]:
-            marker = "Был" if item.is_present else "Не был"
+            marker = (
+                bot_3_clients_rendering_text.CLIENT_FLOW_LINE_235_FF13DE89
+                if item.is_present
+                else bot_3_clients_rendering_text.CLIENT_FLOW_LINE_235_CD2E8AD3
+            )
             lines.append(
                 f"- {item.training_date.strftime('%d.%m.%Y')} | {item.group_name} | {marker}"
             )
@@ -245,6 +277,10 @@ def format_target_groups(target_groups: list[Any]) -> str:
 
     return ", ".join(
         f"{target.position + 1}. {target.group_name}"
-        + (" (отчётность)" if target.position == 0 else "")
+        + (
+            bot_3_clients_rendering_text.CLIENT_FLOW_LINE_248_AE8C7C86
+            if target.position == 0
+            else ""
+        )
         for target in sorted(target_groups, key=lambda target: target.position)
     )

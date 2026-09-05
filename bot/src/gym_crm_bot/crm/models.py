@@ -13,6 +13,8 @@ from pydantic import (
     field_validator,
 )
 
+from gym_crm_bot.resources import bot_1_service_access as bot_1_service_access_text
+
 BotRole = Literal["HeadCoach", "SuperAdministrator", "Administrator", "Coach"]
 MembershipBehaviorKind = Literal["SingleVisit", "Term", "Professional"]
 MembershipSalePricingMode = Literal["Catalog", "CatalogOverride", "AmountOnly"]
@@ -106,7 +108,11 @@ class AttendanceLessonTrainer(ApiModel):
 
     @property
     def display_name(self) -> str:
-        return f"{self.full_name} (замена)" if self.is_replacement else self.full_name
+        return (
+            bot_1_service_access_text.MODELS_LINE_109_4AA725CB(self.full_name)
+            if self.is_replacement
+            else self.full_name
+        )
 
 
 class AttendanceLesson(ApiModel):

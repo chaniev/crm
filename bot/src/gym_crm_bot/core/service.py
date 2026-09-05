@@ -18,6 +18,7 @@ from gym_crm_bot.crm.errors import (
     CrmUserInactiveError,
     CrmUserNotConfiguredError,
 )
+from gym_crm_bot.resources import bot_1_service_access as bot_1_service_access_text
 from gym_crm_bot.resources.callbacks import decode_callback
 from gym_crm_bot.resources.keyboards import render_menu_keyboard
 from gym_crm_bot.resources.messages import (
@@ -61,14 +62,14 @@ class BotService:
             return await self._handle_callback(event)
         if event.kind == "text":
             return await self._clients.handle_text(event)
-        return BotResponse(text="Используйте /start или кнопки меню.")
+        return BotResponse(text=bot_1_service_access_text.SERVICE_LINE_64_48F52AA0)
 
     async def _handle_command(self, event: NormalizedTelegramEvent) -> BotResponse:
         if event.command == "start":
             return await self._show_menu(event, reset_state=True)
         if event.command == "id":
             return await self._show_telegram_id(event)
-        return BotResponse(text="Поддерживаются команды /start и /id.")
+        return BotResponse(text=bot_1_service_access_text.SERVICE_LINE_71_E61A499D)
 
     async def _handle_callback(self, event: NormalizedTelegramEvent) -> BotResponse:
         payload = decode_callback(event.callback_data or "")
@@ -100,7 +101,9 @@ class BotService:
                 page=int(payload.parts[1]),
                 replace_existing=True,
             )
-        return BotResponse(text="Команда не поддерживается.", replace_existing=True)
+        return BotResponse(
+            text=bot_1_service_access_text.SERVICE_LINE_103_21BB98EE, replace_existing=True
+        )
 
     async def _handle_menu_callback(
         self,
@@ -143,7 +146,7 @@ class BotService:
             await self._state_store.clear_all(event)
 
         return BotResponse(
-            text=f"{context.display_name}, выберите действие.",
+            text=bot_1_service_access_text.SERVICE_LINE_146_37141BF2(context.display_name),
             reply_markup=render_menu_keyboard(menu),
             replace_existing=not reset_state and event.kind == "callback",
         )
