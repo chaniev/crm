@@ -1,5 +1,7 @@
 import { IconX } from '@tabler/icons-react'
 import type { ComponentPropsWithoutRef } from 'react'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export type ActiveFilter = {
   id: string
@@ -26,7 +28,7 @@ export function ActiveFiltersBar({
 
   return (
     <div
-      aria-label="Активные фильтры"
+      aria-label={fe17SharedRoutingThemeText.activeFiltersBar_ariaLabel_11c117e1}
       aria-live="polite"
       className={['active-filters-bar', className].filter(Boolean).join(' ')}
       role="region"
@@ -35,7 +37,7 @@ export function ActiveFiltersBar({
       <div className="active-filters-bar__items">
         {filters.map((filter) => (
           <button
-            aria-label={`Удалить фильтр «${filter.label}»`}
+            aria-label={fe17SharedRoutingThemeText.activeFiltersBar_template_24308fe4(filter.label)}
             className="active-filters-bar__item"
             key={filter.id}
             onClick={filter.onRemove}

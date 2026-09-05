@@ -1,4 +1,6 @@
 import type { ComponentPropsWithoutRef } from 'react'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export type ListRangeStatusProps = ComponentPropsWithoutRef<'div'> & {
   end: number
@@ -19,11 +21,11 @@ export function ListRangeStatus({
 }: ListRangeStatusProps) {
   const totalText = total === null
     ? hasMore
-      ? 'есть ещё'
+      ? fe17SharedRoutingThemeText.listRangeStatus_string_81a306d7
       : loading
-        ? 'обновляем'
+        ? fe17SharedRoutingThemeText.listRangeStatus_string_eaa048e3
         : ''
-    : `из ${total}`
+    : fe17SharedRoutingThemeText.listRangeStatus_template_911657b5(total)
 
   return (
     <div
@@ -32,7 +34,7 @@ export function ListRangeStatus({
       role="status"
       {...props}
     >
-      <span>{start}–{end}</span>
+      <span>{start}{fe17SharedRoutingThemeText.listRangeStatus_jsxText_d4f85d36}{end}</span>
       {totalText ? <span>{totalText}</span> : null}
     </div>
   )

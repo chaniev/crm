@@ -65,6 +65,8 @@ import type {
   TransferClientBranchRequest,
   UpsertClientRequest,
 } from './types'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export async function getClients(
   params: GetClientsParams = {},
@@ -542,7 +544,7 @@ function mapMembershipTargetTransferPreviewMembership(
   const membershipId = readString(payload, ['membershipId', 'MembershipId', 'id', 'Id'])
   const saleId = readString(payload, ['saleId', 'SaleId'])
   const membershipName =
-    readString(payload, ['membershipName', 'MembershipName']) ?? 'Абонемент'
+    readString(payload, ['membershipName', 'MembershipName']) ?? fe17SharedRoutingThemeText.clients_string_1139430b
 
   if (!membershipId || !saleId) {
     return null
@@ -760,7 +762,7 @@ function mapMembershipAttentionItem(
       readString(payload, ['firstName', 'FirstName']),
       readString(payload, ['middleName', 'MiddleName']),
     ) ??
-    'Без имени'
+    fe17SharedRoutingThemeText.clients_string_0106f3ae
   const behaviorKind = mapMembershipBehaviorKind(
     readString(payload, ['behaviorKind', 'MembershipBehaviorKind']),
   )
@@ -822,12 +824,12 @@ function mapAttentionTargetGroups(payload: Record<string, unknown>): ClientMembe
 
 function buildAttentionTargetSummary(targetGroups: ClientMembershipTargetGroup[]) {
   if (targetGroups.length === 0) {
-    return 'Без групп'
+    return fe17SharedRoutingThemeText.clients_string_214235ce
   }
 
   return targetGroups
     .map((target, index) =>
-      `${index + 1}. ${target.groupName || target.groupId}${index === 0 ? ' · отчётность' : ''}`,
+      fe17SharedRoutingThemeText.clients_template_6080f298(index + 1, target.groupName || target.groupId, index === 0 ? fe17SharedRoutingThemeText.clients_string_c1136d0e : ''),
     )
     .join(' · ')
 }
@@ -920,7 +922,7 @@ function mapClientActionHints(payload: ClientResponsePayload) {
     title:
       readString(hint, ['title', 'Title']) ??
       readString(hint, ['label', 'Label']) ??
-      'Планово',
+      fe17SharedRoutingThemeText.clients_string_c19bb335,
     description: readString(hint, ['description', 'Description']) ?? '',
     tone: readString(hint, ['tone', 'Tone']) ?? 'gray',
     iconKey: readString(hint, ['iconKey', 'IconKey']) ?? '',
@@ -1033,7 +1035,7 @@ function mapClientAttendanceHistoryEntry(
     (groupPayload
       ? readString(groupPayload, ['name', 'Name', 'groupName', 'GroupName'])
       : undefined) ??
-    'Группа без названия'
+    fe17SharedRoutingThemeText.clients_string_d8c07c44
 
   return {
     id:

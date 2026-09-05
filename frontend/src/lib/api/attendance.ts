@@ -34,6 +34,8 @@ import type {
   SaveAttendanceMarksRequest,
   SaveAttendanceMarksResponse,
 } from './types'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 const ATTENDANCE_TODAY_ITEM_KEYS = ['items', 'Items'] as const
 
@@ -41,7 +43,7 @@ export async function getAttendanceTodayLessons(
   signal?: AbortSignal,
 ): Promise<AttendanceTodayLessonsResponse> {
   const payload = await request<unknown>(API_ENDPOINTS.attendance.todayLessons, { signal })
-  const envelope = requireRecord(payload, 'Некорректный ответ списка занятий на сегодня.')
+  const envelope = requireRecord(payload, fe17SharedRoutingThemeText.attendance_requireRecord_050a21f7)
   const mappedItems = extractArrayPayload<unknown>(payload, ATTENDANCE_TODAY_ITEM_KEYS)
     .map(mapAttendanceTodayLesson)
   const items = mappedItems.filter((item): item is AttendanceTodayLesson => item !== null)
@@ -55,7 +57,7 @@ export async function getAttendanceTodayLessons(
 
 export async function getAttendanceGroups(signal?: AbortSignal) {
   const payload = await request<unknown>(API_ENDPOINTS.attendance.groups, { signal })
-  const envelope = requireRecord(payload, 'Некорректный ответ списка групп посещений.')
+  const envelope = requireRecord(payload, fe17SharedRoutingThemeText.attendance_requireRecord_277c36ba)
   const today = requireIsoDate(envelope, ['today', 'Today'])
   const maxTrainingDate = requireIsoDate(envelope, [
     'maxTrainingDate',
@@ -101,7 +103,7 @@ export async function getAttendanceGroupClients(
         ? readString(payload, ['trainingDate', 'TrainingDate'])
         : undefined) ?? trainingDate,
     ) ?? trainingDate
-  const envelope = requireRecord(payload, 'Некорректный ответ состава группы.')
+  const envelope = requireRecord(payload, fe17SharedRoutingThemeText.attendance_requireRecord_91d6e39a)
 
   return {
     groupId: responseGroupId,
@@ -198,7 +200,7 @@ function mapAttendanceRosterResponse(
     trainingDate?: string
   },
 ): AttendanceRosterResponse {
-  const envelope = requireRecord(payload, 'Некорректный ответ сохранения посещения.')
+  const envelope = requireRecord(payload, fe17SharedRoutingThemeText.attendance_requireRecord_8f549520)
   const groupId = readString(envelope, ['groupId', 'GroupId']) ?? fallback.groupId ?? ''
   const trainingDate =
     normalizeIsoDateValue(
@@ -209,11 +211,11 @@ function mapAttendanceRosterResponse(
     ) ?? ''
 
   if (!groupId) {
-    throw new Error('Ответ состава группы не содержит группу.')
+    throw new Error(fe17SharedRoutingThemeText.attendance_string_14d60c4c)
   }
 
   if (!trainingDate) {
-    throw new Error('Ответ состава группы не содержит дату занятия.')
+    throw new Error(fe17SharedRoutingThemeText.attendance_string_e0bd096d)
   }
 
   const lessonDate = normalizeIsoDateValue(
@@ -260,7 +262,7 @@ function mapSaveAttendanceResponse(
     lessonDate?: string
   } = {},
 ): SaveAttendanceMarksResponse {
-  const envelope = requireRecord(payload, 'Некорректный ответ сохранения посещения.')
+  const envelope = requireRecord(payload, fe17SharedRoutingThemeText.attendance_requireRecord_8f549520)
   const groupId = readString(envelope, ['groupId', 'GroupId'])
   const trainingDate =
     normalizeIsoDateValue(
@@ -270,11 +272,11 @@ function mapSaveAttendanceResponse(
     ) ?? ''
 
   if (!groupId) {
-    throw new Error('Ответ сохранения посещения не содержит группу.')
+    throw new Error(fe17SharedRoutingThemeText.attendance_string_8c0e01c1)
   }
 
   if (!trainingDate) {
-    throw new Error('Ответ сохранения посещения не содержит дату.')
+    throw new Error(fe17SharedRoutingThemeText.attendance_string_9569db66)
   }
 
   const lessonDate = normalizeIsoDateValue(
@@ -293,7 +295,7 @@ function mapSaveAttendanceResponse(
     const state = readAttendanceState(mark)
 
     if (!clientId || !state) {
-      throw new Error('Ответ сохранения посещения содержит некорректную отметку.')
+      throw new Error(fe17SharedRoutingThemeText.attendance_string_6a2bab7f)
     }
 
     return { clientId, state }
@@ -462,7 +464,7 @@ function mapAttendanceClient(payload: AttendanceClientPayload): AttendanceClient
 
   const state = readAttendanceState(payload)
   if (!state) {
-    throw new Error('Ответ состава группы содержит некорректное состояние посещения.')
+    throw new Error(fe17SharedRoutingThemeText.attendance_string_1592e0bf)
   }
 
   const fullName =
@@ -472,7 +474,7 @@ function mapAttendanceClient(payload: AttendanceClientPayload): AttendanceClient
       readString(payload, ['firstName', 'FirstName']),
       readString(payload, ['middleName', 'MiddleName']),
     ) ??
-    'Без имени'
+    fe17SharedRoutingThemeText.attendance_string_0106f3ae
   const currentMemberships = mapClientCurrentMemberships(payload as ClientResponsePayload)
   const isProfessional =
     readBoolean(payload, ['isProfessional', 'IsProfessional']) ?? false
@@ -546,7 +548,7 @@ function requireIsoDate(
   const value = normalizeIsoDateValue(readString(payload, keys) ?? '')
 
   if (!value) {
-    throw new Error('Ответ посещений не содержит календарную дату клуба.')
+    throw new Error(fe17SharedRoutingThemeText.attendance_string_4b13cbe8)
   }
 
   return value

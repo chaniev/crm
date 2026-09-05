@@ -1,3 +1,5 @@
+
+import { fe17SharedRoutingThemeText } from '../resources/fe-17-shared-routing-theme'
 export type SemanticTone =
   | 'danger'
   | 'warning'
@@ -18,7 +20,7 @@ export type SemanticToneDefinition = {
 export const semanticToneDefinitions: Record<SemanticTone, SemanticToneDefinition> = {
   danger: {
     tone: 'danger',
-    label: 'Критично',
+    label: fe17SharedRoutingThemeText.semanticTones_label_f186cf19,
     foreground: 'var(--crm-status-danger-fg)',
     background: 'var(--crm-status-danger-bg)',
     border: 'var(--crm-status-danger-border)',
@@ -27,7 +29,7 @@ export const semanticToneDefinitions: Record<SemanticTone, SemanticToneDefinitio
   },
   warning: {
     tone: 'warning',
-    label: 'Требует внимания',
+    label: fe17SharedRoutingThemeText.semanticTones_label_34dc848e,
     foreground: 'var(--crm-status-warning-fg)',
     background: 'var(--crm-status-warning-bg)',
     border: 'var(--crm-status-warning-border)',
@@ -36,7 +38,7 @@ export const semanticToneDefinitions: Record<SemanticTone, SemanticToneDefinitio
   },
   success: {
     tone: 'success',
-    label: 'Успешно',
+    label: fe17SharedRoutingThemeText.semanticTones_label_4ad64e13,
     foreground: 'var(--crm-status-success-fg)',
     background: 'var(--crm-status-success-bg)',
     border: 'var(--crm-status-success-border)',
@@ -45,7 +47,7 @@ export const semanticToneDefinitions: Record<SemanticTone, SemanticToneDefinitio
   },
   info: {
     tone: 'info',
-    label: 'Информация',
+    label: fe17SharedRoutingThemeText.semanticTones_label_0bf0fcb2,
     foreground: 'var(--crm-status-info-fg)',
     background: 'var(--crm-status-info-bg)',
     border: 'var(--crm-status-info-border)',
@@ -54,7 +56,7 @@ export const semanticToneDefinitions: Record<SemanticTone, SemanticToneDefinitio
   },
   neutral: {
     tone: 'neutral',
-    label: 'Нейтрально',
+    label: fe17SharedRoutingThemeText.semanticTones_label_75a19e7a,
     foreground: 'var(--crm-status-neutral-fg)',
     background: 'var(--crm-status-neutral-bg)',
     border: 'var(--crm-status-neutral-border)',

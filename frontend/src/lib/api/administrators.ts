@@ -21,6 +21,8 @@ import type {
   UserListResponse,
   UserResponsePayload,
 } from './types'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export async function getAdministrators(signal?: AbortSignal) {
   const payload = await request<unknown>(API_ENDPOINTS.administrators.collection, {
@@ -234,7 +236,7 @@ function mapAttendanceScopeGroup(
 
   return {
     id,
-    name: readString(payload, ['name', 'Name', 'groupName', 'GroupName']) ?? 'Группа без названия',
+    name: readString(payload, ['name', 'Name', 'groupName', 'GroupName']) ?? fe17SharedRoutingThemeText.administrators_string_d8c07c44,
     trainingStartTime:
       readString(payload, ['trainingStartTime', 'TrainingStartTime']) ?? undefined,
     durationMinutes: readNumber(payload, ['durationMinutes', 'DurationMinutes']),

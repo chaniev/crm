@@ -7,6 +7,8 @@ import {
   getMobileNavigationSections,
 } from '../../lib/appRoutes'
 import { getAppSectionIcon } from './navigationIcons'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 type MobileBottomNavigationProps = {
   currentSection: AppSection | null
@@ -44,7 +46,7 @@ export function MobileBottomNavigation({
   return (
     <>
       <nav
-        aria-label="Мобильная навигация"
+        aria-label={fe17SharedRoutingThemeText.mobileBottomNavigation_ariaLabel_65356651}
         className="mobile-bottom-nav"
         data-testid="mobile-bottom-navigation"
       >
@@ -71,7 +73,7 @@ export function MobileBottomNavigation({
             <UnstyledButton
               aria-expanded={overflowOpened}
               aria-haspopup="dialog"
-              aria-label="Ещё, открыть остальные разделы"
+              aria-label={fe17SharedRoutingThemeText.mobileBottomNavigation_ariaLabel_da94ad10}
               className="mobile-bottom-nav__item"
               onClick={() => setOverflowOpened(true)}
               ref={overflowTriggerRef}
@@ -80,7 +82,7 @@ export function MobileBottomNavigation({
               <span className="mobile-bottom-nav__icon" aria-hidden="true">
                 <IconDots size={20} />
               </span>
-              <span className="mobile-bottom-nav__label" data-no-truncate="true">Ещё</span>
+              <span className="mobile-bottom-nav__label" data-no-truncate="true">{fe17SharedRoutingThemeText.mobileBottomNavigation_jsxText_2071fb99}</span>
             </UnstyledButton>
           ) : null}
         </div>
@@ -88,7 +90,7 @@ export function MobileBottomNavigation({
 
       {hasOverflow ? (
         <Drawer
-          aria-label="Остальные разделы"
+          aria-label={fe17SharedRoutingThemeText.mobileBottomNavigation_ariaLabel_9b2568a1}
           classNames={{
             body: 'mobile-bottom-nav__sheet-body',
             content: 'mobile-bottom-nav__sheet-content',
@@ -96,7 +98,7 @@ export function MobileBottomNavigation({
             title: 'mobile-bottom-nav__sheet-title',
           }}
           closeButtonProps={{
-            'aria-label': 'Закрыть остальные разделы',
+            'aria-label': fe17SharedRoutingThemeText.mobileBottomNavigation_ariaLabel_f88e31a8,
             className: 'temporary-surface-close mobile-bottom-nav__sheet-close',
           }}
           closeOnClickOutside
@@ -109,8 +111,7 @@ export function MobileBottomNavigation({
           size="min(24rem, calc(100dvh - 1rem))"
           title={
             <Text component="span" fw={800}>
-              Остальные разделы
-            </Text>
+              {fe17SharedRoutingThemeText.mobileBottomNavigation_ariaLabel_9b2568a1}</Text>
           }
           trapFocus
           withCloseButton

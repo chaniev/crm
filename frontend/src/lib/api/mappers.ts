@@ -26,6 +26,8 @@ import type {
   MembershipSalePricingMode,
   UserRole,
 } from './types'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export function mapClientPhoto(payload: ClientResponsePayload): ClientPhoto | null {
   const nestedPayload = extractRecordPayload(payload, ['photo', 'Photo'])
@@ -307,7 +309,7 @@ export function buildClientFullName(payload: Pick<
     return fullName
   }
 
-  return payload.fullName?.trim() || 'Без имени'
+  return payload.fullName?.trim() || fe17SharedRoutingThemeText.mappers_string_0106f3ae
 }
 
 export function mapClientStatus(status?: string | null): ClientStatus {

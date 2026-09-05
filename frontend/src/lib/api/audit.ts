@@ -26,6 +26,8 @@ import type {
   AuditLogFilterUser,
   GetAuditLogParams,
 } from './types'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export async function getAuditLogEntries(
   params: GetAuditLogParams = {},
@@ -193,7 +195,7 @@ function mapAuditLogEntry(payload: AuditLogEntryPayload): AuditLogEntry | null {
           'Login',
         ])
       : undefined) ??
-    'Система'
+    fe17SharedRoutingThemeText.audit_string_6da215b1
   const description =
     readString(payload, ['description', 'Description']) ??
     buildFallbackAuditDescription(actionType, entityType, entityId)

@@ -2,6 +2,8 @@ import type { AppSection } from '../../lib/api'
 import { APP_SECTION_LABELS } from '../../lib/appRoutes'
 import { Button } from './Button'
 import { getAppSectionIcon } from './navigationIcons'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 type NavigationTabsProps = {
   ariaLabel?: string
@@ -13,7 +15,7 @@ type NavigationTabsProps = {
 }
 
 export function NavigationTabs({
-  ariaLabel = 'Основная навигация',
+  ariaLabel = fe17SharedRoutingThemeText.navigationTabs_string_8fff0bba,
   className,
   currentSection,
   onNavigate,

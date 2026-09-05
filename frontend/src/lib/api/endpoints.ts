@@ -1,4 +1,6 @@
 import type { ClientStatus } from './types'
+import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
+
 
 export const apiBasePath = import.meta.env.VITE_API_BASE_PATH ?? '/api'
 
@@ -139,12 +141,12 @@ export const JSON_CONTENT_TYPE = 'application/json'
 export const GET_METHOD = 'GET'
 export const HEAD_METHOD = 'HEAD'
 export const CSRF_HEADER_NAME = 'X-CSRF-TOKEN'
-export const DEFAULT_REQUEST_ERROR_MESSAGE = 'Не удалось выполнить запрос.'
-export const DEFAULT_FIELD_ERROR_MESSAGE = 'Проверьте значение поля.'
+export const DEFAULT_REQUEST_ERROR_MESSAGE = fe17SharedRoutingThemeText.endpoints_dEFAULTREQUESTERRORMESSAGE_747aa7a1
+export const DEFAULT_FIELD_ERROR_MESSAGE = fe17SharedRoutingThemeText.endpoints_dEFAULTFIELDERRORMESSAGE_8da2d9fc
 
 export const CLIENT_STATUS_ACTIVE: ClientStatus = 'Active'
 export const CLIENT_STATUS_ARCHIVED: ClientStatus = 'Archived'
-export const DEFAULT_CLIENT_GROUP_NAME = 'Группа без названия'
+export const DEFAULT_CLIENT_GROUP_NAME = fe17SharedRoutingThemeText.endpoints_dEFAULTCLIENTGROUPNAME_d8c07c44
 
 export const GROUPS_DEFAULT_PAGE = 1
 export const GROUPS_DEFAULT_PAGE_SIZE = 100
