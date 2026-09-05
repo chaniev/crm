@@ -292,3 +292,68 @@ or a missing task ID, and writes one immutable aggregate JSON result. A pull
 request branch must contain `TASK-NNN`; this keeps task discovery portable for
 Claude Code, Codex, OpenCode, Zed and other coding agents without relying on a
 vendor-specific runtime or metadata format.
+
+## Plan decision readiness
+
+Planning must resolve every in-scope product and material technical choice,
+including rendered UX selection, required reviews, API/data contracts and
+migration/rollback. Execution verifies and implements those decisions. It must
+not contain a step to choose behavior, approve a design or settle architecture.
+Routine local code details that preserve agreed contracts remain executor-owned.
+
+The canonical `requirements.plan-readiness` check runs for every locally selected
+requirements baseline and the requirements CI job, without a task verification
+contract. It scans unfinished `*.plan.md` files and requires exactly one ready
+plan for each task in `backlog/implementation`. Historical `backlog/done` plans
+are not retroactively rewritten or treated as active approvals.
+
+Before changing project code, run the explicit preflight from the repository root:
+
+```bash
+python3 scripts/harness/validate_plan_readiness.py \
+  --plan backlog/implementation-plans/TASK-123-example.plan.md
+```
+
+A dry run of `verify_change.py` only selects checks; it does not replace this
+preflight. `--plan` requires `readiness: yes`; the repository-wide validator also
+allows planning drafts with `readiness: no — concrete blocker`, outside active
+implementation. Missing metadata never implies acceptance. Existing drafts must
+be reviewed and receive real approval evidence before becoming executable.
+
+Ready plans use exactly one of each field inside `## Metadata`:
+
+- `source_task`: matching existing repository-local task path.
+- `branch`: the declared implementation branch.
+- `readiness: yes`.
+- `requirements`: accepted `REQ-*` references, or `none — concrete reason`.
+- `product_decisions` and `technical_decisions`: `accepted`, or
+  `none — concrete reason` when no such decision is needed.
+- `architecture_decisions`: applicable `ADR-NNNN` IDs, or `none — concrete reason`.
+- `open_questions: none`.
+
+`## Decisions and contracts` states the agreed outcome. `## Decision evidence`
+links repository-local approval records; paths resolve from the repository root.
+Each category marked `accepted` requires a line in this format:
+
+```markdown
+- product: [Approval record](/path/to/record.md) — owner: actual owner; decision: exact agreed behavior.
+- technical: [Accepted ADR](/docs/architecture/adr/0001-example.md) — owner: actual owner; decision: exact agreed contract.
+```
+
+Use actual sources and owners, never generated approval claims. An existing user
+decision or accepted requirement is sufficient provenance for its exact scope;
+do not request the same approval again. If both categories are `none`, link the
+source task explaining why behavior/contracts are preserved. The validator checks
+source existence, required evidence fields, accepted requirements, and Accepted
+status for every referenced ADR, including ADR paths omitted from metadata.
+
+This is a structural gate, not a natural-language proof of approval. The planner
+must review the full plan for undeclared choices, incompatible alternatives and
+approval deferred into slices or manual checks. Writing `accepted` cannot create
+owner authorization. UX approval is a planning input; comparing implemented UI
+against that already selected direction remains execution validation.
+
+If execution reveals a new decision, mark the plan non-ready, record the blocker
+and return the task to planning (`needs-clarification`, or `risky` for review-only
+work). Stop the affected plan until the owner resolves it, update plan/REQ/ADR and
+approval evidence, then rerun preflight. Other independently ready plans may run.

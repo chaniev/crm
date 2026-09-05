@@ -53,6 +53,29 @@ Full-stack, shared UI, migrations, payments, roles и permissions сами по 
 файлы. Записать `moved: none`, перечислить проверенные/skipped candidates и
 сообщить минимальную недостающую информацию.
 
+## Согласование до executable plan
+
+До `readiness: yes` закрыть все продуктовые и существенные технические решения
+в scope: роли/сценарии/ошибки, UX-направление и interaction contract, API/data
+contracts, зависимости, migration/rollback и обязательные reviews. Выполнить
+применимые design/architecture workflows на этапе планирования. Для существенного
+выбора использовать `architecture-decision`; `Proposed` ADR не разрешает execution.
+Обычные локальные детали кода в рамках согласованных контрактов не требуют
+отдельного согласования.
+
+Не включать в implementation slices или manual checks выбор варианта,
+согласование UX, утверждение контракта или определение поведения. Это planning
+blockers, даже если помечены «позже» или «до UI». Проверка соответствия уже
+согласованному решению при реализации допустима.
+
+Записать источник, владельца и точное содержание каждого согласования в
+`Decision evidence`; не выдумывать approval и не переспрашивать уже принятое.
+Не закрытые вопросы оставить в черновике с `readiness: no`; task остаётся в
+`needs-clarification` или `risky` по типу блокера. Только после согласования
+применить readiness preflight из `docs/HARNESS.md` и переводить task в implementation.
+При preflight `source_task` указывает на текущий существующий файл. После
+перемещения обновить ссылку и повторить проверку.
+
 ## Lifecycle
 
 Для ready task:
@@ -122,6 +145,10 @@ contract может быть длиннее, но каждая семантик�
 - requirements: REQ-XXX-000 (implements|changes|constrains|verifies) | none — reason
 - branch: feature/TASK-XXX-short
 - readiness: yes | no — краткая причина, если no
+- product_decisions: accepted | none — конкретная причина
+- technical_decisions: accepted | none — конкретная причина
+- architecture_decisions: ADR-NNNN | none — почему ADR не требуется
+- open_questions: none | конкретные blockers для readiness: no
 - dependencies: none | TASK-YYY (условие)
 - risk: low | medium | high — task-specific причина
 
@@ -131,6 +158,10 @@ contract может быть длиннее, но каждая семантик�
 ## Decisions and contracts
 - Только подтверждённые решения и изменяемые contracts.
 - Не повторять неизменившийся source task.
+
+## Decision evidence
+- product: [Источник согласования](/path/to/source.md) — owner: имя/роль; decision: точное принятое поведение и выбранное UX-направление.
+- technical: [Источник решения](/path/to/source.md) — owner: имя/роль; decision: согласованный технический контракт.
 
 ## Scope
 ### In
@@ -164,8 +195,12 @@ contract может быть длиннее, но каждая семантик�
 - Один основной automated barrier, защищающий goal.
 
 ## Risks and stop conditions
-- Только task-specific риск/условие остановки и минимальное решение.
+- Только task-specific риск/условие остановки и согласованная реакция.
 ```
+
+Для `accepted` соответствующая строка evidence обязательна. Для `none` вместо
+неприменимой строки сослаться на source task с обоснованием сохранения поведения.
+Repository links отсчитываются от корня; `ADR-NNNN` заменить реальными ID.
 
 Не создавать пустые разделы. Если task требует большой UX/domain contract,
 добавить один раздел `## UX contract` или `## Domain/API contract` и не
@@ -180,7 +215,7 @@ contract может быть длиннее, но каждая семантик�
 3. проверить critical questions, scope, dependencies, regression strategy и
    requirements approval state;
 4. выбрать уникальную branch с префиксом `feature/`, `fix/` или `refactor/`;
-5. создать plan по компактному шаблону;
+5. создать plan по компактному шаблону, закрыть решения и выполнить readiness preflight;
 6. переместить только ready task и обновить lifecycle;
 7. добавить одну краткую запись в implementation log.
 

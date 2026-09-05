@@ -37,6 +37,11 @@ Backlog files are workflow artifacts, not project-code implementation.
 - A backlog card referencing a requirement with decision `предложено` does not move to
   `tasks-ready` or `implementation`.
 - Creating a plan does not imply that implementation has started.
+- Every implementation task has exactly one ready plan. Apply the decision
+  readiness contract in `docs/HARNESS.md` before moving it to implementation.
+  Keep unresolved drafts non-ready; put product/technical decision blockers in
+  `needs-clarification`, or retain review-only drafts in `risky`.
+  Never relabel an existing draft as agreed without approval evidence.
 - Moving a completed task to `done/YYYY-MM-DD/` also moves its completed plan,
   verification contract, and task-owned evidence there. Determine and record the
   date using `backlog/README.md`; never use the triage date for an older completion.

@@ -73,6 +73,22 @@ validation.
 
 ---
 
+## Plan decision readiness
+
+Finish all in-scope product and material technical decisions during planning,
+including UX direction selection, required reviews, contracts, migration and
+rollback strategy. An executable plan contains only agreed decisions with
+approval provenance; accepted requirements alone do not prove plan readiness.
+Use the readiness contract and preflight in `docs/HARNESS.md` before changing
+project code. Planning drafts use `readiness: no` and never authorize execution.
+
+If new evidence requires a product or material technical choice during execution,
+stop the affected plan, mark it non-ready and return it to planning. Record the
+owner's decision and update the plan/REQ/ADR before repeating preflight. Do not
+choose a default, silently expand scope, or request approval only after coding
+the dependent behavior. Independent ready plans may continue. Routine local
+implementation details within agreed contracts remain executor-owned.
+
 ## Architecture invariants
 
 Backend owns CRM business logic, including:

@@ -41,6 +41,12 @@ Use an ADR when the choice is material, including:
 Do not create an ADR for a small, local, readily reversible implementation
 choice that follows established contracts and project conventions.
 
+Resolve material choices and obtain required acceptance during planning,
+before the plan becomes executable. Discovery of a new material choice during
+execution returns the affected plan to planning with `readiness: no`; it is not
+an implementation slice. Link the accepted ADR and approval provenance from
+the plan's readiness metadata and `Decision evidence`.
+
 ## Compare the options
 
 State the decision that is needed now and the concrete forces that constrain

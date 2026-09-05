@@ -53,6 +53,7 @@ class CommandMatrixTests(unittest.TestCase):
             [
                 "requirements.agent-instructions",
                 "requirements.architecture-decisions",
+                "requirements.plan-readiness",
                 "requirements.registry",
             ],
             [check.identifier for check in checks],
