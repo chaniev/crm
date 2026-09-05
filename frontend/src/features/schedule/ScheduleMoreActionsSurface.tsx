@@ -3,6 +3,8 @@ import { Button, Drawer, Menu, Stack, Text, UnstyledButton } from '@mantine/core
 import { useMediaQuery } from '@mantine/hooks'
 import { IconDots } from '@tabler/icons-react'
 import type { ScheduleDeferredAction } from './scheduleDeferredActions'
+import { fe3ScheduleMutationsText } from '../../resources/fe-3-schedule-mutations'
+
 
 export type ScheduleMoreActionsSurfaceProps = {
   actions: ScheduleDeferredAction[]
@@ -68,7 +70,7 @@ export function ScheduleMoreActionsSurface({
     onSelectAction(action)
   }
 
-  const triggerLabel = `Ещё действий: ${accessibleContext}`
+  const triggerLabel = fe3ScheduleMutationsText.scheduleMoreActionsSurface_triggerLabel_0e137aa1(accessibleContext)
 
   const contextBlock = (
     <Stack gap={2}>
@@ -100,8 +102,7 @@ export function ScheduleMoreActionsSurface({
             type="button"
             variant="light"
           >
-            Ещё
-          </Button>
+            {fe3ScheduleMutationsText.scheduleMoreActionsSurface_jsxText_2071fb99}</Button>
         </Menu.Target>
         <Menu.Dropdown>
           {contextBlock}
@@ -135,12 +136,11 @@ export function ScheduleMoreActionsSurface({
         type="button"
         variant="light"
       >
-        Ещё
-      </Button>
+        {fe3ScheduleMutationsText.scheduleMoreActionsSurface_jsxText_2071fb99}</Button>
       <Drawer
         className="schedule-more-drawer"
         closeButtonProps={{
-          'aria-label': 'Закрыть дополнительные действия',
+          'aria-label': fe3ScheduleMutationsText.scheduleMoreActionsSurface_ariaLabel_d3b1083d,
           className: 'temporary-surface-close',
         }}
         onClose={close}
@@ -150,8 +150,7 @@ export function ScheduleMoreActionsSurface({
         size="auto"
         title={(
           <Text component="span" fw={800}>
-            Ещё действий
-          </Text>
+            {fe3ScheduleMutationsText.scheduleMoreActionsSurface_jsxText_ca0bc1ad}</Text>
         )}
         withinPortal
       >

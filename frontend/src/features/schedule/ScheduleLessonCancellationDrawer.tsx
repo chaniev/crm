@@ -20,6 +20,8 @@ import {
   type ScheduleLessonCancellationRequest,
 } from '../../lib/api'
 import { formatScheduleProblemCode } from './scheduleActionReasons'
+import { fe3ScheduleMutationsText } from '../../resources/fe-3-schedule-mutations'
+
 
 type ScheduleLessonCancellationDrawerProps = {
   action: ScheduleLessonCancellationAction | null
@@ -30,7 +32,7 @@ type ScheduleLessonCancellationDrawerProps = {
 }
 
 const GENERIC_CANCELLATION_ERROR =
-  'Не удалось проверить действие с занятием. Обновите предпросмотр и попробуйте снова.'
+  fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_gENERICCANCELLATIONERROR_d585b2a5
 
 export function ScheduleLessonCancellationDrawer({
   action,
@@ -153,18 +155,18 @@ export function ScheduleLessonCancellationDrawer({
         <Stack gap={4}>
           <Text fw={900}>{lesson.groupName}</Text>
           <Text c="dimmed" size="sm">
-            {formatLessonDate(lesson.lessonDate)} · {formatTimeRange(lesson)}
+            {formatLessonDate(lesson.lessonDate)} {fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_a137f17a}{formatTimeRange(lesson)}
           </Text>
           <Text c="dimmed" size="sm">
-            {lesson.hallName} · {lesson.branchName}
+            {lesson.hallName} {fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_a137f17a}{lesson.branchName}
           </Text>
         </Stack>
 
         <Group gap="xs" wrap="wrap">
           <Badge color={lesson.status === 'Cancelled' ? 'gray' : 'green'} variant="light">
-            {lesson.status === 'Cancelled' ? 'Отменено' : 'Запланировано'}
+            {lesson.status === 'Cancelled' ? fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_string_23a2a9bf : fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_string_c4c9abc1}
           </Badge>
-          {lesson.hasAttendanceMarks ? <Badge color="teal" variant="light">Отметки есть</Badge> : null}
+          {lesson.hasAttendanceMarks ? <Badge color="teal" variant="light">{fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_0d7d0a5f}</Badge> : null}
         </Group>
 
         <Alert color={copy.color} icon={copy.icon}>
@@ -181,17 +183,16 @@ export function ScheduleLessonCancellationDrawer({
           <Paper className="schedule-cancellation-preview" radius="md" withBorder>
             <Stack gap="sm">
               <Stack gap={2}>
-                <Text fw={900}>Проверьте действие перед подтверждением</Text>
+                <Text fw={900}>{fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_756d6c50}</Text>
                 <Text c="dimmed" size="sm">
-                  {preview.lesson.groupName} · {formatLessonDate(preview.lesson.lessonDate)} · {formatTimeRange(preview.lesson)}
+                  {preview.lesson.groupName} {fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_a137f17a}{formatLessonDate(preview.lesson.lessonDate)} {fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_a137f17a}{formatTimeRange(preview.lesson)}
                 </Text>
                 <Text c="dimmed" size="sm">
-                  После подтверждения: {preview.lesson.status === 'Cancelled' ? 'занятие отменено' : 'занятие восстановлено'}
+                  {fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_8b575c5b}{preview.lesson.status === 'Cancelled' ? fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_string_f6756db0 : fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_string_2d57c90a}
                 </Text>
               </Stack>
               <Text c="dimmed" size="sm">
-                Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
-              </Text>
+                {fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_cce698e3}{formatExpiresAt(preview.expiresAt)}{fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_cdb4ee2a}</Text>
             </Stack>
           </Paper>
         ) : null}
@@ -215,12 +216,11 @@ export function ScheduleLessonCancellationDrawer({
               onClick={() => void submitPreview()}
               type="button"
             >
-              {formError ? 'Обновить предпросмотр' : 'Получить предпросмотр'}
+              {formError ? fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_string_62b92aa4 : fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_string_857a90c1}
             </Button>
           )}
           <Button disabled={pending} onClick={onClose} type="button" variant="light">
-            Отмена
-          </Button>
+            {fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_jsxText_8fbe9b75}</Button>
         </Group>
       </Stack>
     </Drawer>
@@ -231,19 +231,19 @@ function getActionCopy(action: ScheduleLessonCancellationAction) {
   if (action === 'Restore') {
     return {
       color: 'green',
-      confirmLabel: 'Восстановить занятие',
-      description: 'Занятие снова появится как запланированное. Проверьте точное занятие перед подтверждением.',
+      confirmLabel: fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_confirmLabel_b7179b95,
+      description: fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_description_06aebb09,
       icon: <IconRefresh size={18} />,
-      title: 'Восстановить занятие',
+      title: fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_confirmLabel_b7179b95,
     } as const
   }
 
   return {
     color: 'red',
-    confirmLabel: 'Отменить занятие',
-    description: 'Отменяется только это занятие. Если уже есть отметки посещаемости, сервер попросит сначала разобрать отметки.',
+    confirmLabel: fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_confirmLabel_563bed0c,
+    description: fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_description_c3c2aa40,
     icon: <IconBan size={18} />,
-    title: 'Отменить занятие',
+    title: fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_confirmLabel_563bed0c,
   } as const
 }
 
@@ -271,7 +271,7 @@ function parseIsoDate(value: string) {
 function formatExpiresAt(value: string) {
   const expiresAt = new Date(value)
   if (Number.isNaN(expiresAt.getTime())) {
-    return 'окончания срока предпросмотра'
+    return fe3ScheduleMutationsText.scheduleLessonCancellationDrawer_string_4371fe93
   }
 
   return new Intl.DateTimeFormat('ru-RU', {

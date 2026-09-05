@@ -7,6 +7,8 @@ import {
   IconUsers,
 } from '@tabler/icons-react'
 import type { ScheduleLesson } from '../../lib/api'
+import { fe3ScheduleMutationsText } from '../../resources/fe-3-schedule-mutations'
+
 
 export type ScheduleDeferredActionId =
   | 'edit'
@@ -53,8 +55,8 @@ export function buildScheduleDeferredActions(
   if (lesson.allowedActions.move.allowed) {
     actions.push({
       id: 'move',
-      label: 'Перенести',
-      accessibleName: `Перенести занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`,
+      label: fe3ScheduleMutationsText.scheduleDeferredActions_label_758cc605,
+      accessibleName: fe3ScheduleMutationsText.scheduleDeferredActions_accessibleName_1e00c5ab(lesson.groupName, formatIntervalLabel(lesson)),
       icon: <IconChevronRight size={18} />,
       danger: false,
       run: () => handlers.onMoveLesson(lesson),
@@ -64,8 +66,8 @@ export function buildScheduleDeferredActions(
   if (lesson.lessonSeriesId && lesson.allowedActions.edit.allowed) {
     actions.push({
       id: 'series',
-      label: 'Серия',
-      accessibleName: `Изменить серию занятий: ${lesson.groupName}`,
+      label: fe3ScheduleMutationsText.scheduleDeferredActions_label_a7bdff84,
+      accessibleName: fe3ScheduleMutationsText.scheduleDeferredActions_accessibleName_990472d3(lesson.groupName),
       icon: <IconSettings size={18} />,
       danger: false,
       run: () => handlers.onEditSeries(lesson, 'this-and-future'),
@@ -75,8 +77,8 @@ export function buildScheduleDeferredActions(
   if (lesson.allowedActions.assignTrainerSubstitution.allowed) {
     actions.push({
       id: 'assign-substitution',
-      label: 'Замена',
-      accessibleName: `Назначить замену тренера: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`,
+      label: fe3ScheduleMutationsText.scheduleDeferredActions_label_9b994009,
+      accessibleName: fe3ScheduleMutationsText.scheduleDeferredActions_accessibleName_9e998c3e(lesson.groupName, formatIntervalLabel(lesson)),
       icon: <IconUsers size={18} />,
       danger: false,
       run: () => handlers.onTrainerSubstitution(lesson, 'Assign'),
@@ -86,8 +88,8 @@ export function buildScheduleDeferredActions(
   if (lesson.allowedActions.cancelTrainerSubstitution.allowed) {
     actions.push({
       id: 'cancel-substitution',
-      label: 'Снять замену',
-      accessibleName: `Снять замену тренера: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`,
+      label: fe3ScheduleMutationsText.scheduleDeferredActions_label_ab7a9be4,
+      accessibleName: fe3ScheduleMutationsText.scheduleDeferredActions_accessibleName_af6692f4(lesson.groupName, formatIntervalLabel(lesson)),
       icon: <IconRefresh size={18} />,
       danger: false,
       run: () => handlers.onTrainerSubstitution(lesson, 'Cancel'),
@@ -98,8 +100,8 @@ export function buildScheduleDeferredActions(
   if (lesson.allowedActions.cancel.allowed) {
     actions.push({
       id: 'cancel',
-      label: 'Отменить',
-      accessibleName: `Отменить занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`,
+      label: fe3ScheduleMutationsText.scheduleDeferredActions_label_7c47f729,
+      accessibleName: fe3ScheduleMutationsText.scheduleDeferredActions_accessibleName_9c8f53cb(lesson.groupName, formatIntervalLabel(lesson)),
       icon: <IconBan size={18} />,
       danger: true,
       run: () => handlers.onCancelOrRestoreLesson(lesson, 'Cancel'),
@@ -107,8 +109,8 @@ export function buildScheduleDeferredActions(
   } else if (lesson.allowedActions.restore.allowed) {
     actions.push({
       id: 'restore',
-      label: 'Восстановить',
-      accessibleName: `Восстановить занятие: ${lesson.groupName}, ${formatIntervalLabel(lesson)}`,
+      label: fe3ScheduleMutationsText.scheduleDeferredActions_label_76f55a98,
+      accessibleName: fe3ScheduleMutationsText.scheduleDeferredActions_accessibleName_39549900(lesson.groupName, formatIntervalLabel(lesson)),
       icon: <IconRefresh size={18} />,
       danger: false,
       run: () => handlers.onCancelOrRestoreLesson(lesson, 'Restore'),
