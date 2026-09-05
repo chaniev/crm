@@ -25,6 +25,8 @@ import type {
   AuthStageBackground,
   ThemeProfile,
 } from '../theme/types'
+import { fe1AppShellAuthText } from '../resources/fe-1-app-shell-auth'
+
 
 export type AuthBackgroundPreloader = (
   profile: AuthBackgroundProfile,
@@ -187,10 +189,9 @@ function ConfigBootstrapLoading() {
     >
       <main className="auth-layout">
         <section className="loading-card bootstrap-loading-card" aria-busy="true">
-          <h1 className="bootstrap-loading-card__title">Открываем CRM</h1>
+          <h1 className="bootstrap-loading-card__title">{fe1AppShellAuthText.configThemeBootstrap_jsxText_482341a5}</h1>
           <p className="bootstrap-loading-card__text">
-            Готовим оформление и экран авторизации.
-          </p>
+            {fe1AppShellAuthText.configThemeBootstrap_jsxText_177a9363}</p>
         </section>
       </main>
     </div>

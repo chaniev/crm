@@ -14,6 +14,8 @@ import {
   MobileBottomNavigation,
   NavigationTabs,
 } from '../features/shared/ux'
+import { fe1AppShellAuthText } from '../resources/fe-1-app-shell-auth'
+
 
 type RolePresentation = {
   roleLabel: string
@@ -21,16 +23,16 @@ type RolePresentation = {
 
 const rolePresentationMap: Record<AuthenticatedUser['role'], RolePresentation> = {
   HeadCoach: {
-    roleLabel: 'Главный тренер',
+    roleLabel: fe1AppShellAuthText.authenticatedShell_roleLabel_6d711278,
   },
   SuperAdministrator: {
-    roleLabel: 'Суперадминистратор',
+    roleLabel: fe1AppShellAuthText.authenticatedShell_roleLabel_ba0c95d4,
   },
   Administrator: {
-    roleLabel: 'Администратор',
+    roleLabel: fe1AppShellAuthText.authenticatedShell_roleLabel_6c771997,
   },
   Coach: {
-    roleLabel: 'Тренер',
+    roleLabel: fe1AppShellAuthText.authenticatedShell_roleLabel_894d7ecc,
   },
 }
 
@@ -76,7 +78,7 @@ export function AuthenticatedShell({
     <Menu position="bottom-end" shadow="md" width={250}>
       <Menu.Target>
         <UnstyledButton
-          aria-label={`Открыть профильное меню пользователя ${user.fullName}`}
+          aria-label={fe1AppShellAuthText.authenticatedShell_template_4d237756(user.fullName)}
           className="app-shell__profile-trigger"
         >
           <IconUserCircle size={18} />
@@ -92,15 +94,14 @@ export function AuthenticatedShell({
           leftSection={<IconLockPassword size={16} />}
           onClick={handleOpenPassword}
         >
-          Смена пароля
-        </Menu.Item>
+          {fe1AppShellAuthText.authenticatedShell_jsxText_354d5f5b}</Menu.Item>
         <Menu.Item
           color="red"
           disabled={logoutPending}
           leftSection={<IconDoorExit size={16} />}
           onClick={() => void handleLogoutAction()}
         >
-          {logoutPending ? 'Завершаем сессию...' : 'Выход'}
+          {logoutPending ? fe1AppShellAuthText.authenticatedShell_string_29b1d990 : fe1AppShellAuthText.authenticatedShell_string_75cd24c3}
         </Menu.Item>
       </Menu.Dropdown>
     </Menu>

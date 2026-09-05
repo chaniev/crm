@@ -30,6 +30,8 @@ import {
 import {
   stripScheduleReturnSnapshotFromHistoryState,
 } from '../features/schedule/scheduleReturnState'
+import { fe1AppShellAuthText } from '../resources/fe-1-app-shell-auth'
+
 
 export type PasswordReturnState = {
   path: string
@@ -205,10 +207,10 @@ export function getRouteAccessLossNotificationMessage(
 ) {
   const deniedSubject =
     access.reason.kind === 'section'
-      ? `Раздел «${access.requestedDestinationLabel}»`
-      : `Операция «${access.requestedDestinationLabel}»`
+      ? fe1AppShellAuthText.useAppRoute_template_49c566c1(access.requestedDestinationLabel)
+      : fe1AppShellAuthText.useAppRoute_template_f613365a(access.requestedDestinationLabel)
 
-  return `Больше нет доступа: ${deniedSubject}. Открыт доступный раздел «${access.recoveryLabel}».`
+  return fe1AppShellAuthText.useAppRoute_template_94c1356c(deniedSubject, access.recoveryLabel)
 }
 
 function getRouteDocumentTitle(route: AppRoute) {
@@ -216,35 +218,35 @@ function getRouteDocumentTitle(route: AppRoute) {
     case 'section':
       return APP_SECTION_LABELS[route.section]
     case 'password':
-      return 'Смена пароля'
+      return fe1AppShellAuthText.useAppRoute_string_354d5f5b
     case 'attendanceLesson':
-      return 'Посещения'
+      return fe1AppShellAuthText.useAppRoute_string_5f43e5f1
     case 'scheduleLessonDetail':
-      return 'Занятие'
+      return fe1AppShellAuthText.useAppRoute_string_56995ff3
     case 'scheduleLessonCreate':
-      return 'Разовое занятие'
+      return fe1AppShellAuthText.useAppRoute_string_4196b8be
     case 'scheduleLessonEdit':
-      return 'Изменение занятия'
+      return fe1AppShellAuthText.useAppRoute_string_148e56cb
     case 'scheduleLessonMove':
-      return 'Перенос занятия'
+      return fe1AppShellAuthText.useAppRoute_string_c0c26d68
     case 'scheduleSeriesEdit':
-      return 'Изменение серии'
+      return fe1AppShellAuthText.useAppRoute_string_cd3e4306
     case 'clientCreate':
-      return 'Новый клиент'
+      return fe1AppShellAuthText.useAppRoute_string_5a2595c2
     case 'clientPreview':
-      return 'Краткая карточка клиента'
+      return fe1AppShellAuthText.useAppRoute_string_5008cfdc
     case 'clientDetails':
-      return 'Карточка клиента'
+      return fe1AppShellAuthText.useAppRoute_string_a912ec86
     case 'clientEdit':
-      return 'Редактирование клиента'
+      return fe1AppShellAuthText.useAppRoute_string_6744d426
     case 'groupCreate':
-      return 'Новая группа'
+      return fe1AppShellAuthText.useAppRoute_string_c9fd9fc0
     case 'groupEdit':
-      return 'Редактирование группы'
+      return fe1AppShellAuthText.useAppRoute_string_3f7f75d8
     case 'userCreate':
-      return 'Новый тренер'
+      return fe1AppShellAuthText.useAppRoute_string_1ae0c0dd
     case 'userEdit':
-      return 'Редактирование тренера'
+      return fe1AppShellAuthText.useAppRoute_string_f303a273
   }
 
   return assertNeverAppRoute(route)
@@ -269,31 +271,31 @@ export function getAppDocumentTitle(
   bootstrapError: string | null,
 ) {
   if (loadingSession) {
-    return `Открываем ${clubName}`
+    return fe1AppShellAuthText.useAppRoute_template_144a149c(clubName)
   }
 
   if (bootstrapError && !session) {
-    return `Вход недоступен • ${clubName}`
+    return fe1AppShellAuthText.useAppRoute_template_eae52a62(clubName)
   }
 
   if (!session?.isAuthenticated || !session.user) {
-    return `Войти в ${clubName}`
+    return fe1AppShellAuthText.useAppRoute_template_1ad27b00(clubName)
   }
 
   if (session.user.mustChangePassword) {
-    return `Смените пароль • ${clubName}`
+    return fe1AppShellAuthText.useAppRoute_template_eb919eb4(clubName)
   }
 
   if (routeAccess?.kind === 'restricted') {
-    return `${routeAccess.requestedDestinationLabel} — нет доступа • ${clubName}`
+    return fe1AppShellAuthText.useAppRoute_template_4e209ac0(routeAccess.requestedDestinationLabel, clubName)
   }
 
   if (routeAccess?.kind === 'not-found') {
-    return `Страница не найдена • ${clubName}`
+    return fe1AppShellAuthText.useAppRoute_template_ff77bda7(clubName)
   }
 
   if (route.kind === 'password') {
-    return `Смена пароля • ${clubName}`
+    return fe1AppShellAuthText.useAppRoute_template_821c2666(clubName)
   }
 
   if (route.kind === 'section') {
@@ -301,7 +303,7 @@ export function getAppDocumentTitle(
   }
 
   if (route.kind === 'not-found') {
-    return `Страница не найдена • ${clubName}`
+    return fe1AppShellAuthText.useAppRoute_template_ff77bda7(clubName)
   }
 
   return `${getRouteDocumentTitle(route)} • ${clubName}`

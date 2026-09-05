@@ -30,6 +30,8 @@ import {
   type LoginRequest,
 } from '../lib/api'
 import type { AuthStageBackground } from '../theme'
+import { fe1AppShellAuthText } from '../resources/fe-1-app-shell-auth'
+
 
 export type PasswordMode = 'forced' | 'utility'
 
@@ -69,8 +71,8 @@ export function LoginScreen({
       password: '',
     },
     validate: {
-      login: (value) => (value.trim() ? null : 'Введите логин.'),
-      password: (value) => (value ? null : 'Введите пароль.'),
+      login: (value) => (value.trim() ? null : fe1AppShellAuthText.authStages_string_c9715294),
+      password: (value) => (value ? null : fe1AppShellAuthText.authStages_string_24155137),
     },
   })
 
@@ -90,7 +92,7 @@ export function LoginScreen({
         return
       }
 
-      setFormError('Не удалось выполнить вход. Попробуйте еще раз.')
+      setFormError(fe1AppShellAuthText.authStages_setFormError_5e80ed29)
     }
   }
 
@@ -102,15 +104,14 @@ export function LoginScreen({
             {clubName}
           </Text>
           <Title className="login-card__title" order={1}>
-            Добро пожаловать!
-          </Title>
+            {fe1AppShellAuthText.authStages_jsxText_389f991b}</Title>
         </Stack>
 
         {formError ? (
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Вход не выполнен"
+            title={fe1AppShellAuthText.authStages_title_e0d7dae9}
             variant="light"
           >
             {formError}
@@ -122,17 +123,17 @@ export function LoginScreen({
             <TextInput
               autoComplete="username"
               disabled={pending}
-              label="Логин"
+              label={fe1AppShellAuthText.authStages_label_5be12bfe}
               leftSection={<IconUserCircle size={20} />}
-              placeholder="Введите логин"
+              placeholder={fe1AppShellAuthText.authStages_placeholder_468937a8}
               {...form.getInputProps('login')}
             />
             <PasswordInput
               autoComplete="current-password"
               disabled={pending}
-              label="Пароль"
+              label={fe1AppShellAuthText.authStages_label_cb1a2074}
               leftSection={<IconLockPassword size={20} />}
-              placeholder="Введите пароль"
+              placeholder={fe1AppShellAuthText.authStages_placeholder_f741291a}
               {...form.getInputProps('password')}
             />
 
@@ -144,8 +145,7 @@ export function LoginScreen({
               size="md"
               type="submit"
             >
-              Войти
-            </Button>
+              {fe1AppShellAuthText.authStages_jsxText_8fc9ab2e}</Button>
 
             {showSetupHelp ? <SetupDisclosure /> : null}
           </Stack>
@@ -158,18 +158,16 @@ export function LoginScreen({
 function SetupDisclosure() {
   return (
     <details className="setup-disclosure">
-      <summary>Первый запуск системы</summary>
+      <summary>{fe1AppShellAuthText.authStages_jsxText_709f75be}</summary>
       <Stack className="setup-disclosure__content" gap="xs">
         <Group gap="xs">
           <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={28} variant="light">
             <IconSparkles size={16} />
           </ThemeIcon>
-          <Text fw={700}>Стартовые данные</Text>
+          <Text fw={700}>{fe1AppShellAuthText.authStages_jsxText_6c1c312c}</Text>
         </Group>
         <Text c="dimmed" size="sm">
-          Если логин первого пользователя не переопределен на сервере,
-          используйте <code>headcoach</code>. Стартовый пароль: <code>12345678</code>.
-        </Text>
+          {fe1AppShellAuthText.authStages_jsxText_a415bb3d}<code>headcoach</code>{fe1AppShellAuthText.authStages_jsxText_4c52deff}<code>{fe1AppShellAuthText.authStages_jsxText_ef797c81}</code>{fe1AppShellAuthText.authStages_jsxText_cdb4ee2a}</Text>
       </Stack>
     </details>
   )
@@ -203,10 +201,10 @@ export function PasswordScreen({
       confirmPassword: '',
     },
     validate: {
-      currentPassword: (value) => (value ? null : 'Введите текущий пароль.'),
-      newPassword: (value) => (value ? null : 'Введите новый пароль.'),
+      currentPassword: (value) => (value ? null : fe1AppShellAuthText.authStages_string_d1843171),
+      newPassword: (value) => (value ? null : fe1AppShellAuthText.authStages_string_55d5440a),
       confirmPassword: (value, values) =>
-        value === values.newPassword ? null : 'Пароли должны совпадать.',
+        value === values.newPassword ? null : fe1AppShellAuthText.authStages_string_65289257,
     },
   })
 
@@ -229,18 +227,18 @@ export function PasswordScreen({
         return
       }
 
-      setFormError('Не удалось сохранить новый пароль. Попробуйте еще раз.')
+      setFormError(fe1AppShellAuthText.authStages_setFormError_fbaf8203)
     }
   }
 
   const title =
     mode === 'forced'
-      ? 'Смените пароль'
-      : 'Смена пароля из профиля'
+      ? fe1AppShellAuthText.authStages_string_8783d8ab
+      : fe1AppShellAuthText.authStages_string_8715c92b
   const description =
     mode === 'forced'
-      ? 'Введите текущий временный пароль и задайте новый для дальнейшей работы.'
-      : 'Обновите пароль, который будете использовать при следующих входах.'
+      ? fe1AppShellAuthText.authStages_string_5e511732
+      : fe1AppShellAuthText.authStages_string_468abab8
 
   return (
     <Paper
@@ -262,8 +260,7 @@ export function PasswordScreen({
               onClick={onBack}
               variant="subtle"
             >
-              Назад
-            </Button>
+              {fe1AppShellAuthText.authStages_jsxText_1a9fb1f3}</Button>
           ) : null}
         </Group>
 
@@ -271,7 +268,7 @@ export function PasswordScreen({
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Изменение не сохранено"
+            title={fe1AppShellAuthText.authStages_title_36349dab}
             variant="light"
           >
             {formError}
@@ -282,20 +279,20 @@ export function PasswordScreen({
           <Stack gap="md">
             <PasswordInput
               autoComplete="current-password"
-              label="Текущий пароль"
-              placeholder="Введите текущий пароль"
+              label={fe1AppShellAuthText.authStages_label_d83e5a22}
+              placeholder={fe1AppShellAuthText.authStages_placeholder_b45783ad}
               {...form.getInputProps('currentPassword')}
             />
             <PasswordInput
               autoComplete="new-password"
-              label="Новый пароль"
-              placeholder="Придумайте новый пароль"
+              label={fe1AppShellAuthText.authStages_label_f104cf99}
+              placeholder={fe1AppShellAuthText.authStages_placeholder_63cd6ea9}
               {...form.getInputProps('newPassword')}
             />
             <PasswordInput
               autoComplete="new-password"
-              label="Повторите новый пароль"
-              placeholder="Повторите новый пароль"
+              label={fe1AppShellAuthText.authStages_label_fb22627c}
+              placeholder={fe1AppShellAuthText.authStages_label_fb22627c}
               {...form.getInputProps('confirmPassword')}
             />
 
@@ -305,7 +302,7 @@ export function PasswordScreen({
               size="md"
               type="submit"
             >
-              {mode === 'forced' ? 'Сменить пароль и продолжить' : 'Сохранить новый пароль'}
+              {mode === 'forced' ? fe1AppShellAuthText.authStages_string_40402c8b : fe1AppShellAuthText.authStages_string_4a13b77b}
             </Button>
 
             {mode === 'utility' ? (
@@ -315,11 +312,10 @@ export function PasswordScreen({
                     <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={28} variant="light">
                       <IconShieldCheck size={16} />
                     </ThemeIcon>
-                    <Text fw={700}>Пароль обновится сразу</Text>
+                    <Text fw={700}>{fe1AppShellAuthText.authStages_jsxText_71f070e5}</Text>
                   </Group>
                   <Text c="dimmed" size="sm">
-                    Используйте новый пароль при следующих входах.
-                  </Text>
+                    {fe1AppShellAuthText.authStages_jsxText_7814c992}</Text>
                 </Stack>
               </Paper>
             ) : null}
@@ -336,7 +332,7 @@ type LoadingStateProps = {
 }
 
 export function LoadingState({ authBackground, clubName }: LoadingStateProps) {
-  const title = `Открываем ${clubName}`
+  const title = fe1AppShellAuthText.authStages_title_144a149c(clubName)
 
   return (
     <div
@@ -351,8 +347,7 @@ export function LoadingState({ authBackground, clubName }: LoadingStateProps) {
               {title}
             </Title>
             <Text c="dimmed" ta="center">
-              Проверяем, есть ли активный вход, и готовим экран авторизации.
-            </Text>
+              {fe1AppShellAuthText.authStages_jsxText_74b94887}</Text>
           </Stack>
         </Paper>
       </Container>
