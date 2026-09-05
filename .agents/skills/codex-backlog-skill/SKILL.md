@@ -40,6 +40,7 @@ Main goals:
     /implementation
     /implementation-plans
     /done
+        /YYYY-MM-DD
 
     /logs
 ```
@@ -259,6 +260,10 @@ Before creating a new task file, check existing tasks in:
 /backlog/done
 ```
 
+Search all date subdirectories of `/backlog/done` recursively, including when
+allocating task IDs and counting completed tasks. Follow `backlog/README.md`
+for completion dates and colocating task, plan, and verification artifacts.
+
 Look for similar tasks by:
 
 - title;
@@ -387,7 +392,9 @@ ready / risky / needs-clarification
    - выполни audit в текущем coordination workspace: не создавай и не переключай отдельную ветку или worktree только ради актуализации статусов;
    - определи integrated baseline, предпочтительно origin/main, и сверь с ним задачи в /backlog/tasks-ready, /backlog/risky, /backlog/needs-clarification и /backlog/implementation по коду, Git history, веткам/worktrees, plans и явным продуктовым решениям;
    - проверь соответствие поля ## Status каталогу, уникальность активных TASK-ID, корректность ссылок из plans и наличие незакрытых обязательных вопросов;
-   - переводи задачу и ее plan в /backlog/done только при достаточном evidence выполнения goal и acceptance criteria; наличие plan, ветки, worktree, commit message или частичной реализации само по себе недостаточно;
+   - переводи задачу, ее plan и verification/evidence artifacts в /backlog/done/YYYY-MM-DD/ только при достаточном evidence выполнения goal и acceptance criteria; наличие plan, ветки, worktree, commit message или частичной реализации само по себе недостаточно;
+   - выбирай дату завершения по /backlog/README.md, запиши `completed_at` и `completion_date_evidence`; дата текущего triage не заменяет историческую дату реализации; при недостаточном evidence зафиксируй блокер даты без угадывания;
+   - обнови актуальные ссылки и проверь совместное размещение task/plan/contract в одной папке даты; исторические logs сохраняй, добавляя mapping старых и новых путей;
    - не меняй код проекта; используй только необходимые read-only checks и validation;
    - добавь отдельную запись `status audit` в /backlog/logs/triage-log.md с baseline, scope, evidence, изменениями, неизмененными активными задачами, consistency checks, counts и validation; явно зафиксируй нулевой результат, если изменений нет;
    - заверши audit до проверки, пуст ли inbox, и выполняй его даже при пустом inbox.
@@ -429,7 +436,7 @@ ready / risky / needs-clarification
    - /backlog/implementation
    - /backlog/done
 
-   Нужно проверить, не существует ли уже похожая задача.
+   Нужно проверить, не существует ли уже похожая задача; /backlog/done обходить рекурсивно по всем папкам дат.
 
 7. Если похожая задача уже существует:
    - не создавай дубликат;

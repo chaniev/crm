@@ -31,7 +31,7 @@ python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-123
 
 `--task-id` discovers exactly one matching
 `TASK-NNN-*verification-contract.json` in `backlog/implementation/` or
-`backlog/done/`. For a change with no task contract, omit the option and the
+`backlog/done/YYYY-MM-DD/`. For a change with no task contract, omit the option and the
 runner uses diff-aware canonical verification only.
 
 The local profile includes committed changes since the base plus staged,
@@ -59,7 +59,7 @@ diff was intentionally not inspected.
 An implementation task may add a repository-local JSON contract when its
 verification cannot be derived from changed paths alone. Keep the active
 contract beside the task in `backlog/implementation/` and move both artifacts
-to `backlog/done/` when the task is completed.
+to `backlog/done/YYYY-MM-DD/` when the task is completed.
 
 Prefer discovery by task ID. An explicit path remains available for debugging:
 

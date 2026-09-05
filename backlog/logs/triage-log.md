@@ -3499,3 +3499,20 @@
 ## Validation
 - No inbox files processed and no task status changed.
 - Requirements metadata and TASK-166 risky status remain consistent.
+
+
+# 2026-09-05 — организация архива done
+
+- Scope: существующий архив; текущие статусы и inbox не переоценивались.
+- Baseline: `5747573938a36a7118daf70c6f2693aeeda638a4`.
+- Перенесено 283 файла в 41 папку `done/YYYY-MM-DD/`; task/plan/contract
+  группируются по одной дате. Источники дат и полный old → new mapping:
+  [журнал переноса](2026-09-05-done-date-migration.md).
+- Для старых карточек без точной даты реализации явно отмечена дата первого
+  архивирования по Git; она не выдается за точную дату написания кода.
+- Обновлены правила triage, закрытия задач, актуальные ссылки и рекурсивный
+  поиск verification contracts. Исторические записи журнала сохранены.
+- Validation: полный `verify_change.py --base origin/main` passed (23 checks);
+  75 harness / 556 backend / 661 frontend / 67 bot tests.
+- Existing inconsistency: у плана TASK-050 нет одноимённой карточки;
+  план сохранён, подробности в журнале переноса.

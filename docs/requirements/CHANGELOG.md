@@ -15,7 +15,7 @@
   frontend, backend и Telegram-бота реализована; финальный inventory имеет
   ноль user-facing resource-кандидатов вне ресурсов, а AST guards включены в
   canonical validation (задача
-  [TASK-165](../../backlog/done/TASK-165-user-facing-text-resources.md)).
+  [TASK-165](../../backlog/done/2026-09-05/TASK-165-user-facing-text-resources.md)).
 
 ## 2026-09-02
 
@@ -23,77 +23,77 @@
   нормализованный login identity ключ с каноническим логином в
   session/audit/UI; реализация переведена в «реализовано» после интеграции
   TASK-166 в `main` (задача
-  [TASK-166](../../backlog/done/TASK-166-case-insensitive-login.md)).
+  [TASK-166](../../backlog/done/2026-09-02/TASK-166-case-insensitive-login.md)).
 - 02.09.2026 — REQ-USR-002 — регистронезависимая уникальность логина
   реализована на PostgreSQL unique barrier с единой field-level ошибкой дубля;
   остальная часть карточки остаётся «частично» (задача
-  [TASK-166](../../backlog/done/TASK-166-case-insensitive-login.md)).
+  [TASK-166](../../backlog/done/2026-09-02/TASK-166-case-insensitive-login.md)).
 - 02.09.2026 — REQ-ATT-006 — backend-authorized today worklist, точный
   occurrence counter, direction C и возврат с актуализацией контекста
   реализованы; реализация требования переведена в «реализовано» (задача
-  [TASK-168](../../backlog/done/TASK-168-attendance-today-worklist.md)).
+  [TASK-168](../../backlog/done/2026-09-02/TASK-168-attendance-today-worklist.md)).
 
 ## 2026-09-01
 
 - 01.09.2026 — REQ-ATT-006 — product owner сохранил lifecycle
   `Scheduled | Cancelled`, удалил устаревшее условие `NotHeld` и выбрал
   visual direction C для today worklist (уточнение
-  [TASK-168](../../backlog/done/TASK-168-attendance-today-worklist.md)).
+  [TASK-168](../../backlog/done/2026-09-02/TASK-168-attendance-today-worklist.md)).
 - 01.09.2026 — REQ-GRP-007 — TASK-167 реализовала единую resource-backed
   подпись schedule action `Посещение`; реализация требования
   переведена в «реализовано» (задача
-  [TASK-167](../../backlog/done/TASK-167-schedule-attendance-label.md)).
+  [TASK-167](../../backlog/done/2026-09-01/TASK-167-schedule-attendance-label.md)).
 - 01.09.2026 — REQ-ATT-006 — today worklist уточнён до action-only
   занятий с `unmarkedClientCount > 0`; закреплены исключённые
   состояния, порядок, partial-result и правила актуализации (уточнение
-  [TASK-168](../../backlog/done/TASK-168-attendance-today-worklist.md)).
+  [TASK-168](../../backlog/done/2026-09-02/TASK-168-attendance-today-worklist.md)).
 - 01.09.2026 — REQ-NFR-007 — текст уточнён: resource migration охватывает все
   отображаемые пользователю статические тексты независимо от языка, завершается
   только после переноса всех выявленных текстов и не меняет их форматирование
-  (задача [TASK-165](../../backlog/done/TASK-165-user-facing-text-resources.md)).
+  (задача [TASK-165](../../backlog/done/2026-09-05/TASK-165-user-facing-text-resources.md)).
 - 01.09.2026 — REQ-USR-002 — для обычного и конкурентного создания
   case-only дубля закреплена единая field-level ошибка
   «Пользователь с таким логином уже существует.» (уточнение
-  [TASK-166](../../backlog/done/TASK-166-case-insensitive-login.md)).
+  [TASK-166](../../backlog/done/2026-09-02/TASK-166-case-insensitive-login.md)).
 
 ## 2026-08-30
 
 - 30.08.2026 — REQ-NFR-005 — auth-экран закреплён как потребитель
   semantic color roles дизайн-системы; customer-specific background и
   primary action остаются в scope runtime branding (уточнение
-  [TASK-169](../../backlog/done/TASK-169-start-screen-colors.md), implementation owner
+  [TASK-169](../../backlog/done/2026-08-30/TASK-169-start-screen-colors.md), implementation owner
   [TASK-155](../../backlog/risky/TASK-155-runtime-customer-branding.md)).
 - 30.08.2026 — REQ-NFR-007 — новая принятая карточка обязательного
   layer-owned resource contract для всех user-facing статических текстов;
   реализация отмечена «частично» (задача
-  [TASK-165](../../backlog/done/TASK-165-user-facing-text-resources.md)).
+  [TASK-165](../../backlog/done/2026-09-05/TASK-165-user-facing-text-resources.md)).
 - 30.08.2026 — REQ-USR-002, REQ-USR-003 — login identity и вход приняты
   регистронезависимыми; реализация переведена в «частично» до безопасного
   uniqueness/retained-database barrier (задача
-  [TASK-166](../../backlog/done/TASK-166-case-insensitive-login.md)).
+  [TASK-166](../../backlog/done/2026-09-02/TASK-166-case-insensitive-login.md)).
 - 30.08.2026 — REQ-GRP-007 — нормативная подпись schedule action изменена с
   `Посещаемость` на `Посещение`; реализация переведена в «частично» (задача
-  [TASK-167](../../backlog/done/TASK-167-schedule-attendance-label.md)).
+  [TASK-167](../../backlog/done/2026-09-01/TASK-167-schedule-attendance-label.md)).
 - 30.08.2026 — REQ-ATT-006 — принят task-first landing `/attendance` со
   списком занятий на сегодня, быстрым входом и счётчиком `Не отмечено`;
   реализация переведена в «частично» (задача
-  [TASK-168](../../backlog/done/TASK-168-attendance-today-worklist.md)).
+  [TASK-168](../../backlog/done/2026-09-02/TASK-168-attendance-today-worklist.md)).
 - 30.08.2026 — REQ-GRP-007 — TASK-157 интегрирована в `main`;
   mobile-density contract покрыт component/Chromium/target-iPhone WebKit
   evidence, реализация переведена в «реализовано» (задача
-  [TASK-157](../../backlog/done/TASK-157-schedule-mobile-density.md)).
+  [TASK-157](../../backlog/done/2026-08-30/TASK-157-schedule-mobile-density.md)).
 - 30.08.2026 — REQ-GRP-001 — мобильная list-row композиция реестра
   сохранила decision-данные группы без изменения статуса
   требования (задача
-  [TASK-164](../../backlog/done/TASK-164-groups-vertical-budget.md)).
+  [TASK-164](../../backlog/done/2026-08-30/TASK-164-groups-vertical-budget.md)).
 - 30.08.2026 — REQ-NFR-001 — для реестра групп реализован
   проверяемый мобильный вертикальный бюджет; общая реализация
   требования осталась «частично» (задача
-  [TASK-164](../../backlog/done/TASK-164-groups-vertical-budget.md)).
+  [TASK-164](../../backlog/done/2026-08-30/TASK-164-groups-vertical-budget.md)).
 - 30.08.2026 — REQ-NFR-001 — текст дополнен принятым list-row/focus-card
   контрактом; representative Users/Audit slices и mobile radius overrides
   реализованы, общая реализация требования остаётся «частично» (задача
-  [TASK-160](../../backlog/done/TASK-160-list-row-surfaces.md)).
+  [TASK-160](../../backlog/done/2026-08-30/TASK-160-list-row-surfaces.md)).
 
 ## 2026-08-29
 
@@ -106,28 +106,28 @@
   minimums, long-content wrapping and numeric tabular alignment стали
   проверяемым theme/CSS контрактом, общая реализация требования остаётся
   «частично» (задача
-  [TASK-146](../../backlog/done/TASK-146-typography-scale.md)).
+  [TASK-146](../../backlog/done/2026-08-29/TASK-146-typography-scale.md)).
 - 29.08.2026 — REQ-NFR-001 — reduced-motion contract реализован и
   подтверждён unit/Chromium/WebKit evidence; общая реализация
   требования остаётся «частично» (задача
-  [TASK-144](../../backlog/done/TASK-144-reduced-motion-contract.md)).
+  [TASK-144](../../backlog/done/2026-08-29/TASK-144-reduced-motion-contract.md)).
 - 29.08.2026 — REQ-NFR-001 — текст дополнен принятым
   reduced-motion contract; реализация переведена в «частично» (задача
-  [TASK-144](../../backlog/done/TASK-144-reduced-motion-contract.md)).
+  [TASK-144](../../backlog/done/2026-08-29/TASK-144-reduced-motion-contract.md)).
 - 29.08.2026 — REQ-NFR-005 — текст customer branding расширен:
   приняты runtime/deployment onboarding, post-deploy CRM settings,
   primary auth action, customer-specific neutrals, logo/favicon и bundled
   fallback; реализация переведена в «частично» (задача
-  [TASK-148](../../backlog/done/TASK-148-customer-branding-boundary.md)).
-- 29.08.2026 — REQ-GRP-007 — реализация task-first представления расписания подтверждена в `main` (задача [TASK-133](../../backlog/done/TASK-133-schedule-task-first-cards.md)).
+  [TASK-148](../../backlog/done/2026-08-29/TASK-148-customer-branding-boundary.md)).
+- 29.08.2026 — REQ-GRP-007 — реализация task-first представления расписания подтверждена в `main` (задача [TASK-133](../../backlog/done/2026-08-29/TASK-133-schedule-task-first-cards.md)).
 
 ## 2026-08-28
 
 - 28.08.2026 — REQ-GRP-007 — новая принятая карточка task-first представления
-  расписания (задача [TASK-133](../../backlog/done/TASK-133-schedule-task-first-cards.md)).
+  расписания (задача [TASK-133](../../backlog/done/2026-08-29/TASK-133-schedule-task-first-cards.md)).
 - 28.08.2026 — реестр — продуктовое решение отделено от состояния реализации;
   добавлены обязательные task metadata, approval gate и CI validation
-  (задача [TASK-134](../../backlog/done/TASK-134-requirements-workflow.md)).
+  (задача [TASK-134](../../backlog/done/2026-08-28/TASK-134-requirements-workflow.md)).
 
 ## 2026-08-27
 

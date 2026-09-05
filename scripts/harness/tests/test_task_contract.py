@@ -182,11 +182,28 @@ class TaskContractTests(unittest.TestCase):
                 contract_path.resolve(),
                 discover_task_contract("TASK-999", root=root),
             )
-            duplicate_dir = root / "backlog" / "done"
+            duplicate_dir = root / "backlog" / "done" / "2026-09-05"
             duplicate_dir.mkdir(parents=True)
             (duplicate_dir / contract_path.name).write_text(
                 VALID_CONTRACT, encoding="utf-8"
             )
+            with self.assertRaisesRegex(ContractError, "multiple verification contracts"):
+                discover_task_contract("TASK-999", root=root)
+
+    def test_discovers_archived_contract_and_rejects_duplicate_dates(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive = root / "backlog" / "done" / "2026-09-05"
+            archive.mkdir(parents=True)
+            contract_path = archive / "TASK-999-verification-contract.json"
+            contract_path.write_text(VALID_CONTRACT, encoding="utf-8")
+            self.assertEqual(
+                contract_path.resolve(),
+                discover_task_contract("TASK-999", root=root),
+            )
+            other_date = archive.parent / "2026-09-04"
+            other_date.mkdir()
+            (other_date / contract_path.name).write_text(VALID_CONTRACT, encoding="utf-8")
             with self.assertRaisesRegex(ContractError, "multiple verification contracts"):
                 discover_task_contract("TASK-999", root=root)
 

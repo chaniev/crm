@@ -17,7 +17,7 @@ Backlog files are workflow artifacts, not project-code implementation.
 - `needs-clarification/` -> current tasks with blocking product or architecture questions
 - `implementation-plans/` -> plans for unfinished tasks; a plan does not start implementation
 - `implementation/` -> tasks explicitly placed into active implementation
-- `done/` -> completed tasks and their completed implementation plans
+- `done/YYYY-MM-DD/` -> completed tasks, plans, and verification artifacts grouped by completion date
 - `logs/` -> append-only triage, planning, implementation, and status-audit evidence
 - `mockups/` -> backlog-owned visual references linked from tasks
 
@@ -37,7 +37,10 @@ Backlog files are workflow artifacts, not project-code implementation.
 - A backlog card referencing a requirement with decision `предложено` does not move to
   `tasks-ready` or `implementation`.
 - Creating a plan does not imply that implementation has started.
-- Moving a completed task to `done/` also moves its completed plan there.
+- Moving a completed task to `done/YYYY-MM-DD/` also moves its completed plan,
+  verification contract, and task-owned evidence there. Determine and record the
+  date using `backlog/README.md`; never use the triage date for an older completion.
+  Search `done/` recursively for duplicates, task IDs, and contracts.
 - Preserve historical logs; append corrections or status updates instead of
   rewriting evidence that informed earlier decisions.
 - Do not change project code while performing capture, triage, reconciliation,
@@ -57,7 +60,7 @@ For backlog changes:
 - verify implementation plans link to the intended task and branch;
 - verify active task and unfinished plan requirements metadata, referenced IDs,
   approval state, and allowed `none`/`pending` usage;
-- verify completed task/plan pairs are colocated in `done/`;
+- verify completed task/plan pairs are colocated in the same `done/YYYY-MM-DD/` directory;
 - report unresolved duplicates, stale statuses, and blocking questions rather
   than guessing their resolution.
 

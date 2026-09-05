@@ -141,7 +141,7 @@ export const UX_AUDIT_REGRESSION_MATRIX: readonly UxAuditRegressionRequirement[]
     mandatoryViewports: [...TARGET_IPHONE_VIEWPORTS],
     criteria: ['device-runtime', 'reachability'],
     evidenceKind: 'physical-device',
-    owningSpec: 'backlog/done/TASK-111-ux-audit-regression-matrix.plan.md#manual-only-checks',
+    owningSpec: 'backlog/done/2026-08-23/TASK-111-ux-audit-regression-matrix.plan.md#manual-only-checks',
     automationStatus: 'manual-only',
   },
   {
@@ -218,7 +218,7 @@ export const UX_AUDIT_REGRESSION_MATRIX: readonly UxAuditRegressionRequirement[]
     mandatoryViewports: [...TARGET_IPHONE_VIEWPORTS],
     criteria: ['device-runtime', 'reachability'],
     evidenceKind: 'physical-device',
-    owningSpec: 'backlog/done/TASK-111-ux-audit-regression-matrix.plan.md#manual-only-checks',
+    owningSpec: 'backlog/done/2026-08-23/TASK-111-ux-audit-regression-matrix.plan.md#manual-only-checks',
     automationStatus: 'manual-only',
   },
   {
@@ -306,7 +306,7 @@ export const UX_AUDIT_REGRESSION_MATRIX: readonly UxAuditRegressionRequirement[]
     mandatoryViewports: [...TARGET_IPHONE_VIEWPORTS],
     criteria: ['device-runtime', 'reachability'],
     evidenceKind: 'physical-device',
-    owningSpec: 'backlog/done/TASK-111-ux-audit-regression-matrix.plan.md#manual-only-checks',
+    owningSpec: 'backlog/done/2026-08-23/TASK-111-ux-audit-regression-matrix.plan.md#manual-only-checks',
     automationStatus: 'manual-only',
   },
   {
@@ -383,7 +383,7 @@ export const UX_AUDIT_REGRESSION_MATRIX: readonly UxAuditRegressionRequirement[]
     mandatoryViewports: [...TARGET_IPHONE_VIEWPORTS],
     criteria: ['device-runtime', 'reachability'],
     evidenceKind: 'physical-device',
-    owningSpec: 'backlog/done/TASK-111-ux-audit-regression-matrix.plan.md#manual-only-checks',
+    owningSpec: 'backlog/done/2026-08-23/TASK-111-ux-audit-regression-matrix.plan.md#manual-only-checks',
     automationStatus: 'manual-only',
   },
 ]

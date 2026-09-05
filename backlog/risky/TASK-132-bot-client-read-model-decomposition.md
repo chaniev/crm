@@ -107,7 +107,7 @@ read-model изменения требуют читать и повторно п
   projections; незаметная ошибка может раскрыть данные или изменить Telegram output.
 
 ## Source notes
-- Source task: `/backlog/done/TASK-010-bot-read-model-architecture.md`.
+- Source task: `/backlog/done/2026-08-24/TASK-010-bot-read-model-architecture.md`.
 - Parent task: `/backlog/risky/TASK-121-decompose-oversized-cross-layer-files.md`.
 - Original source: `/backlog/processed/2026-05-04.md`, архитектурный вопрос о
   read models `BotApiService`.

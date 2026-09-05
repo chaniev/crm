@@ -1,0 +1,64 @@
+# TASK-029: Переименовать раздел `Пользователи` в `Тренеры`
+
+## Status
+done
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-13 13:30
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/done/2026-05-13/TASK-029-rename-users-to-trainers.plan.md
+- implementation_branch: feature/TASK-029-rename-users-to-trainers
+
+## Goal
+В интерфейсе CRM раздел или пункт меню, который используется для работы с тренерами, называется `Тренеры`, а не `Пользователи`.
+
+## Context
+В inbox есть заметка: `необходимо переименовать Пользователи в Тренеры`.
+
+## User role
+администратор / владелец
+
+## Problem
+Название `Пользователи` слишком общее и сбивает с толку, если в этом разделе фактически ведется список тренеров.
+
+## Scope
+- Найти frontend-места, где пользователь видит название `Пользователи`.
+- Переименовать видимые labels, headings, menu items и breadcrumbs в `Тренеры`, если раздел относится к тренерам.
+- Проверить, что active state навигации и ссылки продолжают работать.
+
+## Out of scope
+- Изменение backend roles, permissions или user model.
+- Переименование технических route ids, API contracts и database fields без необходимости.
+- Перенос добавления администраторов в настройки.
+
+## Constraints
+- Не дублировать CRM rules во frontend.
+- Не менять семантику ролей: речь только о пользовательском тексте, если кодовая модель остается прежней.
+- Если выяснится, что раздел `Пользователи` управляет не только тренерами, задачу нужно остановить и уточнить информационную архитектуру.
+
+## Acceptance criteria
+- [x] В видимой навигации CRM вместо `Пользователи` отображается `Тренеры` для тренерского раздела.
+- [x] Заголовки, breadcrumbs и пустые состояния этого раздела используют термин `Тренеры`.
+- [x] Существующие ссылки и permissions видимости раздела не сломаны.
+
+## Test checklist
+- [ ] Запустить `cd frontend && npm run lint`.
+- [ ] Запустить `cd frontend && npm run build`.
+- [ ] Вручную проверить основной сценарий открытия списка тренеров.
+
+## AI safety
+- Safe for Codex: yes
+- Risk level: low
+- Reason: локальная frontend-терминология без изменения бизнес-правил, если не трогать роли и backend contracts.
+
+## Clarification questions
+Не требуется.
+
+## Source notes
+- Source file: `backlog/inbox/2026-05-07.md`
+- Original note: `необходимо переименовать Пользователи в Тренеры`
+
+## Processing notes
+- Created at: 2026-05-07 19:13
+- Created by skill: codex-backlog-skill
+- Duplicate check: похожей задачи на переименование `Пользователи` -> `Тренеры` не найдено.

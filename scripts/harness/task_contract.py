@@ -226,7 +226,7 @@ def discover_task_contract(task_id: str, *, root: Path) -> Path:
         if directory.is_dir():
             candidates.extend(
                 path
-                for path in directory.glob(f"{task_id}-*verification-contract.json")
+                for path in directory.rglob(f"{task_id}-*verification-contract.json")
                 if path.is_file()
             )
     candidates = sorted({path.resolve() for path in candidates})

@@ -7,7 +7,7 @@
 Использовать после чтения:
 
 1. `requirements/README.md` (реестр требований)
-2. `../backlog/done/IMPLEMENTATION_PLAN.md`
+2. `../backlog/done/2026-05-06/IMPLEMENTATION_PLAN.md`
 3. `../AGENTS.md`
 
 ## Выбор агента по типу задачи

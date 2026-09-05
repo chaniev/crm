@@ -122,9 +122,9 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 ## Source notes
 - Source: direct user request, 2026-08-22, пункт 6 рекомендаций по engineering standards.
 - Source: direct user request, 2026-08-22, сформировать отдельные задачи на рефакторинг.
-- Related decision: `/backlog/done/TASK-010-bot-read-model-architecture.md`.
+- Related decision: `/backlog/done/2026-08-24/TASK-010-bot-read-model-architecture.md`.
 - Remaining child task: `/backlog/risky/TASK-132-bot-client-read-model-decomposition.md`.
-- Historical context: `/backlog/done/REFACTORING_PLAN.md`; остаточные hotspots появились или выросли после прежней декомпозиции.
+- Historical context: `/backlog/done/2026-05-06/REFACTORING_PLAN.md`; остаточные hotspots появились или выросли после прежней декомпозиции.
 
 ## Processing notes
 - Created at: 2026-08-22 23:28 MSK.

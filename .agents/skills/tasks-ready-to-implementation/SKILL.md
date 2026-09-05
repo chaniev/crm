@@ -176,7 +176,7 @@ contract может быть длиннее, но каждая семантик�
 Для каждой задачи:
 
 1. прочитать source task и проверить соответствие каталога/status;
-2. найти возможные дубликаты во всех active folders и `backlog/done`;
+2. найти возможные дубликаты во всех active folders и рекурсивно в `backlog/done/YYYY-MM-DD/`;
 3. проверить critical questions, scope, dependencies, regression strategy и
    requirements approval state;
 4. выбрать уникальную branch с префиксом `feature/`, `fix/` или `refactor/`;
