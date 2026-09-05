@@ -1,7 +1,7 @@
 {
   "version": 1,
   "task": "TASK-165",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "group_count": 191,
   "groups": [
     {
@@ -27,7 +27,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -76,7 +76,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -102,7 +102,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -129,7 +129,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -155,7 +155,7 @@
           "slice": "FE-12-settings-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -204,7 +204,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -231,7 +231,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -266,7 +266,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -292,7 +292,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -342,7 +342,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -368,7 +368,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -394,7 +394,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -428,7 +428,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -471,7 +471,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -515,7 +515,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -549,7 +549,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -575,7 +575,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -601,7 +601,7 @@
           "slice": "BE-7-bot-internal-api"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -635,7 +635,7 @@
           "slice": "FE-9-attention"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -661,7 +661,7 @@
           "slice": "FE-5-client-list"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -688,7 +688,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -714,7 +714,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -749,7 +749,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -775,7 +775,7 @@
           "slice": "BOT-3-clients-rendering"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -818,7 +818,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -851,7 +851,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -886,7 +886,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -910,7 +910,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -936,7 +936,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -971,7 +971,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -997,7 +997,7 @@
           "slice": "BOT-3-clients-rendering"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1031,7 +1031,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1059,7 +1059,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1127,7 +1127,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1153,7 +1153,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1179,7 +1179,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1205,7 +1205,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1247,7 +1247,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1289,7 +1289,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1323,7 +1323,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1349,7 +1349,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1400,7 +1400,7 @@
           "slice": "FE-5-client-list"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1433,7 +1433,7 @@
           "slice": "FE-11-settings-users"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1467,7 +1467,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1495,7 +1495,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1543,7 +1543,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1569,7 +1569,7 @@
           "slice": "BOT-3-clients-rendering"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1610,7 +1610,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1636,7 +1636,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1663,7 +1663,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1706,7 +1706,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1730,7 +1730,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1846,7 +1846,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1872,7 +1872,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1898,7 +1898,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -1963,7 +1963,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2005,7 +2005,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2032,7 +2032,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2066,7 +2066,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2101,7 +2101,7 @@
           "slice": "FE-4-attendance"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2151,7 +2151,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2192,7 +2192,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2234,7 +2234,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2260,7 +2260,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2286,7 +2286,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2320,7 +2320,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2353,7 +2353,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2379,7 +2379,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2413,7 +2413,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2453,7 +2453,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2479,7 +2479,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2505,7 +2505,7 @@
           "slice": "FE-5-client-list"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2531,7 +2531,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2563,7 +2563,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2597,7 +2597,7 @@
           "slice": "FE-5-client-list"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2623,7 +2623,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2647,7 +2647,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2681,7 +2681,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2714,7 +2714,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2748,7 +2748,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2774,7 +2774,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2800,7 +2800,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2844,7 +2844,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2870,7 +2870,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -2987,7 +2987,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3020,7 +3020,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3046,7 +3046,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3080,7 +3080,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3114,7 +3114,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3140,7 +3140,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3189,7 +3189,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3215,7 +3215,7 @@
           "slice": "FE-14-group-staffing"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3273,7 +3273,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3306,7 +3306,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3332,7 +3332,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3376,7 +3376,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3404,7 +3404,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3430,7 +3430,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3495,7 +3495,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3577,7 +3577,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3611,7 +3611,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3637,7 +3637,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3663,7 +3663,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3689,7 +3689,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3715,7 +3715,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3742,7 +3742,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3768,7 +3768,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3794,7 +3794,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3820,7 +3820,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3846,7 +3846,7 @@
           "slice": "FE-9-attention"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3872,7 +3872,7 @@
           "slice": "FE-12-settings-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3898,7 +3898,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3933,7 +3933,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3959,7 +3959,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -3985,7 +3985,7 @@
           "slice": "FE-14-group-staffing"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4094,7 +4094,7 @@
           "slice": "FE-8-client-messenger-media"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4120,7 +4120,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4146,7 +4146,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4172,7 +4172,7 @@
           "slice": "FE-4-attendance"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4199,7 +4199,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4225,7 +4225,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4259,7 +4259,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4301,7 +4301,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4327,7 +4327,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4370,7 +4370,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4420,7 +4420,7 @@
           "slice": "FE-9-attention"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4446,7 +4446,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4473,7 +4473,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4499,7 +4499,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4533,7 +4533,7 @@
           "slice": "FE-16-audit"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4560,7 +4560,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4633,7 +4633,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4660,7 +4660,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4688,7 +4688,7 @@
           "slice": "FE-4-attendance"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4716,7 +4716,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4742,7 +4742,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4769,7 +4769,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4795,7 +4795,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4821,7 +4821,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4847,7 +4847,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4874,7 +4874,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4901,7 +4901,7 @@
           "slice": "FE-14-group-staffing"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4927,7 +4927,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4953,7 +4953,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -4988,7 +4988,7 @@
           "slice": "FE-5-client-list"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5014,7 +5014,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5040,7 +5040,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5074,7 +5074,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5100,7 +5100,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5149,7 +5149,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5175,7 +5175,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5215,7 +5215,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5249,7 +5249,7 @@
           "slice": "FE-4-attendance"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5275,7 +5275,7 @@
           "slice": "FE-2-schedule-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5324,7 +5324,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5366,7 +5366,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5441,7 +5441,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5474,7 +5474,7 @@
           "slice": "FE-13-groups-core"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5500,7 +5500,7 @@
           "slice": "FE-4-attendance"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5533,7 +5533,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5559,7 +5559,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5595,7 +5595,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5622,7 +5622,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5648,7 +5648,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5672,7 +5672,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5698,7 +5698,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5724,7 +5724,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5750,7 +5750,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5777,7 +5777,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5804,7 +5804,7 @@
           "slice": "FE-15-finance"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5830,7 +5830,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5856,7 +5856,7 @@
           "slice": "FE-7-client-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5884,7 +5884,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5920,7 +5920,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5946,7 +5946,7 @@
           "slice": "FE-3-schedule-mutations"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5972,7 +5972,7 @@
           "slice": "FE-12-settings-membership"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -5998,7 +5998,7 @@
           "slice": "BE-6-schedule"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6026,7 +6026,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6076,7 +6076,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6118,7 +6118,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6144,7 +6144,7 @@
           "slice": "FE-9-attention"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6170,7 +6170,7 @@
           "slice": "FE-17-shared-routing-theme"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6196,7 +6196,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6220,7 +6220,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6246,7 +6246,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6272,7 +6272,7 @@
           "slice": "existing-resources"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6313,7 +6313,7 @@
           "slice": "FE-9-attention"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6339,7 +6339,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6372,7 +6372,7 @@
           "slice": "FE-6-client-profile"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6406,7 +6406,7 @@
           "slice": "FE-4-attendance"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     },
     {
@@ -6432,7 +6432,7 @@
           "slice": "FE-5-client-list"
         }
       ],
-      "review_status": "proposed",
+      "review_status": "accepted",
       "decision": "keep feature-owned unless review proves two consumers share one meaning"
     }
   ]

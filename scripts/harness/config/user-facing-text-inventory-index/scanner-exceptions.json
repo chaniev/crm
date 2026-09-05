@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "scanner-exceptions",
   "entry_count": 223,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskyBranchSeed.cs",
@@ -48,7 +48,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -70,7 +70,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -92,7 +92,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -114,7 +114,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -136,7 +136,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -158,7 +158,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -180,7 +180,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -202,7 +202,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -224,7 +224,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -246,7 +246,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -268,7 +268,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -290,7 +290,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/LeninskySeedData.cs",
@@ -312,7 +312,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -334,7 +334,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -356,7 +356,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -378,7 +378,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -400,7 +400,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -422,7 +422,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -444,7 +444,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -466,7 +466,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -488,7 +488,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -510,7 +510,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -532,7 +532,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -554,7 +554,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -576,7 +576,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -598,7 +598,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -620,7 +620,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -642,7 +642,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -664,7 +664,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -686,7 +686,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -708,7 +708,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -730,7 +730,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -752,7 +752,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -774,7 +774,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -796,7 +796,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -818,7 +818,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -840,7 +840,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -862,7 +862,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -884,7 +884,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -906,7 +906,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -928,7 +928,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -950,7 +950,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -972,7 +972,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -994,7 +994,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1016,7 +1016,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1038,7 +1038,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1060,7 +1060,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1082,7 +1082,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1104,7 +1104,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1126,7 +1126,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1148,7 +1148,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1170,7 +1170,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedClientIdentityGenerator.cs",
@@ -1192,7 +1192,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/SeedDataOptionsParser.cs",
@@ -1214,7 +1214,7 @@
       "reason": "Seeded entity data becomes a domain value, not presentation copy.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataMembershipSeed.cs",
@@ -1236,7 +1236,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataMembershipSeed.cs",
@@ -1259,7 +1259,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataMembershipSeed.cs",
@@ -1282,7 +1282,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1304,7 +1304,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1326,7 +1326,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1348,7 +1348,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1370,7 +1370,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1392,7 +1392,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1414,7 +1414,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1436,7 +1436,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1458,7 +1458,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1480,7 +1480,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1502,7 +1502,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1524,7 +1524,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1546,7 +1546,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1568,7 +1568,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1590,7 +1590,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1612,7 +1612,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1634,7 +1634,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1656,7 +1656,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1678,7 +1678,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1700,7 +1700,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1722,7 +1722,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs",
@@ -1744,7 +1744,7 @@
       "reason": "Deterministic development/test seed fixture.",
       "owner": "backend/seed-data",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1766,7 +1766,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1788,7 +1788,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1810,7 +1810,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1832,7 +1832,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1854,7 +1854,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1876,7 +1876,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1898,7 +1898,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1920,7 +1920,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1942,7 +1942,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1964,7 +1964,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -1986,7 +1986,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2009,7 +2009,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2031,7 +2031,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2053,7 +2053,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2075,7 +2075,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2097,7 +2097,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2119,7 +2119,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2141,7 +2141,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2163,7 +2163,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2185,7 +2185,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2207,7 +2207,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2229,7 +2229,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2251,7 +2251,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2273,7 +2273,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2295,7 +2295,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2317,7 +2317,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2339,7 +2339,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2361,7 +2361,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2383,7 +2383,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2405,7 +2405,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2427,7 +2427,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2449,7 +2449,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2472,7 +2472,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2494,7 +2494,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2516,7 +2516,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2538,7 +2538,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2560,7 +2560,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/CatalogApp.tsx",
@@ -2582,7 +2582,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2604,7 +2604,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2626,7 +2626,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2648,7 +2648,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2670,7 +2670,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2692,7 +2692,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2714,7 +2714,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2736,7 +2736,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2758,7 +2758,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2780,7 +2780,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2805,7 +2805,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2828,7 +2828,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2851,7 +2851,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2874,7 +2874,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2896,7 +2896,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2918,7 +2918,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2940,7 +2940,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2962,7 +2962,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -2984,7 +2984,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3006,7 +3006,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3028,7 +3028,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3050,7 +3050,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3072,7 +3072,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3094,7 +3094,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3116,7 +3116,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3138,7 +3138,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3160,7 +3160,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3182,7 +3182,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3204,7 +3204,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3227,7 +3227,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3249,7 +3249,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3271,7 +3271,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3294,7 +3294,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3317,7 +3317,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3339,7 +3339,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3361,7 +3361,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3383,7 +3383,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3405,7 +3405,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3427,7 +3427,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3450,7 +3450,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3474,7 +3474,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3496,7 +3496,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3518,7 +3518,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3540,7 +3540,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3562,7 +3562,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3586,7 +3586,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3608,7 +3608,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3630,7 +3630,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3653,7 +3653,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3676,7 +3676,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3698,7 +3698,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3720,7 +3720,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3742,7 +3742,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3764,7 +3764,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3786,7 +3786,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3808,7 +3808,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3830,7 +3830,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3852,7 +3852,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3874,7 +3874,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3896,7 +3896,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3918,7 +3918,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3940,7 +3940,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3962,7 +3962,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -3984,7 +3984,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4006,7 +4006,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4028,7 +4028,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4050,7 +4050,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4072,7 +4072,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4094,7 +4094,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4116,7 +4116,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4138,7 +4138,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4160,7 +4160,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4182,7 +4182,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4205,7 +4205,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4227,7 +4227,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4249,7 +4249,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4271,7 +4271,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4293,7 +4293,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4315,7 +4315,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4337,7 +4337,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4359,7 +4359,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4381,7 +4381,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4403,7 +4403,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4425,7 +4425,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4447,7 +4447,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4469,7 +4469,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4491,7 +4491,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4513,7 +4513,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4535,7 +4535,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4557,7 +4557,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4579,7 +4579,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4602,7 +4602,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4624,7 +4624,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4646,7 +4646,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4668,7 +4668,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4690,7 +4690,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4712,7 +4712,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4735,7 +4735,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4757,7 +4757,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4779,7 +4779,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4801,7 +4801,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4823,7 +4823,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4845,7 +4845,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4867,7 +4867,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4889,7 +4889,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4911,7 +4911,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/catalog/SharedComponentsCatalog.tsx",
@@ -4933,7 +4933,7 @@
       "reason": "Component-catalog demonstration copy is excluded from the production bundle.",
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

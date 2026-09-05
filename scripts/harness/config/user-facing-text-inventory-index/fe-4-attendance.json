@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-4-attendance",
   "entry_count": 70,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
@@ -70,7 +70,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
@@ -92,7 +92,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
@@ -114,7 +114,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
@@ -136,7 +136,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
@@ -158,7 +158,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceClientRow.tsx",
@@ -180,7 +180,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
@@ -202,7 +202,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
@@ -224,7 +224,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
@@ -246,7 +246,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
@@ -269,7 +269,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
@@ -291,7 +291,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
@@ -315,7 +315,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
@@ -338,7 +338,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceContextControls.tsx",
@@ -360,7 +360,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceProgress.tsx",
@@ -382,7 +382,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceProgress.tsx",
@@ -404,7 +404,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceProgress.tsx",
@@ -426,7 +426,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceRosterViewControl.tsx",
@@ -448,7 +448,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceRosterViewControl.tsx",
@@ -470,7 +470,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceRosterViewControl.tsx",
@@ -492,7 +492,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
@@ -514,7 +514,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
@@ -536,7 +536,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
@@ -558,7 +558,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
@@ -580,7 +580,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceSaveStatus.tsx",
@@ -602,7 +602,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -625,7 +625,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -647,7 +647,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -669,7 +669,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -691,7 +691,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -713,7 +713,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -735,7 +735,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -757,7 +757,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -779,7 +779,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -801,7 +801,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -823,7 +823,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -845,7 +845,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -867,7 +867,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -889,7 +889,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -911,7 +911,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -933,7 +933,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -955,7 +955,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -977,7 +977,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -999,7 +999,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1021,7 +1021,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1043,7 +1043,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1065,7 +1065,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1087,7 +1087,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1109,7 +1109,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1131,7 +1131,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1153,7 +1153,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1175,7 +1175,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1197,7 +1197,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1219,7 +1219,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1241,7 +1241,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1263,7 +1263,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1285,7 +1285,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1307,7 +1307,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1329,7 +1329,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1351,7 +1351,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1373,7 +1373,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1395,7 +1395,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceScreen.tsx",
@@ -1417,7 +1417,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
@@ -1439,7 +1439,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
@@ -1461,7 +1461,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
@@ -1483,7 +1483,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceStateControl.tsx",
@@ -1505,7 +1505,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceTodayWorklist.tsx",
@@ -1527,7 +1527,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attendance/AttendanceTodayWorklist.tsx",
@@ -1549,7 +1549,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attendance",
       "slice": "FE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

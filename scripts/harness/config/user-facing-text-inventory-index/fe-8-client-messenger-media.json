@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-8-client-messenger-media",
   "entry_count": 65,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -70,7 +70,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -92,7 +92,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -114,7 +114,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -136,7 +136,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -160,7 +160,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -182,7 +182,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -204,7 +204,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -226,7 +226,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -248,7 +248,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -271,7 +271,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -293,7 +293,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -315,7 +315,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -337,7 +337,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -359,7 +359,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -382,7 +382,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -404,7 +404,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -426,7 +426,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -448,7 +448,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -470,7 +470,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -492,7 +492,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -514,7 +514,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -537,7 +537,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -559,7 +559,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -581,7 +581,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -603,7 +603,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -625,7 +625,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -647,7 +647,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -669,7 +669,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -691,7 +691,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -713,7 +713,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -735,7 +735,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -757,7 +757,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -779,7 +779,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -801,7 +801,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -823,7 +823,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -845,7 +845,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -867,7 +867,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -889,7 +889,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -911,7 +911,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -933,7 +933,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -955,7 +955,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientMessengerChatSection.tsx",
@@ -977,7 +977,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientNoteAttribution.tsx",
@@ -999,7 +999,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1021,7 +1021,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1043,7 +1043,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1065,7 +1065,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1089,7 +1089,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1111,7 +1111,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1133,7 +1133,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1155,7 +1155,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1177,7 +1177,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1199,7 +1199,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1221,7 +1221,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1243,7 +1243,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1265,7 +1265,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1287,7 +1287,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1309,7 +1309,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1331,7 +1331,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1353,7 +1353,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1375,7 +1375,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1397,7 +1397,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1419,7 +1419,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/ClientPhotoSection.tsx",
@@ -1441,7 +1441,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-messenger-media",
       "slice": "FE-8-client-messenger-media",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

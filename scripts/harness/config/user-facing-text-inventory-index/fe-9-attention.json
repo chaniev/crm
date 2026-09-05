@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-9-attention",
   "entry_count": 41,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -70,7 +70,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -92,7 +92,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -114,7 +114,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -136,7 +136,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -158,7 +158,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -180,7 +180,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -202,7 +202,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -224,7 +224,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -246,7 +246,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -269,7 +269,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -292,7 +292,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -315,7 +315,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -337,7 +337,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -359,7 +359,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -381,7 +381,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -403,7 +403,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -426,7 +426,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -449,7 +449,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -472,7 +472,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -495,7 +495,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -518,7 +518,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -540,7 +540,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -562,7 +562,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -584,7 +584,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -606,7 +606,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -628,7 +628,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -650,7 +650,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -672,7 +672,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -694,7 +694,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -716,7 +716,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -738,7 +738,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -760,7 +760,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -782,7 +782,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -805,7 +805,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -828,7 +828,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -851,7 +851,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -873,7 +873,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -895,7 +895,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/attention/AttentionPanel.tsx",
@@ -917,7 +917,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/attention",
       "slice": "FE-9-attention",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

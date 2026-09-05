@@ -1,10 +1,10 @@
 # Implementation Plan: TASK-165 Пользовательские тексты в layer-owned resources
 
 ## Metadata
-- source_task: /backlog/risky/TASK-165-user-facing-text-resources.md
+- source_task: /backlog/implementation/TASK-165-user-facing-text-resources.md
 - requirements: REQ-NFR-007 (implements)
 - branch: refactor/TASK-165-user-facing-text-resources
-- readiness: no — proposed baseline generated at `dfe9501` and awaits review of inventory classifications, duplicates, slice sizes and the empty scanner allowlist; mechanical extraction may proceed only after that baseline is accepted
+- readiness: yes — product owner accepted the generated inventory classifications, duplicate defaults, bounded slice decomposition and empty scanner allowlist on 05.09.2026
 - dependencies: заблокирована задачами TASK-167 и TASK-168 — реализация может начаться только после того, как обе задачи реализованы и интегрированы в `main`; inventory и characterization генерируются на их интегрированном результате, чтобы их copy-изменения были поглощены, а не откачены
 - risk: medium — broad cross-layer extraction can accidentally change public ProblemDetails, persisted audit descriptions, Telegram callback contracts or approved visible copy
 

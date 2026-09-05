@@ -2,7 +2,8 @@
 
 ## Review state
 
-- Baseline: `proposed`; it is not accepted and does not authorize extraction.
+- Baseline: `accepted` by the product owner on 05.09.2026; extraction is
+  authorized within the recorded ownership and slice boundaries.
 - Source tree: `dfe9501775ba9e7ffdb4cf320b585ff82aabb72d` (`origin/main` after
   TASK-167 and TASK-168 integration).
 - Inventory index:
@@ -26,7 +27,7 @@ boundary it found 1,961 Cyrillic and 183 non-Cyrillic `resource` candidate
 occurrences. The inventory also records 178 classified Cyrillic exception
 candidates: 123 component-catalog/test fixtures and 55 seeded domain values.
 
-The proposed allowlist is empty. Known fixtures, seeded domain values,
+The accepted allowlist is empty. Known fixtures, seeded domain values,
 machine contracts and telemetry must be recognized from syntax and source
 context by the later scanner. An entry may be added to the allowlist only if
 syntax-aware classification cannot remove a demonstrated false positive. Its
@@ -150,6 +151,7 @@ TASK165_TYPESCRIPT_PATH=frontend/node_modules/typescript/lib/typescript.js \
 python3 scripts/harness/generate_user_facing_text_inventory.py \
   --root . \
   --source-commit dfe9501775ba9e7ffdb4cf320b585ff82aabb72d \
+  --review-status accepted \
   --output scripts/harness/config/user-facing-text-inventory-index.json \
   --allowlist-output scripts/harness/config/user-facing-text-allowlist.json \
   --duplicates-output scripts/harness/config/user-facing-text-duplicates.json

@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-5-client-list",
   "entry_count": 103,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -70,7 +70,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -93,7 +93,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -115,7 +115,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -137,7 +137,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -159,7 +159,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -181,7 +181,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -203,7 +203,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -225,7 +225,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -247,7 +247,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
@@ -269,7 +269,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsListScreen.tsx",
@@ -291,7 +291,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsListScreen.tsx",
@@ -313,7 +313,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -335,7 +335,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -357,7 +357,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -379,7 +379,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -401,7 +401,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -423,7 +423,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -445,7 +445,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -467,7 +467,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -489,7 +489,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -511,7 +511,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -533,7 +533,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -555,7 +555,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -577,7 +577,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -599,7 +599,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -622,7 +622,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -644,7 +644,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -667,7 +667,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -689,7 +689,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -711,7 +711,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -733,7 +733,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -755,7 +755,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -777,7 +777,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -799,7 +799,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -821,7 +821,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsResults.tsx",
@@ -843,7 +843,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -866,7 +866,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -888,7 +888,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -911,7 +911,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -934,7 +934,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -956,7 +956,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -979,7 +979,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1003,7 +1003,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1026,7 +1026,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1048,7 +1048,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1070,7 +1070,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1092,7 +1092,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1114,7 +1114,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1136,7 +1136,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1158,7 +1158,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1180,7 +1180,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1202,7 +1202,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1224,7 +1224,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1246,7 +1246,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1268,7 +1268,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1290,7 +1290,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1312,7 +1312,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1334,7 +1334,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1356,7 +1356,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1378,7 +1378,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/ClientsToolbar.tsx",
@@ -1400,7 +1400,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListFilters.ts",
@@ -1422,7 +1422,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListFilters.ts",
@@ -1444,7 +1444,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListFilters.ts",
@@ -1466,7 +1466,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1489,7 +1489,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1512,7 +1512,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1534,7 +1534,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1557,7 +1557,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1579,7 +1579,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1601,7 +1601,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1624,7 +1624,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1646,7 +1646,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1668,7 +1668,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1690,7 +1690,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1712,7 +1712,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1734,7 +1734,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1756,7 +1756,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1778,7 +1778,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1800,7 +1800,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1823,7 +1823,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1846,7 +1846,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1868,7 +1868,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1890,7 +1890,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1913,7 +1913,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1937,7 +1937,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1959,7 +1959,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -1981,7 +1981,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2004,7 +2004,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2026,7 +2026,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2048,7 +2048,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2070,7 +2070,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2092,7 +2092,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2114,7 +2114,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2136,7 +2136,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2158,7 +2158,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2180,7 +2180,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2202,7 +2202,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2224,7 +2224,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/clientListViewModel.ts",
@@ -2246,7 +2246,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/useClientsListState.ts",
@@ -2268,7 +2268,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/clients/list/useClientsListState.ts",
@@ -2290,7 +2290,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/client-list",
       "slice": "FE-5-client-list",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

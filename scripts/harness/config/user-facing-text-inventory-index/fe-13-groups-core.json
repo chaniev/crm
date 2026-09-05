@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-13-groups-core",
   "entry_count": 122,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupClientRow.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupClientRow.tsx",
@@ -70,7 +70,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -92,7 +92,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -114,7 +114,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -136,7 +136,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -158,7 +158,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -180,7 +180,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -202,7 +202,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -224,7 +224,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -246,7 +246,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -268,7 +268,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -290,7 +290,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -312,7 +312,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -334,7 +334,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -356,7 +356,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -378,7 +378,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -400,7 +400,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -422,7 +422,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -444,7 +444,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupCreateScreen.tsx",
@@ -466,7 +466,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -488,7 +488,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -510,7 +510,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -532,7 +532,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -554,7 +554,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -576,7 +576,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -598,7 +598,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -620,7 +620,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -642,7 +642,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -664,7 +664,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -686,7 +686,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -708,7 +708,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -730,7 +730,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -752,7 +752,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -774,7 +774,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -796,7 +796,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -818,7 +818,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -840,7 +840,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -862,7 +862,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -884,7 +884,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -906,7 +906,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupEditScreen.tsx",
@@ -928,7 +928,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -950,7 +950,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -973,7 +973,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -995,7 +995,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1018,7 +1018,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1040,7 +1040,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1062,7 +1062,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1084,7 +1084,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1106,7 +1106,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1128,7 +1128,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1150,7 +1150,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1172,7 +1172,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1194,7 +1194,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1217,7 +1217,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1239,7 +1239,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1261,7 +1261,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1283,7 +1283,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1305,7 +1305,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1327,7 +1327,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1349,7 +1349,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1371,7 +1371,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1393,7 +1393,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1415,7 +1415,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1437,7 +1437,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1461,7 +1461,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1483,7 +1483,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1505,7 +1505,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1527,7 +1527,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1549,7 +1549,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1571,7 +1571,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1593,7 +1593,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupForm.tsx",
@@ -1616,7 +1616,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1638,7 +1638,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1661,7 +1661,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1684,7 +1684,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1706,7 +1706,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1728,7 +1728,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1750,7 +1750,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1772,7 +1772,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1794,7 +1794,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1817,7 +1817,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1839,7 +1839,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1861,7 +1861,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1883,7 +1883,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1906,7 +1906,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1929,7 +1929,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1951,7 +1951,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1973,7 +1973,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -1995,7 +1995,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2017,7 +2017,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2039,7 +2039,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2061,7 +2061,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2083,7 +2083,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2105,7 +2105,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2127,7 +2127,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2149,7 +2149,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2171,7 +2171,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2194,7 +2194,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2216,7 +2216,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2238,7 +2238,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2260,7 +2260,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2282,7 +2282,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2304,7 +2304,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2326,7 +2326,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2348,7 +2348,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2370,7 +2370,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2392,7 +2392,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2414,7 +2414,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2436,7 +2436,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2458,7 +2458,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2480,7 +2480,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2502,7 +2502,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2524,7 +2524,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2546,7 +2546,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2568,7 +2568,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/GroupsListScreen.tsx",
@@ -2590,7 +2590,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/groupFormMapping.ts",
@@ -2612,7 +2612,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/groupFormMapping.ts",
@@ -2634,7 +2634,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/groupFormMapping.ts",
@@ -2656,7 +2656,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/groupManagement.constants.ts",
@@ -2678,7 +2678,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/groups/useGroupsListState.ts",
@@ -2700,7 +2700,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/groups",
       "slice": "FE-13-groups-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

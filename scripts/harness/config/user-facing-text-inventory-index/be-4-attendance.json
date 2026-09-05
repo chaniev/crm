@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "BE-4-attendance",
   "entry_count": 16,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AdministratorAttendanceGroupEndpoints.cs",
@@ -48,7 +48,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AdministratorAttendanceGroupEndpoints.cs",
@@ -70,7 +70,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
@@ -93,7 +93,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
@@ -115,7 +115,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
@@ -137,7 +137,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
@@ -159,7 +159,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
@@ -181,7 +181,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
@@ -203,7 +203,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
@@ -225,7 +225,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
@@ -247,7 +247,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
@@ -269,7 +269,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
@@ -291,7 +291,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
@@ -313,7 +313,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
@@ -335,7 +335,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/AttendanceValidationProblems.cs",
@@ -357,7 +357,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/attendance",
       "slice": "BE-4-attendance",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

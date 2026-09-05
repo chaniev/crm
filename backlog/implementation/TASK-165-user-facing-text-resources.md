@@ -1,7 +1,7 @@
 # TASK-165: Вынести пользовательские тексты в файлы ресурсов
 
 ## Status
-risky
+implementation
 
 ## Requirements
 - REQ-NFR-007 — implements
@@ -94,3 +94,6 @@ Hardcoded пользовательские тексты затрудняют с�
   literal-level inventory shards, cross-owner duplicate report, empty scanner
   allowlist and bounded layer/feature decomposition are linked from the plan.
   Baseline remains unaccepted; extraction has not started.
+- 05.09.2026 — product owner accepted all baseline proposals: classifications,
+  duplicate defaults, empty allowlist and layer/feature decomposition. Task
+  moved to implementation and extraction is authorized within those bounds.

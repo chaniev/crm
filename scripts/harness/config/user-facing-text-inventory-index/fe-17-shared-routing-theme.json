@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-17-shared-routing-theme",
   "entry_count": 136,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ActiveFiltersBar.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
@@ -70,7 +70,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
@@ -92,7 +92,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
@@ -114,7 +114,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/EntityLocatorBar.tsx",
@@ -136,7 +136,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ListRangeStatus.tsx",
@@ -158,7 +158,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ListRangeStatus.tsx",
@@ -180,7 +180,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ListRangeStatus.tsx",
@@ -202,7 +202,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ListRangeStatus.tsx",
@@ -224,7 +224,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
@@ -246,7 +246,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
@@ -268,7 +268,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
@@ -290,7 +290,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
@@ -313,7 +313,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
@@ -335,7 +335,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
@@ -357,7 +357,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/MobileBottomNavigation.tsx",
@@ -379,7 +379,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/NavigationTabs.tsx",
@@ -401,7 +401,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/TaskToolbarActions.tsx",
@@ -423,7 +423,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -445,7 +445,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -468,7 +468,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -490,7 +490,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -512,7 +512,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -534,7 +534,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -558,7 +558,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -580,7 +580,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -602,7 +602,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -624,7 +624,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -646,7 +646,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/shared/ux.tsx",
@@ -668,7 +668,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/administrators.ts",
@@ -690,7 +690,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -712,7 +712,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -734,7 +734,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -756,7 +756,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -779,7 +779,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -801,7 +801,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -823,7 +823,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -845,7 +845,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -867,7 +867,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -889,7 +889,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -911,7 +911,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -933,7 +933,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/attendance.ts",
@@ -955,7 +955,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/audit.ts",
@@ -977,7 +977,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/clients.ts",
@@ -999,7 +999,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/clients.ts",
@@ -1021,7 +1021,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/clients.ts",
@@ -1043,7 +1043,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/clients.ts",
@@ -1065,7 +1065,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/clients.ts",
@@ -1087,7 +1087,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/clients.ts",
@@ -1109,7 +1109,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/clients.ts",
@@ -1131,7 +1131,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/endpoints.ts",
@@ -1153,7 +1153,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/endpoints.ts",
@@ -1175,7 +1175,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/endpoints.ts",
@@ -1197,7 +1197,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/groups.ts",
@@ -1219,7 +1219,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/api/mappers.ts",
@@ -1241,7 +1241,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1263,7 +1263,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1285,7 +1285,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1307,7 +1307,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1329,7 +1329,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1351,7 +1351,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1373,7 +1373,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1395,7 +1395,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1417,7 +1417,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1439,7 +1439,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1461,7 +1461,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1483,7 +1483,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1505,7 +1505,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1527,7 +1527,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1549,7 +1549,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1571,7 +1571,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/appRoutes.ts",
@@ -1593,7 +1593,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1615,7 +1615,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1637,7 +1637,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1659,7 +1659,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1681,7 +1681,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1703,7 +1703,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1725,7 +1725,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1747,7 +1747,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1769,7 +1769,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1791,7 +1791,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1813,7 +1813,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1835,7 +1835,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1857,7 +1857,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1879,7 +1879,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1901,7 +1901,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/lib/groupSchedule.ts",
@@ -1923,7 +1923,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/componentRecipes.ts",
@@ -1945,7 +1945,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/componentRecipes.ts",
@@ -1968,7 +1968,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/componentRecipes.ts",
@@ -1990,7 +1990,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2012,7 +2012,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2037,7 +2037,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2059,7 +2059,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2081,7 +2081,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2103,7 +2103,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2125,7 +2125,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2148,7 +2148,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2170,7 +2170,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2192,7 +2192,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2220,7 +2220,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2242,7 +2242,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2264,7 +2264,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2286,7 +2286,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2308,7 +2308,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2330,7 +2330,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2352,7 +2352,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2374,7 +2374,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2398,7 +2398,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2420,7 +2420,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2443,7 +2443,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2465,7 +2465,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2488,7 +2488,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2510,7 +2510,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2533,7 +2533,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2555,7 +2555,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2577,7 +2577,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2600,7 +2600,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2622,7 +2622,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2644,7 +2644,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2669,7 +2669,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2691,7 +2691,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2713,7 +2713,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/contrastMatrix.ts",
@@ -2735,7 +2735,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticTones.ts",
@@ -2757,7 +2757,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticTones.ts",
@@ -2779,7 +2779,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticTones.ts",
@@ -2801,7 +2801,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticTones.ts",
@@ -2823,7 +2823,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticTones.ts",
@@ -2845,7 +2845,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticVariables.ts",
@@ -2867,7 +2867,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticVariables.ts",
@@ -2889,7 +2889,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticVariables.ts",
@@ -2911,7 +2911,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticVariables.ts",
@@ -2933,7 +2933,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticVariables.ts",
@@ -2955,7 +2955,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/semanticVariables.ts",
@@ -2977,7 +2977,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/typography.ts",
@@ -2999,7 +2999,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/theme/typography.ts",
@@ -3021,7 +3021,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/shared",
       "slice": "FE-17-shared-routing-theme",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

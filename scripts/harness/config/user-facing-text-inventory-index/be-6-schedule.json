@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "BE-6-schedule",
   "entry_count": 91,
   "entries": [
@@ -28,7 +28,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -50,7 +50,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -72,7 +72,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -94,7 +94,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -116,7 +116,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -138,7 +138,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -160,7 +160,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -183,7 +183,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -205,7 +205,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -227,7 +227,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -250,7 +250,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -272,7 +272,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -294,7 +294,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -316,7 +316,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -338,7 +338,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -360,7 +360,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -382,7 +382,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -404,7 +404,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -426,7 +426,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -448,7 +448,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -470,7 +470,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -492,7 +492,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -514,7 +514,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs",
@@ -536,7 +536,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -564,7 +564,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -586,7 +586,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -608,7 +608,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -632,7 +632,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -654,7 +654,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -676,7 +676,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -698,7 +698,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -721,7 +721,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -744,7 +744,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -767,7 +767,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -790,7 +790,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -812,7 +812,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -835,7 +835,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -857,7 +857,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
@@ -879,7 +879,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -902,7 +902,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -924,7 +924,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -946,7 +946,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -968,7 +968,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -990,7 +990,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1012,7 +1012,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1035,7 +1035,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1057,7 +1057,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1079,7 +1079,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1101,7 +1101,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1123,7 +1123,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1145,7 +1145,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1168,7 +1168,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1190,7 +1190,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1212,7 +1212,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1234,7 +1234,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1256,7 +1256,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1278,7 +1278,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleLessonTrainerSubstitutionEndpoints.cs",
@@ -1300,7 +1300,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1322,7 +1322,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1345,7 +1345,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1372,7 +1372,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1395,7 +1395,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1417,7 +1417,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1440,7 +1440,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1463,7 +1463,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1486,7 +1486,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1511,7 +1511,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1534,7 +1534,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1557,7 +1557,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1579,7 +1579,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1602,7 +1602,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1625,7 +1625,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1647,7 +1647,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1670,7 +1670,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1692,7 +1692,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1714,7 +1714,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1736,7 +1736,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1758,7 +1758,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1780,7 +1780,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1802,7 +1802,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1824,7 +1824,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1847,7 +1847,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1869,7 +1869,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1891,7 +1891,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1913,7 +1913,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1935,7 +1935,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1957,7 +1957,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -1979,7 +1979,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -2001,7 +2001,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -2023,7 +2023,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ScheduleMutationEndpointPolicies.cs",
@@ -2045,7 +2045,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/schedule",
       "slice": "BE-6-schedule",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

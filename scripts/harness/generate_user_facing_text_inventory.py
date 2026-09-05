@@ -277,7 +277,7 @@ def extract_python(path: Path, root: Path) -> Iterable[dict[str, Any]]:
         }
 
 
-def collapse(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def collapse(findings: list[dict[str, Any]], review_status: str) -> list[dict[str, Any]]:
     grouped: dict[tuple[str, str, str], dict[str, Any]] = {}
     for finding in findings:
         category, reason = category_reason(finding)
@@ -292,7 +292,7 @@ def collapse(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "reason": reason,
                 "owner": owner,
                 "slice": slice_id,
-                "review_status": "proposed",
+                "review_status": review_status,
             }
             grouped[key].pop("line", None)
         entry = grouped[key]
@@ -311,6 +311,7 @@ def main() -> None:
     parser.add_argument("--allowlist-output", type=Path, required=True)
     parser.add_argument("--duplicates-output", type=Path, required=True)
     parser.add_argument("--source-commit")
+    parser.add_argument("--review-status", choices=("proposed", "accepted"), default="proposed")
     args = parser.parse_args()
     root = args.root.resolve()
     args.output = (root / args.output).resolve() if not args.output.is_absolute() else args.output
@@ -342,7 +343,7 @@ def main() -> None:
             findings.extend(extract_resx(path, root))
     for path in sorted((root / "bot/src/gym_crm_bot").rglob("*.py")):
         findings.extend(extract_python(path, root))
-    entries = collapse(findings)
+    entries = collapse(findings, args.review_status)
     category_counts = Counter(entry["category"] for entry in entries)
     slice_counts = Counter(entry["slice"] for entry in entries)
     inventory_directory = args.output.with_suffix("")
@@ -357,7 +358,7 @@ def main() -> None:
             "version": 1,
             "task": "TASK-165",
             "source_commit": source_commit,
-            "review_status": "proposed",
+            "review_status": args.review_status,
             "slice": slice_id,
             "entry_count": len(slice_entries),
             "entries": slice_entries,
@@ -395,14 +396,14 @@ def main() -> None:
                     {"path": candidate["path"], "lines": candidate["lines"], "slice": candidate["slice"]}
                     for candidate in candidates
                 ],
-                "review_status": "proposed",
+                "review_status": args.review_status,
                 "decision": "keep feature-owned unless review proves two consumers share one meaning",
             })
     args.duplicates_output.parent.mkdir(parents=True, exist_ok=True)
     args.duplicates_output.write_text(json.dumps({
         "version": 1,
         "task": "TASK-165",
-        "review_status": "proposed",
+        "review_status": args.review_status,
         "group_count": len(duplicate_groups),
         "groups": duplicate_groups,
     }, ensure_ascii=False, indent=2) + "\n")
@@ -422,7 +423,7 @@ def main() -> None:
     args.allowlist_output.write_text(json.dumps({
         "version": 1,
         "task": "TASK-165",
-        "review_status": "proposed",
+        "review_status": args.review_status,
         "identity": "exact path plus SHA-256 of decoded literal value; line numbers are not identity",
         "policy": "Empty baseline: syntax/category classification must handle known exceptions before allowlisting.",
         "required_entry_fields": ["path", "fingerprint", "category", "reason", "owner_task"],
@@ -434,7 +435,7 @@ def main() -> None:
         "version": 1,
         "task": "TASK-165",
         "source_commit": source_commit,
-        "review_status": "proposed",
+        "review_status": args.review_status,
         "valid_categories": list(CATEGORIES),
         "generation_scope": {
             "frontend": "TypeScript AST: Cyrillic literals, visible-context literals in any language, and existing resources; tests excluded.",

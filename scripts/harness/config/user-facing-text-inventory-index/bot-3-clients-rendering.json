@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "BOT-3-clients-rendering",
   "entry_count": 45,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -70,7 +70,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -92,7 +92,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -114,7 +114,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -136,7 +136,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -159,7 +159,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -181,7 +181,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -203,7 +203,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -225,7 +225,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -247,7 +247,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -269,7 +269,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -291,7 +291,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -313,7 +313,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -335,7 +335,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -357,7 +357,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -379,7 +379,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -401,7 +401,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -423,7 +423,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -445,7 +445,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -467,7 +467,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -489,7 +489,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -511,7 +511,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -533,7 +533,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -555,7 +555,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -577,7 +577,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -599,7 +599,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -621,7 +621,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -643,7 +643,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -665,7 +665,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -687,7 +687,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -709,7 +709,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -731,7 +731,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/client_flow.py",
@@ -753,7 +753,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -775,7 +775,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -797,7 +797,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -819,7 +819,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -841,7 +841,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -863,7 +863,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -885,7 +885,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -907,7 +907,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -929,7 +929,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -951,7 +951,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -973,7 +973,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "bot/src/gym_crm_bot/core/rendering.py",
@@ -995,7 +995,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "bot/clients",
       "slice": "BOT-3-clients-rendering",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

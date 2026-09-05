@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-16-audit",
   "entry_count": 61,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -71,7 +71,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -93,7 +93,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -115,7 +115,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -137,7 +137,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -161,7 +161,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -183,7 +183,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -206,7 +206,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -228,7 +228,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -251,7 +251,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -274,7 +274,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -298,7 +298,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -320,7 +320,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -344,7 +344,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -366,7 +366,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -389,7 +389,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -411,7 +411,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -433,7 +433,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -456,7 +456,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -478,7 +478,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -500,7 +500,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -522,7 +522,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -544,7 +544,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -566,7 +566,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -588,7 +588,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -610,7 +610,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -632,7 +632,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -654,7 +654,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -676,7 +676,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -699,7 +699,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -721,7 +721,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -743,7 +743,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -765,7 +765,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -787,7 +787,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -809,7 +809,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -831,7 +831,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -853,7 +853,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -875,7 +875,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -897,7 +897,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -919,7 +919,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -941,7 +941,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -963,7 +963,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -985,7 +985,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1007,7 +1007,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1029,7 +1029,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1051,7 +1051,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1073,7 +1073,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1095,7 +1095,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1117,7 +1117,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1139,7 +1139,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1161,7 +1161,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1183,7 +1183,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1205,7 +1205,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1227,7 +1227,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1249,7 +1249,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1272,7 +1272,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1294,7 +1294,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1316,7 +1316,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1338,7 +1338,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/audit/AuditLogScreen.tsx",
@@ -1360,7 +1360,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/audit",
       "slice": "FE-16-audit",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

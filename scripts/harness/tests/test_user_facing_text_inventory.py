@@ -20,7 +20,7 @@ def load(path: Path) -> dict:
 class UserFacingTextInventoryTests(unittest.TestCase):
     def test_inventory_shards_match_index_and_use_stable_fingerprints(self) -> None:
         index = load(INDEX_PATH)
-        self.assertEqual("proposed", index["review_status"])
+        self.assertEqual("accepted", index["review_status"])
         self.assertEqual("TASK-165", index["task"])
         self.assertEqual(
             "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
@@ -51,7 +51,7 @@ class UserFacingTextInventoryTests(unittest.TestCase):
                     entry["fingerprint"],
                 )
                 self.assertTrue((ROOT / entry["path"]).is_file())
-                self.assertEqual("proposed", entry["review_status"])
+                self.assertEqual("accepted", entry["review_status"])
                 self.assertTrue(entry["owner"])
                 self.assertTrue(entry["reason"])
             entry_count += len(shard["entries"])
@@ -62,7 +62,7 @@ class UserFacingTextInventoryTests(unittest.TestCase):
 
     def test_allowlist_is_empty_until_review_proves_an_irreducible_exception(self) -> None:
         allowlist = load(ALLOWLIST_PATH)
-        self.assertEqual("proposed", allowlist["review_status"])
+        self.assertEqual("accepted", allowlist["review_status"])
         self.assertEqual(0, allowlist["entry_count"])
         self.assertEqual([], allowlist["entries"])
         self.assertEqual(
@@ -77,7 +77,7 @@ class UserFacingTextInventoryTests(unittest.TestCase):
         for group in duplicates["groups"]:
             self.assertGreater(len(group["owners"]), 1)
             self.assertGreater(len(group["locations"]), 1)
-            self.assertEqual("proposed", group["review_status"])
+            self.assertEqual("accepted", group["review_status"])
             for location in group["locations"]:
                 self.assertTrue((ROOT / location["path"]).is_file())
 

@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-1-app-shell-auth",
   "entry_count": 104,
   "entries": [
@@ -27,7 +27,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -50,7 +50,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -72,7 +72,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -94,7 +94,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -116,7 +116,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -138,7 +138,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -160,7 +160,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -182,7 +182,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -204,7 +204,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -226,7 +226,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -248,7 +248,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -270,7 +270,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -292,7 +292,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -314,7 +314,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -336,7 +336,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -358,7 +358,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -380,7 +380,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -402,7 +402,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/App.tsx",
@@ -424,7 +424,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -446,7 +446,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -468,7 +468,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -490,7 +490,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -512,7 +512,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -534,7 +534,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -556,7 +556,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -578,7 +578,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -600,7 +600,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -622,7 +622,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -644,7 +644,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -666,7 +666,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -688,7 +688,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -710,7 +710,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -732,7 +732,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -754,7 +754,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -776,7 +776,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -798,7 +798,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -820,7 +820,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -842,7 +842,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -864,7 +864,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -886,7 +886,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -908,7 +908,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -930,7 +930,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -952,7 +952,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -974,7 +974,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -996,7 +996,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1018,7 +1018,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1040,7 +1040,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1062,7 +1062,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1084,7 +1084,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1106,7 +1106,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1129,7 +1129,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1151,7 +1151,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1173,7 +1173,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1195,7 +1195,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1217,7 +1217,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1239,7 +1239,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthStages.tsx",
@@ -1261,7 +1261,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthenticatedShell.tsx",
@@ -1283,7 +1283,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthenticatedShell.tsx",
@@ -1305,7 +1305,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthenticatedShell.tsx",
@@ -1327,7 +1327,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthenticatedShell.tsx",
@@ -1349,7 +1349,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthenticatedShell.tsx",
@@ -1371,7 +1371,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthenticatedShell.tsx",
@@ -1393,7 +1393,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthenticatedShell.tsx",
@@ -1415,7 +1415,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/AuthenticatedShell.tsx",
@@ -1437,7 +1437,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1459,7 +1459,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1481,7 +1481,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1504,7 +1504,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1527,7 +1527,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1550,7 +1550,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1572,7 +1572,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1594,7 +1594,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1616,7 +1616,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/RouteViewport.tsx",
@@ -1638,7 +1638,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppReturnNavigation.ts",
@@ -1660,7 +1660,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppReturnNavigation.ts",
@@ -1682,7 +1682,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppReturnNavigation.ts",
@@ -1704,7 +1704,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1726,7 +1726,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1748,7 +1748,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1770,7 +1770,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1792,7 +1792,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1814,7 +1814,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1836,7 +1836,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1858,7 +1858,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1880,7 +1880,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1902,7 +1902,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1924,7 +1924,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1946,7 +1946,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1968,7 +1968,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -1990,7 +1990,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2012,7 +2012,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2034,7 +2034,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2056,7 +2056,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2078,7 +2078,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2100,7 +2100,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2122,7 +2122,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2144,7 +2144,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2166,7 +2166,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2188,7 +2188,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2210,7 +2210,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2233,7 +2233,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/app/useAppRoute.ts",
@@ -2255,7 +2255,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/bootstrap/ConfigThemeBootstrap.tsx",
@@ -2277,7 +2277,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/bootstrap/ConfigThemeBootstrap.tsx",
@@ -2299,7 +2299,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/app-shell-auth",
       "slice": "FE-1-app-shell-auth",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

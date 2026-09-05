@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-2-schedule-core",
   "entry_count": 162,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -71,7 +71,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -93,7 +93,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -115,7 +115,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -137,7 +137,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -159,7 +159,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -181,7 +181,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -203,7 +203,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -225,7 +225,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -247,7 +247,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -270,7 +270,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -292,7 +292,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -315,7 +315,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -338,7 +338,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -368,7 +368,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -391,7 +391,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -414,7 +414,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -438,7 +438,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -460,7 +460,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -482,7 +482,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -504,7 +504,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -527,7 +527,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -549,7 +549,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -571,7 +571,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -593,7 +593,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -615,7 +615,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -637,7 +637,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -659,7 +659,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -681,7 +681,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -705,7 +705,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -727,7 +727,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -749,7 +749,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -771,7 +771,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -793,7 +793,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -815,7 +815,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -837,7 +837,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -859,7 +859,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -881,7 +881,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -904,7 +904,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -926,7 +926,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -948,7 +948,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -970,7 +970,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -992,7 +992,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1014,7 +1014,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1036,7 +1036,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1058,7 +1058,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1080,7 +1080,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1102,7 +1102,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1124,7 +1124,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1146,7 +1146,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1168,7 +1168,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1190,7 +1190,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1212,7 +1212,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1234,7 +1234,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1256,7 +1256,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1278,7 +1278,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1300,7 +1300,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1323,7 +1323,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1345,7 +1345,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1367,7 +1367,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1389,7 +1389,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1413,7 +1413,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1436,7 +1436,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1459,7 +1459,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1481,7 +1481,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1503,7 +1503,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1525,7 +1525,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1547,7 +1547,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1569,7 +1569,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1592,7 +1592,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1614,7 +1614,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1636,7 +1636,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1658,7 +1658,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1680,7 +1680,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1702,7 +1702,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1724,7 +1724,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1746,7 +1746,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1768,7 +1768,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1790,7 +1790,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1812,7 +1812,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1834,7 +1834,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1856,7 +1856,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1878,7 +1878,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1900,7 +1900,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1922,7 +1922,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1944,7 +1944,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1966,7 +1966,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -1988,7 +1988,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2010,7 +2010,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2032,7 +2032,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2054,7 +2054,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2076,7 +2076,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2098,7 +2098,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2121,7 +2121,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2143,7 +2143,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2165,7 +2165,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2187,7 +2187,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2209,7 +2209,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2231,7 +2231,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2253,7 +2253,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2275,7 +2275,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2297,7 +2297,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2319,7 +2319,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2341,7 +2341,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2363,7 +2363,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2385,7 +2385,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2407,7 +2407,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2429,7 +2429,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2451,7 +2451,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2473,7 +2473,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2495,7 +2495,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2517,7 +2517,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2539,7 +2539,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2561,7 +2561,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2583,7 +2583,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2605,7 +2605,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2627,7 +2627,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2649,7 +2649,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2671,7 +2671,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2693,7 +2693,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2715,7 +2715,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2738,7 +2738,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2760,7 +2760,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2782,7 +2782,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2804,7 +2804,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2826,7 +2826,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2848,7 +2848,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2870,7 +2870,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2892,7 +2892,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2914,7 +2914,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2936,7 +2936,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2958,7 +2958,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -2980,7 +2980,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -3002,7 +3002,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -3024,7 +3024,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -3046,7 +3046,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -3068,7 +3068,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/GroupScheduleScreen.tsx",
@@ -3090,7 +3090,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3112,7 +3112,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3134,7 +3134,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3156,7 +3156,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3179,7 +3179,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3201,7 +3201,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3223,7 +3223,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3245,7 +3245,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3267,7 +3267,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3289,7 +3289,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3312,7 +3312,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3334,7 +3334,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3356,7 +3356,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3378,7 +3378,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3400,7 +3400,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3422,7 +3422,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3444,7 +3444,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleActionReasons.ts",
@@ -3467,7 +3467,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/schedulePresentation.ts",
@@ -3490,7 +3490,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/schedulePresentation.ts",
@@ -3512,7 +3512,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/schedulePresentation.ts",
@@ -3534,7 +3534,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/schedulePresentation.ts",
@@ -3556,7 +3556,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/schedulePresentation.ts",
@@ -3578,7 +3578,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/schedulePresentation.ts",
@@ -3600,7 +3600,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule",
       "slice": "FE-2-schedule-core",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

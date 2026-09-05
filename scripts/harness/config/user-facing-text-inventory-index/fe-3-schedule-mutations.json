@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "FE-3-schedule-mutations",
   "entry_count": 100,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
@@ -72,7 +72,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
@@ -94,7 +94,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
@@ -116,7 +116,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
@@ -138,7 +138,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
@@ -161,7 +161,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
@@ -183,7 +183,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleEventsDisclosure.tsx",
@@ -205,7 +205,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -227,7 +227,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -251,7 +251,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -273,7 +273,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -295,7 +295,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -317,7 +317,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -339,7 +339,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -361,7 +361,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -383,7 +383,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -405,7 +405,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -427,7 +427,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -449,7 +449,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -471,7 +471,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -493,7 +493,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -515,7 +515,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -538,7 +538,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -560,7 +560,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -583,7 +583,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -605,7 +605,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonCancellationDrawer.tsx",
@@ -627,7 +627,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -649,7 +649,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -672,7 +672,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -694,7 +694,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -716,7 +716,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -740,7 +740,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -762,7 +762,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -784,7 +784,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -806,7 +806,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -828,7 +828,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -850,7 +850,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -872,7 +872,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -894,7 +894,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -916,7 +916,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -938,7 +938,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -960,7 +960,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -982,7 +982,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1004,7 +1004,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1026,7 +1026,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1050,7 +1050,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1072,7 +1072,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1094,7 +1094,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1116,7 +1116,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1138,7 +1138,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1160,7 +1160,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1182,7 +1182,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1204,7 +1204,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1226,7 +1226,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1248,7 +1248,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1270,7 +1270,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1292,7 +1292,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1314,7 +1314,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1336,7 +1336,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleLessonChangeDrawer.tsx",
@@ -1358,7 +1358,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
@@ -1380,7 +1380,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
@@ -1403,7 +1403,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
@@ -1425,7 +1425,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
@@ -1447,7 +1447,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleMoreActionsSurface.tsx",
@@ -1469,7 +1469,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1491,7 +1491,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1513,7 +1513,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1535,7 +1535,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1557,7 +1557,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1579,7 +1579,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1601,7 +1601,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1623,7 +1623,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1645,7 +1645,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1667,7 +1667,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1689,7 +1689,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1711,7 +1711,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1733,7 +1733,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1755,7 +1755,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1778,7 +1778,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1800,7 +1800,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1822,7 +1822,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1844,7 +1844,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1866,7 +1866,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1888,7 +1888,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1910,7 +1910,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1932,7 +1932,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/ScheduleOneOffCreateDrawer.tsx",
@@ -1954,7 +1954,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -1976,7 +1976,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -1998,7 +1998,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2020,7 +2020,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2042,7 +2042,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2064,7 +2064,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2086,7 +2086,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2108,7 +2108,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2130,7 +2130,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2152,7 +2152,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2174,7 +2174,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2196,7 +2196,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "frontend/src/features/schedule/scheduleDeferredActions.tsx",
@@ -2218,7 +2218,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "frontend/schedule-mutations",
       "slice": "FE-3-schedule-mutations",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

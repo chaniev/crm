@@ -2,7 +2,7 @@
   "version": 1,
   "task": "TASK-165",
   "source_commit": "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "slice": "BE-2-clients",
   "entry_count": 51,
   "entries": [
@@ -26,7 +26,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
@@ -48,7 +48,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
@@ -70,7 +70,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -93,7 +93,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -115,7 +115,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -137,7 +137,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -159,7 +159,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -182,7 +182,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -205,7 +205,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -228,7 +228,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -253,7 +253,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -279,7 +279,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -304,7 +304,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
@@ -326,7 +326,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
@@ -349,7 +349,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
@@ -371,7 +371,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
@@ -393,7 +393,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
@@ -415,7 +415,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
@@ -437,7 +437,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
@@ -459,7 +459,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientMessengerEndpoints.cs",
@@ -481,7 +481,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -504,7 +504,7 @@
       "reason": "Operational diagnostic text is not rendered to the user.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -526,7 +526,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -548,7 +548,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -570,7 +570,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -592,7 +592,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -614,7 +614,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -636,7 +636,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -658,7 +658,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -680,7 +680,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -702,7 +702,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -725,7 +725,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -747,7 +747,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -769,7 +769,7 @@
       "reason": "Identifier, route, code, enum, format, or protocol value.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -791,7 +791,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
@@ -813,7 +813,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -835,7 +835,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -857,7 +857,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -880,7 +880,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -903,7 +903,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -926,7 +926,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -948,7 +948,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -971,7 +971,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -993,7 +993,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -1015,7 +1015,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -1037,7 +1037,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -1059,7 +1059,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -1081,7 +1081,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -1103,7 +1103,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -1125,7 +1125,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     },
     {
       "path": "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
@@ -1147,7 +1147,7 @@
       "reason": "Conservative visible-copy candidate; extraction requires exact characterization.",
       "owner": "backend/clients",
       "slice": "BE-2-clients",
-      "review_status": "proposed"
+      "review_status": "accepted"
     }
   ]
 }

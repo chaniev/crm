@@ -1,7 +1,7 @@
 {
   "version": 1,
   "task": "TASK-165",
-  "review_status": "proposed",
+  "review_status": "accepted",
   "identity": "exact path plus SHA-256 of decoded literal value; line numbers are not identity",
   "policy": "Empty baseline: syntax/category classification must handle known exceptions before allowlisting.",
   "required_entry_fields": [
