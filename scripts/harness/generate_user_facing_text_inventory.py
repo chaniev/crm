@@ -137,6 +137,8 @@ def category_reason(finding: dict[str, Any]) -> tuple[str, str]:
         return "machine contract", "Database constraint, SQL, or persisted mapping value."
     if path.startswith("frontend/src/catalog/"):
         return "test fixture", "Component-catalog demonstration copy is excluded from the production bundle."
+    if path.startswith("frontend/src/theme/") and not CYRILLIC.search(value):
+        return "machine contract", "Theme token, color, font stack, or design-system identifier."
     if "/SeedData/Test" in path or path.endswith("TestDataSeeder.cs"):
         return "test fixture", "Deterministic development/test seed fixture."
     if "/SeedData/" in path:
