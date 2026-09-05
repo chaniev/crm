@@ -1,3 +1,4 @@
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
 type DateOnlyParts = {
   year: number
   month: number
@@ -5,18 +6,18 @@ type DateOnlyParts = {
 }
 
 const russianMonthNames = [
-  'января',
-  'февраля',
-  'марта',
-  'апреля',
-  'мая',
-  'июня',
-  'июля',
-  'августа',
-  'сентября',
-  'октября',
-  'ноября',
-  'декабря',
+  fe6ClientProfileText.clientBirthDate_string_05ae68ac,
+  fe6ClientProfileText.clientBirthDate_string_3ae2c0e9,
+  fe6ClientProfileText.clientBirthDate_string_6cfa0bb4,
+  fe6ClientProfileText.clientBirthDate_string_3144ee44,
+  fe6ClientProfileText.clientBirthDate_string_2869fa11,
+  fe6ClientProfileText.clientBirthDate_string_b4c08e7b,
+  fe6ClientProfileText.clientBirthDate_string_a18a66ad,
+  fe6ClientProfileText.clientBirthDate_string_4ae69d9d,
+  fe6ClientProfileText.clientBirthDate_string_67cb393e,
+  fe6ClientProfileText.clientBirthDate_string_fd088563,
+  fe6ClientProfileText.clientBirthDate_string_01bd4525,
+  fe6ClientProfileText.clientBirthDate_string_866b5e92,
 ] as const
 
 export function formatClientBirthDate(value: string | null | undefined) {
@@ -26,7 +27,7 @@ export function formatClientBirthDate(value: string | null | undefined) {
     return null
   }
 
-  return `${parts.day} ${russianMonthNames[parts.month - 1]} ${formatYear(parts.year)} г.`
+  return fe6ClientProfileText.clientBirthDate_template_5d0c128d(parts.day, russianMonthNames[parts.month - 1], formatYear(parts.year))
 }
 
 export function calculateClientAge(
@@ -59,7 +60,7 @@ export function getClientAgeDisplayValue(
 ) {
   const age = calculateClientAge(birthDate, businessDate)
 
-  return age === null ? 'Не вычисляется' : formatAge(age)
+  return age === null ? fe6ClientProfileText.clientBirthDate_string_d80ff85c : formatAge(age)
 }
 
 function parseDateOnly(value: string | null | undefined): DateOnlyParts | null {
@@ -132,16 +133,16 @@ function formatAge(age: number) {
   const lastDigit = age % 10
 
   if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
-    return `${age} лет`
+    return fe6ClientProfileText.clientBirthDate_template_2df85a9d(age)
   }
 
   if (lastDigit === 1) {
-    return `${age} год`
+    return fe6ClientProfileText.clientBirthDate_template_a612da0b(age)
   }
 
   if (lastDigit >= 2 && lastDigit <= 4) {
-    return `${age} года`
+    return fe6ClientProfileText.clientBirthDate_template_9a991fb5(age)
   }
 
-  return `${age} лет`
+  return fe6ClientProfileText.clientBirthDate_template_2df85a9d(age)
 }

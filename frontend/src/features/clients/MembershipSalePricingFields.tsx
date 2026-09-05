@@ -16,6 +16,8 @@ import {
   type MembershipSalePricingFieldErrors,
   type MembershipSalePricingValues,
 } from './MembershipSalePricing'
+import { fe7ClientMembershipText } from '../../resources/fe-7-client-membership'
+
 
 type MembershipSalePricingFieldsProps = {
   catalogItems: MembershipCatalogItem[]
@@ -29,7 +31,7 @@ type MembershipSalePricingFieldsProps = {
 
 export function MembershipSalePricingFields({
   catalogItems,
-  catalogLabel = 'Вариант абонемента',
+  catalogLabel = fe7ClientMembershipText.membershipSalePricingFields_string_38cc78d4,
   disabled = false,
   errors = {},
   loading = false,
@@ -58,7 +60,7 @@ export function MembershipSalePricingFields({
     <Stack gap="md">
       <Radio.Group
         error={errors.pricingMode}
-        label="Способ расчёта суммы"
+        label={fe7ClientMembershipText.membershipSalePricingFields_label_acf9468c}
         onChange={changeMode}
         value={values.pricingMode ?? ''}
       >
@@ -80,7 +82,7 @@ export function MembershipSalePricingFields({
           allowDeselect={false}
           data={catalogItems.map((item) => ({
             value: item.id,
-            label: `${item.name} • ${formatCurrencyValue(item.price)}`,
+            label: fe7ClientMembershipText.membershipSalePricingFields_label_7d7837d2(item.name, formatCurrencyValue(item.price)),
           }))}
           disabled={disabled || loading}
           error={errors.membershipCatalogItemId}
@@ -92,7 +94,7 @@ export function MembershipSalePricingFields({
               manualSaleAmount: '',
             })
           }
-          placeholder={loading ? 'Загружаем...' : 'Выберите вариант'}
+          placeholder={loading ? fe7ClientMembershipText.membershipSalePricingFields_string_ef27abbb : fe7ClientMembershipText.membershipSalePricingFields_string_cbcc2c45}
           searchable
           value={values.membershipCatalogItemId || null}
         />
@@ -101,8 +103,7 @@ export function MembershipSalePricingFields({
       {selectedCatalogItem ? (
         <Paper p="sm" radius="md" withBorder>
           <Text c="dimmed" fw={600} size="xs">
-            Каталожная цена
-          </Text>
+            {fe7ClientMembershipText.membershipSalePricingFields_jsxText_de5a7f2f}</Text>
           <Text fw={700}>{formatCurrencyValue(selectedCatalogItem.price)}</Text>
         </Paper>
       ) : null}
@@ -111,12 +112,12 @@ export function MembershipSalePricingFields({
         <TextInput
           description={
             values.pricingMode === 'AmountOnly'
-              ? 'Абонемент будет оформлен без выбора варианта каталога. Срок задается отдельно.'
-              : 'Введите фактическую сумму этой продажи.'
+              ? fe7ClientMembershipText.membershipSalePricingFields_string_6a823a40
+              : fe7ClientMembershipText.membershipSalePricingFields_string_70431854
           }
           disabled={disabled}
           error={errors.manualSaleAmount}
-          label="Фактическая сумма продажи, ₽"
+          label={fe7ClientMembershipText.membershipSalePricingFields_label_ee4d70c4}
           min="1"
           onChange={(event) =>
             onChange({ ...values, manualSaleAmount: event.currentTarget.value })

@@ -26,6 +26,8 @@ import {
 } from './ClientManagement.form'
 import { ClientForm } from './ClientForm'
 import { ClientPhotoSection } from './ClientPhotoSection'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 type ClientEditScreenProps = {
   clientId: string
@@ -80,7 +82,7 @@ export function ClientEditScreen({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить карточку клиента.',
+            : fe6ClientProfileText.clientEditScreen_string_63fa9b9e,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -101,7 +103,7 @@ export function ClientEditScreen({
     const validationErrors = validateClientForm(values)
     if (Object.keys(validationErrors).length > 0) {
       form.setErrors(validationErrors)
-      setFormError('Проверьте обязательные поля клиента и контактов.')
+      setFormError(fe6ClientProfileText.clientEditScreen_setFormError_97732402)
       return
     }
 
@@ -112,8 +114,8 @@ export function ClientEditScreen({
 
       showAppNotification({
         id: `client-edit-success-${clientId}`,
-        title: 'Изменения сохранены',
-        message: 'Карточка клиента обновлена.',
+        title: fe6ClientProfileText.clientEditScreen_title_f436b337,
+        message: fe6ClientProfileText.clientEditScreen_message_154f1c05,
         color: 'teal',
       })
 
@@ -125,7 +127,7 @@ export function ClientEditScreen({
         return
       }
 
-      setFormError('Не удалось сохранить изменения клиента.')
+      setFormError(fe6ClientProfileText.clientEditScreen_setFormError_e238fab9)
     } finally {
       setSubmitting(false)
     }
@@ -147,17 +149,16 @@ export function ClientEditScreen({
           onClick={onBack}
           variant="default"
         >
-          К карточке клиента
-        </Button>
+          {fe6ClientProfileText.clientEditScreen_jsxText_14a4b327}</Button>
       }
-      title={client ? client.fullName : 'Карточка клиента'}
+      title={client ? client.fullName : fe6ClientProfileText.clientEditScreen_string_a912ec86}
     >
 
       {loading ? (
         <PageSection>
           <LoadingState
-            description="Поля станут доступны после загрузки карточки и справочников."
-            label="Загружаем карточку клиента..."
+            description={fe6ClientProfileText.clientEditScreen_description_9c63e471}
+            label={fe6ClientProfileText.clientEditScreen_label_a2151f05}
           />
         </PageSection>
       ) : null}
@@ -167,7 +168,7 @@ export function ClientEditScreen({
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Карточка клиента не загрузилась"
+            title={fe6ClientProfileText.clientEditScreen_title_6c247ce7}
             variant="light"
           >
             {loadError}
@@ -198,7 +199,7 @@ export function ClientEditScreen({
                 ) : null
               }
               onSubmit={submit}
-              submitLabel="Сохранить изменения"
+              submitLabel={fe6ClientProfileText.clientEditScreen_submitLabel_744cf2b2}
               submitting={submitting}
             />
           </PageSection>

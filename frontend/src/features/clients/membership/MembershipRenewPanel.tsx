@@ -35,6 +35,8 @@ import {
   loadAllActiveMembershipTargetGroups,
   pickTargetGroupError,
 } from './membershipTargetGroups'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 type MembershipRenewPanelProps = {
   branchId: string
@@ -82,7 +84,7 @@ export function MembershipRenewPanel({
         setLoadError(
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить абонементы.',
+            : fe7ClientMembershipText.membershipRenewPanel_string_1284aff0,
         ),
       )
       .finally(() => {
@@ -98,7 +100,7 @@ export function MembershipRenewPanel({
       .catch((error) => {
         if (!isMembershipTargetLoadAbort(error)) {
           setLoadError(
-            error instanceof Error ? error.message : 'Не удалось загрузить группы.',
+            error instanceof Error ? error.message : fe7ClientMembershipText.membershipRenewPanel_string_46bd9402,
           )
         }
       })
@@ -113,7 +115,7 @@ export function MembershipRenewPanel({
       ...validateMembershipSalePricing(values),
     }
     if (!values.paymentDate) {
-      errors.paymentDate = 'Укажите дату оплаты.'
+      errors.paymentDate = fe7ClientMembershipText.membershipRenewPanel_string_c17309b4
     }
     validateTargetGroups(values.targetGroupIds, targetBehaviorKind, errors)
     if (Object.keys(errors).length > 0) {
@@ -168,15 +170,13 @@ export function MembershipRenewPanel({
         <Stack gap="md">
           <Group justify="space-between" wrap="wrap">
             <div>
-              <Text fw={700}>Продлить текущий абонемент</Text>
+              <Text fw={700}>{fe7ClientMembershipText.membershipRenewPanel_jsxText_53d9b68d}</Text>
               <Text c="dimmed" size="sm">
-                Предыдущая продажа показана только для контекста. Выберите способ расчёта заново.
-              </Text>
+                {fe7ClientMembershipText.membershipRenewPanel_jsxText_45df77cf}</Text>
             </div>
 
             <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
-              Новая продажа
-            </Badge>
+              {fe7ClientMembershipText.membershipRenewPanel_jsxText_3ec61459}</Badge>
           </Group>
 
           {loadError ? <Alert color="red">{loadError}</Alert> : null}
@@ -184,15 +184,15 @@ export function MembershipRenewPanel({
 
           <SimpleGrid cols={{ base: 1, md: 3 }}>
             <InfoItem
-              label="Предыдущая продажа"
+              label={fe7ClientMembershipText.membershipRenewPanel_label_69e09d39}
               value={`${currentMembership.membershipName} • ${formatCurrencyValue(currentMembership.grossAmount)}`}
             />
             <InfoItem
-              label="Предыдущий расчёт"
+              label={fe7ClientMembershipText.membershipRenewPanel_label_c0aa51ea}
               value={formatMembershipPricingProvenance(currentMembership)}
             />
             <InfoItem
-              label="Предыдущий период"
+              label={fe7ClientMembershipText.membershipRenewPanel_label_7e076a01}
               value={formatExpirationValue(
                 currentMembership.behaviorKind,
                 currentMembership.expirationDate,
@@ -226,7 +226,7 @@ export function MembershipRenewPanel({
 
           {selected?.behaviorKind === 'Professional' ? (
             <Textarea
-              label="Комментарий к профессиональному абонементу"
+              label={fe7ClientMembershipText.membershipRenewPanel_label_e7a31570}
               {...form.getInputProps('professionalComment')}
             />
           ) : null}
@@ -240,11 +240,9 @@ export function MembershipRenewPanel({
 
           <ResponsiveButtonGroup justify="space-between">
             <Button onClick={onCancel} type="button" variant="subtle">
-              Отменить
-            </Button>
+              {fe7ClientMembershipText.membershipRenewPanel_jsxText_7c47f729}</Button>
             <Button loading={pending} type="submit">
-              Продлить абонемент
-            </Button>
+              {fe7ClientMembershipText.membershipRenewPanel_jsxText_b62f978a}</Button>
           </ResponsiveButtonGroup>
         </Stack>
       </form>

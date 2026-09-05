@@ -4,6 +4,8 @@ import type { ClientDetails } from '../../lib/api'
 import { formatGroupSchedule } from '../../lib/groupSchedule'
 import { PageSection } from '../shared/ux'
 import { ClientNoteAttribution } from './ClientNoteAttribution'
+import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
+
 
 type ClientNotesSectionProps = {
   client: ClientDetails
@@ -18,10 +20,9 @@ export function ClientNotesSection({ client }: ClientNotesSectionProps) {
             <IconEdit size={18} />
           </ThemeIcon>
           <div>
-            <Text fw={700}>Рабочая заметка</Text>
+            <Text fw={700}>{fe6ClientProfileText.clientDetailSections_jsxText_6d7987c1}</Text>
             <Text c="dimmed" size="sm">
-              Внутренняя заметка по клиенту, которая сохраняется в карточке.
-            </Text>
+              {fe6ClientProfileText.clientDetailSections_jsxText_c8443a00}</Text>
           </div>
         </Group>
 
@@ -39,8 +40,7 @@ export function ClientNotesSection({ client }: ClientNotesSectionProps) {
           </Stack>
         ) : (
           <Text c="dimmed" size="sm">
-            Рабочая заметка пока не добавлена.
-          </Text>
+            {fe6ClientProfileText.clientDetailSections_jsxText_d99fe020}</Text>
         )}
       </Stack>
     </PageSection>
@@ -75,17 +75,15 @@ function ClientContactsSection({ client }: ClientNotesSectionProps) {
             <IconUserHeart size={18} />
           </ThemeIcon>
           <div>
-            <Text fw={700}>Контактные лица</Text>
+            <Text fw={700}>{fe6ClientProfileText.clientDetailSections_jsxText_c50d9f78}</Text>
             <Text c="dimmed" size="sm">
-              До двух контактных лиц для экстренной связи.
-            </Text>
+              {fe6ClientProfileText.clientDetailSections_jsxText_167364bb}</Text>
           </div>
         </Group>
 
         {client.contacts.length === 0 ? (
           <Text c="dimmed" size="sm">
-            Контактные лица для клиента пока не добавлены.
-          </Text>
+            {fe6ClientProfileText.clientDetailSections_jsxText_de5e3108}</Text>
         ) : (
           <Stack gap="sm">
             {client.contacts.map((contact, index) => (
@@ -103,7 +101,7 @@ function ClientContactsSection({ client }: ClientNotesSectionProps) {
                     </Badge>
                   </Group>
                   <Text c="dimmed" size="sm">
-                    Телефон: {contact.phone}
+                    {fe6ClientProfileText.clientDetailSections_jsxText_353ad7d1}{contact.phone}
                   </Text>
                 </Stack>
               </Paper>
@@ -129,10 +127,9 @@ function ClientGroupsSection({
               <IconUsersGroup size={18} />
             </ThemeIcon>
             <div>
-              <Text fw={700}>Группы клиента</Text>
+              <Text fw={700}>{fe6ClientProfileText.clientDetailSections_jsxText_ab308eef}</Text>
               <Text c="dimmed" size="sm">
-                Блок показывает текущую привязку клиента к тренировочным группам.
-              </Text>
+                {fe6ClientProfileText.clientDetailSections_jsxText_f4ba7d70}</Text>
             </div>
           </Group>
 
@@ -142,15 +139,13 @@ function ClientGroupsSection({
               onClick={() => onEdit(client.id)}
               variant="light"
             >
-              Изменить группы
-            </Button>
+              {fe6ClientProfileText.clientDetailSections_jsxText_80007feb}</Button>
           ) : null}
         </Group>
 
         {client.groups.length === 0 ? (
           <Text c="dimmed" size="sm">
-            Клиент пока не включен ни в одну группу.
-          </Text>
+            {fe6ClientProfileText.clientDetailSections_jsxText_853f0e43}</Text>
         ) : (
           <Stack gap="sm">
             {client.groups.map((group) => (
@@ -168,13 +163,13 @@ function ClientGroupsSection({
                       radius="xl"
                       variant="light"
                     >
-                      {group.isActive ? 'Активна' : 'Неактивна'}
+                      {group.isActive ? fe6ClientProfileText.clientDetailSections_string_983ec130 : fe6ClientProfileText.clientDetailSections_string_4f049897}
                     </Badge>
                   </Group>
                   <Text c="dimmed" size="sm">
                     {group.trainingStartTime
-                      ? `Старт: ${group.trainingStartTime}`
-                      : 'Время начала не указано'}
+                      ? fe6ClientProfileText.clientDetailSections_template_16812f5c(group.trainingStartTime)
+                      : fe6ClientProfileText.clientDetailSections_string_37180f56}
                     {group.weekdays && typeof group.durationMinutes === 'number'
                       ? ` • ${formatGroupSchedule(group.weekdays, group.durationMinutes)}`
                       : ''}

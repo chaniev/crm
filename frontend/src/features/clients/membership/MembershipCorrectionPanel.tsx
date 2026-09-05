@@ -31,6 +31,8 @@ import {
   loadAllActiveMembershipTargetGroups,
   pickTargetGroupError,
 } from './membershipTargetGroups'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 type MembershipCorrectionPanelProps = {
   businessDate: string
@@ -75,7 +77,7 @@ export function MembershipCorrectionPanel({
       .catch((error) => {
         if (!isMembershipTargetLoadAbort(error)) {
           setExpirationSuggestionError(
-            error instanceof Error ? error.message : 'Не удалось загрузить группы.',
+            error instanceof Error ? error.message : fe7ClientMembershipText.membershipCorrectionPanel_string_46bd9402,
           )
         }
       })
@@ -118,7 +120,7 @@ export function MembershipCorrectionPanel({
         setExpirationSuggestionError(
           error instanceof Error
             ? error.message
-            : 'Не удалось рассчитать срок абонемента.',
+            : fe7ClientMembershipText.membershipCorrectionPanel_string_ae65fc7f,
         )
       } finally {
         if (expirationSuggestionRequestIdRef.current === requestId) {
@@ -175,28 +177,26 @@ export function MembershipCorrectionPanel({
         <Stack gap="md">
           <Group justify="space-between" wrap="wrap">
             <div>
-              <Text fw={700}>Исправить текущий абонемент</Text>
+              <Text fw={700}>{fe7ClientMembershipText.membershipCorrectionPanel_jsxText_7d3a232e}</Text>
               <Text c="dimmed" size="sm">
-                Тип и цена зафиксированы в продаже и не меняются при исправлении.
-              </Text>
+                {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_529702bf}</Text>
             </div>
 
             <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
-              Исправление
-            </Badge>
+              {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_b3977315}</Badge>
           </Group>
 
           <SimpleGrid cols={{ base: 1, md: 2 }}>
             <InfoItem
-              label="Абонемент"
+              label={fe7ClientMembershipText.membershipCorrectionPanel_label_1139430b}
               value={currentMembership.membershipName}
             />
             <InfoItem
-              label="Сумма продажи"
+              label={fe7ClientMembershipText.membershipCorrectionPanel_label_c94a6d0e}
               value={formatCurrencyValue(currentMembership.grossAmount)}
             />
             <InfoItem
-              label="Дата покупки"
+              label={fe7ClientMembershipText.membershipCorrectionPanel_label_65ce6ae7}
               value={formatDateValue(currentMembership.purchaseDate)}
             />
             <PaymentDateInput
@@ -207,7 +207,7 @@ export function MembershipCorrectionPanel({
             />
             <TextInput
               error={form.errors.validFrom}
-              label="Действует с"
+              label={fe7ClientMembershipText.membershipCorrectionPanel_label_f79d7e9d}
               onChange={(event) => {
                 const nextValidFrom = event.currentTarget.value
                 form.setFieldValue('validFrom', nextValidFrom)
@@ -219,14 +219,14 @@ export function MembershipCorrectionPanel({
             <TextInput
               description={
                 currentMembership.behaviorKind === 'SingleVisit'
-                  ? 'Для разового посещения дату можно оставить пустой.'
+                  ? fe7ClientMembershipText.membershipCorrectionPanel_string_95777141
                   : expirationSuggestionLoading
-                    ? 'Рассчитываем дату окончания...'
+                    ? fe7ClientMembershipText.membershipCorrectionPanel_string_56f2dc95
                     : expirationSuggestionError ??
-                      'Дата предложена автоматически, но ее можно изменить.'
+                      fe7ClientMembershipText.membershipCorrectionPanel_string_1b5e4eb6
               }
               error={form.errors.validTo}
-              label="Действует по"
+              label={fe7ClientMembershipText.membershipCorrectionPanel_label_b9094c16}
               onChange={(event) => {
                 setExpirationManuallyChanged(true)
                 form.setFieldValue('validTo', event.currentTarget.value)
@@ -262,17 +262,14 @@ export function MembershipCorrectionPanel({
               type="button"
               variant="subtle"
             >
-              Подставить срок по правилу
-            </Button>
+              {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_489f430b}</Button>
           </Group>
 
           <ResponsiveButtonGroup justify="space-between">
             <Button onClick={onCancel} type="button" variant="subtle">
-              Отменить
-            </Button>
+              {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_7c47f729}</Button>
             <Button loading={pending} type="submit">
-              Сохранить исправление
-            </Button>
+              {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_375934ac}</Button>
           </ResponsiveButtonGroup>
         </Stack>
       </form>

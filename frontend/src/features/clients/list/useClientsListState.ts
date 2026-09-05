@@ -28,6 +28,8 @@ import {
   type ClientListPreviewIntent,
   type ClientListReturnSnapshot,
 } from './clientListReturnState'
+import { fe5ClientListText } from '../../../resources/fe-5-client-list'
+
 
 export type ClientsListState = ReturnType<typeof useClientsListState>
 
@@ -227,7 +229,7 @@ export function useClientsListState({
         setError(
           loadError instanceof Error
             ? loadError.message
-            : 'Не удалось загрузить клиентов',
+            : fe5ClientListText.useClientsListState_string_180fcaa4,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -270,7 +272,7 @@ export function useClientsListState({
           setPreviewError(
             loadError instanceof Error
               ? loadError.message
-              : 'Не удалось загрузить preview',
+              : fe5ClientListText.useClientsListState_string_185d19a4,
           )
         }
       } finally {

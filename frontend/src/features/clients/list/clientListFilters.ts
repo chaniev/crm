@@ -4,6 +4,8 @@ import type {
   ClientStatus,
   GetClientsParams,
 } from '../../../lib/api'
+import { fe5ClientListText } from '../../../resources/fe-5-client-list'
+
 
 export type ClientStatusFilter = ClientStatus | 'all'
 
@@ -27,9 +29,9 @@ export type ClientGroupFilterOption = {
 }
 
 export const clientListPageSizeOptions = [
-  { value: '20', label: '20 на странице' },
-  { value: '50', label: '50 на странице' },
-  { value: '100', label: '100 на странице' },
+  { value: '20', label: fe5ClientListText.clientListFilters_label_0852baeb },
+  { value: '50', label: fe5ClientListText.clientListFilters_label_5ea95729 },
+  { value: '100', label: fe5ClientListText.clientListFilters_label_ccbbc3d6 },
 ] as const
 
 export function createDefaultClientListFilters(): ClientListFilterValues {

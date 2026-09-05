@@ -12,6 +12,8 @@ import {
   formatPaymentRecordingValue,
 } from '../ClientManagement.formatting'
 import { MembershipSaleComment } from './MembershipSaleComment'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 type MembershipHistoryProps = {
   clientId: string
@@ -30,8 +32,7 @@ export function MembershipHistory({
   if (sortedHistory.length === 0) {
     return (
       <Text c="dimmed" size="sm">
-        История появится после первого действия с абонементом.
-      </Text>
+        {fe7ClientMembershipText.membershipHistory_jsxText_7a2b2927}</Text>
     )
   }
 
@@ -57,12 +58,11 @@ export function MembershipHistory({
                     </Badge>
                     {membership.validTo ? null : (
                       <Badge color="teal" radius="sm" variant="light">
-                        Текущая
-                      </Badge>
+                        {fe7ClientMembershipText.membershipHistory_jsxText_fb305b47}</Badge>
                     )}
                   </Group>
                   <Text c="dimmed" size="sm">
-                    {formatDateValue(membership.purchaseDate)} -{' '}
+                    {formatDateValue(membership.purchaseDate)} {fe7ClientMembershipText.membershipHistory_jsxText_3973e022}{' '}
                     {formatExpirationValue(
                       membership.behaviorKind,
                       membership.expirationDate,
@@ -71,10 +71,10 @@ export function MembershipHistory({
                   <TargetGroupsLine membership={membership} />
                   <Text size="sm">{formatCurrencyValue(membership.grossAmount)}</Text>
                   <Text c="dimmed" size="xs">
-                    {formatDateValue(membership.paymentDate)} · {formatPaymentRecordingValue(membership)}
+                    {formatDateValue(membership.paymentDate)} {fe7ClientMembershipText.membershipHistory_jsxText_a137f17a}{formatPaymentRecordingValue(membership)}
                   </Text>
                   <Text c="dimmed" size="xs">
-                    Версия: {formatMembershipVersionDate(membership)}
+                    {fe7ClientMembershipText.membershipHistory_jsxText_81f1186d}{formatMembershipVersionDate(membership)}
                   </Text>
                 </Stack>
               </Paper>
@@ -88,12 +88,12 @@ export function MembershipHistory({
             >
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Событие</Table.Th>
-                  <Table.Th>Период</Table.Th>
-                  <Table.Th>Группы</Table.Th>
-                  <Table.Th>Сумма</Table.Th>
-                  <Table.Th>Дата оплаты</Table.Th>
-                  <Table.Th>Дата версии</Table.Th>
+                  <Table.Th>{fe7ClientMembershipText.membershipHistory_jsxText_4212693d}</Table.Th>
+                  <Table.Th>{fe7ClientMembershipText.membershipHistory_jsxText_e97ca72e}</Table.Th>
+                  <Table.Th>{fe7ClientMembershipText.membershipHistory_jsxText_cd8c5873}</Table.Th>
+                  <Table.Th>{fe7ClientMembershipText.membershipHistory_jsxText_46a0edbb}</Table.Th>
+                  <Table.Th>{fe7ClientMembershipText.membershipHistory_jsxText_6611d56d}</Table.Th>
+                  <Table.Th>{fe7ClientMembershipText.membershipHistory_jsxText_638d02d7}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -109,14 +109,13 @@ export function MembershipHistory({
                         </Badge>
                         {membership.validTo ? null : (
                           <Badge color="teal" radius="sm" variant="light">
-                            Текущая
-                          </Badge>
+                            {fe7ClientMembershipText.membershipHistory_jsxText_fb305b47}</Badge>
                         )}
                       </Group>
                     </Table.Td>
                     <Table.Td>
                       <Text c="dimmed" size="sm">
-                        {formatDateValue(membership.purchaseDate)} -{' '}
+                        {formatDateValue(membership.purchaseDate)} {fe7ClientMembershipText.membershipHistory_jsxText_3973e022}{' '}
                         {formatExpirationValue(
                           membership.behaviorKind,
                           membership.expirationDate,
@@ -178,8 +177,7 @@ function TargetGroupsLine({ membership }: { membership: ClientMembership }) {
   if (targetGroups.length === 0) {
     return (
       <Badge color="yellow" radius="sm" variant="light">
-        Абонемент без групп
-      </Badge>
+        {fe7ClientMembershipText.membershipHistory_jsxText_9a0b1924}</Badge>
     )
   }
 
@@ -187,7 +185,7 @@ function TargetGroupsLine({ membership }: { membership: ClientMembership }) {
     <Group gap={6} wrap="wrap">
       {targetGroups.map((target) => (
         <Badge key={`${membership.id}-${target.groupId}`} radius="sm" variant="light">
-          {target.position + 1} {target.position === 0 ? 'Отчётность · ' : ''}{target.groupName}
+          {target.position + 1} {target.position === 0 ? fe7ClientMembershipText.membershipHistory_string_68f7b035 : ''}{target.groupName}
         </Badge>
       ))}
     </Group>

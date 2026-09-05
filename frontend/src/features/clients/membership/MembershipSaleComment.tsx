@@ -4,6 +4,8 @@ import { Alert, Button, Group, Stack, Text, Textarea } from '@mantine/core'
 import { updateClientMembershipComment, type ClientMembership } from '../../../lib/api'
 import { formatDateValue } from '../ClientManagement.formatting'
 import { formatNoteAttributionDate } from '../noteAttribution'
+import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
+
 
 type MembershipSaleCommentProps = {
   clientId: string
@@ -51,7 +53,7 @@ export function MembershipSaleComment({
         (candidate) => candidate.saleId === membership.saleId,
       )
       if (!updatedMembership) {
-        throw new Error('Сервер не вернул обновлённый комментарий покупки.')
+        throw new Error(fe7ClientMembershipText.membershipSaleComment_string_39ad24b1)
       }
       onMembershipCommentChange(updatedMembership)
       setEditing(false)
@@ -59,7 +61,7 @@ export function MembershipSaleComment({
       setError(
         saveError instanceof Error
           ? saveError.message
-          : 'Не удалось сохранить комментарий.',
+          : fe7ClientMembershipText.membershipSaleComment_string_de79692d,
       )
     } finally {
       setPending(false)
@@ -74,22 +76,21 @@ export function MembershipSaleComment({
     >
       <Group justify="space-between" wrap="wrap">
         <Text fw={700} size="sm">
-          Комментарий к покупке
-        </Text>
+          {fe7ClientMembershipText.membershipSaleComment_jsxText_5b353773}</Text>
         <Button
-          aria-label={`${editing ? 'Отменить редактирование' : 'Редактировать комментарий'} к покупке от ${formatDateValue(membership.purchaseDate)}`}
+          aria-label={fe7ClientMembershipText.membershipSaleComment_template_359b5242(editing ? fe7ClientMembershipText.membershipSaleComment_string_79e9f1b7 : fe7ClientMembershipText.membershipSaleComment_string_b091246d, formatDateValue(membership.purchaseDate))}
           disabled={pending}
           onClick={toggleEditing}
           size="compact-sm"
           variant="subtle"
         >
-          {editing ? 'Отмена' : 'Редактировать'}
+          {editing ? fe7ClientMembershipText.membershipSaleComment_string_8fbe9b75 : fe7ClientMembershipText.membershipSaleComment_string_59792556}
         </Button>
       </Group>
       {editing ? (
         <Stack gap="xs">
           <Textarea
-            aria-label="Комментарий к покупке"
+            aria-label={fe7ClientMembershipText.membershipSaleComment_jsxText_5b353773}
             disabled={pending}
             maxLength={2000}
             minRows={3}
@@ -103,8 +104,7 @@ export function MembershipSaleComment({
           ) : null}
           <Group justify="flex-end">
             <Button loading={pending} onClick={() => void save()} size="sm">
-              Сохранить
-            </Button>
+              {fe7ClientMembershipText.membershipSaleComment_jsxText_b4d30cae}</Button>
           </Group>
         </Stack>
       ) : (
@@ -115,8 +115,7 @@ export function MembershipSaleComment({
             </Text>
           ) : (
             <Text c="dimmed" size="sm">
-              Комментарий пока не добавлен.
-            </Text>
+              {fe7ClientMembershipText.membershipSaleComment_jsxText_9adae390}</Text>
           )}
           {attribution ? (
             <Text
@@ -124,7 +123,7 @@ export function MembershipSaleComment({
               c="dimmed"
               size="xs"
             >
-              {membership.commentLastChangedByName} · {attribution}
+              {membership.commentLastChangedByName} {fe7ClientMembershipText.membershipSaleComment_jsxText_a137f17a}{attribution}
             </Text>
           ) : null}
         </Stack>

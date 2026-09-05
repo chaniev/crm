@@ -1,4 +1,6 @@
 import type { MembershipSalePricingMode } from '../../lib/api'
+import { fe7ClientMembershipText } from '../../resources/fe-7-client-membership'
+
 
 export type MembershipSalePricingValues = {
   pricingMode: MembershipSalePricingMode | null
@@ -14,9 +16,9 @@ export const membershipSalePricingModeLabels: Record<
   MembershipSalePricingMode,
   string
 > = {
-  Catalog: 'По каталожной цене',
-  CatalogOverride: 'Индивидуальная сумма',
-  AmountOnly: 'Без варианта каталога',
+  Catalog: fe7ClientMembershipText.membershipSalePricing_catalog_f2cb507f,
+  CatalogOverride: fe7ClientMembershipText.membershipSalePricing_catalogOverride_00f9729f,
+  AmountOnly: fe7ClientMembershipText.membershipSalePricing_amountOnly_92f64d0d,
 }
 
 export function createEmptyMembershipSalePricingValues(): MembershipSalePricingValues {
@@ -33,7 +35,7 @@ export function validateMembershipSalePricing(
   const errors: MembershipSalePricingFieldErrors = {}
 
   if (!values.pricingMode) {
-    errors.pricingMode = 'Выберите способ расчёта.'
+    errors.pricingMode = fe7ClientMembershipText.membershipSalePricing_string_a81f5813
     return errors
   }
 
@@ -42,7 +44,7 @@ export function validateMembershipSalePricing(
       values.pricingMode === 'CatalogOverride') &&
     !values.membershipCatalogItemId
   ) {
-    errors.membershipCatalogItemId = 'Выберите абонемент.'
+    errors.membershipCatalogItemId = fe7ClientMembershipText.membershipSalePricing_string_4ec1f493
   }
 
   if (
@@ -50,7 +52,7 @@ export function validateMembershipSalePricing(
       values.pricingMode === 'AmountOnly') &&
     parseWholeRubleAmount(values.manualSaleAmount) === null
   ) {
-    errors.manualSaleAmount = 'Укажите положительную сумму целыми рублями.'
+    errors.manualSaleAmount = fe7ClientMembershipText.membershipSalePricing_string_68bb61b1
   }
 
   return errors

@@ -23,6 +23,8 @@ import {
 } from '@tabler/icons-react'
 import { buildClientPreviewViewModel } from './clientListViewModel'
 import type { ClientsListState } from './useClientsListState'
+import { fe5ClientListText } from '../../../resources/fe-5-client-list'
+
 
 type ClientPreviewPanelProps = {
   canManage: boolean
@@ -43,8 +45,7 @@ export function ClientPreviewPanel({
     return (
       <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
         <Text c="dimmed" size="sm">
-          Выберите клиента в списке.
-        </Text>
+          {fe5ClientListText.clientPreviewPanel_jsxText_efa5d3cd}</Text>
       </Paper>
     )
   }
@@ -73,7 +74,7 @@ export function ClientPreviewPanel({
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Preview не загрузился"
+            title={fe5ClientListText.clientPreviewPanel_title_85a05a71}
             variant="light"
           >
             {state.previewError}
@@ -84,15 +85,13 @@ export function ClientPreviewPanel({
               onClick={state.reloadPreview}
               variant="light"
             >
-              Повторить
-            </Button>
+              {fe5ClientListText.clientPreviewPanel_jsxText_5189135a}</Button>
             <Button
               leftSection={<IconExternalLink size={16} />}
               onClick={() => onOpen(selectedClientId)}
               variant="default"
             >
-              Открыть карточку
-            </Button>
+              {fe5ClientListText.clientPreviewPanel_jsxText_82efa6ea}</Button>
           </Group>
         </Stack>
       </Paper>
@@ -103,8 +102,7 @@ export function ClientPreviewPanel({
     return (
       <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
         <Text c="dimmed" size="sm">
-          Загружаем краткую карточку.
-        </Text>
+          {fe5ClientListText.clientPreviewPanel_jsxText_e869584b}</Text>
       </Paper>
     )
   }
@@ -141,8 +139,7 @@ export function ClientPreviewPanel({
 
         <Paper className="clients-v7-preview__need" radius="md">
           <Text c="dimmed" size="xs" tt="uppercase">
-            Нужно сейчас
-          </Text>
+            {fe5ClientListText.clientPreviewPanel_jsxText_1e125223}</Text>
           <Group gap="xs" mt={6}>
             <Badge color={preview.nextAction.tone} variant="filled">
               {preview.nextAction.label}
@@ -170,8 +167,7 @@ export function ClientPreviewPanel({
 
         <Stack gap={8}>
           <Text fw={700} size="sm">
-            Последние события
-          </Text>
+            {fe5ClientListText.clientPreviewPanel_jsxText_18e1009d}</Text>
           {preview.events.length > 0 ? (
             preview.events.map((event, index) => (
               <Group justify="space-between" key={`${event.label}-${index}`} wrap="nowrap">
@@ -183,8 +179,7 @@ export function ClientPreviewPanel({
             ))
           ) : (
             <Text c="dimmed" size="sm">
-              Событий пока нет
-            </Text>
+              {fe5ClientListText.clientPreviewPanel_jsxText_3d64c6af}</Text>
           )}
         </Stack>
 
@@ -196,22 +191,19 @@ export function ClientPreviewPanel({
                 onClick={() => onOpen(selectedClientId)}
                 variant="default"
               >
-                Оформить абонемент
-              </Button>
+                {fe5ClientListText.clientPreviewPanel_jsxText_63e29a54}</Button>
               <Button
                 leftSection={<IconMessage size={16} />}
                 onClick={() => onOpen(selectedClientId)}
                 variant="default"
               >
-                Сообщение
-              </Button>
+                {fe5ClientListText.clientPreviewPanel_jsxText_3e0ccd92}</Button>
               <Button
                 leftSection={<IconCalendarCheck size={16} />}
                 onClick={() => onOpen(selectedClientId)}
                 variant="default"
               >
-                Посещение
-              </Button>
+                {fe5ClientListText.clientPreviewPanel_jsxText_ba936c58}</Button>
             </>
           ) : null}
           <Button
@@ -219,8 +211,7 @@ export function ClientPreviewPanel({
             onClick={() => onOpen(selectedClientId)}
             variant={canManage ? 'default' : 'light'}
           >
-            Открыть карточку
-          </Button>
+            {fe5ClientListText.clientPreviewPanel_jsxText_82efa6ea}</Button>
         </div>
       </Stack>
     </Paper>
@@ -231,7 +222,7 @@ function PreviewPanelHeader({ onCollapse }: { onCollapse: () => void }) {
   return (
     <Group className="clients-v7-preview__header" justify="flex-end">
       <ActionIcon
-        aria-label="Свернуть preview"
+        aria-label={fe5ClientListText.clientPreviewPanel_ariaLabel_a0f74e3c}
         onClick={onCollapse}
         size={44}
         variant="subtle"
