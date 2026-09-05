@@ -4934,6 +4934,40 @@
       "owner": "frontend/component-catalog",
       "slice": "scanner-exceptions",
       "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Infrastructure/Persistence/Configurations/MembershipCatalogItemConfiguration.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"Профессиональный\"",
+      "value": "Профессиональный",
+      "fingerprint": "sha256:f8305fac2963613dbda73731c5cfd2d5a81249ab9ba4c19544240ee825f2cbb9",
+      "context": { "kind": "seeded-domain-value", "name": "Name" },
+      "has_cyrillic": true,
+      "lines": [55],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Persisted system catalog name is domain data, not presentation copy.",
+      "owner": "backend/membership-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
+    },
+    {
+      "path": "backend/src/GymCrm.Infrastructure/Persistence/Configurations/MembershipCatalogItemConfiguration.cs",
+      "language": "csharp",
+      "literal_kind": "string",
+      "source_text": "\"ПРОФЕССИОНАЛЬНЫЙ\"",
+      "value": "ПРОФЕССИОНАЛЬНЫЙ",
+      "fingerprint": "sha256:635875d69af174854999eaf17db1444fd60e448d202ffdd62b653dee9e75062f",
+      "context": { "kind": "seeded-domain-value", "name": "NormalizedName" },
+      "has_cyrillic": true,
+      "lines": [56],
+      "occurrences": 1,
+      "category": "dynamic user/domain value",
+      "reason": "Persisted normalized system catalog name is domain data, not presentation copy.",
+      "owner": "backend/membership-catalog",
+      "slice": "scanner-exceptions",
+      "review_status": "accepted"
     }
   ]
 }

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ClientAttentionEndpointsLine173Dd1c7f12" xml:space="preserve">
+    <value>{0} отметил связь с клиентом {1} после {2} пропусков.</value>
+  </data>
+  <data name="ClientEndpointSharedHelpersLine25Ca8e5605" xml:space="preserve">
+    <value>Field '{0}' is not allowed for this operation.</value>
+  </data>
+  <data name="ClientLifecycleRequestValidationLine2507c41b898" xml:space="preserve">
+    <value>Bad Request</value>
+  </data>
+  <data name="ClientMessengerEndpointsLine15293f6981b" xml:space="preserve">
+    <value>Telegram is not connected.</value>
+  </data>
+  <data name="ClientMessengerEndpointsLine15360d64715" xml:space="preserve">
+    <value>Connect the client Telegram account before sending messages.</value>
+  </data>
+  <data name="ClientMessengerEndpointsLine156D513a3a1" xml:space="preserve">
+    <value>Idempotency conflict.</value>
+  </data>
+  <data name="ClientMessengerEndpointsLine157538bb04e" xml:space="preserve">
+    <value>A message with the same idempotency key has different content.</value>
+  </data>
+  <data name="ClientMessengerEndpointsLine160Ab3a6efa" xml:space="preserve">
+    <value>Client Telegram bot is not configured.</value>
+  </data>
+  <data name="ClientMessengerEndpointsLine16378914546" xml:space="preserve">
+    <value>Telegram request failed.</value>
+  </data>
+  <data name="ClientQueryEndpointsLine69059e5d707" xml:space="preserve">
+    <value>Некорректное состояние абонемента.</value>
+  </data>
+  <data name="ClientQueryEndpointsLine748A4baec14" xml:space="preserve">
+    <value>Неизвестные быстрые фильтры: {0}.</value>
+  </data>
+  <data name="ClientQueryEndpointsLine8514606f73e" xml:space="preserve">
+    <value>Membership behavior kind is required.</value>
+  </data>
+  <data name="ClientResponseMapperLine5166bd8ee2e" xml:space="preserve">
+    <value>Плановое сопровождение</value>
+  </data>
+  <data name="ClientResponseMapperLine51867fa40bd" xml:space="preserve">
+    <value>Льготный оплаченный статус</value>
+  </data>
+  <data name="ClientResponseMapperLine527C76b894e" xml:space="preserve">
+    <value>Назначить группу</value>
+  </data>
+  <data name="ClientResponseMapperLine528F5e76471" xml:space="preserve">
+    <value>Клиент пока без группы</value>
+  </data>
+  <data name="ClientResponseMapperLine54063e29a54" xml:space="preserve">
+    <value>Оформить абонемент</value>
+  </data>
+  <data name="ClientResponseMapperLine541202af31a" xml:space="preserve">
+    <value>Нет текущего абонемента</value>
+  </data>
+  <data name="ClientResponseMapperLine560B62f978a" xml:space="preserve">
+    <value>Продлить абонемент</value>
+  </data>
+  <data name="ClientResponseMapperLine561818b63db" xml:space="preserve">
+    <value>Абонемент просрочен</value>
+  </data>
+  <data name="ClientResponseMapperLine569B62f978a" xml:space="preserve">
+    <value>Продлить абонемент</value>
+  </data>
+  <data name="ClientResponseMapperLine571679f07cb" xml:space="preserve">
+    <value>Абонемент заканчивается сегодня</value>
+  </data>
+  <data name="ClientResponseMapperLine572D51da79f" xml:space="preserve">
+    <value>Осталось {0} дн.</value>
+  </data>
+  <data name="ClientResponseMapperLine58463e29a54" xml:space="preserve">
+    <value>Оформить абонемент</value>
+  </data>
+  <data name="ClientResponseMapperLine585Fa507898" xml:space="preserve">
+    <value>Пробное посещение уже использовано</value>
+  </data>
+  <data name="ClientResponseMapperLine594De3830e7" xml:space="preserve">
+    <value>Исправить группы</value>
+  </data>
+  <data name="ClientResponseMapperLine5952baf9f33" xml:space="preserve">
+    <value>Абонемент без целевых групп не даёт права посещения</value>
+  </data>
+  <data name="ClientResponseMapperLine605C76b894e" xml:space="preserve">
+    <value>Назначить группу</value>
+  </data>
+  <data name="ClientResponseMapperLine606F5e76471" xml:space="preserve">
+    <value>Клиент пока без группы</value>
+  </data>
+  <data name="ClientResponseMapperLine615C19bb335" xml:space="preserve">
+    <value>Планово</value>
+  </data>
+  <data name="ClientResponseMapperLine61688f78723" xml:space="preserve">
+    <value>Срочных действий нет</value>
+  </data>
+</root>

@@ -459,7 +459,7 @@ internal static class AttendanceEndpoints
                 AttendanceBatchMutationError.Forbidden => AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem(),
                 AttendanceBatchMutationError.LessonOccurrenceUnavailable => CreateLessonOccurrenceUnavailableProblem(),
                 AttendanceBatchMutationError.SingleVisitRestoreConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.SingleVisitRestoreConflict),
-                AttendanceBatchMutationError.MembershipEntitlementInvariantConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem("Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору."),
+                AttendanceBatchMutationError.MembershipEntitlementInvariantConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceEndpointsLine462B0e5ed19),
                 _ => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveFailed)
             };
         }
@@ -595,7 +595,7 @@ internal static class AttendanceEndpoints
             BehaviorKind: MembershipBehaviorKind.Professional
         };
         var warning = entitlement.Status == ClientMembershipEntitlementResolutionStatus.InvariantConflict
-            ? new MembershipWarningResult(true, "Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.")
+            ? new MembershipWarningResult(true, global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceEndpointsLine598B0e5ed19)
             : EvaluateMembershipWarning(isProfessional, entitlementMembership, trainingDate);
         var attendance = client.AttendanceEntries.SingleOrDefault(attendance =>
             attendance.LessonOccurrenceId == lessonOccurrenceId);
@@ -778,7 +778,7 @@ internal static class AttendanceEndpoints
         return TypedResults.Problem(new ProblemDetails
         {
             Type = "/problems/lesson-occurrence-not-found",
-            Title = "Lesson occurrence was not found for the supplied date locator.",
+            Title = global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceEndpointsLine781A0d4e31f,
             Status = StatusCodes.Status404NotFound,
             Extensions =
             {
@@ -792,7 +792,7 @@ internal static class AttendanceEndpoints
         return TypedResults.Problem(new ProblemDetails
         {
             Type = "/problems/lesson-attendance-state-conflict",
-            Title = "Lesson occurrence attendance cannot be changed in its current state.",
+            Title = global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceEndpointsLine795A47bee81,
             Status = StatusCodes.Status409Conflict,
             Extensions =
             {
@@ -806,8 +806,8 @@ internal static class AttendanceEndpoints
         return TypedResults.Problem(new ProblemDetails
         {
             Type = "/problems/attendance-legacy-write-disabled",
-            Title = "Legacy attendance write endpoint is disabled",
-            Detail = "Attendance writes must target an exact lesson occurrence.",
+            Title = global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceEndpointsLine809Acdeea91,
+            Detail = global::GymCrm.Api.UserFacingText.BE4AttendanceText.AttendanceEndpointsLine81084c16769,
             Status = StatusCodes.Status410Gone
         });
     }

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BotInternalEndpointsLine114512cc5e3" xml:space="preserve">
+    <value>Укажите дату в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="BotInternalEndpointsLine137512cc5e3" xml:space="preserve">
+    <value>Укажите дату в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="BotInternalEndpointsLine161Ab7c6d65" xml:space="preserve">
+    <value>Укажите дату занятия в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="BotInternalEndpointsLine184512cc5e3" xml:space="preserve">
+    <value>Укажите дату в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="BotInternalEndpointsLine1931584a20b" xml:space="preserve">
+    <value>Для изменяющего действия нужен Idempotency-Key.</value>
+  </data>
+  <data name="BotInternalEndpointsLine224Ab7c6d65" xml:space="preserve">
+    <value>Укажите дату занятия в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="BotInternalEndpointsLine2331584a20b" xml:space="preserve">
+    <value>Для изменяющего действия нужен Idempotency-Key.</value>
+  </data>
+  <data name="BotInternalEndpointsLine3281584a20b" xml:space="preserve">
+    <value>Для изменяющего действия нужен Idempotency-Key.</value>
+  </data>
+  <data name="BotInternalEndpointsLine356Ea11992e" xml:space="preserve">
+    <value>Telegram user is not configured in CRM.</value>
+  </data>
+  <data name="BotInternalEndpointsLine360D01e6571" xml:space="preserve">
+    <value>CRM user is inactive.</value>
+  </data>
+  <data name="BotInternalEndpointsLine364F7451b01" xml:space="preserve">
+    <value>CRM user must change password in web UI first.</value>
+  </data>
+  <data name="BotInternalEndpointsLine3691cd5b8f3" xml:space="preserve">
+    <value>Дата посещаемости недоступна для роли пользователя.</value>
+  </data>
+  <data name="BotInternalEndpointsLine3759dc0b53c" xml:space="preserve">
+    <value>Запрос не прошел бизнес-валидацию.</value>
+  </data>
+  <data name="BotInternalEndpointsLine3802642715d" xml:space="preserve">
+    <value>Idempotency-Key уже использован для другого действия или payload.</value>
+  </data>
+  <data name="BotInternalEndpointsLine3843ee05d1f" xml:space="preserve">
+    <value>У клиента нет текущего абонемента.</value>
+  </data>
+  <data name="BotInternalEndpointsLine388E7d11beb" xml:space="preserve">
+    <value>Разовое посещение не восстановлено из-за последующих изменений абонемента.</value>
+  </data>
+  <data name="BotInternalEndpointsLine392A6463b42" xml:space="preserve">
+    <value>Temporary backend error.</value>
+  </data>
+  <data name="BotInternalEndpointsLine546aec8af2" xml:space="preserve">
+    <value>Internal Bot API token is not configured.</value>
+  </data>
+</root>

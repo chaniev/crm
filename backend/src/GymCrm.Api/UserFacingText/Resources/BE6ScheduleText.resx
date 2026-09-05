@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="GroupLessonSeriesEndpointsLine25959efe004" xml:space="preserve">
+    <value>Пользователь '{0}' изменил расписание группы '{1}'.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine332D9e0e4b9" xml:space="preserve">
+    <value>scope должен быть ThisAndFuture или EntireSeries.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine340D48cb928" xml:space="preserve">
+    <value>effectiveFrom должен быть в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine354Ebe48b29" xml:space="preserve">
+    <value>endsOn должен быть в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine364C751802f" xml:space="preserve">
+    <value>endsOn должен быть не раньше effectiveFrom.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine3696a78640e" xml:space="preserve">
+    <value>Нужно передать хотя бы один slot.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine38103b7e917" xml:space="preserve">
+    <value>isoWeekday должен быть от 1 до 7.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine4245d2885e5" xml:space="preserve">
+    <value>Зал не найден.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine4298874f5c8" xml:space="preserve">
+    <value>Все залы расписания должны принадлежать филиалу группы.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine437371250ec" xml:space="preserve">
+    <value>Slots for ISO weekday {0} overlap.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine4804ea9330e" xml:space="preserve">
+    <value>В выбранном зале есть пересекающееся занятие.</value>
+  </data>
+  <data name="GroupLessonSeriesEndpointsLine805969f994a" xml:space="preserve">
+    <value>Lesson series mutation failed.</value>
+  </data>
+  <data name="ScheduleEndpointsLine100228ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleEndpointsLine112528ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleEndpointsLine1267D2280944" xml:space="preserve">
+    <value>Пользователь '{0}' изменил занятие.</value>
+  </data>
+  <data name="ScheduleEndpointsLine16828ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleEndpointsLine18883aaab2cd" xml:space="preserve">
+    <value>Диапазон расписания должен использовать {0}, from &lt;= to и не больше {1} дней.</value>
+  </data>
+  <data name="ScheduleEndpointsLine18893aaab2cd" xml:space="preserve">
+    <value>Диапазон расписания должен использовать {0}, from &lt;= to и не больше {1} дней.</value>
+  </data>
+  <data name="ScheduleEndpointsLine1898A0d4e31f" xml:space="preserve">
+    <value>Lesson occurrence was not found for the supplied date locator.</value>
+  </data>
+  <data name="ScheduleEndpointsLine500Ee8753d1" xml:space="preserve">
+    <value>Пользователь '{0}' создал разовое занятие.</value>
+  </data>
+  <data name="ScheduleEndpointsLine56228ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleEndpointsLine6298c1eb014" xml:space="preserve">
+    <value>Пользователь '{0}' отменил занятие.</value>
+  </data>
+  <data name="ScheduleEndpointsLine68828ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleEndpointsLine725Ebb54a99" xml:space="preserve">
+    <value>Пользователь '{0}' восстановил занятие.</value>
+  </data>
+  <data name="ScheduleEndpointsLine78328ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleEndpointsLine7995ae8af84" xml:space="preserve">
+    <value>Action должен быть Cancel или Restore.</value>
+  </data>
+  <data name="ScheduleEndpointsLine804F663a580" xml:space="preserve">
+    <value>expectedRevision обязателен.</value>
+  </data>
+  <data name="ScheduleEndpointsLine89028ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleEndpointsLine9195ae8af84" xml:space="preserve">
+    <value>Action должен быть Cancel или Restore.</value>
+  </data>
+  <data name="ScheduleEndpointsLine924F663a580" xml:space="preserve">
+    <value>expectedRevision обязателен.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine234Dc3b2af8" xml:space="preserve">
+    <value>Пользователь '{0}' назначил замену тренера на занятие.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine4201c0b9ac5" xml:space="preserve">
+    <value>Пользователь '{0}' отменил замену тренера на занятие.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine473791b67a1" xml:space="preserve">
+    <value>Заменяемый тренер обязателен.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine478952f984f" xml:space="preserve">
+    <value>Замещающий тренер обязателен.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine483645d1598" xml:space="preserve">
+    <value>Замещающий тренер должен отличаться от заменяемого.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine4881bd1c92d" xml:space="preserve">
+    <value>Передайте хотя бы одно занятие.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine503A3e36c0c" xml:space="preserve">
+    <value>Замещающий тренер не найден или неактивен.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine51576fc4ebc" xml:space="preserve">
+    <value>Каждая цель должна содержать lessonOccurrenceId и expectedRevision.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine52428ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine562011248fe" xml:space="preserve">
+    <value>Заменяемый тренер не является постоянным тренером группы на дату занятия.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine6134d395d55" xml:space="preserve">
+    <value>Передайте хотя бы одну замену.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine6268e67e6a0" xml:space="preserve">
+    <value>Каждая цель должна содержать lessonOccurrenceId, substitutionId и expectedRevision.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine63528ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleLessonTrainerSubstitutionEndpointsLine708090713d0" xml:space="preserve">
+    <value>У замещающего тренера есть пересекающееся занятие.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine11116e60781" xml:space="preserve">
+    <value>Поддерживаются scope Occurrence, ThisAndFuture или EntireSeries.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine116F663a580" xml:space="preserve">
+    <value>expectedRevision обязателен.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine12228ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine128B177fc71" xml:space="preserve">
+    <value>Время занятия должно быть в формате HH:mm.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine13376aa36d0" xml:space="preserve">
+    <value>Длительность занятия должна быть от 1 до 180 минут.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine138482d5571" xml:space="preserve">
+    <value>Зал обязателен.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine148D04166bb" xml:space="preserve">
+    <value>Занятие должно завершаться в тот же календарный день.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine1575d2885e5" xml:space="preserve">
+    <value>Зал не найден.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine161A6285cbd" xml:space="preserve">
+    <value>Зал должен принадлежать филиалу группы.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine167E9858bca" xml:space="preserve">
+    <value>Series scope доступен только для projected recurring занятия без materialized exception.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine28F39d9699" xml:space="preserve">
+    <value>Группа обязательна.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine3184ea9330e" xml:space="preserve">
+    <value>В выбранном зале есть пересекающееся занятие.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine3280782c36f" xml:space="preserve">
+    <value>У тренера есть пересекающееся занятие.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine33482d5571" xml:space="preserve">
+    <value>Зал обязателен.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine3928ddd147" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine45B177fc71" xml:space="preserve">
+    <value>Время занятия должно быть в формате HH:mm.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine5076aa36d0" xml:space="preserve">
+    <value>Длительность занятия должна быть от 1 до 180 минут.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine60D04166bb" xml:space="preserve">
+    <value>Занятие должно завершаться в тот же календарный день.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine7102b1d8fc0" xml:space="preserve">
+    <value>Пользователь '{0}' изменил расписание серии занятий.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine7630b4e0b4" xml:space="preserve">
+    <value>Группа не найдена.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine7787a30e3b9" xml:space="preserve">
+    <value>Schedule confirmation token is not valid for this mutation.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine791E0c07c34" xml:space="preserve">
+    <value>Занятие этой группы пересекается с другим занятием в выбранный день.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine800F937dd9e" xml:space="preserve">
+    <value>Lesson occurrence mutation cannot be applied.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine85893a9c18e" xml:space="preserve">
+    <value>Lesson occurrence cannot be cancelled while attendance marks exist.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine915d2885e5" xml:space="preserve">
+    <value>Зал не найден.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine95A6285cbd" xml:space="preserve">
+    <value>Зал должен принадлежать филиалу группы.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine9608c1eb014" xml:space="preserve">
+    <value>Пользователь '{0}' отменил занятие.</value>
+  </data>
+  <data name="ScheduleMutationEndpointPoliciesLine961Ebb54a99" xml:space="preserve">
+    <value>Пользователь '{0}' восстановил занятие.</value>
+  </data>
+</root>

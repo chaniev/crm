@@ -14,11 +14,11 @@ public static class AttendanceAuditContract
         string clientName,
         string groupName,
         DateOnly trainingDate) =>
-        $"Пользователь '{actorLogin}' изменил посещаемость клиента '{clientName}' в группе '{groupName}' за {trainingDate:yyyy-MM-dd}.";
+        global::GymCrm.Application.UserFacingText.AttendanceText.AttendanceAuditContractLine17b75586e3(actorLogin, clientName, groupName, trainingDate);
 
     public static string SingleVisitWrittenOffDescription(string actorLogin, string clientName) =>
-        $"Пользователь '{actorLogin}' списал разовое посещение клиента '{clientName}'.";
+        global::GymCrm.Application.UserFacingText.AttendanceText.AttendanceAuditContractLine203cfee4d5(actorLogin, clientName);
 
     public static string SingleVisitRestoredDescription(string actorLogin, string clientName) =>
-        $"Пользователь '{actorLogin}' восстановил разовое посещение клиента '{clientName}'.";
+        global::GymCrm.Application.UserFacingText.AttendanceText.AttendanceAuditContractLine23a3aea2d3(actorLogin, clientName);
 }

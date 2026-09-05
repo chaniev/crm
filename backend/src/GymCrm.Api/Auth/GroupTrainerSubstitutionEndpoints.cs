@@ -183,7 +183,7 @@ internal static class GroupTrainerSubstitutionEndpoints
                     GroupAuditConstants.GroupTrainerSubstitutionCreatedAction,
                     GroupAuditConstants.GroupTrainerSubstitutionEntityType,
                     substitution.Id.ToString(),
-                    $"Пользователь '{currentUser.Login}' создал замещение тренера группы.",
+                    global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine1867e830ea8(currentUser.Login),
                     NewValueJson: SerializeAuditState(substitution)),
                 cancellationToken);
             if (transaction is not null)
@@ -261,7 +261,7 @@ internal static class GroupTrainerSubstitutionEndpoints
 
         if (!substitution.Group.IsActive)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["groupId"] = ["Группа должна быть активной."] });
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["groupId"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine2641d60c817] });
         }
 
         var parsed = await ValidateRequestAsync(groupId, request, dbContext, today, isCreate: false, cancellationToken);
@@ -277,7 +277,7 @@ internal static class GroupTrainerSubstitutionEndpoints
 
         if (status == GroupTrainerSubstitutionStatus.Upcoming && parsed.StartsOn!.Value < today)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["startsOn"] = ["Дата начала должна быть сегодня или позже."] });
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["startsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine28080144680] });
         }
 
         if (status == GroupTrainerSubstitutionStatus.Active &&
@@ -328,7 +328,7 @@ internal static class GroupTrainerSubstitutionEndpoints
                     GroupAuditConstants.GroupTrainerSubstitutionUpdatedAction,
                     GroupAuditConstants.GroupTrainerSubstitutionEntityType,
                     substitution.Id.ToString(),
-                    $"Пользователь '{currentUser.Login}' изменил замещение тренера группы.",
+                    global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine3319dcc937d(currentUser.Login),
                     oldState,
                     SerializeAuditState(substitution)),
                 cancellationToken);
@@ -415,7 +415,7 @@ internal static class GroupTrainerSubstitutionEndpoints
                     GroupAuditConstants.GroupTrainerSubstitutionCancelledAction,
                     GroupAuditConstants.GroupTrainerSubstitutionEntityType,
                     substitution.Id.ToString(),
-                    $"Пользователь '{currentUser.Login}' отменил замещение тренера группы.",
+                    global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine41840f3e7c0(currentUser.Login),
                     oldState,
                     SerializeAuditState(substitution)),
                 cancellationToken);
@@ -444,7 +444,7 @@ internal static class GroupTrainerSubstitutionEndpoints
         var parsed = await ValidateRequestAsync(groupId, request, dbContext, today, isCreate: true, cancellationToken);
         if (!parsed.NotFound && parsed.Errors.Count == 0 && parsed.StartsOn!.Value < today)
         {
-            parsed.Errors["startsOn"] = ["Дата начала должна быть сегодня или позже."];
+            parsed.Errors["startsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine44780144680];
         }
 
         return parsed;
@@ -476,13 +476,13 @@ internal static class GroupTrainerSubstitutionEndpoints
 
         if (isCreate && !group.IsActive)
         {
-            errors["groupId"] = ["Группа должна быть активной."];
+            errors["groupId"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine4791d60c817];
         }
 
         var substituteTrainerId = request.SubstituteTrainerId;
         if (!substituteTrainerId.HasValue || substituteTrainerId.Value == Guid.Empty)
         {
-            errors["substituteTrainerId"] = ["Укажите замещающего тренера."];
+            errors["substituteTrainerId"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine485688b34f5];
         }
         else
         {
@@ -493,29 +493,29 @@ internal static class GroupTrainerSubstitutionEndpoints
                 .SingleOrDefaultAsync(cancellationToken);
             if (trainer is null || !trainer.IsActive || !GroupTrainerEligibility.AssignableRoles.Contains(trainer.Role))
             {
-                errors["substituteTrainerId"] = ["Замещающий тренер должен быть активным тренером или главным тренером."];
+                errors["substituteTrainerId"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine496C99d3372];
             }
             else if (group.MainTrainerIds.Contains(substituteTrainerId.Value))
             {
-                errors["substituteTrainerId"] = ["Основной тренер этой группы не может быть выбран замещающим."];
+                errors["substituteTrainerId"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine500F66e630f];
             }
         }
 
         var startsOn = ParseDate(request.StartsOn);
         if (!startsOn.HasValue)
         {
-            errors["startsOn"] = ["Укажите дату начала в формате yyyy-MM-dd."];
+            errors["startsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine50783c61e4f];
         }
 
         var endsOn = ParseDate(request.EndsOn);
         if (!endsOn.HasValue)
         {
-            errors["endsOn"] = ["Укажите дату окончания в формате yyyy-MM-dd."];
+            errors["endsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine513Df370b9a];
         }
 
         if (startsOn.HasValue && endsOn.HasValue && endsOn.Value < startsOn.Value)
         {
-            errors["endsOn"] = ["Дата окончания не может быть раньше даты начала."];
+            errors["endsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine518De43f4f3];
         }
 
         return new ParsedSubstitutionRequest(false, substituteTrainerId, startsOn, endsOn, errors);
@@ -646,8 +646,8 @@ internal static class GroupTrainerSubstitutionEndpoints
             GroupResources.GroupTrainerSubstitutionOverlapDetail,
             new Dictionary<string, string[]>
             {
-                ["startsOn"] = ["Период пересекается с другим замещением этого тренера."],
-                ["endsOn"] = ["Период пересекается с другим замещением этого тренера."]
+                ["startsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine6495ee85073],
+                ["endsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupTrainerSubstitutionEndpointsLine6505ee85073]
             });
 
     private static ProblemHttpResult CreateImmutableProblem() =>

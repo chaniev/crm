@@ -28,6 +28,7 @@
     <ProjectReference Include="..\..\src\GymCrm.Api\GymCrm.Api.csproj" />
     <ProjectReference Include="..\..\src\GymCrm.Application\GymCrm.Application.csproj" />
     <ProjectReference Include="..\..\src\GymCrm.Infrastructure\GymCrm.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\scripts\GymCrm.UserFacingTextGuard\GymCrm.UserFacingTextGuard.csproj" />
   </ItemGroup>
 
 </Project>

@@ -614,7 +614,7 @@ internal sealed class AttendanceService(
     private static string BuildClientName(string? lastName, string? firstName, string? middleName)
     {
         var result = string.Join(' ', new[] { lastName, firstName, middleName }.Where(value => !string.IsNullOrWhiteSpace(value)));
-        return string.IsNullOrWhiteSpace(result) ? "Клиент без имени" : result;
+        return string.IsNullOrWhiteSpace(result) ? global::GymCrm.Infrastructure.UserFacingText.AttendanceText.AttendanceServiceLine617277d3a37 : result;
     }
 
     private static string SerializeAttendanceState(Guid clientId, SaveAttendanceCommand command, AttendanceState state) =>

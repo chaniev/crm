@@ -121,7 +121,7 @@ internal static class ClientMembershipEndpoints
         try { normalized = ClientMembershipCommentPolicy.Normalize(request.Comment); }
         catch (ArgumentException)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["comment"] = ["Comment must not exceed 2000 characters."] });
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["comment"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine1243117a1d9] });
         }
 
         var mutation = await membershipService.UpdateCommentAsync(id, saleId,
@@ -405,7 +405,7 @@ internal static class ClientMembershipEndpoints
                 StatusCodes.Status500InternalServerError,
                 "membership-refund-operation-failed",
                 "Membership refund operation failed.",
-                new Dictionary<string, string[]> { ["refund"] = ["Операция возврата не выполнена."] });
+                new Dictionary<string, string[]> { ["refund"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine4088cf17618] });
         }
         finally
         {
@@ -515,7 +515,7 @@ internal static class ClientMembershipEndpoints
                     StatusCodes.Status409Conflict,
                     "idempotency-conflict",
                     "Idempotency key was already used for another membership operation.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = ["Этот Idempotency-Key уже использован для другой операции."] });
+                    new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine5183eeff138] });
             }
 
             if (string.Equals(record.Status, MembershipIdempotencyPending, StringComparison.Ordinal))
@@ -524,7 +524,7 @@ internal static class ClientMembershipEndpoints
                     StatusCodes.Status409Conflict,
                     "membership-operation-in-progress",
                     "Membership operation is still in progress.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = ["Такая операция уже выполняется. Повторите позже."] });
+                    new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine527339319fd] });
             }
 
             var replayClient = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
@@ -581,7 +581,7 @@ internal static class ClientMembershipEndpoints
                 StatusCodes.Status409Conflict,
                 "membership-operation-in-progress",
                 "Membership operation is still in progress.",
-                new Dictionary<string, string[]> { ["idempotencyKey"] = ["Такая операция уже выполняется. Повторите позже."] });
+                new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine584339319fd] });
         }
 
         async Task DeleteReservedIdempotencyAsync()
@@ -627,7 +627,7 @@ internal static class ClientMembershipEndpoints
                     actionType,
                     ClientAuditConstants.MembershipEntityType,
                     id.ToString(),
-                    $"Пользователь {currentUser.Login} перенёс группу в абонементах клиента {BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)}.",
+                    global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine63016aaa323(currentUser.Login, BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
                     SerializeMembershipCollectionAuditState(clientBefore.Memberships),
                     SerializeMembershipCollectionAuditState(clientAfter.Memberships)),
                 cancellationToken);
@@ -658,7 +658,7 @@ internal static class ClientMembershipEndpoints
                 StatusCodes.Status500InternalServerError,
                 "membership-operation-failed",
                 "Membership operation failed.",
-                new Dictionary<string, string[]> { ["membership"] = ["Перенос группы абонемента не выполнен."] });
+                new Dictionary<string, string[]> { ["membership"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine6611c294390] });
         }
         finally
         {
@@ -688,7 +688,7 @@ internal static class ClientMembershipEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                [result.Field ?? "targetGroupIds"] = [result.Message ?? "Проверьте группы для переноса."]
+                [result.Field ?? "targetGroupIds"] = [result.Message ?? global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine69145ea1663]
             });
         }
 
@@ -699,7 +699,7 @@ internal static class ClientMembershipEndpoints
         ClientMembershipTargetTransferResult result)
     {
         var field = result.Field ?? "targetGroupId";
-        var message = result.Message ?? "Перенос группы абонемента невозможен.";
+        var message = result.Message ?? global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine702E708b0d9;
         return result.Status switch
         {
             ClientMembershipTargetTransferStatus.StaleExpectedMemberships => CreateProblem(
@@ -726,7 +726,7 @@ internal static class ClientMembershipEndpoints
                 StatusCodes.Status404NotFound,
                 "client-not-found",
                 "Client was not found.",
-                new Dictionary<string, string[]> { ["clientId"] = ["Клиент не найден."] }),
+                new Dictionary<string, string[]> { ["clientId"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine7293e0cd008] }),
             _ => CreateProblem(
                 StatusCodes.Status400BadRequest,
                 "membership-target-invalid",
@@ -876,7 +876,7 @@ internal static class ClientMembershipEndpoints
                 StatusCodes.Status500InternalServerError,
                 "membership-refund-operation-failed",
                 "Membership refund operation failed.",
-                new Dictionary<string, string[]> { ["refund"] = ["Операция отмены возврата не выполнена."] });
+                new Dictionary<string, string[]> { ["refund"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine8792a8c74ae] });
         }
         finally
         {
@@ -917,7 +917,7 @@ internal static class ClientMembershipEndpoints
                     StatusCodes.Status409Conflict,
                     "idempotency-conflict",
                     "Idempotency key was already used for another membership operation.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = ["Этот Idempotency-Key уже использован для другой операции."] }));
+                    new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine9203eeff138] }));
             }
 
             return string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal)
@@ -926,7 +926,7 @@ internal static class ClientMembershipEndpoints
                     StatusCodes.Status409Conflict,
                     "membership-operation-in-progress",
                     "Membership operation is still in progress.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = ["Такая операция уже выполняется. Повторите позже."] }));
+                    new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine929339319fd] }));
         }
 
         if (existing is not null)
@@ -1371,7 +1371,7 @@ internal static class ClientMembershipEndpoints
                 "Branch transfer would detach active or future membership targets.",
                 new Dictionary<string, string[]>
                 {
-                    ["targetGroupIds"] = ["Сначала перенесите целевые группы активных и будущих абонементов отдельной операцией, затем повторите перевод клиента."]
+                    ["targetGroupIds"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine1374E266e0bf]
                 }),
             _ => TypedResults.ValidationProblem(CreateMembershipOperationError(error))
         };

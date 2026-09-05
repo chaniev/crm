@@ -170,7 +170,7 @@ internal static class ClientAttentionEndpoints
                     ContactedAction,
                     "ClientMissedTrainingAcknowledgement",
                     acknowledgement.Id.ToString(),
-                    $"{currentUser.Login} отметил связь с клиентом {before!.FullName} после {missedReason.MissedCount} пропусков.",
+                    global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientAttentionEndpointsLine173Dd1c7f12(currentUser.Login, before!.FullName, missedReason.MissedCount),
                     null,
                     JsonSerializer.Serialize(new
                     {

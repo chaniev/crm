@@ -109,7 +109,7 @@ internal sealed class ClientMembershipTargetTransferService(
             return ClientMembershipTargetTransferResult.Failure(
                 ClientMembershipTargetTransferStatus.ClientMissing,
                 "clientId",
-                "Клиент не найден.");
+                global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine1123e0cd008);
         }
 
         var sourceGroupId = command.SourceGroupId!.Value;
@@ -127,7 +127,7 @@ internal sealed class ClientMembershipTargetTransferService(
             return ClientMembershipTargetTransferResult.Failure(
                 ClientMembershipTargetTransferStatus.TargetUnavailable,
                 "targetGroupId",
-                "Целевая группа недоступна.");
+                global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine130e0ff8ae2);
         }
 
         if (sourceGroup.BranchId != targetGroup.BranchId)
@@ -135,7 +135,7 @@ internal sealed class ClientMembershipTargetTransferService(
             return ClientMembershipTargetTransferResult.Failure(
                 ClientMembershipTargetTransferStatus.CrossBranchTarget,
                 "targetGroupId",
-                "Группа для переноса должна быть в том же филиале.");
+                global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine1383f391c77);
         }
 
         var query = dbContext.ClientMemberships
@@ -172,7 +172,7 @@ internal sealed class ClientMembershipTargetTransferService(
                 return ClientMembershipTargetTransferResult.Failure(
                     ClientMembershipTargetTransferStatus.StaleExpectedMemberships,
                     "expectedMembershipIds",
-                    "Список абонементов изменился. Обновите предпросмотр и повторите перенос.");
+                    global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine1755972fb79);
             }
         }
 
@@ -185,7 +185,7 @@ internal sealed class ClientMembershipTargetTransferService(
                 return ClientMembershipTargetTransferResult.Failure(
                     ClientMembershipTargetTransferStatus.DuplicateTarget,
                     "targetGroupId",
-                    "Целевая группа уже есть в одном из затронутых абонементов.");
+                    global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine188ce8cefa6);
             }
 
             var before = MapTargets(membership.TargetGroups);
@@ -226,8 +226,8 @@ internal sealed class ClientMembershipTargetTransferService(
                     : ClientMembershipTargetTransferStatus.MembershipOverlap,
                 "targetGroupId",
                 overlap == ClientMembershipTargetTransferStatus.MembershipTargetMissing
-                    ? "Абонемент без групп нужно сначала исправить."
-                    : "Перенос создаёт пересечение действующих абонементов.");
+                    ? global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine2297fb85c53
+                    : global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine23061297a89);
         }
 
         return ClientMembershipTargetTransferResult.Success(new ClientMembershipTargetTransferPreviewResult(
@@ -249,7 +249,7 @@ internal sealed class ClientMembershipTargetTransferService(
             return ClientMembershipTargetTransferResult.Failure(
                 ClientMembershipTargetTransferStatus.InvalidRequest,
                 "sourceGroupId",
-                "Исходная группа обязательна.");
+                global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine252bcc26641);
         }
 
         if (!command.TargetGroupId.HasValue || command.TargetGroupId.Value == Guid.Empty)
@@ -257,7 +257,7 @@ internal sealed class ClientMembershipTargetTransferService(
             return ClientMembershipTargetTransferResult.Failure(
                 ClientMembershipTargetTransferStatus.InvalidRequest,
                 "targetGroupId",
-                "Целевая группа обязательна.");
+                global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine2600cbf1777);
         }
 
         if (command.SourceGroupId == command.TargetGroupId)
@@ -265,7 +265,7 @@ internal sealed class ClientMembershipTargetTransferService(
             return ClientMembershipTargetTransferResult.Failure(
                 ClientMembershipTargetTransferStatus.InvalidRequest,
                 "targetGroupId",
-                "Выберите другую целевую группу.");
+                global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine268f91f4249);
         }
 
         if (requireExpectedMemberships && command.ExpectedMembershipIds.Count == 0)
@@ -273,7 +273,7 @@ internal sealed class ClientMembershipTargetTransferService(
             return ClientMembershipTargetTransferResult.Failure(
                 ClientMembershipTargetTransferStatus.InvalidRequest,
                 "expectedMembershipIds",
-                "Передайте список абонементов из предпросмотра.");
+                global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine2769aa45702);
         }
 
         if (command.ExpectedMembershipIds.Any(id => id == Guid.Empty) ||
@@ -282,7 +282,7 @@ internal sealed class ClientMembershipTargetTransferService(
             return ClientMembershipTargetTransferResult.Failure(
                 ClientMembershipTargetTransferStatus.InvalidRequest,
                 "expectedMembershipIds",
-                "Список абонементов содержит некорректные значения.");
+                global::GymCrm.Infrastructure.UserFacingText.ClientMembershipText.ClientMembershipTargetTransferServiceLine2856fff9be9);
         }
 
         return ClientMembershipTargetTransferResult.Success(new ClientMembershipTargetTransferPreviewResult(

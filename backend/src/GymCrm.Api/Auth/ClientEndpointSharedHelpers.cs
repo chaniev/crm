@@ -22,7 +22,7 @@ internal static class ClientEndpointSharedHelpers
 
         foreach (var field in additionalFields.Keys)
         {
-            errors[field] = [$"Field '{field}' is not allowed for this operation."];
+            errors[field] = [global::GymCrm.Api.UserFacingText.BE2ClientsText.ClientEndpointSharedHelpersLine25Ca8e5605(field)];
         }
     }
 

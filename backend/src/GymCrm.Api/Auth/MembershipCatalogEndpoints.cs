@@ -67,9 +67,9 @@ internal static class MembershipCatalogEndpoints
         if (!scope.Allowed) return ScopeProblem();
         if (!Enum.TryParse<MembershipBehaviorKind>(request.BehaviorKind, true, out var behavior) ||
             behavior == MembershipBehaviorKind.Professional)
-            return Validation("behaviorKind", "Only SingleVisit or Term can be created.");
+            return Validation("behaviorKind", global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.MembershipCatalogEndpointsLine70C1553788);
         if (!await db.Branches.AnyAsync(branch => branch.Id == request.BranchId && !branch.IsArchived, cancellationToken))
-            return Validation("branchId", "Active branch is required.");
+            return Validation("branchId", global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.MembershipCatalogEndpointsLine7251d079c0);
         MembershipCatalogItem item;
         try
         {
@@ -92,7 +92,7 @@ internal static class MembershipCatalogEndpoints
         var csrf = await AuthCsrfValidation.ValidateRequestAsync(context, antiforgery);
         if (csrf is not null) return csrf;
         if (request.AdditionalFields?.Count > 0)
-            return Results.Problem(statusCode: 400, title: "Immutable catalog field",
+            return Results.Problem(statusCode: 400, title: global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.MembershipCatalogEndpointsLine9572de6d77,
                 type: "https://gym-crm.local/problems/membership-catalog-immutable", extensions: new Dictionary<string, object?> { ["code"] = "membership_catalog_immutable" });
         var user = context.GetAuthenticatedGymCrmUser();
         var item = await db.MembershipCatalogItems.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
@@ -122,6 +122,6 @@ internal static class MembershipCatalogEndpoints
     private static IResult Validation(string field, string message) => TypedResults.ValidationProblem(new Dictionary<string, string[]> { [field] = [message] });
     private static IResult ScopeProblem() =>
         StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
-    private static IResult OverlapProblem() => Results.Problem(statusCode: 409, title: "Catalog availability overlaps",
+    private static IResult OverlapProblem() => Results.Problem(statusCode: 409, title: global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.MembershipCatalogEndpointsLine1252f820c7b,
         type: "https://gym-crm.local/problems/membership-catalog-overlap", extensions: new Dictionary<string, object?> { ["code"] = "membership_catalog_overlap" });
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AttendanceEndpointsLine462B0e5ed19" xml:space="preserve">
+    <value>Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.</value>
+  </data>
+  <data name="AttendanceEndpointsLine598B0e5ed19" xml:space="preserve">
+    <value>Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.</value>
+  </data>
+  <data name="AttendanceEndpointsLine781A0d4e31f" xml:space="preserve">
+    <value>Lesson occurrence was not found for the supplied date locator.</value>
+  </data>
+  <data name="AttendanceEndpointsLine795A47bee81" xml:space="preserve">
+    <value>Lesson occurrence attendance cannot be changed in its current state.</value>
+  </data>
+  <data name="AttendanceEndpointsLine809Acdeea91" xml:space="preserve">
+    <value>Legacy attendance write endpoint is disabled</value>
+  </data>
+  <data name="AttendanceEndpointsLine81084c16769" xml:space="preserve">
+    <value>Attendance writes must target an exact lesson occurrence.</value>
+  </data>
+  <data name="AttendanceValidationProblemsLine20E5c8412a" xml:space="preserve">
+    <value>Дата занятия должна быть в формате {0}.</value>
+  </data>
+  <data name="AttendanceValidationProblemsLine441cd5b8f3" xml:space="preserve">
+    <value>Дата посещаемости недоступна для роли пользователя.</value>
+  </data>
+  <data name="AttendanceValidationProblemsLine53Bfcdb657" xml:space="preserve">
+    <value>Attendance group is not available for the current user.</value>
+  </data>
+</root>

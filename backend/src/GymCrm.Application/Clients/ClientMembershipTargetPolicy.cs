@@ -60,17 +60,17 @@ public static class ClientMembershipTargetPolicy
     {
         if (targets.Count == 0)
         {
-            return ClientMembershipTargetValidationResult.Invalid("targetGroupIds", "Выберите хотя бы одну группу.");
+            return ClientMembershipTargetValidationResult.Invalid("targetGroupIds", global::GymCrm.Application.UserFacingText.ClientMembershipText.ClientMembershipTargetPolicyLine63e59186fa);
         }
 
         if (targets.Count > MaxTargetCount)
         {
-            return ClientMembershipTargetValidationResult.Invalid("targetGroupIds", "Можно выбрать не больше 5 групп.");
+            return ClientMembershipTargetValidationResult.Invalid("targetGroupIds", global::GymCrm.Application.UserFacingText.ClientMembershipText.ClientMembershipTargetPolicyLine686a88c317);
         }
 
         if (behaviorKind == MembershipBehaviorKind.SingleVisit && targets.Count != 1)
         {
-            return ClientMembershipTargetValidationResult.Invalid("targetGroupIds", "Разовое посещение действует только в одной группе.");
+            return ClientMembershipTargetValidationResult.Invalid("targetGroupIds", global::GymCrm.Application.UserFacingText.ClientMembershipText.ClientMembershipTargetPolicyLine73def85203);
         }
 
         var duplicate = targets
@@ -81,7 +81,7 @@ public static class ClientMembershipTargetPolicy
             var position = FindIndex(targets, target => target.GroupId == duplicate.Key);
             return ClientMembershipTargetValidationResult.Invalid(
                 position >= 0 ? $"targetGroupIds[{position}]" : "targetGroupIds",
-                "Группа уже выбрана.");
+                global::GymCrm.Application.UserFacingText.ClientMembershipText.ClientMembershipTargetPolicyLine84fec81fab);
         }
 
         var branchId = targets[0].BranchId;
@@ -90,7 +90,7 @@ public static class ClientMembershipTargetPolicy
         {
             return ClientMembershipTargetValidationResult.Invalid(
                 $"targetGroupIds[{crossBranchIndex}]",
-                "Все группы абонемента должны быть в одном филиале.");
+                global::GymCrm.Application.UserFacingText.ClientMembershipText.ClientMembershipTargetPolicyLine93ff3ce397);
         }
 
         return ClientMembershipTargetValidationResult.Valid();

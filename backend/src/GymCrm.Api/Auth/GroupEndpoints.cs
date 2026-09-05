@@ -766,17 +766,17 @@ internal static class GroupEndpoints
     {
         return TypedResults.Problem(new HttpValidationProblemDetails(new Dictionary<string, string[]>
         {
-            ["isActive"] = ["Нельзя отключить группу, пока в ней есть действующие или будущие абонементы."]
+            ["isActive"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine769Fb0d6e84]
         })
         {
             Status = StatusCodes.Status409Conflict,
             Type = "group-active-memberships",
-            Title = "Группа используется в абонементах",
-            Detail = "Сначала перенесите или исправьте адресность действующих и будущих абонементов этой группы.",
+            Title = global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine774A5a49f77,
+            Detail = global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine775Ffd3df9e,
             Extensions =
             {
                 ["code"] = "group-active-memberships",
-                ["recovery"] = "Откройте карточки клиентов из списка и перенесите абонементы на другую группу либо дождитесь окончания срока действия.",
+                ["recovery"] = global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine7797157135b,
                 ["affectedMemberships"] = blockingMemberships
             }
         });
@@ -973,13 +973,13 @@ internal static class GroupEndpoints
         var series = request.InitialLessonSeries;
         if (series?.Slots is null || series.Slots.Count == 0)
         {
-            errors["initialLessonSeries.slots"] = ["Initial lesson series must include at least one slot."];
+            errors["initialLessonSeries.slots"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine9760e729b66];
         }
 
         var startsOn = ParseGroupSeriesDate(series?.StartsOn);
         if (!startsOn.HasValue)
         {
-            errors["initialLessonSeries.startsOn"] = ["startsOn должен быть в формате yyyy-MM-dd."];
+            errors["initialLessonSeries.startsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine9822f1189ff];
         }
 
         DateOnly? endsOn = null;
@@ -988,13 +988,13 @@ internal static class GroupEndpoints
             endsOn = ParseGroupSeriesDate(series.EndsOn);
             if (!endsOn.HasValue)
             {
-                errors["initialLessonSeries.endsOn"] = ["endsOn должен быть в формате yyyy-MM-dd."];
+                errors["initialLessonSeries.endsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine991Ebe48b29];
             }
         }
 
         if (startsOn.HasValue && endsOn.HasValue && endsOn.Value < startsOn.Value)
         {
-            errors["initialLessonSeries.endsOn"] = ["endsOn должен быть не раньше startsOn."];
+            errors["initialLessonSeries.endsOn"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine9976ea9f71c];
         }
 
         var slots = series?.Slots?.ToArray() ?? [];
@@ -1004,12 +1004,12 @@ internal static class GroupEndpoints
             var prefix = $"initialLessonSeries.slots[{index}]";
             if (slot.IsoWeekday is null or < 1 or > 7)
             {
-                errors[$"{prefix}.isoWeekday"] = ["isoWeekday должен быть от 1 до 7."];
+                errors[$"{prefix}.isoWeekday"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine100703b7e917];
             }
 
             if (GroupRequestValidator.ParseTrainingStartTime(slot.StartTime) is null)
             {
-                errors[$"{prefix}.startTime"] = ["startTime должен быть в формате HH:mm."];
+                errors[$"{prefix}.startTime"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine10129828a59b];
             }
 
             if (slot.DurationMinutes is null or < GroupApiConstants.MinDurationMinutes or > GroupApiConstants.MaxDurationMinutes)
@@ -1058,12 +1058,12 @@ internal static class GroupEndpoints
                 .ToArrayAsync(cancellationToken);
             foreach (var missingHallId in hallIds.Except(hallBranchIds.Select(hall => hall.Id)))
             {
-                errors[$"initialLessonSeries.slots.hallId.{missingHallId:D}"] = ["Зал не найден."];
+                errors[$"initialLessonSeries.slots.hallId.{missingHallId:D}"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine10615d2885e5];
             }
 
             if (hallBranchIds.Any(hall => hall.BranchId != normalizedRequest.BranchId!.Value))
             {
-                errors["initialLessonSeries.slots.hallId"] = ["Все залы расписания должны принадлежать филиалу группы."];
+                errors["initialLessonSeries.slots.hallId"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine10668874f5c8];
             }
 
             foreach (var group in slots
@@ -1075,7 +1075,7 @@ internal static class GroupEndpoints
                                  GroupRequestValidator.ParseTrainingStartTime(pair.right.StartTime)!.Value,
                                  pair.right.DurationMinutes!.Value))))
             {
-                errors["initialLessonSeries.slots"] = [$"Slots for ISO weekday {group.Key} overlap."];
+                errors["initialLessonSeries.slots"] = [global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine1078660b92f9(group.Key)];
             }
         }
 
@@ -1127,7 +1127,7 @@ internal static class GroupEndpoints
         return TypedResults.Problem(new Microsoft.AspNetCore.Mvc.ProblemDetails
         {
             Type = $"/problems/{code}",
-            Title = "Group preview token is not valid for this mutation.",
+            Title = global::GymCrm.Api.UserFacingText.BE5GroupsText.GroupEndpointsLine1130C1ec3b04,
             Status = statusCode,
             Extensions =
             {

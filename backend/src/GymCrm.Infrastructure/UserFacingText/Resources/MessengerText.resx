@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ClientMessengerServiceLine115031477b7" xml:space="preserve">
+    <value>Имя клиентского Telegram-бота не настроено. </value>
+  </data>
+  <data name="ClientMessengerServiceLine11631ddcfb7" xml:space="preserve">
+    <value>Укажите ClientTelegram__BotUsername в формате gym_client_bot </value>
+  </data>
+  <data name="ClientMessengerServiceLine1173f51de60" xml:space="preserve">
+    <value>или настройте ClientTelegram__BotToken.</value>
+  </data>
+  <data name="ClientMessengerServiceLine12860160b1c" xml:space="preserve">
+    <value>Telegram уже подключен к карточке клиента.</value>
+  </data>
+  <data name="ClientMessengerServiceLine267604d2663" xml:space="preserve">
+    <value>Клиентский Telegram-бот не настроен.</value>
+  </data>
+  <data name="ClientMessengerServiceLine2751f021fc3" xml:space="preserve">
+    <value>Telegram не ответил вовремя.</value>
+  </data>
+  <data name="ClientMessengerServiceLine731a2756241" xml:space="preserve">
+    <value>Введите текст сообщения.</value>
+  </data>
+  <data name="ClientMessengerServiceLine735972050d1" xml:space="preserve">
+    <value>Сообщение не должно превышать {0} символов.</value>
+  </data>
+  <data name="ClientMessengerServiceLine740b39d76fa" xml:space="preserve">
+    <value>Ключ идемпотентности слишком длинный.</value>
+  </data>
+  <data name="ClientMessengerServiceLine78575463f01" xml:space="preserve">
+    <value>Не удалось отправить сообщение в Telegram.</value>
+  </data>
+</root>
