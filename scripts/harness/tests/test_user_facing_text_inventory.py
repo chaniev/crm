@@ -26,8 +26,8 @@ class UserFacingTextInventoryTests(unittest.TestCase):
             "dfe9501775ba9e7ffdb4cf320b585ff82aabb72d",
             index["source_commit"],
         )
-        self.assertEqual(2760, index["summary"]["entry_count"])
-        self.assertEqual(3159, index["summary"]["occurrence_count"])
+        self.assertEqual(2762, index["summary"]["entry_count"])
+        self.assertEqual(3161, index["summary"]["occurrence_count"])
         self.assertEqual(191, index["summary"]["cross_owner_duplicate_groups"])
         self.assertEqual(0, index["summary"]["proposed_allowlist_entries"])
         valid_categories = set(index["valid_categories"])

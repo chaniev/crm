@@ -19,12 +19,12 @@
   },
   "safety": "Ambiguous static literals are classified as resource candidates and never auto-allowlisted.",
   "summary": {
-    "entry_count": 2760,
-    "occurrence_count": 3159,
+    "entry_count": 2762,
+    "occurrence_count": 3161,
     "by_category": {
       "resource": 2348,
       "backend-owned propagated text": 0,
-      "dynamic user/domain value": 56,
+      "dynamic user/domain value": 58,
       "machine contract": 186,
       "telemetry-only": 2,
       "test fixture": 168,
@@ -60,10 +60,10 @@
       "FE-8-client-messenger-media": 65,
       "FE-9-attention": 41,
       "existing-resources": 432,
-      "scanner-exceptions": 223
+      "scanner-exceptions": 225
     },
     "cross_owner_duplicate_groups": 191,
-    "classified_exception_candidates": 178,
+    "classified_exception_candidates": 180,
     "proposed_allowlist_entries": 0,
     "cyrillic_resource_candidates": 1961,
     "non_cyrillic_resource_candidates": 183
@@ -413,10 +413,10 @@
     {
       "slice": "scanner-exceptions",
       "path": "scripts/harness/config/user-facing-text-inventory-index/scanner-exceptions.json",
-      "entry_count": 223,
-      "occurrence_count": 247,
+      "entry_count": 225,
+      "occurrence_count": 249,
       "by_category": {
-        "dynamic user/domain value": 55,
+        "dynamic user/domain value": 57,
         "test fixture": 168
       },
       "resource_candidate_entries": 0,

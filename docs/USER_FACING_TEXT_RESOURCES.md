@@ -21,11 +21,16 @@ reason. A reviewer must not move unresolved visible copy into the allowlist.
 
 ## Baseline result
 
-The generator recorded 2,760 unique path/fingerprint/category entries and
-3,159 occurrences. Existing resources account for 432 entries. Outside that
+The generator recorded 2,762 unique path/fingerprint/category entries and
+3,161 occurrences. Existing resources account for 432 entries. Outside that
 boundary it found 1,961 Cyrillic and 183 non-Cyrillic `resource` candidate
-occurrences. The inventory also records 178 classified Cyrillic exception
-candidates: 123 component-catalog/test fixtures and 55 seeded domain values.
+occurrences. The inventory also records 180 classified Cyrillic exception
+candidates: 123 component-catalog/test fixtures and 57 seeded domain values.
+
+The accepted baseline was extended by two exact persisted catalog-name values
+found when implementation widened backend coverage from `GymCrm.Api` to every
+backend assembly. Both are domain data (`Name` and `NormalizedName`), not copy;
+the final inventory generator now scans the complete backend source tree.
 
 The accepted allowlist is empty. Known fixtures, seeded domain values,
 machine contracts and telemetry must be recognized from syntax and source

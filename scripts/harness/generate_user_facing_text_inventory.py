@@ -36,9 +36,11 @@ def digest(value: str) -> str:
 
 
 def owner_and_slice(path: str) -> tuple[str, str]:
-    if path.startswith("frontend/src/lib/resources"):
+    if path.startswith(("frontend/src/lib/resources", "frontend/src/resources/")):
         return "frontend/shared-resources", "existing-resources"
-    if path.endswith(".resx") or (path.startswith("backend/") and Path(path).stem.endswith("Resources")):
+    if path.endswith(".resx") or (path.startswith("backend/") and (
+        Path(path).stem.endswith("Resources") or "/UserFacingText/" in path
+    )):
         return "backend/api-resources", "existing-resources"
     if path.startswith("frontend/src/app/") or path.endswith("frontend/src/App.tsx") or "/bootstrap/" in path:
         return "frontend/app-shell-auth", "FE-1-app-shell-auth"
@@ -115,14 +117,22 @@ def category_reason(finding: dict[str, Any]) -> tuple[str, str]:
     path = finding["path"]
     value = finding["value"]
     context = json.dumps(finding.get("context", {}), ensure_ascii=False)
-    if path.endswith(".resx") or path == "frontend/src/lib/resources.ts":
+    if path.endswith(".resx") or path == "frontend/src/lib/resources.ts" or path.startswith(
+        "frontend/src/resources/"
+    ):
         return "resource", "Already stored in the owning layer resource boundary."
     if path.startswith("bot/src/gym_crm_bot/resources/"):
         if path.endswith("callbacks.py"):
             return "machine contract", "Telegram callback payload/protocol identifier."
         return "resource", "Already stored in gym_crm_bot.resources."
-    if path.startswith("backend/") and Path(path).stem.endswith("Resources"):
+    if path.startswith("backend/") and (
+        Path(path).stem.endswith("Resources") or "/UserFacingText/" in path
+    ):
         return "machine contract", "Typed resource helper/key, not rendered copy by itself."
+    if "/Persistence/Migrations/" in path:
+        return "persisted historical description", "Generated migration snapshot preserves retained database history."
+    if path.endswith("MembershipCatalogItemConfiguration.cs") and CYRILLIC.search(value):
+        return "dynamic user/domain value", "Persisted system catalog name is domain data, not presentation copy."
     if path.startswith("frontend/src/catalog/"):
         return "test fixture", "Component-catalog demonstration copy is excluded from the production bundle."
     if "/SeedData/Test" in path or path.endswith("TestDataSeeder.cs"):
@@ -336,7 +346,7 @@ def main() -> None:
         text=True,
     )
     findings: list[dict[str, Any]] = json.loads(node.stdout)
-    for path in sorted((root / "backend/src/GymCrm.Api").rglob("*")):
+    for path in sorted((root / "backend/src").rglob("*")):
         if path.suffix == ".cs" and not any(part in {"bin", "obj"} for part in path.parts):
             findings.extend(extract_csharp(path, root))
         elif path.suffix == ".resx":
@@ -439,7 +449,7 @@ def main() -> None:
         "valid_categories": list(CATEGORIES),
         "generation_scope": {
             "frontend": "TypeScript AST: Cyrillic literals, visible-context literals in any language, and existing resources; tests excluded.",
-            "backend": "Comment-aware C# lexical candidate extraction plus all .resx values; scanner slice must replace lexical extraction with Roslyn syntax parsing.",
+            "backend": "All backend assemblies: comment-aware C# lexical candidate extraction plus every .resx value; enforcement uses Roslyn syntax parsing.",
             "bot": "Python AST: Cyrillic literals and existing resource-module literals; docstrings/tests excluded.",
         },
         "safety": "Ambiguous static literals are classified as resource candidates and never auto-allowlisted.",
