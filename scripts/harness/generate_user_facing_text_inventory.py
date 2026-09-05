@@ -133,6 +133,8 @@ def category_reason(finding: dict[str, Any]) -> tuple[str, str]:
         return "persisted historical description", "Generated migration snapshot preserves retained database history."
     if path.endswith("MembershipCatalogItemConfiguration.cs") and CYRILLIC.search(value):
         return "dynamic user/domain value", "Persisted system catalog name is domain data, not presentation copy."
+    if "/Persistence/Configurations/" in path:
+        return "machine contract", "Database constraint, SQL, or persisted mapping value."
     if path.startswith("frontend/src/catalog/"):
         return "test fixture", "Component-catalog demonstration copy is excluded from the production bundle."
     if "/SeedData/Test" in path or path.endswith("TestDataSeeder.cs"):
@@ -143,9 +145,20 @@ def category_reason(finding: dict[str, Any]) -> tuple[str, str]:
         return "dynamic user/domain value", "Configurable bootstrap identity becomes persisted user/domain data."
     if re.search(r"logger|console\.|Log(?:Information|Warning|Error|Debug)", context, re.I):
         return "telemetry-only", "Operational diagnostic text is not rendered to the user."
+    if "StableError(" in context or path.endswith("TechnicalLoggingStartupExtensions.cs"):
+        return "telemetry-only", "Stable command or logging diagnostic is not rendered as CRM copy."
+    if path.endswith("ClientMembershipEntitlementResolver.cs") and value.startswith(
+        "Multiple membership entitlements matched"
+    ):
+        return "telemetry-only", "Structured invariant diagnostic is emitted only through ILogger."
     if finding.get("context", {}).get("kind") == "module-specifier":
         return "machine contract", "Module import/export specifier."
-    if MACHINE_VALUE.match(value) and not CYRILLIC.search(value):
+    without_placeholders = re.sub(r"\{[^{}]*\}", "", value)
+    if not CYRILLIC.search(value) and (
+        MACHINE_VALUE.match(value)
+        or (not any(character.isspace() for character in value))
+        or re.fullmatch(r"[A-Za-z0-9_.\[\]/:%=\"'<>+-]+", without_placeholders)
+    ):
         return "machine contract", "Identifier, route, code, enum, format, or protocol value."
     return "resource", "Conservative visible-copy candidate; extraction requires exact characterization."
 

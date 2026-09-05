@@ -99,8 +99,10 @@ public static partial class UserFacingTextScanner
         if (invocation is null) return false;
         var target = invocation.Expression.ToString();
         return target.StartsWith("Console.", StringComparison.Ordinal)
-            || target.Contains("Logger.", StringComparison.Ordinal)
-            || target.Contains("Log", StringComparison.Ordinal);
+            || target.StartsWith("logger.", StringComparison.OrdinalIgnoreCase)
+            || target.Contains(".Logger.", StringComparison.OrdinalIgnoreCase)
+            || new[] { "LogInformation", "LogWarning", "LogError", "LogDebug", "LogTrace" }
+                .Any(target.Contains);
     }
 
     private static bool IsGeneratedPersistenceSource(SyntaxNode root) =>

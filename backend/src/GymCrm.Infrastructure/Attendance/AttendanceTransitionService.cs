@@ -243,7 +243,7 @@ internal sealed class AttendanceTransitionService(
                 ActionType = "AttendanceTransitionRowResolved",
                 EntityType = "AttendanceTransitionReportItem",
                 EntityId = item.Id.ToString("D"),
-                Description = "Attendance transition row was mapped to an exact lesson occurrence.",
+                Description = global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.AttendanceTransitionServiceLine2466f693631,
                 Source = "Maintenance",
                 NewValueJson = JsonSerializer.Serialize(new
                 {
@@ -411,7 +411,7 @@ internal sealed class AttendanceTransitionService(
             ActionType = "AttendanceTransitionTrainerSubstitutionResolved",
             EntityType = "AttendanceTransitionReportItem",
             EntityId = item.Id.ToString("D"),
-            Description = "Trainer substitution transition report item was mapped to an exact lesson occurrence.",
+            Description = global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.AttendanceTransitionServiceLine414C059f91d,
             Source = "Maintenance",
             NewValueJson = JsonSerializer.Serialize(new
             {
@@ -626,7 +626,7 @@ internal sealed class AttendanceTransitionService(
                     ActionType = "AttendanceTransitionTrainerSubstitutionMapped",
                     EntityType = "LessonOccurrenceTrainerSubstitution",
                     EntityId = occurrenceId.ToString("D"),
-                    Description = "Legacy trainer substitution was mapped to an exact lesson occurrence.",
+                    Description = global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.AttendanceTransitionServiceLine629Feab3b2e,
                     Source = "Maintenance",
                     NewValueJson = JsonSerializer.Serialize(new
                     {
@@ -938,7 +938,7 @@ internal sealed class AttendanceTransitionService(
             ActionType = "AttendanceTransitionLegacyOccurrenceCreated",
             EntityType = "LessonOccurrence",
             EntityId = occurrence.Id.ToString("D"),
-            Description = "Legacy attendance occurrence was created by transition repair.",
+            Description = global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.AttendanceTransitionServiceLine941B4977fca,
             Source = "Maintenance",
             NewValueJson = JsonSerializer.Serialize(new
             {

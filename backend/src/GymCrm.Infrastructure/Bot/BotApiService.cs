@@ -829,7 +829,7 @@ internal sealed class BotApiService(
         {
             return BotApiResult<BotAccessDeniedAuditResponse>.Validation(new Dictionary<string, string[]>
             {
-                ["actionCode"] = ["Укажите код запрещенного действия."]
+                ["actionCode"] = [global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.BotApiServiceLine832C2fbee88]
             });
         }
 

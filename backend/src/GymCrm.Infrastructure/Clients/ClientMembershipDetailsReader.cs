@@ -31,7 +31,7 @@ internal sealed class ClientMembershipDetailsReader(GymCrmDbContext dbContext)
         CancellationToken cancellationToken)
     {
         return await GetAsync(clientId, cancellationToken)
-            ?? throw new InvalidOperationException($"Client membership details for '{clientId}' were not found.");
+            ?? throw new InvalidOperationException(global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMembershipDetailsReaderLine347880ea76(clientId));
     }
 
     public async Task<ClientMembershipDetailsResult> LoadRequiredForMembershipAsync(
@@ -41,7 +41,7 @@ internal sealed class ClientMembershipDetailsReader(GymCrmDbContext dbContext)
     {
         var memberships = await LoadMembershipsAsync(clientId, cancellationToken);
         return memberships.Count == 0
-            ? throw new InvalidOperationException($"Client membership details for '{clientId}' were not found.")
+            ? throw new InvalidOperationException(global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMembershipDetailsReaderLine447880ea76(clientId))
             : CreateDetails(clientId, memberships, membershipId, saleId: null);
     }
 
@@ -52,7 +52,7 @@ internal sealed class ClientMembershipDetailsReader(GymCrmDbContext dbContext)
     {
         var memberships = await LoadMembershipsAsync(clientId, cancellationToken);
         return memberships.Count == 0
-            ? throw new InvalidOperationException($"Client membership details for '{clientId}' were not found.")
+            ? throw new InvalidOperationException(global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMembershipDetailsReaderLine557880ea76(clientId))
             : CreateDetails(clientId, memberships, membershipId: null, saleId: saleId);
     }
 

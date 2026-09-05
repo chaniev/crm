@@ -165,7 +165,7 @@ internal sealed class ClientMessengerService(
             ClientMessengerAuditConstants.LinkTokenCreatedAction,
             ClientMessengerAuditConstants.EntityType,
             clientId.ToString(),
-            $"Пользователь '{currentUser.Login}' создал ссылку подключения Telegram для клиента.",
+            global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMessengerServiceLine16872d9a2ed(currentUser.Login),
             Source: "Web",
             MessengerPlatform: ClientMessengerAuditConstants.TelegramPlatform), cancellationToken);
 
@@ -300,7 +300,7 @@ internal sealed class ClientMessengerService(
             ClientMessengerAuditConstants.OutboundMessageSentAction,
             ClientMessengerAuditConstants.EntityType,
             clientId.ToString(),
-            $"Пользователь '{currentUser.Login}' отправил сообщение клиенту через Telegram.",
+            global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMessengerServiceLine30366461baa(currentUser.Login),
             Source: "Web",
             MessengerPlatform: ClientMessengerAuditConstants.TelegramPlatform,
             MessengerPlatformUserIdHash: account.PlatformUserIdHash), cancellationToken);
@@ -365,7 +365,7 @@ internal sealed class ClientMessengerService(
             ClientMessengerAuditConstants.ConversationViewedAction,
             ClientMessengerAuditConstants.EntityType,
             clientId.ToString(),
-            $"Пользователь '{currentUser.Login}' открыл переписку клиента в Telegram.",
+            global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMessengerServiceLine368A1dab490(currentUser.Login),
             Source: "Web",
             MessengerPlatform: ClientMessengerAuditConstants.TelegramPlatform), cancellationToken);
 
@@ -532,7 +532,7 @@ internal sealed class ClientMessengerService(
             ClientMessengerAuditConstants.AccountLinkedAction,
             ClientMessengerAuditConstants.EntityType,
             token.ClientId.ToString(),
-            "Клиент подключил Telegram к карточке CRM.",
+            global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMessengerServiceLine5350e41c90d,
             Source: "Telegram",
             MessengerPlatform: ClientMessengerAuditConstants.TelegramPlatform,
             MessengerPlatformUserIdHash: platformUserIdHash), cancellationToken);
@@ -712,12 +712,12 @@ internal sealed class ClientMessengerService(
         var errors = new Dictionary<string, string[]>();
         if (skip is < 0)
         {
-            errors["skip"] = ["Skip cannot be negative."];
+            errors["skip"] = [global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMessengerServiceLine7159ac7fc45];
         }
 
         if (take is <= 0 or > MaxMessageTake)
         {
-            errors["take"] = [$"Take must be between 1 and {MaxMessageTake}."];
+            errors["take"] = [global::GymCrm.Infrastructure.UserFacingText.InfrastructureOperationalText.ClientMessengerServiceLine720626a2373(MaxMessageTake)];
         }
 
         return errors;
