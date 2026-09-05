@@ -1798,3 +1798,19 @@
 - planned_in_place: TASK-166
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-166-case-insensitive-login.plan.md
+
+# 2026-09-05 — TASK-165 user-facing text resources
+
+- completed: TASK-165 on `refactor/TASK-165-user-facing-text-resources`.
+- inventory: accepted baseline 2,762 entries / 3,161 occurrences / 191
+  duplicate groups; final 2,809 entries / 3,235 occurrences with zero
+  Cyrillic and zero non-Cyrillic resource candidates outside resources.
+- implementation: typed frontend feature resources, producing-assembly backend
+  `.resx` helpers and bot presentation modules; protocol values, telemetry,
+  fixtures, dynamic domain data and persisted history remain classified
+  outside the resource boundary.
+- enforcement: TypeScript, Roslyn and Python AST guards with exact empty
+  allowlists are wired into the canonical frontend/backend/bot matrices.
+- validation: full `verify_change.py --base origin/main --task-id TASK-165`
+  matrix passed, including requirements, harness, backend, frontend, bot and
+  Compose configuration checks.

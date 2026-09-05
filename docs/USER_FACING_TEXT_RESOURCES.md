@@ -141,10 +141,10 @@ codes.
     outside resources, require zero stale allowlist entries, run the guard over
     all production trees, and then run the full task verification contract.
 
-Slices 2-12 are independent only after gate fixtures and the relevant
-characterization are present. Cross-owner duplicate decisions are resolved
-before either affected slice moves the literal. TASK-165 remains open until
-all slices and closure evidence are integrated.
+Slices 2-12 were independent only after gate fixtures and the relevant
+characterization were present. Cross-owner duplicate decisions were resolved
+before either affected slice moved the literal. All slices and closure evidence
+are now integrated.
 
 ## Implemented closure
 
@@ -158,7 +158,7 @@ explicit classifications.
 
 The final review package is stored in
 `scripts/harness/config/user-facing-text-final-index.json` and its shard
-directory. It records 3,235 occurrences and has zero Cyrillic and zero
+directory. It records 2,809 entries and 3,235 occurrences and has zero Cyrillic and zero
 non-Cyrillic `resource` candidates outside resource boundaries. Both the
 reviewed baseline and final allowlists are empty. TypeScript, Roslyn and Python
 AST guards are part of the canonical frontend, backend and bot check matrices.

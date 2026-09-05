@@ -1,7 +1,28 @@
 # TASK-165: Вынести пользовательские тексты в файлы ресурсов
 
 ## Status
-implementation
+done
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-09-05
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-165-user-facing-text-resources.plan.md
+- implementation_branch: refactor/TASK-165-user-facing-text-resources
+- verification_contract: /backlog/done/TASK-165-user-facing-text-resources-verification-contract.json
+
+## Implementation progress
+
+- 2026-09-05 — accepted inventory baseline recorded 2,762 entries and 3,161
+  occurrences across 25 bounded layer/feature slices, 191 reviewed duplicate
+  groups and an empty exact allowlist.
+- 2026-09-05 — extracted frontend, backend and bot copy into typed feature
+  modules or producing-assembly resources; machine contracts, telemetry,
+  fixtures, dynamic values and persisted history retained their original
+  ownership.
+- 2026-09-05 — final inventory recorded 2,809 entries and 3,235 occurrences,
+  with zero Cyrillic and zero non-Cyrillic user-facing resource candidates
+  outside resource boundaries. TypeScript, Roslyn and Python AST guards are
+  wired into the canonical harness; the full task verification contract passed.
 
 ## Requirements
 - REQ-NFR-007 — implements
@@ -57,18 +78,18 @@ Hardcoded пользовательские тексты затрудняют с�
 - Исторические persisted descriptions не мигрируются без отдельного data plan.
 
 ## Acceptance criteria
-- [ ] Inventory покрывает frontend, backend и bot и фиксирует владельца каждой категории текста.
-- [ ] Новые и затронутые user-facing строки читаются из layer-appropriate resources.
-- [ ] Machine-readable contracts не замаскированы под локализуемый текст.
-- [ ] Проверка или документированный review gate предотвращает новые неразрешённые user-facing literals.
-- [ ] Representative frontend, API ProblemDetails и bot scenarios показывают прежний смысл и проходят regression tests.
-- [ ] Миграционные slices и исключения имеют явную ownership/traceability запись.
+- [x] Inventory покрывает frontend, backend и bot и фиксирует владельца каждой категории текста.
+- [x] Новые и затронутые user-facing строки читаются из layer-appropriate resources.
+- [x] Machine-readable contracts не замаскированы под локализуемый текст.
+- [x] Проверка или документированный review gate предотвращает новые неразрешённые user-facing literals.
+- [x] Representative frontend, API ProblemDetails и bot scenarios показывают прежний смысл и проходят regression tests.
+- [x] Миграционные slices и исключения имеют явную ownership/traceability запись.
 
 ## Test checklist
-- [ ] Добавить characterization tests для representative frontend, backend и bot copy до переноса.
-- [ ] Запустить canonical validation каждого затронутого producer/consumer слоя.
-- [ ] Проверить scanner/allowlist на истинно пользовательском литерале и на допустимом machine code.
-- [ ] Проверить русский текст, plural/count copy и fallback при отсутствующем resource key.
+- [x] Добавить characterization tests для representative frontend, backend и bot copy до переноса.
+- [x] Запустить canonical validation каждого затронутого producer/consumer слоя.
+- [x] Проверить scanner/allowlist на истинно пользовательском литерале и на допустимом machine code.
+- [x] Проверить русский текст, plural/count copy и fallback при отсутствующем resource key.
 
 ## AI safety
 - Safe for autonomous implementation: no
@@ -97,3 +118,6 @@ Hardcoded пользовательские тексты затрудняют с�
 - 05.09.2026 — product owner accepted all baseline proposals: classifications,
   duplicate defaults, empty allowlist and layer/feature decomposition. Task
   moved to implementation and extraction is authorized within those bounds.
+- 05.09.2026 — all accepted slices completed; final independent inventory has
+  no remaining user-facing resource candidates outside resources, and the
+  repository-wide verification contract passed.

@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-165 Пользовательские тексты в layer-owned resources
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-165-user-facing-text-resources.md
+- source_task: /backlog/done/TASK-165-user-facing-text-resources.md
+- completion: implemented and locally integrated into main on 2026-09-05
 - requirements: REQ-NFR-007 (implements)
 - branch: refactor/TASK-165-user-facing-text-resources
 - readiness: yes — product owner accepted the generated inventory classifications, duplicate defaults, bounded slice decomposition and empty scanner allowlist on 05.09.2026

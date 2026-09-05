@@ -9,6 +9,14 @@
 - ДД.ММ.ГГГГ — REQ-ДОМЕН-NNN — <что изменилось: новая | текст | решение | реализация> (задача <ссылка>)
 ```
 
+## 2026-09-05
+
+- 05.09.2026 — REQ-NFR-007 — полная layer-owned resource migration для
+  frontend, backend и Telegram-бота реализована; финальный inventory имеет
+  ноль user-facing resource-кандидатов вне ресурсов, а AST guards включены в
+  canonical validation (задача
+  [TASK-165](../../backlog/done/TASK-165-user-facing-text-resources.md)).
+
 ## 2026-09-02
 
 - 02.09.2026 — REQ-USR-003 — регистронезависимый вход реализован через
@@ -42,7 +50,7 @@
 - 01.09.2026 — REQ-NFR-007 — текст уточнён: resource migration охватывает все
   отображаемые пользователю статические тексты независимо от языка, завершается
   только после переноса всех выявленных текстов и не меняет их форматирование
-  (задача [TASK-165](../../backlog/implementation/TASK-165-user-facing-text-resources.md)).
+  (задача [TASK-165](../../backlog/done/TASK-165-user-facing-text-resources.md)).
 - 01.09.2026 — REQ-USR-002 — для обычного и конкурентного создания
   case-only дубля закреплена единая field-level ошибка
   «Пользователь с таким логином уже существует.» (уточнение
@@ -58,7 +66,7 @@
 - 30.08.2026 — REQ-NFR-007 — новая принятая карточка обязательного
   layer-owned resource contract для всех user-facing статических текстов;
   реализация отмечена «частично» (задача
-  [TASK-165](../../backlog/implementation/TASK-165-user-facing-text-resources.md)).
+  [TASK-165](../../backlog/done/TASK-165-user-facing-text-resources.md)).
 - 30.08.2026 — REQ-USR-002, REQ-USR-003 — login identity и вход приняты
   регистронезависимыми; реализация переведена в «частично» до безопасного
   uniqueness/retained-database barrier (задача
