@@ -1,0 +1,304 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-09-08T20:05:04.803422+00:00",
+  "repository": "crm-task-171",
+  "profile": "local",
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "55391a41d324c21bf8f621eefc512271f81ea182",
+    "head_tree_sha": "c5b5a3e3b831095fd161827078ede19ef15c8eae",
+    "base_sha": "55391a41d324c21bf8f621eefc512271f81ea182",
+    "merge_base_sha": "55391a41d324c21bf8f621eefc512271f81ea182",
+    "branch": "codex/TASK-171-login-startup-idempotency",
+    "working_tree_dirty": true,
+    "base_error": null
+  },
+  "task_contract": null,
+  "task_id": null,
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/implementation-plans/TASK-171-login-startup-idempotency.plan.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/implementation/TASK-171-login-startup-idempotency.md"
+      ],
+      "source": "untracked"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs",
+    "backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+    "backlog/implementation-plans/TASK-171-login-startup-idempotency.plan.md",
+    "backlog/implementation/TASK-171-login-startup-idempotency.md"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-171-login-startup-idempotency.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-171-login-startup-idempotency.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-171-login-startup-idempotency.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-171-login-startup-idempotency.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:04.875973+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-09-08T20:05:04.915730+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-171-login-startup-idempotency.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-171-login-startup-idempotency.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:04.916542+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.02,
+      "completed_at": "2026-09-08T20:05:04.936446+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-171-login-startup-idempotency.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-171-login-startup-idempotency.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:04.937049+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-09-08T20:05:04.976981+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-171-login-startup-idempotency.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-171-login-startup-idempotency.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:04.977687+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-09-08T20:05:05.054610+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:05.055684+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.621,
+      "completed_at": "2026-09-08T20:05:05.676958+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:05.677873+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.972,
+      "completed_at": "2026-09-08T20:05:07.649529+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:07.650328+00:00",
+      "exit_code": 0,
+      "duration_seconds": 10.096,
+      "completed_at": "2026-09-08T20:05:17.746615+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:17.747979+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.055,
+      "completed_at": "2026-09-08T20:05:18.803483+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:05:18.804252+00:00",
+      "exit_code": 0,
+      "duration_seconds": 105.419,
+      "completed_at": "2026-09-08T20:07:04.222867+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/LoginIdentityStartupExtensions.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-09-08T20:07:04.224678+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.649,
+      "completed_at": "2026-09-08T20:07:06.873828+00:00"
+    }
+  ],
+  "completed_at": "2026-09-08T20:07:06.874550+00:00"
+}

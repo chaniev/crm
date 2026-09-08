@@ -1,4 +1,5 @@
 using GymCrm.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -8,6 +9,7 @@ internal static class LoginIdentityStartupExtensions
 {
     private const string ApplyMigrationsOnStartupConfigurationKey = "Persistence:ApplyMigrationsOnStartup";
     private const string NormalizedLoginKeyColumnMigration = "20260901120000_AddNormalizedLoginKeyColumn";
+    private const string CaseInsensitiveLoginBarrierMigration = "20260901120001_RequireCaseInsensitiveLoginIdentity";
 
     /// <summary>
     /// Runs the login identity upgrade preparation inside the startup migration
@@ -39,9 +41,22 @@ internal static class LoginIdentityStartupExtensions
 
         using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-        var migrator = dbContext.GetInfrastructure().GetRequiredService<IMigrator>();
+        var appliedMigrations = (await dbContext.Database.GetAppliedMigrationsAsync(cancellationToken))
+            .ToHashSet(StringComparer.Ordinal);
 
-        await migrator.MigrateAsync(NormalizedLoginKeyColumnMigration, cancellationToken);
+        // Targeting the intermediate migration after the final barrier is installed
+        // would downgrade it (and any later migrations) on every application restart.
+        if (appliedMigrations.Contains(CaseInsensitiveLoginBarrierMigration))
+        {
+            return;
+        }
+
+        if (!appliedMigrations.Contains(NormalizedLoginKeyColumnMigration))
+        {
+            var migrator = dbContext.GetInfrastructure().GetRequiredService<IMigrator>();
+            await migrator.MigrateAsync(NormalizedLoginKeyColumnMigration, cancellationToken);
+        }
+
         await LoginIdentityBackfill.ReconcileAsync(dbContext, cancellationToken);
 
         logger.LogInformation("Login identity keys are synchronized for the case-insensitive login upgrade.");

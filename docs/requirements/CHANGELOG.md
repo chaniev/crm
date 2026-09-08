@@ -9,6 +9,13 @@
 - ДД.ММ.ГГГГ — REQ-ДОМЕН-NNN — <что изменилось: новая | текст | решение | реализация> (задача <ссылка>)
 ```
 
+## 2026-09-08
+
+- 08.09.2026 — REQ-USR-002, REQ-USR-003 — исправлена подготовка login migration
+  при повторном запуске: установленный уникальный индекс и данные сотрудников
+  сохраняются без downgrade/reapply; добавлены PostgreSQL restart regressions
+  (задача [TASK-171](../../backlog/done/2026-09-08/TASK-171-login-startup-idempotency.md)).
+
 ## 2026-09-05
 
 - 05.09.2026 — REQ-NFR-007 — полная layer-owned resource migration для

@@ -243,6 +243,76 @@ public sealed class CaseInsensitiveLoginPostgreSqlTests
         await AssertIndexAbsentAsync(connectionString, "UX_Users_LoginNormalized");
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData(PreviousMigration)]
+    [InlineData(NormalizedKeyColumnMigration)]
+    public async Task PostgreSql_application_restart_preserves_login_barrier_and_users(string? initialMigration)
+    {
+        await using var postgreSql = await StartContainerAsync("login-identity-restart");
+        var connectionString = postgreSql.GetConnectionString();
+
+        if (initialMigration is not null)
+        {
+            await using var dbContext = new GymCrmDbContext(CreateContextOptions(connectionString));
+            await dbContext.GetInfrastructure().GetRequiredService<IMigrator>().MigrateAsync(initialMigration);
+            await InsertLegacyUserAsync(connectionString, "Coach");
+        }
+
+        await using (var firstApplication = new LoginIdentityPostgreSqlAppFactory(connectionString))
+        {
+            using var client = firstApplication.CreateClient();
+            using var session = await client.GetAsync("/auth/session");
+            Assert.Equal(HttpStatusCode.OK, session.StatusCode);
+        }
+
+        await AssertIndexPresentAsync(connectionString, "UX_Users_LoginNormalized");
+        await AssertIndexAbsentAsync(connectionString, "IX_Users_Login");
+        await AssertColumnNotNullAsync(connectionString);
+        var beforeRestart = await ReadLoginDatabaseStateAsync(connectionString);
+        Assert.Contains(CaseInsensitiveBarrierMigration, beforeRestart.Migrations, StringComparison.Ordinal);
+
+        if (initialMigration is not null)
+        {
+            await using var dbContext = new GymCrmDbContext(CreateContextOptions(connectionString));
+            var coach = await dbContext.Users.SingleAsync(user => user.Login == "Coach");
+            Assert.Equal("coach", coach.LoginNormalized);
+        }
+
+        await using (var secondApplication = new LoginIdentityPostgreSqlAppFactory(connectionString))
+        {
+            using var client = secondApplication.CreateClient();
+            using var session = await client.GetAsync("/auth/session");
+            Assert.Equal(HttpStatusCode.OK, session.StatusCode);
+        }
+
+        var afterRestart = await ReadLoginDatabaseStateAsync(connectionString);
+        // An unchanged final schema alone would hide a downgrade followed by reapplication.
+        // PostgreSQL assigns a new OID when an index is dropped and recreated.
+        Assert.Equal(beforeRestart.IndexId, afterRestart.IndexId);
+        Assert.Equal(beforeRestart.Users, afterRestart.Users);
+        Assert.Equal(beforeRestart.Migrations, afterRestart.Migrations);
+        await AssertIndexAbsentAsync(connectionString, "IX_Users_Login");
+        await AssertColumnNotNullAsync(connectionString);
+    }
+
+    private static async Task<(long IndexId, string Users, string Migrations)> ReadLoginDatabaseStateAsync(
+        string connectionString)
+    {
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT 'public."UX_Users_LoginNormalized"'::regclass::oid::bigint,
+                (SELECT jsonb_agg(to_jsonb(u) ORDER BY u."Id")::text FROM "Users" u),
+                (SELECT jsonb_agg(to_jsonb(m) ORDER BY m."MigrationId")::text
+                 FROM "__EFMigrationsHistory" m)
+            """;
+        await using var reader = await command.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync());
+        return (reader.GetInt64(0), reader.GetString(1), reader.GetString(2));
+    }
+
     private static async Task<PostgreSqlContainer> StartContainerAsync(string nameSuffix)
     {
         var postgreSql = new PostgreSqlBuilder("postgres:17-alpine")
