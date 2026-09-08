@@ -1,5 +1,7 @@
+# syntax=docker/dockerfile:1.7
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
+ARG TARGETPLATFORM
 
 COPY *.slnx ./
 COPY Directory.Build.props ./
@@ -7,10 +9,15 @@ COPY src/GymCrm.Api/GymCrm.Api.csproj src/GymCrm.Api/
 COPY src/GymCrm.Application/GymCrm.Application.csproj src/GymCrm.Application/
 COPY src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj src/GymCrm.Infrastructure/
 COPY src/GymCrm.Domain/GymCrm.Domain.csproj src/GymCrm.Domain/
-RUN dotnet restore src/GymCrm.Api/GymCrm.Api.csproj
+RUN --mount=type=cache,target=/root/.nuget/packages,id=nuget-${TARGETPLATFORM},sharing=locked \
+    dotnet restore src/GymCrm.Api/GymCrm.Api.csproj
 
+# Restore again when the publish layer is invalidated: external layer caches
+# do not carry cache-mount contents if the persistent builder was recreated.
 COPY . .
-RUN dotnet publish src/GymCrm.Api/GymCrm.Api.csproj -c Release -o /app/publish --no-restore /p:UseAppHost=false
+RUN --mount=type=cache,target=/root/.nuget/packages,id=nuget-${TARGETPLATFORM},sharing=locked \
+    dotnet restore src/GymCrm.Api/GymCrm.Api.csproj \
+    && dotnet publish src/GymCrm.Api/GymCrm.Api.csproj -c Release -o /app/publish --no-restore /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 RUN apt-get update \

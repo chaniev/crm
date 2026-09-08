@@ -9,6 +9,10 @@
 ```bash
 IMAGE_TAG=2026-05-15 ./deploy/build-images.sh
 IMAGE_TAG=2026-05-15 ./deploy/export-images.sh
+
+# (опционально) Кэш сборки вне репозитория.
+export DEPLOY_BUILD_CACHE_ROOT=/tmp/gym-crm-build-cache
+IMAGE_TAG=2026-05-15 ./deploy/build-images.sh
 ```
 
 Если сервер работает на `linux/amd64`, а build-машина на другой архитектуре, задайте платформу явно:
@@ -16,7 +20,29 @@ IMAGE_TAG=2026-05-15 ./deploy/export-images.sh
 ```bash
 IMAGE_PLATFORM=linux/amd64 IMAGE_TAG=2026-05-15 ./deploy/build-images.sh
 IMAGE_PLATFORM=linux/amd64 IMAGE_TAG=2026-05-15 ./deploy/export-images.sh
+
+# persist BuildKit и NuGet cache вне Git на build-хосте
+export DEPLOY_BUILD_CACHE_ROOT=/tmp/gym-crm-build-cache
+export IMAGE_PLATFORM=linux/amd64 IMAGE_TAG=2026-05-15
+./deploy/build-images.sh
 ```
+
+Если `TMPDIR` не задан, `build-images.sh` пишет cache в `/tmp/gym-crm-release-build-cache`.
+По умолчанию cache для сборок находится в `${TMPDIR:-/tmp}/gym-crm-release-build-cache`.
+Каталог содержит внешний кеш слоёв с разделением по платформе и сервису.
+NuGet packages сохраняются отдельно в cache mount постоянного BuildKit builder
+с разделением по целевой платформе. После пересоздания builder отсутствующие
+packages восстанавливаются из штатных источников перед publish, даже если
+restore layer пришёл из внешнего кеша. Для подготовки кеша нужен Python 3.
+Каталог кеша должен находиться вне checkout; запятые, переводы строк и `$`
+в пути не поддерживаются. Сборки с общим cache root выполняются по одной.
+При ошибке сохраняются предыдущий кеш и незавершённый export для диагностики.
+
+Для корректного `cache_to` BuildKit используется изолированный builder
+`docker-container` (`gym-crm-release-builder` по умолчанию). Если build-окружение
+не поддерживает `docker-container`, сборка завершается с ошибкой до выпуска
+артефактов. Builder можно выбрать через `GYM_CRM_BUILDKIT_BUILDER_NAME`;
+скрипт не меняет глобальный выбранный builder и не удаляет его при завершении.
 
 Результат появится в `deploy/dist/`:
 
