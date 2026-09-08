@@ -1,7 +1,7 @@
 # TASK-170 release build cache plan
 
 ## Metadata
-- source_task: backlog/implementation/TASK-170-release-build-cache.md
+- source_task: backlog/done/2026-09-08/TASK-170-release-build-cache.md
 - branch: codex/release-20260908
 - readiness: yes
 - requirements: none — application behavior and production contracts are preserved.
@@ -14,7 +14,7 @@
 Keep deploy/build-images.sh as the build entry point and existing Compose build definitions as the source of contexts and arguments. Use external per-platform/per-service BuildKit caches with distinct pending export and atomic promotion after success. NuGet packages persist across restore and publish using a platform-scoped BuildKit cache mount. Network sources fill cache misses normally. Do not change runtime wiring, lockfile/audit enforcement, image export or server activation. Preserve prior valid cache on build failure. No cache cleanup is part of release cleanup.
 
 ## Decision evidence
-- [Source task and authorized release scope](/backlog/implementation/TASK-170-release-build-cache.md) explains behavior preservation.
+- [Source task and authorized release scope](/backlog/done/2026-09-08/TASK-170-release-build-cache.md) explains behavior preservation.
 - [Existing release cache contract](/.agents/skills/deploy-project/references/remote-release-workflow.md) requires external BuildKit/NuGet cache and project-script integration before release.
 
 ## Implementation and validation
@@ -23,3 +23,6 @@ Keep deploy/build-images.sh as the build entry point and existing Compose build 
 3. Retain original application rollback point; cache failure aborts build without touching the stand. Revert the build-only commit if needed; no database rollback applies to this change.
 4. Commit validated changes, integrate locally into main, create a fresh clean exact-commit release checkout and run required release validation/build there.
 5. Record evidence and move completed card/plan together to dated done directory.
+
+## Completion
+All implementation and validation steps completed. Integrated code: c2b6cdf90d9fe4b1fe633c22e7a575a48c72ab50, 2026-09-08. Initial/repeat build acceptance and remote activation evidence: [final release report](/docs/LOCAL_REMOTE_STAND_DIFF_2026-09-09.md).

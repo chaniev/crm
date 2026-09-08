@@ -1,7 +1,11 @@
 # TASK-170: Persistent cache for remote release builds
 
 ## Status
-implementation
+done
+
+- completed_at: 2026-09-08
+- completion_date_evidence: code integrated into main at c2b6cdf90d9fe4b1fe633c22e7a575a48c72ab50, 2026-09-08 23:23:44 +03:00.
+- moved_to_done_at: 2026-09-09
 
 ## Requirements
 - none — build acceleration preserves application behavior, API, database and runtime topology.
@@ -32,3 +36,6 @@ No product or material technical decision: local build-cache plumbing implements
 ## Processing notes
 - No duplicate active cache task found on 2026-09-08; greatest allocated ID was TASK-169.
 - Dedicated workspace: /private/tmp/crm-release-20260908; branch codex/release-20260908.
+
+## Completion evidence
+Canonical delta verification passed 13/13 checks. Initial and repeated exact-commit image builds succeeded with identical image IDs and persistent cache reuse. Root/lock/invalid-export preservation/rotation checks passed. Final Docker review found no blockers. See [deployment evidence](/docs/LOCAL_REMOTE_STAND_DIFF_2026-09-09.md).
