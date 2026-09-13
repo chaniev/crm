@@ -146,7 +146,9 @@ same task or an explicitly approved coordinated dependency.
 - New screens or materially changed workflows follow `frontend/AGENTS.md` and
   `.agents/skills/crm-mobile-first-ui/SKILL.md`. They must produce UX analysis,
   an implementation-ready UI specification, React implementation, and
-  regression coverage in that order.
+  regression coverage. Agree the UX/UI contracts before production changes;
+  follow the plan's test-first order during implementation and finish with an
+  independent runtime comparison against the approved design.
 - Broad structural refactors require an explicit refactoring review; use
   `refactoring-specialist` when that capability is available.
 - Layer-specific preferred capabilities and skills are defined in every

@@ -79,11 +79,10 @@ Working mode:
    - keeps contracts stable where possible;
    - avoids unnecessary dependencies and abstractions.
 
-4. Validate:
-   - the changed success path;
-   - at least one relevant failure path;
-   - one integration boundary affected by the change;
-   - authorization and data-isolation behavior when applicable.
+4. Validate the changed behavior and applicable failure, integration,
+   authorization, and data-isolation boundaries. For code changes, use the
+   project harness for mandatory verification. Reuse evidence unless relevant
+   code, configuration, or environment changed.
 
 5. Explicitly distinguish:
    - what was verified directly;
@@ -123,67 +122,26 @@ CRM-specific checks:
   rules in AGENTS.md and the implementation plan rather than assuming a
   migration strategy.
 
-Quality checks:
+Quality checks (apply to the behavior and boundaries touched by this task):
 
-- Verify one valid and one invalid request through each changed endpoint.
+- Verify valid requests and relevant invalid-request behavior for changed endpoint contracts.
 - Confirm middleware or authorization changes do not bypass existing protections.
 - Check nullability, validation, mapping, and serialization assumptions at boundaries.
 - Confirm async code propagates cancellation and does not lose failures.
 - Ensure DI changes do not unintentionally alter runtime lifetimes.
 - Check configuration behavior for local, test, and deployed environments when relevant.
 - Confirm persistence changes preserve transaction and concurrency expectations.
-- Run the narrowest relevant tests first, followed by the broader required
-  backend test/build commands defined by the project.
 - Do not weaken, remove, or bypass tests to make validation pass.
 - Call out contract, data, versioning, deployment, and backward-compatibility implications.
 
-Handoff rules:
+Return the delegated result, affected locations, supporting evidence, checks
+actually performed, and material limitations or remaining decisions. Include
+contract, data, compatibility, or deployment implications when relevant. Scale
+detail to the task; omit empty sections for small completed work.
 
-- If delegated work cannot be completed in the current run, produce a structured
-  handoff using the handoff skill when it is installed and applicable.
-- Do not create a handoff for a small completed task.
-- Store handoff information in the task directory specified by the parent agent.
-- Never use handoff as a substitute for work that can be completed now.
-
-A handoff must include:
-- delegated objective;
-- files inspected and changed;
-- completed work;
-- validations executed and results;
-- unresolved problems;
-- assumptions and decisions;
-- exact recommended next action;
-- current branch or worktree when known.
-
-Return exactly:
-
-1. Scope
-   - delegated objective;
-   - module and paths inspected;
-   - execution and responsibility boundary.
-
-2. Findings
-   - confirmed issue or design gap;
-   - supporting evidence;
-   - relevant assumptions.
-
-3. Changes
-   - files changed;
-   - behavior changed;
-   - behavior intentionally preserved.
-
-4. Validation
-   - exact commands executed;
-   - results;
-   - success path;
-   - failure path;
-   - integration and authorization boundaries.
-
-5. Risks
-   - residual risk;
-   - compatibility or data implications;
-   - environment validation still required.
-
-6. Handoff
-   - include only when incomplete or explicitly requested.
+If work is incomplete or the parent requests a handoff, include completed work,
+remaining blockers, relevant decisions, validation results, current workspace,
+and the exact next action. Store it in the task directory specified by the
+parent when an artifact is needed. Never use a handoff as a substitute for
+work that can be completed now within the delegated scope.
 """

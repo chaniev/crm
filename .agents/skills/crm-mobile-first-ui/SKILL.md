@@ -47,12 +47,11 @@ Use this sequence:
    refines one direction before production implementation begins.
 4. Turn the selected direction into an implementation contract; prefer
    `ui-designer`.
-5. Implement that contract without silently redesigning it; prefer
-   `react-specialist`.
-6. Add regression coverage for the primary mobile workflow; prefer
-   `test-automator`.
-7. Independently compare runtime output with the selected direction and UX
-   contract using `references/visual-review.md`.
+5. Implement that contract and its primary mobile regression coverage in the
+   plan's test-first order without silently redesigning it; prefer
+   `react-specialist` and `test-automator`.
+6. Complete remaining coverage and independently compare runtime output with
+   the selected direction and UX contract using `references/visual-review.md`.
 
 If the user supplies an already approved design, the three-direction step is
 unnecessary. Validate that design against the UX contract, project visual
@@ -75,16 +74,19 @@ are already deterministic.
 
 ### Approved specification implementation
 
-Implement then add regression coverage; prefer `react-specialist` and
-`test-automator` when available. Return material conflicts to the design owner
-instead of improvising a different workflow or visual hierarchy.
+Implement and establish regression coverage in the plan's test-first order;
+prefer `react-specialist` and `test-automator` when available. Return material
+conflicts to the design owner instead of improvising a different workflow or
+visual hierarchy.
 
 The coordinating agent owns the handoffs, selected direction, final evidence,
 and unresolved product decisions.
 
-The outcomes and their order are mandatory; separate agents are not. When a
-specialist is unavailable or delegation is disproportionate, the implementing
-agent owns the same artifacts and review boundaries.
+Design approval precedes production changes, and runtime acceptance follows
+implementation. Test/code ordering follows the plan; do not defer all tests
+until after implementation. The outcomes are mandatory; separate agents are
+not. When a specialist is unavailable or delegation is disproportionate, the
+implementing agent owns the same artifacts and review boundaries.
 
 ## Define the UX contract
 

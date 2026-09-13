@@ -42,15 +42,18 @@ For a new screen or materially changed workflow:
 6. Convert the selected direction into an implementation-ready visual and
    interaction contract; prefer `ui-designer`.
 7. Resolve product uncertainties that change the workflow before implementation.
-8. Implement the approved interaction; prefer `react-specialist`.
-9. Add regression coverage for the primary mobile workflow; prefer
-   `test-automator`.
-10. Independently compare the runtime result with the selected direction, UX
-    contract, and the skill's behavioral and visual acceptance criteria.
+8. Implement the approved interaction and its regression coverage in the
+   plan's test-first order; prefer `react-specialist` and `test-automator`.
+9. After implementation, complete any remaining coverage and independently
+   compare the runtime result with the selected direction, UX contract, and
+   the skill's behavioral and visual acceptance criteria.
 
-These outcomes and their order are mandatory; separate agents are not. When a
-specialist is unavailable or separate delegation is disproportionate, the
-implementing agent owns the same artifacts and review boundaries.
+Design approval precedes production changes, and runtime acceptance follows
+implementation. Test/code ordering follows the plan; do not defer all tests
+until after implementation. These outcomes are mandatory; separate agents
+are not. When a specialist is unavailable or separate delegation is
+disproportionate, the implementing agent owns the same artifacts and review
+boundaries.
 
 The skill is the single source for target viewport sizes, safe-area,
 compact-height, Safari, software-keyboard, operational-state, and mobile

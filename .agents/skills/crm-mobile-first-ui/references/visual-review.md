@@ -17,14 +17,16 @@ Use this evidence order:
 4. current runtime at required states and widths;
 5. source code only to locate the cause.
 
-A finding must pass all three gates:
+A verified defect must pass both gates:
 
 1. **Contract** — identify a governing decision or an observable contradiction
    within the same task.
 2. **Runtime** — demonstrate that the issue reaches the rendered surface.
-3. **Correction** — name one deterministic smallest correction. If several
-   incompatible corrections remain plausible, report a product decision rather
-   than a defect.
+
+Describe the smallest supported correction after establishing the defect. If
+several incompatible remedies remain plausible, retain the verified defect
+and separately state the product or technical decision needed to choose a
+remedy. Do not invent intent or discard evidence because correction needs a choice.
 
 Attempt to falsify each finding before reporting it. Separate introduced or
 regressed issues from pre-existing observations.
@@ -52,8 +54,10 @@ screenshots supplement rather than replace them.
 
 ## Report
 
-Report no more than five supported design findings, ordered by user impact,
-confidence, reach, and correction cost:
+Lead with the five highest-impact supported design findings when there are
+many, ordered by user impact, confidence, reach, and correction cost. Briefly
+list additional material defects with location, evidence, and impact rather
+than omitting them to satisfy a count:
 
 | # | Problem | Contract | Runtime evidence | Correction | Scope | Confidence |
 |---|---|---|---|---|---|---|

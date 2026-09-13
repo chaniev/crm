@@ -50,11 +50,11 @@ Prefer named test cases or readable data sources over opaque positional data.
 
 ## Validate
 
-Run the narrowest relevant test filter first, then:
-
-```text
-dotnet test backend/GymCrm.slnx
-```
+Use targeted tests while developing and the root verification harness for the
+mandatory checks selected by the diff and task contract. Keep command
+definitions in `scripts/harness/commands.py`; do not add another full-suite
+command here. Repeat checks when relevant code, configuration, or environment
+changes, not merely because another skill requests the same baseline.
 
 Return:
 

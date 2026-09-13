@@ -77,14 +77,11 @@ Next.js caching, Tailwind, or a second component library.
 
 ## Validate
 
-Run the nearest relevant unit tests first, then:
-
-```text
-cd frontend
-npm run lint
-npm run build
-npm run test:unit
-```
+Use the root verification harness for the mandatory checks selected by the
+diff and task contract. Keep command definitions in
+`scripts/harness/commands.py`. Use targeted tests while developing; do not add
+a second mandatory baseline here or repeat unchanged checks without a relevant
+code, configuration, or environment change.
 
 When user-visible behavior changes, run affected Playwright coverage and the
 mobile checks required by `crm-mobile-first-ui`.

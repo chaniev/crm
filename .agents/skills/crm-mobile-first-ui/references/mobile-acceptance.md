@@ -157,16 +157,14 @@ iPhone Safari acceptance.
 
 Prefer role, label, and observable behavior assertions. Screenshot comparisons may supplement but must not replace behavioral coverage.
 
-## Required commands
+## Required validation
 
-From `frontend/`:
-
-```text
-npm run lint
-npm run build
-npm run test:e2e -- <affected-spec>
-npm run test:e2e:iphone
-```
+Use the root verification harness for the mandatory diff-selected baseline and
+task-contract checks. Define affected Playwright flows and target-iPhone
+projects in the task verification contract using the scenario matrix above.
+Keep canonical commands in `scripts/harness/commands.py`; do not duplicate
+lint/build or run every iPhone flow solely because this reference was loaded.
+Repeat checks when relevant code, configuration, or environment changes.
 
 Report commands actually run, their result, and checks that still require Safari
 Responsive Design Mode, an iOS Simulator, a deployed environment, or a physical

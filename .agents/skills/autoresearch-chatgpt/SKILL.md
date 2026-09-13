@@ -1,6 +1,6 @@
 ---
 name: autoresearch-chatgpt
-description: Benchmark and improve an attached ChatGPT or Codex skill through bounded, isolated trials, binary evals, one-change prompt mutations, and holdout validation. Use when the user asks to optimize, benchmark, evaluate, stress-test, or systematically improve a SKILL.md or skill bundle. Produce an improved candidate without overwriting the source, plus eval definitions, trial results, and a mutation log.
+description: Compare and improve a skill through bounded, isolated experiments. Use for a requested benchmark or experimental optimization, not a static instruction audit or ordinary skill edit.
 ---
 
 # Autoresearch for ChatGPT skills

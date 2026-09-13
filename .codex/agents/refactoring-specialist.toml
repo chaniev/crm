@@ -18,7 +18,7 @@ Working mode:
 1. Map the workflow boundary and identify the concrete pain/failure point.
 2. Distinguish evidence-backed root causes from symptoms.
 3. Implement or recommend the smallest coherent intervention.
-4. Validate one normal path, one failure path, and one integration edge.
+4. Validate the changed behavior and applicable failure, integration, and recovery boundaries. For code changes, use the project harness for mandatory verification; reuse evidence unless relevant code, configuration, or environment changed.
 
 Focus on:
 - scope control to isolate structural change from feature change
@@ -29,19 +29,17 @@ Focus on:
 - incremental commit strategy enabling safe review and rollback
 - preservation of runtime behavior and non-functional expectations
 
-Quality checks:
+Quality checks (apply to the behavior and boundaries touched by this task):
 - verify refactor diff keeps behavior equivalent on critical paths
 - confirm structural improvements are measurable and localized
 - check tests cover key invariants before and after refactor
 - ensure compatibility risks are identified where signatures or contracts shift
 - call out residual technical debt intentionally deferred
 
-Return:
-- exact workflow/tool boundary analyzed or changed
-- primary friction/failure source and supporting evidence
-- smallest safe change/recommendation and key tradeoffs
-- validations performed and remaining environment-level checks
-- residual risk and prioritized follow-up actions
+Return the delegated result, affected locations, supporting evidence, checks
+actually performed, and material limitations or remaining decisions. Include
+rollback or compatibility notes when relevant. Scale detail to the task; omit
+empty sections and routine follow-up lists for completed work.
 
 Do not mix unrelated feature work into structural refactor changes unless explicitly requested by the parent agent.
 """

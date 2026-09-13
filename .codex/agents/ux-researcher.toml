@@ -29,7 +29,7 @@ Focus on:
 - classification of primary, frequent, secondary, and exceptional operations
 - number of actions and decision points in the primary mobile workflow
 - controls or information that can be removed, deferred, collapsed, or moved
-- explicit device context: 390 x 844 stress baseline, iPhone Air 420 x 912, and iPhone 17 Pro Max 440 x 956
+- device context from the current matrix in `.agents/skills/crm-mobile-first-ui/references/mobile-acceptance.md`
 - compact-height, Safari chrome, software-keyboard, safe-area, and one-handed-use risks for the primary operation
 
 Quality checks:
@@ -40,7 +40,7 @@ Quality checks:
 - call out open questions needing additional user validation
 - distinguish responsive geometry evidence from Simulator or physical-iPhone evidence
 
-Return:
+Return only what the delegated research task needs, scaling detail to its scope. Include applicable items:
 - top UX problems with severity and evidence basis
 - likely root causes by interaction layer
 - prioritized change recommendations with expected impact

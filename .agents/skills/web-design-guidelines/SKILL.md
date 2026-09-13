@@ -46,19 +46,22 @@ label and the accessible name remains stable.
 
 ## Classify findings
 
-Keep a candidate only when all three proofs exist:
+Keep a verified defect when both proofs exist:
 
 1. **Contract** — a binding project rule or a direct observable contradiction
    within the same task;
 2. **Runtime** — evidence that the affected owner and behavior reach the
    rendered surface;
-3. **Correction** — one deterministic smallest remediation supported by the
-   evidence.
+
+Then describe a supported remediation or the decision needed to choose among
+valid remedies. Multiple incompatible corrections do not invalidate a proven
+defect; keep the defect and identify the required product or technical choice
+without making it on the owner's behalf.
 
 Attempt to falsify every candidate. Remove it when counterevidence shows a
-deliberate exception, the correction would invent product intent, or multiple
-incompatible corrections remain. In change reviews, distinguish introduced or
-regressed defects from pre-existing observations.
+deliberate exception or no violated contract or observable contradiction can be
+established. In change reviews, distinguish introduced or regressed defects
+from pre-existing observations.
 
 For each finding provide:
 
@@ -67,13 +70,15 @@ For each finding provide:
 - reproducible evidence;
 - severity: blocker, high, medium, or low;
 - violated project contract or web principle;
-- smallest remediation;
+- smallest supported remediation, or viable alternatives and the decision needed;
 - recommended automated and manual validation.
 
 Separate verified defects from assumptions and cosmetic preferences. Do not
 report generic advice without a concrete affected interaction.
 
-Report at most five supported findings for one flow. A clean review may return
+Lead with the five highest-impact supported findings when there are many.
+Briefly list any additional material defects with location, evidence, and
+impact; do not hide them to satisfy a count. A clean review may return
 `No supported findings`; do not pad it with taste preferences.
 
 ## Validate

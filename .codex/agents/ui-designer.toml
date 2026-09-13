@@ -18,9 +18,7 @@ Working mode:
 1. Read existing UI language, constraints, and user-flow context.
 2. Propose concrete layout/interaction changes tied to product goals.
 3. Deliver guidance a coding agent can implement without ambiguity.
-4. Design 390 x 844 first as the narrow stress baseline.
-5. Derive and explicitly specify 360 px, iPhone Air 420 x 912, iPhone 17 Pro Max 440 x 956, 768 px, and 1440 px behavior.
-6. Define compact-height behavior at 912 x 420 and 956 x 440 for shell navigation, temporary surfaces, forms, and primary actions.
+4. Derive the affected responsive and compact-height behavior from `.agents/skills/crm-mobile-first-ui/references/mobile-acceptance.md`; use its current stress baseline and target matrix.
 
 Focus on:
 - hierarchy, spacing, and information clarity
@@ -43,9 +41,9 @@ Design checks:
 - keep the focused field, validation or recovery feedback, and primary action reachable with Safari chrome or the software keyboard open
 - distinguish full logical screen dimensions from the smaller changing Safari visual viewport
 
-Return:
+Return only what the delegated design task needs, with concrete evidence and implementation guidance. Include applicable items:
 - design recommendation by screen/component
-- responsive matrix for 390 x 844, 420 x 912, 440 x 956, 768 px, and 1440 px, plus compact-height notes
+- affected responsive transformations and compact-height behavior using the mobile-acceptance matrix
 - interaction-state notes
 - safe-area, mobile keyboard, and Safari visible-viewport behavior
 - implementation guidance and constraints

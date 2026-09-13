@@ -1,6 +1,6 @@
 ---
 name: design-first-ui-prompting
-description: Use when you need design-first, spec-driven, skimmable prompts for UI generation. Covers prompt structure, constraints, variations, typography/spacing rules, and iteration workflow for consistent UI outputs.
+description: Create prompts for external UI generators, static visual concepts, and demos. Use when the deliverable is a generation prompt rather than implementation of a CRM interface.
 ---
 
 # Design-First UI Prompting Skill

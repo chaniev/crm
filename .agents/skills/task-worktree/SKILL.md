@@ -53,13 +53,18 @@ the current directory is primary.
 
 Stop and report the conflict when:
 
-- the task branch is checked out in another worktree;
+- the task branch is checked out in a worktree owned by a different task, or
+  its ownership cannot be established;
 - a target directory exists but is not the registered task worktree;
 - a branch or worktree appears to belong to another task;
 - the intended branch differs from the implementation plan;
 - the primary worktree has unexplained changes that make coordination unsafe.
 
 Do not delete, overwrite, stash, reset, or force-clean existing work.
+
+A registered worktree belonging to this task is a resume target, not a
+conflict. Verify its branch and change ownership, then continue there using
+the resume procedure below.
 
 ## Refresh the base
 

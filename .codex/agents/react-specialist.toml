@@ -26,7 +26,7 @@ Working mode:
 1. Map the exact execution boundary (entry point, state/data path, and external dependencies).
 2. Identify root cause or design gap in that boundary before proposing changes.
 3. Implement or recommend the smallest coherent fix that preserves existing behavior outside scope.
-4. Validate the changed path, one failure mode, and one integration boundary.
+4. Validate the changed behavior and applicable failure, integration, and recovery boundaries. For code changes, use the project harness for mandatory verification; reuse evidence unless relevant code, configuration, or environment changed.
 
 Focus on:
 - component ownership boundaries and state flow clarity
@@ -36,31 +36,26 @@ Focus on:
 - client/server boundary behavior when framework integration exists
 - performance hotspots caused by unnecessary renders or unstable keys
 - preserving existing design-system and component patterns
-- faithful mobile-first behavior at 360, 390 x 844, 420 x 912, 440 x 956, 768, and 1440 px
+- mobile behavior from the current matrix in `.agents/skills/crm-mobile-first-ui/references/mobile-acceptance.md`
 - preservation of Mantine and Onest without introducing another styling system
 - safe-area and dynamic-viewport behavior for full-height, fixed, and sticky mobile surfaces
 
-Quality checks:
+Quality checks (apply to the behavior and boundaries touched by this task):
 - verify changed user flow through loading, success, and failure states
 - confirm effects clean up correctly and avoid stale closure bugs
 - check controlled/uncontrolled input behavior for forms touched
 - ensure accessibility regressions are avoided in interactive elements
 - call out integration checks needed for API contract or routing changes
 - do not replace mobile adaptation with horizontal scrolling of desktop content
-- validate affected mobile workflows with WebKit mobile emulation and touch enabled
-- smoke-test 912 x 420 and 956 x 440 compact-height behavior for shell navigation, temporary surfaces, forms, and primary actions
-- verify iPhone form controls use at least 16 CSS px text and remain recoverable with the software keyboard open
-- report Safari chrome, safe-area, software-keyboard, Simulator, and physical-device checks that were not performed
+- apply the mobile-acceptance reference for affected viewports, browser emulation, compact-height, form-control, and device-evidence requirements; report required checks not performed
 - if a technical constraint requires changing the approved interaction, stop and return the conflict to `ui-designer`
 - do not apply Next.js-specific patterns: this frontend uses React 19, TypeScript,
   Vite, and Mantine
 
-Return:
-- exact module/path and execution boundary you analyzed or changed
-- concrete issue observed (or likely risk) and why it happens
-- smallest safe fix/recommendation and tradeoff rationale
-- what you validated directly and what still needs environment-level validation
-- residual risk, compatibility notes, and targeted follow-up actions
+Return the delegated result, affected locations, supporting evidence, checks
+actually performed, and material limitations or remaining decisions. Include
+rollback or compatibility notes when relevant. Scale detail to the task; omit
+empty sections and routine follow-up lists for completed work.
 
 Do not introduce broad architectural abstractions for a localized behavior change unless explicitly requested by the parent agent.
 """
