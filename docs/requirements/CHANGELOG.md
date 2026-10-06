@@ -9,6 +9,27 @@
 - ДД.ММ.ГГГГ — REQ-ДОМЕН-NNN — <что изменилось: новая | текст | решение | реализация> (задача <ссылка>)
 ```
 
+## 2026-10-05
+
+- 05.10.2026 — REQ-AUD-001 — доступ к чтению журнала и filter options ограничен
+  Главным тренером и Супер-администратором; запись истории сохраняется,
+  реализация «частично» (задача
+  [TASK-186](../../backlog/risky/TASK-186-audit-access-head-coach-super-admin.md)).
+- 05.10.2026 — REQ-NFR-001 — конкретизированы язык, accessible names, invalid
+  focus, native links и regression scope контраста, touch targets и auth title;
+  реализация остаётся «частично» (задачи
+  [TASK-174](../../backlog/tasks-ready/TASK-174-secondary-text-contrast-regression.md),
+  [TASK-176](../../backlog/tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md),
+  [TASK-177](../../backlog/tasks-ready/TASK-177-group-weekday-touch-targets.md),
+  [TASK-178](../../backlog/tasks-ready/TASK-178-logout-document-title-regression.md),
+  [TASK-181](../../backlog/tasks-ready/TASK-181-native-navigation-links.md)).
+- 05.10.2026 — REQ-GRP-007 — календарная дата рядом с днём недели в дневном
+  summary; реализация «частично» (задача
+  [TASK-182](../../backlog/tasks-ready/TASK-182-schedule-weekday-calendar-date.md)).
+- 05.10.2026 — REQ-SUB-010 — одно общее предупреждение о дублях для обеих
+  детализаций; реализация «частично» (задача
+  [TASK-184](../../backlog/tasks-ready/TASK-184-finance-duplicate-warning-once.md)).
+
 ## 2026-09-08
 
 - 08.09.2026 — REQ-USR-002, REQ-USR-003 — исправлена подготовка login migration

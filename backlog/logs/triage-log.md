@@ -3516,3 +3516,59 @@
   75 harness / 556 backend / 661 frontend / 67 bot tests.
 - Existing inconsistency: у плана TASK-050 нет одноимённой карточки;
   план сохранён, подробности в журнале переноса.
+
+
+# 2026-10-05 — inbox triage
+
+- Mode: triage. Scope: inbox за 2026-09-30 и 2026-10-05, 18 самостоятельных пунктов. Глобальная сверка статусов не выполнялась.
+- Создано 16 карточек: 7 tasks-ready, 1 risky, 8 needs-clarification. Обновлено существующих карточек: 0; в implementation ничего не переведено.
+- Источники сохранены без изменения исходного текста: [2026-09-30](../processed/2026-09-30.md), [2026-10-05](../processed/2026-10-05.md).
+
+| Пункты источника | Задача | Статус |
+|---|---|---|
+| 2026-09-30.md: 1 | [TASK-172: Определить минимальную политику паролей](../needs-clarification/TASK-172-password-policy.md) | needs-clarification |
+| 2026-09-30.md: 2 | [TASK-173: Определить восстановление пароля сотрудника](../needs-clarification/TASK-173-administrator-password-reset.md) | needs-clarification |
+| 2026-09-30.md: 3 | [TASK-174: Восстановить контраст вторичного текста в рабочих экранах](../tasks-ready/TASK-174-secondary-text-contrast-regression.md) | tasks-ready |
+| 2026-09-30.md: 4 | [TASK-175: Согласовать единый формат пользовательских дат](../needs-clarification/TASK-175-user-visible-date-format.md) | needs-clarification |
+| 2026-09-30.md: 5, 6, 7 | [TASK-176: Исправить язык, доступные имена и фокус ошибок форм](../tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md) | tasks-ready |
+| 2026-09-30.md: 8 | [TASK-177: Довести цели выбора дней недели до 44×44](../tasks-ready/TASK-177-group-weekday-touch-targets.md) | tasks-ready |
+| 2026-09-30.md: 9 | [TASK-178: Проверить устаревший title после выхода](../tasks-ready/TASK-178-logout-document-title-regression.md) | tasks-ready |
+| 2026-09-30.md: 10 | [TASK-179: Уточнить представление системного Professional в каталоге](../needs-clarification/TASK-179-professional-catalog-seed-presentation.md) | needs-clarification |
+| 2026-09-30.md: 11 | [TASK-180: Согласовать навигацию первичной настройки](../needs-clarification/TASK-180-fresh-system-setup-navigation.md) | needs-clarification |
+| 2026-09-30.md: 12 | [TASK-181: Сделать переходы между разделами настоящими ссылками](../tasks-ready/TASK-181-native-navigation-links.md) | tasks-ready |
+| 2026-09-30.md: 13 | [TASK-182: Показывать календарную дату рядом с днём недели](../tasks-ready/TASK-182-schedule-weekday-calendar-date.md) | tasks-ready |
+| 2026-09-30.md: 14 | [TASK-183: Согласовать формат отображения телефона клиента](../needs-clarification/TASK-183-client-phone-presentation.md) | needs-clarification |
+| 2026-09-30.md: 15 | [TASK-184: Убрать повтор предупреждения о дублях в финансовом отчёте](../tasks-ready/TASK-184-finance-duplicate-warning-once.md) | tasks-ready |
+| 2026-09-30.md: 16 | [TASK-185: Согласовать единые подписи, валюту и диапазоны времени](../needs-clarification/TASK-185-ui-copy-and-unit-consistency.md) | needs-clarification |
+| 2026-10-05.md: 1 | [TASK-186: Ограничить чтение журнала Главным тренером и Супер-администратором](../risky/TASK-186-audit-access-head-coach-super-admin.md) | risky |
+| 2026-10-05.md: 2 | [TASK-187: Уточнить создание тренеров администратором филиала](../needs-clarification/TASK-187-administrator-coach-creation-scope.md) | needs-clarification |
+
+## Evidence и дубли
+
+- Проверены active cards, unfinished plans и все датированные done; максимальный существующий ID — TASK-171. TASK-142/161/165/126 и другие завершённые работы использованы как контекст, без переоткрытия их статусов.
+- TASK-174/176/177 — ограниченные исправления конкретных дефектов; широкая migration TASK-150 остаётся самостоятельной. Runtime-коэффициенты и размеры взяты из исходного аудита c2b6cdf, повторно здесь не измерены.
+- У закрытия «Остальных разделов» уже есть русское aria-label; соответствующая часть пункта 7 проверяется в TASK-176. В useAppRoute уже есть auth title и unit-контракт; полный logout-сценарий остаётся предметом TASK-178. Ни один из этих runtime-пунктов не объявлен исправленным без воспроизведения.
+- Создание группы и назначение тренера администратором своего филиала уже предусмотрены backend scope; запрет чужого филиала покрыт GroupsApiTests. Эти части записи 2026-10-05 сохранены в TASK-187 как verification, а новое создание Coach — как product/security decision.
+- Нулевая цена Professional — принятый доменный контракт, а seed-дата 2020-01-01 подтверждается MembershipCatalogItemConfiguration. TASK-179 не трактует цену 0 как дефект.
+
+## Требования и блокеры
+
+- Обновлены REQ-AUD-001, REQ-NFR-001, REQ-GRP-007, REQ-SUB-010 и CHANGELOG: источник решений указан в карточках. Это целевая нормативная редакция; код остаётся прежним.
+- Политика паролей и reset, общий формат дат, представление seed Professional, onboarding, формат телефона, неопределённые copy-замены и scope создания тренеров требуют ответов из 8 needs-clarification карточек. Новые решения по ним не придуманы.
+- TASK-186 имеет security review и stop conditions до ready plan. Политика чтения журнала изменена по однозначной записи пользователя; запись аудита и retention сохранены.
+
+## Validation
+
+- Исходные тексты сравниваются с сохранёнными копиями до перемещения; source lifecycle завершён только после покрытия всех 18 пунктов.
+- Harness knowledge checks и отдельная проверка ссылок/ID/status/source mapping выполняются после записи артефактов; фактический результат добавляется следующей записью.
+- Project code, runtime и deployment не менялись; существующие несоответствия старых карточек вне scope не исправлялись.
+
+## 2026-10-06 — validation correction
+
+- Первый harness run: 3 проверки прошли; registry отклонил Markdown-ссылки внутри машинной metadata и смешение pending с REQ-entries. Карточки приведены к принятому формату: plain REQ metadata либо одна pending-запись; рабочие ссылки и ограничения сохранены отдельным разделом. Повторная проверка следует после исправления.
+
+## 2026-10-06 — validation result
+
+- Повторный `python3 scripts/harness/verify_change.py --base origin/main`: PASS, все 4 knowledge checks (agent instructions, ADR, plan readiness, requirements registry). Evidence: `.artifacts/verification/report.json`.
+- Отдельно проверены ссылки новых карточек и новых requirement entries, уникальность TASK-ID, status/directory и coverage 18/18 source items. Оба оригинальных source body сохранены побайтно по текстовому сравнению; inbox/processing не содержат обрабатываемых файлов.
+- Проверки приложений и новый runtime-аудит не запускались: изменены только backlog и требования.
