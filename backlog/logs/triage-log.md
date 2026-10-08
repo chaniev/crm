@@ -3589,3 +3589,37 @@
   подготовлена к исполнению, план получил `readiness: yes`.
 - Ссылки выше на `risky` и `needs-clarification` отражают историческое положение
   карточки; актуальное положение — `implementation`. Приложение не изменялось.
+
+## 2026-10-08 12:53 MSK — TASK-187 product clarification
+
+- Mode: scoped triage / актуализация одной карточки по прямым ответам
+  пользователя и запросу «перенеси решения в task-187». Inbox и глобальные
+  статусы не обрабатывались; обновлена 1 карточка, создано 0.
+- Сохранены исходная заметка 2026-10-05, история triage и provenance семи
+  ответов. Закреплены глобальное управление аккаунтами Coach, создание без
+  групп, вход через «Тренеры» и назначения только в группы своего филиала.
+- Карточка перемещена из
+  `backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md` в
+  [backlog/risky/TASK-187-administrator-coach-creation-scope.md](../risky/TASK-187-administrator-coach-creation-scope.md).
+  Ссылка в исторической таблице triage выше отражает прежнее положение.
+- Синхронизированы REQ-USR-001/002/004 в
+  `docs/requirements/05-пользователи-и-роли.md` и `docs/requirements/CHANGELOG.md`:
+  принятое решение, реализация «частично». Переписаны scope, критерии приёмки,
+  проверки и риск; определены security review и stop conditions до ready plan.
+- Продуктовые вопросы закрыты; review, design gate по применимости и
+  implementation plan ещё предстоят. Project code и runtime не менялись.
+- Validation: результат harness knowledge checks и проверки ссылок/status/ID
+  добавляется после выполнения.
+
+### TASK-187 validation result
+
+- `python3 scripts/harness/verify_change.py --base origin/main --report .artifacts/verification/TASK-187-clarification.json`:
+  PASS, все 4 knowledge checks. В первом запуске исправлен формат истории
+  требований: ссылка на TASK должна находиться в первой строке записи.
+- Проверены 29 ссылок в карточке/USR-требованиях и добавленных записях журналов,
+  уникальность TASK-187, соответствие статуса каталогу и отсутствие pending;
+  `git diff --check` прошёл.
+- Проверка всего старого CHANGELOG выявила прежнюю ссылку на
+  `backlog/tasks-ready/TASK-157-schedule-mobile-density.md`; она вне scope
+  TASK-187 и не изменялась. Актуальные добавленные ссылки проходят проверку.
+- Проверки приложений не требуются: изменены только backlog и требования.
