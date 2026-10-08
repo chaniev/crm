@@ -91,3 +91,17 @@ that navigation as required by the approved contract.
 Real Safari/Responsive Design Mode, browser chrome, software keyboard, actual
 safe-area insets, iOS Simulator and physical devices were not used. WebKit
 emulation is not device-level evidence. Remote deployment was not performed.
+
+## Integration preflight follow-up, 2026-10-08
+
+The full harness on `86d4fea` first found Docker stopped; after starting Docker,
+all 572 backend tests (including InternalBotApiTests and PostgreSQL cases),
+Release build, formatting and NuGet audit passed. The next gate found seven
+existing npm advisories (four high, three moderate) in the unchanged baseline
+lockfile. `npm audit fix --package-lock-only --ignore-scripts` updated compatible
+versions within the existing package.json ranges: Vitest 4.1.11 and its family,
+undici 7.30.0, source-map-js 1.2.2, js-yaml 4.3.2, brace-expansion 1.1.21/5.0.12,
+@humanfs/node 0.16.8 and required transitive dependencies. No audit suppression,
+forced major upgrade or package.json range change was used; lockfile audit now
+reports zero vulnerabilities. The final harness is repeated against the commit
+containing this prerequisite dependency repair.
