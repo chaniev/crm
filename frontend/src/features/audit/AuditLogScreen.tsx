@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 import {
   Badge,
   Group,
@@ -12,6 +12,7 @@ import {
 } from '@mantine/core'
 import { IconCalendarEvent, IconEye, IconSearch } from '@tabler/icons-react'
 import {
+  ApiError,
   getAuditLogEntries,
   getAuditLogFilterOptions,
   type AuditLogEntry,
@@ -19,6 +20,7 @@ import {
   type AuditLogListResponse,
   type AuthenticatedUser,
   type GetAuditLogParams,
+  type SessionResponse,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import {
@@ -38,6 +40,7 @@ import { fe16AuditText } from '../../resources/fe-16-audit'
 
 type AuditLogScreenProps = {
   user: AuthenticatedUser
+  onRefreshSession: () => Promise<SessionResponse>
 }
 
 type AuditFilterValues = {
@@ -74,7 +77,21 @@ type AuditResponseSnapshot = {
   response: AuditLogListResponse
 }
 
-export function AuditLogScreen({ user }: AuditLogScreenProps) {
+export function AuditLogScreen({ user, onRefreshSession }: AuditLogScreenProps) {
+  const canReadAudit = user.permissions.canViewAuditLog && user.allowedSections.includes('Audit')
+  const [accessDenied, setAccessDenied] = useState(false)
+  const [refreshingSession, setRefreshingSession] = useState(false)
+  const accessDeniedRef = useRef(false)
+  const refreshAfterDenial = useEffectEvent(async () => {
+    setRefreshingSession(true)
+    try {
+      await onRefreshSession()
+    } catch {
+      // Keep the local denial latched while shell session recovery is unavailable.
+    } finally {
+      setRefreshingSession(false)
+    }
+  })
   const [responseSnapshot, setResponseSnapshot] =
     useState<AuditResponseSnapshot | null>(null)
   const [filterOptions, setFilterOptions] = useState<AuditLogFilterOptions>(
@@ -103,7 +120,10 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   }
 
   useEffect(() => {
-    if (!user.permissions.canViewAuditLog) {
+    if (!canReadAudit) {
+      setSelectedEntry(null)
+      setFilters(INITIAL_FILTER_VALUES)
+      setPage(1)
       storeResponseSnapshot(null)
       setFilterOptions(EMPTY_FILTER_OPTIONS)
       setError(null)
@@ -112,7 +132,34 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
       return
     }
 
+    if (accessDeniedRef.current) {
+      return
+    }
+
     const controller = new AbortController()
+
+    // Observe each request separately: Promise.all can reject on a transient
+    // error before the other request reports an authorization denial.
+    function observeAuthorization<T>(request: Promise<T>): Promise<T> {
+      return request.catch((loadError: unknown) => {
+        if (!controller.signal.aborted && loadError instanceof ApiError &&
+            (loadError.status === 401 || loadError.status === 403)) {
+          accessDeniedRef.current = true
+          controller.abort()
+          storeResponseSnapshot(null)
+          setFilterOptions(EMPTY_FILTER_OPTIONS)
+          setFilters(INITIAL_FILTER_VALUES)
+          setPage(1)
+          setSelectedEntry(null)
+          setError(null)
+          setStaleError(null)
+          setLoading(false)
+          setAccessDenied(true)
+          void refreshAfterDenial()
+        }
+        throw loadError
+      })
+    }
 
     async function load() {
       setLoading(true)
@@ -124,8 +171,8 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
       try {
         const [nextOptions, nextResponse] = await Promise.all([
-          getAuditLogFilterOptions(controller.signal),
-          getAuditLogEntries(requestParams, controller.signal),
+          observeAuthorization(getAuditLogFilterOptions(controller.signal)),
+          observeAuthorization(getAuditLogEntries(requestParams, controller.signal)),
         ])
 
         if (controller.signal.aborted) {
@@ -166,7 +213,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     void load()
 
     return () => controller.abort()
-  }, [reloadKey, requestKey, requestParams, user.permissions.canViewAuditLog])
+  }, [canReadAudit, reloadKey, requestKey, requestParams])
 
   const response =
     responseSnapshot?.key === requestKey ? responseSnapshot.response : null
@@ -215,11 +262,35 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     setPage(nextPage)
   }
 
-  if (!user.permissions.canViewAuditLog) {
+  async function retryAfterDenial() {
+    if (refreshingSession) return
+    setRefreshingSession(true)
+    try {
+      const session = await onRefreshSession()
+      if (session.isAuthenticated && session.user?.id === user.id &&
+          !session.user.mustChangePassword && session.user.permissions.canViewAuditLog &&
+          session.user.allowedSections.includes('Audit')) {
+        accessDeniedRef.current = false
+        setAccessDenied(false)
+        setReloadKey((current) => current + 1)
+      }
+    } catch {
+      // A failed confirmation must never restore the previous audit snapshot.
+    } finally {
+      setRefreshingSession(false)
+    }
+  }
+
+  if (!canReadAudit || accessDenied) {
     return (
       <PageLayout data-testid="audit-screen" showHeader={false} title={fe16AuditText.auditLogScreen_title_97c459a6}>
         <PageSection>
           <ErrorState
+            action={accessDenied && canReadAudit ? (
+              <Button disabled={refreshingSession} onClick={() => void retryAfterDenial()} variant="secondary">
+                {fe16AuditText.auditLogScreen_jsxText_5189135a}
+              </Button>
+            ) : undefined}
             message={fe16AuditText.auditLogScreen_message_9d346056}
             title={fe16AuditText.auditLogScreen_title_509cc0db}
           />

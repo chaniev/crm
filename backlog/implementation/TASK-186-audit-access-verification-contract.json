@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "task_id": "TASK-186",
+  "expected_branch": "codex/TASK-186-audit-access-head-coach-super-admin",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.task186-route-access",
+      "spec": "e2e/route-access-feedback.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.task186-target-iphone",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": [
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-186-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.task186-rendered-comparison",
+      "description": "Compare existing permitted audit list/details and restricted/recovery states before and after, including sensitive-surface removal."
+    }
+  ]
+}

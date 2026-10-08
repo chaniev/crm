@@ -508,6 +508,23 @@ public class ClientsApiTests
             var restorePayload = await ReadJsonElementAsync(restoreResponse);
             Assert.Equal("Active", GetStringFromProperty(restorePayload, "status"));
         }
+        if (actorRole == "Administrator")
+        {
+            using var denied = await client.GetAsync("/audit-logs");
+            Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
+            using var reader = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+            _ = await LoginAsync(reader, seeded.HeadCoachLogin, seeded.SharedPassword);
+            using var audit = await reader.GetAsync($"/audit-logs?userId={actorSession.User!.Id}&entityType=Client");
+            Assert.Equal(HttpStatusCode.OK, audit.StatusCode);
+            var entries = (await ReadJsonElementAsync(audit)).GetProperty("items").EnumerateArray().ToArray();
+            var updated = Assert.Single(entries, entry =>
+                entry.GetProperty("actionType").GetString() == "ClientUpdated" &&
+                entry.GetProperty("entityId").GetString() == clientId.ToString());
+            Assert.Equal(actorSession.User.Id, updated.GetProperty("user").GetProperty("id").GetString());
+            Assert.Equal("+79990001122", JsonDocument.Parse(updated.GetProperty("oldValueJson").GetString()!).RootElement.GetProperty("phone").GetString());
+            Assert.Equal("+79990001199", JsonDocument.Parse(updated.GetProperty("newValueJson").GetString()!).RootElement.GetProperty("phone").GetString());
+            Assert.Contains(entries, entry => entry.GetProperty("actionType").GetString() == "ClientCreated");
+        }
     }
 
     [Fact]

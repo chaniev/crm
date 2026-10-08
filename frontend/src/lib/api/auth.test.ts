@@ -6,6 +6,24 @@ afterEach(() => {
 })
 
 describe('auth API', () => {
+  test.each([
+    ['HeadCoach', true], ['SuperAdministrator', true], ['Administrator', false], ['Coach', false],
+  ] as const)('preserves backend audit facts for %s', async (role, allowed) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      isAuthenticated: true, csrfToken: 'csrf', bootstrapMode: false,
+      user: {
+        id: 'staff', fullName: 'Staff', login: 'staff', role,
+        mustChangePassword: false, isActive: true, landingScreen: 'Attendance',
+        allowedSections: ['Attendance', ...(allowed ? ['Audit'] : [])],
+        permissions: { canViewAuditLog: allowed }, assignedGroupIds: [],
+      },
+    })))
+    const result = await loadSession()
+    expect(result.user?.role).toBe(role)
+    expect(result.user?.permissions.canViewAuditLog).toBe(allowed)
+    expect(result.user?.allowedSections.includes('Audit')).toBe(allowed)
+  })
+
   test('maps SuperAdministrator session with explicit nullable branch and backend role options', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
       isAuthenticated: true,

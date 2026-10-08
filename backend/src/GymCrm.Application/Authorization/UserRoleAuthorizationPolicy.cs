@@ -58,7 +58,7 @@ public static class UserRoleAuthorizationPolicy
                 CanManageGroups: true,
                 CanManageSettings: true,
                 CanMarkAttendance: true,
-                CanViewAuditLog: true,
+                CanViewAuditLog: false,
                 CanViewFinancialReports: false),
             UserRole.Coach => new PermissionSet(
                 CanManageUsers: false,

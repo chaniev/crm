@@ -1,3 +1,4 @@
+import { registerAuditAccessScenarios } from './audit-access-scenarios'
 import { expect, test, type Page, type Route } from '@playwright/test'
 
 const APP_CONFIG = {
@@ -313,3 +314,5 @@ async function expectNoHorizontalScroll(page: Page) {
     dimensions.viewportWidth + 1,
   )
 }
+
+registerAuditAccessScenarios()

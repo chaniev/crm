@@ -23,7 +23,7 @@ export const fe16AuditText = {
   auditLogScreen_label_802e7822: "Тип объекта",
   auditLogScreen_label_8cfeb847: "Мессенджер",
   auditLogScreen_label_adf428d2: "Период с",
-  auditLogScreen_message_9d346056: "Этот экран доступен главному тренеру и администратору.",
+  auditLogScreen_message_9d346056: "Этот экран доступен Главному тренеру и Супер-администратору.",
   auditLogScreen_placeholder_1627d7ae: "Все мессенджеры",
   auditLogScreen_placeholder_520f22d9: "Все объекты",
   auditLogScreen_placeholder_71e214e1: "Все источники",

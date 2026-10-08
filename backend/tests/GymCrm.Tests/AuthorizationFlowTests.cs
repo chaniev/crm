@@ -79,13 +79,13 @@ public class AuthorizationFlowTests
         Assert.Equal(seeded.AssignedBranchId, session.User.BranchId);
         Assert.Empty(session.User.CreateRoleOptions);
         Assert.Equal("Attendance", session.User.LandingScreen);
-        Assert.Equal(["Attendance", "Attention", "Schedule", "Clients", "Groups", "Audit", "Settings"], session.User.AllowedSections);
+        Assert.Equal(["Attendance", "Attention", "Schedule", "Clients", "Groups", "Settings"], session.User.AllowedSections);
         Assert.False(session.User.Permissions.CanManageUsers);
         Assert.True(session.User.Permissions.CanManageClients);
         Assert.True(session.User.Permissions.CanManageGroups);
         Assert.True(session.User.Permissions.CanManageSettings);
         Assert.True(session.User.Permissions.CanMarkAttendance);
-        Assert.True(session.User.Permissions.CanViewAuditLog);
+        Assert.False(session.User.Permissions.CanViewAuditLog);
         Assert.False(session.User.Permissions.CanViewFinancialReports);
         Assert.Empty(session.User.AssignedGroupIds);
         Assert.NotNull(session.User.AttendanceScope);
@@ -96,7 +96,7 @@ public class AuthorizationFlowTests
         await AssertStatusCodeAsync(client.GetAsync("/access/client-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
-        await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.Forbidden);
         await AssertAttendanceGroupForbiddenProblemAsync(
             await PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken));

@@ -18,8 +18,8 @@ public class AuditLogApiTests
 {
     [Theory]
     [InlineData("HeadCoach")]
-    [InlineData("Administrator")]
-    public async Task HeadCoach_or_Administrator_can_read_audit_log_and_filter_options(string actorRole)
+    [InlineData("SuperAdministrator")]
+    public async Task HeadCoach_or_SuperAdministrator_can_read_audit_log_and_filter_options(string actorRole)
     {
         await using var factory = new AuditLogAppFactory();
         var seeded = await SeedUsersAsync(factory);
@@ -31,7 +31,7 @@ public class AuditLogApiTests
 
         var actorLogin = actorRole == "HeadCoach"
             ? seeded.HeadCoach.Login
-            : seeded.Administrator.Login;
+            : seeded.SuperAdministrator.Login;
 
         _ = await LoginAsync(client, actorLogin, seeded.SharedPassword);
         await ReplaceAuditLogsAsync(factory, seeded);
@@ -125,8 +125,12 @@ public class AuditLogApiTests
         Assert.Equal("ClientUpdated", secondPageItems[0].GetProperty("actionType").GetString());
     }
 
-    [Fact]
-    public async Task Coach_cannot_access_audit_log()
+    [Theory]
+    [InlineData("Administrator", HttpStatusCode.Forbidden)]
+    [InlineData("Coach", HttpStatusCode.Forbidden)]
+    [InlineData(null, HttpStatusCode.Unauthorized)]
+    public async Task Audit_read_denies_before_parsing_filters_without_disclosing_payloads(
+        string? role, HttpStatusCode expected)
     {
         await using var factory = new AuditLogAppFactory();
         var seeded = await SeedUsersAsync(factory);
@@ -135,15 +139,119 @@ public class AuditLogApiTests
             AllowAutoRedirect = false,
             HandleCookies = true
         });
-
-        _ = await LoginAsync(client, seeded.Coach.Login, seeded.SharedPassword);
+        if (role is not null)
+        {
+            _ = await LoginAsync(client,
+                role == "Administrator" ? seeded.Administrator.Login : seeded.Coach.Login,
+                seeded.SharedPassword);
+        }
         await ReplaceAuditLogsAsync(factory, seeded);
 
-        using var listResponse = await client.GetAsync("/audit-logs");
-        Assert.Equal(HttpStatusCode.Forbidden, listResponse.StatusCode);
+        foreach (var path in new[] { "/audit-logs", "/audit-logs/options", "/access/audit-log" })
+        {
+            foreach (var query in new[] { "", "?page=invalid&dateFrom=2026-04-31&userId=not-a-guid" })
+            {
+                using var response = await client.GetAsync(path + query);
+                Assert.Equal(expected, response.StatusCode);
+                Assert.Empty(await response.Content.ReadAsStringAsync());
+            }
+        }
+    }
 
-        using var optionsResponse = await client.GetAsync("/audit-logs/options");
-        Assert.Equal(HttpStatusCode.Forbidden, optionsResponse.StatusCode);
+    [Theory]
+    [InlineData("HeadCoach", true)]
+    [InlineData("SuperAdministrator", true)]
+    [InlineData("Administrator", false)]
+    [InlineData("Coach", false)]
+    public async Task Existing_cookie_uses_current_audit_permissions_without_another_login(string role, bool allowed)
+    {
+        await using var factory = new AuditLogAppFactory();
+        var seeded = await SeedUsersAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        var actor = role switch
+        {
+            "HeadCoach" => seeded.HeadCoach,
+            "SuperAdministrator" => seeded.SuperAdministrator,
+            "Administrator" => seeded.Administrator,
+            _ => seeded.Coach
+        };
+        var login = await LoginAsync(client, actor.Login, seeded.SharedPassword);
+        var session = await GetSessionAsync(client);
+        foreach (var snapshot in new[] { login, session })
+        {
+            Assert.True(snapshot.IsAuthenticated);
+            Assert.NotNull(snapshot.User);
+            Assert.Equal(allowed, snapshot.User.Permissions.CanViewAuditLog);
+            Assert.Equal(allowed, snapshot.User.AllowedSections.Contains("Audit"));
+        }
+        foreach (var path in new[] { "/audit-logs", "/audit-logs/options", "/access/audit-log" })
+        {
+            using var response = await client.GetAsync(path);
+            Assert.Equal(allowed ? HttpStatusCode.OK : HttpStatusCode.Forbidden, response.StatusCode);
+        }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Supported_staff_update_invalidates_existing_audit_reader_cookie(bool remainsActive)
+    {
+        await using var factory = new AuditLogAppFactory();
+        var seeded = await SeedUsersAsync(factory);
+        using var reader = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        using var owner = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        _ = await LoginAsync(reader, seeded.SuperAdministrator.Login, seeded.SharedPassword);
+        var ownerSession = await LoginAsync(owner, seeded.HeadCoach.Login, seeded.SharedPassword);
+        using var before = await reader.GetAsync("/audit-logs");
+        Assert.Equal(HttpStatusCode.OK, before.StatusCode);
+
+        using var update = new HttpRequestMessage(HttpMethod.Put, $"/settings/administrators/{seeded.SuperAdministrator.Id}")
+        {
+            Content = JsonContent.Create(new
+            {
+                FullName = "Updated audit reader",
+                seeded.SuperAdministrator.Login,
+                Role = "SuperAdministrator",
+                MustChangePassword = false,
+                IsActive = remainsActive,
+                BranchId = (Guid?)null
+            })
+        };
+        update.Headers.Add("X-CSRF-TOKEN", ownerSession.CsrfToken);
+        using var updated = await owner.SendAsync(update);
+        Assert.Equal(HttpStatusCode.OK, updated.StatusCode);
+        foreach (var path in new[] { "/audit-logs", "/audit-logs/options" })
+        {
+            using var response = await reader.GetAsync(path);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Empty(await response.Content.ReadAsStringAsync());
+        }
+        Assert.False((await GetSessionAsync(reader)).IsAuthenticated);
+    }
+
+    [Fact]
+    public async Task Password_change_required_reader_cannot_read_audit_payloads()
+    {
+        await using var factory = new AuditLogAppFactory();
+        var seeded = await SeedUsersAsync(factory);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var user = await db.Users.SingleAsync(user => user.Id == seeded.SuperAdministrator.Id);
+            user.MustChangePassword = true;
+            await db.SaveChangesAsync();
+        }
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        _ = await LoginAsync(client, seeded.SuperAdministrator.Login, seeded.SharedPassword);
+        foreach (var path in new[] { "/audit-logs", "/audit-logs/options" })
+        {
+            using var response = await client.GetAsync(path);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            var payload = await response.Content.ReadAsStringAsync();
+            Assert.DoesNotContain("items", payload);
+            Assert.DoesNotContain("users", payload);
+            Assert.DoesNotContain("totalCount", payload);
+        }
     }
 
     [Fact]
@@ -200,10 +308,13 @@ public class AuditLogApiTests
             now,
             passwordHashService);
 
-        dbContext.Users.AddRange(headCoach, administrator, coach);
+        var superAdministrator = CreateUser(
+            "superadministrator-audit", "Супер-администратор Аудит", UserRole.SuperAdministrator,
+            sharedPassword, now, passwordHashService);
+        dbContext.Users.AddRange(headCoach, superAdministrator, administrator, coach);
         await dbContext.SaveChangesAsync();
 
-        return new SeededUsers(headCoach, administrator, coach, sharedPassword);
+        return new SeededUsers(headCoach, superAdministrator, administrator, coach, sharedPassword);
     }
 
     private static async Task ReplaceAuditLogsAsync(AuditLogAppFactory factory, SeededUsers seeded)
@@ -375,6 +486,7 @@ public class AuditLogApiTests
 
     private sealed record SeededUsers(
         User HeadCoach,
+        User SuperAdministrator,
         User Administrator,
         User Coach,
         string SharedPassword);

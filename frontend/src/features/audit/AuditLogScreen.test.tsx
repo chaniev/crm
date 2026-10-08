@@ -1,6 +1,7 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
+  ApiError,
   getAuditLogEntries,
   getAuditLogFilterOptions,
   type AuditLogEntry,
@@ -53,10 +54,14 @@ const deniedUser: AuthenticatedUser = {
   },
 }
 
+const refreshSession = vi.fn(async () => ({ isAuthenticated: true, csrfToken: "csrf", bootstrapMode: false, user: auditUser }))
+
 const getAuditLogEntriesMock = vi.mocked(getAuditLogEntries)
 const getAuditLogFilterOptionsMock = vi.mocked(getAuditLogFilterOptions)
 
 beforeEach(() => {
+  refreshSession.mockReset()
+  refreshSession.mockResolvedValue({ isAuthenticated: true, csrfToken: "csrf", bootstrapMode: false, user: auditUser })
   getAuditLogEntriesMock.mockReset()
   getAuditLogFilterOptionsMock.mockReset()
 
@@ -65,8 +70,102 @@ beforeEach(() => {
 })
 
 describe('AuditLogScreen', () => {
+  test.each([['list', 401], ['list', 403], ['options', 401], ['options', 403]] as const)(
+    '%s %s clears sensitive data immediately while session refresh is pending', async (endpoint, status) => {
+      const denied = deferred<never>()
+      const refresh = deferred<never>()
+      refreshSession.mockReturnValueOnce(refresh.promise)
+      renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
+      await screen.findByTestId('audit-log-grid')
+      const requestMock = endpoint === 'list' ? getAuditLogEntriesMock : getAuditLogFilterOptionsMock
+      requestMock.mockReturnValueOnce(denied.promise)
+      fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+      fireEvent.click(screen.getByTestId('audit-log-details-action'))
+      expect(await screen.findByRole('dialog')).toHaveTextContent('"status": "Active"')
+      await act(async () => denied.reject(new ApiError('Denied', status)))
+      expect(screen.queryByTestId('audit-log-grid')).not.toBeInTheDocument()
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('audit-filter-panel')).not.toBeInTheDocument()
+      expect(screen.queryByText(/Мария Иванова/)).not.toBeInTheDocument()
+      expect(refreshSession).toHaveBeenCalledTimes(1)
+      await act(async () => refresh.reject(new Error('Session unavailable')))
+      expect(screen.queryByText('Создан новый клиент')).not.toBeInTheDocument()
+      expect(getAuditLogEntriesMock).toHaveBeenCalledTimes(2)
+    },
+  )
+
+  test.each(['list', 'options'] as const)('a fast 500 cannot hide the later %s denial', async (endpoint) => {
+    const lateDenial = deferred<never>()
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
+    await screen.findByTestId('audit-log-grid')
+    if (endpoint === 'list') {
+      getAuditLogFilterOptionsMock.mockRejectedValueOnce(new ApiError('Temporary', 500))
+      getAuditLogEntriesMock.mockReturnValueOnce(lateDenial.promise)
+    } else {
+      getAuditLogEntriesMock.mockRejectedValueOnce(new ApiError('Temporary', 500))
+      getAuditLogFilterOptionsMock.mockReturnValueOnce(lateDenial.promise)
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+    await screen.findByText('Не удалось обновить, показаны предыдущие данные')
+    await act(async () => lateDenial.reject(new ApiError('Denied', 403)))
+    expect(screen.queryByTestId('audit-log-grid')).not.toBeInTheDocument()
+    expect(refreshSession).toHaveBeenCalledTimes(1)
+  })
+
+  test('initial denial ignores a late successful response and never refreshes in a loop', async () => {
+    const late = deferred<AuditLogListResponse>()
+    getAuditLogEntriesMock.mockReturnValueOnce(late.promise)
+    getAuditLogFilterOptionsMock.mockRejectedValueOnce(new ApiError('Denied', 403))
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
+    await waitFor(() => expect(refreshSession).toHaveBeenCalledTimes(1))
+    await act(async () => late.resolve(buildAuditResponse()))
+    expect(screen.queryByTestId('audit-log-grid')).not.toBeInTheDocument()
+    expect(getAuditLogEntriesMock).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('Журнал действий недоступен')).toBeVisible()
+  })
+
+  test.each(['capability', 'section'] as const)('fresh %s loss removes an open modal and options without another request', async (kind) => {
+    const view = renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
+    fireEvent.click(await screen.findByTestId('audit-log-details-action'))
+    await screen.findByRole('dialog')
+    view.rerender(<AuditLogScreen onRefreshSession={refreshSession} user={kind === 'capability' ? deniedUser : { ...auditUser, allowedSections: ['Clients'] }} />)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('audit-filter-panel')).not.toBeInTheDocument()
+    expect(getAuditLogEntriesMock).toHaveBeenCalledTimes(1)
+    expect(refreshSession).not.toHaveBeenCalled()
+  })
+
+  test('retry requires fresh session access and loads only fresh rows with cleared filters', async () => {
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
+    await screen.findByTestId('audit-log-grid')
+    fireEvent.click(screen.getByRole('combobox', { name: 'Пользователь' }))
+    fireEvent.click(await screen.findByRole('option', { name: /Мария Иванова/ }))
+    await waitFor(() => expect(getAuditLogEntriesMock).toHaveBeenLastCalledWith(expect.objectContaining({ userId: 'user-1' }), expect.any(AbortSignal)))
+    await screen.findByTestId('audit-log-grid')
+    getAuditLogEntriesMock.mockRejectedValueOnce(new ApiError('Denied', 403))
+    refreshSession.mockRejectedValueOnce(new Error('Session unavailable'))
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+    await screen.findByText('Журнал действий недоступен')
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Повторить' })).toBeEnabled())
+    const callsAfterDenial = getAuditLogEntriesMock.mock.calls.length
+    refreshSession.mockResolvedValueOnce({ isAuthenticated: true, csrfToken: 'csrf', bootstrapMode: false, user: deniedUser })
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+    await waitFor(() => expect(refreshSession).toHaveBeenCalledTimes(2))
+    expect(getAuditLogEntriesMock).toHaveBeenCalledTimes(callsAfterDenial)
+    getAuditLogEntriesMock.mockResolvedValueOnce(buildAuditResponse({ items: [buildAuditEntry({ description: 'Свежая запись' })] }))
+    getAuditLogFilterOptionsMock.mockResolvedValueOnce(buildFilterOptions({ users: [] }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Повторить' })).toBeEnabled())
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+    expect(await screen.findByText('Свежая запись')).toBeVisible()
+    expect(screen.queryByText('Создан новый клиент')).not.toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Пользователь' })).toHaveValue('')
+    expect(getAuditLogEntriesMock.mock.lastCall?.[0]?.userId).toBeUndefined()
+    fireEvent.click(screen.getByRole('combobox', { name: 'Пользователь' }))
+    expect(screen.queryByRole('option', { name: /Мария Иванова/ })).not.toBeInTheDocument()
+  })
+
   test('renders exactly four audit list columns without object or action', async () => {
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     const grid = await screen.findByTestId('audit-log-grid')
     const header = within(grid).getAllByRole('row')[0]
@@ -105,7 +204,7 @@ describe('AuditLogScreen', () => {
   })
 
   test('opens old and new JSON values from row details action', async () => {
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     await screen.findByTestId('audit-log-grid')
     const detailsTrigger = screen.getByTestId('audit-log-details-action')
@@ -136,7 +235,7 @@ describe('AuditLogScreen', () => {
     const originalEntry = structuredClone(entry)
     getAuditLogEntriesMock.mockResolvedValueOnce(buildAuditResponse({ items: [entry] }))
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     const grid = await screen.findByTestId('audit-log-grid')
     const dataRow = within(grid).getAllByRole('row')[1]
@@ -194,7 +293,7 @@ describe('AuditLogScreen', () => {
     const originalEntries = structuredClone(entries)
     getAuditLogEntriesMock.mockResolvedValueOnce(buildAuditResponse({ items: entries }))
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     const grid = await screen.findByTestId('audit-log-grid')
     const rows = within(grid).getAllByRole('row').slice(1)
@@ -241,7 +340,7 @@ describe('AuditLogScreen', () => {
       })
     })
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     await screen.findByText('Запись страницы 1')
     fireEvent.click(screen.getByRole('combobox', { name: 'Тип действия' }))
@@ -294,7 +393,7 @@ describe('AuditLogScreen', () => {
       }),
     )
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     const pagination = await screen.findByRole('navigation', {
       name: 'Страницы журнала действий',
@@ -313,7 +412,7 @@ describe('AuditLogScreen', () => {
       buildAuditResponse({ items: [], totalCount: 0 }),
     )
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     expect(await screen.findByText('В журнале пока нет записей')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Обновить' })).toBeVisible()
@@ -332,7 +431,7 @@ describe('AuditLogScreen', () => {
       .mockRejectedValueOnce(new Error('Backend недоступен'))
       .mockResolvedValueOnce(buildAuditResponse())
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     expect(await screen.findByText('Журнал не загрузился')).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
@@ -354,7 +453,7 @@ describe('AuditLogScreen', () => {
         }),
       )
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     expect(await screen.findByText('Создан новый клиент')).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
@@ -378,7 +477,7 @@ describe('AuditLogScreen', () => {
       )
       .mockRejectedValueOnce(new Error('Вторая страница недоступна'))
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     const pagination = await screen.findByRole('navigation', {
       name: 'Страницы журнала действий',
@@ -406,7 +505,7 @@ describe('AuditLogScreen', () => {
     )
     const timerSpy = vi.spyOn(window, 'setTimeout')
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     const triggers = await screen.findAllByTestId('audit-log-details-action')
     const trigger = triggers[1]
@@ -445,7 +544,7 @@ describe('AuditLogScreen', () => {
   test('does not schedule an application-owned delayed focus callback', async () => {
     const timerSpy = vi.spyOn(window, 'setTimeout')
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     const trigger = await screen.findByTestId('audit-log-details-action')
     fireEvent.click(trigger)
@@ -466,7 +565,7 @@ describe('AuditLogScreen', () => {
   })
 
   test('keeps the action type filter wired to the existing API query', async () => {
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     await screen.findByTestId('audit-log-grid')
     fireEvent.click(screen.getByRole('combobox', { name: 'Тип действия' }))
@@ -481,7 +580,7 @@ describe('AuditLogScreen', () => {
   })
 
   test('does not load audit data when user cannot view audit log', () => {
-    renderWithProviders(<AuditLogScreen user={deniedUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={deniedUser} />)
 
     expect(screen.getByText('Журнал действий недоступен')).toBeVisible()
     expect(getAuditLogEntriesMock).not.toHaveBeenCalled()
@@ -496,7 +595,7 @@ describe('AuditLogScreen', () => {
       }),
     )
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     expect(await screen.findByText('В журнале пока нет записей')).toBeVisible()
     expect(screen.queryByTestId('audit-log-grid')).not.toBeInTheDocument()
@@ -505,7 +604,7 @@ describe('AuditLogScreen', () => {
   test('keeps error state reachable', async () => {
     getAuditLogEntriesMock.mockRejectedValueOnce(new Error('Backend недоступен'))
 
-    renderWithProviders(<AuditLogScreen user={auditUser} />)
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
 
     expect(await screen.findByText('Журнал не загрузился')).toBeVisible()
     expect(screen.getByText('Backend недоступен')).toBeVisible()
@@ -567,4 +666,11 @@ function buildAuditEntry(overrides: Partial<AuditLogEntry> = {}): AuditLogEntry 
     createdAt: '2026-05-14T10:10:10.000Z',
     ...overrides,
   }
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void
+  let reject!: (reason: unknown) => void
+  const promise = new Promise<T>((res, rej) => { resolve = res; reject = rej })
+  return { promise, resolve, reject }
 }

@@ -1,5 +1,14 @@
 # Журнал изменения требований
 
+## 08.10.2026 — TASK-186: реализация ограничения чтения аудита
+
+- REQ-AUD-001: реализованы запрет чтения Administrator/Coach, очистка sensitive
+  state при 401/403 и существующее session/recovery поведение без фонового polling.
+  [Задача](../../backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md),
+  [проверки](../../backlog/implementation/TASK-186-validation.md).
+  Реализация остаётся «частично» до интеграции в main.
+
+
 Обратохронологический список изменений карточек в `docs/requirements/`.
 Каждое изменение требований фиксируется задачей, которая его внесла.
 

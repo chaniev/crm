@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Alert, Button, Stack } from '@mantine/core'
 import { IconCheck } from '@tabler/icons-react'
-import type { AuthenticatedUser, ScheduleLesson } from '../lib/api'
+import type { AuthenticatedUser, ScheduleLesson, SessionResponse } from '../lib/api'
 import type { AppRoute, RouteAccessResolution } from '../lib/appRoutes'
 import type { ClientProfileOriginInput, ClientProfileReturnContext } from '../features/clients/clientProfileReturnState'
 import type { ClientListReturnSnapshot } from '../features/clients/list/clientListReturnState'
@@ -76,7 +76,7 @@ type RouteViewportProps = {
   ) => void
   onCreateUser: () => void
   onEditUser: (userId: string) => void
-  onRefreshSession: () => Promise<unknown>
+  onRefreshSession: () => Promise<SessionResponse>
   onReturnToClients: () => void
   onReturnToGroups: () => void
   onReturnToSchedule: () => void
@@ -336,7 +336,7 @@ export function RouteViewport({
   }
 
   if (route.section === 'Audit') {
-    return <AuditLogScreen user={user} />
+    return <AuditLogScreen onRefreshSession={onRefreshSession} user={user} />
   }
 
   if (route.section === 'Finance') {

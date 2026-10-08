@@ -154,7 +154,12 @@ vi.mock('./features/users/UserManagement', () => ({
 }))
 
 vi.mock('./features/audit/AuditLogScreen', () => ({
-  AuditLogScreen: () => <div data-testid="audit-screen">Audit</div>,
+  AuditLogScreen: ({ onRefreshSession }: { onRefreshSession: () => Promise<unknown> }) => (
+    <div data-testid="audit-screen">
+      Audit
+      <button onClick={() => void onRefreshSession()}>Audit session recovery</button>
+    </div>
+  ),
 }))
 
 vi.mock('./features/finance/FinanceReportsScreen', () => ({
@@ -630,6 +635,25 @@ describe('App route access contract', () => {
 
     expect(screen.getByText('Открываем Gym CRM')).toBeVisible()
     expect(screen.queryByRole('heading', { level: 1, name: 'Нет доступа' })).not.toBeInTheDocument()
+  })
+
+  test.each(['restricted', 'anonymous'] as const)('audit callback reaches existing shell %s recovery', async (outcome) => {
+    const oldSession: AuthenticatedUser = { ...baseSession, role: 'Administrator' }
+    renderAppAt('/audit', oldSession)
+    await screen.findByTestId('audit-screen')
+    loadSessionMock.mockResolvedValueOnce(outcome === 'anonymous'
+      ? { isAuthenticated: false, user: null, csrfToken: 'anonymous', bootstrapMode: false }
+      : mockSession({ ...oldSession, allowedSections: ['Attendance', 'Clients'], permissions: { ...oldSession.permissions, canViewAuditLog: false } }))
+    fireEvent.click(screen.getByRole('button', { name: 'Audit session recovery' }))
+    await waitFor(() => expect(screen.queryByTestId('audit-screen')).not.toBeInTheDocument())
+    if (outcome === 'restricted') {
+      expect(window.location.pathname).toBe('/attendance')
+      expect(showPoliteStatusNotificationMock).toHaveBeenCalledTimes(1)
+      expect(screen.queryByRole('button', { name: 'Журнал' })).not.toBeInTheDocument()
+    } else {
+      expect(await screen.findByRole('button', { name: 'Войти' })).toBeVisible()
+    }
+    expect(loadSessionMock).toHaveBeenCalledTimes(2)
   })
 
   test('auto-recovers once after same-user session refresh revokes current allowed route', async () => {

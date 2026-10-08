@@ -70,7 +70,6 @@ internal sealed class AccessScopeService(
                     AppSection.Schedule,
                     AppSection.Clients,
                     AppSection.Groups,
-                    AppSection.Audit,
                     AppSection.Settings
                 ],
                 permissions,

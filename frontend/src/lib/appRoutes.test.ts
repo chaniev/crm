@@ -63,6 +63,28 @@ const coachUser: AuthenticatedUser = {
 }
 
 describe('finance routes', () => {
+  test.each([
+    ['HeadCoach', true], ['SuperAdministrator', true], ['Administrator', false], ['Coach', false],
+  ] as const)('routes and navigation consume backend audit facts for %s', (role, allowed) => {
+    const user = {
+      ...financeUser, role,
+      allowedSections: allowed ? financeUser.allowedSections : financeUser.allowedSections.filter((section) => section !== 'Audit'),
+      permissions: { ...financeUser.permissions, canViewAuditLog: allowed },
+    }
+    expect(getAccessibleNavigationSections(user).includes('Audit')).toBe(allowed)
+    expect(resolveRouteAccess(user, parseRoute('/audit')).kind).toBe(allowed ? 'allowed' : 'restricted')
+  })
+
+  test.each(['capability', 'section'] as const)('either missing audit %s restricts even a global role', (missing) => {
+    const user = {
+      ...financeUser,
+      allowedSections: missing === 'section' ? financeUser.allowedSections.filter((section) => section !== 'Audit') : financeUser.allowedSections,
+      permissions: { ...financeUser.permissions, canViewAuditLog: missing !== 'capability' },
+    }
+    expect(getAccessibleNavigationSections(user)).not.toContain('Audit')
+    expect(resolveRouteAccess(user, parseRoute('/audit')).kind).toBe('restricted')
+  })
+
   test('includes Finance in navigation only when backend grants section and permission', () => {
     expect(getAccessibleNavigationSections(financeUser)).toContain('Finance')
 

@@ -7,6 +7,17 @@ namespace GymCrm.Tests;
 
 public class UserRoleAuthorizationPolicyTests
 {
+    [Theory]
+    [InlineData(UserRole.HeadCoach, true)]
+    [InlineData(UserRole.SuperAdministrator, true)]
+    [InlineData(UserRole.Administrator, false)]
+    [InlineData(UserRole.Coach, false)]
+    public void Audit_read_capability_is_reserved_for_global_roles(UserRole role, bool allowed)
+    {
+        Assert.Equal(allowed, UserRoleAuthorizationPolicy.GetPermissions(role).CanViewAuditLog);
+        Assert.Equal(allowed, UserRoleAuthorizationPolicy.HasCapability(role, CrmCapability.ViewAuditLog));
+    }
+
     [Fact]
     public void Capability_matrix_grants_super_administrator_global_operations_without_head_coach_only_privileges()
     {

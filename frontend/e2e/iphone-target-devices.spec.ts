@@ -1,3 +1,4 @@
+import { registerAuditAccessScenarios } from './audit-access-scenarios'
 import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
@@ -4844,3 +4845,5 @@ async function expectTouchTargetAtLeast(locator: Locator, minSize: number) {
   expect(box!.width).toBeGreaterThanOrEqual(minSize)
   expect(box!.height).toBeGreaterThanOrEqual(minSize)
 }
+
+registerAuditAccessScenarios()
