@@ -1814,3 +1814,22 @@
 - validation: full `verify_change.py --base origin/main --task-id TASK-165`
   matrix passed, including requirements, harness, backend, frontend, bot and
   Compose configuration checks.
+
+# 2026-10-08 10:13
+- moved: none — в implementation не переводилась
+- planned_in_place: TASK-186 — planning-only; после review перенесена из risky в needs-clarification
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-186-audit-access-head-coach-super-admin.plan.md
+- review: /backlog/logs/TASK-186-security-review-2026-10-08.md
+- blocker: требуется ответ владельца о timing отзыва доступа в бездействующей вкладке; роли и сохранение истории уже приняты
+- scope: только planning artifacts и исправление requirement backlinks; project code, task branch/worktree и runtime не менялись
+- validation: `python3 scripts/harness/verify_change.py --base origin/main` — PASS, 4 knowledge checks; repository-wide draft validation не является executable preflight. Проверки приложений не запускались.
+
+# 2026-10-08 10:48
+- moved: TASK-186 — needs-clarification → tasks-ready → implementation после закрытия вопроса и readiness preflight
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-186-audit-access-head-coach-super-admin.plan.md
+- decision: пользователь явно выбрал обнаружение отзыва открытой вкладкой при следующем запросе; отдельная фоновая проверка не требуется
+- readiness: yes; evidence решения записано в source task и REQ-AUD-001, security review дополнен закрытием вопроса
+- scope: завершено планирование; код, ветка, worktree и runtime не изменялись

@@ -3572,3 +3572,20 @@
 - Повторный `python3 scripts/harness/verify_change.py --base origin/main`: PASS, все 4 knowledge checks (agent instructions, ADR, plan readiness, requirements registry). Evidence: `.artifacts/verification/report.json`.
 - Отдельно проверены ссылки новых карточек и новых requirement entries, уникальность TASK-ID, status/directory и coverage 18/18 source items. Оба оригинальных source body сохранены побайтно по текстовому сравнению; inbox/processing не содержат обрабатываемых файлов.
 - Проверки приложений и новый runtime-аудит не запускались: изменены только backlog и требования.
+
+## 2026-10-08 — TASK-186 planning status correction
+
+- Историческая запись triage выше сохраняет исходную классификацию `risky`.
+  Текущая карточка: [TASK-186](../needs-clarification/TASK-186-audit-access-head-coach-super-admin.md).
+- Созданы [план](../implementation-plans/TASK-186-audit-access-head-coach-super-admin.plan.md)
+  и [статический security review](TASK-186-security-review-2026-10-08.md).
+  Новый blocker — момент обнаружения отзыва доступа бездействующей вкладкой;
+  вопрос направлен владельцу, план пока `readiness: no`.
+
+## 2026-10-08 — TASK-186 clarification resolved
+
+- Пользователь выбрал обнаружение отзыва при следующем запросе. Вопрос закрыт;
+  [TASK-186](../implementation/TASK-186-audit-access-head-coach-super-admin.md)
+  подготовлена к исполнению, план получил `readiness: yes`.
+- Ссылки выше на `risky` и `needs-clarification` отражают историческое положение
+  карточки; актуальное положение — `implementation`. Приложение не изменялось.
