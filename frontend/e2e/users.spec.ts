@@ -1,3 +1,4 @@
+import { administratorCoachFlow } from './support/administrator-coach-flow'
 import { expect, test, type Page } from '@playwright/test'
 
 const APP_CONFIG = {
@@ -485,15 +486,17 @@ test('Редактирование пользователя показывает
     }
 
     if (
-      requestUrl.pathname === '/api/coaches/headcoach-id' &&
+      requestUrl.pathname === '/api/coaches/coach-existing' &&
       method === 'GET'
     ) {
       userDetailsCalls += 1
       await fulfillJson(route, 200, {
-        id: 'headcoach-id',
+        id: 'coach-existing',
         fullName: 'Главный тренер',
-        login: 'headcoach',
-        role: 'HeadCoach',
+        login: 'coach-existing',
+        role: 'Coach',
+        allowedActions: ['Edit'],
+        roleOptions: ['Coach'],
         mustChangePassword: false,
         isActive: true,
         messengerPlatform: null,
@@ -507,7 +510,7 @@ test('Редактирование пользователя показывает
     )
   })
 
-  await page.goto('/coaches/headcoach-id/edit')
+  await page.goto('/coaches/coach-existing/edit')
 
   await expect(page.getByRole('heading', { name: 'Главный тренер' })).toBeVisible()
   await expect(page.getByText('Редактирование доступа')).toHaveCount(0)
@@ -517,7 +520,7 @@ test('Редактирование пользователя показывает
     page.getByText(/Если очистить поле, тренер потеряет доступ к боту/),
   ).toBeVisible()
   await expect(page.getByLabel('ФИО')).toHaveValue('Главный тренер')
-  await expect(page.getByLabel('Логин')).toHaveValue('headcoach')
+  await expect(page.getByLabel('Логин')).toHaveValue('coach-existing')
   await expect(
     page.getByRole('button', { name: 'Сохранить изменения' }),
   ).toBeVisible()
@@ -550,14 +553,16 @@ test('Редактирование пользователя показывает
     }
 
     if (
-      requestUrl.pathname === '/api/coaches/headcoach-id' &&
+      requestUrl.pathname === '/api/coaches/coach-existing' &&
       method === 'GET'
     ) {
       await fulfillJson(route, 200, {
-        id: 'headcoach-id',
+        id: 'coach-existing',
         fullName: 'Главный тренер',
-        login: 'headcoach',
-        role: 'HeadCoach',
+        login: 'coach-existing',
+        role: 'Coach',
+        allowedActions: ['Edit'],
+        roleOptions: ['Coach'],
         mustChangePassword: false,
         isActive: true,
         messengerPlatform: null,
@@ -567,7 +572,7 @@ test('Редактирование пользователя показывает
     }
 
     if (
-      requestUrl.pathname === '/api/coaches/headcoach-id' &&
+      requestUrl.pathname === '/api/coaches/coach-existing' &&
       method === 'PUT'
     ) {
       updateUserPayload = route.request().postDataJSON()
@@ -591,7 +596,7 @@ test('Редактирование пользователя показывает
     )
   })
 
-  await page.goto('/coaches/headcoach-id/edit')
+  await page.goto('/coaches/coach-existing/edit')
 
   await page.getByLabel('ФИО').fill('Главный')
   await page.getByRole('button', { name: 'Сохранить изменения' }).click()
@@ -736,3 +741,8 @@ async function fulfillJson(
     body: JSON.stringify(payload),
   })
 }
+
+
+test('TASK-187 Administrator creates and edits Coach with recovery and restricted path', async ({ page }) => {
+  await administratorCoachFlow(page)
+})

@@ -13,9 +13,10 @@ internal static class StaffManagementBoundary
             : StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.StaffManagementForbidden);
     }
 
-    public static StaffAuthorizationDecision AuthorizeManagement(User actor)
+    public static StaffAuthorizationDecision AuthorizeManagement(User actor, StaffEndpointRoleFamily endpointRoleFamily)
     {
-        return UserRoleAuthorizationPolicy.CanManageStaff(actor.Role)
+        return UserRoleAuthorizationPolicy.GetCreateRoleOptions(actor.Role)
+            .Any(role => StaffEndpointRoleFamilies.Contains(endpointRoleFamily, role))
             ? StaffAuthorizationDecision.Allow()
             : StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.StaffManagementForbidden);
     }

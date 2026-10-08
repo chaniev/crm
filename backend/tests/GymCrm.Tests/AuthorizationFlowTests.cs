@@ -74,13 +74,14 @@ public class AuthorizationFlowTests
 
         var session = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
 
+        session = await GetSessionAsync(client);
         Assert.NotNull(session.User);
         Assert.Equal("Administrator", session.User.Role);
         Assert.Equal(seeded.AssignedBranchId, session.User.BranchId);
-        Assert.Empty(session.User.CreateRoleOptions);
+        Assert.Equal(["Coach"], session.User.CreateRoleOptions);
         Assert.Equal("Attendance", session.User.LandingScreen);
-        Assert.Equal(["Attendance", "Attention", "Schedule", "Clients", "Groups", "Settings"], session.User.AllowedSections);
-        Assert.False(session.User.Permissions.CanManageUsers);
+        Assert.Equal(["Attendance", "Attention", "Schedule", "Clients", "Groups", "Users", "Settings"], session.User.AllowedSections);
+        Assert.True(session.User.Permissions.CanManageUsers);
         Assert.True(session.User.Permissions.CanManageClients);
         Assert.True(session.User.Permissions.CanManageGroups);
         Assert.True(session.User.Permissions.CanManageSettings);
@@ -92,7 +93,7 @@ public class AuthorizationFlowTests
         Assert.Equal("AdministratorGrants", session.User.AttendanceScope.Kind);
         Assert.Empty(session.User.AttendanceScope.GroupIds);
 
-        await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.Forbidden);
+        await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/client-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);

@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "task_id": "TASK-187",
+  "expected_branch": "codex/TASK-187-administrator-coach-creation-scope",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.coaches",
+      "spec": "e2e/users.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.administrators",
+      "spec": "e2e/administrator-role-flow.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.group-schedule",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.groups",
+      "spec": "e2e/groups-registry.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.coaches-iphone",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": [
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    }
+  ],
+  "runtime_stack": {
+    "compose_file": "deploy/docker-compose.yml",
+    "env_file": "deploy/.env.example",
+    "services": [
+      "frontend"
+    ],
+    "startup_timeout_seconds": 1800,
+    "cleanup_timeout_seconds": 180,
+    "readiness": [
+      {
+        "id": "runtime.backend-ready",
+        "command": [
+          "curl",
+          "-fsS",
+          "http://127.0.0.1:{backend_port}/health/ready"
+        ],
+        "timeout_seconds": 180
+      }
+    ],
+    "smoke": [
+      {
+        "id": "runtime.two-administrators-and-branches",
+        "command": [
+          "env",
+          "TASK187_RUNTIME_URL=http://127.0.0.1:{frontend_port}",
+          "E2E_BASE_URL=http://127.0.0.1:{frontend_port}",
+          "E2E_PORT={frontend_port}",
+          "npm",
+          "--prefix",
+          "frontend",
+          "run",
+          "test:e2e",
+          "--",
+          "e2e/administrator-coaches-runtime.spec.ts",
+          "--project=chromium"
+        ],
+        "timeout_seconds": 300
+      }
+    ]
+  },
+  "manual_evidence": "backlog/implementation/TASK-187-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.rendered-comparison",
+      "description": "Compare existing trainer CRUD with implemented Administrator flow and inspect the settings dialog correction."
+    }
+  ]
+}

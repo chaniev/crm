@@ -14,7 +14,7 @@ internal static class StaffManagementMutationService
         IPasswordHashService passwordHashService,
         CancellationToken cancellationToken)
     {
-        var managementDecision = StaffManagementBoundary.AuthorizeManagement(command.Actor);
+        var managementDecision = StaffManagementBoundary.AuthorizeManagement(command.Actor, command.EndpointRoleFamily);
         if (!managementDecision.Allowed)
         {
             return StaffMutationResult.Forbidden(managementDecision.Denial);
@@ -116,7 +116,7 @@ internal static class StaffManagementMutationService
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        var managementDecision = StaffManagementBoundary.AuthorizeManagement(command.Actor);
+        var managementDecision = StaffManagementBoundary.AuthorizeManagement(command.Actor, command.EndpointRoleFamily);
         if (!managementDecision.Allowed)
         {
             return StaffMutationResult.Forbidden(managementDecision.Denial);

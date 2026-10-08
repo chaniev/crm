@@ -553,3 +553,35 @@ describe('mobile navigation sections', () => {
     expect(renderedSections).not.toContain('Notifications')
   })
 })
+
+
+describe('Administrator coach management from backend session', () => {
+  const administrator: AuthenticatedUser = {
+    ...financeUser,
+    role: 'Administrator',
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Settings'],
+    permissions: { ...financeUser.permissions, canViewAuditLog: false, canViewFinancialReports: false },
+    attendanceScope: { kind: 'AdministratorGrants', groupIds: [] },
+    branchId: 'branch-1',
+    createRoleOptions: ['Coach'],
+  }
+
+  test('opens trainer list, create and direct edit while keeping audit and finance restricted', () => {
+    expect(getAccessibleNavigationSections(administrator)).toContain('Users')
+    for (const path of ['/coaches', '/coaches/new', '/coaches/coach-1/edit']) {
+      expect(resolveRouteAccess(administrator, parseRoute(path)).kind).toBe('allowed')
+    }
+    for (const path of ['/audit', '/finance']) {
+      expect(resolveRouteAccess(administrator, parseRoute(path)).kind).toBe('restricted')
+    }
+  })
+
+  test.each<{ options: AuthenticatedUser['createRoleOptions'] }>([
+    { options: undefined }, { options: [] }, { options: ['Administrator'] },
+  ])('denies direct trainer creation without Coach option: $options', ({ options }) => {
+    const user = { ...administrator, createRoleOptions: options ? [...options] : undefined }
+    expect(resolveRouteAccess(user, { kind: 'userCreate' }).kind).toBe('restricted')
+    expect(resolveRouteAccess(user, { kind: 'section', section: 'Users' }).kind).toBe('allowed')
+  })
+})

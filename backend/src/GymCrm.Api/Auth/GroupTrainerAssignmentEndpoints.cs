@@ -1,6 +1,4 @@
 using System.Globalization;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
@@ -71,7 +69,7 @@ internal static class GroupTrainerAssignmentEndpoints
             return TypedResults.ValidationProblem(parsed.Errors);
         }
 
-        var currentRevision = BuildRevision(group.Id, group.TrainerAssignments);
+        var currentRevision = GroupTrainerAssignmentRevision.Create(group.Id, group.TrainerAssignments);
         if (!string.IsNullOrWhiteSpace(request.ExpectedRevision) &&
             !string.Equals(request.ExpectedRevision.Trim(), currentRevision, StringComparison.Ordinal))
         {
@@ -176,7 +174,7 @@ internal static class GroupTrainerAssignmentEndpoints
             return TypedResults.ValidationProblem(parsed.Errors);
         }
 
-        var currentRevision = BuildRevision(group.Id, group.TrainerAssignments);
+        var currentRevision = GroupTrainerAssignmentRevision.Create(group.Id, group.TrainerAssignments);
         if (!string.IsNullOrWhiteSpace(request.ExpectedRevision) &&
             !string.Equals(request.ExpectedRevision.Trim(), currentRevision, StringComparison.Ordinal))
         {
@@ -250,7 +248,7 @@ internal static class GroupTrainerAssignmentEndpoints
         var finalGroup = await LoadGroupAsync(id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated training group '{id}' was not found.");
         return TypedResults.Ok(new GroupTrainerAssignmentsExecuteResponse(
-            BuildRevision(finalGroup.Id, finalGroup.TrainerAssignments),
+            GroupTrainerAssignmentRevision.Create(finalGroup.Id, finalGroup.TrainerAssignments),
             MapAssignments(finalGroup.TrainerAssignments),
             impact,
             warnings));
@@ -613,29 +611,6 @@ internal static class GroupTrainerAssignmentEndpoints
                 assignment.ValidTo
             })
             .ToArray();
-    }
-
-    private static string BuildRevision(Guid groupId, IEnumerable<GroupTrainerAssignment> assignments)
-    {
-        var canonical = string.Join(
-            "|",
-            groupId.ToString("D"),
-            string.Join(
-                ";",
-                assignments
-                    .OrderBy(assignment => assignment.ValidFrom)
-                    .ThenBy(assignment => assignment.ValidTo)
-                    .ThenBy(assignment => assignment.TrainerId)
-                    .Select(assignment => string.Join(
-                        ",",
-                        assignment.TrainerId.ToString("D"),
-                        assignment.ValidFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                        assignment.ValidTo?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty))));
-
-        return Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)))
-            .TrimEnd('=')
-            .Replace('+', '-')
-            .Replace('/', '_');
     }
 
     private static bool TryParseDate(string? value, out DateOnly result)

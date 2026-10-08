@@ -885,7 +885,7 @@ internal static class GroupEndpoints
             trainers,
             group.Clients.Count,
             group.UpdatedAt,
-            BuildTrainerAssignmentRevision(group.TrainerAssignments),
+            GroupTrainerAssignmentRevision.Create(group.Id, group.TrainerAssignments),
             group.TrainerAssignments
                 .OrderBy(assignment => assignment.ValidFrom)
                 .ThenBy(assignment => assignment.ValidTo)
@@ -897,23 +897,6 @@ internal static class GroupEndpoints
                     assignment.ValidFrom,
                     assignment.ValidTo))
                 .ToArray());
-    }
-
-    private static string BuildTrainerAssignmentRevision(IEnumerable<GroupTrainerAssignment> assignments)
-    {
-        var canonical = string.Join(
-            "|",
-            assignments
-                .OrderBy(assignment => assignment.ValidFrom)
-                .ThenBy(assignment => assignment.ValidTo)
-                .ThenBy(assignment => assignment.TrainerId)
-                .Select(assignment => string.Join(
-                    ",",
-                    assignment.TrainerId.ToString("D"),
-                    assignment.ValidFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    assignment.ValidTo?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty)));
-
-        return ScheduleMutationTokenPolicy.ComputeSha256Base64Url(canonical);
     }
 
     private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)

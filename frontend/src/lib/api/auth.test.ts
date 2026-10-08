@@ -87,11 +87,11 @@ describe('auth API', () => {
         mustChangePassword: false,
         isActive: true,
         landingScreen: 'Attendance',
-        allowedSections: ['Attendance'],
+        allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Settings'],
         permissions: {
-          canManageUsers: false,
+          canManageUsers: true,
           canManageClients: true,
-          canManageGroups: false,
+          canManageGroups: true,
           canManageSettings: true,
           canMarkAttendance: true,
           canViewAuditLog: false,
@@ -103,13 +103,15 @@ describe('auth API', () => {
           groupIds: ['group-1', 'group-2'],
         },
         branchId: 'branch-1',
-        createRoleOptions: [],
+        createRoleOptions: ['Coach'],
       },
     })))
 
     await expect(loadSession()).resolves.toMatchObject({
       user: {
         role: 'Administrator',
+        createRoleOptions: ['Coach'],
+        permissions: { canManageUsers: true, canViewAuditLog: false, canViewFinancialReports: false },
         assignedGroupIds: [],
         attendanceScope: {
           kind: 'AdministratorGrants',

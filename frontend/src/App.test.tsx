@@ -226,6 +226,7 @@ vi.mock('./features/attendance/AttendanceScreen', () => ({
 const baseSession: AuthenticatedUser = {
   attendanceScope: { kind: 'Global', groupIds: [] },
   allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+  createRoleOptions: ['Coach', 'Administrator', 'SuperAdministrator'],
   assignedGroupIds: [],
   branchId: null,
   id: 'headcoach-id',
@@ -647,7 +648,7 @@ describe('App route access contract', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Audit session recovery' }))
     await waitFor(() => expect(screen.queryByTestId('audit-screen')).not.toBeInTheDocument())
     if (outcome === 'restricted') {
-      expect(window.location.pathname).toBe('/attendance')
+      await waitFor(() => expect(window.location.pathname).toBe('/attendance'))
       expect(showPoliteStatusNotificationMock).toHaveBeenCalledTimes(1)
       expect(screen.queryByRole('button', { name: 'Журнал' })).not.toBeInTheDocument()
     } else {

@@ -20,6 +20,14 @@
 
 ## 2026-10-08
 
+- 08.10.2026 — REQ-USR-001, REQ-USR-002, REQ-USR-004 — реализованы глобальный
+  CRUD Coach администратором, session options/actions и fail-closed consumers;
+  сохранены запреты других ролей, branch scope групп, audit и auth lifecycle.
+  [TASK-187](../../backlog/implementation/TASK-187-administrator-coach-creation-scope.md),
+  [проверки](../../backlog/implementation/TASK-187-evidence/verification.md).
+  До интеграции в main — «частично»; REQ-USR-002 остаётся «частично» и после
+  интеграции, поскольку прочие условия всей карточки отдельно не закрывались.
+
 - 08.10.2026 — REQ-USR-002 — по прямому решению пользователя из прав
   Администратора исключён сброс пароля существующего сотрудника. Создание
   тренера с начальным паролем и самостоятельная смена пароля сохраняются.

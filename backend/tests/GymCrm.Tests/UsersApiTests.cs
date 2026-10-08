@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GymCrm.Tests;
 
-public class UsersApiTests
+public partial class UsersApiTests
 {
     [Fact]
     public async Task HeadCoach_can_list_create_and_update_users()
@@ -809,9 +809,8 @@ public class UsersApiTests
     }
 
     [Theory]
-    [InlineData("Administrator")]
     [InlineData("Coach")]
-    public async Task Administrator_and_Coach_cannot_access_users_endpoints(string actorRole)
+    public async Task Coach_cannot_access_users_endpoints(string actorRole)
     {
         await using var factory = new UsersAppFactory();
         var seeded = await SeedUsersDataAsync(factory);
@@ -1085,8 +1084,10 @@ public class UsersApiTests
         Assert.All(auditLogs, log => Assert.Equal(seeded.HeadCoachId, log.UserId));
     }
 
-    [Fact]
-    public async Task SuperAdministrator_can_create_and_update_coach_through_users_with_exact_audit_scope()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Staff_manager_can_create_and_update_coach_through_users_with_exact_audit_scope(bool administrator)
     {
         await using var factory = new UsersAppFactory();
         var seeded = await SeedUsersDataAsync(factory);
@@ -1096,7 +1097,7 @@ public class UsersApiTests
             HandleCookies = true
         });
 
-        var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+        var session = await LoginAsync(client, administrator ? seeded.AdministratorLogin : seeded.SuperAdministratorLogin, seeded.SharedPassword);
 
         using (var listResponse = await client.GetAsync("/coaches"))
         {
@@ -1182,7 +1183,7 @@ public class UsersApiTests
             .ToListAsync();
 
         Assert.Equal(2, administratorAudit.Count);
-        Assert.All(administratorAudit, log => Assert.Equal(seeded.SuperAdministratorId, log.UserId));
+        Assert.All(administratorAudit, log => Assert.Equal(administrator ? seeded.AdministratorId : seeded.SuperAdministratorId, log.UserId));
         Assert.Equal("UserCreated", administratorAudit[0].ActionType);
         Assert.Equal("UserUpdated", administratorAudit[1].ActionType);
         AssertAuditState(administratorAudit[0].NewValueJson, "Coach", null);
@@ -1529,8 +1530,10 @@ public class UsersApiTests
         Assert.Equal(administratorUpdatedAt, administrator.UpdatedAt);
     }
 
-    [Fact]
-    public async Task Mandatory_staff_audit_insert_failure_rolls_back_create_and_update_on_relational_provider()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Mandatory_staff_audit_insert_failure_rolls_back_create_and_update_on_relational_provider(bool administrator)
     {
         await using var factory = new UsersAppFactory(useSqlite: true);
         var seeded = await SeedUsersDataAsync(factory);
@@ -1540,7 +1543,7 @@ public class UsersApiTests
             HandleCookies = true
         });
 
-        var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+        var session = await LoginAsync(client, administrator ? seeded.AdministratorLogin : seeded.SuperAdministratorLogin, seeded.SharedPassword);
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();

@@ -666,4 +666,19 @@ describe('UserEditScreen', () => {
     expect(screen.queryByRole('button', { name: 'К списку' })).not.toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: 'Назад к списку' })).toHaveLength(1)
   })
+
+  test.each<{ allowedActions: UserDetails['allowedActions'] }>([
+    { allowedActions: undefined }, { allowedActions: [] }, { allowedActions: ['Read'] },
+  ])('denies editing without a backend mutation action: $allowedActions', async ({ allowedActions }) => {
+    vi.mocked(getUser).mockResolvedValue({ ...coach, allowedActions })
+    renderWithProviders(
+      <UserEditScreen currentUserId="administrator-1" onBack={vi.fn()} onRefreshSession={vi.fn()} userId={coach.id} />,
+    )
+    expect(await screen.findByDisplayValue('Тренер')).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Сохранить изменения' })).not.toBeInTheDocument()
+    fireEvent.submit(screen.getByDisplayValue('Тренер').closest('form')!)
+    expect(updateUser).not.toHaveBeenCalled()
+  })
+
+
 })

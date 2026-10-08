@@ -1300,6 +1300,70 @@ public class GroupsApiTests
     }
 
     [Fact]
+    public async Task Administrator_retains_coach_CRUD_after_last_assignment_and_execute_rechecks_branch_scope()
+    {
+        await using var factory = new GroupsAppFactory(useSqlite: true);
+        var seeded = await SeedGroupsDataAsync(factory);
+        var foreign = await CreateForeignGroupAsync(factory, seeded);
+        using var client = factory.CreateClient();
+        var session = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
+        using var assigned = await AssignTrainersToGroupAsync(client, $"/groups/{seeded.GroupOneId}",
+            seeded.GroupOneId, [seeded.CoachOneId], session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, assigned.StatusCode);
+        using var removed = await AssignTrainersToGroupAsync(client, $"/groups/{seeded.GroupOneId}",
+            seeded.GroupOneId, [], session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, removed.StatusCode);
+        using var detail = await client.GetAsync($"/coaches/{seeded.CoachOneId}");
+        Assert.Equal(HttpStatusCode.OK, detail.StatusCode);
+        var coach = await ReadJsonElementAsync(detail);
+        using var updated = await PutJsonAsync(client, $"/coaches/{seeded.CoachOneId}", new
+        {
+            fullName = "Тренер без назначений",
+            login = coach.GetProperty("login").GetString(),
+            role = "Coach",
+            isActive = true,
+            mustChangePassword = false
+        }, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, updated.StatusCode);
+        using var list = await client.GetAsync("/coaches");
+        Assert.Contains((await ReadJsonElementAsync(list)).GetProperty("items").EnumerateArray(),
+            item => GetGuidFromProperty(item, "id") == seeded.CoachOneId);
+
+        using var groupDetail = await client.GetAsync($"/groups/{seeded.GroupOneId}");
+        var group = await ReadJsonElementAsync(groupDetail);
+        var request = new
+        {
+            assignments = new[] { new { trainerId = seeded.CoachOneId, validFrom = "2035-01-01", validTo = (string?)null } },
+            expectedRevision = group.GetProperty("trainerAssignmentRevision").GetString()
+        };
+        using var previewResponse = await PostJsonAsync(client, $"/groups/{seeded.GroupOneId}/trainer-assignments/preview", request, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var preview = await ReadJsonElementAsync(previewResponse);
+        int assignmentCount;
+        int auditCount;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var administrator = await db.Users.SingleAsync(user => user.Login == seeded.AdministratorLogin);
+            administrator.BranchId = foreign.BranchId;
+            await db.SaveChangesAsync();
+            assignmentCount = await db.GroupTrainerAssignments.CountAsync();
+            auditCount = await db.AuditLogs.CountAsync();
+        }
+        using var execute = await PostJsonAsync(client, $"/groups/{seeded.GroupOneId}/trainer-assignments", new
+        {
+            request.assignments,
+            expectedRevision = preview.GetProperty("revision").GetString(),
+            confirmationToken = preview.GetProperty("confirmationToken").GetString()
+        }, session.CsrfToken);
+        await AssertBranchScopeForbiddenAsync(execute);
+        using var verificationScope = factory.Services.CreateScope();
+        var verificationDb = verificationScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(assignmentCount, await verificationDb.GroupTrainerAssignments.CountAsync());
+        Assert.Equal(auditCount, await verificationDb.AuditLogs.CountAsync());
+    }
+
+    [Fact]
     public async Task Trainer_assignments_preview_respects_branch_scope()
     {
         await using var factory = new GroupsAppFactory(useSqlite: true);

@@ -150,6 +150,7 @@ test('HeadCoach создаёт суперадминистратора с null br
   await createDialog.getByLabel('ФИО').fill('Новый Суперадмин')
   await createDialog.getByLabel('Логин').fill('superadmin-new')
   await createDialog.getByLabel('Стартовый пароль').fill('Password1!')
+  await page.screenshot({ path: test.info().outputPath('administrator-form.png'), fullPage: true })
   await createDialog.getByRole('button', { name: 'Сохранить' }).click()
 
   await expect.poll(() => createPayload).toMatchObject({

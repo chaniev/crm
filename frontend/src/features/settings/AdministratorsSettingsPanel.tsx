@@ -530,6 +530,7 @@ export function AdministratorsSettingsPanel({
         title={resolveModalTitle(modalState, editForm.values.role)}
         transitionProps={{ duration: 0 }}
         withCloseButton={!submitting}
+        zIndex={300}
       >
         {modalState?.mode === 'create' ? (
           <form onSubmit={createForm.onSubmit((values) => void submitCreate(values))}>

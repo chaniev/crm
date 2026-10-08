@@ -71,8 +71,9 @@ public class UserRoleAuthorizationPolicyTests
                     actor == UserRole.HeadCoach &&
                     requestedRole is UserRole.SuperAdministrator or UserRole.Administrator or UserRole.Coach ||
                     actor == UserRole.SuperAdministrator &&
-                    requestedRole is UserRole.Administrator or UserRole.Coach;
-                var expectedDenial = actor is UserRole.Administrator or UserRole.Coach
+                    requestedRole is UserRole.Administrator or UserRole.Coach ||
+                    actor == UserRole.Administrator && requestedRole == UserRole.Coach;
+                var expectedDenial = actor == UserRole.Coach
                     ? StaffAuthorizationDenial.StaffManagementForbidden
                     : StaffAuthorizationDenial.RoleTransitionForbidden;
 
@@ -91,7 +92,8 @@ public class UserRoleAuthorizationPolicyTests
         {
             foreach (var target in Enum.GetValues<UserRole>())
             {
-                var canRead = actor is UserRole.HeadCoach or UserRole.SuperAdministrator;
+                var canRead = actor is UserRole.HeadCoach or UserRole.SuperAdministrator ||
+                    actor == UserRole.Administrator && target == UserRole.Coach;
                 Assert.Equal(canRead, UserRoleAuthorizationPolicy.CanReadStaff(actor, target));
 
                 var expectedActions = actor switch
@@ -121,7 +123,7 @@ public class UserRoleAuthorizationPolicyTests
                             StaffMutationAction.Reactivate,
                             StaffMutationAction.ManageAttendanceScope
                         },
-                    UserRole.SuperAdministrator when target == UserRole.Coach =>
+                    UserRole.SuperAdministrator or UserRole.Administrator when target == UserRole.Coach =>
                         new[]
                         {
                             StaffMutationAction.Edit,
@@ -178,7 +180,7 @@ public class UserRoleAuthorizationPolicyTests
                 Assert.Equal(
                     headCoachSelfEdit
                         ? StaffAuthorizationDenial.None
-                        : actor is UserRole.Administrator or UserRole.Coach
+                        : actor == UserRole.Coach
                             ? StaffAuthorizationDenial.StaffManagementForbidden
                             : StaffAuthorizationDenial.SelfMutationForbidden,
                     decision.Denial);
@@ -207,6 +209,9 @@ public class UserRoleAuthorizationPolicyTests
     [Fact]
     public void Create_and_update_role_options_are_backend_owned()
     {
+        Assert.Equal([UserRole.Coach], UserRoleAuthorizationPolicy.GetCreateRoleOptions(UserRole.Administrator));
+        Assert.Equal([UserRole.Coach], UserRoleAuthorizationPolicy.GetUpdateRoleOptions(
+            UserRole.Administrator, UserRole.Coach, isSelfTarget: false));
         Assert.Equal(
             [UserRole.Administrator, UserRole.Coach, UserRole.SuperAdministrator],
             UserRoleAuthorizationPolicy.GetCreateRoleOptions(UserRole.HeadCoach));
@@ -284,9 +289,18 @@ public class UserRoleAuthorizationPolicyTests
         UserRole target,
         UserRole requestedRole)
     {
-        if (actor is UserRole.Administrator or UserRole.Coach)
+        if (actor == UserRole.Coach)
         {
             return StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.StaffManagementForbidden);
+        }
+
+        if (actor == UserRole.Administrator)
+        {
+            return target != UserRole.Coach
+                ? StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.TargetForbidden)
+                : requestedRole == UserRole.Coach
+                    ? StaffAuthorizationDecision.Allow()
+                    : StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.RoleTransitionForbidden);
         }
 
         if (actor == UserRole.SuperAdministrator &&

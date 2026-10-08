@@ -241,12 +241,12 @@ describe('SettingsScreen', () => {
           role: 'Administrator',
           permissions: {
             ...baseUser.permissions,
-            canManageUsers: false,
-            canMarkAttendance: false,
-            canViewAuditLog: true,
+            canManageUsers: true,
+            canMarkAttendance: true,
+            canViewAuditLog: false,
           },
           branchId: 'branch-1',
-          createRoleOptions: [],
+          createRoleOptions: ['Coach'],
         }}
       />,
     )

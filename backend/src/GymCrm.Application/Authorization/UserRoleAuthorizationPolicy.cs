@@ -53,7 +53,7 @@ public static class UserRoleAuthorizationPolicy
                 CanViewAuditLog: true,
                 CanViewFinancialReports: false),
             UserRole.Administrator => new PermissionSet(
-                CanManageUsers: false,
+                CanManageUsers: true,
                 CanManageClients: true,
                 CanManageGroups: true,
                 CanManageSettings: true,
@@ -91,6 +91,7 @@ public static class UserRoleAuthorizationPolicy
         {
             UserRole.HeadCoach => true,
             UserRole.SuperAdministrator => true,
+            UserRole.Administrator => targetRole == UserRole.Coach,
             _ => false
         };
     }
@@ -125,6 +126,8 @@ public static class UserRoleAuthorizationPolicy
                 StaffAuthorizationDecision.Allow(),
             UserRole.SuperAdministrator when requestedRole is UserRole.Administrator or UserRole.Coach =>
                 StaffAuthorizationDecision.Allow(),
+            UserRole.Administrator when requestedRole == UserRole.Coach =>
+                StaffAuthorizationDecision.Allow(),
             _ => StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.RoleTransitionForbidden)
         };
     }
@@ -150,6 +153,15 @@ public static class UserRoleAuthorizationPolicy
             }
 
             return StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.SelfMutationForbidden);
+        }
+
+        if (actorRole == UserRole.Administrator)
+        {
+            return currentTargetRole != UserRole.Coach
+                ? StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.TargetForbidden)
+                : requestedTargetRole == UserRole.Coach
+                    ? StaffAuthorizationDecision.Allow()
+                    : StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.RoleTransitionForbidden);
         }
 
         if (actorRole == UserRole.SuperAdministrator &&
@@ -202,13 +214,13 @@ public static class UserRoleAuthorizationPolicy
 
         return actorRole == UserRole.SuperAdministrator && targetRole == UserRole.Administrator
             ? [StaffMutationAction.Edit, StaffMutationAction.Deactivate, StaffMutationAction.Reactivate, StaffMutationAction.ManageAttendanceScope]
-            : actorRole == UserRole.SuperAdministrator && targetRole == UserRole.Coach
+            : actorRole is UserRole.SuperAdministrator or UserRole.Administrator && targetRole == UserRole.Coach
             ? [StaffMutationAction.Edit, StaffMutationAction.Deactivate, StaffMutationAction.Reactivate]
             : [];
     }
 
     public static bool CanManageStaff(UserRole actorRole)
     {
-        return actorRole is UserRole.HeadCoach or UserRole.SuperAdministrator;
+        return actorRole is UserRole.HeadCoach or UserRole.SuperAdministrator or UserRole.Administrator;
     }
 }

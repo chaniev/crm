@@ -25,6 +25,46 @@ public sealed class CaseInsensitiveLoginPostgreSqlTests
     private const string DuplicateLoginError = "Пользователь с таким логином уже существует.";
 
     [Fact]
+    public async Task PostgreSql_administrator_concurrent_coach_create_keeps_one_case_insensitive_account_and_audit()
+    {
+        await using var postgreSql = await StartContainerAsync("task187-coach-create");
+        await using var factory = new LoginIdentityPostgreSqlAppFactory(postgreSql.GetConnectionString());
+        var actorId = await SeedHeadCoachActorAsync(factory, "task187-admin", "actor-password", UserRole.Administrator);
+        using var client = factory.CreateClient();
+        var session = await LoginAsync(client, "task187-admin", "actor-password");
+        var responses = await Task.WhenAll(new[] { "Task187-Coach", "TASK187-COACH" }.Select(login => PostJsonAsync(
+            client, "/coaches", new
+            {
+                fullName = "Тренер",
+                login,
+                password = "coach-password",
+                role = "Coach",
+                mustChangePassword = false,
+                isActive = true
+            }, session.CsrfToken)));
+        try
+        {
+            Assert.Equal(new[] { HttpStatusCode.Created, HttpStatusCode.BadRequest }, responses.Select(response => response.StatusCode).Order());
+            var denied = responses.Single(response => response.StatusCode == HttpStatusCode.BadRequest);
+            var payload = await denied.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal(DuplicateLoginError, payload.GetProperty("errors").GetProperty("login")[0].GetString());
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var coach = await db.Users.SingleAsync(user => user.LoginNormalized == "task187-coach");
+            var audit = await db.AuditLogs.SingleAsync(log => log.EntityType == "User" && log.EntityId == coach.Id.ToString());
+            Assert.Equal(actorId, audit.UserId);
+            Assert.Equal("UserCreated", audit.ActionType);
+        }
+        finally
+        {
+            foreach (var response in responses)
+            {
+                response.Dispose();
+            }
+        }
+    }
+
+    [Fact]
     public async Task PostgreSql_barrier_allows_one_case_variant_and_maps_dupe_to_field_error_with_canonical_auth()
     {
         await using var postgreSql = await StartContainerAsync("login-identity-barrier");
@@ -335,7 +375,8 @@ public sealed class CaseInsensitiveLoginPostgreSqlTests
     private static async Task<Guid> SeedHeadCoachActorAsync(
         LoginIdentityPostgreSqlAppFactory factory,
         string login,
-        string password)
+        string password,
+        UserRole role = UserRole.HeadCoach)
     {
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -346,12 +387,24 @@ public sealed class CaseInsensitiveLoginPostgreSqlTests
             Id = Guid.NewGuid(),
             FullName = "TASK-166 Главный тренер",
             Login = login,
-            Role = UserRole.HeadCoach,
+            Role = role,
             MustChangePassword = false,
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
         };
+        if (role == UserRole.Administrator)
+        {
+            var branch = new GymCrm.Domain.Branches.Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "TASK-187",
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            dbContext.Branches.Add(branch);
+            user.BranchId = branch.Id;
+        }
         user.PasswordHash = passwordHashService.HashPassword(user, password);
         dbContext.Users.Add(user);
         await dbContext.SaveChangesAsync();

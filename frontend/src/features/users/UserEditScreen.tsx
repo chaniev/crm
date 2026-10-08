@@ -230,9 +230,5 @@ function canMutateUser(user: UserDetails | null) {
     return false
   }
 
-  if (user.allowedActions === undefined) {
-    return true
-  }
-
-  return user.allowedActions.includes('Edit') || user.allowedActions.includes('Update')
+  return user.allowedActions?.includes('Edit') === true || user.allowedActions?.includes('Update') === true
 }

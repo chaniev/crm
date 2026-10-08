@@ -310,6 +310,10 @@ function isRouteOperationRestrictedBySectionAccess(
     return true
   }
 
+  if (route.kind === 'userCreate' && !user.createRoleOptions?.includes('Coach')) {
+    return true
+  }
+
   if (isUsersRoute(route, null) && !user.permissions.canManageUsers) {
     return true
   }
@@ -561,6 +565,10 @@ export function isRouteAllowedByPermission(user: AuthenticatedUser, route: AppRo
 
   if (!routeSection) {
     return true
+  }
+
+  if (route.kind === 'userCreate' && !user.createRoleOptions?.includes('Coach')) {
+    return false
   }
 
   if (isUsersRoute(route, routeSection) && !user.permissions.canManageUsers) {

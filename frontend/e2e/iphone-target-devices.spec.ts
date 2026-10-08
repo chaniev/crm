@@ -1,3 +1,4 @@
+import { administratorCoachFlow } from './support/administrator-coach-flow'
 import { registerAuditAccessScenarios } from './audit-access-scenarios'
 import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -4847,3 +4848,8 @@ async function expectTouchTargetAtLeast(locator: Locator, minSize: number) {
 }
 
 registerAuditAccessScenarios()
+
+
+test('TASK-187 Administrator creates and edits Coach with recovery and restricted path', async ({ page }) => {
+  await administratorCoachFlow(page)
+})
