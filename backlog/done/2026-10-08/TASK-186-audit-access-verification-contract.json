@@ -25,7 +25,7 @@
       "timeout_seconds": 1800
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-186-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-10-08/TASK-186-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.task186-rendered-comparison",

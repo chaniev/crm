@@ -4,9 +4,9 @@
 
 - REQ-AUD-001: реализованы запрет чтения Administrator/Coach, очистка sensitive
   state при 401/403 и существующее session/recovery поведение без фонового polling.
-  [Задача](../../backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md),
-  [проверки](../../backlog/implementation/TASK-186-evidence/validation.md).
-  Реализация остаётся «частично» до интеграции в main.
+  [Задача](../../backlog/done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md),
+  [проверки](../../backlog/done/2026-10-08/TASK-186-evidence/validation.md).
+  Реализация — «реализовано»: интегрировано в main (`0a9a8c3`), полный task harness пройден.
 
 
 Обратохронологический список изменений карточек в `docs/requirements/`.
@@ -32,9 +32,9 @@
   обнаруживает отзыв доступа при следующем запросе; отказ очищает ранее
   загруженные данные, отдельная фоновая проверка не требуется. Вопрос планирования
   закрыт, реализация остаётся «частично»
-  ([TASK-186](../../backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md)).
+  ([TASK-186](../../backlog/done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md)).
 - 08.10.2026 — REQ-AUD-001 — обновлена ссылка на
-  [TASK-186](../../backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md)
+  [TASK-186](../../backlog/done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md)
   после planning review и переноса в `needs-clarification`; требуется уточнить
   момент обнаружения отзыва доступа открытой вкладкой. Принятый текст,
   решение и состояние реализации требования не менялись.
@@ -44,7 +44,7 @@
 - 05.10.2026 — REQ-AUD-001 — доступ к чтению журнала и filter options ограничен
   Главным тренером и Супер-администратором; запись истории сохраняется,
   реализация «частично» (задача
-  [TASK-186](../../backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md)).
+  [TASK-186](../../backlog/done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md)).
 - 05.10.2026 — REQ-NFR-001 — конкретизированы язык, accessible names, invalid
   focus, native links и regression scope контраста, touch targets и auth title;
   реализация остаётся «частично» (задачи

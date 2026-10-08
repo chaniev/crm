@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-186 Доступ к журналу только для глобальных ролей
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md
+- source_task: /backlog/done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md
 - requirements: REQ-AUD-001 (changes), REQ-USR-001 (constrains), REQ-NFR-003 (constrains)
 - branch: codex/TASK-186-audit-access-head-coach-super-admin
 - readiness: yes
@@ -62,8 +62,8 @@ Administrator и Coach не получают эти данные через API 
 
 ## Decision evidence
 - product: [REQ-AUD-001](/docs/requirements/06-аудит.md) — owner: пользователь, исходная запись от 05.10.2026; decision: чтение журнала и filter options только HeadCoach/SuperAdministrator, запрет через UI и API, сохранение записи действий всех ролей и истории.
-- product: [Решение об открытой вкладке](/backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md#product-decision-2026-10-08) — owner: пользователь, явный ответ в обсуждении 08.10.2026; decision: открытая вкладка обнаруживает отзыв доступа при следующем запросе; отдельная фоновая проверка не требуется.
-- source: [Исходная запись](/backlog/processed/2026-10-05.md); детали сценария старой сессии — в [source task](/backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md).
+- product: [Решение об открытой вкладке](/backlog/done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md#product-decision-2026-10-08) — owner: пользователь, явный ответ в обсуждении 08.10.2026; decision: открытая вкладка обнаруживает отзыв доступа при следующем запросе; отдельная фоновая проверка не требуется.
+- source: [Исходная запись](/backlog/processed/2026-10-05.md); детали сценария старой сессии — в [source task](/backlog/done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md).
 - review: [Security/authorization review](/backlog/logs/TASK-186-security-review-2026-10-08.md) — Codex, статическая проверка producer, frontend consumer и bot surface; runtime-подтверждения ещё нет.
 - technical: существующие [cookie middleware](/backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs), [role policy](/backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs) и [route recovery](/frontend/src/App.tsx) — сохраняемые механизмы, не новое человеческое согласование.
 
@@ -199,3 +199,9 @@ Backend role × route matrix и browser сценарий старой session с
   согласовать изменение scope. Историю не удалять.
 - Backend restriction обязателен при выпуске: frontend-only delivery или
   rollback backend на прежнюю разрешающую policy не выполняет REQ-AUD-001.
+
+## Completion
+- status: completed
+- completed_at: 2026-10-08
+- completion_date_evidence: fast-forward main на `0a9a8c38d82d382df10f7a26ae09bba8cf153d1f`; код и runtime совпадают с fully tested candidate `35bba1bcb29ce91a0bb873796a061aee61643fd4`, изменения документации проверены knowledge harness.
+- evidence: [validation](TASK-186-evidence/validation.md), [harness](TASK-186-evidence/harness.json), [integration harness](TASK-186-evidence/integration-harness.json).

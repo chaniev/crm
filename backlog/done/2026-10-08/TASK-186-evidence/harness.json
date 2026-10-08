@@ -1,0 +1,933 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-10-08T09:51:52.071372+00:00",
+  "repository": "crm-task-186",
+  "profile": "local",
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "35bba1bcb29ce91a0bb873796a061aee61643fd4",
+    "head_tree_sha": "1291088cc6e3867c69de0f92e2be1758800fb61b",
+    "base_sha": "aa5700f0403b2648bdaef25cc4a696e61ece3ea2",
+    "merge_base_sha": "aa5700f0403b2648bdaef25cc4a696e61ece3ea2",
+    "branch": "codex/TASK-186-audit-access-head-coach-super-admin",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-186-audit-access-verification-contract.json",
+    "task_id": "TASK-186",
+    "expected_branch": "codex/TASK-186-audit-access-head-coach-super-admin",
+    "sha256": "1f4a177eb46bc6672f87ca0ffaf2b1f910ec76aa90b479305ffd1d84d30a415c",
+    "verified_head_sha": "35bba1bcb29ce91a0bb873796a061aee61643fd4",
+    "verified_head_tree_sha": "1291088cc6e3867c69de0f92e2be1758800fb61b",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-186\",\n  \"expected_branch\": \"codex/TASK-186-audit-access-head-coach-super-admin\",\n  \"areas\": [\n    \"backend\",\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.task186-route-access\",\n      \"spec\": \"e2e/route-access-feedback.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.task186-target-iphone\",\n      \"spec\": \"e2e/iphone-target-devices.spec.ts\",\n      \"projects\": [\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    }\n  ],\n  \"manual_evidence\": \"backlog/implementation/TASK-186-manual-evidence.json\",\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.task186-rendered-comparison\",\n      \"description\": \"Compare existing permitted audit list/details and restricted/recovery states before and after, including sensitive-surface removal.\"\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-186",
+      "expected_branch": "codex/TASK-186-audit-access-head-coach-super-admin",
+      "areas": [
+        "backend",
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.task186-route-access",
+          "spec": "e2e/route-access-feedback.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.task186-target-iphone",
+          "spec": "e2e/iphone-target-devices.spec.ts",
+          "projects": [
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        }
+      ],
+      "manual_evidence": "backlog/implementation/TASK-186-manual-evidence.json",
+      "manual_checks": [
+        {
+          "id": "manual.task186-rendered-comparison",
+          "description": "Compare existing permitted audit list/details and restricted/recovery states before and after, including sensitive-surface removal."
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-186",
+  "source_ref": null,
+  "e2e_port": 49629,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AuditLogApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-audit-access-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-evidence/validation.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/after-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/after-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/after-denied.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/after-restricted.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/allowed-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/allowed-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/before-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/before-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/before-restricted.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/denied-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-186-rendered/denied-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/06-аудит.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/audit-access-scenarios.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/iphone-target-devices.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/route-access-feedback.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/package-lock.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/RouteViewport.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/audit/AuditLogScreen.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/audit/AuditLogScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/auth.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/appRoutes.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-16-audit.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+    "backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+    "backend/tests/GymCrm.Tests/AuditLogApiTests.cs",
+    "backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+    "backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+    "backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+    "backlog/implementation/TASK-186-audit-access-verification-contract.json",
+    "backlog/implementation/TASK-186-evidence/validation.md",
+    "backlog/implementation/TASK-186-manual-evidence.json",
+    "backlog/implementation/TASK-186-rendered/after-1440.png",
+    "backlog/implementation/TASK-186-rendered/after-390.png",
+    "backlog/implementation/TASK-186-rendered/after-denied.png",
+    "backlog/implementation/TASK-186-rendered/after-restricted.png",
+    "backlog/implementation/TASK-186-rendered/allowed-420.png",
+    "backlog/implementation/TASK-186-rendered/allowed-440.png",
+    "backlog/implementation/TASK-186-rendered/before-1440.png",
+    "backlog/implementation/TASK-186-rendered/before-390.png",
+    "backlog/implementation/TASK-186-rendered/before-restricted.png",
+    "backlog/implementation/TASK-186-rendered/denied-420.png",
+    "backlog/implementation/TASK-186-rendered/denied-440.png",
+    "docs/requirements/06-аудит.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/audit-access-scenarios.ts",
+    "frontend/e2e/iphone-target-devices.spec.ts",
+    "frontend/e2e/route-access-feedback.spec.ts",
+    "frontend/package-lock.json",
+    "frontend/src/App.test.tsx",
+    "frontend/src/app/RouteViewport.tsx",
+    "frontend/src/features/audit/AuditLogScreen.test.tsx",
+    "frontend/src/features/audit/AuditLogScreen.tsx",
+    "frontend/src/lib/api/auth.test.ts",
+    "frontend/src/lib/appRoutes.test.ts",
+    "frontend/src/resources/fe-16-audit.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation/TASK-186-audit-access-verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-186-evidence/validation.md",
+      "documentation or instructions changed: backlog/implementation/TASK-186-manual-evidence.json",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-denied.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-restricted.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-restricted.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-440.png",
+      "documentation or instructions changed: docs/requirements/06-аудит.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AuditLogApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+      "task contract TASK-186 requires backend"
+    ],
+    "frontend": [
+      "frontend-owned path changed: frontend/e2e/audit-access-scenarios.ts",
+      "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+      "frontend-owned path changed: frontend/e2e/route-access-feedback.spec.ts",
+      "frontend-owned path changed: frontend/package-lock.json",
+      "frontend-owned path changed: frontend/src/App.test.tsx",
+      "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+      "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+      "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+      "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+      "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+      "frontend-owned path changed: frontend/src/resources/fe-16-audit.ts",
+      "task contract TASK-186 requires frontend"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.task186-rendered-comparison",
+      "description": "Compare existing permitted audit list/details and restricted/recovery states before and after, including sensitive-surface removal.",
+      "status": "confirmed",
+      "actor": "coding-agent:TASK-186",
+      "performed_at": "2026-10-08T12:34:55.511503+03:00",
+      "note": "Inspected comparable rendered allowed/restricted states and authorization denial before session completion; details/filter removal and viewport behavior also verified with Playwright. Real Safari and physical-device conditions remain unverified.",
+      "artifacts": [
+        "backlog/implementation/TASK-186-evidence/validation.md"
+      ],
+      "evidence_path": "backlog/implementation/TASK-186-manual-evidence.json",
+      "evidence_sha256": "c384bfe476b7d9759c72870f956a31c8f2660620f7c82fbe10e02291d309b22d"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-186-audit-access-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-186-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-186-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-denied.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-restricted.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-restricted.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-440.png",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:51:52.221744+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-08T09:51:52.261839+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-186-audit-access-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-186-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-186-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-denied.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-restricted.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-restricted.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-440.png",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:51:52.262728+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-08T09:51:52.303102+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-186-audit-access-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-186-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-186-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-denied.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-restricted.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-restricted.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-440.png",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:51:52.303983+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-08T09:51:52.344286+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-186-audit-access-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-186-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-186-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-denied.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/after-restricted.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/allowed-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/before-restricted.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-186-rendered/denied-440.png",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:51:52.345208+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.075,
+      "completed_at": "2026-10-08T09:51:52.419955+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuditLogApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "task contract TASK-186 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:51:52.420946+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.672,
+      "completed_at": "2026-10-08T09:51:53.092678+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuditLogApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "task contract TASK-186 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:51:53.093684+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.869,
+      "completed_at": "2026-10-08T09:51:54.963195+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuditLogApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "task contract TASK-186 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:51:54.964702+00:00",
+      "exit_code": 0,
+      "duration_seconds": 10.241,
+      "completed_at": "2026-10-08T09:52:05.205809+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuditLogApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "task contract TASK-186 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:52:05.206854+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.561,
+      "completed_at": "2026-10-08T09:52:08.768253+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuditLogApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "task contract TASK-186 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:52:08.769395+00:00",
+      "exit_code": 0,
+      "duration_seconds": 103.391,
+      "completed_at": "2026-10-08T09:53:52.160545+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuditLogApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "task contract TASK-186 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:53:52.162264+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.576,
+      "completed_at": "2026-10-08T09:53:54.737980+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/audit-access-scenarios.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/route-access-feedback.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-16-audit.ts",
+        "task contract TASK-186 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:53:54.738914+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.977,
+      "completed_at": "2026-10-08T09:53:58.715999+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/audit-access-scenarios.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/route-access-feedback.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-16-audit.ts",
+        "task contract TASK-186 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:53:58.717049+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.565,
+      "completed_at": "2026-10-08T09:53:59.282000+00:00"
+    },
+    {
+      "id": "frontend.user-facing-text",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check:user-facing-text"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/audit-access-scenarios.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/route-access-feedback.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-16-audit.ts",
+        "task contract TASK-186 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:53:59.284015+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.343,
+      "completed_at": "2026-10-08T09:53:59.626758+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/audit-access-scenarios.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/route-access-feedback.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-16-audit.ts",
+        "task contract TASK-186 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:53:59.627772+00:00",
+      "exit_code": 0,
+      "duration_seconds": 21.218,
+      "completed_at": "2026-10-08T09:54:20.846271+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/audit-access-scenarios.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/route-access-feedback.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-16-audit.ts",
+        "task contract TASK-186 requires frontend",
+        "task contract TASK-186 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:54:20.847538+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.463,
+      "completed_at": "2026-10-08T09:54:21.310236+00:00"
+    },
+    {
+      "id": "frontend.e2e.task186-route-access",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/route-access-feedback.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/audit-access-scenarios.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/route-access-feedback.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-16-audit.ts",
+        "task contract TASK-186 requires frontend",
+        "task contract TASK-186 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:54:21.311298+00:00",
+      "exit_code": 0,
+      "duration_seconds": 19.231,
+      "completed_at": "2026-10-08T09:54:40.542768+00:00"
+    },
+    {
+      "id": "frontend.e2e.task186-target-iphone",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/iphone-target-devices.spec.ts",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/audit-access-scenarios.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/route-access-feedback.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-16-audit.ts",
+        "task contract TASK-186 requires frontend",
+        "task contract TASK-186 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T09:54:40.543723+00:00",
+      "exit_code": 0,
+      "duration_seconds": 56.016,
+      "completed_at": "2026-10-08T09:55:36.559915+00:00"
+    }
+  ],
+  "completed_at": "2026-10-08T09:55:36.561304+00:00"
+}

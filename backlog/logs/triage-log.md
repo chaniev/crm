@@ -3623,3 +3623,11 @@
   `backlog/tasks-ready/TASK-157-schedule-mobile-density.md`; она вне scope
   TASK-187 и не изменялась. Актуальные добавленные ссылки проходят проверку.
 - Проверки приложений не требуются: изменены только backlog и требования.
+
+## 2026-10-08 — TASK-186 завершена и интегрирована
+
+- Локальный main: `0a9a8c38d82d382df10f7a26ae09bba8cf153d1f`; полный task harness на `35bba1bcb29ce91a0bb873796a061aee61643fd4` и knowledge harness интеграции passed.
+- Карточка и plan перенесены из implementation / implementation-plans в
+  [done/2026-10-08](../done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md);
+  verification contract, manual evidence и rendered captures архивированы рядом.
+- Исторические ссылки выше отражают расположение на момент записи.

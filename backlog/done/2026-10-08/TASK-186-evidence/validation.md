@@ -105,3 +105,12 @@ undici 7.30.0, source-map-js 1.2.2, js-yaml 4.3.2, brace-expansion 1.1.21/5.0.12
 forced major upgrade or package.json range change was used; lockfile audit now
 reports zero vulnerabilities. The final harness is repeated against the commit
 containing this prerequisite dependency repair.
+
+## Final integration evidence
+
+- Full-suite candidate: `35bba1bcb29ce91a0bb873796a061aee61643fd4`; verified tree `1291088cc6e3867c69de0f92e2be1758800fb61b`, clean checkout.
+- Full task harness: **passed**, 17 automated checks; manual rendered comparison confirmed.
+- Passed: 572 backend tests, 683 frontend unit tests, 108 browser tests (22 Chromium and 86 target iPhone WebKit). Both dependency audits report zero vulnerabilities.
+- [Immutable harness report](harness.json) preserves the original contract paths and digest at the verified commit before archival.
+- Main integration: `0a9a8c38d82d382df10f7a26ae09bba8cf153d1f`, tree `a63219097bff55a7faf6a3a12c26d0f64c6d5c34`. TASK-187 documentation merged without conflicts; [integration knowledge harness](integration-harness.json) passed. Backend/frontend/bot/deploy/scripts trees equal the fully tested candidate.
+- The subsequent closure commit changes only knowledge artifacts and links; its diff receives the canonical knowledge checks.

@@ -1,0 +1,183 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-10-08T10:27:28.557681+00:00",
+  "repository": "crm-task-186",
+  "profile": "local",
+  "base": "35bba1bcb29ce91a0bb873796a061aee61643fd4",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "0a9a8c38d82d382df10f7a26ae09bba8cf153d1f",
+    "head_tree_sha": "a63219097bff55a7faf6a3a12c26d0f64c6d5c34",
+    "base_sha": "35bba1bcb29ce91a0bb873796a061aee61643fd4",
+    "merge_base_sha": "35bba1bcb29ce91a0bb873796a061aee61643fd4",
+    "branch": "codex/TASK-186-audit-access-head-coach-super-admin",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": null,
+  "task_id": null,
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/triage-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "D",
+      "paths": [
+        "backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/risky/TASK-187-administrator-coach-creation-scope.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/05-пользователи-и-роли.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backlog/logs/triage-log.md",
+    "backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md",
+    "backlog/risky/TASK-187-administrator-coach-creation-scope.md",
+    "docs/requirements/05-пользователи-и-роли.md",
+    "docs/requirements/CHANGELOG.md"
+  ],
+  "selected_areas": [
+    "requirements"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/logs/triage-log.md",
+      "documentation or instructions changed: backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md",
+      "documentation or instructions changed: backlog/risky/TASK-187-administrator-coach-creation-scope.md",
+      "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md",
+        "documentation or instructions changed: backlog/risky/TASK-187-administrator-coach-creation-scope.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T10:27:28.576191+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.036,
+      "completed_at": "2026-10-08T10:27:28.612386+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md",
+        "documentation or instructions changed: backlog/risky/TASK-187-administrator-coach-creation-scope.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T10:27:28.613157+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-08T10:27:28.653453+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md",
+        "documentation or instructions changed: backlog/risky/TASK-187-administrator-coach-creation-scope.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T10:27:28.654206+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-08T10:27:28.694733+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "35bba1bcb29ce91a0bb873796a061aee61643fd4"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md",
+        "documentation or instructions changed: backlog/risky/TASK-187-administrator-coach-creation-scope.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-08T10:27:28.695446+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.075,
+      "completed_at": "2026-10-08T10:27:28.770763+00:00"
+    }
+  ],
+  "completed_at": "2026-10-08T10:27:28.771582+00:00"
+}

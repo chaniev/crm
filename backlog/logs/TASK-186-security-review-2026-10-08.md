@@ -118,3 +118,11 @@ Evidence: [Bot DTO](/backend/src/GymCrm.Application/Bot/BotApiContracts.cs),
 - Открытых вопросов по security/authorization review больше нет. Review
   допускает реализацию описанного локального изменения; runtime-проверка
   очистки данных, матрицы отказов и session recovery остаётся частью исполнения.
+
+## 2026-10-08 — TASK-186 завершена и интегрирована
+
+- Локальный main: `0a9a8c38d82d382df10f7a26ae09bba8cf153d1f`; полный task harness на `35bba1bcb29ce91a0bb873796a061aee61643fd4` и knowledge harness интеграции passed.
+- Карточка и plan перенесены из implementation / implementation-plans в
+  [done/2026-10-08](../done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md);
+  verification contract, manual evidence и rendered captures архивированы рядом.
+- Исторические ссылки выше отражают расположение на момент записи.

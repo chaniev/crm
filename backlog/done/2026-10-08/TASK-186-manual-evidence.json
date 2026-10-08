@@ -6,7 +6,7 @@
       "id": "manual.task186-rendered-comparison",
       "note": "Inspected comparable rendered allowed/restricted states and authorization denial before session completion; details/filter removal and viewport behavior also verified with Playwright. Real Safari and physical-device conditions remain unverified.",
       "artifacts": [
-        "backlog/implementation/TASK-186-evidence/validation.md"
+        "backlog/done/2026-10-08/TASK-186-evidence/validation.md"
       ],
       "actor": "coding-agent:TASK-186",
       "performed_at": "2026-10-08T12:34:55.511503+03:00"
