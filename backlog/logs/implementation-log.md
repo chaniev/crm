@@ -1841,3 +1841,26 @@
   [done/2026-10-08](../done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md);
   verification contract, manual evidence и rendered captures архивированы рядом.
 - Исторические ссылки выше отражают расположение на момент записи.
+
+# 2026-10-08 13:30
+- moved: none — в implementation не переводилась
+- planned_in_place: TASK-187 — planning-only; после review перенесена из risky в needs-clarification
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md
+- review: /backlog/logs/TASK-187-security-review-2026-10-08.md
+- blocker: административный reset отсутствует в коде; процедура временного доступа, API/auth/audit и UI-контракт не согласованы, обнаружено пересечение с TASK-173
+- scope: task/plan/review/log и исправление requirement backlinks; принятые права не пересогласовывались, project code и runtime не менялись
+- historical_links: прежние записи triage-log ссылаются на расположение TASK-187 на дату записи; текущая карточка — /backlog/needs-clarification/TASK-187-administrator-coach-creation-scope.md
+- validation: `verify_change.py --base HEAD --report .artifacts/verification/TASK-187-plan.json` — PASS, 4 knowledge checks; ссылки новых task/plan/review и уникальность артефактов проверены отдельно
+- validation_base: dry-run относительно origin/main включил уже интегрированную TASK-186; HEAD выбран для проверки только текущего planning diff. Backend/frontend TASK-186 повторно не проверялись в рамках TASK-187
+- executable_preflight: ожидаемый отказ `plan is not executable`; readiness: no сохранён, repository-wide draft validation не выдаётся за разрешение реализации
+
+# 2026-10-08 13:46
+- moved: TASK-187 — needs-clarification → tasks-ready → implementation после снятия блокера и readiness preflight
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md
+- decision: пользователь прямо исключил сброс пароля Администратором из требований; REQ-USR-002, scope и acceptance TASK-187 обновлены, зависимость от TASK-173 снята
+- review: /backlog/logs/TASK-187-security-review-2026-10-08.md дополнен итоговым заключением для CRUD scope; новый auth/API/UI контракт не нужен
+- readiness: yes; прежние записи о reset blocker — история, актуальная карточка находится в /backlog/implementation/TASK-187-administrator-coach-creation-scope.md
+- scope: завершено планирование; в TASK-173 синхронизировано ограничение роли Administrator, остальные вопросы оставлены открытыми; код, ветки, worktree и runtime не изменялись
