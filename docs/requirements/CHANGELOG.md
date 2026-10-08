@@ -5,7 +5,7 @@
 - REQ-AUD-001: реализованы запрет чтения Administrator/Coach, очистка sensitive
   state при 401/403 и существующее session/recovery поведение без фонового polling.
   [Задача](../../backlog/implementation/TASK-186-audit-access-head-coach-super-admin.md),
-  [проверки](../../backlog/implementation/TASK-186-validation.md).
+  [проверки](../../backlog/implementation/TASK-186-evidence/validation.md).
   Реализация остаётся «частично» до интеграции в main.
 
 

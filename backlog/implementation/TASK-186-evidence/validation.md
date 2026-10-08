@@ -43,17 +43,17 @@ Reviewed the existing visual contract without selecting a new design direction.
 Preserved four list columns, mobile rows, filters, details and focus return.
 Before/after captures were produced from the same fixtures and viewports:
 
-- [390 before](TASK-186-rendered/before-390.png) /
-  [390 after](TASK-186-rendered/after-390.png).
-- [1440 before](TASK-186-rendered/before-1440.png) /
-  [1440 after](TASK-186-rendered/after-1440.png).
-- [Restricted before](TASK-186-rendered/before-restricted.png) /
-  [restricted after](TASK-186-rendered/after-restricted.png).
-- [Denial before session completes](TASK-186-rendered/after-denied.png),
-  [iPhone Air denial](TASK-186-rendered/denied-420.png),
-  [iPhone 17 Pro Max denial](TASK-186-rendered/denied-440.png).
-- [iPhone Air allowed](TASK-186-rendered/allowed-420.png) /
-  [iPhone 17 Pro Max allowed](TASK-186-rendered/allowed-440.png).
+- [390 before](../TASK-186-rendered/before-390.png) /
+  [390 after](../TASK-186-rendered/after-390.png).
+- [1440 before](../TASK-186-rendered/before-1440.png) /
+  [1440 after](../TASK-186-rendered/after-1440.png).
+- [Restricted before](../TASK-186-rendered/before-restricted.png) /
+  [restricted after](../TASK-186-rendered/after-restricted.png).
+- [Denial before session completes](../TASK-186-rendered/after-denied.png),
+  [iPhone Air denial](../TASK-186-rendered/denied-420.png),
+  [iPhone 17 Pro Max denial](../TASK-186-rendered/denied-440.png).
+- [iPhone Air allowed](../TASK-186-rendered/allowed-420.png) /
+  [iPhone 17 Pro Max allowed](../TASK-186-rendered/allowed-440.png).
 
 Screenshots were visually inspected, not treated as byte-identical snapshots.
 The allowed views retain their hierarchy and layout. No introduced clipping or
