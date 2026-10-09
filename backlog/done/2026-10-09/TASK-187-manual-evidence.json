@@ -6,7 +6,7 @@
       "id": "manual.rendered-comparison",
       "note": "Inspected before/after trainer list/create/edit at 390, 420, 440 and 1440px; compared the settings dialog obstruction and correction. Device-specific limitations are recorded.",
       "artifacts": [
-        "backlog/implementation/TASK-187-evidence/verification.md"
+        "backlog/done/2026-10-09/TASK-187-evidence/verification.md"
       ],
       "actor": "coding-agent:TASK-187",
       "performed_at": "2026-10-08T16:05:00+03:00"

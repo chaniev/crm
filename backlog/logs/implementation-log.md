@@ -1864,3 +1864,17 @@
 - review: /backlog/logs/TASK-187-security-review-2026-10-08.md дополнен итоговым заключением для CRUD scope; новый auth/API/UI контракт не нужен
 - readiness: yes; прежние записи о reset blocker — история, актуальная карточка находится в /backlog/implementation/TASK-187-administrator-coach-creation-scope.md
 - scope: завершено планирование; в TASK-173 синхронизировано ограничение роли Administrator, остальные вопросы оставлены открытыми; код, ветки, worktree и runtime не изменялись
+
+## 2026-10-09 — TASK-187 завершена
+
+Локальный fast-forward main на `3074f71a9d8c4d487dd56c5573ed4ed9f90207f2`; tree совпал с green candidate. Полный harness: 24 passed; runtime и manual evidence сохранены.
+
+Перенос завершённых артефактов (исторические ссылки в прежних logs не переписывались):
+
+- `backlog/implementation/TASK-187-administrator-coach-creation-scope.md` → `backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md`.
+- `backlog/implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md` → `backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.plan.md`.
+- `backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json` → `backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.verification-contract.json`.
+- `backlog/implementation/TASK-187-manual-evidence.json` → `backlog/done/2026-10-09/TASK-187-manual-evidence.json`.
+- `backlog/implementation/TASK-187-evidence` → `backlog/done/2026-10-09/TASK-187-evidence`.
+
+REQ-USR-001/004 реализованы; REQ-USR-002 остаётся частично. Closure меняет только knowledge artifacts.

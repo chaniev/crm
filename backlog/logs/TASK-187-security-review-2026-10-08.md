@@ -106,3 +106,7 @@ browser и runtime проверки из implementation plan.
 
 Актуальные [карточка](/backlog/implementation/TASK-187-administrator-coach-creation-scope.md)
 и [план](/backlog/implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md).
+
+## Дополнение 09.10.2026: реализация и архив
+
+Принятый CRUD scope интегрирован в main (`3074f71`); полный verification contract, relational authorization/audit/cookie tests и browser + PostgreSQL runtime пройдены. Исторические пути выше сохранены. Текущие [карточка](/backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md), [план](/backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.plan.md) и [evidence](/backlog/done/2026-10-09/TASK-187-evidence/verification.md).

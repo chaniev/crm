@@ -1,7 +1,7 @@
 # TASK-187: Управление тренерами клуба администратором филиала
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-USR-001 — changes
@@ -13,13 +13,13 @@ implementation
 - REQ-NFR-003 — constrains
 
 ## Requirement context
-- [REQ-USR-001](../../docs/requirements/05-пользователи-и-роли.md) — глобальное управление учётными записями Coach администратором, назначения только в своём филиале.
-- [REQ-USR-002](../../docs/requirements/05-пользователи-и-роли.md) — разрешённые действия с карточкой тренера и создание без групп.
-- [REQ-USR-004](../../docs/requirements/05-пользователи-и-роли.md) — доступ администратора к разделу «Тренеры» и всем тренерам клуба.
-- [REQ-GRP-001](../../docs/requirements/02-группы.md) — verifies
-- [REQ-GRP-002](../../docs/requirements/02-группы.md) — verifies
-- [REQ-BRN-001](../../docs/requirements/09-филиалы-и-настройки.md) — constrains
-- [REQ-NFR-003](../../docs/requirements/08-нефункциональные.md) — constrains
+- [REQ-USR-001](../../../docs/requirements/05-пользователи-и-роли.md) — глобальное управление учётными записями Coach администратором, назначения только в своём филиале.
+- [REQ-USR-002](../../../docs/requirements/05-пользователи-и-роли.md) — разрешённые действия с карточкой тренера и создание без групп.
+- [REQ-USR-004](../../../docs/requirements/05-пользователи-и-роли.md) — доступ администратора к разделу «Тренеры» и всем тренерам клуба.
+- [REQ-GRP-001](../../../docs/requirements/02-группы.md) — verifies
+- [REQ-GRP-002](../../../docs/requirements/02-группы.md) — verifies
+- [REQ-BRN-001](../../../docs/requirements/09-филиалы-и-настройки.md) — constrains
+- [REQ-NFR-003](../../../docs/requirements/08-нефункциональные.md) — constrains
 
 ## Goal
 Администратор через раздел «Тренеры» создаёт, просматривает и редактирует
@@ -32,7 +32,7 @@ implementation
 чужого филиала. Создание сотрудника пользователем с ролью Administrator
 запрещено UserRoleAuthorizationPolicy; реализованный раздел «Тренеры»
 доступен HeadCoach/SuperAdministrator. Новое поведение принято пользователем
-08.10.2026 и отражено в REQ-USR-001/002/004; его реализация ещё предстоит.
+08.10.2026 и отражено в REQ-USR-001/002/004; реализация интегрирована в main 09.10.2026.
 По REQ-BRN-001 у Coach нет собственной привязки к филиалу: филиалы получаются
 из групп. Эта модель сохраняется, а доступ администратора к учётной записи
 Coach не зависит от групп.
@@ -105,42 +105,42 @@ Coach не зависит от групп.
   конфликте с auth/audit-контрактом или обнаружении нового продуктового либо
   существенного технического решения. Вернуть вопрос в planning до реализации.
 - Права и охват из Product decisions приняты.
-  [Security review с дополнением после решения пользователя](../logs/TASK-187-security-review-2026-10-08.md)
+  [Security review с дополнением после решения пользователя](../../logs/TASK-187-security-review-2026-10-08.md)
   подтверждает локальную реализацию через существующие policy, staff transports
   и UI consumers. Сброс исключён; блокеров нового API/auth/UI больше нет.
-- [Implementation plan](../implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md)
+- [Implementation plan](TASK-187-administrator-coach-creation-scope.plan.md)
   имеет readiness: yes. Сохраняются существующие CRUD-экраны по TASK-105,
   новый визуальный сценарий не создаётся. Код и runtime этой подготовкой не меняются.
 
 ## Acceptance criteria
-- [ ] Администратор открывает раздел «Тренеры», видит всех Coach клуба и их
+- [x] Администратор открывает раздел «Тренеры», видит всех Coach клуба и их
   карточки, включая тренеров без групп, чужих филиалов и созданных другими сотрудниками.
-- [ ] Администратор создаёт Coach из раздела «Тренеры» без обязательного
+- [x] Администратор создаёт Coach из раздела «Тренеры» без обязательного
   назначения; после возвращения в раздел новый тренер доступен всем администраторам.
-- [ ] Администратор может менять ФИО и привязку мессенджера,
+- [x] Администратор может менять ФИО и привязку мессенджера,
   отключать и включать любого Coach с сохранением действующих правил карточки.
-- [ ] У тренера нескольких филиалов остаётся одна общая учётная запись;
+- [x] У тренера нескольких филиалов остаётся одна общая учётная запись;
   перечисленные изменения действуют для всех филиалов, доступ одинаков у администраторов.
-- [ ] После снятия тренера с последней группы филиала доступ администратора
+- [x] После снятия тренера с последней группы филиала доступ администратора
   к просмотру и редактированию аккаунта сохраняется.
-- [ ] Назначение и снятие тренеров разрешены только для групп своего филиала;
+- [x] Назначение и снятие тренеров разрешены только для групп своего филиала;
   управление назначениями в чужой группе отклоняется.
-- [ ] Расширение прав не позволяет создавать или редактировать другие staff
+- [x] Расширение прав не позволяет создавать или редактировать другие staff
   roles либо повышать роль Coach; ограничения проверяются backend, включая прямые запросы.
-- [ ] Создание группы и назначение в своём филиале проверены end-to-end; существующие возможности не реализуются повторно.
+- [x] Создание группы и назначение в своём филиале проверены end-to-end; существующие возможности не реализуются повторно.
 
 ## Test checklist
-- [ ] Создание без групп, повторное открытие раздела и просмотр/редактирование
+- [x] Создание без групп, повторное открытие раздела и просмотр/редактирование
   другим администратором; действующие проверки уникальности логина и мессенджера.
-- [ ] Тренеры своего филиала, только чужого филиала, без групп и двух филиалов
+- [x] Тренеры своего филиала, только чужого филиала, без групп и двух филиалов
   доступны одинаково независимо от создателя аккаунта.
-- [ ] Изменение ФИО и привязки мессенджера, отключение и повторное
+- [x] Изменение ФИО и привязки мессенджера, отключение и повторное
   включение; общие изменения видны другому администратору и сохраняют auth/audit-контракты.
-- [ ] Снятие последнего назначения и изменение набора филиалов не меняют
+- [x] Снятие последнего назначения и изменение набора филиалов не меняют
   доступ к аккаунту Coach.
-- [ ] Подмена роли при создании/редактировании и обращение к аккаунтам других
+- [x] Подмена роли при создании/редактировании и обращение к аккаунтам других
   staff roles не дают новых прав; регрессия существующих прав управляющих ролей.
-- [ ] Регрессия создания группы/назначения в своём филиале и отказ для чужого, UI и API.
+- [x] Регрессия создания группы/назначения в своём филиале и отказ для чужого, UI и API.
 
 ## AI safety
 - Safe for autonomous implementation: yes — в границах ready plan после executable preflight
@@ -157,14 +157,14 @@ Coach не зависит от групп.
 подлежит реализации в TASK-187; принятые права и охват отражены выше.
 
 ## Evidence
-- [backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs](../../backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs)
-- [backend/src/GymCrm.Api/Auth/GroupManagementScope.cs](../../backend/src/GymCrm.Api/Auth/GroupManagementScope.cs)
-- [backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs](../../backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs)
-- [backend/tests/GymCrm.Tests/GroupsApiTests.cs](../../backend/tests/GymCrm.Tests/GroupsApiTests.cs)
-- [docs/requirements/09-филиалы-и-настройки.md](../../docs/requirements/09-филиалы-и-настройки.md)
+- [backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs](../../../backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs)
+- [backend/src/GymCrm.Api/Auth/GroupManagementScope.cs](../../../backend/src/GymCrm.Api/Auth/GroupManagementScope.cs)
+- [backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs](../../../backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs)
+- [backend/tests/GymCrm.Tests/GroupsApiTests.cs](../../../backend/tests/GymCrm.Tests/GroupsApiTests.cs)
+- [docs/requirements/09-филиалы-и-настройки.md](../../../docs/requirements/09-филиалы-и-настройки.md)
 
 ## Source notes
-- Source file: [2026-10-05.md](../processed/2026-10-05.md)
+- Source file: [2026-10-05.md](../../processed/2026-10-05.md)
 - Source items: 2 (порядок самостоятельных пунктов, без строк-продолжений).
 
 > администратор должен иметь возможность добавлять группу в своем филиале, тренера, назначать тренера на группу в своем филиале
@@ -190,11 +190,11 @@ Coach не зависит от групп.
   требования и CHANGELOG синхронизированы. Карточка перенесена из
   needs-clarification в risky из-за необходимого security review; реализация не начата.
 - Planning update, 2026-10-08: создан
-  [план](../implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md)
-  и выполнено [статическое review](../logs/TASK-187-security-review-2026-10-08.md).
+  [план](TASK-187-administrator-coach-creation-scope.plan.md)
+  и выполнено [статическое review](../../logs/TASK-187-security-review-2026-10-08.md).
   Обнаружен новый блокер процедуры reset и пересечение с TASK-173; карточка
   возвращена из risky в needs-clarification по backlog/AGENTS.md.
-- implementation_plan: /backlog/implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md
+- implementation_plan: /backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.plan.md
 - implementation_branch: codex/TASK-187-administrator-coach-creation-scope
 - Duplicate check при planning: отдельного плана TASK-187 нет; TASK-105 —
   реализованный реестр, TASK-082 — историческая role matrix. TASK-173
@@ -206,6 +206,15 @@ Coach не зависит от групп.
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-10-08 13:46
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md
+- implementation_plan: /backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.plan.md
 - implementation_branch: codex/TASK-187-administrator-coach-creation-scope
 - readiness_evidence: executable preflight пройден после исключения reset; код и task workspace ещё не создавались
+
+## Completion
+- completed_at: 2026-10-09
+- merged_to_main_at: 2026-10-09
+- completion_date_evidence: локальный fast-forward main на `3074f71a9d8c4d487dd56c5573ed4ed9f90207f2`; tree совпал с полностью проверенным candidate.
+- verification: [полный harness](TASK-187-evidence/final-harness.json), [runtime](TASK-187-evidence/final-runtime.json), [отчёт и визуальное evidence](TASK-187-evidence/verification.md).
+- Все acceptance criteria и test checklist выполнены. 589 backend, 690 frontend, 42 desktop, 88 target-iPhone tests и реальный PostgreSQL smoke passed.
+- REQ-USR-001/004 — реализовано; REQ-USR-002 — частично: условия вне TASK-187 не объявляются проверенными.
+- Physical iPhone, iOS Simulator, Safari chrome/keyboard/safe-area и one-handed reach не проверялись; ограничения эмуляции сохранены в evidence.

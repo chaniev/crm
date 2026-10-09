@@ -2,7 +2,7 @@
 
 Дата проверки: 08.10.2026 (MSK). Исполнитель: Codex.
 Исходная база: `3c99783f2a913f12a0bb1a608bae26e4a375424d` (`origin/main`).
-[План](../../implementation-plans/TASK-187-administrator-coach-creation-scope.plan.md)
+[План](../TASK-187-administrator-coach-creation-scope.plan.md)
 прошёл executable readiness preflight до изменений кода.
 
 ## Реализованные границы
@@ -34,9 +34,8 @@
 - Target iPhone matrix: 88 passed на `iphone-air-webkit` и
   `iphone-17-pro-max-webkit`, включая новый общий Administrator flow с retry,
   field error, create/edit, фильтром отключённых и restricted Coach.
-- Итоговый чистый candidate проверяется полным verification contract; report
-  привязан к HEAD/tree. Предварительный baseline не заменяет итоговый прогон
-  после описанных ниже исправлений.
+- Итоговый чистый candidate проверен полным verification contract 09.10.2026;
+  HEAD/tree и все результаты сохранены в [final-harness.json](final-harness.json).
 
 ## Исправления, обнаруженные runtime-проверкой
 
@@ -98,3 +97,25 @@ software keyboard, реальные safe-area/островок/home indicator и
 Первый Docker build прервался на внешней загрузке Ubuntu package index;
 повторная сборка исходного Dockerfile завершилась успешно. Production-файлы
 сборки и deployment-конфигурация не менялись. Task bot выключен.
+
+## Итоговая интеграция 09.10.2026
+
+Candidate `3074f71a9d8c4d487dd56c5573ed4ed9f90207f2`, tree `e278da488180bdce3a3b8b71503dd7a79201df71`.
+Команда: `python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-187 --report .artifacts/verification/TASK-187.json`.
+Все 24 автоматические проверки passed; manual comparison confirmed.
+589 backend, 690 frontend, 42 desktop и 88 target-iPhone browser tests passed.
+[Чистый managed runtime](final-runtime.json): исходные Dockerfile собраны,
+health ready, сценарий двух администраторов/филиалов с PostgreSQL passed;
+созданный harness stack остановлен без удаления volumes.
+
+В первом итоговом прогоне два iPhone Air теста завершились timeout: direct audit
+уже показывал restricted screen на сохранённом снимке, сохранение Coach оставляло
+уведомление поверх фильтра. Direct audit повторно прошёл без правок. Сценарий
+Coach теперь явно закрывает подтверждение сохранения перед фильтром;
+повторные проверки на обоих WebKit profiles и полный contract прошли.
+Production-код из-за этих timeout не менялся.
+
+Локальный fast-forward main выполнен на этот SHA; Git tree совпал. Последующее
+закрытие карточки меняет только backlog/requirements и проверяется knowledge
+harness отдельно. Backend/frontend/deploy остаются побайтно тем же проверенным
+кодом. Исторические пути в JSON-отчётах отражают расположение на момент запуска.

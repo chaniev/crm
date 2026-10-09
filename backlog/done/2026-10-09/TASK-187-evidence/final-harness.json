@@ -1,0 +1,1458 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-10-09T14:20:45.402898+00:00",
+  "repository": "TASK-187-administrator-coach-creation-scope",
+  "profile": "local",
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "3074f71a9d8c4d487dd56c5573ed4ed9f90207f2",
+    "head_tree_sha": "e278da488180bdce3a3b8b71503dd7a79201df71",
+    "base_sha": "3c99783f2a913f12a0bb1a608bae26e4a375424d",
+    "merge_base_sha": "3c99783f2a913f12a0bb1a608bae26e4a375424d",
+    "branch": "codex/TASK-187-administrator-coach-creation-scope",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json",
+    "task_id": "TASK-187",
+    "expected_branch": "codex/TASK-187-administrator-coach-creation-scope",
+    "sha256": "a917fe48ca023d173a2c3b6be57b29f4fdfa8f439c262d4597483123415dfba4",
+    "verified_head_sha": "3074f71a9d8c4d487dd56c5573ed4ed9f90207f2",
+    "verified_head_tree_sha": "e278da488180bdce3a3b8b71503dd7a79201df71",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-187\",\n  \"expected_branch\": \"codex/TASK-187-administrator-coach-creation-scope\",\n  \"areas\": [\n    \"backend\",\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.coaches\",\n      \"spec\": \"e2e/users.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.administrators\",\n      \"spec\": \"e2e/administrator-role-flow.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.group-schedule\",\n      \"spec\": \"e2e/group-schedule.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.groups\",\n      \"spec\": \"e2e/groups-registry.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.coaches-iphone\",\n      \"spec\": \"e2e/iphone-target-devices.spec.ts\",\n      \"projects\": [\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    }\n  ],\n  \"runtime_stack\": {\n    \"compose_file\": \"deploy/docker-compose.yml\",\n    \"env_file\": \"deploy/.env.example\",\n    \"services\": [\n      \"frontend\"\n    ],\n    \"startup_timeout_seconds\": 1800,\n    \"cleanup_timeout_seconds\": 180,\n    \"readiness\": [\n      {\n        \"id\": \"runtime.backend-ready\",\n        \"command\": [\n          \"curl\",\n          \"-fsS\",\n          \"http://127.0.0.1:{backend_port}/health/ready\"\n        ],\n        \"timeout_seconds\": 180\n      }\n    ],\n    \"smoke\": [\n      {\n        \"id\": \"runtime.two-administrators-and-branches\",\n        \"command\": [\n          \"env\",\n          \"TASK187_RUNTIME_URL=http://127.0.0.1:{frontend_port}\",\n          \"E2E_BASE_URL=http://127.0.0.1:{frontend_port}\",\n          \"E2E_PORT={frontend_port}\",\n          \"npm\",\n          \"--prefix\",\n          \"frontend\",\n          \"run\",\n          \"test:e2e\",\n          \"--\",\n          \"e2e/administrator-coaches-runtime.spec.ts\",\n          \"--project=chromium\"\n        ],\n        \"timeout_seconds\": 300\n      }\n    ]\n  },\n  \"manual_evidence\": \"backlog/implementation/TASK-187-manual-evidence.json\",\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.rendered-comparison\",\n      \"description\": \"Compare existing trainer CRUD with implemented Administrator flow and inspect the settings dialog correction.\"\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-187",
+      "expected_branch": "codex/TASK-187-administrator-coach-creation-scope",
+      "areas": [
+        "backend",
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.coaches",
+          "spec": "e2e/users.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.administrators",
+          "spec": "e2e/administrator-role-flow.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.group-schedule",
+          "spec": "e2e/group-schedule.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.groups",
+          "spec": "e2e/groups-registry.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.coaches-iphone",
+          "spec": "e2e/iphone-target-devices.spec.ts",
+          "projects": [
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        }
+      ],
+      "runtime_stack": {
+        "compose_file": "deploy/docker-compose.yml",
+        "env_file": "deploy/.env.example",
+        "services": [
+          "frontend"
+        ],
+        "startup_timeout_seconds": 1800,
+        "cleanup_timeout_seconds": 180,
+        "readiness": [
+          {
+            "id": "runtime.backend-ready",
+            "command": [
+              "curl",
+              "-fsS",
+              "http://127.0.0.1:{backend_port}/health/ready"
+            ],
+            "timeout_seconds": 180
+          }
+        ],
+        "smoke": [
+          {
+            "id": "runtime.two-administrators-and-branches",
+            "command": [
+              "env",
+              "TASK187_RUNTIME_URL=http://127.0.0.1:{frontend_port}",
+              "E2E_BASE_URL=http://127.0.0.1:{frontend_port}",
+              "E2E_PORT={frontend_port}",
+              "npm",
+              "--prefix",
+              "frontend",
+              "run",
+              "test:e2e",
+              "--",
+              "e2e/administrator-coaches-runtime.spec.ts",
+              "--project=chromium"
+            ],
+            "timeout_seconds": 300
+          }
+        ]
+      },
+      "manual_evidence": "backlog/implementation/TASK-187-manual-evidence.json",
+      "manual_checks": [
+        {
+          "id": "manual.rendered-comparison",
+          "description": "Compare existing trainer CRUD with implemented Administrator flow and inspect the settings dialog correction."
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-187",
+  "source_ref": null,
+  "e2e_port": 62875,
+  "github": {},
+  "tool_versions": {
+    "bash": "GNU bash, version 3.2.57(1)-release (arm64-apple-darwin26)",
+    "docker": "Docker version 29.4.2, build 055a478",
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/UsersApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/after/administrator-form.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/after/create-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/after/create-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/after/edit-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/after/edit-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/after/list-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/after/list-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/before/administrator-form.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/before/create-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/before/create-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/before/edit-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/before/edit-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/before/list-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/before/list-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/runtime-edit-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/runtime-edit-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/runtime-edit-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/runtime-edit-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-evidence/verification.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-187-manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/05-пользователи-и-роли.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/administrator-coaches-runtime.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/administrator-role-flow.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/iphone-target-devices.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/support/administrator-coach-flow.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/users.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/AdministratorsSettingsPanel.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/SettingsScreen.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/users/UserEditScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/users/UserManagement.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/auth.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/appRoutes.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/appRoutes.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs",
+    "backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+    "backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+    "backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+    "backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+    "backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+    "backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+    "backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+    "backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs",
+    "backend/tests/GymCrm.Tests/UsersApiTests.cs",
+    "backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json",
+    "backlog/implementation/TASK-187-evidence/after/administrator-form.png",
+    "backlog/implementation/TASK-187-evidence/after/create-1440.png",
+    "backlog/implementation/TASK-187-evidence/after/create-390.png",
+    "backlog/implementation/TASK-187-evidence/after/edit-1440.png",
+    "backlog/implementation/TASK-187-evidence/after/edit-390.png",
+    "backlog/implementation/TASK-187-evidence/after/list-1440.png",
+    "backlog/implementation/TASK-187-evidence/after/list-390.png",
+    "backlog/implementation/TASK-187-evidence/before/administrator-form.png",
+    "backlog/implementation/TASK-187-evidence/before/create-1440.png",
+    "backlog/implementation/TASK-187-evidence/before/create-390.png",
+    "backlog/implementation/TASK-187-evidence/before/edit-1440.png",
+    "backlog/implementation/TASK-187-evidence/before/edit-390.png",
+    "backlog/implementation/TASK-187-evidence/before/list-1440.png",
+    "backlog/implementation/TASK-187-evidence/before/list-390.png",
+    "backlog/implementation/TASK-187-evidence/runtime-edit-1440.png",
+    "backlog/implementation/TASK-187-evidence/runtime-edit-390.png",
+    "backlog/implementation/TASK-187-evidence/runtime-edit-420.png",
+    "backlog/implementation/TASK-187-evidence/runtime-edit-440.png",
+    "backlog/implementation/TASK-187-evidence/verification.md",
+    "backlog/implementation/TASK-187-manual-evidence.json",
+    "docs/requirements/05-пользователи-и-роли.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/administrator-coaches-runtime.spec.ts",
+    "frontend/e2e/administrator-role-flow.spec.ts",
+    "frontend/e2e/iphone-target-devices.spec.ts",
+    "frontend/e2e/support/administrator-coach-flow.ts",
+    "frontend/e2e/users.spec.ts",
+    "frontend/src/App.test.tsx",
+    "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+    "frontend/src/features/settings/SettingsScreen.test.tsx",
+    "frontend/src/features/users/UserEditScreen.tsx",
+    "frontend/src/features/users/UserManagement.test.tsx",
+    "frontend/src/lib/api/auth.test.ts",
+    "frontend/src/lib/appRoutes.test.ts",
+    "frontend/src/lib/appRoutes.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend",
+    "deploy"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/administrator-form.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/administrator-form.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-187-evidence/verification.md",
+      "documentation or instructions changed: backlog/implementation/TASK-187-manual-evidence.json",
+      "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+      "task contract TASK-187 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+      "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+      "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+      "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+      "frontend-owned path changed: frontend/e2e/users.spec.ts",
+      "frontend-owned path changed: frontend/src/App.test.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+      "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+      "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+      "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+      "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+      "task contract TASK-187 requires frontend"
+    ],
+    "deploy": [
+      "task contract TASK-187 requires deploy"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.rendered-comparison",
+      "description": "Compare existing trainer CRUD with implemented Administrator flow and inspect the settings dialog correction.",
+      "status": "confirmed",
+      "actor": "coding-agent:TASK-187",
+      "performed_at": "2026-10-08T16:05:00+03:00",
+      "note": "Inspected before/after trainer list/create/edit at 390, 420, 440 and 1440px; compared the settings dialog obstruction and correction. Device-specific limitations are recorded.",
+      "artifacts": [
+        "backlog/implementation/TASK-187-evidence/verification.md"
+      ],
+      "evidence_path": "backlog/implementation/TASK-187-manual-evidence.json",
+      "evidence_sha256": "0b30070335f9d73e38bfcf632148f247ec401244e1dd5b84a5307efe23a0e8a9"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/administrator-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/administrator-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-187-manual-evidence.json",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:20:45.621326+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-09T14:20:45.661345+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/administrator-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/administrator-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-187-manual-evidence.json",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:20:45.662457+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.038,
+      "completed_at": "2026-10-09T14:20:45.700326+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/administrator-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/administrator-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-187-manual-evidence.json",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:20:45.701411+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.039,
+      "completed_at": "2026-10-09T14:20:45.740217+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/administrator-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/create-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/after/list-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/administrator-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/create-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/before/list-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/runtime-edit-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-187-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-187-manual-evidence.json",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:20:45.741261+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-10-09T14:20:45.818575+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-187 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:20:45.819777+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.677,
+      "completed_at": "2026-10-09T14:20:46.496508+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-187 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:20:46.498284+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.018,
+      "completed_at": "2026-10-09T14:20:49.516341+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-187 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:20:49.517664+00:00",
+      "exit_code": 0,
+      "duration_seconds": 9.953,
+      "completed_at": "2026-10-09T14:20:59.471053+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-187 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:20:59.472488+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.06,
+      "completed_at": "2026-10-09T14:21:03.532697+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-187 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:21:03.533943+00:00",
+      "exit_code": 0,
+      "duration_seconds": 108.842,
+      "completed_at": "2026-10-09T14:22:52.375182+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentRevision.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/CaseInsensitiveLoginPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.AdministratorCoaches.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-187 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:22:52.376775+00:00",
+      "exit_code": 0,
+      "duration_seconds": 9.252,
+      "completed_at": "2026-10-09T14:23:01.628977+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:01.630820+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.697,
+      "completed_at": "2026-10-09T14:23:06.327576+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:06.328876+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.565,
+      "completed_at": "2026-10-09T14:23:06.893648+00:00"
+    },
+    {
+      "id": "frontend.user-facing-text",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check:user-facing-text"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:06.896829+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.346,
+      "completed_at": "2026-10-09T14:23:07.243343+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:07.244526+00:00",
+      "exit_code": 0,
+      "duration_seconds": 22.636,
+      "completed_at": "2026-10-09T14:23:29.880573+00:00"
+    },
+    {
+      "id": "deploy.compose.local",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "docker",
+        "compose",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.yml",
+        "config",
+        "--quiet"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-187 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:29.882418+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.128,
+      "completed_at": "2026-10-09T14:23:30.010600+00:00"
+    },
+    {
+      "id": "deploy.compose.server",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "docker",
+        "compose",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.server.yml",
+        "config",
+        "--quiet"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-187 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:30.012026+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.073,
+      "completed_at": "2026-10-09T14:23:30.084677+00:00"
+    },
+    {
+      "id": "deploy.shell",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "bash",
+        "-n",
+        "deploy/build-images.sh",
+        "deploy/export-images.sh",
+        "deploy/load-images.sh",
+        "deploy/lib/images.sh"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-187 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:30.085978+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.005,
+      "completed_at": "2026-10-09T14:23:30.091507+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend",
+        "task contract TASK-187 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:30.092565+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.402,
+      "completed_at": "2026-10-09T14:23:30.494657+00:00"
+    },
+    {
+      "id": "frontend.e2e.coaches",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/users.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend",
+        "task contract TASK-187 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:30.495964+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.64,
+      "completed_at": "2026-10-09T14:23:42.135865+00:00"
+    },
+    {
+      "id": "frontend.e2e.administrators",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/administrator-role-flow.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend",
+        "task contract TASK-187 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:42.137033+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.774,
+      "completed_at": "2026-10-09T14:23:46.911383+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-schedule",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend",
+        "task contract TASK-187 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:23:46.912668+00:00",
+      "exit_code": 0,
+      "duration_seconds": 21.388,
+      "completed_at": "2026-10-09T14:24:08.300334+00:00"
+    },
+    {
+      "id": "frontend.e2e.groups",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/groups-registry.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend",
+        "task contract TASK-187 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:24:08.301672+00:00",
+      "exit_code": 0,
+      "duration_seconds": 12.326,
+      "completed_at": "2026-10-09T14:24:20.627640+00:00"
+    },
+    {
+      "id": "frontend.e2e.coaches-iphone",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/iphone-target-devices.spec.ts",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-coaches-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/administrator-role-flow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/administrator-coach-flow.ts",
+        "frontend-owned path changed: frontend/e2e/users.spec.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.test.ts",
+        "frontend-owned path changed: frontend/src/lib/appRoutes.ts",
+        "task contract TASK-187 requires frontend",
+        "task contract TASK-187 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:24:20.629101+00:00",
+      "exit_code": 0,
+      "duration_seconds": 59.989,
+      "completed_at": "2026-10-09T14:25:20.617456+00:00"
+    },
+    {
+      "id": "runtime.stack",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/runtime_stack.py",
+        "--task-contract",
+        "backlog/implementation/TASK-187-administrator-coach-creation-scope.verification-contract.json",
+        "--report",
+        ".artifacts/verification/TASK-187-runtime.json"
+      ],
+      "timeout_seconds": 2520.0,
+      "selection_reasons": [
+        "task contract TASK-187 requires deploy",
+        "task contract TASK-187 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-09T14:25:20.619161+00:00",
+      "exit_code": 0,
+      "duration_seconds": 27.714,
+      "completed_at": "2026-10-09T14:25:48.333272+00:00"
+    }
+  ],
+  "completed_at": "2026-10-09T14:25:48.335458+00:00"
+}

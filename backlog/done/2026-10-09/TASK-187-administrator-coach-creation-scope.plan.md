@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-187 Управление тренерами клуба администратором
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-187-administrator-coach-creation-scope.md
+- source_task: /backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md
 - requirements: REQ-USR-001 (changes), REQ-USR-002 (changes), REQ-USR-004 (changes), REQ-GRP-001 (verifies), REQ-GRP-002 (verifies), REQ-BRN-001 (constrains), REQ-NFR-003 (constrains)
 - branch: codex/TASK-187-administrator-coach-creation-scope
 - readiness: yes
@@ -54,7 +54,7 @@ Administrator создаёт без групп, находит и редакти
   запросе.
 
 ## Decision evidence
-- product: [TASK-187, Product decisions](/backlog/implementation/TASK-187-administrator-coach-creation-scope.md) — owner: пользователь, владелец продукта; decision: ответы от 08.10.2026 разрешают глобальное создание и редактирование Coach через существующий раздел «Тренеры», назначения только в своём филиале; последующий прямой запрос исключает сброс пароля Администратором из требований.
+- product: [TASK-187, Product decisions](/backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md) — owner: пользователь, владелец продукта; decision: ответы от 08.10.2026 разрешают глобальное создание и редактирование Coach через существующий раздел «Тренеры», назначения только в своём филиале; последующий прямой запрос исключает сброс пароля Администратором из требований.
 - Принятый target уже записан в [REQ-USR-001/002/004](/docs/requirements/05-пользователи-и-роли.md); повторное одобрение этих прав не требуется.
 - Техническое evidence: [planning security review с дополнением для актуального scope](/backlog/logs/TASK-187-security-review-2026-10-08.md), автор — Codex. Существующие boundaries покрывают принятую matrix; новый материальный технический выбор не требуется. Статическое review не является runtime evidence.
 - UI baseline: [TASK-105](/backlog/done/2026-08-23/TASK-105-trainer-access-registry-contract.md) фиксирует существующий trainer-only реестр и backend-owned действия. Те же экраны открываются новой роли; layout и последовательность операций сохраняются, новый design direction не требуется.
@@ -201,3 +201,10 @@ scope групп; consumer tests доказывают соответствие b
   scope до решения и ADR по применимости; не менять retained data автоматически.
 - Сохранить актуальные ограничения Audit из TASK-186 при правке общей policy;
   исторические fixtures до её интеграции не возвращают старые права.
+
+## Completion
+- status: done
+- completed_at: 2026-10-09
+- completion_date_evidence: проверенный candidate `3074f71a9d8c4d487dd56c5573ed4ed9f90207f2` локально интегрирован в main без изменения tree.
+- Все implementation slices и обязательный verification contract выполнены.
+- [Итоговые проверки и ограничения](TASK-187-evidence/verification.md).

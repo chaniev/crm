@@ -1,5 +1,7 @@
 # Журнал изменения требований
 
+- 09.10.2026 — [TASK-187](../../backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md) интегрирована в main (`3074f71`), весь verification contract пройден. REQ-USR-001/004 — «реализовано», REQ-USR-002 остаётся «частично» из-за условий вне scope задачи. [Evidence](../../backlog/done/2026-10-09/TASK-187-evidence/verification.md).
+
 ## 08.10.2026 — TASK-186: реализация ограничения чтения аудита
 
 - REQ-AUD-001: реализованы запрет чтения Administrator/Coach, очистка sensitive
@@ -23,8 +25,8 @@
 - 08.10.2026 — REQ-USR-001, REQ-USR-002, REQ-USR-004 — реализованы глобальный
   CRUD Coach администратором, session options/actions и fail-closed consumers;
   сохранены запреты других ролей, branch scope групп, audit и auth lifecycle.
-  [TASK-187](../../backlog/implementation/TASK-187-administrator-coach-creation-scope.md),
-  [проверки](../../backlog/implementation/TASK-187-evidence/verification.md).
+  [TASK-187](../../backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md),
+  [проверки](../../backlog/done/2026-10-09/TASK-187-evidence/verification.md).
   До интеграции в main — «частично»; REQ-USR-002 остаётся «частично» и после
   интеграции, поскольку прочие условия всей карточки отдельно не закрывались.
 
@@ -33,7 +35,7 @@
   тренера с начальным паролем и самостоятельная смена пароля сохраняются.
   Scope и plan TASK-187 актуализированы; зависимость от TASK-173 снята.
   Решение «принято», реализация «частично»
-  ([TASK-187](../../backlog/implementation/TASK-187-administrator-coach-creation-scope.md)).
+  ([TASK-187](../../backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md)).
 - 08.10.2026 — REQ-USR-001, REQ-USR-002, REQ-USR-004 — по прямым ответам
   пользователя Администратору разрешены раздел «Тренеры», создание без групп
   и полный доступ к просмотру и разрешённому редактированию всех Coach клуба
@@ -41,7 +43,7 @@
   назначений, изменения аккаунта общие для всех филиалов; управление
   назначениями ограничено группами своего филиала, права на другие роли не
   расширяются. Решение «принято», реализация «частично»
-  ([TASK-187](../../backlog/implementation/TASK-187-administrator-coach-creation-scope.md)).
+  ([TASK-187](../../backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md)).
 - 08.10.2026 — REQ-AUD-001 — по явному решению пользователя открытая вкладка
   обнаруживает отзыв доступа при следующем запросе; отказ очищает ранее
   загруженные данные, отдельная фоновая проверка не требуется. Вопрос планирования

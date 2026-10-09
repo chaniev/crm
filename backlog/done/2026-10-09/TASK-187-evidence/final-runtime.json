@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "task_id": "TASK-187",
+  "started_at": "2026-10-09T14:25:20.683743+00:00",
+  "status": "passed",
+  "project_name": "crm-task-187-73808-58ee",
+  "ports": {
+    "backend": 49901,
+    "frontend": 49902
+  },
+  "bot_enabled": false,
+  "checks": [
+    {
+      "id": "runtime.compose.up",
+      "command": [
+        "docker",
+        "compose",
+        "--project-name",
+        "crm-task-187-73808-58ee",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.yml",
+        "up",
+        "--build",
+        "-d",
+        "frontend"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 1,
+      "completed_at": "2026-10-09T14:25:43.326009+00:00"
+    },
+    {
+      "id": "runtime.backend-ready",
+      "command": [
+        "curl",
+        "-fsS",
+        "http://127.0.0.1:49901/health/ready"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 1,
+      "completed_at": "2026-10-09T14:25:43.369729+00:00"
+    },
+    {
+      "id": "runtime.two-administrators-and-branches",
+      "command": [
+        "env",
+        "TASK187_RUNTIME_URL=http://127.0.0.1:49902",
+        "E2E_BASE_URL=http://127.0.0.1:49902",
+        "E2E_PORT=49902",
+        "npm",
+        "--prefix",
+        "frontend",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/administrator-coaches-runtime.spec.ts",
+        "--project=chromium"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 1,
+      "completed_at": "2026-10-09T14:25:47.504922+00:00"
+    }
+  ],
+  "cleanup": {
+    "command": [
+      "docker",
+      "compose",
+      "--project-name",
+      "crm-task-187-73808-58ee",
+      "--project-directory",
+      ".",
+      "--env-file",
+      "deploy/.env.example",
+      "-f",
+      "deploy/docker-compose.yml",
+      "down",
+      "--remove-orphans"
+    ],
+    "status": "passed",
+    "exit_code": 0,
+    "completed_at": "2026-10-09T14:25:48.322523+00:00"
+  },
+  "completed_at": "2026-10-09T14:25:48.322622+00:00"
+}

@@ -89,7 +89,7 @@
       }
     ]
   },
-  "manual_evidence": "backlog/implementation/TASK-187-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-10-09/TASK-187-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.rendered-comparison",
