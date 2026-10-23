@@ -1,7 +1,7 @@
 # TASK-188: Задавать отдельное время начала по дням при создании группы
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-GRP-003 — implements
@@ -32,7 +32,7 @@ tasks-ready
 - Передавать эти значения существующему preview/execute создания начальной серии.
 - Сохранить общие длительность и зал текущей формы, даты начала/окончания серии,
   назначение тренеров и backend-проверки конфликтов.
-- Согласовать отображение полей и ошибок через применимый UI design gate.
+- Реализовать отображение полей и ошибок по согласованному направлению A.
 
 ## Out of scope
 - Несколько занятий в один день в форме создания: пользователь выбрал только
@@ -62,7 +62,7 @@ tasks-ready
   ошибки не первого слота, сохранение ввода при отказе.
 - [ ] API round-trip начальной серии; отказ preview без частичного создания.
 - [ ] Playwright mobile/desktop: создание → reload → календарь; ограниченная роль.
-- [ ] Согласовать touch-target coverage с [TASK-177](TASK-177-group-weekday-touch-targets.md).
+- [ ] Проверить touch-target coverage нового контрола с учётом пересечения с [TASK-177](../tasks-ready/TASK-177-group-weekday-touch-targets.md).
 
 ## AI safety
 - Safe for autonomous implementation: yes, после ready plan и применимого design gate.
@@ -92,3 +92,17 @@ tasks-ready
   Новая карточка закрывает этот подтверждённый пробел; исторические done не переоткрываются.
   TASK-177 меняет геометрию выбора дней, не их временные значения.
 - Evidence: статический анализ main `7154cee`; runtime в этом triage не запускался.
+
+## Planning — 2026-10-23
+- Подготовлен [implementation plan](../implementation-plans/TASK-188-group-create-weekday-start-times.plan.md).
+- Принятые требования и backend contracts подтверждены; блокирующих продуктовых и технических вопросов нет.
+- Пользователь / владелец продукта 23.10.2026 прямо ответил: «выбираю вариант А А».
+- Для TASK-188 выбран A: выбор дней и постоянно видимые строки времени каждого выбранного дня.
+- [Согласованный визуальный контракт](../mockups/TASK-188-189-group-schedule/brief.md) фиксирует композицию, состояния и rendered evidence.
+- Предыдущий planning blocker снят; подготовка плана не является началом реализации кода.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-10-23 17:26
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-188-group-create-weekday-start-times.plan.md
+- implementation_branch: codex/TASK-188-group-create-weekday-start-times

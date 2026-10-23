@@ -1,7 +1,7 @@
 # TASK-189: Открывать редактор расписания из карточки группы
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-GRP-001 — changes
@@ -32,9 +32,8 @@ identity-поля через `toUpdateGroupIdentityPayload`. При этом
 - Открывать существующий редактор с правильными группой и серией;
   сохранить backend-семантику «это и будущие» / «вся серия» и явный выбор даты.
 - Обеспечить возврат к исходной группе после сохранения или отмены.
-- До ready plan определить обработку несохранённых identity-изменений,
-  отсутствующей серии и ошибки загрузки, используя существующие UX-контракты;
-  согласовать визуальный контракт по применимому design gate.
+- Сохранить согласованную обработку несохранённых identity-изменений,
+  отсутствующей серии и ошибки загрузки по UX-контракту направления A.
 
 ## Out of scope
 - Встроенный редактор расписания внутри формы группы: пользователь выбрал переход.
@@ -90,7 +89,21 @@ identity-поля через `toUpdateGroupIdentityPayload`. При этом
 - Created by skill: codex-backlog-skill; mode: triage одного файла inbox.
 - Duplicate check: активного дубля нет. [TASK-119](../done/2026-08-24/TASK-119-full-lesson-calendar.md)
   создала редактор серии из календаря, но карточка группы не содержит входа в него.
-  [TASK-177](TASK-177-group-weekday-touch-targets.md) касается только touch targets.
+  [TASK-177](../tasks-ready/TASK-177-group-weekday-touch-targets.md) касается только touch targets.
 - Продуктовый выбор точки входа разрешён ответом пользователя; это ещё не
   утверждение visual specification или executable implementation plan.
 - Evidence: статический анализ main `7154cee`; runtime в этом triage не запускался.
+
+## Planning — 2026-10-23
+- Подготовлен [implementation plan](../implementation-plans/TASK-189-group-edit-schedule-entry.plan.md).
+- Принятые требования и backend contracts подтверждены; блокирующих продуктовых и технических вопросов нет.
+- Пользователь / владелец продукта 23.10.2026 прямо ответил: «выбираю вариант А А».
+- Для TASK-189 выбран A: блок текущего расписания и кнопка «Изменить расписание» перед identity-полями.
+- [Согласованный визуальный контракт](../mockups/TASK-188-189-group-schedule/brief.md) фиксирует композицию, состояния и rendered evidence.
+- Предыдущий planning blocker снят; подготовка плана не является началом реализации кода.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-10-23 17:26
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-189-group-edit-schedule-entry.plan.md
+- implementation_branch: codex/TASK-189-group-edit-schedule-entry

@@ -1878,3 +1878,32 @@
 - `backlog/implementation/TASK-187-evidence` → `backlog/done/2026-10-09/TASK-187-evidence`.
 
 REQ-USR-001/004 реализованы; REQ-USR-002 остаётся частично. Closure меняет только knowledge artifacts.
+
+# 2026-10-23 17:11
+- moved: none — в implementation не переводились
+- planned_in_place: TASK-188, TASK-189 — drafts; source tasks перенесены tasks-ready → needs-clarification до rendered UX selection
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-188-group-create-weekday-start-times.plan.md; /backlog/implementation-plans/TASK-189-group-edit-schedule-entry.plan.md
+- design: /backlog/mockups/TASK-188-189-group-schedule/brief.md
+- blocker: владелец ещё не выбрал композицию A/B/C; принятые per-day times и переход в существующий редактор не пересогласовываются
+- evidence: текущие API принимают per-slot times и lookup серии по groupId; existing dirty guard и backend scope позволяют сохранить контракты
+- historical_links: прежние triage-log записи сохраняют пути на дату triage; текущие TASK-188/189 — в needs-clarification
+- scope: planning artifacts и requirement backlinks; application code, ветки и worktrees не менялись
+- validation: `verify_change.py --base origin/main` — PASS, 4 knowledge checks; scoped file links и уникальность task/plan проверены отдельно
+- executable_preflight: оба явных `--plan` корректно отклонены как non-executable; repository-wide draft validation не является approval на исполнение
+- visual_evidence: осмотр текущих форм на изолированных fixtures и 24 rendered concept states (390×844/1440×1200); backend data и основной stack не изменялись
+- review: независимое чтение планов обнаружило и устранило неточный source-lesson fallback, имя backend helper и риск shared create-validation в identity edit
+
+# 2026-10-23 17:26
+- moved: TASK-188, TASK-189 — needs-clarification → tasks-ready → implementation после выбора A/A и успешного readiness preflight
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-188-group-create-weekday-start-times.plan.md; /backlog/implementation-plans/TASK-189-group-edit-schedule-entry.plan.md
+- decision: прямой ответ владельца продукта «выбираю вариант А А»; TASK-188 — выбор дней и постоянно видимые времена; TASK-189 — сводка расписания и кнопка перед identity-полями
+- design: /backlog/mockups/TASK-188-189-group-schedule/brief.md — approval provenance и единый implementation contract; B/C сохранены только как исторические rendered альтернативы
+- readiness: yes у обоих планов; open_questions: none; preflight до переноса PASS
+- lifecycle: source_task и requirement backlinks обновлены на /backlog/implementation; исторические строки журналов не переписаны
+- cleanup: временный HTML прототип и comparison page удалены после выбора; PNG evidence сохранены
+- scope: завершено планирование; production code, task branches/worktrees и основной stack не изменялись, исполнение не начиналось
+- validation: readiness preflight обоих планов повторно PASS после переноса; `verify_change.py --base origin/main` — PASS, 4 knowledge checks; ссылки, уникальность TASK IDs и status/directory проверены
+- evidence: `.artifacts/verification/TASK-188-189-ready.json`; временный preview server остановлен, выбранные рендеры доступны из согласованного brief
