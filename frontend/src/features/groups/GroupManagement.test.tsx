@@ -378,6 +378,7 @@ describe('GroupEditScreen', () => {
     }
     await waitFor(() => expect(apiMocks.previewGroupCreate).toHaveBeenCalledWith(exactPayload))
     expect(await screen.findByText('Группа с таким названием уже существует.')).toBeVisible()
+    await waitFor(() => expect(nameInput).toHaveFocus())
     expect(screen.getByLabelText('Время начала: Суббота')).toHaveAccessibleDescription('Время субботы недоступно.')
     expect(screen.getByLabelText('Время начала: Понедельник')).not.toHaveAttribute('aria-invalid', 'true')
     expect(screen.getByLabelText('Длительность')).toHaveAccessibleDescription(expect.stringContaining('Проверьте длительность.'))

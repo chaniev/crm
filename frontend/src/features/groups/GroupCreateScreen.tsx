@@ -54,6 +54,7 @@ export function GroupCreateScreen({
   const previewPayloadKeyRef = useRef<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const submittingRef = useRef(false)
+  const recoveryRequestedRef = useRef(false)
   const payloadRevisionRef = useRef(0)
   const currentPayloadKeyRef = useRef<string | null>(null)
   const form = useGroupForm({
@@ -124,6 +125,14 @@ export function GroupCreateScreen({
     return () => controller.abort()
   }, [])
 
+  useEffect(() => {
+    if (submitting || !recoveryRequestedRef.current) return
+    recoveryRequestedRef.current = false
+    const target = document.querySelector<HTMLElement>('form [aria-invalid="true"]')
+      ?? document.querySelector<HTMLElement>('.group-edit-form-recovery')
+    target?.focus()
+  }, [submitting, formError, form.errors])
+
   async function submit(values: GroupFormValues) {
     if (submittingRef.current) return
     submittingRef.current = true
@@ -177,14 +186,14 @@ export function GroupCreateScreen({
         setPreview(null)
         previewPayloadKeyRef.current = null
         setFormError([message, ...unboundErrors].join(' '))
-        focusRecovery()
+        recoveryRequestedRef.current = true
         return
       }
 
       setPreview(null)
       previewPayloadKeyRef.current = null
       setFormError(fe13GroupsCoreText.groupCreateScreen_setFormError_ee875cc4)
-      focusRecovery()
+      recoveryRequestedRef.current = true
     } finally {
       submittingRef.current = false
       setSubmitting(false)
@@ -278,14 +287,6 @@ function createFieldAliases(values: GroupFormValues): Record<string, string> {
       [`initialLessonSeries.slots.${index}.hallId`, 'hallId'],
     ])),
   }
-}
-
-function focusRecovery() {
-  window.requestAnimationFrame(() => {
-    const target = document.querySelector<HTMLElement>('form [aria-invalid="true"]')
-      ?? document.querySelector<HTMLElement>('.group-edit-form-recovery')
-    target?.focus()
-  })
 }
 
 function formatExpiresAt(value: string) {
