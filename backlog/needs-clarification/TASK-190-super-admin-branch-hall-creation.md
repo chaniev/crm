@@ -1,17 +1,19 @@
 # TASK-190: Открыть суперадминистратору создание филиалов и залов
 
 ## Status
-risky
+needs-clarification
 
 ## Requirements
 - REQ-BRN-001 — changes
 - REQ-BRN-002 — changes
-- REQ-USR-001 — constrains
+- REQ-USR-001 — changes
 - REQ-USR-003 — constrains
+- REQ-CLI-007 — constrains
 
 ## Requirement links
 - [REQ-BRN-001/002](../../docs/requirements/09-филиалы-и-настройки.md)
 - [REQ-USR-001/003](../../docs/requirements/05-пользователи-и-роли.md)
+- [REQ-CLI-007](../../docs/requirements/01-клиенты.md) — сохранить существующих lookup consumers перевода клиента.
 
 ## Goal
 Суперадминистратор создаёт филиал и зал в доступном активном филиале через
@@ -31,6 +33,8 @@ UI скрывает вкладку через `canManageHeadCoachSettings`, вы
 
 ## Scope
 - Сделать доступными раздел и операции создания филиала/зала для SuperAdministrator.
+- Ограничить branch/hall HTTP mutations Administrator своим филиалом;
+  запретить создание branch; сохранить существующие права HeadCoach/SA.
 - Определить и проверить backend-owned контракт доступных действий для этой
   поверхности; UI не должен выводить branch/hall-права из createRoleOptions.
 - Сохранить валидацию филиала, зала, auth/CSRF и аудит создания.
@@ -44,6 +48,8 @@ UI скрывает вкладку через `canManageHeadCoachSettings`, вы
 - Onboarding свежей системы — [TASK-180](../needs-clarification/TASK-180-fresh-system-setup-navigation.md).
 
 ## Constraints
+- По решению владельца 23.10.2026 исправить mutation scope Administrator в
+  этой задаче; не переносить проблему в отдельную карточку.
 - SuperAdministrator остаётся глобальной ролью без собственного филиала.
 - Общий `CanManageSettings` имеется также у Administrator; не открывать ему
   глобальные действия простой заменой условия показа вкладки.
@@ -63,6 +69,10 @@ UI скрывает вкладку через `canManageHeadCoachSettings`, вы
 - [ ] Создание сотрудников и иных сущностей не используется как источник прав
   на филиалы/залы; запрещённые запросы не обходят API-защиту.
 - [ ] Открытие раздела не добавляет несогласованных destructive actions.
+- [ ] Administrator не создаёт branch и не изменяет/архивирует/восстанавливает
+  чужие branch/hall, не удаляет чужой hall; отказы не меняют entity/audit.
+- [ ] Собственные разрешённые mutations Administrator и shared lookup
+  consumers проверены отдельно от нового UI доступа SuperAdministrator.
 
 ## Test checklist
 - [ ] Backend HTTP matrix: HeadCoach, SuperAdministrator, Administrator, Coach,
@@ -72,18 +82,42 @@ UI скрывает вкладку через `canManageHeadCoachSettings`, вы
 - [ ] Playwright mobile/desktop: настройки → филиал → зал → reload;
   negative path и сохранность остальных настроек.
 
+## Product decisions — 23.10.2026
+- На вопрос о границе UI-only и исправлении HTTP scope владелец ответил:
+  «Включить исправление API-доступа в TASK-190 и расширить план».
+- Исправление существующих глобальных branch/hall mutations Administrator
+  входит в эту задачу; создание нового филиала ему запрещено, mutations залов
+  и существующего филиала ограничены собственным филиалом. HeadCoach и
+  существующие прямые HTTP-права SuperAdministrator не сужаются.
+- Чтение справочника имеет отдельного consumer — перевод клиента; граница
+  чтения уточняется отдельно, молчаливое ограничение GET не разрешено.
+
+## Planning blockers
+- Review от 23.10.2026 обнаружило конфликт с REQ-USR-001: общая
+  ManageSettings сейчас разрешает Administrator глобальные branch/hall HTTP
+  операции без проверки собственного филиала. Это существующий дефект,
+  не новое право из TASK-190.
+- До ready plan требуется решение владельца о границе исправления:
+  поправка mutations уже включена; осталось закрепить чтение справочника
+  с учётом ClientDetailScreen и окончательный контракт ADR.
+- [ADR-0002](../../docs/architecture/adr/0002-branch-settings-action-contract.md)
+  описывает выбранное исправление HTTP mutations и предложение по shared GET,
+  статус Proposed до решения владельца по чтению.
+  Разрешение SuperAdministrator создавать филиалы/залы уже принято;
+  повторное продуктовое подтверждение этой цели не требуется.
+
 ## AI safety
-- Safe for autonomous implementation: no, до отдельного security/authorization review.
+- Safe for autonomous implementation: no, пока не завершено решение по shared reads и ADR.
 - Risk level: medium
 - Reason: Backend уже разрешает создание SuperAdministrator, но открытие
   существующей панели целиком может дополнительно показать архивирование/удаление;
   общий ManageSettings также допускает Administrator без локальных scope guards
   в просмотренных branch/hall handlers. Ошибка затрагивает общую структуру клуба.
-- Required review: проверить каждую операцию панели, role/scope matrix,
-  backend-источник разрешений, auth/CSRF и аудит; сохранить evidence до ready plan.
+- Required review: producer/consumer review выполнено и сохранено; проверить
+  финальное соответствие ответа по reads, ADR и plan перед readiness preflight.
 - Stop conditions: нужен новый доступ для иных ролей или destructive actions;
-  невозможно выразить изолированный сценарий создания без материального решения
-  по authorization; обнаружен конфликт с принятым branch scope. Вернуть затронутую
+  нужна изоляция чтения/новый transfer API вне выбранной границы; обнаружен
+  новый конфликт с branch scope сверх описанного исправления. Вернуть затронутую
   часть в planning/needs-clarification, не расширять права молча.
 
 ## Evidence
@@ -108,3 +142,15 @@ UI скрывает вкладку через `canManageHeadCoachSettings`, вы
   TASK-180 касается onboarding, а не разрешений на создание.
 - Evidence: статический анализ main `7154cee`; прочитанные тесты не запускались
   в этом triage. Это подтверждение существующего кода, не runtime stand evidence.
+
+## Planning lifecycle
+- planned_at: 2026-10-23 18:54 MSK
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md
+- implementation_branch: codex/TASK-190-super-admin-branch-hall-creation
+- readiness: no — mutation scope fix включён; требуется решение по shared reads и завершение ADR-0002.
+- Review: [security/contract review](../logs/TASK-190-security-review-2026-10-23.md).
+- Статус изменён на needs-clarification: review выявило существенный
+  authorization выбор, это больше не только ожидание review в risky.
+- Проверена уникальность TASK-190 среди активных и архивных карточек/планов;
+  зависимости от TASK-180 или завершённых TASK-188/189 не требуется.

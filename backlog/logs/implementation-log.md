@@ -1916,3 +1916,29 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - historical_paths: прежние ссылки `/backlog/implementation/TASK-188*`, `/backlog/implementation/TASK-189*` и планы из `/backlog/implementation-plans/` теперь соответствуют одноимённым файлам указанного архива; предыдущие записи сохранены.
 - requirements: REQ-GRP-003/001 — реализовано; REQ-NFR-001 — частично, ограничения физического iPhone явно записаны.
 - evidence: [журнал реализации и проверок](2026-10-23-TASK-188-189-implementation.md).
+
+# 2026-10-23 18:54
+- moved: none — в implementation не переводилась
+- planned_in_place: TASK-190 — draft; после security review перенесена risky → needs-clarification
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md
+- review: /backlog/logs/TASK-190-security-review-2026-10-23.md
+- architecture: /docs/architecture/adr/0002-branch-settings-action-contract.md — Proposed; выбор UI surface actions против общей HTTP policy требует owner decision
+- blocker: фактический Administrator HTTP доступ глобальный и расходится с REQ-USR-001; создание SuperAdministrator уже принято и повторно не согласовывается
+- visual_evidence: /backlog/mockups/TASK-190-existing-settings — текущий frontend с изолированными API fixtures на 390×844; подтверждены скрытая SA вкладка и ошибка вне hall dialog, данные CRM не менялись
+- scope: task/plan/review/log, ADR/index и requirement backlinks; application code, branches/worktrees и основной runtime не менялись
+- historical_links: прежние triage-log записи сохраняют путь risky на дату triage; текущая карточка — /backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md
+
+# 2026-10-23 19:18
+- moved: none
+- planned_in_place: TASK-190 — scope расширен прямым ответом владельца
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md
+- decision: «Включить исправление API-доступа в TASK-190 и расширить план»; первоначальный UI-only вариант отвергнут, Administrator mutation guards включены
+- review: follow-up выявил зависимость ClientDetailScreen transfer от общего справочника; предложено сохранить GET и ограничить mutations
+- blocker: ожидается решение по shared reads; техническая matrix предложена в ADR-0002, implementation не начинается
+- validation: промежуточный draft прошёл 4 knowledge checks; финальный revised scope проверяется повторно после закрытия решения
+- final_review: уточнены approval provenance и приоритет actor/lookup/target guards; foreign 403 отделён от missing by-ID 404
+- validation: revised plan/ADR/task прошли 4 knowledge checks; scoped links, status/directory, TASK/plan uniqueness и diff whitespace проверены
+- executable_preflight: ожидаемый отказ `plan is not executable`; readiness: no сохранён до решения по shared reads и acceptance ADR
+- runtime: временный Vite preview остановлен; backend/БД и application tests в planning не запускались

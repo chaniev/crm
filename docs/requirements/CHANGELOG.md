@@ -1,5 +1,13 @@
 # Журнал изменения требований
 
+## 2026-10-23 — TASK-190: scope HTTP mutations
+
+- REQ-USR-001: реализация уточнена до «частично»: обнаружено отсутствие
+  own-branch guards в branch/hall mutations. Пользователь включил исправление
+  в [TASK-190](../../backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md).
+  Нормативное ограничение управления своим филиалом не меняется; вопрос
+  справочного чтения выделен отдельно, новое ограничение reads не утверждено.
+
 ## 2026-10-23 — интеграция TASK-188 / TASK-189
 
 - REQ-GRP-003 и REQ-GRP-001: реализация — «реализовано» после локальной
@@ -45,7 +53,7 @@
   и залов Супер-администратором через настройки независимо от права создавать
   сотрудников; дополнительные destructive actions не разрешаются этим решением.
   API уже допускает создание, UI скрывает вкладку. Реализация — «частично»
-  ([TASK-190](../../backlog/risky/TASK-190-super-admin-branch-hall-creation.md)).
+  ([TASK-190](../../backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md)).
 
 - 09.10.2026 — [TASK-187](../../backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md) интегрирована в main (`3074f71`), весь verification contract пройден. REQ-USR-001/004 — «реализовано», REQ-USR-002 остаётся «частично» из-за условий вне scope задачи. [Evidence](../../backlog/done/2026-10-09/TASK-187-evidence/verification.md).
 
