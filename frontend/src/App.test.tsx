@@ -60,13 +60,16 @@ vi.mock('./features/groups/GroupManagement', () => ({
     groupId,
     onBack,
     onOpenClient,
+    onOpenSchedule,
   }: {
     groupId: string
     onBack: () => void
+    onOpenSchedule?: (groupId: string, seriesId: string) => void
     onOpenClient?: (clientId: string, origin?: unknown) => void
   }) => (
     <div data-testid="group-edit-screen">
       Group edit
+      <button onClick={() => onOpenSchedule?.(groupId, `series-${groupId}`)}>Изменить расписание</button>
       <button type="button" onClick={onBack}>К списку групп</button>
       {onOpenClient ? (
         <button
@@ -83,6 +86,18 @@ vi.mock('./features/groups/GroupManagement', () => ({
     </div>
   ),
   GroupsListScreen: () => <div data-testid="groups-list-screen">Groups list</div>,
+}))
+
+vi.mock('./features/schedule/GroupScheduleScreen', async (importOriginal) => ({
+  ...await importOriginal<typeof import('./features/schedule/GroupScheduleScreen')>(),
+  GroupScheduleScreen: () => <div data-testid="schedule-screen">Calendar</div>,
+  ScheduleSeriesEditScreen: ({ groupId, lessonSeriesId, onBack, onSaved }: {
+    groupId: string; lessonSeriesId: string; onBack: () => void; onSaved: () => void
+  }) => <div data-testid="series-editor">
+    {groupId}:{lessonSeriesId}
+    <button onClick={onBack}>Отмена серии</button>
+    <button onClick={onSaved}>Сохранить серию</button>
+  </div>,
 }))
 
 vi.mock('./features/users/UserManagement', () => ({
@@ -815,6 +830,56 @@ describe('App route access contract', () => {
     await waitFor(() => expect(window.location.pathname).toBe('/clients/client-group'))
     expect(screen.getByRole('button', { name: 'К группе' })).toBeVisible()
     expect(window.history.state.crmClientProfileReturnContext.returnDepth).toBe(3)
+  })
+
+  test.each(['Отмена серии', 'Сохранить серию'])('group-origin series %s returns to the matching history entry, including reload', async action => {
+    const view = renderAppAt('/groups/group-A/edit', baseSession)
+    fireEvent.click(await screen.findByRole('button', { name: 'Изменить расписание' }))
+    await screen.findByTestId('series-editor')
+    expect(window.location.pathname).toBe('/schedule/series/series-group-A/edit')
+    expect(window.location.search).toBe('?scope=this-and-future&groupId=group-A')
+    const editorContext = window.history.state.crmGroupScheduleReturn
+    expect(editorContext).toMatchObject({ entry: 'editor', groupId: 'group-A', seriesId: 'series-group-A' })
+    view.unmount()
+    renderApp()
+    await screen.findByTestId('series-editor')
+    expect(window.history.state.crmGroupScheduleReturn).toEqual(editorContext)
+    const go = vi.spyOn(window.history, 'go').mockImplementation(() => {
+      window.history.replaceState({ crmGroupScheduleReturn: { ...editorContext, entry: 'group' } }, '', '/groups/group-A/edit')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+    fireEvent.click(screen.getByRole('button', { name: action }))
+    await waitFor(() => expect(window.location.pathname).toBe('/groups/group-A/edit'))
+    expect(go).toHaveBeenCalledWith(-1)
+    expect(await screen.findByTestId('group-edit-screen')).toBeVisible()
+    go.mockRestore()
+  })
+
+  test('group-origin return fails closed on another history entry and is stripped on unrelated navigation', async () => {
+    renderAppAt('/groups/group-A/edit', baseSession)
+    fireEvent.click(await screen.findByRole('button', { name: 'Изменить расписание' }))
+    await screen.findByTestId('series-editor')
+    const context = window.history.state.crmGroupScheduleReturn
+    const go = vi.spyOn(window.history, 'go').mockImplementation(() => {
+      window.history.replaceState({ crmGroupScheduleReturn: { ...context, entry: 'group', originEntryKey: 'group-schedule:foreign' } }, '', '/groups/group-A/edit')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Отмена серии' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/schedule'))
+    expect(window.history.state.crmGroupScheduleReturn).toBeUndefined()
+    go.mockRestore()
+  })
+
+  test('a direct series with mismatched group origin keeps calendar fallback', async () => {
+    renderAppAt('/groups/group-A/edit', baseSession)
+    fireEvent.click(await screen.findByRole('button', { name: 'Изменить расписание' }))
+    await screen.findByTestId('series-editor')
+    window.history.replaceState(window.history.state, '', '/schedule/series/series-B/edit?scope=this-and-future&groupId=group-B')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    await waitFor(() => expect(screen.getByTestId('series-editor')).toHaveTextContent('group-B:series-B'))
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить серию' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/schedule'))
+    expect(window.history.state.crmGroupScheduleReturn).toBeUndefined()
   })
 
   test('keeps direct and malformed client details on the existing clients fallback', async () => {

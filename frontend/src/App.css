@@ -6369,3 +6369,33 @@
 .group-weekday-choice .mantine-Checkbox-label {
   font-size: var(--crm-type-body-size, 1rem);
 }
+
+.group-schedule-entry {
+  padding-bottom: var(--crm-space-4);
+  border-bottom: 1px solid var(--crm-border-default);
+  overflow-wrap: anywhere;
+}
+
+.group-schedule-entry__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--crm-space-4);
+}
+
+.group-schedule-entry__content > button {
+  flex-shrink: 0;
+}
+
+@media (max-width: 48rem) {
+  .group-schedule-entry__content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.group-schedule-entry__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--crm-space-2) var(--crm-space-4);
+}

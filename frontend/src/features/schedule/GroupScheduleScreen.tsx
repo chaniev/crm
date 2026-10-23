@@ -1,3 +1,4 @@
+import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
 import {
   useEffect,
   useMemo,
@@ -910,6 +911,7 @@ export function ScheduleLessonChangeRouteScreen({
 }
 
 export function ScheduleSeriesEditScreen({
+  backLabel = fe2ScheduleCoreText.groupScheduleScreen_jsxText_9b431254,
   groupId,
   lessonDate,
   lessonSeriesId,
@@ -918,6 +920,7 @@ export function ScheduleSeriesEditScreen({
   onSaved,
   scope,
 }: {
+  backLabel?: string
   groupId?: string | null
   lessonDate?: string | null
   lessonSeriesId: string
@@ -936,18 +939,24 @@ export function ScheduleSeriesEditScreen({
   const [error, setError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
+  const requestScopeRef = useRef(0)
   const effectiveFromRef = useRef<HTMLInputElement | null>(null)
   const endsOnRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
+    requestScopeRef.current += 1
 
     async function loadSeries() {
       setLoading(true)
+      setSubmitting(null)
       setError(null)
 
       try {
         const response = await getGroupLessonSeries(lessonSeriesId, controller.signal)
+        if (response.seriesId !== lessonSeriesId || (groupId && response.groupId !== groupId)) {
+          throw new Error(fe13GroupsCoreText.scheduleIdentityMismatch)
+        }
         let scheduleHalls: FilterOption[] = []
         const optionDate = lessonDate && isRealIsoDate(lessonDate)
           ? lessonDate
@@ -988,7 +997,10 @@ export function ScheduleSeriesEditScreen({
 
     void loadSeries()
 
-    return () => controller.abort()
+    return () => {
+      requestScopeRef.current += 1
+      controller.abort()
+    }
   }, [groupId, lessonDate, lessonSeriesId, scope])
 
   const pending = submitting !== null
@@ -1070,6 +1082,7 @@ export function ScheduleSeriesEditScreen({
       return
     }
 
+    const requestScope = requestScopeRef.current
     setSubmitting('preview')
     setFieldErrors({})
     setFormError(null)
@@ -1079,11 +1092,13 @@ export function ScheduleSeriesEditScreen({
         lessonSeriesId,
         toSeriesRequest(draft, series),
       )
+      if (requestScope !== requestScopeRef.current) return
       setPreview(response)
     } catch (previewError) {
+      if (requestScope !== requestScopeRef.current) return
       handleSeriesFormError(previewError)
     } finally {
-      setSubmitting(null)
+      if (requestScope === requestScopeRef.current) setSubmitting(null)
     }
   }
 
@@ -1092,6 +1107,7 @@ export function ScheduleSeriesEditScreen({
       return
     }
 
+    const requestScope = requestScopeRef.current
     setSubmitting('execute')
     setFieldErrors({})
     setFormError(null)
@@ -1102,10 +1118,12 @@ export function ScheduleSeriesEditScreen({
         expectedRevision: preview.revision,
         confirmationToken: preview.confirmationToken,
       })
+      if (requestScope !== requestScopeRef.current) return
       setDirty(false)
       setPreview(null)
       onSaved()
     } catch (executeError) {
+      if (requestScope !== requestScopeRef.current) return
       if (executeError instanceof ApiError) {
         const recoveryMessage = formatScheduleProblemCode(executeError.code)
         if (recoveryMessage) {
@@ -1117,7 +1135,7 @@ export function ScheduleSeriesEditScreen({
 
       handleSeriesFormError(executeError)
     } finally {
-      setSubmitting(null)
+      if (requestScope === requestScopeRef.current) setSubmitting(null)
     }
   }
 
@@ -1165,6 +1183,7 @@ export function ScheduleSeriesEditScreen({
       data-testid="schedule-series-edit-screen"
       showHeader
       title={fe2ScheduleCoreText.groupScheduleScreen_title_cd3e4306}
+      actions={<Button onClick={cancel} variant="secondary" disabled={pending}>{backLabel}</Button>}
     >
       {loading ? (
         <PageSection>
@@ -1174,13 +1193,13 @@ export function ScheduleSeriesEditScreen({
       {error ? (
         <PageSection>
           <ErrorState
-            action={<Button onClick={onBack} variant="light">{fe2ScheduleCoreText.groupScheduleScreen_jsxText_9b431254}</Button>}
+            action={<Button onClick={onBack} variant="light">{backLabel}</Button>}
             message={error}
             title={fe2ScheduleCoreText.groupScheduleScreen_title_f1cab840}
           />
         </PageSection>
       ) : null}
-      {series && draft ? (
+      {!loading && !error && series?.seriesId === lessonSeriesId && (!groupId || series.groupId === groupId) && draft ? (
         <PageSection>
           <form
             data-testid="schedule-series-edit-form"

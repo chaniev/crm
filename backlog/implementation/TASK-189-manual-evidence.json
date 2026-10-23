@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-189",
+  "confirmations": [
+    {
+      "id": "manual.design-comparison",
+      "actor": "coding-agent:TASK-189",
+      "performed_at": "2026-10-23T15:38:06.158888+00:00",
+      "note": "Inspected approved A against rendered summary, long text, lookup recovery and dirty modal at mobile/desktop/compact heights and both WebKit profiles; physical-device limits recorded.",
+      "artifacts": [
+        "backlog/implementation/TASK-189-evidence/validation.md"
+      ]
+    }
+  ]
+}

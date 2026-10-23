@@ -507,6 +507,7 @@ test('Группы: создание выполняется через preview i
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/groups')
+  await expect(page.getByTestId('group-card-group-1')).toBeVisible()
   await page.getByRole('button', { name: 'Новая группа' }).click()
 
   await expect(page.getByRole('heading', { name: 'Новая группа' })).toBeVisible()
@@ -524,9 +525,9 @@ test('Группы: создание выполняется через preview i
   expect(stickyBox!.height).toBeGreaterThanOrEqual(60)
   expect(stickyBox!.y + stickyBox!.height).toBeLessThanOrEqual(navigationBox!.y + 1)
   await page.getByRole('textbox', { name: 'Название группы' }).fill('Новая серия')
-  await page.getByLabel('Время начала').fill('10:00')
   await page.getByLabel('Длительность').fill('60')
   await page.getByRole('checkbox', { name: 'Пн' }).click()
+  await page.getByLabel('Время начала: Понедельник').fill('10:00')
   await page.getByLabel('Начало расписания').fill('2026-09-01')
   await primaryAction.click()
 
@@ -989,6 +990,11 @@ async function mockApi(
 
     if (pathname.startsWith('/api/groups/') && pathname.endsWith('/clients') && method === 'GET') {
       await fulfillJson(context.route, 200, { clients: [] })
+      return
+    }
+
+    if (pathname.endsWith('/lesson-series') && method === 'GET') {
+      await fulfillJson(route, 404, { title: 'Расписание не найдено', code: 'lesson-series-not-found' })
       return
     }
 

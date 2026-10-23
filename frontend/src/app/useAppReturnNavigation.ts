@@ -1,3 +1,8 @@
+import {
+  createGroupScheduleReturnContext, mergeGroupScheduleReturnContext,
+  readGroupScheduleReturnContext, resolveSeriesEditorOrigin,
+  type GroupScheduleReturnContext,
+} from '../features/groups/groupScheduleReturnState'
 import { useEffect, useRef } from 'react'
 import {
   getRoutePath,
@@ -134,6 +139,42 @@ export function useAppReturnNavigation({
   const activeScheduleReturnSnapshot = readScheduleReturnSnapshot(
     window.history.state,
   )
+
+  const activeGroupScheduleReturnContext = readGroupScheduleReturnContext(window.history.state, route)
+  const pendingGroupScheduleReturn = useRef<GroupScheduleReturnContext | null>(null)
+
+  function openGroupSchedule(groupId: string, seriesId: string) {
+    if (route.kind !== 'groupEdit' || route.groupId !== groupId || !seriesId) return
+    const context = createGroupScheduleReturnContext(groupId, seriesId, window.scrollY)
+    window.history.replaceState(mergeGroupScheduleReturnContext(window.history.state, context), '', window.location.href)
+    navigate({ kind: 'scheduleSeriesEdit', groupId, lessonSeriesId: seriesId, scope: 'this-and-future' }, {
+      state: mergeGroupScheduleReturnContext(stripAppReturnSnapshotsFromHistoryState(window.history.state), { ...context, entry: 'editor' }),
+    })
+  }
+
+  function returnFromSeriesEditor(saved: boolean) {
+    if (route.kind !== 'scheduleSeriesEdit') return
+    const origin = resolveSeriesEditorOrigin(route, window.history.state)
+    if (origin.kind === 'groupEdit') {
+      pendingGroupScheduleReturn.current = origin.context
+      window.history.go(-1)
+    } else if (saved && origin.kind === 'lesson') {
+      navigateWithScheduleReturnState({ kind: 'scheduleLessonDetail',
+        lessonOccurrenceId: origin.lessonOccurrenceId, lessonDate: origin.lessonDate }, origin.lessonOccurrenceId)
+    } else returnToSchedule()
+  }
+
+  useEffect(() => {
+    const pending = pendingGroupScheduleReturn.current
+    if (!pending) return
+    pendingGroupScheduleReturn.current = null
+    const landed = readGroupScheduleReturnContext(window.history.state, route)
+    if (landed?.entry === 'group' && landed.originEntryKey === pending.originEntryKey &&
+      landed.groupId === pending.groupId && landed.seriesId === pending.seriesId) return
+    navigate({ kind: 'section', section: 'Schedule' }, {
+      replace: true, state: stripAppReturnSnapshotsFromHistoryState(window.history.state),
+    })
+  }, [navigate, route])
 
   function navigateWithScheduleReturnState(
     nextRoute: AppRoute,
@@ -507,6 +548,9 @@ export function useAppReturnNavigation({
   }, [route])
 
   return {
+    activeGroupScheduleReturnContext,
+    openGroupSchedule,
+    returnFromSeriesEditor,
     activeClientListReturnSnapshot,
     activeClientProfileReturnContext,
     activeGroupListReturnSnapshot,

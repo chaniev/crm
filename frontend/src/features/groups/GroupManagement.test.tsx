@@ -9,6 +9,7 @@ const apiMocks = vi.hoisted(() => ({
   createGroup: vi.fn(),
   getBranches: vi.fn(),
   getGroup: vi.fn(),
+  getGroupLessonSeries: vi.fn(),
   getGroupClients: vi.fn(),
   getGroups: vi.fn(),
   getGroupSummary: vi.fn(),
@@ -27,6 +28,7 @@ vi.mock('../../lib/api', async (importOriginal) => ({
   createGroup: apiMocks.createGroup,
   getBranches: apiMocks.getBranches,
   getGroup: apiMocks.getGroup,
+  getGroupLessonSeries: apiMocks.getGroupLessonSeries,
   getGroupClients: apiMocks.getGroupClients,
   getGroups: apiMocks.getGroups,
   getGroupSummary: apiMocks.getGroupSummary,
@@ -1109,3 +1111,139 @@ function setupGroupEditWithClient() {
     createUnavailableReason: null,
   })
 }
+
+const groupSeries = {
+  seriesId: 'series-distinct', groupId: 'group-1', groupName: 'Утренняя', businessDate: '2026-10-23',
+  startsOn: '2026-10-01', endsOn: null, revision: 'series-r1',
+  currentVersion: { versionNumber: 1, effectiveFrom: '2026-10-01', effectiveTo: null,
+    thisAndFutureMinEffectiveFrom: '2026-10-23', entireSeriesEffectiveFrom: '2026-10-01',
+    slots: [
+      { isoWeekday: 1, startTime: '18:00', durationMinutes: 60, hallId: 'hall-1', hallName: 'Большой' },
+      { isoWeekday: 1, startTime: '20:00', durationMinutes: 45, hallId: 'hall-2', hallName: 'Малый' },
+      { isoWeekday: 6, startTime: '10:00', durationMinutes: 60, hallId: 'hall-1', hallName: 'Большой' },
+    ],
+  },
+}
+
+describe('Group schedule entry', () => {
+  beforeEach(() => {
+    Object.values(apiMocks).forEach(mock => mock.mockReset())
+    setupGroupEditWithClient()
+    apiMocks.getGroupLessonSeries.mockResolvedValue(groupSeries)
+    apiMocks.updateGroup.mockImplementation(async (_id, payload) => ({ ...group, ...payload }))
+  })
+
+  function renderEntry(onOpenSchedule = vi.fn(), canManageGroups = true) {
+    return { onOpenSchedule, ...renderWithProviders(<GroupEditScreen groupId="group-1"
+      onBack={vi.fn()} onUpdated={vi.fn()} onOpenSchedule={onOpenSchedule} canManageGroups={canManageGroups} />) }
+  }
+
+  test('loads canonical series independently and shows every slot with its hall/duration', async () => {
+    const { onOpenSchedule } = renderEntry()
+    expect(await screen.findByRole('button', { name: 'Изменить расписание' })).toBeVisible()
+    expect(apiMocks.getGroupLessonSeries).toHaveBeenCalledWith('group-1', expect.any(AbortSignal))
+    for (const text of ['Пн 18:00', 'Пн 20:00', 'Сб 10:00']) expect(screen.getByText(text)).toBeVisible()
+    expect(screen.getByText(/45 мин.*Малый/)).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Изменить расписание' }))
+    expect(onOpenSchedule).toHaveBeenCalledWith('group-1', 'series-distinct')
+    expect(apiMocks.updateGroup).not.toHaveBeenCalled()
+  })
+
+  test.each([404, 403, 500])('lookup %s keeps identity editable and only transient failures offer retry', async status => {
+    apiMocks.getGroupLessonSeries.mockRejectedValueOnce(new ApiError('Ошибка чтения', status, {}, status === 404 ? 'lesson-series-not-found' : null))
+    const { onOpenSchedule } = renderEntry()
+    const name = await screen.findByLabelText('Название группы')
+    fireEvent.change(name, { target: { value: 'Черновик' } })
+    expect(await screen.findByText(status === 404 ? 'Расписание не найдено' : status === 403 ? 'Нет доступа к расписанию' : 'Ошибка чтения')).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Изменить расписание' })).not.toBeInTheDocument()
+    if (status === 500) {
+      fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+      await screen.findByRole('button', { name: 'Изменить расписание' })
+    } else expect(screen.queryByRole('button', { name: 'Повторить' })).not.toBeInTheDocument()
+    expect(name).toHaveValue('Черновик')
+    expect(onOpenSchedule).not.toHaveBeenCalled()
+  })
+
+  test('ignores a late lookup of the previous group and never exposes its series', async () => {
+    let resolve!: (value: unknown) => void
+    apiMocks.getGroupLessonSeries.mockReturnValueOnce(new Promise(done => { resolve = done }))
+    const { rerender, onOpenSchedule } = renderEntry()
+    await screen.findByLabelText('Название группы')
+    expect(screen.getByText('Загружаем расписание...')).toBeVisible()
+    apiMocks.getGroupLessonSeries.mockResolvedValue({ ...groupSeries, groupId: 'group-2', seriesId: 'series-2' })
+    rerender(<GroupEditScreen groupId="group-2" onBack={vi.fn()} onUpdated={vi.fn()}
+      onOpenSchedule={onOpenSchedule} canManageGroups />)
+    await screen.findByRole('button', { name: 'Изменить расписание' })
+    resolve(groupSeries)
+    await waitFor(() => expect(apiMocks.getGroupLessonSeries).toHaveBeenCalledTimes(2))
+    fireEvent.click(screen.getByRole('button', { name: 'Изменить расписание' }))
+    expect(onOpenSchedule).toHaveBeenCalledWith('group-2', 'series-2')
+  })
+
+  test('mismatched group and restricted session cannot open an editor', async () => {
+    apiMocks.getGroupLessonSeries.mockResolvedValue({ ...groupSeries, groupId: 'wrong-group' })
+    const view = renderEntry()
+    expect(await screen.findByText('Не удалось подтвердить расписание этой группы.')).toBeVisible()
+    expect(view.onOpenSchedule).not.toHaveBeenCalled()
+    expect(screen.queryByRole('button', { name: 'Изменить расписание' })).not.toBeInTheDocument()
+    view.unmount()
+    apiMocks.getGroupLessonSeries.mockClear()
+    renderEntry(vi.fn(), false)
+    await screen.findByLabelText('Название группы')
+    expect(apiMocks.getGroupLessonSeries).not.toHaveBeenCalled()
+    expect(screen.queryByRole('button', { name: 'Изменить расписание' })).not.toBeInTheDocument()
+  })
+
+  test.each(['Остаться', 'Escape', 'Перейти без сохранения', 'Сохранить и перейти'])('dirty schedule entry: %s', async choice => {
+    const { onOpenSchedule } = renderEntry()
+    const name = await screen.findByLabelText('Название группы')
+    fireEvent.change(name, { target: { value: 'Изменённая группа' } })
+    const trigger = await screen.findByRole('button', { name: 'Изменить расписание' })
+    fireEvent.click(trigger)
+    const dialog = await screen.findByRole('dialog')
+    if (choice === 'Escape') fireEvent.keyDown(dialog, { key: 'Escape', code: 'Escape' })
+    else fireEvent.click(screen.getByRole('button', { name: choice }))
+    if (choice === 'Остаться' || choice === 'Escape') {
+      await waitFor(() => expect(trigger).toHaveFocus())
+      expect(name).toHaveValue('Изменённая группа')
+      expect(onOpenSchedule).not.toHaveBeenCalled()
+    } else {
+      await waitFor(() => expect(onOpenSchedule).toHaveBeenCalledWith('group-1', 'series-distinct'))
+    }
+    expect(apiMocks.updateGroup).toHaveBeenCalledTimes(choice === 'Сохранить и перейти' ? 1 : 0)
+    if (choice === 'Сохранить и перейти') {
+      expect(apiMocks.updateGroup).toHaveBeenCalledWith('group-1', { name: 'Изменённая группа', branchId: 'branch-1', groupTypeId: 'type-1', isActive: true })
+      expect(apiMocks.getGroupLessonSeries).toHaveBeenCalledTimes(2)
+    }
+  })
+
+  test('dirty schedule save stays single while pending', async () => {
+    let resolve!: (value: unknown) => void
+    apiMocks.updateGroup.mockReturnValue(new Promise(done => { resolve = done }))
+    const { onOpenSchedule } = renderEntry()
+    fireEvent.change(await screen.findByLabelText('Название группы'), { target: { value: 'Черновик' } })
+    fireEvent.click(await screen.findByRole('button', { name: 'Изменить расписание' }))
+    const save = await screen.findByRole('button', { name: 'Сохранить и перейти' })
+    fireEvent.click(save)
+    fireEvent.click(save)
+    expect(save).toBeDisabled()
+    expect(apiMocks.updateGroup).toHaveBeenCalledOnce()
+    expect(onOpenSchedule).not.toHaveBeenCalled()
+    resolve({ ...group, name: 'Черновик' })
+    await waitFor(() => expect(onOpenSchedule).toHaveBeenCalledOnce())
+  })
+
+  test.each(['validation', 'server', 'scope'])('dirty save %s failure keeps draft and refuses navigation', async failure => {
+    const { onOpenSchedule } = renderEntry()
+    const name = await screen.findByLabelText('Название группы')
+    fireEvent.change(name, { target: { value: failure === 'validation' ? '' : 'Черновик' } })
+    if (failure === 'server') apiMocks.updateGroup.mockRejectedValue(new ApiError('Сохранение отклонено', 400, { Name: ['Исправьте название.'] }))
+    if (failure === 'scope') apiMocks.getGroupLessonSeries.mockRejectedValue(new ApiError('Охват изменён', 403))
+    fireEvent.click(await screen.findByRole('button', { name: 'Изменить расписание' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Сохранить и перейти' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(onOpenSchedule).not.toHaveBeenCalled()
+    if (failure !== 'scope') expect(name).toHaveValue(failure === 'validation' ? '' : 'Черновик')
+    else expect(await screen.findByText('Нет доступа к расписанию')).toBeVisible()
+  })
+})

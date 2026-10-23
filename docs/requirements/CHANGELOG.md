@@ -1,5 +1,12 @@
 # Журнал изменения требований
 
+## 2026-10-23 — TASK-189: переход к расписанию из группы
+
+- REQ-GRP-001: реализованы summary/lookup, dirty guard и typed return с проверкой
+  group/series/history; компонентные и браузерные проверки приведены в
+  [evidence](../../backlog/implementation/TASK-189-evidence/validation.md).
+  До проверки интеграции состояние — «частично»; нормативное поведение сохранено.
+
 ## 2026-10-23 — TASK-188: независимое время при создании
 
 - REQ-GRP-003: форма, snapshot ошибок/preview и API round-trip подтверждены

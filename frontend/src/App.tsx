@@ -104,6 +104,9 @@ export function App({ appConfig, authBackground }: AppProps) {
     activeClientListReturnSnapshot,
     activeClientProfileReturnContext,
     activeGroupListReturnSnapshot,
+    activeGroupScheduleReturnContext,
+    openGroupSchedule,
+    returnFromSeriesEditor,
     editClient,
     openClientDetails,
     returnToClients,
@@ -121,7 +124,7 @@ export function App({ appConfig, authBackground }: AppProps) {
   })
 
   useEffect(() => {
-    if (loadingSession) {
+    if (loadingSession || (!session && !bootstrapError)) {
       return
     }
 
@@ -139,7 +142,7 @@ export function App({ appConfig, authBackground }: AppProps) {
     }
 
     authenticatedUserBoundaryRef.current = authenticatedUserId
-  }, [clearCurrentReturnSnapshots, loadingSession, session])
+  }, [bootstrapError, clearCurrentReturnSnapshots, loadingSession, session])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -571,6 +574,9 @@ export function App({ appConfig, authBackground }: AppProps) {
           onReturnToClients={returnToClients}
           onReturnToGroups={returnToGroups}
           onReturnToSchedule={returnToSchedule}
+          onOpenGroupSchedule={openGroupSchedule}
+          onReturnFromSeriesEditor={returnFromSeriesEditor}
+          groupScheduleReturnContext={activeGroupScheduleReturnContext}
           onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
           clientListReturnSnapshot={activeClientListReturnSnapshot}
           clientProfileReturnContext={activeClientProfileReturnContext}

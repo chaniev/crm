@@ -378,6 +378,11 @@ async function mockTask116Api(
       return
     }
 
+    if (context.pathname === '/api/groups/summary') {
+      await fulfillJson(context.route, 200, { totalCount: 1, activeWithoutTrainerCount: 0 })
+      return
+    }
+
     if (context.pathname === '/api/groups' && context.method === 'GET') {
       await fulfillJson(context.route, 200, GROUPS_LIST_RESPONSE)
       return
@@ -400,6 +405,11 @@ async function mockTask116Api(
 
     if (context.pathname === '/api/groups/options/trainers' && context.method === 'GET') {
       await fulfillJson(context.route, 200, GROUP_TRAINER_OPTIONS)
+      return
+    }
+
+    if (context.pathname.endsWith('/lesson-series') && context.method === 'GET') {
+      await fulfillJson(context.route, 404, { title: 'Расписание не найдено', code: 'lesson-series-not-found' })
       return
     }
 
@@ -764,6 +774,8 @@ test.describe('TASK-116: контекст возврата в карточку �
       expect(actionBox!.height).toBeGreaterThanOrEqual(44)
 
       await nameInput.fill(`Черновик ${viewport.name}`)
+      await nameInput.blur()
+      await expect(nameInput).toHaveValue(`Черновик ${viewport.name}`)
       await clientAction.click()
       const dialog = page.getByRole('dialog', { name: 'Сохранить изменения в группе?' })
       await expect(dialog).toBeVisible()

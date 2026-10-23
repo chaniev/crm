@@ -35,6 +35,9 @@ import {
 import { showAppNotification } from '../shared/notifications'
 import { GroupClientRow } from './GroupClientRow'
 import { GroupForm } from './GroupForm'
+import { GroupScheduleEntry } from './GroupScheduleEntry'
+import { useGroupScheduleEntry } from './useGroupScheduleEntry'
+import type { GroupScheduleReturnContext } from './groupScheduleReturnState'
 import { GroupTrainerAssignmentsSection } from './GroupTrainerAssignmentsSection'
 import { GroupTrainerSubstitutionsSection } from './GroupTrainerSubstitutionsSection'
 import { GROUPS_DEFAULT_NAME } from './groupManagement.constants'
@@ -50,6 +53,9 @@ import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
 
 export type GroupEditScreenProps = {
   groupId: string
+  canManageGroups?: boolean
+  scheduleReturnContext?: GroupScheduleReturnContext | null
+  onOpenSchedule?: (groupId: string, seriesId: string) => void
   initialReturnContext?: ClientProfileReturnContext | null
   onBack: () => void
   onOpenClient?: (clientId: string, origin: ClientProfileOriginInput) => void
@@ -58,6 +64,9 @@ export type GroupEditScreenProps = {
 
 export function GroupEditScreen({
   groupId,
+  canManageGroups = false,
+  scheduleReturnContext = null,
+  onOpenSchedule,
   initialReturnContext = null,
   onBack,
   onOpenClient,
@@ -73,7 +82,9 @@ export function GroupEditScreen({
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
-  const [pendingClientId, setPendingClientId] = useState<string | null>(null)
+  const [pendingDestination, setPendingDestination] = useState<{ kind: 'client'; clientId: string } | { kind: 'schedule' } | null>(null)
+  const schedule = useGroupScheduleEntry(groupId, canManageGroups && Boolean(onOpenSchedule))
+  const savingRef = useRef(false)
   const [submitting, setSubmitting] = useState(false)
   const form = useGroupForm()
   const formRef = useRef(form)
@@ -108,6 +119,7 @@ export function GroupEditScreen({
           getGroupClients(groupId, controller.signal),
         ])
 
+        if (controller.signal.aborted) return
         setBranchOptions(branches)
         setHallOptions(halls)
         setGroupTypeOptions(groupTypes)
@@ -174,6 +186,8 @@ export function GroupEditScreen({
   }, [groupClients, groupId, initialReturnContext, loadError, loading])
 
   async function persistGroup(values: GroupFormValues) {
+    if (savingRef.current) return false
+    savingRef.current = true
     setSubmitting(true)
     setFormError(null)
     form.clearErrors()
@@ -210,6 +224,7 @@ export function GroupEditScreen({
       focusGroupFormRecovery()
       return false
     } finally {
+      savingRef.current = false
       setSubmitting(false)
     }
   }
@@ -245,48 +260,55 @@ export function GroupEditScreen({
       return
     }
 
-    setPendingClientId(clientId)
+    setPendingDestination({ kind: 'client', clientId })
   }
 
-  function cancelPendingClientNavigation() {
-    const clientId = pendingClientId
-    setPendingClientId(null)
-    if (!clientId) return
+  function handleOpenSchedule() {
+    if (!canManageGroups || !onOpenSchedule || schedule.state.kind !== 'ready') return
+    if (form.isDirty()) setPendingDestination({ kind: 'schedule' })
+    else onOpenSchedule(groupId, schedule.state.series.seriesId)
+  }
 
+  function cancelPendingNavigation() {
+    const destination = pendingDestination
+    setPendingDestination(null)
+    if (!destination) return
     window.requestAnimationFrame(() => {
-      document
-        .querySelector<HTMLElement>(
-          `[data-group-client-profile-action-id="${escapeCssIdentifier(clientId)}"]`,
-        )
+      document.querySelector<HTMLElement>(destination.kind === 'schedule'
+        ? '[data-group-schedule-action]'
+        : `[data-group-client-profile-action-id="${escapeCssIdentifier(destination.clientId)}"]`)
         ?.focus({ preventScroll: true })
     })
   }
 
-  async function saveAndOpenPendingClient() {
-    const clientId = pendingClientId
-    if (!clientId || submitting) return
+  async function openPendingDestination(destination: NonNullable<typeof pendingDestination>, refreshSchedule: boolean) {
+    if (destination.kind === 'client') {
+      openClientFromGroup(destination.clientId)
+    } else if (canManageGroups && onOpenSchedule) {
+      const series = refreshSchedule ? await schedule.refresh()
+        : schedule.state.kind === 'ready' ? schedule.state.series : null
+      if (series?.groupId === groupId) onOpenSchedule(groupId, series.seriesId)
+    }
+  }
 
+  async function saveAndOpenPendingDestination() {
+    const destination = pendingDestination
+    if (!destination || submitting || savingRef.current) return
     const validation = form.validate()
     if (validation.hasErrors) {
-      setPendingClientId(null)
+      setPendingDestination(null)
       setFormError(fe13GroupsCoreText.groupEditScreen_setFormError_e9c0fdee)
       focusGroupFormRecovery()
       return
     }
-
     const saved = await persistGroup(form.values)
-    if (saved) {
-      setPendingClientId(null)
-      openClientFromGroup(clientId)
-    } else {
-      setPendingClientId(null)
-    }
+    setPendingDestination(null)
+    if (saved) await openPendingDestination(destination, true)
   }
 
-  function discardAndOpenPendingClient() {
-    const clientId = pendingClientId
-    if (!clientId || submitting) return
-
+  function discardAndOpenPendingDestination() {
+    const destination = pendingDestination
+    if (!destination || submitting || savingRef.current) return
     const loadedValues = loadedFormValuesRef.current
     if (loadedValues) {
       form.setValues(loadedValues)
@@ -294,10 +316,19 @@ export function GroupEditScreen({
       form.clearErrors()
       setFormError(null)
     }
-
-    setPendingClientId(null)
-    openClientFromGroup(clientId)
+    setPendingDestination(null)
+    void openPendingDestination(destination, false)
   }
+
+  useEffect(() => {
+    if (loading || loadError || schedule.state.kind !== 'ready' ||
+      scheduleReturnContext?.entry !== 'group' || scheduleReturnContext.groupId !== groupId) return
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: scheduleReturnContext.scrollY })
+      document.querySelector<HTMLElement>('[data-group-schedule-action]')?.focus({ preventScroll: true })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [groupId, loading, loadError, schedule.state.kind, scheduleReturnContext])
 
   function focusGroupFormRecovery() {
     window.requestAnimationFrame(() => {
@@ -345,13 +376,13 @@ export function GroupEditScreen({
               header: 'group-client-navigation-modal__header',
             }}
             closeButtonProps={{
-              'aria-label': fe13GroupsCoreText.groupEditScreen_ariaLabel_08e8f4e9,
+              'aria-label': pendingDestination?.kind === 'schedule' ? fe13GroupsCoreText.scheduleCancelNavigation : fe13GroupsCoreText.groupEditScreen_ariaLabel_08e8f4e9,
               disabled: submitting,
             }}
             closeOnClickOutside={!submitting}
             closeOnEscape={!submitting}
-            onClose={cancelPendingClientNavigation}
-            opened={Boolean(pendingClientId)}
+            onClose={cancelPendingNavigation}
+            opened={Boolean(pendingDestination)}
             overlayProps={{ backgroundOpacity: 0.18, blur: 2 }}
             returnFocus={false}
             size="min(34rem, calc(100vw - 32px))"
@@ -362,35 +393,40 @@ export function GroupEditScreen({
           >
             <Stack gap="lg">
               <Text size="sm">
-                {fe13GroupsCoreText.groupEditScreen_jsxText_e4748b11}</Text>
+                {pendingDestination?.kind === 'schedule' ? fe13GroupsCoreText.scheduleDirtyDescription : fe13GroupsCoreText.groupEditScreen_jsxText_e4748b11}</Text>
               <div className="group-client-navigation-modal__actions">
                 <ResponsiveButtonGroup>
                   <Button
                     loading={submitting}
-                    onClick={() => void saveAndOpenPendingClient()}
+                    onClick={() => void saveAndOpenPendingDestination()}
                     type="button"
                   >
-                    {fe13GroupsCoreText.groupEditScreen_jsxText_b4d30cae}</Button>
+                    {pendingDestination?.kind === 'schedule' ? fe13GroupsCoreText.scheduleSaveAndOpen : fe13GroupsCoreText.groupEditScreen_jsxText_b4d30cae}</Button>
                   <Button
                     disabled={submitting}
-                    onClick={discardAndOpenPendingClient}
+                    onClick={discardAndOpenPendingDestination}
                     type="button"
                     variant="secondary"
                   >
-                    {fe13GroupsCoreText.groupEditScreen_jsxText_735b1ef6}</Button>
+                    {pendingDestination?.kind === 'schedule' ? fe13GroupsCoreText.scheduleDiscardAndOpen : fe13GroupsCoreText.groupEditScreen_jsxText_735b1ef6}</Button>
                   <Button
                     disabled={submitting}
-                    onClick={cancelPendingClientNavigation}
+                    onClick={cancelPendingNavigation}
                     type="button"
                     variant="subtle"
                   >
-                    {fe13GroupsCoreText.groupEditScreen_jsxText_8fbe9b75}</Button>
+                    {pendingDestination?.kind === 'schedule' ? fe13GroupsCoreText.scheduleStay : fe13GroupsCoreText.groupEditScreen_jsxText_8fbe9b75}</Button>
                 </ResponsiveButtonGroup>
               </div>
             </Stack>
           </Modal>
 
           <PageSection>
+            <Stack gap="lg">
+              {canManageGroups && onOpenSchedule ? (
+                <GroupScheduleEntry state={schedule.state} pending={submitting}
+                  onOpen={handleOpenSchedule} onRetry={() => void schedule.refresh()} />
+              ) : null}
             <GroupForm
               form={form}
               formError={formError}
@@ -406,6 +442,7 @@ export function GroupEditScreen({
               submitting={submitting}
               trainerOptions={trainerOptions}
             />
+            </Stack>
           </PageSection>
 
           {groupDetails ? (

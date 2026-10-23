@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "task_id": "TASK-189",
+  "expected_branch": "codex/TASK-189-group-edit-schedule-entry",
+  "areas": [
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.group-schedule-workflow",
+      "spec": "e2e/group-schedule-workflow.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "frontend.e2e.group-schedule",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "frontend.e2e.groups-registry",
+      "spec": "e2e/groups-registry.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "frontend.e2e.group-trainer-substitutions",
+      "spec": "e2e/group-trainer-substitutions.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 900
+    }
+  ],
+  "runtime_smoke": [
+    {
+      "id": "frontend.e2e.group-client-return",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "timeout_seconds": 300,
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/client-profile-context-navigation.spec.ts",
+        "--project=chromium",
+        "--grep",
+        "Pristine|Dirty-группа|Group action",
+        "--workers=1"
+      ]
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-189-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.design-comparison",
+      "description": "Compare rendered schedule entry, long summary, lookup recovery and dirty modal with approved A at mobile/desktop geometries; document physical-device limits."
+    }
+  ]
+}

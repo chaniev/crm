@@ -1,3 +1,5 @@
+import type { GroupScheduleReturnContext } from '../features/groups/groupScheduleReturnState'
+import { fe13GroupsCoreText } from '../resources/fe-13-groups-core'
 import { useState } from 'react'
 import { Alert, Button, Stack } from '@mantine/core'
 import { IconCheck } from '@tabler/icons-react'
@@ -79,6 +81,9 @@ type RouteViewportProps = {
   onRefreshSession: () => Promise<SessionResponse>
   onReturnToClients: () => void
   onReturnToGroups: () => void
+  groupScheduleReturnContext: GroupScheduleReturnContext | null
+  onOpenGroupSchedule: (groupId: string, seriesId: string) => void
+  onReturnFromSeriesEditor: (saved: boolean) => void
   onReturnToSchedule: () => void
   onReturnToUsers: () => void
   onSaveClientListReturnState: (snapshot: ClientListReturnSnapshot) => void
@@ -112,6 +117,9 @@ export function RouteViewport({
   onReturnToClients,
   onReturnToGroups,
   onReturnToSchedule,
+  groupScheduleReturnContext,
+  onOpenGroupSchedule,
+  onReturnFromSeriesEditor,
   onReturnToUsers,
   onSaveClientListReturnState,
   onSaveGroupListReturnState,
@@ -201,7 +209,11 @@ export function RouteViewport({
   if (route.kind === 'groupEdit') {
     return (
       <GroupEditScreen
+        key={route.groupId}
         groupId={route.groupId}
+        canManageGroups={user.permissions.canManageGroups}
+        onOpenSchedule={onOpenGroupSchedule}
+        scheduleReturnContext={groupScheduleReturnContext}
         initialReturnContext={clientProfileReturnContext}
         onBack={onReturnToGroups}
         onOpenClient={onOpenClient}
@@ -274,19 +286,14 @@ export function RouteViewport({
   if (route.kind === 'scheduleSeriesEdit') {
     return (
       <ScheduleSeriesEditScreen
+        key={`${route.lessonSeriesId}:${route.groupId ?? ''}`}
         groupId={route.groupId}
         lessonDate={route.lessonDate}
         lessonSeriesId={route.lessonSeriesId}
         lessonOccurrenceId={route.lessonOccurrenceId}
-        onBack={onReturnToSchedule}
-        onSaved={() => {
-          if (route.lessonOccurrenceId && route.lessonDate) {
-            onOpenScheduleLesson(route.lessonOccurrenceId, route.lessonDate)
-            return
-          }
-
-          onReturnToSchedule()
-        }}
+        onBack={() => onReturnFromSeriesEditor(false)}
+        onSaved={() => onReturnFromSeriesEditor(true)}
+        backLabel={groupScheduleReturnContext?.entry === 'editor' ? fe13GroupsCoreText.scheduleBackToGroup : undefined}
         scope={route.scope}
       />
     )

@@ -1,3 +1,4 @@
+import { stripGroupScheduleReturnContext } from '../features/groups/groupScheduleReturnState'
 import {
   useCallback,
   useEffect,
@@ -253,13 +254,13 @@ function getRouteDocumentTitle(route: AppRoute) {
 }
 
 export function stripAppReturnSnapshotsFromHistoryState(historyState: unknown) {
-  return stripScheduleReturnSnapshotFromHistoryState(
+  return stripGroupScheduleReturnContext(stripScheduleReturnSnapshotFromHistoryState(
     stripClientProfileReturnContextFromHistoryState(
       stripGroupListReturnSnapshotFromHistoryState(
         stripClientListReturnSnapshotFromHistoryState(historyState),
       ),
     ),
-  )
+  ))
 }
 
 export function getAppDocumentTitle(

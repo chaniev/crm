@@ -184,3 +184,196 @@ test('weekday creation respects backend session permission', async ({ page }) =>
   await expect(page.getByText(/доступ|недоступ/i).first()).toBeVisible()
   expect(mutations).toBe(0)
 })
+
+async function mockScheduleEditor(page: Page, options: { failIdentity?: boolean; failLookupOnce?: boolean; longSummary?: boolean; restricted?: 'lookup' | 'editor' } = {}) {
+  let lookupFailed = Boolean(options.failLookupOnce)
+  let name = group.name
+  let slots = days.map(([day, , startTime]) => ({ isoWeekday: day === 'Пн' ? 1 : day === 'Ср' ? 3 : 6, startTime, durationMinutes: 60, hallId: 'hall-1', hallName: 'Большой' }))
+  if (options.longSummary) slots = Array.from({ length: 7 }, (_, index) => ({
+    isoWeekday: index + 1, startTime: '18:00', durationMinutes: 60, hallId: 'hall-1',
+    hallName: 'Большой зал для групповых тренировок в центральном отделении клуба',
+  }))
+  let identityWrites = 0
+  let seriesWrites = 0
+  let lookups = 0
+  const series = () => ({ seriesId: 'series-distinct', groupId: 'group-1', groupName: name,
+    businessDate: '2026-10-23', startsOn: '2026-10-01', endsOn: null, revision: `revision-${seriesWrites}`,
+    currentVersion: { versionNumber: 1, effectiveFrom: '2026-10-01', effectiveTo: null,
+      thisAndFutureMinEffectiveFrom: '2026-10-26', entireSeriesEffectiveFrom: '2026-10-01', slots },
+  })
+  await mockGroups(page, async (route, path) => {
+    const method = route.request().method()
+    if (path === '/api/groups/group-1' && method === 'PUT') {
+      identityWrites++
+      const payload = route.request().postDataJSON()
+      expect(Object.keys(payload).sort()).toEqual(['branchId', 'groupTypeId', 'isActive', 'name'])
+      if (options.failIdentity && identityWrites === 1) await json(route, { title: 'Сохранение отклонено', status: 400, errors: { Name: ['Исправьте название группы и повторите сохранение.'] } }, 400)
+      else { name = payload.name; await json(route, { ...group, name }) }
+      return true
+    }
+    if (path === '/api/groups/group-1') { await json(route, { ...group, name }); return true }
+    if (path === '/api/groups/group-1/lesson-series' || path === '/api/groups/series-distinct/lesson-series') {
+      if (method === 'GET') {
+        lookups++
+        if (lookupFailed) {
+          await json(route, { title: 'Не удалось загрузить расписание. Повторите попытку.', status: 500 }, 500)
+        } else if ((options.restricted === 'lookup' && path.includes('group-1')) || (options.restricted === 'editor' && path.includes('series-distinct'))) {
+          await json(route, { title: 'Нет доступа к расписанию', status: 403 }, 403)
+        } else await json(route, series())
+      } else {
+        const payload = route.request().postDataJSON()
+        expect(payload.confirmationToken).toBe('series-token')
+        expect(payload.expectedRevision).toBe(`revision-${seriesWrites}`)
+        seriesWrites++
+        slots = payload.slots.map((slot: object) => ({ ...slot, hallName: 'Большой' }))
+        await json(route, { ...payload, revision: `revision-${seriesWrites}`, slots,
+          impact: { totalAffectedOccurrences: 3, examples: [], skipped: [] }, warnings: [] })
+      }
+      return true
+    }
+    if (path === '/api/groups/series-distinct/lesson-series/preview') {
+      const payload = route.request().postDataJSON()
+      expect(payload.effectiveFrom).toBe('2026-10-26')
+      expect(payload.scope).toBe('ThisAndFuture')
+      await json(route, { ...payload, slots: payload.slots.map((slot: object) => ({ ...slot, hallName: 'Большой' })),
+        confirmationToken: 'series-token', expiresAt: '2099-01-01T00:00:00Z', revision: `revision-${seriesWrites}`,
+        impact: { totalAffectedOccurrences: 3, examples: [], skipped: [] }, warnings: [] })
+      return true
+    }
+    if (path === '/api/schedule/lessons') {
+      const date = new URL(route.request().url()).searchParams.get('from')!
+      const weekday = new Date(`${date}T12:00:00`).getDay() || 7
+      const items = slots.filter(slot => slot.isoWeekday === weekday).map((slot, index) => ({
+        lessonOccurrenceId: `occ-${weekday}-${index}`, sourceKind: 'Recurring', isMaterialized: false,
+        lessonSeriesId: 'series-distinct', lessonDate: date, ...slot,
+        endTime: `${Number(slot.startTime.slice(0, 2)) + 1}:00`,
+        groupId: group.id, groupName: name, groupTypeId: group.groupTypeId, groupTypeName: group.groupTypeName,
+        branchId: group.branchId, branchName: group.branchName, effectiveTrainers: [], status: 'Scheduled',
+        hasAttendanceMarks: false, revision: `revision-${seriesWrites}`,
+        allowedActions: Object.fromEntries(['viewAttendance', 'editAttendance', 'edit', 'move', 'cancel', 'restore', 'assignTrainerSubstitution', 'cancelTrainerSubstitution'].map(key => [key, { allowed: false, reason: 'NoPermission' }])),
+      }))
+      await json(route, { from: date, to: date, items, capabilities: { createOneOff: { allowed: false, reason: 'NoPermission' } },
+        filterOptions: { branches: [], halls: [{ id: 'hall-1', name: 'Большой' }], trainers: [], groups: [], groupTypes: [] } })
+      return true
+    }
+    return false
+  })
+  return { recoverLookup: () => { lookupFailed = false }, counts: () => ({ identityWrites, seriesWrites, lookups }) }
+}
+
+test('group schedule entry saves, reloads, returns focus and preserves the group list context', async ({ page }, testInfo) => {
+  const fixture = await mockScheduleEditor(page)
+  if (testInfo.project.name === 'chromium') await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/groups')
+  const search = page.getByRole('textbox', { name: 'Поиск групп по названию' })
+  await search.fill('Разные')
+  await search.blur()
+  await page.getByTestId('group-card-group-1').getByRole('button', { name: /Редактировать группу/ }).click()
+  const entry = page.getByRole('region', { name: 'Расписание занятий' })
+  await expect(entry).toContainText('Сб 10:00')
+  await noOverflow(page)
+  await page.screenshot({ path: testInfo.outputPath('schedule-entry.png'), fullPage: true })
+  await page.getByRole('button', { name: 'Изменить расписание' }).click()
+  await expect(page).toHaveURL(/\/schedule\/series\/series-distinct\/edit\?scope=this-and-future&groupId=group-1$/)
+  await page.reload()
+  await expect(page.getByLabel('Дата начала изменения')).toHaveValue('2026-10-26')
+  await page.getByLabel('Время начала', { exact: true }).first().fill('19:00')
+  await page.getByRole('button', { name: 'Получить предпросмотр' }).click()
+  await page.getByRole('button', { name: 'Подтвердить изменение серии' }).click()
+  await expect(page).toHaveURL('/groups/group-1/edit')
+  await expect(entry).toContainText('Пн 19:00')
+  await expect(page.getByRole('button', { name: 'Изменить расписание' })).toBeFocused()
+  await page.getByRole('button', { name: 'Изменить расписание' }).click()
+  await expect(page.getByLabel('Время начала', { exact: true }).first()).toHaveValue('19:00')
+  await page.getByRole('button', { name: 'К группе', exact: true }).click()
+  await expect(page).toHaveURL('/groups/group-1/edit')
+  await page.getByRole('button', { name: 'Изменить расписание' }).click()
+  await page.getByRole('button', { name: 'Отмена', exact: true }).click()
+  await expect(page).toHaveURL('/groups/group-1/edit')
+  await page.getByRole('button', { name: 'К списку групп' }).click()
+  await expect(page).toHaveURL('/groups')
+  await expect(search).toHaveValue('Разные')
+  expect(fixture.counts().seriesWrites).toBe(1)
+  expect(fixture.counts().identityWrites).toBe(0)
+  await page.goto('/schedule?date=2026-10-26&view=day')
+  await expect(page.getByTestId('schedule-screen')).toContainText('19:00-')
+})
+
+test('group schedule dirty identity failure preserves draft, escape focus and retry', async ({ page }, testInfo) => {
+  const fixture = await mockScheduleEditor(page, { failIdentity: true })
+  if (testInfo.project.name === 'chromium') await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/groups/group-1/edit')
+  const name = page.getByLabel('Название группы')
+  await name.fill('Изменённая группа')
+  const trigger = page.getByRole('button', { name: 'Изменить расписание' })
+  await trigger.click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await noOverflow(page)
+  await page.screenshot({ path: testInfo.outputPath('schedule-dirty.png'), fullPage: true })
+  await page.keyboard.press('Escape')
+  await expect(trigger).toBeFocused()
+  await expect(name).toHaveValue('Изменённая группа')
+  await trigger.click()
+  await page.getByRole('button', { name: 'Сохранить и перейти' }).click()
+  await expect(name).toHaveValue('Изменённая группа')
+  await expect(name).toHaveAttribute('aria-invalid', 'true')
+  await expect(name).toBeFocused()
+  await expect(page).toHaveURL('/groups/group-1/edit')
+  await trigger.click()
+  await page.getByRole('button', { name: 'Сохранить и перейти' }).click()
+  await expect(page).toHaveURL(/\/schedule\/series\/series-distinct\/edit/)
+  await expect(page.getByTestId('schedule-series-edit-form')).toContainText('Изменённая группа')
+  expect(fixture.counts().identityWrites).toBe(2)
+  expect(fixture.counts().lookups).toBeGreaterThanOrEqual(3)
+})
+
+for (const restricted of ['lookup', 'editor'] as const) {
+  test(`group schedule ${restricted} restriction never performs a mutation`, async ({ page }) => {
+    const fixture = await mockScheduleEditor(page, { restricted })
+    await page.goto('/groups/group-1/edit')
+    if (restricted === 'editor') await page.getByRole('button', { name: 'Изменить расписание' }).click()
+    await expect(page.getByText('Нет доступа к расписанию', { exact: true })).toBeVisible()
+    await expect(page.getByTestId('schedule-series-edit-form')).toHaveCount(0)
+    expect(fixture.counts().seriesWrites).toBe(0)
+    expect(fixture.counts().identityWrites).toBe(0)
+  })
+}
+
+
+test('group schedule long summary, lookup retry and dirty modal fit required geometries', async ({ page }, testInfo) => {
+  const fixture = await mockScheduleEditor(page, { failLookupOnce: true, longSummary: true })
+  await page.goto('/groups/group-1/edit')
+  const entry = page.getByRole('region', { name: 'Расписание занятий' })
+  const name = page.getByLabel('Название группы')
+  await name.fill('Черновик после ошибки загрузки')
+  await expect(entry).toContainText('Не удалось загрузить расписание')
+  await noOverflow(page)
+  await entry.screenshot({ path: testInfo.outputPath('schedule-lookup-error.png') })
+  fixture.recoverLookup()
+  await entry.getByRole('button', { name: 'Повторить' }).click()
+  await expect(name).toHaveValue('Черновик после ошибки загрузки')
+  await expect(entry).toContainText('Вс 18:00')
+  const sizes = testInfo.project.name === 'chromium'
+    ? [[360, 780], [390, 844], [420, 912], [440, 956], [768, 1024], [1440, 1200], [912, 420], [956, 440]]
+    : [null]
+  for (const size of sizes) {
+    if (size) await page.setViewportSize({ width: size[0], height: size[1] })
+    const trigger = page.getByRole('button', { name: 'Изменить расписание' })
+    await entry.scrollIntoViewIfNeeded()
+    await noOverflow(page)
+    const box = (await trigger.boundingBox())!
+    expect(box.height).toBeGreaterThanOrEqual(44)
+    expect(box.width).toBeGreaterThanOrEqual(44)
+    await entry.screenshot({ path: testInfo.outputPath(`schedule-long-${size?.[0] ?? 'iphone'}.png`) })
+    await trigger.click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    await noOverflow(page)
+    await expect(dialog.getByRole('button', { name: 'Сохранить и перейти' })).toBeInViewport()
+    await expect(dialog.getByRole('button', { name: 'Остаться' })).toBeInViewport()
+    await page.screenshot({ path: testInfo.outputPath(`schedule-modal-${size?.[0] ?? 'iphone'}.png`) })
+    await page.keyboard.press('Escape')
+    await expect(trigger).toBeFocused()
+    await expect(name).toHaveValue('Черновик после ошибки загрузки')
+  }
+})

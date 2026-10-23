@@ -219,6 +219,11 @@ async function mockApi(
       return
     }
 
+    if (pathname.endsWith('/lesson-series') && method === 'GET') {
+      await fulfillJson(route, 404, { title: 'Расписание не найдено', code: 'lesson-series-not-found' })
+      return
+    }
+
     if (pathname === '/api/groups/group-1/trainer-substitutions' && method === 'GET') {
       await fulfillJson(route, 200, buildSubstitutionsResponse(options.substitutions))
       return

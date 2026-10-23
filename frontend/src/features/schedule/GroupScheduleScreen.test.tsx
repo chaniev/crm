@@ -571,6 +571,60 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     expect(within(screenRoot).getByRole('button', { name: 'Обновить предпросмотр' })).toBeVisible()
   })
 
+  test('series editor rejects a response belonging to another route group', async () => {
+    renderWithProviders(<ScheduleSeriesEditScreen groupId="other-group" lessonSeriesId="series-1"
+      onBack={vi.fn()} onSaved={vi.fn()} scope="this-and-future" />)
+    expect(await screen.findByText('Не удалось подтвердить расписание этой группы.')).toBeVisible()
+    expect(screen.queryByTestId('schedule-series-edit-form')).not.toBeInTheDocument()
+    expect(previewSeries).not.toHaveBeenCalled()
+    expect(applySeries).not.toHaveBeenCalled()
+  })
+
+  test('group-origin series uses backend date bounds, invalidates changed preview and preserves stale draft', async () => {
+    const read = buildSeriesResponse()
+    getSeries.mockResolvedValue({ ...read, currentVersion: { ...read.currentVersion, thisAndFutureMinEffectiveFrom: '2026-09-10' } })
+    applySeries.mockRejectedValue(new ApiError('Stale', 409, {}, 'lesson-mutation-preview-stale'))
+    renderWithProviders(<ScheduleSeriesEditScreen groupId="group-1" lessonSeriesId="series-1"
+      onBack={vi.fn()} onSaved={vi.fn()} scope="this-and-future" />)
+    const input = await screen.findByLabelText('Дата начала изменения')
+    expect(input).toHaveValue('2026-09-10')
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    await screen.findByRole('button', { name: 'Подтвердить изменение серии' })
+    fireEvent.change(screen.getByLabelText('Время начала'), { target: { value: '11:00' } })
+    expect(screen.queryByRole('button', { name: 'Подтвердить изменение серии' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    await screen.findByRole('button', { name: 'Подтвердить изменение серии' })
+    fireEvent.click(screen.getByRole('radio', { name: 'Вся серия' }))
+    expect(screen.queryByRole('button', { name: 'Подтвердить изменение серии' })).not.toBeInTheDocument()
+    expect(input).toHaveValue(read.currentVersion.entireSeriesEffectiveFrom)
+    fireEvent.click(screen.getByRole('radio', { name: 'С этого дня' }))
+    expect(input).toHaveValue('2026-09-10')
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    await screen.findByRole('button', { name: 'Подтвердить изменение серии' })
+    fireEvent.change(input, { target: { value: '2026-09-11' } })
+    expect(screen.queryByRole('button', { name: 'Подтвердить изменение серии' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Подтвердить изменение серии' }))
+    await screen.findByRole('button', { name: 'Обновить предпросмотр' })
+    expect(screen.getByLabelText('Время начала')).toHaveValue('11:00')
+    expect(input).toHaveValue('2026-09-11')
+  })
+
+  test('an execute response from an unmounted series editor cannot navigate a newer route', async () => {
+    let resolve!: (response: ReturnType<typeof buildSeriesPreviewResponse>) => void
+    applySeries.mockReturnValue(new Promise(done => { resolve = done }))
+    const onSaved = vi.fn()
+    const view = renderWithProviders(<ScheduleSeriesEditScreen groupId="group-1" lessonSeriesId="series-1"
+      onBack={vi.fn()} onSaved={onSaved} scope="this-and-future" />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Получить предпросмотр' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Подтвердить изменение серии' }))
+    await waitFor(() => expect(applySeries).toHaveBeenCalledOnce())
+    view.unmount()
+    resolve(buildSeriesPreviewResponse())
+    await Promise.resolve()
+    expect(onSaved).not.toHaveBeenCalled()
+  })
+
   test('series edit route previews and applies exact backend series contract', async () => {
     const onBack = vi.fn()
     const onSaved = vi.fn()
