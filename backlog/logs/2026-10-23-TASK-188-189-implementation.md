@@ -36,7 +36,7 @@ its overlapping weekday geometry is covered by TASK-188, without closing TASK-17
 ## TASK-188 focus recovery follow-up
 
 The batch browser pass exposed a race: requestAnimationFrame could focus a
-disabled input before React committed the failed request's enabled/error state.
+field before React committed the failed request's validation errors.
 Recovery now runs in the post-commit effect, after submission is released.
 The existing field-mapping unit scenario also asserts focus. This correction
 is kept in the TASK-188 workspace before synchronizing TASK-189.
