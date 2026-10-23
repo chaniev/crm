@@ -1,3 +1,4 @@
+import { BRANCH_SETTINGS_ACTIONS } from '../src/lib/api/types'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
@@ -42,6 +43,7 @@ const MANAGEMENT_SESSION = {
     fullName: 'Главный тренер',
     login: 'headcoach',
     role: 'HeadCoach',
+    branchSettingsActions: [...BRANCH_SETTINGS_ACTIONS],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attention',
@@ -81,6 +83,7 @@ const ADMIN_AUDIT_SESSION = {
       canManageUsers: false,
     },
     role: 'Administrator',
+    branchSettingsActions: [],
   },
 } as const
 
@@ -93,6 +96,7 @@ const SUPER_ADMIN_AUDIT_SESSION = {
     id: 'superadministrator-id',
     login: 'superadministrator',
     role: 'SuperAdministrator',
+    branchSettingsActions: ['View', 'CreateBranch', 'CreateHall'],
   },
 } as const
 
@@ -105,6 +109,7 @@ const COACH_SESSION = {
     fullName: 'Тренер группы',
     login: 'coach',
     role: 'Coach',
+    branchSettingsActions: [],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attendance',

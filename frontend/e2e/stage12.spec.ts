@@ -1,3 +1,4 @@
+import { BRANCH_SETTINGS_ACTIONS } from '../src/lib/api/types'
 import { expect, test, type Page } from '@playwright/test'
 
 const APP_CONFIG = {
@@ -16,6 +17,7 @@ const headCoachSession = {
     fullName: 'Главный тренер',
     login: BOOTSTRAP_LOGIN,
     role: 'HeadCoach',
+    branchSettingsActions: [...BRANCH_SETTINGS_ACTIONS],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attention',
@@ -43,6 +45,7 @@ const administratorSession = {
     fullName: 'Администратор',
     login: 'administrator',
     role: 'Administrator',
+    branchSettingsActions: [],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attendance',
@@ -69,6 +72,7 @@ const coachSession = {
     fullName: 'Назначенный тренер',
     login: 'coach',
     role: 'Coach',
+    branchSettingsActions: [],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attendance',
@@ -2162,6 +2166,7 @@ test.describe('Основные e2e сценарии', () => {
                 fullName: 'Главный тренер',
                 login: BOOTSTRAP_LOGIN,
                 role: 'HeadCoach',
+    branchSettingsActions: [...BRANCH_SETTINGS_ACTIONS],
               },
             ],
             actionTypes: ['Login', 'ClientCreated', 'AttendanceMarked'],

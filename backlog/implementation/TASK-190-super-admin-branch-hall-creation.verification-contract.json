@@ -75,6 +75,54 @@
         "TASK-161|админ-панель|каталог абонементов|филиалы и залы"
       ],
       "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.stage12-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/stage12.spec.ts",
+        "--project=chromium",
+        "--grep",
+        "Настройки позволяют"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.responsive-main-screens-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/responsive-main-screens.spec.ts",
+        "--project=chromium",
+        "--grep",
+        "Settings branches"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.touch-target-inventory-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/touch-target-inventory.spec.ts",
+        "--project=chromium",
+        "--grep",
+        "checks representative routes"
+      ],
+      "timeout_seconds": 1800
     }
   ],
   "manual_evidence": "backlog/implementation/TASK-190-manual-evidence.json",

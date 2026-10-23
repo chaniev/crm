@@ -1,3 +1,4 @@
+import { BRANCH_SETTINGS_ACTIONS } from '../src/lib/api/types'
 import {
   expect,
   test,
@@ -90,6 +91,7 @@ const SUPER_ADMIN_SESSION = {
       canViewFinancialReports: true,
     },
     role: 'SuperAdministrator',
+    branchSettingsActions: ['View', 'CreateBranch', 'CreateHall'],
     allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
   },
 } as const
@@ -101,6 +103,7 @@ const ADMIN_SESSION = {
     fullName: 'Администратор',
     login: 'admin',
     role: 'Administrator',
+    branchSettingsActions: [],
     id: 'admin',
     landingScreen: 'Attendance',
     allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Audit', 'Settings'],
@@ -119,6 +122,7 @@ const HEAD_COACH_SESSION = {
     fullName: 'Главный тренер',
     login: 'headcoach',
     role: 'HeadCoach',
+    branchSettingsActions: [...BRANCH_SETTINGS_ACTIONS],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attention',
@@ -145,6 +149,7 @@ const COACH_SESSION = {
     fullName: 'Тренер',
     login: 'coach',
     role: 'Coach',
+    branchSettingsActions: [],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attendance',
