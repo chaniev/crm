@@ -331,7 +331,8 @@ internal static class AuthEndpoints
                 accessScope.AttendanceScope.Kind.ToString(),
                 accessScope.AttendanceScope.GroupIds),
             accessScope.AssignedGroupIds,
-            StaffManagementBoundary.GetCreateRoleOptions(user));
+            StaffManagementBoundary.GetCreateRoleOptions(user),
+            BranchSettingsActionPolicy.GetSurfaceActions(user));
     }
 
     private sealed record LoginRequest(string Login, string Password);
@@ -357,7 +358,8 @@ internal static class AuthEndpoints
         AccessPermissionsResponse Permissions,
         AttendanceScopeResponse AttendanceScope,
         IReadOnlyList<Guid> AssignedGroupIds,
-        IReadOnlyList<string> CreateRoleOptions);
+        IReadOnlyList<string> CreateRoleOptions,
+        IReadOnlyList<string> BranchSettingsActions);
 
     private sealed record AttendanceScopeResponse(
         string Kind,

@@ -1,7 +1,7 @@
 # TASK-190: Открыть суперадминистратору создание филиалов и залов
 
 ## Status
-needs-clarification
+implementation
 
 ## Requirements
 - REQ-BRN-001 — changes
@@ -89,25 +89,14 @@ UI скрывает вкладку через `canManageHeadCoachSettings`, вы
   входит в эту задачу; создание нового филиала ему запрещено, mutations залов
   и существующего филиала ограничены собственным филиалом. HeadCoach и
   существующие прямые HTTP-права SuperAdministrator не сужаются.
-- Чтение справочника имеет отдельного consumer — перевод клиента; граница
-  чтения уточняется отдельно, молчаливое ограничение GET не разрешено.
+- В текущем диалоге владелец выбрал «Принять вариант B и сохранить общее чтение (рекомендуется)». Принят полный контракт ADR-0002: прежние shared GET сохраняются для существующих consumers; Administrator mutations ограничены своим филиалом.
 
-## Planning blockers
-- Review от 23.10.2026 обнаружило конфликт с REQ-USR-001: общая
-  ManageSettings сейчас разрешает Administrator глобальные branch/hall HTTP
-  операции без проверки собственного филиала. Это существующий дефект,
-  не новое право из TASK-190.
-- До ready plan требуется решение владельца о границе исправления:
-  поправка mutations уже включена; осталось закрепить чтение справочника
-  с учётом ClientDetailScreen и окончательный контракт ADR.
-- [ADR-0002](../../docs/architecture/adr/0002-branch-settings-action-contract.md)
-  описывает выбранное исправление HTTP mutations и предложение по shared GET,
-  статус Proposed до решения владельца по чтению.
-  Разрешение SuperAdministrator создавать филиалы/залы уже принято;
-  повторное продуктовое подтверждение этой цели не требуется.
+## Planning decisions
+- Блокеры закрыты прямым решением владельца 23.10.2026: принят вариант B [ADR-0002](../../docs/architecture/adr/0002-branch-settings-action-contract.md), shared GET остаются без изменений.
+- Review producer/consumer завершено; новых контрактов перевода клиентов не требуется.
 
 ## AI safety
-- Safe for autonomous implementation: no, пока не завершено решение по shared reads и ADR.
+- Safe for autonomous implementation: yes — владелец принял вариант B ADR-0002 и сохранение shared reads.
 - Risk level: medium
 - Reason: Backend уже разрешает создание SuperAdministrator, но открытие
   существующей панели целиком может дополнительно показать архивирование/удаление;
@@ -148,9 +137,14 @@ UI скрывает вкладку через `canManageHeadCoachSettings`, вы
 - moved_from: /backlog/risky
 - implementation_plan: /backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md
 - implementation_branch: codex/TASK-190-super-admin-branch-hall-creation
-- readiness: no — mutation scope fix включён; требуется решение по shared reads и завершение ADR-0002.
+- readiness: yes — вариант B ADR-0002 принят владельцем 23.10.2026; shared reads сохранены.
 - Review: [security/contract review](../logs/TASK-190-security-review-2026-10-23.md).
 - Статус изменён на needs-clarification: review выявило существенный
   authorization выбор, это больше не только ожидание review в risky.
 - Проверена уникальность TASK-190 среди активных и архивных карточек/планов;
   зависимости от TASK-180 или завершённых TASK-188/189 не требуется.
+
+## Implementation lifecycle
+- started_at: 2026-10-23
+- Решение владельца в текущем диалоге: «Принять вариант B и сохранить общее чтение (рекомендуется)».
+- Разрешена реализация исходным запросом выполнить TASK-190.

@@ -1942,3 +1942,10 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - validation: revised plan/ADR/task прошли 4 knowledge checks; scoped links, status/directory, TASK/plan uniqueness и diff whitespace проверены
 - executable_preflight: ожидаемый отказ `plan is not executable`; readiness: no сохранён до решения по shared reads и acceptance ADR
 - runtime: временный Vite preview остановлен; backend/БД и application tests в planning не запускались
+
+## 2026-10-23 — TASK-190: начало реализации
+
+- owner_decision: принят вариант B ADR-0002 с сохранением общего чтения; точный ответ записан в карточке и ADR.
+- moved: /backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md -> /backlog/implementation/TASK-190-super-admin-branch-hall-creation.md
+- branch: codex/TASK-190-super-admin-branch-hall-creation
+- plan: /backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md

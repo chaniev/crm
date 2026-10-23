@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActionIcon,
   Alert,
@@ -39,6 +39,7 @@ import {
   updateBranch,
   updateHall,
   type Branch,
+  type BranchSettingsAction,
   type Hall,
 } from '../../lib/api'
 import {
@@ -55,6 +56,7 @@ import {
   TaskToolbarRefreshAction,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
+import { getSemanticToneComponentProps } from '../../theme/semanticTones'
 import { fe10SettingsBranchesShellText } from '../../resources/fe-10-settings-branches-shell'
 
 
@@ -81,11 +83,19 @@ type HallModalState =
 
 type BranchSettingsScreenProps = {
   embedded?: boolean
+  actions?: readonly BranchSettingsAction[]
 }
 
 export function BranchSettingsScreen({
   embedded = false,
+  actions = [],
 }: BranchSettingsScreenProps) {
+  const canView = actions.includes('View')
+  const can = (action: BranchSettingsAction) => canView && actions.includes(action)
+  const branchInFlight = useRef(false)
+  const hallInFlight = useRef(false)
+  const [branchFormError, setBranchFormError] = useState<string | null>(null)
+  const [hallFormError, setHallFormError] = useState<string | null>(null)
   const [branches, setBranches] = useState<Branch[]>([])
   const [halls, setHalls] = useState<Hall[]>([])
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null)
@@ -115,6 +125,7 @@ export function BranchSettingsScreen({
   })
 
   useEffect(() => {
+    if (!canView) return
     const controller = new AbortController()
 
     async function load() {
@@ -128,6 +139,7 @@ export function BranchSettingsScreen({
           getHalls({ includeArchived: true }, controller.signal),
         ])
 
+        if (controller.signal.aborted) return
         setBranches(nextBranches)
         setHalls(nextHalls)
         setSelectedBranchId((currentBranchId) => {
@@ -164,7 +176,7 @@ export function BranchSettingsScreen({
     void load()
 
     return () => controller.abort()
-  }, [reloadKey])
+  }, [reloadKey, canView])
 
   const selectedBranch = branches.find((branch) => branch.id === selectedBranchId) ?? null
   const selectedBranchHalls = useMemo(
@@ -175,6 +187,8 @@ export function BranchSettingsScreen({
     [halls, selectedBranch],
   )
   function openCreateBranch() {
+    if (!can('CreateBranch')) return
+    setBranchFormError(null)
     branchForm.setValues({
       name: '',
       address: '',
@@ -186,6 +200,8 @@ export function BranchSettingsScreen({
   }
 
   function openEditBranch(branch: Branch) {
+    if (!can('UpdateBranch')) return
+    setBranchFormError(null)
     branchForm.setValues(toBranchFormValues(branch))
     branchForm.clearErrors()
     setActionError(null)
@@ -193,6 +209,8 @@ export function BranchSettingsScreen({
   }
 
   function openCreateHall(branchId: string) {
+    if (!(can('CreateHall') && branches.some((branch) => branch.id === branchId && !branch.isArchived))) return
+    setHallFormError(null)
     hallForm.setValues({
       name: '',
       description: '',
@@ -203,6 +221,8 @@ export function BranchSettingsScreen({
   }
 
   function openEditHall(hall: Hall) {
+    if (!can('UpdateHall')) return
+    setHallFormError(null)
     hallForm.setValues(toHallFormValues(hall))
     hallForm.clearErrors()
     setActionError(null)
@@ -210,12 +230,13 @@ export function BranchSettingsScreen({
   }
 
   async function submitBranch(values: BranchFormValues) {
-    if (!branchModal) {
+    if (!branchModal || branchInFlight.current || !can(branchModal.mode === 'create' ? 'CreateBranch' : 'UpdateBranch')) {
       return
     }
 
+    branchInFlight.current = true
     setBranchSubmitting(true)
-    setActionError(null)
+    setBranchFormError(null)
     branchForm.clearErrors()
 
     try {
@@ -243,23 +264,25 @@ export function BranchSettingsScreen({
     } catch (error) {
       if (error instanceof ApiError) {
         branchForm.setErrors(applyFieldErrors(error.fieldErrors))
-        setActionError(error.message)
+        setBranchFormError(error.message)
         return
       }
 
-      setActionError(fe10SettingsBranchesShellText.branchSettingsScreen_setActionError_edc2801e)
+      setBranchFormError(fe10SettingsBranchesShellText.branchSettingsScreen_setActionError_edc2801e)
     } finally {
+      branchInFlight.current = false
       setBranchSubmitting(false)
     }
   }
 
   async function submitHall(values: HallFormValues) {
-    if (!hallModal) {
+    if (!hallModal || hallInFlight.current || !can(hallModal.mode === 'create' ? 'CreateHall' : 'UpdateHall')) {
       return
     }
 
+    hallInFlight.current = true
     setHallSubmitting(true)
-    setActionError(null)
+    setHallFormError(null)
     hallForm.clearErrors()
 
     try {
@@ -289,18 +312,21 @@ export function BranchSettingsScreen({
       setReloadKey((currentKey) => currentKey + 1)
     } catch (error) {
       if (error instanceof ApiError) {
-        hallForm.setErrors(applyFieldErrors(error.fieldErrors))
-        setActionError(error.message)
+        const fields = applyFieldErrors(error.fieldErrors)
+        hallForm.setErrors(fields)
+        setHallFormError(fields.branchId ?? error.message)
         return
       }
 
-      setActionError(fe10SettingsBranchesShellText.branchSettingsScreen_setActionError_860660d3)
+      setHallFormError(fe10SettingsBranchesShellText.branchSettingsScreen_setActionError_860660d3)
     } finally {
+      hallInFlight.current = false
       setHallSubmitting(false)
     }
   }
 
   async function toggleBranchArchive(branch: Branch) {
+    if (!can(branch.isArchived ? 'RestoreBranch' : 'ArchiveBranch') || branchPendingId) return
     setBranchPendingId(branch.id)
     setActionError(null)
 
@@ -330,6 +356,7 @@ export function BranchSettingsScreen({
   }
 
   async function toggleHallArchive(hall: Hall) {
+    if (!can(hall.isArchived ? 'RestoreHall' : 'ArchiveHall') || hallPendingId) return
     setHallPendingId(hall.id)
     setActionError(null)
 
@@ -357,7 +384,7 @@ export function BranchSettingsScreen({
   }
 
   async function confirmDeleteHall() {
-    if (!hallToDelete) {
+    if (!hallToDelete || !can('DeleteHall') || hallPendingId) {
       return
     }
 
@@ -398,14 +425,17 @@ export function BranchSettingsScreen({
           onClick={() => setReloadKey((currentKey) => currentKey + 1)}
         />
       )}
-      primaryAction={(
+      primaryAction={can('CreateBranch') ? (
         <TaskToolbarAction
           icon={<IconPlus size={18} />}
           label={fe10SettingsBranchesShellText.branchSettingsScreen_label_4a7c4927}
-          onClick={openCreateBranch}
+          onClick={(event) => {
+            event.currentTarget.focus()
+            openCreateBranch()
+          }}
           priority="primary"
         />
-      )}
+      ) : undefined}
     />
   )
 
@@ -451,7 +481,7 @@ export function BranchSettingsScreen({
             />
           ) : null}
 
-          {!loading && !loadError && branches.length > 0 ? (
+          {!loadError && branches.length > 0 ? (
             <div className="settings-branches-layout">
               <Stack gap="sm">
                 {branches.map((branch) => {
@@ -501,6 +531,7 @@ export function BranchSettingsScreen({
               </Stack>
 
               <BranchDetailsPanel
+                can={can}
                 branch={selectedBranch}
                 branchPending={branchPendingId}
                 hallPending={hallPendingId}
@@ -508,7 +539,7 @@ export function BranchSettingsScreen({
                 onArchiveBranch={(branch) => void toggleBranchArchive(branch)}
                 onArchiveHall={(hall) => void toggleHallArchive(hall)}
                 onCreateHall={openCreateHall}
-                onDeleteHall={setHallToDelete}
+                onDeleteHall={(hall) => { if (can('DeleteHall')) setHallToDelete(hall) }}
                 onEditBranch={openEditBranch}
                 onEditHall={openEditHall}
               />
@@ -518,6 +549,8 @@ export function BranchSettingsScreen({
       </PageSection>
 
       <BranchFormModal
+        allowed={can(branchModal?.mode === 'edit' ? 'UpdateBranch' : 'CreateBranch')}
+        error={branchFormError}
         form={branchForm}
         modal={branchModal}
         pending={branchSubmitting}
@@ -526,6 +559,8 @@ export function BranchSettingsScreen({
       />
 
       <HallFormModal
+        allowed={can(hallModal?.mode === 'edit' ? 'UpdateHall' : 'CreateHall')}
+        error={hallFormError}
         form={hallForm}
         modal={hallModal}
         pending={hallSubmitting}
@@ -548,12 +583,14 @@ export function BranchSettingsScreen({
         }
         onClose={() => setHallToDelete(null)}
         onConfirm={() => void confirmDeleteHall()}
-        opened={Boolean(hallToDelete)}
+        opened={Boolean(hallToDelete) && can('DeleteHall')}
         pending={hallPendingId === hallToDelete?.id}
         title={fe10SettingsBranchesShellText.branchSettingsScreen_title_137fecae}
       />
     </>
   )
+
+  if (!canView) return null
 
   if (!embedded) {
     return (
@@ -571,6 +608,7 @@ export function BranchSettingsScreen({
 }
 
 type BranchDetailsPanelProps = {
+  can: (action: BranchSettingsAction) => boolean
   branch: Branch | null
   branchPending: string | null
   hallPending: string | null
@@ -584,6 +622,7 @@ type BranchDetailsPanelProps = {
 }
 
 function BranchDetailsPanel({
+  can,
   branch,
   branchPending,
   hallPending,
@@ -621,13 +660,16 @@ function BranchDetailsPanel({
           </Group>
 
           <ResponsiveButtonGroup justify="flex-end">
-            <Button
+            {can('UpdateBranch') ? (<Button
               leftSection={<IconEdit size={18} />}
-              onClick={() => onEditBranch(branch)}
+              onClick={(event) => {
+                event.currentTarget.focus()
+                onEditBranch(branch)
+              }}
               variant="pill"
             >
-              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_59792556}</Button>
-            <Button
+              {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_59792556}</Button>) : null}
+            {can(branch.isArchived ? 'RestoreBranch' : 'ArchiveBranch') ? (<Button
               color={branch.isArchived ? 'teal' : 'gray'}
               leftSection={
                 branch.isArchived ? <IconRefresh size={18} /> : <IconArchive size={18} />
@@ -637,7 +679,7 @@ function BranchDetailsPanel({
               variant="pill"
             >
               {branch.isArchived ? fe10SettingsBranchesShellText.branchSettingsScreen_string_5ae0e885 : fe10SettingsBranchesShellText.branchSettingsScreen_string_1ca66519}
-            </Button>
+            </Button>) : null}
           </ResponsiveButtonGroup>
         </Group>
 
@@ -654,13 +696,16 @@ function BranchDetailsPanel({
             <Text c="dimmed" size="sm">
               {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_a47c0b9b}</Text>
           </div>
-          <Button
+          {can('CreateHall') ? (<Button
             disabled={branch.isArchived}
             leftSection={<IconPlus size={18} />}
-            onClick={() => onCreateHall(branch.id)}
+            onClick={(event) => {
+              event.currentTarget.focus()
+              onCreateHall(branch.id)
+            }}
             variant="pill"
           >
-            {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_fd79d4d5}</Button>
+            {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_fd79d4d5}</Button>) : null}
         </Group>
 
         {halls.length === 0 ? (
@@ -694,15 +739,18 @@ function BranchDetailsPanel({
                   </Stack>
 
                   <Group gap={8} wrap="nowrap">
-                    <ActionIcon
+                    {can('UpdateHall') ? (<ActionIcon
                       aria-label={fe10SettingsBranchesShellText.branchSettingsScreen_template_1b633f97(hall.name)}
-                      onClick={() => onEditHall(hall)}
+                      onClick={(event) => {
+                        event.currentTarget.focus()
+                        onEditHall(hall)
+                      }}
                       size={44}
                       variant="light"
                     >
                       <IconEdit size={16} />
-                    </ActionIcon>
-                    <ActionIcon
+                    </ActionIcon>) : null}
+                    {can(hall.isArchived ? 'RestoreHall' : 'ArchiveHall') ? (<ActionIcon
                       aria-label={
                         hall.isArchived
                           ? fe10SettingsBranchesShellText.branchSettingsScreen_template_c34fa15a(hall.name)
@@ -719,17 +767,20 @@ function BranchDetailsPanel({
                       ) : (
                         <IconArchive size={16} />
                       )}
-                    </ActionIcon>
-                    <ActionIcon
+                    </ActionIcon>) : null}
+                    {can('DeleteHall') ? (<ActionIcon
                       aria-label={fe10SettingsBranchesShellText.branchSettingsScreen_template_723fe81a(hall.name)}
                       color="red"
                       disabled={hallPending === hall.id}
-                      onClick={() => onDeleteHall(hall)}
+                      onClick={(event) => {
+                        event.currentTarget.focus()
+                        onDeleteHall(hall)
+                      }}
                       size={44}
                       variant="light"
                     >
                       <IconTrash size={16} />
-                    </ActionIcon>
+                    </ActionIcon>) : null}
                   </Group>
                 </Group>
               </Paper>
@@ -742,6 +793,8 @@ function BranchDetailsPanel({
 }
 
 type BranchFormModalProps = {
+  allowed: boolean
+  error: string | null
   form: ReturnType<typeof useForm<BranchFormValues>>
   modal: BranchModalState
   pending: boolean
@@ -750,6 +803,8 @@ type BranchFormModalProps = {
 }
 
 function BranchFormModal({
+  allowed,
+  error,
   form,
   modal,
   pending,
@@ -759,6 +814,9 @@ function BranchFormModal({
   return (
     <Modal
       centered
+      zIndex="calc(var(--crm-layer-mobile-navigation) + 1)"
+      closeOnClickOutside={!pending}
+      closeOnEscape={!pending}
       onClose={onClose}
       opened={Boolean(modal)}
       radius="8px"
@@ -767,6 +825,7 @@ function BranchFormModal({
     >
       <form onSubmit={form.onSubmit((values) => void onSubmit(values))}>
         <Stack gap="md">
+          <FormFeedback allowed={allowed} error={error} />
           <TextInput
             label={fe10SettingsBranchesShellText.branchSettingsScreen_label_13653782}
             placeholder={fe10SettingsBranchesShellText.branchSettingsScreen_placeholder_e61a6c67}
@@ -791,6 +850,7 @@ function BranchFormModal({
             <Button
               leftSection={<IconDeviceFloppy size={18} />}
               loading={pending}
+              disabled={!allowed}
               type="submit"
             >
               {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_b4d30cae}</Button>
@@ -802,6 +862,8 @@ function BranchFormModal({
 }
 
 type HallFormModalProps = {
+  allowed: boolean
+  error: string | null
   form: ReturnType<typeof useForm<HallFormValues>>
   modal: HallModalState
   pending: boolean
@@ -811,6 +873,8 @@ type HallFormModalProps = {
 }
 
 function HallFormModal({
+  allowed,
+  error,
   form,
   modal,
   pending,
@@ -821,6 +885,9 @@ function HallFormModal({
   return (
     <Modal
       centered
+      zIndex="calc(var(--crm-layer-mobile-navigation) + 1)"
+      closeOnClickOutside={!pending}
+      closeOnEscape={!pending}
       onClose={onClose}
       opened={Boolean(modal)}
       radius="8px"
@@ -829,6 +896,7 @@ function HallFormModal({
     >
       <form onSubmit={form.onSubmit((values) => void onSubmit(values))}>
         <Stack gap="md">
+          <FormFeedback allowed={allowed} error={error} />
           <Paper className="hint-card" radius="8px" withBorder>
             <Text c="dimmed" size="sm">
               {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_40c98d2e}{selectedBranch?.name ?? fe10SettingsBranchesShellText.branchSettingsScreen_string_d77dfdcd}
@@ -853,6 +921,7 @@ function HallFormModal({
             <Button
               leftSection={<IconDeviceFloppy size={18} />}
               loading={pending}
+              disabled={!allowed}
               type="submit"
             >
               {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_b4d30cae}</Button>
@@ -861,6 +930,15 @@ function HallFormModal({
       </form>
     </Modal>
   )
+}
+
+function FormFeedback({ allowed, error }: { allowed: boolean; error: string | null }) {
+  const message = allowed ? error : fe10SettingsBranchesShellText.branchSettingsRestricted
+  return message ? (
+    <Alert {...getSemanticToneComponentProps('danger')} icon={<IconAlertCircle size={18} />} title={fe10SettingsBranchesShellText.branchSettingsScreen_title_7530f803} variant="light">
+      {message}
+    </Alert>
+  ) : null
 }
 
 function toBranchFormValues(branch: Branch): BranchFormValues {

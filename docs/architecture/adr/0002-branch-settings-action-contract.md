@@ -1,6 +1,6 @@
 # ADR-0002: Backend-контракт действий и scope филиалов и залов
 
-- **Статус:** Proposed
+- **Статус:** Accepted (пользователь, владелец продукта, 2026-10-23)
 - **Дата:** 2026-10-23
 - **Автор / владелец:** Codex / пользователь, владелец продукта
 
@@ -9,7 +9,7 @@
 - [REQ-BRN-001/002](/docs/requirements/09-филиалы-и-настройки.md) — changes в TASK-190, создание SuperAdministrator уже принято.
 - [REQ-USR-001/003](/docs/requirements/05-пользователи-и-роли.md) — changes / constrains.
 - [REQ-CLI-007](/docs/requirements/01-клиенты.md) — constrains, существующий перевод клиента.
-- [TASK-190, Product decisions](/backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md).
+- [TASK-190, Product decisions](/backlog/implementation/TASK-190-super-admin-branch-hall-creation.md).
 
 ## Контекст
 
@@ -59,14 +59,14 @@ Policy проверяет actor/action/target в каждом mutation, а sessi
 
 Снижает видимость чужих данных, но меняет контракты client/group consumers и
 требует отдельного решения по доступным целям перевода. Не является локальным
-исправлением mutations. Решение по сохранению shared reads ожидается.
+исправлением mutations. Владелец выбрал сохранение shared reads; вариант C не используется.
 
 ## Решение
 
-Владелец включил исправление API scope в задачу; ниже предложен технический
-вариант **B**. Выбор shared reads и acceptance технического контракта ещё
-требуются. Само расширение scope не означает принятие всех деталей ADR.
-До acceptance ADR не разрешает execution.
+Владелец принял технический вариант **B** целиком 23.10.2026: Application policy
+ограничивает HTTP mutations Administrator своим филиалом, shared reads
+сохраняются для существующих consumers. Session surface содержит согласованное
+подмножество доступных действий. Решение разрешает execution после preflight.
 
 ### HTTP matrix
 
@@ -74,11 +74,11 @@ Policy проверяет actor/action/target в каждом mutation, а sessi
 |---|---|---|---|---|
 | HeadCoach | Прежний общий справочник | Да | Любой | Любой, прежняя entity validation |
 | SuperAdministrator | Прежний общий справочник | Да | Любой | Любой, прежняя entity validation |
-| Administrator | Предложено сохранить прежний общий справочник | 403 | Только собственный branchId | Только hall собственного branchId |
+| Administrator | Прежний общий справочник | 403 | Только собственный branchId | Только hall собственного branchId |
 | Coach / anonymous | Прежние 403 / 401 | 403 / 401 | 403 / 401 | 403 / 401 |
 
 Branch delete отсутствует и не добавляется. IncludeArchived/filter/sort/DTO/counts
-в предложенном варианте reads остаются прежними. GET halls includeArchived
+для reads остаются прежними. GET halls includeArchived
 фильтрует состояние hall, не parent; неизвестный branch filter → [], by-ID →
 прежний 404 для отсутствующего target. Administrator с null BranchId
 не может выполнять mutations. Archived own branch не даёт глобального scope:
@@ -134,7 +134,7 @@ Unknown/missing/null/empty не дают разрешение. Это подмн
   не зависит от права создавать других SuperAdministrator.
 - Отрицательные: legacy вызовы Administrator создания branch/чужих mutations
   начнут получать 403; frontend обязан показывать backend error без потери ввода.
-- Общие GET, если приняты, сохраняют нынешнюю видимость в том числе counts:
+- Общие GET сохраняют нынешнюю видимость в том числе counts:
   задача не обещает изоляцию чтения или новый transfer contract.
 - Атомарность двух create исправляется локальной транзакцией существующего
   DbContext вокруг entity + audit. Схема и остальной audit lifecycle не меняются.
@@ -149,7 +149,7 @@ Unknown/missing/null/empty не дают разрешение. Это подмн
 - Deploy/runtime: нет новых variables/services/migrations; PostgreSQL runtime
   доказывает denial/no-write и create/audit consistency.
 - Public contracts: additive session field, новые 403 для запрещённых
-  Administrator mutations; payloads, successful DTO и предложенные GET неизменны.
+  Administrator mutations; payloads, successful DTO и GET неизменны.
 
 ## Migration and rollback
 
@@ -172,11 +172,12 @@ Administrator negative path. Конкретные specs — в implementation pl
 
 ## Open questions
 
-- Владелец: сохранить текущее чтение общего справочника либо включить read
-  isolation с отдельным transfer-options contract. До ответа readiness: no.
+Нет.
 
 ## Approval
 
-Pending. Scope API fix принят ответом «Включить исправление API-доступа в
-TASK-190 и расширить план». Это не приписывается согласию на ещё не выбранное
-изменение shared reads.
+Accepted (пользователь, владелец продукта, 2026-10-23).
+В текущем диалоге на вопрос о принятии варианта B с сохранением общего чтения
+и описанного backend-контракта пользователь ответил: «Принять вариант B и
+сохранить общее чтение (рекомендуется)». Решение относится ко всему варианту B,
+включая HTTP matrix, guards, session surface, совместимость и rollback.

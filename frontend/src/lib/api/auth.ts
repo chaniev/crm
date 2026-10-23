@@ -2,6 +2,7 @@ import { API_ENDPOINTS } from './endpoints'
 import { mapUserRole } from './mappers'
 import { isRecord, readBoolean, readString } from './read-helpers'
 import { request } from './transport'
+import { BRANCH_SETTINGS_ACTIONS, type BranchSettingsAction } from './types'
 import type {
   AccessPermissions,
   AppSection,
@@ -100,6 +101,9 @@ function mapAuthenticatedUser(payload: unknown): AuthenticatedUser | null {
     ),
     branchId: readString(payload, ['branchId', 'BranchId']) ?? null,
     createRoleOptions: mapUserRoles(payload.createRoleOptions ?? payload.CreateRoleOptions),
+    branchSettingsActions: mapStringArray(payload.branchSettingsActions ?? payload.BranchSettingsActions)
+      .filter((action): action is BranchSettingsAction =>
+        BRANCH_SETTINGS_ACTIONS.some((knownAction) => knownAction === action)),
   }
 }
 

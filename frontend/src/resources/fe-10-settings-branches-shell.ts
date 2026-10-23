@@ -1,4 +1,5 @@
 export const fe10SettingsBranchesShellText = {
+  branchSettingsRestricted: "Действие больше недоступно. Введённые данные сохранены; форму можно закрыть.",
   branchSettingsScreen_confirmLabel_d15a5f04: "Удалить зал",
   branchSettingsScreen_description_29f03982: "Создайте первый зал, чтобы группы могли ссылаться на место тренировок.",
   branchSettingsScreen_description_c4393b12: "После создания филиала можно будет добавить залы и использовать их в формах CRM.",

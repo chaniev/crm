@@ -43,4 +43,4 @@ ADR.
 ## Index
 
 - [ADR-0001: Регистронезависимая идентичность логина через нормализованный ключ](0001-case-insensitive-login-identity.md) — Proposed
-- [ADR-0002: Backend-контракт действий и scope филиалов и залов](0002-branch-settings-action-contract.md) — Proposed
+- [ADR-0002: Backend-контракт действий и scope филиалов и залов](0002-branch-settings-action-contract.md) — Accepted (пользователь, владелец продукта, 2026-10-23)

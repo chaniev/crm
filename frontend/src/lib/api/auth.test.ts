@@ -7,6 +7,22 @@ afterEach(() => {
 
 describe('auth API', () => {
   test.each([
+    [undefined, []], [null, []], [[], []], [['Unknown', 1], []],
+    [['View', 'CreateBranch', 'CreateHall', 'FutureAction'], ['View', 'CreateBranch', 'CreateHall']],
+  ])('maps branch actions without permissive defaults: %j', async (actions, expected) => {
+    for (const pascalCase of [false, true]) {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+        isAuthenticated: true, csrfToken: 'csrf', user: {
+          role: 'HeadCoach', landingScreen: 'Settings', allowedSections: ['Settings'],
+          permissions: { canManageSettings: true }, createRoleOptions: ['SuperAdministrator'],
+          [pascalCase ? 'BranchSettingsActions' : 'branchSettingsActions']: actions,
+        },
+      })))
+      expect((await loadSession()).user).toMatchObject({ branchSettingsActions: expected })
+    }
+  })
+
+  test.each([
     ['HeadCoach', true], ['SuperAdministrator', true], ['Administrator', false], ['Coach', false],
   ] as const)('preserves backend audit facts for %s', async (role, allowed) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({

@@ -15,6 +15,7 @@ const HEAD_COACH_SESSION = {
     fullName: 'Главный тренер',
     login: 'headcoach',
     role: 'HeadCoach',
+    branchSettingsActions: ['View', 'CreateBranch', 'UpdateBranch', 'ArchiveBranch', 'RestoreBranch', 'CreateHall', 'UpdateHall', 'ArchiveHall', 'RestoreHall', 'DeleteHall'],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attention',
@@ -33,14 +34,7 @@ const HEAD_COACH_SESSION = {
   },
 } as const
 
-test.use({
-  deviceScaleFactor: 3,
-  hasTouch: true,
-  isMobile: true,
-  userAgent:
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-  viewport: { width: 390, height: 844 },
-})
+
 
 const TAB_MATRIX = [
   {
@@ -128,6 +122,7 @@ const HALLS = [
 test('keeps four settings panels named and operational without duplicated titles at 390 x 844', async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
   await mockApi(page)
   await page.goto('/settings')
 

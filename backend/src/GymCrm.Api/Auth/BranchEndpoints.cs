@@ -1,5 +1,6 @@
 using System.Text.Json;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Domain.Branches;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
@@ -100,12 +101,23 @@ internal static class BranchEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var action = BranchSettingsAction.CreateBranch;
+        if (!BranchSettingsActionPolicy.CanAttemptMutation(currentUser, action))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+
         var normalizedRequest = NormalizeBranchRequest(request);
         var validationErrors = ValidateBranchRequest(normalizedRequest);
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
         }
+
+        var supportsTransactions = !(dbContext.Database.ProviderName ?? string.Empty).Contains("InMemory", StringComparison.OrdinalIgnoreCase);
+        await using var transaction = supportsTransactions
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
 
         var now = DateTimeOffset.UtcNow;
         var branch = new Branch
@@ -131,6 +143,11 @@ internal static class BranchEndpoints
                 BranchResources.BranchCreatedDescription(currentUser.Login, branch.Name),
                 NewValueJson: SerializeBranchAuditState(branch)),
             cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         var createdBranch = await LoadBranchSnapshotAsync(branch.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Created branch '{branch.Id}' was not found.");
@@ -159,10 +176,21 @@ internal static class BranchEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var action = BranchSettingsAction.UpdateBranch;
+        if (!BranchSettingsActionPolicy.CanAttemptMutation(currentUser, action))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+
         var branch = await dbContext.Branches.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
         if (branch is null)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, branch.Id))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
         var normalizedRequest = NormalizeBranchRequest(request);
@@ -260,6 +288,12 @@ internal static class BranchEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var action = isArchived ? BranchSettingsAction.ArchiveBranch : BranchSettingsAction.RestoreBranch;
+        if (!BranchSettingsActionPolicy.CanAttemptMutation(currentUser, action))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+
         var providerName = dbContext.Database.ProviderName ?? string.Empty;
         var supportsTransactions = !providerName.Contains("InMemory", StringComparison.OrdinalIgnoreCase);
         await using var transaction = supportsTransactions
@@ -277,6 +311,11 @@ internal static class BranchEndpoints
             }
 
             return TypedResults.NotFound();
+        }
+
+        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, branch.Id))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
         if (branch.IsArchived == isArchived)
@@ -402,12 +441,28 @@ internal static class BranchEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var action = BranchSettingsAction.CreateHall;
+        if (!BranchSettingsActionPolicy.CanAttemptMutation(currentUser, action))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+
+        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, request.BranchId))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+
         var normalizedRequest = NormalizeHallRequest(request);
         var validationErrors = await ValidateHallRequestAsync(normalizedRequest, dbContext, cancellationToken);
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
         }
+
+        var supportsTransactions = !(dbContext.Database.ProviderName ?? string.Empty).Contains("InMemory", StringComparison.OrdinalIgnoreCase);
+        await using var transaction = supportsTransactions
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
 
         var now = DateTimeOffset.UtcNow;
         var hall = new Hall
@@ -433,6 +488,11 @@ internal static class BranchEndpoints
                 BranchResources.HallCreatedDescription(currentUser.Login, hall.Name),
                 NewValueJson: SerializeHallAuditState(hall)),
             cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         var createdHall = await LoadHallSnapshotAsync(hall.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Created hall '{hall.Id}' was not found.");
@@ -461,10 +521,21 @@ internal static class BranchEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var action = BranchSettingsAction.UpdateHall;
+        if (!BranchSettingsActionPolicy.CanAttemptMutation(currentUser, action))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+
         var hall = await dbContext.Halls.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
         if (hall is null)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, hall.BranchId))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
         var normalizedRequest = NormalizeHallRequest(request);
@@ -560,10 +631,21 @@ internal static class BranchEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var action = isArchived ? BranchSettingsAction.ArchiveHall : BranchSettingsAction.RestoreHall;
+        if (!BranchSettingsActionPolicy.CanAttemptMutation(currentUser, action))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+
         var hall = await dbContext.Halls.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
         if (hall is null)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, hall.BranchId))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
         if (isArchived && await IsHallReferencedByGroupsAsync(id, dbContext, cancellationToken))
@@ -623,10 +705,21 @@ internal static class BranchEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var action = BranchSettingsAction.DeleteHall;
+        if (!BranchSettingsActionPolicy.CanAttemptMutation(currentUser, action))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+
         var hall = await dbContext.Halls.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
         if (hall is null)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, hall.BranchId))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
         if (await IsHallReferencedByGroupsAsync(id, dbContext, cancellationToken))

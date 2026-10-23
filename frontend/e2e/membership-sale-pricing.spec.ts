@@ -24,6 +24,7 @@ const session = {
     },
     assignedGroupIds: [],
     branchId: null,
+    branchSettingsActions: [],
   },
 } as const
 
@@ -136,6 +137,25 @@ test.describe('TASK-077 membership sale pricing', () => {
     })
     expect(requestBody).not.toHaveProperty('paymentDate')
     await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
+  })
+
+  test('shared branch lookup still offers another branch for transfer without settings actions', async ({ page }) => {
+    let transferBody: Record<string, unknown> | null = null
+    await mockMembershipPricingApi(page, buildClient({ behaviorKind: 'Term' }), async ({ pathname, method, route }) => {
+      if (pathname === '/api/clients/client-1/transfer' && method === 'POST') {
+        transferBody = route.request().postDataJSON()
+        await fulfillJson(route, { ...buildClient({ behaviorKind: 'Term' }), branchId: 'branch-2', branchName: 'Северный' })
+        return true
+      }
+      return false
+    })
+    await page.goto('/clients/client-1')
+    await page.getByRole('button', { name: 'Перевести', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Перевод клиента' })
+    await dialog.getByRole('combobox', { name: 'Целевой филиал' }).click()
+    await page.getByRole('option', { name: /Северный/ }).click()
+    await dialog.getByRole('button', { name: 'Перевести клиента' }).click()
+    await expect.poll(() => transferBody).toEqual({ targetBranchId: 'branch-2', targetGroupIds: [] })
   })
 
   test('confirms a Catalog purchase and sends only the exact caller-owned request', async ({ page }) => {

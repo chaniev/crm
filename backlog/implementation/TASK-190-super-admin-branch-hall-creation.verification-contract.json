@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "task_id": "TASK-190",
+  "expected_branch": "codex/TASK-190-super-admin-branch-hall-creation",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.branch-hall-creation",
+      "spec": "e2e/branch-hall-creation.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.settings-tab-title-duplication",
+      "spec": "e2e/settings-tab-title-duplication.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.settings-group-types",
+      "spec": "e2e/settings-group-types.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.membership-catalog-settings",
+      "spec": "e2e/membership-catalog-settings.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.membership-sale-pricing",
+      "spec": "e2e/membership-sale-pricing.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.group-schedule-workflow",
+      "spec": "e2e/group-schedule-workflow.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    }
+  ],
+  "runtime_smoke": [
+    {
+      "id": "frontend.e2e.iphone-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/iphone-target-devices.spec.ts",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit",
+        "--grep",
+        "TASK-161|админ-панель|каталог абонементов|филиалы и залы"
+      ],
+      "timeout_seconds": 1800
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-190-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.rendered-comparison",
+      "description": "Compare rendered HeadCoach controls and SuperAdministrator branch/hall forms with approved baseline at mobile, desktop and compact height; verify modal feedback/focus. Report device-only limits separately."
+    }
+  ]
+}

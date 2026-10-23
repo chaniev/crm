@@ -9,7 +9,7 @@ const session = {
     allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups'],
     permissions: { canManageUsers: false, canManageClients: true, canManageGroups: true,
       canManageSettings: false, canMarkAttendance: true, canViewAuditLog: false, canViewFinancialReports: false },
-    assignedGroupIds: [], attendanceScope: { kind: 'Global', groupIds: [] }, branchId: null,
+    branchSettingsActions: [], assignedGroupIds: [], attendanceScope: { kind: 'Global', groupIds: [] }, branchId: null,
   },
 }
 const group = {
@@ -375,5 +375,21 @@ test('group schedule long summary, lookup retry and dirty modal fit required geo
     await page.keyboard.press('Escape')
     await expect(trigger).toBeFocused()
     await expect(name).toHaveValue('Черновик после ошибки загрузки')
+  }
+})
+
+
+test('group create and edit retain shared branch and hall lookups without branch settings actions', async ({ page }) => {
+  await mockGroups(page, async () => false)
+  for (const route of ['/groups/new', '/groups/group-1/edit']) {
+    await page.goto(route)
+    await expect(page.getByLabel('Филиал', { exact: true })).toHaveValue('Центр')
+    const hall = page.getByLabel('Зал', { exact: true })
+    await expect(hall).toBeEnabled()
+    await hall.click()
+    await expect(page.getByRole('option', { name: /Большой/ })).toBeVisible()
+    await page.getByRole('option', { name: /Большой/ }).click()
+    await expect(hall).toHaveValue('Большой')
+    await noOverflow(page)
   }
 })

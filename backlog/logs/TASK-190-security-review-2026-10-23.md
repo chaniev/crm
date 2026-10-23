@@ -124,3 +124,7 @@ regression scenario. Target iPhones, Safari, keyboard и after comparison
 
 Если чтение сохранено, новых продуктовых решений для mutation matrix нет;
 read isolation потребует отдельного transfer/options design и нового review.
+
+## Дополнение: acceptance варианта B
+
+23.10.2026 владелец в текущем диалоге выбрал «Принять вариант B и сохранить общее чтение (рекомендуется)». Принят полный описанный контракт ADR-0002; shared GET остаются прежними, read isolation и новый transfer-options API не вводятся. Блокер закрыт, карточка перемещена в /backlog/implementation/TASK-190-super-admin-branch-hall-creation.md.

@@ -22,6 +22,7 @@ export type {
   AuditLogListResponse,
   AuthenticatedUser,
   Branch,
+  BranchSettingsAction,
   ChangePasswordRequest,
   CreateAdministratorRequest,
   ClientActionHint,
@@ -293,3 +294,5 @@ export {
   buildFinancialReportQueryString,
   getFinancialReport,
 } from './api/reports'
+
+export { BRANCH_SETTINGS_ACTIONS } from './api/types'

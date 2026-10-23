@@ -361,6 +361,7 @@ const HEAD_COACH_SESSION = {
     fullName: 'Главный тренер',
     login: 'headcoach',
     role: 'HeadCoach',
+    branchSettingsActions: ['View', 'CreateBranch', 'UpdateBranch', 'ArchiveBranch', 'RestoreBranch', 'CreateHall', 'UpdateHall', 'ArchiveHall', 'RestoreHall', 'DeleteHall'],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attention',

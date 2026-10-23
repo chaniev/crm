@@ -19,6 +19,13 @@ export type AccessPermissions = {
   canViewFinancialReports: boolean
 }
 
+export const BRANCH_SETTINGS_ACTIONS = [
+  'View', 'CreateBranch', 'UpdateBranch', 'ArchiveBranch', 'RestoreBranch',
+  'CreateHall', 'UpdateHall', 'ArchiveHall', 'RestoreHall', 'DeleteHall',
+] as const
+
+export type BranchSettingsAction = typeof BRANCH_SETTINGS_ACTIONS[number]
+
 export type AuthenticatedUser = {
   id: string
   fullName: string
@@ -33,6 +40,7 @@ export type AuthenticatedUser = {
   attendanceScope: AttendanceScope
   branchId: string | null
   createRoleOptions?: UserRole[]
+  branchSettingsActions?: BranchSettingsAction[]
 }
 
 export type SessionResponse = {

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-190",
+  "confirmations": [
+    {
+      "id": "manual.rendered-comparison",
+      "actor": "coding-agent:TASK-190",
+      "performed_at": "2026-10-23T16:53:31.347578+00:00",
+      "note": "Inspected rendered screenshots against the approved baseline; verified focus, errors, retry, role restrictions, narrow and compact-height flows. Device-only checks remain explicitly unverified.",
+      "artifacts": [
+        "backlog/implementation/TASK-190-evidence/visual-review.md"
+      ]
+    }
+  ]
+}

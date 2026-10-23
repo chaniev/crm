@@ -1,14 +1,14 @@
 # Implementation Plan: TASK-190 Создание филиалов и залов суперадминистратором
 
 ## Metadata
-- source_task: /backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md
+- source_task: /backlog/implementation/TASK-190-super-admin-branch-hall-creation.md
 - requirements: REQ-BRN-001 (changes), REQ-BRN-002 (changes), REQ-USR-001 (changes), REQ-USR-003 (constrains), REQ-CLI-007 (constrains)
 - branch: codex/TASK-190-super-admin-branch-hall-creation
-- readiness: no — исправление Administrator mutations включено владельцем; осталось решить shared reads и завершить ADR-0002
-- product_decisions: accepted — создание обеих сущностей SuperAdministrator разрешено исходным запросом; исправление Administrator mutations включено ответом владельца 23.10.2026
-- technical_decisions: proposed — конкретный расширенный контракт B описан в ADR-0002, решение по reads ожидается
-- architecture_decisions: ADR-0002 (Proposed)
-- open_questions: сохранить shared reads для existing lookup consumers либо включить read isolation с новым transfer-options contract
+- readiness: yes
+- product_decisions: accepted
+- technical_decisions: accepted
+- architecture_decisions: ADR-0002
+- open_questions: none
 - dependencies: none — TASK-180 onboarding вне scope; TASK-188/189 не являются prerequisite
 - risk: medium — скрытая панель содержит destructive controls; широкое ManageSettings не различает глобальные и филиальные операции
 
@@ -18,13 +18,13 @@ SuperAdministrator без собственного филиала открыва
 reload. Ошибка сохранения видна внутри формы и не уничтожает введённые значения.
 
 ## Decisions and contracts
-- Принятое поведение и ограничения — в [TASK-190](/backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md)
+- Принятое поведение и ограничения — в [TASK-190](/backlog/implementation/TASK-190-super-admin-branch-hall-creation.md)
   и REQ-BRN-001/002; HeadCoach сохраняет текущий сценарий, UI остальных ролей
   не получает новых branch/hall операций.
 - Расширенный технический контракт, включая имена actions, матрицу,
   Staff API compatibility и rollback, — [ADR-0002, вариант B](/docs/architecture/adr/0002-branch-settings-action-contract.md).
-  Решение владельца по HTTP mutations включено; reads пока предложены неизменными.
-- Readiness blocker — [authorization review](/backlog/logs/TASK-190-security-review-2026-10-23.md):
+  Владелец принял HTTP mutations и сохранение reads 23.10.2026.
+- Review evidence — [authorization review](/backlog/logs/TASK-190-security-review-2026-10-23.md):
   shared dictionaries используются ClientDetailScreen при переводе клиента;
   ограничить reads без решения владельца нельзя. Скрытый control не заменяет
   HTTP guard: Administrator mutations проверяются на каждом запросе.
@@ -38,17 +38,16 @@ reload. Ошибка сохранения видна внутри формы и 
   audit write откатывает создание. Новая схема/миграция не нужна.
 
 ## Decision evidence
-- product: [TASK-190, Source notes](/backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md) — owner: пользователь, владелец продукта; decision: 23.10.2026 разрешено создание филиала и зала SuperAdministrator; goal повторно не согласовывается.
+- product: [TASK-190, Source notes](/backlog/implementation/TASK-190-super-admin-branch-hall-creation.md) — owner: пользователь, владелец продукта; decision: 23.10.2026 разрешено создание филиала и зала SuperAdministrator; goal повторно не согласовывается.
 - Принятая редакция [REQ-BRN-001/002](/docs/requirements/09-филиалы-и-настройки.md)
   уже записана при triage, реализация «частично»; planning не меняет её смысл.
-- Technical evidence: Codex producer/consumer [review](/backlog/logs/TASK-190-security-review-2026-10-23.md)
-  и Proposed ADR. Human technical approval отсутствует; запрос плана его не заменяет.
+- technical: [Принятый ADR-0002](/docs/architecture/adr/0002-branch-settings-action-contract.md) — owner: пользователь, владелец продукта; decision: 23.10.2026 принят вариант B целиком с сохранением shared GET; ответ «Принять вариант B и сохранить общее чтение (рекомендуется)».
 - Existing UI baseline и применимость локальной коррекции зафиксированы в review;
   браузерные fixtures не считаются backend/runtime evidence.
 
 ## Planning exit criteria
-До readiness: yes завершить решение по shared reads и acceptance ADR;
-source card, plan, requirements и review синхронизировать. HTTP matrix,
+Владелец принял shared reads и ADR; source card, plan, requirements и review
+синхронизированы до implementation. HTTP matrix,
 CSRF/guard/lookup ordering и ProblemDetails определены в ADR, не выбираются
 executor. Эти решения не являются implementation slices/manual checks.
 
@@ -90,8 +89,8 @@ executor. Эти решения не являются implementation slices/manu
 - Requirements implementation evidence и CHANGELOG после проверенной интеграции.
 
 ### Out
-- Предложено сохранить shared GET dictionaries и существующий перевод клиента;
-  это пока требует решения владельца. Новые правила client/group authorization
+- Сохранены shared GET dictionaries и существующий перевод клиента по решению
+  владельца. Новые правила client/group authorization
   и transfer-options API автоматически в эту задачу не включаются.
 - Новые UI права Administrator/Coach, SA edit/archive/restore/delete,
   создание других SuperAdministrator, onboarding TASK-180, изменение restore semantics.

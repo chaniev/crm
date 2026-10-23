@@ -15,6 +15,7 @@ const ADMIN_SESSION = {
     fullName: 'Администратор',
     login: 'administrator',
     role: 'Administrator',
+    branchSettingsActions: [],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attendance',
@@ -43,6 +44,7 @@ const SUPER_ADMIN_SESSION = {
     fullName: 'Суперадминистратор',
     login: 'superadministrator',
     role: 'SuperAdministrator',
+    branchSettingsActions: ['View', 'CreateBranch', 'CreateHall'],
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attention',
@@ -327,7 +329,7 @@ for (const profile of [
       await expect(groupTypesTab).toBeVisible()
       await expect(
         page.getByRole('tab', { name: 'Филиалы и залы' }),
-      ).toHaveCount(0)
+      ).toHaveCount(profile.visibleAdministratorsTab ? 1 : 0)
 
       if (profile.visibleAdministratorsTab) {
         await expect(

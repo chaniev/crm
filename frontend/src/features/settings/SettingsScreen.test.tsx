@@ -6,6 +6,7 @@ import {
   getAdministratorAttendanceScope,
   getAdministrators,
   getBranches,
+  getHalls,
   getGroupTypes,
   getMembershipCatalogItems,
   replaceAdministratorAttendanceScope,
@@ -26,6 +27,7 @@ vi.mock('../../lib/api', async (importOriginal) => ({
   getAdministratorAttendanceScope: vi.fn(),
   getAdministrators: vi.fn(),
   getBranches: vi.fn(),
+  getHalls: vi.fn(),
   getGroupTypes: vi.fn(),
   getMembershipCatalogItems: vi.fn(),
   replaceAdministratorAttendanceScope: vi.fn(),
@@ -59,6 +61,7 @@ const baseUser: AuthenticatedUser = {
   attendanceScope: { kind: 'Global', groupIds: [] },
   branchId: null,
   createRoleOptions: ['Administrator'],
+  branchSettingsActions: ['View', 'CreateBranch', 'CreateHall'],
 }
 
 const existingGroupType: GroupType = {
@@ -83,6 +86,7 @@ beforeEach(() => {
   vi.mocked(getAdministratorAttendanceScope).mockReset()
   vi.mocked(getAdministrators).mockReset()
   vi.mocked(getBranches).mockReset()
+  vi.mocked(getHalls).mockResolvedValue([])
   vi.mocked(getGroupTypes).mockReset()
   vi.mocked(getMembershipCatalogItems).mockReset()
   vi.mocked(replaceAdministratorAttendanceScope).mockReset()
@@ -116,6 +120,26 @@ beforeEach(() => {
 })
 
 describe('SettingsScreen', () => {
+  test('opens SuperAdministrator branches independently of staff role options and revokes View', async () => {
+    const { rerender } = renderSettings()
+    fireEvent.click(screen.getByRole('tab', { name: 'Филиалы и залы' }))
+    expect(await screen.findByRole('button', { name: 'Добавить филиал' })).toBeVisible()
+    rerender(<SettingsScreen user={{ ...baseUser, branchSettingsActions: [] }} />)
+    expect(screen.queryByRole('tab', { name: 'Филиалы и залы' })).not.toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Абонементы' })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  test.each([undefined, []])('staff options never grant branch View: %j', async (actions) => {
+    vi.mocked(getBranches).mockResolvedValue([])
+    renderSettings({ createRoleOptions: ['Administrator', 'SuperAdministrator'], branchSettingsActions: actions })
+    expect(screen.queryByRole('tab', { name: 'Филиалы и залы' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    await screen.findByTestId('administrators-settings-panel')
+    fireEvent.click(await screen.findByRole('button', { name: 'Добавить администратора' }))
+    await screen.findByRole('dialog')
+    expect(screen.queryByRole('button', { name: /филиалы/i })).not.toBeInTheDocument()
+  })
+
   test('shows staff-management tab to SuperAdministrator from permissions/options', async () => {
     renderWithProviders(<SettingsScreen user={baseUser} />)
 
@@ -648,7 +672,7 @@ describe('SettingsScreen', () => {
         AuthenticatedUser['createRoleOptions']
       >,
       expectsGroupTypes: true,
-      expectsBranches: false,
+      expectsBranches: true,
       expectsAdministrators: true,
     },
     {
@@ -687,6 +711,7 @@ describe('SettingsScreen', () => {
         },
         branchId: role === 'Administrator' || role === 'Coach' ? 'branch-1' : null,
         createRoleOptions,
+        branchSettingsActions: expectsBranches ? ['View', 'CreateBranch', 'CreateHall'] : [],
       })
 
       expect(screen.getByRole('tab', { name: 'Абонементы' })).toBeVisible()

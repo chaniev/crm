@@ -61,7 +61,12 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('catalog')
   const canManageAdministrators = user.createRoleOptions?.includes('Administrator') === true
   const canManageGroupTypes = user.permissions.canManageSettings
-  const canManageHeadCoachSettings = user.createRoleOptions?.includes('SuperAdministrator') === true
+  const canViewBranches = user.branchSettingsActions?.includes('View') === true
+  const visibleTab = activeTab === 'branches' && !canViewBranches ? 'catalog' : activeTab
+
+  if (activeTab !== visibleTab) {
+    setActiveTab(visibleTab)
+  }
 
   return (
     <PageLayout data-testid="settings-screen" showHeader={false} title={fe10SettingsBranchesShellText.settingsScreen_title_985b5e0f}>
@@ -69,7 +74,7 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
         className="settings-tabs"
         keepMounted={false}
         onChange={(value) => setActiveTab((value as SettingsTab | null) ?? 'catalog')}
-        value={activeTab}
+        value={visibleTab}
       >
         <PageSection>
           <Tabs.List className="settings-tabs__list" grow={isMobile}>
@@ -82,7 +87,7 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
               >
                 {fe10SettingsBranchesShellText.settingsScreen_jsxText_99c433e6}</Tabs.Tab>
             ) : null}
-            {canManageHeadCoachSettings ? (
+            {canViewBranches ? (
               <Tabs.Tab
                 leftSection={<IconSettings size={18} />}
                 value={'branches' satisfies SettingsTab}
@@ -112,16 +117,16 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
           </PageTabsPanel>
         ) : null}
 
-        {canManageHeadCoachSettings ? (
+        {canViewBranches ? (
           <PageTabsPanel value={'branches' satisfies SettingsTab}>
-            <BranchSettingsScreen embedded />
+            <BranchSettingsScreen actions={user.branchSettingsActions} embedded />
           </PageTabsPanel>
         ) : null}
 
         {canManageAdministrators ? <PageTabsPanel value={'administrators' satisfies SettingsTab}>
           <AdministratorsSettingsPanel
             onOpenBranches={
-              canManageHeadCoachSettings ? () => setActiveTab('branches') : undefined
+              canViewBranches ? () => setActiveTab('branches') : undefined
             }
           />
         </PageTabsPanel> : null}
