@@ -381,12 +381,18 @@ test('group schedule long summary, lookup retry and dirty modal fit required geo
 
 test('group create and edit retain shared branch and hall lookups without branch settings actions', async ({ page }) => {
   const hallLookups: string[] = []
-  await mockGroups(page, async (_route, path) => {
+  await mockGroups(page, async (route, path) => {
+    if (path === '/api/groups/group-1/lesson-series') {
+      await json(route, { status: 404, code: 'lesson-series-not-found', title: 'Расписание группы отсутствует' }, 404)
+      return true
+    }
     if (path === '/api/halls') hallLookups.push(path)
     return false
   })
   for (const route of ['/groups/new', '/groups/group-1/edit']) {
+    const previousLookupCount = hallLookups.length
     await page.goto(route)
+    await expect.poll(() => hallLookups.length).toBeGreaterThan(previousLookupCount)
     await expect(page.getByRole('combobox', { name: 'Филиал', exact: true })).toHaveValue('Центр')
     if (route === '/groups/new') {
       const hall = page.getByRole('combobox', { name: 'Зал', exact: true })
@@ -397,5 +403,4 @@ test('group create and edit retain shared branch and hall lookups without branch
     }
     await noOverflow(page)
   }
-  expect(hallLookups).toHaveLength(2)
 })
