@@ -1,0 +1,1233 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-10-23T15:38:54.612487+00:00",
+  "repository": "TASK-189-group-edit-schedule-entry",
+  "profile": "local",
+  "base": "d17baff",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "6aeefcb74fef27ec1d0fd6911054635638d5e3dc",
+    "head_tree_sha": "3b31d5259d4a6b575f9113d04bf6578a318c5d91",
+    "base_sha": "d17baffcf1f3b59defccd864b2d14760ff91c1f9",
+    "merge_base_sha": "d17baffcf1f3b59defccd864b2d14760ff91c1f9",
+    "branch": "codex/TASK-189-group-edit-schedule-entry",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-189-group-edit-schedule-entry.verification-contract.json",
+    "task_id": "TASK-189",
+    "expected_branch": "codex/TASK-189-group-edit-schedule-entry",
+    "sha256": "4782021e147c786ebd80751ef51cbb3b53d5fdda506901997765058696842f88",
+    "verified_head_sha": "6aeefcb74fef27ec1d0fd6911054635638d5e3dc",
+    "verified_head_tree_sha": "3b31d5259d4a6b575f9113d04bf6578a318c5d91",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-189\",\n  \"expected_branch\": \"codex/TASK-189-group-edit-schedule-entry\",\n  \"areas\": [\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.group-schedule-workflow\",\n      \"spec\": \"e2e/group-schedule-workflow.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 900\n    },\n    {\n      \"id\": \"frontend.e2e.group-schedule\",\n      \"spec\": \"e2e/group-schedule.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 900\n    },\n    {\n      \"id\": \"frontend.e2e.groups-registry\",\n      \"spec\": \"e2e/groups-registry.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 900\n    },\n    {\n      \"id\": \"frontend.e2e.group-trainer-substitutions\",\n      \"spec\": \"e2e/group-trainer-substitutions.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 900\n    }\n  ],\n  \"runtime_smoke\": [\n    {\n      \"id\": \"frontend.e2e.group-client-return\",\n      \"area\": \"frontend\",\n      \"working_directory\": \"frontend\",\n      \"timeout_seconds\": 300,\n      \"command\": [\n        \"npm\",\n        \"run\",\n        \"test:e2e\",\n        \"--\",\n        \"e2e/client-profile-context-navigation.spec.ts\",\n        \"--project=chromium\",\n        \"--grep\",\n        \"Pristine|Dirty-группа|Group action\",\n        \"--workers=1\"\n      ]\n    }\n  ],\n  \"manual_evidence\": \"backlog/implementation/TASK-189-manual-evidence.json\",\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.design-comparison\",\n      \"description\": \"Compare rendered schedule entry, long summary, lookup recovery and dirty modal with approved A at mobile/desktop geometries; document physical-device limits.\"\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-189",
+      "expected_branch": "codex/TASK-189-group-edit-schedule-entry",
+      "areas": [
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.group-schedule-workflow",
+          "spec": "e2e/group-schedule-workflow.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 900
+        },
+        {
+          "id": "frontend.e2e.group-schedule",
+          "spec": "e2e/group-schedule.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 900
+        },
+        {
+          "id": "frontend.e2e.groups-registry",
+          "spec": "e2e/groups-registry.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 900
+        },
+        {
+          "id": "frontend.e2e.group-trainer-substitutions",
+          "spec": "e2e/group-trainer-substitutions.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 900
+        }
+      ],
+      "runtime_smoke": [
+        {
+          "id": "frontend.e2e.group-client-return",
+          "area": "frontend",
+          "working_directory": "frontend",
+          "timeout_seconds": 300,
+          "command": [
+            "npm",
+            "run",
+            "test:e2e",
+            "--",
+            "e2e/client-profile-context-navigation.spec.ts",
+            "--project=chromium",
+            "--grep",
+            "Pristine|Dirty-группа|Group action",
+            "--workers=1"
+          ]
+        }
+      ],
+      "manual_evidence": "backlog/implementation/TASK-189-manual-evidence.json",
+      "manual_checks": [
+        {
+          "id": "manual.design-comparison",
+          "description": "Compare rendered schedule entry, long summary, lookup recovery and dirty modal with approved A at mobile/desktop geometries; document physical-device limits."
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-189",
+  "source_ref": null,
+  "e2e_port": 54343,
+  "github": {},
+  "tool_versions": {
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-dirty.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-entry.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-long-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-long-360.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-long-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-long-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-long-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-long-768.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-long-912.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-long-956.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-lookup-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-360.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-768.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-912.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-956.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-dirty.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-entry.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-long-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-lookup-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-modal-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-dirty.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-entry.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-long-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-lookup-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-modal-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-evidence/validation.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-group-edit-schedule-entry.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-189-manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/02-группы.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/client-profile-context-navigation.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-schedule-workflow.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-trainer-substitutions.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/groups-registry.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.css"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/RouteViewport.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/useAppReturnNavigation.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/useAppRoute.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupEditScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupManagement.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/groups/GroupScheduleEntry.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/groups/groupScheduleReturnState.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/groups/groupScheduleReturnState.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/groups/useGroupScheduleEntry.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/schedule/GroupScheduleScreen.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/schedule/GroupScheduleScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-13-groups-core.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-dirty.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-entry.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-long-1440.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-long-360.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-long-390.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-long-420.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-long-440.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-long-768.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-long-912.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-long-956.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-lookup-error.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-1440.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-360.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-390.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-420.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-440.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-768.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-912.png",
+    "backlog/implementation/TASK-189-evidence/chromium-schedule-modal-956.png",
+    "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-dirty.png",
+    "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-entry.png",
+    "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-long-iphone.png",
+    "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-lookup-error.png",
+    "backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-modal-iphone.png",
+    "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-dirty.png",
+    "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-entry.png",
+    "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-long-iphone.png",
+    "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-lookup-error.png",
+    "backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-modal-iphone.png",
+    "backlog/implementation/TASK-189-evidence/validation.md",
+    "backlog/implementation/TASK-189-group-edit-schedule-entry.verification-contract.json",
+    "backlog/implementation/TASK-189-manual-evidence.json",
+    "docs/requirements/02-группы.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/client-profile-context-navigation.spec.ts",
+    "frontend/e2e/group-schedule-workflow.spec.ts",
+    "frontend/e2e/group-trainer-substitutions.spec.ts",
+    "frontend/e2e/groups-registry.spec.ts",
+    "frontend/src/App.css",
+    "frontend/src/App.test.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/app/RouteViewport.tsx",
+    "frontend/src/app/useAppReturnNavigation.ts",
+    "frontend/src/app/useAppRoute.ts",
+    "frontend/src/features/groups/GroupEditScreen.tsx",
+    "frontend/src/features/groups/GroupManagement.test.tsx",
+    "frontend/src/features/groups/GroupScheduleEntry.tsx",
+    "frontend/src/features/groups/groupScheduleReturnState.test.ts",
+    "frontend/src/features/groups/groupScheduleReturnState.ts",
+    "frontend/src/features/groups/useGroupScheduleEntry.ts",
+    "frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+    "frontend/src/features/schedule/GroupScheduleScreen.tsx",
+    "frontend/src/resources/fe-13-groups-core.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-dirty.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-entry.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-360.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-768.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-912.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-956.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-lookup-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-360.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-768.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-912.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-956.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-dirty.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-entry.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-long-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-lookup-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-modal-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-dirty.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-entry.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-long-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-lookup-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-modal-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-189-evidence/validation.md",
+      "documentation or instructions changed: backlog/implementation/TASK-189-group-edit-schedule-entry.verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-189-manual-evidence.json",
+      "documentation or instructions changed: docs/requirements/02-группы.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "frontend": [
+      "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+      "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+      "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+      "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+      "frontend-owned path changed: frontend/src/App.css",
+      "frontend-owned path changed: frontend/src/App.test.tsx",
+      "frontend-owned path changed: frontend/src/App.tsx",
+      "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+      "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+      "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+      "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+      "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+      "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+      "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+      "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+      "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+      "task contract TASK-189 requires frontend"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.design-comparison",
+      "description": "Compare rendered schedule entry, long summary, lookup recovery and dirty modal with approved A at mobile/desktop geometries; document physical-device limits.",
+      "status": "confirmed",
+      "actor": "coding-agent:TASK-189",
+      "performed_at": "2026-10-23T15:38:06.158888+00:00",
+      "note": "Inspected approved A against rendered summary, long text, lookup recovery and dirty modal at mobile/desktop/compact heights and both WebKit profiles; physical-device limits recorded.",
+      "artifacts": [
+        "backlog/implementation/TASK-189-evidence/validation.md"
+      ],
+      "evidence_path": "backlog/implementation/TASK-189-manual-evidence.json",
+      "evidence_sha256": "9ef44ca9c2e9391f684c54c870cce34318ef23c601f16a4cebe25beeb4a179db"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-long-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-modal-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-long-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-modal-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-189-group-edit-schedule-entry.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-189-manual-evidence.json",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:38:54.681997+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-23T15:38:54.722249+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-long-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-modal-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-long-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-modal-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-189-group-edit-schedule-entry.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-189-manual-evidence.json",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:38:54.723339+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-23T15:38:54.763714+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-long-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-modal-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-long-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-modal-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-189-group-edit-schedule-entry.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-189-manual-evidence.json",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:38:54.764793+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.041,
+      "completed_at": "2026-10-23T15:38:54.805346+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "d17baff"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-long-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/chromium-schedule-modal-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-long-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-17-pro-max-webkit-schedule-modal-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-dirty.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-entry.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-long-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-lookup-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/iphone-air-webkit-schedule-modal-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-189-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-189-group-edit-schedule-entry.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-189-manual-evidence.json",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:38:54.806315+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-10-23T15:38:54.883794+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:38:54.884938+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.362,
+      "completed_at": "2026-10-23T15:39:00.247353+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:39:00.248673+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.562,
+      "completed_at": "2026-10-23T15:39:00.810657+00:00"
+    },
+    {
+      "id": "frontend.user-facing-text",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check:user-facing-text"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:39:00.812309+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.343,
+      "completed_at": "2026-10-23T15:39:01.154990+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:39:01.156262+00:00",
+      "exit_code": 0,
+      "duration_seconds": 23.659,
+      "completed_at": "2026-10-23T15:39:24.815772+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend",
+        "task contract TASK-189 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:39:24.817383+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.408,
+      "completed_at": "2026-10-23T15:39:25.225131+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-schedule-workflow",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule-workflow.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend",
+        "task contract TASK-189 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:39:25.226330+00:00",
+      "exit_code": 0,
+      "duration_seconds": 17.536,
+      "completed_at": "2026-10-23T15:39:42.762118+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-schedule",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend",
+        "task contract TASK-189 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:39:42.763885+00:00",
+      "exit_code": 0,
+      "duration_seconds": 21.71,
+      "completed_at": "2026-10-23T15:40:04.473919+00:00"
+    },
+    {
+      "id": "frontend.e2e.groups-registry",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/groups-registry.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend",
+        "task contract TASK-189 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:40:04.475159+00:00",
+      "exit_code": 0,
+      "duration_seconds": 12.675,
+      "completed_at": "2026-10-23T15:40:17.149859+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-trainer-substitutions",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-trainer-substitutions.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend",
+        "task contract TASK-189 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:40:17.151339+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.295,
+      "completed_at": "2026-10-23T15:40:21.446193+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-client-return",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/client-profile-context-navigation.spec.ts",
+        "--project=chromium",
+        "--grep",
+        "Pristine|Dirty-группа|Group action",
+        "--workers=1"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupScheduleEntry.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupScheduleReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/groups/useGroupScheduleEntry.ts",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/GroupScheduleScreen.tsx",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-189 requires frontend",
+        "task contract TASK-189 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T15:40:21.447621+00:00",
+      "exit_code": 0,
+      "duration_seconds": 7.394,
+      "completed_at": "2026-10-23T15:40:28.841461+00:00"
+    }
+  ],
+  "completed_at": "2026-10-23T15:40:28.842523+00:00"
+}

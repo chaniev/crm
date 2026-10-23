@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-189 Вход в редактор расписания из группы
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-189-group-edit-schedule-entry.md
+- source_task: /backlog/done/2026-10-23/TASK-189-group-edit-schedule-entry.md
 - requirements: REQ-GRP-001 (changes), REQ-GRP-004 (constrains), REQ-NFR-001 (constrains)
 - branch: codex/TASK-189-group-edit-schedule-entry
 - readiness: yes
@@ -60,7 +60,7 @@
 - [GroupLessonSeriesEndpoints](/backend/src/GymCrm.Api/Auth/GroupLessonSeriesEndpoints.cs)
   и [LessonSeriesConfiguration](/backend/src/GymCrm.Infrastructure/Persistence/Configurations/LessonSeriesConfiguration.cs)
   подтверждают lookup, охват и единственность серии.
-- [Исходная задача](/backlog/implementation/TASK-189-group-edit-schedule-entry.md)
+- [Исходная задача](/backlog/done/2026-10-23/TASK-189-group-edit-schedule-entry.md)
   сохраняет scope и исходное продуктовое решение.
 
 ## UX contract — выбранное направление A
@@ -175,3 +175,9 @@ browser preview/execute→group защищают корректную серию
   API/security решений, остановить dependent slice и согласовать обновлённый план.
 - Если выбранный A невозможно сохранить без изменения workflow, вернуть
   затронутую часть в planning; runtime comparison проверяет уже согласованный UI.
+
+## Completion
+- status: completed
+- completed_at: 2026-10-23
+- completion_date_evidence: локальная main содержит проверенный TASK-188 `d17baff` и TASK-189 `6aeefcb`; fast-forward 23.10.2026, tree `3b31d5259d4a6b575f9113d04bf6578a318c5d91` совпадает с проверенным TASK-189 candidate.
+- verification: [validation](TASK-189-evidence/validation.md), [harness](TASK-189-evidence/harness.json), [batch log](../../logs/2026-10-23-TASK-188-189-implementation.md).

@@ -1,0 +1,913 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-10-23T14:49:39.381808+00:00",
+  "repository": "TASK-188-group-create-weekday-start-times",
+  "profile": "local",
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "7e3bc788af1312c16f6ea5cdabece14876cccc28",
+    "head_tree_sha": "e7624aa7e52ea682412b4de05f74cd15daae2c83",
+    "base_sha": "d01bcd450d965b1cf0683f3337d542527b47b406",
+    "merge_base_sha": "d01bcd450d965b1cf0683f3337d542527b47b406",
+    "branch": "codex/TASK-188-group-create-weekday-start-times",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-188-group-create-weekday-start-times.verification-contract.json",
+    "task_id": "TASK-188",
+    "expected_branch": "codex/TASK-188-group-create-weekday-start-times",
+    "sha256": "7b10ff16b1107ede678eeb7edaf5baad304754685cca43c1cb2bab0be88614ab",
+    "verified_head_sha": "7e3bc788af1312c16f6ea5cdabece14876cccc28",
+    "verified_head_tree_sha": "e7624aa7e52ea682412b4de05f74cd15daae2c83",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-188\",\n  \"expected_branch\": \"codex/TASK-188-group-create-weekday-start-times\",\n  \"areas\": [\n    \"frontend\",\n    \"backend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.group-weekday-times\",\n      \"spec\": \"e2e/group-schedule-workflow.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 900\n    },\n    {\n      \"id\": \"frontend.e2e.group-schedule-regression\",\n      \"spec\": \"e2e/group-schedule.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1200\n    }\n  ],\n  \"manual_evidence\": \"backlog/implementation/TASK-188-manual-evidence.json\",\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.design-comparison\",\n      \"description\": \"Compare rendered create form, seven weekdays and field recovery against approved A at required mobile/desktop sizes; document device-only limits.\"\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-188",
+      "expected_branch": "codex/TASK-188-group-create-weekday-start-times",
+      "areas": [
+        "frontend",
+        "backend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.group-weekday-times",
+          "spec": "e2e/group-schedule-workflow.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 900
+        },
+        {
+          "id": "frontend.e2e.group-schedule-regression",
+          "spec": "e2e/group-schedule.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1200
+        }
+      ],
+      "manual_evidence": "backlog/implementation/TASK-188-manual-evidence.json",
+      "manual_checks": [
+        {
+          "id": "manual.design-comparison",
+          "description": "Compare rendered create form, seven weekdays and field recovery against approved A at required mobile/desktop sizes; document device-only limits."
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-188",
+  "source_ref": null,
+  "e2e_port": 50702,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/GymCrm.Api.csproj"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekday-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekdays-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekdays-360.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekdays-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekdays-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekdays-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekdays-768.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekdays-912.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/chromium-weekdays-956.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekday-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekdays-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekday-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekdays-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-evidence/validation.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-group-create-weekday-start-times.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-188-manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/logs/2026-10-23-TASK-188-189-implementation.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/02-группы.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/group-schedule-workflow.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/package-lock.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.css"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupCreateScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupForm.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupManagement.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/groupFormMapping.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/groupFormMapping.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-13-groups-core.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/GymCrm.Api.csproj",
+    "backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+    "backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+    "backlog/implementation/TASK-188-evidence/chromium-weekday-error.png",
+    "backlog/implementation/TASK-188-evidence/chromium-weekdays-1440.png",
+    "backlog/implementation/TASK-188-evidence/chromium-weekdays-360.png",
+    "backlog/implementation/TASK-188-evidence/chromium-weekdays-390.png",
+    "backlog/implementation/TASK-188-evidence/chromium-weekdays-420.png",
+    "backlog/implementation/TASK-188-evidence/chromium-weekdays-440.png",
+    "backlog/implementation/TASK-188-evidence/chromium-weekdays-768.png",
+    "backlog/implementation/TASK-188-evidence/chromium-weekdays-912.png",
+    "backlog/implementation/TASK-188-evidence/chromium-weekdays-956.png",
+    "backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekday-error.png",
+    "backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekdays-iphone.png",
+    "backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekday-error.png",
+    "backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekdays-iphone.png",
+    "backlog/implementation/TASK-188-evidence/validation.md",
+    "backlog/implementation/TASK-188-group-create-weekday-start-times.verification-contract.json",
+    "backlog/implementation/TASK-188-manual-evidence.json",
+    "backlog/logs/2026-10-23-TASK-188-189-implementation.md",
+    "docs/requirements/02-группы.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/group-schedule-workflow.spec.ts",
+    "frontend/package-lock.json",
+    "frontend/playwright.config.ts",
+    "frontend/src/App.css",
+    "frontend/src/features/groups/GroupCreateScreen.tsx",
+    "frontend/src/features/groups/GroupForm.tsx",
+    "frontend/src/features/groups/GroupManagement.test.tsx",
+    "frontend/src/features/groups/groupFormMapping.test.ts",
+    "frontend/src/features/groups/groupFormMapping.ts",
+    "frontend/src/resources/fe-13-groups-core.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekday-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-360.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-768.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-912.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-956.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekday-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekdays-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekday-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekdays-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-188-evidence/validation.md",
+      "documentation or instructions changed: backlog/implementation/TASK-188-group-create-weekday-start-times.verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-188-manual-evidence.json",
+      "documentation or instructions changed: backlog/logs/2026-10-23-TASK-188-189-implementation.md",
+      "documentation or instructions changed: docs/requirements/02-группы.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/GymCrm.Api.csproj",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+      "task contract TASK-188 requires backend"
+    ],
+    "frontend": [
+      "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+      "frontend-owned path changed: frontend/package-lock.json",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/App.css",
+      "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.test.ts",
+      "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.ts",
+      "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+      "task contract TASK-188 requires frontend"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.design-comparison",
+      "description": "Compare rendered create form, seven weekdays and field recovery against approved A at required mobile/desktop sizes; document device-only limits.",
+      "status": "confirmed",
+      "actor": "coding-agent:TASK-188",
+      "performed_at": "2026-10-23T14:49:39.074810+00:00",
+      "note": "Inspected selected A against runtime mobile/desktop and field-error renders; behavioral/geometry tests passed. Device-only limitations recorded.",
+      "artifacts": [
+        "backlog/implementation/TASK-188-evidence/validation.md"
+      ],
+      "evidence_path": "backlog/implementation/TASK-188-manual-evidence.json",
+      "evidence_sha256": "cadc27c9642d7cea8e245b0ad15f45364e8ad87d145b1bdf5dd5707b3e45f3ba"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekdays-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekdays-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-188-group-create-weekday-start-times.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-188-manual-evidence.json",
+        "documentation or instructions changed: backlog/logs/2026-10-23-TASK-188-189-implementation.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:39.577764+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.024,
+      "completed_at": "2026-10-23T14:49:39.601693+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekdays-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekdays-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-188-group-create-weekday-start-times.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-188-manual-evidence.json",
+        "documentation or instructions changed: backlog/logs/2026-10-23-TASK-188-189-implementation.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:39.602512+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.024,
+      "completed_at": "2026-10-23T14:49:39.626368+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekdays-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekdays-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-188-group-create-weekday-start-times.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-188-manual-evidence.json",
+        "documentation or instructions changed: backlog/logs/2026-10-23-TASK-188-189-implementation.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:39.627377+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.048,
+      "completed_at": "2026-10-23T14:49:39.675571+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/chromium-weekdays-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-17-pro-max-webkit-weekdays-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekday-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/iphone-air-webkit-weekdays-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-188-evidence/validation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-188-group-create-weekday-start-times.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-188-manual-evidence.json",
+        "documentation or instructions changed: backlog/logs/2026-10-23-TASK-188-189-implementation.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:39.676448+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.09,
+      "completed_at": "2026-10-23T14:49:39.766681+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/GymCrm.Api.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-188 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:39.767750+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.681,
+      "completed_at": "2026-10-23T14:49:40.448585+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/GymCrm.Api.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-188 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:40.449630+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.841,
+      "completed_at": "2026-10-23T14:49:43.290764+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/GymCrm.Api.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-188 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:43.291956+00:00",
+      "exit_code": 0,
+      "duration_seconds": 10.431,
+      "completed_at": "2026-10-23T14:49:53.722635+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/GymCrm.Api.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-188 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:53.723797+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.996,
+      "completed_at": "2026-10-23T14:49:57.719349+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/GymCrm.Api.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-188 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:49:57.720576+00:00",
+      "exit_code": 0,
+      "duration_seconds": 113.923,
+      "completed_at": "2026-10-23T14:51:51.643151+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/GymCrm.Api.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-188 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:51:51.645145+00:00",
+      "exit_code": 0,
+      "duration_seconds": 8.531,
+      "completed_at": "2026-10-23T14:52:00.176321+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-188 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:52:00.177782+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.465,
+      "completed_at": "2026-10-23T14:52:05.642919+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-188 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:52:05.644102+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.628,
+      "completed_at": "2026-10-23T14:52:06.271775+00:00"
+    },
+    {
+      "id": "frontend.user-facing-text",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check:user-facing-text"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-188 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:52:06.273340+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.362,
+      "completed_at": "2026-10-23T14:52:06.635184+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-188 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:52:06.636268+00:00",
+      "exit_code": 0,
+      "duration_seconds": 22.96,
+      "completed_at": "2026-10-23T14:52:29.596235+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-188 requires frontend",
+        "task contract TASK-188 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:52:29.597565+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.491,
+      "completed_at": "2026-10-23T14:52:30.088552+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-weekday-times",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule-workflow.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-188 requires frontend",
+        "task contract TASK-188 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:52:30.089759+00:00",
+      "exit_code": 0,
+      "duration_seconds": 10.127,
+      "completed_at": "2026-10-23T14:52:40.216953+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-schedule-regression",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.test.ts",
+        "frontend-owned path changed: frontend/src/features/groups/groupFormMapping.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-188 requires frontend",
+        "task contract TASK-188 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T14:52:40.218481+00:00",
+      "exit_code": 0,
+      "duration_seconds": 21.551,
+      "completed_at": "2026-10-23T14:53:01.769585+00:00"
+    }
+  ],
+  "completed_at": "2026-10-23T14:53:01.770627+00:00"
+}

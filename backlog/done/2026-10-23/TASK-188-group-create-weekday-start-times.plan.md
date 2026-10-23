@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-188 Разное время по дням при создании группы
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-188-group-create-weekday-start-times.md
+- source_task: /backlog/done/2026-10-23/TASK-188-group-create-weekday-start-times.md
 - requirements: REQ-GRP-003 (implements), REQ-GRP-004 (constrains), REQ-GRP-001 (constrains), REQ-NFR-001 (constrains)
 - branch: codex/TASK-188-group-create-weekday-start-times
 - readiness: yes
@@ -46,7 +46,7 @@
 - product: [Согласованный визуальный контракт](/backlog/mockups/TASK-188-189-group-schedule/brief.md) — owner: пользователь / владелец продукта; decision: 23.10.2026 ответом «выбираю вариант А А» выбран A для TASK-188: выбор дней и отдельные постоянно видимые строки их времени; ранее принято разное время по дням без нескольких занятий в день в форме создания.
 - [REQ-GRP-003](/docs/requirements/02-группы.md) задаёт принятое независимое время дней.
 - [GroupsApiTests](/backend/tests/GymCrm.Tests/GroupsApiTests.cs) подтверждают создание slots с разными временами и отсутствие частичного создания без token.
-- [Исходная задача](/backlog/implementation/TASK-188-group-create-weekday-start-times.md) сохраняет scope и исходное продуктовое решение.
+- [Исходная задача](/backlog/done/2026-10-23/TASK-188-group-create-weekday-start-times.md) сохраняет scope и исходное продуктовое решение.
 
 ## UX contract — выбранное направление A
 - Пользователь создаёт группу на mobile/desktop. Primary — получить preview,
@@ -148,3 +148,9 @@ round-trip не позволяют незаметно вернуть копир�
   доменных операций, вернуть план в planning; не расширять API в этой задаче молча.
 - Если реализация требует отступления от согласованного A, вернуть затронутую
   часть в planning; не заменять постоянно видимые времена переключателем дня.
+
+## Completion
+- status: completed
+- completed_at: 2026-10-23
+- completion_date_evidence: локальная main содержит проверенный TASK-188 `d17baff` и TASK-189 `6aeefcb`; fast-forward 23.10.2026, tree `3b31d5259d4a6b575f9113d04bf6578a318c5d91` совпадает с проверенным TASK-189 candidate.
+- verification: [validation](TASK-188-evidence/validation.md), [harness](TASK-188-evidence/harness.json), [batch log](../../logs/2026-10-23-TASK-188-189-implementation.md).

@@ -1907,3 +1907,12 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - scope: завершено планирование; production code, task branches/worktrees и основной stack не изменялись, исполнение не начиналось
 - validation: readiness preflight обоих планов повторно PASS после переноса; `verify_change.py --base origin/main` — PASS, 4 knowledge checks; ссылки, уникальность TASK IDs и status/directory проверены
 - evidence: `.artifacts/verification/TASK-188-189-ready.json`; временный preview server остановлен, выбранные рендеры доступны из согласованного brief
+
+
+## 2026-10-23 — TASK-188 / TASK-189 локальная интеграция
+
+- implemented: TASK-188 → TASK-189; локальная main `6aeefcb`, проверенное дерево совпадает с candidate.
+- done: карточки, планы, contracts и evidence перенесены совместно в `/backlog/done/2026-10-23/`.
+- historical_paths: прежние ссылки `/backlog/implementation/TASK-188*`, `/backlog/implementation/TASK-189*` и планы из `/backlog/implementation-plans/` теперь соответствуют одноимённым файлам указанного архива; предыдущие записи сохранены.
+- requirements: REQ-GRP-003/001 — реализовано; REQ-NFR-001 — частично, ограничения физического iPhone явно записаны.
+- evidence: [журнал реализации и проверок](2026-10-23-TASK-188-189-implementation.md).

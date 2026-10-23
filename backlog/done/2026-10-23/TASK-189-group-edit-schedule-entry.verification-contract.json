@@ -60,7 +60,7 @@
       ]
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-189-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-10-23/TASK-189-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.design-comparison",

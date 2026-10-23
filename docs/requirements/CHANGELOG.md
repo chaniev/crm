@@ -1,16 +1,24 @@
 # Журнал изменения требований
 
+## 2026-10-23 — интеграция TASK-188 / TASK-189
+
+- REQ-GRP-003 и REQ-GRP-001: реализация — «реализовано» после локальной
+  интеграции в main `6aeefcb`: отдельное время каждого выбранного дня и вход
+  из группы в редактор серии с безопасным возвратом. Нормативные решения сохранены.
+- Проверки и ограничения: [журнал](../../backlog/logs/2026-10-23-TASK-188-189-implementation.md).
+  REQ-NFR-001 остаётся «частично»: физический iPhone/iOS Simulator не проверялся.
+
 ## 2026-10-23 — TASK-189: переход к расписанию из группы
 
 - REQ-GRP-001: реализованы summary/lookup, dirty guard и typed return с проверкой
   group/series/history; компонентные и браузерные проверки приведены в
-  [evidence](../../backlog/implementation/TASK-189-evidence/validation.md).
+  [evidence](../../backlog/done/2026-10-23/TASK-189-evidence/validation.md).
   До проверки интеграции состояние — «частично»; нормативное поведение сохранено.
 
 ## 2026-10-23 — TASK-188: независимое время при создании
 
 - REQ-GRP-003: форма, snapshot ошибок/preview и API round-trip подтверждены
-  [проверками](../../backlog/implementation/TASK-188-evidence/validation.md).
+  [проверками](../../backlog/done/2026-10-23/TASK-188-evidence/validation.md).
   Принятый текст сохранён; статус остаётся «частично» до интеграции.
 
 ## 2026-10-23 — согласование интерфейса TASK-188 / TASK-189
@@ -18,8 +26,8 @@
 - Владелец продукта выбрал A/A: отдельные видимые времена выбранных дней при
   создании и блок расписания с кнопкой перехода в карточке группы.
   [UX-контракт](../../backlog/mockups/TASK-188-189-group-schedule/brief.md),
-  [TASK-188](../../backlog/implementation/TASK-188-group-create-weekday-start-times.md),
-  [TASK-189](../../backlog/implementation/TASK-189-group-edit-schedule-entry.md).
+  [TASK-188](../../backlog/done/2026-10-23/TASK-188-group-create-weekday-start-times.md),
+  [TASK-189](../../backlog/done/2026-10-23/TASK-189-group-edit-schedule-entry.md).
   Нормативное поведение REQ-GRP-003/001 сохраняется; реализация обоих требований
   остаётся «частично» до интеграции. Подготовленные планы прошли readiness preflight.
 
@@ -28,11 +36,11 @@
 - 23.10.2026 — REQ-GRP-003 — реализация уточнена до «частично»: форма создания
   копирует одно время во все дни; принятый контракт отдельных времён сохранён.
   Пользователь подтвердил scope «разное время по дням недели»
-  ([TASK-188](../../backlog/implementation/TASK-188-group-create-weekday-start-times.md)).
+  ([TASK-188](../../backlog/done/2026-10-23/TASK-188-group-create-weekday-start-times.md)).
 - 23.10.2026 — REQ-GRP-001 — по прямому ответу пользователя принята кнопка
   «Изменить расписание» из карточки группы в существующий редактор серии;
   реализация — «частично»
-  ([TASK-189](../../backlog/implementation/TASK-189-group-edit-schedule-entry.md)).
+  ([TASK-189](../../backlog/done/2026-10-23/TASK-189-group-edit-schedule-entry.md)).
 - 23.10.2026 — REQ-BRN-001/002 — по прямому запросу принято создание филиалов
   и залов Супер-администратором через настройки независимо от права создавать
   сотрудников; дополнительные destructive actions не разрешаются этим решением.
@@ -213,7 +221,7 @@
 - 29.08.2026 — REQ-GRP-007 — принята mobile-density редакция с компактными
   строками занятий, усиленной decision-data hierarchy и единым action emphasis;
   реализация переведена в «частично» до TASK-157 (задача
-  [TASK-157](../../backlog/tasks-ready/TASK-157-schedule-mobile-density.md)).
+  [TASK-157](../../backlog/done/2026-08-30/TASK-157-schedule-mobile-density.md)).
 - 29.08.2026 — REQ-NFR-001 — semantic typography contract реализован в
   shared/representative frontend slices; Onest roles, iPhone form-control
   minimums, long-content wrapping and numeric tabular alignment стали

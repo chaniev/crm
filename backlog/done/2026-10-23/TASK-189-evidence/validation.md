@@ -1,6 +1,6 @@
 # TASK-189 validation and runtime comparison
 
-Approved direction: [A/A brief](../../mockups/TASK-188-189-group-schedule/brief.md).
+Approved direction: [A/A brief](../../../mockups/TASK-188-189-group-schedule/brief.md).
 The read-only series summary and secondary entry precede identity fields. Mobile
 places the action below all slots; desktop keeps it alongside. Hall/duration are
 shared only when every slot agrees. Loading, missing series, denied access and
@@ -58,3 +58,14 @@ using the retired /attendance group-roster entry: their fixtures omit
 GET /api/attendance/lessons/today. Those unrelated cases were not rewritten or
 reported green; the contract selects the three affected group-origin cases.
 Canonical aggregate checks and exact candidate SHAs are recorded in the batch log.
+
+Final task harness at `6aeefcb` passed: 75 unit files/719 tests; 27 workflow browser
+cases across three projects, 18 schedule, 11 registry, 6 trainer-substitution and
+3 group→client cases (65 browser cases total); lint/types/build/audit and knowledge
+checks. Baseline attendance fixture failure was reproduced independently on
+`d17baff`, before TASK-189, with the same missing today-worklist API request.
+
+Aggregate regression on clean main `6aeefcb` passed after the last code merge:
+590 backend tests plus restore/format/Release build/audit, 719 frontend unit tests
+plus install/audit/lint/types/guards/build and repository knowledge checks.
+[Integration harness](integration-harness.json) records commands and exact tree.

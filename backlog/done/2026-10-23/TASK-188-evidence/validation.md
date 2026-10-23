@@ -1,6 +1,6 @@
 # TASK-188 validation and runtime comparison
 
-Approved direction: [A/A brief](../../mockups/TASK-188-189-group-schedule/brief.md).
+Approved direction: [A/A brief](../../../mockups/TASK-188-189-group-schedule/brief.md).
 The implementation keeps weekday selection above persistent, ISO-ordered day/time
 rows; mobile common duration/dates follow below and desktop puts them on the right.
 Identity, trainer controls and existing shell/actions are retained.
@@ -53,3 +53,13 @@ Canonical npm audit (high threshold unchanged) passes with two existing moderate
 Vitest 4.1.11/mocker advisories still reported; no audit suppression or major test
 framework migration was introduced. Full harness evidence is recorded in the
 implementation log and final closure.
+
+Final focus correction: post-commit recovery replaces pre-commit animation-frame
+focus. Frontend harness at `d17baff` and 10 repeated Chromium field-error runs
+passed; [focus harness](focus-harness.json). The combined task contract later
+passed all 27 creation/edit scenarios including both WebKit profiles at `6aeefcb`.
+
+Aggregate regression on clean main `6aeefcb` passed after the last code merge:
+590 backend tests plus restore/format/Release build/audit, 719 frontend unit tests
+plus install/audit/lint/types/guards/build and repository knowledge checks.
+[Integration harness](integration-harness.json) records commands and exact tree.
