@@ -32,3 +32,11 @@ its overlapping weekday geometry is covered by TASK-188, without closing TASK-17
   update 8.2.2 → 8.3.5 removes them. Two moderate Vitest/mocker advisories remain
   visible below the unchanged canonical high threshold; no suppressions.
 - Runtime comparison and limitations: [evidence](../implementation/TASK-188-evidence/validation.md).
+
+## TASK-188 focus recovery follow-up
+
+The batch browser pass exposed a race: requestAnimationFrame could focus a
+field before React committed the failed request's validation errors.
+Recovery now runs in the post-commit effect, after submission is released.
+The existing field-mapping unit scenario also asserts focus. This correction
+is kept in the TASK-188 workspace before synchronizing TASK-189.
