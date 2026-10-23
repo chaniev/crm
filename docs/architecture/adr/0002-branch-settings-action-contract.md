@@ -9,7 +9,7 @@
 - [REQ-BRN-001/002](/docs/requirements/09-филиалы-и-настройки.md) — changes в TASK-190, создание SuperAdministrator уже принято.
 - [REQ-USR-001/003](/docs/requirements/05-пользователи-и-роли.md) — changes / constrains.
 - [REQ-CLI-007](/docs/requirements/01-клиенты.md) — constrains, существующий перевод клиента.
-- [TASK-190, Product decisions](/backlog/implementation/TASK-190-super-admin-branch-hall-creation.md).
+- [TASK-190, Product decisions](/backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md).
 
 ## Контекст
 

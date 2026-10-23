@@ -38,4 +38,24 @@ fixtures. Созданные контейнеры завершаются чер�
 
 ## Final candidate
 
-Полная проверка будет записана после canonical harness на committed candidate.
+- Candidate: `6b5e39c8bb7fd0e739418d650dc6335a6cf1f2d5`; tree `17ade9d19c40226a78d6b62e8de0b3ea95b2f28f`; working tree clean.
+- `python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-190 --report .artifacts/verification/TASK-190.json` — passed, 25 checks; manual rendered comparison confirmed.
+- Backend: format, Release build without warnings, 635 tests, dependency audit passed.
+- Frontend: npm ci/audit, lint, TypeScript, resource/token guards, 745 tests in 76 files, production build passed. Audit passes the configured high-severity threshold; two existing moderate dev-dependency findings remain in Vitest/@vitest/mocker (GHSA-qxg6-89mg-rqv8, GHSA-xp26-3454-mjgp). Dependency versions were unchanged. See [audit output](dependency-audit.txt).
+- [Canonical report](candidate-harness.json) preserves original candidate/contract paths before archival.
+- `frontend.e2e.branch-hall-creation`: 21 passed.
+- `frontend.e2e.settings-tab-title-duplication`: 6 passed.
+- `frontend.e2e.settings-group-types`: 10 passed.
+- `frontend.e2e.membership-catalog-settings`: 5 passed.
+- `frontend.e2e.membership-sale-pricing`: 16 passed.
+- `frontend.e2e.group-schedule-workflow`: 10 passed.
+- `frontend.e2e.iphone-settings`: 8 passed.
+- `frontend.e2e.stage12-settings`: 1 passed.
+- `frontend.e2e.responsive-main-screens-settings`: 8 passed.
+- `frontend.e2e.touch-target-inventory-settings`: 8 passed.
+
+Initial full pass stopped at npm network ETIMEDOUT; retry completed. Subsequent browser checks found test-only stale selectors (Mantine listbox and identity-only group edit) and the old touch-inventory calendar fixture; these were synchronized before the final candidate. The shared lookup fixture now handles the schedule lookup and permits React request retries; an existing App session-recovery test now waits for both the URL and rendered state, eliminating the observed transition race. Final required checks have no outstanding failures.
+
+## Integration and review
+
+The verified candidate was fast-forwarded to local main; task commits are reachable and the candidate/main trees matched. A closure commit moves task artifacts and updates requirement evidence; application trees remain unchanged, so runtime evidence is reused. Final review covered policy/action/target matrix, saved target ownership, shared GET compatibility, transaction boundaries, action revocation, modal error placement and consumer fixtures. No unresolved in-scope findings remain.

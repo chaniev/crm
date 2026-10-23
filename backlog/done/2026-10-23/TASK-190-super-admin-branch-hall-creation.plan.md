@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-190 Создание филиалов и залов суперадминистратором
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-190-super-admin-branch-hall-creation.md
+- status: done
+- source_task: /backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md
 - requirements: REQ-BRN-001 (changes), REQ-BRN-002 (changes), REQ-USR-001 (changes), REQ-USR-003 (constrains), REQ-CLI-007 (constrains)
 - branch: codex/TASK-190-super-admin-branch-hall-creation
 - readiness: yes
@@ -18,7 +19,7 @@ SuperAdministrator без собственного филиала открыва
 reload. Ошибка сохранения видна внутри формы и не уничтожает введённые значения.
 
 ## Decisions and contracts
-- Принятое поведение и ограничения — в [TASK-190](/backlog/implementation/TASK-190-super-admin-branch-hall-creation.md)
+- Принятое поведение и ограничения — в [TASK-190](/backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md)
   и REQ-BRN-001/002; HeadCoach сохраняет текущий сценарий, UI остальных ролей
   не получает новых branch/hall операций.
 - Расширенный технический контракт, включая имена actions, матрицу,
@@ -38,7 +39,7 @@ reload. Ошибка сохранения видна внутри формы и 
   audit write откатывает создание. Новая схема/миграция не нужна.
 
 ## Decision evidence
-- product: [TASK-190, Source notes](/backlog/implementation/TASK-190-super-admin-branch-hall-creation.md) — owner: пользователь, владелец продукта; decision: 23.10.2026 разрешено создание филиала и зала SuperAdministrator; goal повторно не согласовывается.
+- product: [TASK-190, Source notes](/backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md) — owner: пользователь, владелец продукта; decision: 23.10.2026 разрешено создание филиала и зала SuperAdministrator; goal повторно не согласовывается.
 - Принятая редакция [REQ-BRN-001/002](/docs/requirements/09-филиалы-и-настройки.md)
   уже записана при triage, реализация «частично»; planning не меняет её смысл.
 - technical: [Принятый ADR-0002](/docs/architecture/adr/0002-branch-settings-action-contract.md) — owner: пользователь, владелец продукта; decision: 23.10.2026 принят вариант B целиком с сохранением shared GET; ответ «Принять вариант B и сохранить общее чтение (рекомендуется)».
@@ -226,3 +227,10 @@ create/reload защищает цель и отсутствие новых UI п
   material technical blocker до изменения dependent code.
 - Ошибка parent branch между load/save не должна терять ввод или показывать
   success. Моки не заменяют реальные authorization/persistence доказательства.
+
+## Completion
+- completed_at: 2026-10-23
+- merged_to_main_at: 2026-10-23T20:25:23.677100+03:00
+- completion_date_evidence: локальный fast-forward main до `6b5e39c8bb7fd0e739418d650dc6335a6cf1f2d5` после полного canonical harness; tree совпал с проверенным candidate.
+- [Проверки и ограничения](TASK-190-evidence/verification.md).
+- Создание филиала/зала SuperAdministrator, action projection, own-branch guards Administrator, atomic audit и consumer regressions реализованы.

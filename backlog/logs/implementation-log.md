@@ -1949,3 +1949,15 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - moved: /backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md -> /backlog/implementation/TASK-190-super-admin-branch-hall-creation.md
 - branch: codex/TASK-190-super-admin-branch-hall-creation
 - plan: /backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md
+
+## 2026-10-23 — TASK-190: завершение и архив
+
+- main fast-forward: `6b5e39c8bb7fd0e739418d650dc6335a6cf1f2d5`; полный harness passed.
+- [Актуальная карточка](/backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md), [verification](/backlog/done/2026-10-23/TASK-190-evidence/verification.md).
+- Завершённые card/plan/contract/manual evidence/baseline перемещены вместе. Исторические ссылки выше сохраняют путь на дату записи; актуальное соответствие:
+  - `/backlog/implementation/TASK-190-super-admin-branch-hall-creation.md` → `/backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md`
+  - `/backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md` → `/backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.plan.md`
+  - `/backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json` → `/backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.verification-contract.json`
+  - `/backlog/implementation/TASK-190-manual-evidence.json` → `/backlog/done/2026-10-23/TASK-190-manual-evidence.json`
+  - `/backlog/implementation/TASK-190-evidence` → `/backlog/done/2026-10-23/TASK-190-evidence`
+  - `/backlog/mockups/TASK-190-existing-settings` → `/backlog/done/2026-10-23/TASK-190-existing-settings`

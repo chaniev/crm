@@ -1,0 +1,1820 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-10-23T17:19:55.091302+00:00",
+  "repository": "TASK-190-super-admin-branch-hall-creation",
+  "profile": "local",
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "6b5e39c8bb7fd0e739418d650dc6335a6cf1f2d5",
+    "head_tree_sha": "17ade9d19c40226a78d6b62e8de0b3ea95b2f28f",
+    "base_sha": "297f001d6aace01e275408f46c27251cb472854c",
+    "merge_base_sha": "297f001d6aace01e275408f46c27251cb472854c",
+    "branch": "codex/TASK-190-super-admin-branch-hall-creation",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json",
+    "task_id": "TASK-190",
+    "expected_branch": "codex/TASK-190-super-admin-branch-hall-creation",
+    "sha256": "659c5d9bfc31871dd6de0a239c02c3e7f67e9e8f237917beb70bc8eb1b0a6bf4",
+    "verified_head_sha": "6b5e39c8bb7fd0e739418d650dc6335a6cf1f2d5",
+    "verified_head_tree_sha": "17ade9d19c40226a78d6b62e8de0b3ea95b2f28f",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-190\",\n  \"expected_branch\": \"codex/TASK-190-super-admin-branch-hall-creation\",\n  \"areas\": [\n    \"backend\",\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.branch-hall-creation\",\n      \"spec\": \"e2e/branch-hall-creation.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.settings-tab-title-duplication\",\n      \"spec\": \"e2e/settings-tab-title-duplication.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.settings-group-types\",\n      \"spec\": \"e2e/settings-group-types.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.membership-catalog-settings\",\n      \"spec\": \"e2e/membership-catalog-settings.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.membership-sale-pricing\",\n      \"spec\": \"e2e/membership-sale-pricing.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.group-schedule-workflow\",\n      \"spec\": \"e2e/group-schedule-workflow.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    }\n  ],\n  \"runtime_smoke\": [\n    {\n      \"id\": \"frontend.e2e.iphone-settings\",\n      \"area\": \"frontend\",\n      \"working_directory\": \"frontend\",\n      \"command\": [\n        \"npm\",\n        \"run\",\n        \"test:e2e\",\n        \"--\",\n        \"e2e/iphone-target-devices.spec.ts\",\n        \"--project=iphone-air-webkit\",\n        \"--project=iphone-17-pro-max-webkit\",\n        \"--grep\",\n        \"TASK-161|админ-панель|каталог абонементов|филиалы и залы\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.stage12-settings\",\n      \"area\": \"frontend\",\n      \"working_directory\": \"frontend\",\n      \"command\": [\n        \"npm\",\n        \"run\",\n        \"test:e2e\",\n        \"--\",\n        \"e2e/stage12.spec.ts\",\n        \"--project=chromium\",\n        \"--grep\",\n        \"Настройки позволяют\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.responsive-main-screens-settings\",\n      \"area\": \"frontend\",\n      \"working_directory\": \"frontend\",\n      \"command\": [\n        \"npm\",\n        \"run\",\n        \"test:e2e\",\n        \"--\",\n        \"e2e/responsive-main-screens.spec.ts\",\n        \"--project=chromium\",\n        \"--grep\",\n        \"Settings branches\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.touch-target-inventory-settings\",\n      \"area\": \"frontend\",\n      \"working_directory\": \"frontend\",\n      \"command\": [\n        \"npm\",\n        \"run\",\n        \"test:e2e\",\n        \"--\",\n        \"e2e/touch-target-inventory.spec.ts\",\n        \"--project=chromium\",\n        \"--grep\",\n        \"checks representative routes\"\n      ],\n      \"timeout_seconds\": 1800\n    }\n  ],\n  \"manual_evidence\": \"backlog/implementation/TASK-190-manual-evidence.json\",\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.rendered-comparison\",\n      \"description\": \"Compare rendered HeadCoach controls and SuperAdministrator branch/hall forms with approved baseline at mobile, desktop and compact height; verify modal feedback/focus. Report device-only limits separately.\"\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-190",
+      "expected_branch": "codex/TASK-190-super-admin-branch-hall-creation",
+      "areas": [
+        "backend",
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.branch-hall-creation",
+          "spec": "e2e/branch-hall-creation.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.settings-tab-title-duplication",
+          "spec": "e2e/settings-tab-title-duplication.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.settings-group-types",
+          "spec": "e2e/settings-group-types.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.membership-catalog-settings",
+          "spec": "e2e/membership-catalog-settings.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.membership-sale-pricing",
+          "spec": "e2e/membership-sale-pricing.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.group-schedule-workflow",
+          "spec": "e2e/group-schedule-workflow.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        }
+      ],
+      "runtime_smoke": [
+        {
+          "id": "frontend.e2e.iphone-settings",
+          "area": "frontend",
+          "working_directory": "frontend",
+          "command": [
+            "npm",
+            "run",
+            "test:e2e",
+            "--",
+            "e2e/iphone-target-devices.spec.ts",
+            "--project=iphone-air-webkit",
+            "--project=iphone-17-pro-max-webkit",
+            "--grep",
+            "TASK-161|админ-панель|каталог абонементов|филиалы и залы"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.stage12-settings",
+          "area": "frontend",
+          "working_directory": "frontend",
+          "command": [
+            "npm",
+            "run",
+            "test:e2e",
+            "--",
+            "e2e/stage12.spec.ts",
+            "--project=chromium",
+            "--grep",
+            "Настройки позволяют"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.responsive-main-screens-settings",
+          "area": "frontend",
+          "working_directory": "frontend",
+          "command": [
+            "npm",
+            "run",
+            "test:e2e",
+            "--",
+            "e2e/responsive-main-screens.spec.ts",
+            "--project=chromium",
+            "--grep",
+            "Settings branches"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.touch-target-inventory-settings",
+          "area": "frontend",
+          "working_directory": "frontend",
+          "command": [
+            "npm",
+            "run",
+            "test:e2e",
+            "--",
+            "e2e/touch-target-inventory.spec.ts",
+            "--project=chromium",
+            "--grep",
+            "checks representative routes"
+          ],
+          "timeout_seconds": 1800
+        }
+      ],
+      "manual_evidence": "backlog/implementation/TASK-190-manual-evidence.json",
+      "manual_checks": [
+        {
+          "id": "manual.rendered-comparison",
+          "description": "Compare rendered HeadCoach controls and SuperAdministrator branch/hall forms with approved baseline at mobile, desktop and compact height; verify modal feedback/focus. Report device-only limits separately."
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-190",
+  "source_ref": null,
+  "e2e_port": 63992,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AuthEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/chromium-branch-form.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/chromium-hall-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/chromium-hall-form-1440x1200.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/chromium-hall-form-360x780.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/chromium-hall-form-390x844.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/chromium-hall-form-768x1024.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/chromium-headcoach-panel.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-branch-form.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-form-956x440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-headcoach-panel.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/iphone-air-webkit-branch-form.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-error.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-form-912x420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/iphone-air-webkit-headcoach-panel.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/verification.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-evidence/visual-review.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R086",
+      "paths": [
+        "backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md",
+        "backlog/implementation/TASK-190-super-admin-branch-hall-creation.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/TASK-190-security-review-2026-10-23.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/implementation-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/0002-branch-settings-action-contract.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/05-пользователи-и-роли.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/09-филиалы-и-настройки.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/branch-hall-creation.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-schedule-workflow.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/iphone-target-devices.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/membership-catalog-settings.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/membership-sale-pricing.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/responsive-main-screens.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/settings-group-types.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/settings-tab-title-duplication.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/stage12.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/touch-target-inventory.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/BranchSettingsScreen.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/BranchSettingsScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/SettingsScreen.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/SettingsScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/auth.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/auth.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/lib/api/branches.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/types.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-10-settings-branches-shell.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+    "backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+    "backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+    "backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md",
+    "backlog/implementation/TASK-190-evidence/chromium-branch-form.png",
+    "backlog/implementation/TASK-190-evidence/chromium-hall-error.png",
+    "backlog/implementation/TASK-190-evidence/chromium-hall-form-1440x1200.png",
+    "backlog/implementation/TASK-190-evidence/chromium-hall-form-360x780.png",
+    "backlog/implementation/TASK-190-evidence/chromium-hall-form-390x844.png",
+    "backlog/implementation/TASK-190-evidence/chromium-hall-form-768x1024.png",
+    "backlog/implementation/TASK-190-evidence/chromium-headcoach-panel.png",
+    "backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-branch-form.png",
+    "backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-error.png",
+    "backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-form-956x440.png",
+    "backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-headcoach-panel.png",
+    "backlog/implementation/TASK-190-evidence/iphone-air-webkit-branch-form.png",
+    "backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-error.png",
+    "backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-form-912x420.png",
+    "backlog/implementation/TASK-190-evidence/iphone-air-webkit-headcoach-panel.png",
+    "backlog/implementation/TASK-190-evidence/verification.md",
+    "backlog/implementation/TASK-190-evidence/visual-review.md",
+    "backlog/implementation/TASK-190-manual-evidence.json",
+    "backlog/implementation/TASK-190-super-admin-branch-hall-creation.md",
+    "backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json",
+    "backlog/logs/TASK-190-security-review-2026-10-23.md",
+    "backlog/logs/implementation-log.md",
+    "backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md",
+    "docs/architecture/adr/0002-branch-settings-action-contract.md",
+    "docs/architecture/adr/README.md",
+    "docs/requirements/05-пользователи-и-роли.md",
+    "docs/requirements/09-филиалы-и-настройки.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/branch-hall-creation.spec.ts",
+    "frontend/e2e/group-schedule-workflow.spec.ts",
+    "frontend/e2e/iphone-target-devices.spec.ts",
+    "frontend/e2e/membership-catalog-settings.spec.ts",
+    "frontend/e2e/membership-sale-pricing.spec.ts",
+    "frontend/e2e/responsive-main-screens.spec.ts",
+    "frontend/e2e/settings-group-types.spec.ts",
+    "frontend/e2e/settings-tab-title-duplication.spec.ts",
+    "frontend/e2e/stage12.spec.ts",
+    "frontend/e2e/touch-target-inventory.spec.ts",
+    "frontend/playwright.config.ts",
+    "frontend/src/App.test.tsx",
+    "frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+    "frontend/src/features/settings/BranchSettingsScreen.tsx",
+    "frontend/src/features/settings/SettingsScreen.test.tsx",
+    "frontend/src/features/settings/SettingsScreen.tsx",
+    "frontend/src/lib/api.ts",
+    "frontend/src/lib/api/auth.test.ts",
+    "frontend/src/lib/api/auth.ts",
+    "frontend/src/lib/api/branches.test.ts",
+    "frontend/src/lib/api/types.ts",
+    "frontend/src/resources/fe-10-settings-branches-shell.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-branch-form.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-1440x1200.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-360x780.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-390x844.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-768x1024.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-headcoach-panel.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-branch-form.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-form-956x440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-headcoach-panel.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-branch-form.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-error.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-form-912x420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-headcoach-panel.png",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/verification.md",
+      "documentation or instructions changed: backlog/implementation/TASK-190-evidence/visual-review.md",
+      "documentation or instructions changed: backlog/implementation/TASK-190-manual-evidence.json",
+      "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.md",
+      "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json",
+      "documentation or instructions changed: backlog/logs/TASK-190-security-review-2026-10-23.md",
+      "documentation or instructions changed: backlog/logs/implementation-log.md",
+      "documentation or instructions changed: backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md",
+      "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+      "documentation or instructions changed: docs/architecture/adr/README.md",
+      "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+      "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+      "task contract TASK-190 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+      "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+      "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+      "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+      "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+      "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+      "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+      "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+      "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+      "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+      "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/App.test.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+      "frontend-owned path changed: frontend/src/lib/api.ts",
+      "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+      "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+      "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+      "frontend-owned path changed: frontend/src/lib/api/types.ts",
+      "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+      "task contract TASK-190 requires frontend"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.rendered-comparison",
+      "description": "Compare rendered HeadCoach controls and SuperAdministrator branch/hall forms with approved baseline at mobile, desktop and compact height; verify modal feedback/focus. Report device-only limits separately.",
+      "status": "confirmed",
+      "actor": "coding-agent:TASK-190",
+      "performed_at": "2026-10-23T16:53:31.347578+00:00",
+      "note": "Inspected rendered screenshots against the approved baseline; verified focus, errors, retry, role restrictions, narrow and compact-height flows. Device-only checks remain explicitly unverified.",
+      "artifacts": [
+        "backlog/implementation/TASK-190-evidence/visual-review.md"
+      ],
+      "evidence_path": "backlog/implementation/TASK-190-manual-evidence.json",
+      "evidence_sha256": "73bf05ac2ba569ba5b967258b5f5f93caf81a36df57718a83d296ac0ba98a8f6"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-1440x1200.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-360x780.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-390x844.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-768x1024.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-form-956x440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-form-912x420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/visual-review.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json",
+        "documentation or instructions changed: backlog/logs/TASK-190-security-review-2026-10-23.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md",
+        "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:19:55.251817+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.038,
+      "completed_at": "2026-10-23T17:19:55.290168+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-1440x1200.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-360x780.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-390x844.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-768x1024.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-form-956x440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-form-912x420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/visual-review.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json",
+        "documentation or instructions changed: backlog/logs/TASK-190-security-review-2026-10-23.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md",
+        "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:19:55.291439+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.041,
+      "completed_at": "2026-10-23T17:19:55.332001+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-1440x1200.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-360x780.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-390x844.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-768x1024.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-form-956x440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-form-912x420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/visual-review.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json",
+        "documentation or instructions changed: backlog/logs/TASK-190-security-review-2026-10-23.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md",
+        "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:19:55.333348+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.041,
+      "completed_at": "2026-10-23T17:19:55.374077+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-190-super-admin-branch-hall-creation.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-1440x1200.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-360x780.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-390x844.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-hall-form-768x1024.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/chromium-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-hall-form-956x440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-17-pro-max-webkit-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-branch-form.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-error.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-hall-form-912x420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/iphone-air-webkit-headcoach-panel.png",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-evidence/visual-review.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.md",
+        "documentation or instructions changed: backlog/implementation/TASK-190-super-admin-branch-hall-creation.verification-contract.json",
+        "documentation or instructions changed: backlog/logs/TASK-190-security-review-2026-10-23.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-190-super-admin-branch-hall-creation.md",
+        "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:19:55.375484+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.074,
+      "completed_at": "2026-10-23T17:19:55.449666+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "task contract TASK-190 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:19:55.451061+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.727,
+      "completed_at": "2026-10-23T17:19:56.178254+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "task contract TASK-190 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:19:56.179680+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.892,
+      "completed_at": "2026-10-23T17:19:58.072051+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "task contract TASK-190 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:19:58.073523+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.148,
+      "completed_at": "2026-10-23T17:20:09.221387+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "task contract TASK-190 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:20:09.222878+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.947,
+      "completed_at": "2026-10-23T17:20:13.169962+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "task contract TASK-190 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:20:13.171345+00:00",
+      "exit_code": 0,
+      "duration_seconds": 119.519,
+      "completed_at": "2026-10-23T17:22:12.690189+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionPolicy.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsActionPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "task contract TASK-190 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:22:12.694634+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.646,
+      "completed_at": "2026-10-23T17:22:15.340267+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:22:15.341482+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.82,
+      "completed_at": "2026-10-23T17:22:20.161584+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:22:20.163028+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.892,
+      "completed_at": "2026-10-23T17:22:21.054622+00:00"
+    },
+    {
+      "id": "frontend.user-facing-text",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check:user-facing-text"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:22:21.056555+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.344,
+      "completed_at": "2026-10-23T17:22:21.400107+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:22:21.401515+00:00",
+      "exit_code": 0,
+      "duration_seconds": 22.936,
+      "completed_at": "2026-10-23T17:22:44.337336+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:22:44.339533+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.408,
+      "completed_at": "2026-10-23T17:22:44.747653+00:00"
+    },
+    {
+      "id": "frontend.e2e.branch-hall-creation",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/branch-hall-creation.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:22:44.749140+00:00",
+      "exit_code": 0,
+      "duration_seconds": 14.14,
+      "completed_at": "2026-10-23T17:22:58.889383+00:00"
+    },
+    {
+      "id": "frontend.e2e.settings-tab-title-duplication",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/settings-tab-title-duplication.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:22:58.891419+00:00",
+      "exit_code": 0,
+      "duration_seconds": 6.807,
+      "completed_at": "2026-10-23T17:23:05.698355+00:00"
+    },
+    {
+      "id": "frontend.e2e.settings-group-types",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/settings-group-types.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:23:05.699583+00:00",
+      "exit_code": 0,
+      "duration_seconds": 8.591,
+      "completed_at": "2026-10-23T17:23:14.290486+00:00"
+    },
+    {
+      "id": "frontend.e2e.membership-catalog-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/membership-catalog-settings.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:23:14.291677+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.491,
+      "completed_at": "2026-10-23T17:23:19.783184+00:00"
+    },
+    {
+      "id": "frontend.e2e.membership-sale-pricing",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/membership-sale-pricing.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:23:19.784446+00:00",
+      "exit_code": 0,
+      "duration_seconds": 16.828,
+      "completed_at": "2026-10-23T17:23:36.612467+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-schedule-workflow",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule-workflow.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:23:36.613958+00:00",
+      "exit_code": 0,
+      "duration_seconds": 13.772,
+      "completed_at": "2026-10-23T17:23:50.386135+00:00"
+    },
+    {
+      "id": "frontend.e2e.iphone-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/iphone-target-devices.spec.ts",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit",
+        "--grep",
+        "TASK-161|админ-панель|каталог абонементов|филиалы и залы"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:23:50.387445+00:00",
+      "exit_code": 0,
+      "duration_seconds": 9.419,
+      "completed_at": "2026-10-23T17:23:59.806535+00:00"
+    },
+    {
+      "id": "frontend.e2e.stage12-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/stage12.spec.ts",
+        "--project=chromium",
+        "--grep",
+        "Настройки позволяют"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:23:59.808487+00:00",
+      "exit_code": 0,
+      "duration_seconds": 14.435,
+      "completed_at": "2026-10-23T17:24:14.243629+00:00"
+    },
+    {
+      "id": "frontend.e2e.responsive-main-screens-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/responsive-main-screens.spec.ts",
+        "--project=chromium",
+        "--grep",
+        "Settings branches"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:24:14.245181+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.533,
+      "completed_at": "2026-10-23T17:24:19.778416+00:00"
+    },
+    {
+      "id": "frontend.e2e.touch-target-inventory-settings",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/touch-target-inventory.spec.ts",
+        "--project=chromium",
+        "--grep",
+        "checks representative routes"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/BranchSettingsActionContracts.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/iphone-target-devices.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-catalog-settings.spec.ts",
+        "frontend-owned path changed: frontend/e2e/membership-sale-pricing.spec.ts",
+        "frontend-owned path changed: frontend/e2e/responsive-main-screens.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-group-types.spec.ts",
+        "frontend-owned path changed: frontend/e2e/settings-tab-title-duplication.spec.ts",
+        "frontend-owned path changed: frontend/e2e/stage12.spec.ts",
+        "frontend-owned path changed: frontend/e2e/touch-target-inventory.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/branches.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-10-settings-branches-shell.ts",
+        "task contract TASK-190 requires frontend",
+        "task contract TASK-190 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-23T17:24:19.779971+00:00",
+      "exit_code": 0,
+      "duration_seconds": 28.52,
+      "completed_at": "2026-10-23T17:24:48.299703+00:00"
+    }
+  ],
+  "completed_at": "2026-10-23T17:24:48.301067+00:00"
+}

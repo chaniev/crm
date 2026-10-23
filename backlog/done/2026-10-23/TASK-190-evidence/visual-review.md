@@ -1,7 +1,7 @@
 # TASK-190: runtime comparison
 
 Сравнены утверждённый существующий baseline из
-/backlog/mockups/TASK-190-existing-settings и текущий React runtime через
+/backlog/done/2026-10-23/TASK-190-existing-settings и текущий React runtime через
 Playwright fixtures. Backend persistence/authorization этим не доказываются:
 они проверяются отдельно HTTP tests с PostgreSQL.
 

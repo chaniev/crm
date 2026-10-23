@@ -1,16 +1,22 @@
 # Журнал изменения требований
 
+## 2026-10-23 — TASK-190: проверенная локальная интеграция
+
+- В main `6b5e39c` открыто создание филиалов/залов SuperAdministrator, добавлены backend-owned actions, own-branch guards Administrator и atomic create/audit; shared GET сохранены по принятому варианту B ADR-0002.
+- Доработка REQ-BRN-001/002 и REQ-USR-001 в scope TASK-190 завершена; общий статус широких требований остаётся «частично», остальные условия не объявлены проверенными.
+- [Evidence](../../backlog/done/2026-10-23/TASK-190-evidence/verification.md): полный backend/frontend harness и браузерные регрессии; физический Safari/экранная клавиатура не проверены.
+
 ## 2026-10-23 — TASK-190: принят вариант B ADR-0002
 
 - Владелец утвердил сохранение shared GET и полный контракт варианта B;
   REQ-USR-001 и REQ-BRN-002 уточняют mutation scope и действия панели.
-- [Решение и задача](../../backlog/implementation/TASK-190-super-admin-branch-hall-creation.md). Реализация остаётся частичной.
+- [Решение и задача](../../backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md). Реализация остаётся частичной.
 
 ## 2026-10-23 — TASK-190: scope HTTP mutations
 
 - REQ-USR-001: реализация уточнена до «частично»: обнаружено отсутствие
   own-branch guards в branch/hall mutations. Пользователь включил исправление
-  в [TASK-190](../../backlog/implementation/TASK-190-super-admin-branch-hall-creation.md).
+  в [TASK-190](../../backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md).
   Нормативное ограничение управления своим филиалом не меняется; вопрос
   справочного чтения выделен отдельно, новое ограничение reads не утверждено.
 
@@ -59,7 +65,7 @@
   и залов Супер-администратором через настройки независимо от права создавать
   сотрудников; дополнительные destructive actions не разрешаются этим решением.
   API уже допускает создание, UI скрывает вкладку. Реализация — «частично»
-  ([TASK-190](../../backlog/implementation/TASK-190-super-admin-branch-hall-creation.md)).
+  ([TASK-190](../../backlog/done/2026-10-23/TASK-190-super-admin-branch-hall-creation.md)).
 
 - 09.10.2026 — [TASK-187](../../backlog/done/2026-10-09/TASK-187-administrator-coach-creation-scope.md) интегрирована в main (`3074f71`), весь verification contract пройден. REQ-USR-001/004 — «реализовано», REQ-USR-002 остаётся «частично» из-за условий вне scope задачи. [Evidence](../../backlog/done/2026-10-09/TASK-187-evidence/verification.md).
 
