@@ -3631,3 +3631,52 @@
   [done/2026-10-08](../done/2026-10-08/TASK-186-audit-access-head-coach-super-admin.md);
   verification contract, manual evidence и rendered captures архивированы рядом.
 - Исторические ссылки выше отражают расположение на момент записи.
+
+## 2026-10-23 16:50 MSK — triage inbox 2026-10-23
+
+- Mode: triage; scope: один файл `backlog/inbox/2026-10-23.md`, три исходных
+  пункта. Глобальный status audit не выполнялся.
+- Созданы:
+  - [TASK-188](../tasks-ready/TASK-188-group-create-weekday-start-times.md) —
+    `tasks-ready`, отдельное время на день в форме создания.
+  - [TASK-189](../tasks-ready/TASK-189-group-edit-schedule-entry.md) —
+    `tasks-ready`, кнопка из карточки группы в существующий редактор серии.
+  - [TASK-190](../risky/TASK-190-super-admin-branch-hall-creation.md) —
+    `risky`, доступ SuperAdministrator к созданию филиала/зала; требуется
+    review матрицы действий, чтобы не открыть дополнительные глобальные или
+    destructive operations вместе с существующей панелью.
+- Решения пользователя в текущем обсуждении: «Разное время по дням недели»;
+  «Кнопка в существующий редактор». Третий исходный пункт прямо разрешает
+  создание филиалов/залов SuperAdministrator. Новые продуктовые вопросы по
+  этим целям закрыты; design/review и implementation plans ещё предстоят.
+- Evidence: main `7154cee3f88d193a66a59d18e30e363b3a709c1f`; GroupForm,
+  groupFormMapping, GroupEditScreen, ScheduleSeriesEditScreen, GroupsApiTests,
+  ScheduleLessonsApiTests, SettingsScreen, UserRoleAuthorizationPolicy,
+  BranchEndpoints и BranchesApiTests. Проверены исходные контракты и тестовый
+  код; runtime и application tests в triage не запускались.
+- Duplicate check: активные карточки, unfinished plans и dated done рекурсивно;
+  максимальный прежний TASK-ID — 187. TASK-117 закрыта заменяющей TASK-119,
+  но независимые времена отсутствуют в текущей create form. TASK-119 имеет
+  редактор, но не вход из карточки. TASK-082/109 не устраняют текущий UI gate.
+  TASK-177 — touch targets, TASK-180 — onboarding; не являются дублями.
+- Синхронизированы REQ-GRP-001/003, REQ-BRN-001/002 и
+  `docs/requirements/CHANGELOG.md`: решения приняты, реализация «частично».
+  Прочие требования и исторические статусы не переоткрывались.
+- Источник проходит `inbox → processing → processed` и сохранён как
+  [2026-10-23.md](../processed/2026-10-23.md). Три исходных пункта сохранены
+  побайтно после metadata; SHA-256 исходного body: `a424b9513f60f4d6d7db5f9adac8d4a510d919162479223abcb310f00c21ff4f`.
+- Итог scope: обработано 1/1 файлов и 3/3 пунктов, создано 3 задачи,
+  обновлено существующих задач 0; 2 tasks-ready, 1 risky, 0 needs-clarification.
+- Validation: результат canonical knowledge harness и проверки ссылок,
+  ID/status/source integrity будет добавлен отдельной записью после выполнения.
+
+### 2026-10-23 16:51 MSK — validation result, triage 2026-10-23
+
+- `python3 scripts/harness/verify_change.py --base origin/main`: PASS, все
+  4 knowledge checks (agent instructions, architecture decisions, plan readiness,
+  requirements registry). Evidence: `.artifacts/verification/report.json`.
+- Проверены 68 локальных ссылок в новых карточках, затронутых requirement-файлах
+  и новых записях журналов; TASK-188/189/190 уникальны, статусы совпадают
+  с каталогами, все 3 source items сохранены и связаны с задачами.
+- `git diff --check`: PASS. Inbox/processing для обработанного файла пусты.
+- Изменены только backlog и требования; приложение и стенд не изменялись.
