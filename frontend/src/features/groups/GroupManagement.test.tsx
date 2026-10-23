@@ -319,7 +319,9 @@ describe('GroupEditScreen', () => {
     apiMocks.previewGroupCreate
       .mockRejectedValueOnce(new ApiError('Проверьте поля группы.', 400, {
         Name: ['Группа с таким названием уже существует.'],
-        TrainingStartTime: ['Время начала недоступно.'],
+        'InitialLessonSeries.Slots[2].StartTime': ['Время субботы недоступно.'],
+        'InitialLessonSeries.Slots[1].DurationMinutes': ['Проверьте длительность.'],
+        'InitialLessonSeries.Slots[2].HallId': ['Проверьте зал.'],
       }))
       .mockResolvedValue({
         confirmationToken: 'group-preview-token',
@@ -342,14 +344,13 @@ describe('GroupEditScreen', () => {
 
     const nameInput = await screen.findByRole('textbox', { name: 'Название группы' })
     fireEvent.change(nameInput, { target: { value: '  Новая группа  ' } })
-    fireEvent.change(screen.getByLabelText('Время начала'), {
-      target: { value: '18:30' },
-    })
+    for (const [day, label, time] of [['Сб', 'Суббота', '10:00'], ['Пн', 'Понедельник', '18:00'], ['Ср', 'Среда', '18:00']]) {
+      fireEvent.click(screen.getByRole('checkbox', { name: day }))
+      fireEvent.change(screen.getByLabelText(`Время начала: ${label}`), { target: { value: time } })
+    }
     fireEvent.change(screen.getByLabelText('Длительность'), {
       target: { value: '75' },
     })
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Ср' }))
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Пт' }))
     fireEvent.change(screen.getByLabelText('Начало расписания'), {
       target: { value: '2026-09-01' },
     })
@@ -360,23 +361,27 @@ describe('GroupEditScreen', () => {
       branchId: 'branch-1',
       hallId: 'hall-1',
       groupTypeId: 'type-1',
-      trainingStartTime: '18:30',
+      trainingStartTime: '18:00',
       durationMinutes: 75,
-      weekdays: [3, 5],
+      weekdays: [1, 3, 6],
       isActive: true,
       trainerIds: [],
       initialLessonSeries: {
         startsOn: '2026-09-01',
         endsOn: null,
         slots: [
-          { isoWeekday: 3, startTime: '18:30', durationMinutes: 75, hallId: 'hall-1' },
-          { isoWeekday: 5, startTime: '18:30', durationMinutes: 75, hallId: 'hall-1' },
+          { isoWeekday: 1, startTime: '18:00', durationMinutes: 75, hallId: 'hall-1' },
+          { isoWeekday: 3, startTime: '18:00', durationMinutes: 75, hallId: 'hall-1' },
+          { isoWeekday: 6, startTime: '10:00', durationMinutes: 75, hallId: 'hall-1' },
         ],
       },
     }
     await waitFor(() => expect(apiMocks.previewGroupCreate).toHaveBeenCalledWith(exactPayload))
     expect(await screen.findByText('Группа с таким названием уже существует.')).toBeVisible()
-    expect(screen.getByText('Время начала недоступно.')).toBeVisible()
+    expect(screen.getByLabelText('Время начала: Суббота')).toHaveAccessibleDescription('Время субботы недоступно.')
+    expect(screen.getByLabelText('Время начала: Понедельник')).not.toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText('Длительность')).toHaveAccessibleDescription(expect.stringContaining('Проверьте длительность.'))
+    expect(screen.getByLabelText('Зал', { selector: 'input' })).toHaveAccessibleDescription('Проверьте зал.')
     expect(nameInput).toHaveValue('  Новая группа  ')
     expect(onCreated).not.toHaveBeenCalled()
 
@@ -392,10 +397,72 @@ describe('GroupEditScreen', () => {
     await waitFor(() => expect(onCreated).toHaveBeenCalledOnce())
   })
 
+  test('weekday drafts survive removal, new days are empty, and every active change invalidates preview', async () => {
+    setupGroupFormOptions()
+    renderWithProviders(<GroupCreateScreen onCancel={vi.fn()} onCreated={vi.fn()} />)
+    fireEvent.change(await screen.findByLabelText('Название группы'), { target: { value: 'Разные дни' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Пн' }))
+    fireEvent.change(screen.getByLabelText('Время начала: Понедельник'), { target: { value: '18:00' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Сб' }))
+    expect(screen.getByLabelText('Время начала: Суббота')).toHaveValue('')
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    expect(apiMocks.previewGroupCreate).not.toHaveBeenCalled()
+    await waitFor(() => expect(screen.getByLabelText('Время начала: Суббота')).toHaveFocus())
+    fireEvent.change(screen.getByLabelText('Время начала: Суббота'), { target: { value: '10:00' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Пн' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Пн' }))
+    expect(screen.getByLabelText('Время начала: Понедельник')).toHaveValue('18:00')
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    expect(await screen.findByRole('button', { name: 'Создать группу' })).toBeVisible()
+    fireEvent.change(screen.getByLabelText('Время начала: Суббота'), { target: { value: '11:00' } })
+    expect(screen.queryByRole('button', { name: 'Создать группу' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    await screen.findByRole('button', { name: 'Создать группу' })
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Сб' }))
+    expect(screen.queryByText('Проверьте расписание перед созданием')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    await screen.findByRole('button', { name: 'Создать группу' })
+    expect(apiMocks.previewGroupCreate).toHaveBeenLastCalledWith(expect.objectContaining({
+      initialLessonSeries: expect.objectContaining({ slots: [expect.objectContaining({ isoWeekday: 1, startTime: '18:00' })] }),
+    }))
+    expect(apiMocks.createGroup).not.toHaveBeenCalled()
+  })
+
+  test.each(['success', 'failure'] as const)('ignores stale preview %s after a day changes without losing errors or draft', async (outcome) => {
+    setupGroupFormOptions()
+    let resolve!: (value: unknown) => void
+    let reject!: (reason: unknown) => void
+    apiMocks.previewGroupCreate.mockReturnValueOnce(new Promise((yes, no) => { resolve = yes; reject = no }))
+    renderWithProviders(<GroupCreateScreen onCancel={vi.fn()} onCreated={vi.fn()} />)
+    fireEvent.change(await screen.findByLabelText('Название группы'), { target: { value: 'Черновик' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Пн' }))
+    fireEvent.change(screen.getByLabelText('Время начала: Понедельник'), { target: { value: '18:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    expect(apiMocks.previewGroupCreate).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Пн' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Сб' }))
+    fireEvent.change(screen.getByLabelText('Время начала: Суббота'), { target: { value: '10:00' } })
+    if (outcome === 'success') resolve({ confirmationToken: 'stale-token', warnings: [], expiresAt: '2026-11-01T10:00:00Z' })
+    else reject(new ApiError('Отказ', 400, { 'InitialLessonSeries.Slots[0].StartTime': ['Ошибка старого понедельника.'] }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Получить предпросмотр' })).not.toBeDisabled())
+    expect(screen.queryByRole('button', { name: 'Создать группу' })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Время начала: Суббота')).toHaveValue('10:00')
+    expect(screen.getByLabelText('Время начала: Суббота')).not.toHaveAttribute('aria-invalid', 'true')
+    if (outcome === 'failure') expect(screen.getByText(/Ошибка старого понедельника/)).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Получить предпросмотр' }))
+    await screen.findByRole('button', { name: 'Создать группу' })
+    apiMocks.createGroup.mockRejectedValueOnce(new ApiError('Stale', 409, {}, 'lesson-mutation-preview-invalid'))
+    fireEvent.click(screen.getByRole('button', { name: 'Создать группу' }))
+    await screen.findByRole('button', { name: 'Получить предпросмотр' })
+    expect(screen.getByLabelText('Время начала: Суббота')).toHaveValue('10:00')
+  })
+
   test('edit sends identity-only payload and maps backend errors to current fields', async () => {
     setupGroupFormOptions()
     apiMocks.getGroup.mockResolvedValue({
       ...group,
+      trainingStartTime: '',
       trainers: [{ id: 'trainer-main', fullName: 'Основной Тренер', login: 'main' }],
       trainerIds: ['trainer-main'],
       createdAt: '2026-07-01T10:00:00Z',

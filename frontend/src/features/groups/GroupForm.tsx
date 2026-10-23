@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import {
   Alert,
   Checkbox,
@@ -26,7 +26,6 @@ import {
 import type { Branch, GroupType, Hall, TrainerOption } from '../../lib/api'
 import {
   formatDurationMinutes,
-  formatWeekdays,
   WEEKDAY_OPTIONS,
 } from '../../lib/groupSchedule'
 import { Button, StickyFormActions } from '../shared/ux'
@@ -71,6 +70,14 @@ export function GroupForm({
   submitting,
   trainerOptions,
 }: GroupFormProps) {
+  const formElementRef = useRef<HTMLFormElement>(null)
+
+  function focusFirstError() {
+    window.requestAnimationFrame(() => {
+      formElementRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    })
+  }
+
   const selectedBranchId =
     form.values.branchId ||
     branchOptions.find((branch) => !branch.isArchived)?.id ||
@@ -95,12 +102,14 @@ export function GroupForm({
 
   return (
     <form
-      onSubmit={form.onSubmit((values) =>
+      ref={formElementRef}
+      onSubmit={(event) => form.onSubmit((values) =>
         void onSubmit({
           ...values,
           branchId: values.branchId || selectedBranchId,
         }),
-      )}
+        focusFirstError,
+      )(event)}
     >
       <Stack gap="lg">
         {formError ? (
@@ -174,66 +183,72 @@ export function GroupForm({
         </SimpleGrid>
 
         {showScheduleFields ? (
-          <>
-            <SimpleGrid cols={{ base: 1, md: 2 }}>
-              <TextInput
-                label={fe13GroupsCoreText.groupForm_label_1635ad1f}
-                placeholder={fe13GroupsCoreText.groupForm_placeholder_cf5d1124}
-                type="time"
-                {...form.getInputProps('trainingStartTime')}
-              />
-              <NumberInput
-                allowDecimal={false}
-                label={fe13GroupsCoreText.groupForm_label_2a326071}
-                onChange={(value) =>
-                  form.setFieldValue(
-                    'durationMinutes',
-                    typeof value === 'number' ? value : '',
-                  )
-                }
-                placeholder={fe13GroupsCoreText.groupForm_placeholder_39fa9ec1}
-                suffix={fe13GroupsCoreText.groupForm_suffix_84d5d93d}
-                value={form.values.durationMinutes}
-                error={form.errors.durationMinutes}
-              />
-            </SimpleGrid>
-
-            <Checkbox.Group
-              label={fe13GroupsCoreText.groupForm_label_86f463be}
-              onChange={(weekdays) => form.setFieldValue('weekdays', weekdays)}
-              value={form.values.weekdays}
-              error={form.errors.weekdays}
-            >
-              <Group gap="xs" mt="xs">
-                {WEEKDAY_OPTIONS.map((option) => (
-                  <Checkbox
+          <Stack gap="md" className="group-weekday-schedule">
+            <Text fw={700}>{fe13GroupsCoreText.scheduleTitle}</Text>
+            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+              <Stack gap="md">
+                <Checkbox.Group
+                  label={fe13GroupsCoreText.groupForm_label_86f463be}
+                  onChange={(weekdays) => form.setFieldValue('weekdays', weekdays)}
+                  value={form.values.weekdays}
+                  error={form.errors.weekdays}
+                >
+                  <Group gap="xs" mt="xs" className="group-weekday-choices">
+                    {WEEKDAY_OPTIONS.map((option) => (
+                      <Checkbox
+                        className="group-weekday-choice"
+                        key={option.value}
+                        label={option.label}
+                        value={option.value}
+                      />
+                    ))}
+                  </Group>
+                </Checkbox.Group>
+                {WEEKDAY_OPTIONS.filter(option => form.values.weekdays.includes(option.value)).map(option => (
+                  <TextInput
+                    classNames={{ root: 'group-weekday-time', wrapper: 'group-weekday-time__input' }}
                     key={option.value}
-                    label={option.label}
-                    value={option.value}
+                    label={fe13GroupsCoreText.weekdayNames[option.value]}
+                    aria-label={fe13GroupsCoreText.weekdayTimeLabel(fe13GroupsCoreText.weekdayNames[option.value])}
+                    type="time"
+                    value={form.values.weekdayStartTimes[option.value] ?? ''}
+                    onChange={event => form.setFieldValue(`weekdayStartTimes.${option.value}`, event.currentTarget.value)}
+                    error={form.errors[`weekdayStartTimes.${option.value}`]}
                   />
                 ))}
-              </Group>
-            </Checkbox.Group>
-          </>
-        ) : null}
-
-        {showInitialSeriesFields ? (
-          <SimpleGrid cols={{ base: 1, md: 2 }}>
-            <TextInput
-              label={fe13GroupsCoreText.groupForm_label_3e2bef5c}
-              max="9999-12-31"
-              min="1900-01-01"
-              type="date"
-              {...form.getInputProps('initialSeriesStartsOn')}
-            />
-            <TextInput
-              label={fe13GroupsCoreText.groupForm_label_da09e40b}
-              max="9999-12-31"
-              min="1900-01-01"
-              type="date"
-              {...form.getInputProps('initialSeriesEndsOn')}
-            />
-          </SimpleGrid>
+              </Stack>
+              <Stack gap="md">
+                <NumberInput
+                  allowDecimal={false}
+                  label={fe13GroupsCoreText.groupForm_label_2a326071}
+                  description={fe13GroupsCoreText.sharedDurationDescription}
+                  onChange={(value) => form.setFieldValue('durationMinutes', typeof value === 'number' ? value : '')}
+                  placeholder={fe13GroupsCoreText.groupForm_placeholder_39fa9ec1}
+                  suffix={fe13GroupsCoreText.groupForm_suffix_84d5d93d}
+                  value={form.values.durationMinutes}
+                  error={form.errors.durationMinutes}
+                />
+                {showInitialSeriesFields ? (
+                  <>
+                    <TextInput
+                      label={fe13GroupsCoreText.groupForm_label_3e2bef5c}
+                      max="9999-12-31"
+                      min="1900-01-01"
+                      type="date"
+                      {...form.getInputProps('initialSeriesStartsOn')}
+                    />
+                    <TextInput
+                      label={fe13GroupsCoreText.groupForm_label_da09e40b}
+                      max="9999-12-31"
+                      min="1900-01-01"
+                      type="date"
+                      {...form.getInputProps('initialSeriesEndsOn')}
+                    />
+                  </>
+                ) : null}
+              </Stack>
+            </SimpleGrid>
+          </Stack>
         ) : null}
 
         {showTrainerField ? (
@@ -291,20 +306,12 @@ export function GroupForm({
             {showScheduleFields ? (
               <>
                 <HintStat
-                  icon={<IconClockHour4 size={18} />}
-                  label={fe13GroupsCoreText.groupForm_label_d8b0757a}
-                  value={
-                    form.values.trainingStartTime ||
-                    GROUPS_FORM_FALLBACK_VALUES.trainingStartTime
-                  }
-                />
-                <HintStat
                   icon={<IconCalendarWeek size={18} />}
-                  label={fe13GroupsCoreText.groupForm_label_480102a9}
+                  label={fe13GroupsCoreText.scheduleTitle}
                   value={
-                    form.values.weekdays.length > 0
-                      ? formatWeekdays(form.values.weekdays.map(Number))
-                      : GROUPS_FORM_FALLBACK_VALUES.weekdays
+                    WEEKDAY_OPTIONS.filter(option => form.values.weekdays.includes(option.value))
+                      .map(option => `${option.label} ${form.values.weekdayStartTimes[option.value] || GROUPS_FORM_FALLBACK_VALUES.trainingStartTime}`)
+                      .join(' · ') || GROUPS_FORM_FALLBACK_VALUES.weekdays
                   }
                 />
                 <HintStat

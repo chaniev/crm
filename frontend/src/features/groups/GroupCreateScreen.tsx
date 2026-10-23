@@ -53,7 +53,21 @@ export function GroupCreateScreen({
   const [preview, setPreview] = useState<GroupPreviewResponse | null>(null)
   const previewPayloadKeyRef = useRef<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const form = useGroupForm()
+  const submittingRef = useRef(false)
+  const payloadRevisionRef = useRef(0)
+  const currentPayloadKeyRef = useRef<string | null>(null)
+  const form = useGroupForm({
+    mode: 'create',
+    onValuesChange: (values) => {
+      const key = JSON.stringify(toCreateGroupWithInitialSeriesPayload(values))
+      if (currentPayloadKeyRef.current !== key) {
+        currentPayloadKeyRef.current = key
+        payloadRevisionRef.current += 1
+        previewPayloadKeyRef.current = null
+        setPreview(null)
+      }
+    },
+  })
   const formRef = useRef(form)
   formRef.current = form
 
@@ -111,16 +125,20 @@ export function GroupCreateScreen({
   }, [])
 
   async function submit(values: GroupFormValues) {
+    if (submittingRef.current) return
+    submittingRef.current = true
+    const submittedRevision = payloadRevisionRef.current
+    const previewPayload = toCreateGroupWithInitialSeriesPayload(values)
     setSubmitting(true)
     setFormError(null)
     form.clearErrors()
 
     try {
-      const previewPayload = toCreateGroupWithInitialSeriesPayload(values)
       const previewPayloadKey = JSON.stringify(previewPayload)
 
       if (!preview || previewPayloadKeyRef.current !== previewPayloadKey) {
         const response = await previewGroupCreate(previewPayload)
+        if (submittedRevision !== payloadRevisionRef.current) return
         previewPayloadKeyRef.current = previewPayloadKey
         setPreview(response)
         return
@@ -140,17 +158,35 @@ export function GroupCreateScreen({
       onCreated()
     } catch (error) {
       if (error instanceof ApiError) {
-        form.setErrors(applyFieldErrors(error.fieldErrors, GROUP_CREATE_FIELD_ALIASES))
+        const aliases = createFieldAliases(values)
+        const errors = applyFieldErrors(error.fieldErrors, aliases)
+        const current = submittedRevision === payloadRevisionRef.current
+        const visibleFields = new Set([
+          'name', 'branchId', 'hallId', 'groupTypeId', 'durationMinutes', 'weekdays',
+          'initialSeriesStartsOn', 'initialSeriesEndsOn', 'trainerIds', 'isActive',
+          ...values.weekdays.map(day => `weekdayStartTimes.${day}`),
+        ])
+        form.setErrors(current ? Object.fromEntries(
+          Object.entries(errors).filter(([field]) => visibleFields.has(field)),
+        ) : {})
+        const unboundErrors = Object.entries(errors)
+          .filter(([field]) => !current || !visibleFields.has(field))
+          .map(([, message]) => message)
         const message = formatScheduleProblemCode(error.code) ??
           fe13GroupsCoreText.groupCreateScreen_string_c6241417
         setPreview(null)
         previewPayloadKeyRef.current = null
-        setFormError(message)
+        setFormError([message, ...unboundErrors].join(' '))
+        focusRecovery()
         return
       }
 
+      setPreview(null)
+      previewPayloadKeyRef.current = null
       setFormError(fe13GroupsCoreText.groupCreateScreen_setFormError_ee875cc4)
+      focusRecovery()
     } finally {
+      submittingRef.current = false
       setSubmitting(false)
     }
   }
@@ -228,15 +264,29 @@ export function GroupCreateScreen({
   )
 }
 
-const GROUP_CREATE_FIELD_ALIASES = {
-  'initialLessonSeries.startsOn': 'initialSeriesStartsOn',
-  'initialLessonSeries.endsOn': 'initialSeriesEndsOn',
-  'initialLessonSeries.slots': 'weekdays',
-  'initialLessonSeries.slots.0.isoWeekday': 'weekdays',
-  'initialLessonSeries.slots.0.startTime': 'trainingStartTime',
-  'initialLessonSeries.slots.0.durationMinutes': 'durationMinutes',
-  'initialLessonSeries.slots.0.hallId': 'hallId',
-} as const
+function createFieldAliases(values: GroupFormValues): Record<string, string> {
+  const days = [...values.weekdays].sort((a, b) => Number(a) - Number(b))
+  return {
+    'initialLessonSeries.startsOn': 'initialSeriesStartsOn',
+    'initialLessonSeries.endsOn': 'initialSeriesEndsOn',
+    'initialLessonSeries.slots': 'weekdays',
+    ...(days[0] ? { trainingStartTime: `weekdayStartTimes.${days[0]}` } : {}),
+    ...Object.fromEntries(days.flatMap((day, index) => [
+      [`initialLessonSeries.slots.${index}.isoWeekday`, 'weekdays'],
+      [`initialLessonSeries.slots.${index}.startTime`, `weekdayStartTimes.${day}`],
+      [`initialLessonSeries.slots.${index}.durationMinutes`, 'durationMinutes'],
+      [`initialLessonSeries.slots.${index}.hallId`, 'hallId'],
+    ])),
+  }
+}
+
+function focusRecovery() {
+  window.requestAnimationFrame(() => {
+    const target = document.querySelector<HTMLElement>('form [aria-invalid="true"]')
+      ?? document.querySelector<HTMLElement>('.group-edit-form-recovery')
+    target?.focus()
+  })
+}
 
 function formatExpiresAt(value: string) {
   const expiresAt = new Date(value)

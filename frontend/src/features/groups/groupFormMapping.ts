@@ -13,6 +13,7 @@ export type GroupFormValues = {
   groupTypeId: string
   name: string
   trainingStartTime: string
+  weekdayStartTimes: Record<string, string>
   durationMinutes: number | ''
   weekdays: string[]
   initialSeriesStartsOn: string
@@ -21,7 +22,10 @@ export type GroupFormValues = {
   trainerIds: string[]
 }
 
-export function useGroupForm() {
+export function useGroupForm(options: {
+  mode?: 'create' | 'identity'
+  onValuesChange?: (values: GroupFormValues) => void
+} = {}) {
   return useForm<GroupFormValues>({
     initialValues: {
       branchId: '',
@@ -29,6 +33,7 @@ export function useGroupForm() {
       groupTypeId: '',
       name: '',
       trainingStartTime: '',
+      weekdayStartTimes: {},
       durationMinutes: '',
       weekdays: [],
       initialSeriesStartsOn: todayIso(),
@@ -36,12 +41,17 @@ export function useGroupForm() {
       isActive: true,
       trainerIds: [],
     },
-    validate: {
-      name: (value) => (value.trim() ? null : fe13GroupsCoreText.groupFormMapping_string_6994b743),
-      trainingStartTime: (value) =>
-        value.trim() ? null : fe13GroupsCoreText.groupFormMapping_string_d730d41d,
-      groupTypeId: (value) => (value ? null : fe13GroupsCoreText.groupFormMapping_string_9d3e66f4),
-    },
+    onValuesChange: options.onValuesChange,
+    validate: (values) => ({
+      name: values.name.trim() ? null : fe13GroupsCoreText.groupFormMapping_string_6994b743,
+      groupTypeId: values.groupTypeId ? null : fe13GroupsCoreText.groupFormMapping_string_9d3e66f4,
+      ...(options.mode === 'create' ? Object.fromEntries(
+        values.weekdays.map(day => [
+          `weekdayStartTimes.${day}`,
+          values.weekdayStartTimes[day]?.trim() ? null : fe13GroupsCoreText.groupFormMapping_string_d730d41d,
+        ]),
+      ) : {}),
+    }),
   })
 }
 
@@ -77,20 +87,21 @@ export function toCreateGroupWithInitialSeriesPayload(
   values: GroupFormValues,
   confirmationToken?: string,
 ): UpsertTrainingGroupRequest {
-  const trainingStartTime = values.trainingStartTime.trim()
   const durationMinutes =
     typeof values.durationMinutes === 'number' ? values.durationMinutes : null
-  const weekdays = values.weekdays.map(Number)
+  const weekdays = values.weekdays.map(Number).sort((a, b) => a - b)
   const hallId = values.hallId || undefined
 
   return {
     ...toUpsertGroupPayload(values),
+    weekdays,
+    trainingStartTime: values.weekdayStartTimes[String(weekdays[0])]?.trim() ?? '',
     initialLessonSeries: {
       startsOn: values.initialSeriesStartsOn,
       endsOn: values.initialSeriesEndsOn.trim() || null,
       slots: weekdays.map((isoWeekday) => ({
         isoWeekday,
-        startTime: trainingStartTime,
+        startTime: values.weekdayStartTimes[String(isoWeekday)]?.trim() ?? '',
         durationMinutes,
         hallId,
       })),
@@ -106,6 +117,7 @@ export function toFormValues(group: TrainingGroupDetails): GroupFormValues {
     groupTypeId: group.groupTypeId,
     name: group.name,
     trainingStartTime: group.trainingStartTime,
+    weekdayStartTimes: {},
     durationMinutes: group.durationMinutes,
     weekdays: group.weekdays.map(String),
     initialSeriesStartsOn: todayIso(),

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "task_id": "TASK-188",
+  "expected_branch": "codex/TASK-188-group-create-weekday-start-times",
+  "areas": [
+    "frontend",
+    "backend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.group-weekday-times",
+      "spec": "e2e/group-schedule-workflow.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "frontend.e2e.group-schedule-regression",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-188-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.design-comparison",
+      "description": "Compare rendered create form, seven weekdays and field recovery against approved A at required mobile/desktop sizes; document device-only limits."
+    }
+  ]
+}

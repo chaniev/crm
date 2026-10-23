@@ -6310,3 +6310,62 @@
   letter-spacing: var(--crm-type-form-control-letter-spacing);
   box-shadow: none;
 }
+
+.group-weekday-choice .mantine-Checkbox-body {
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  position: relative;
+  border: 1px solid var(--crm-border-default);
+  border-radius: var(--crm-radius-inner-mobile);
+  padding-inline: var(--crm-space-2);
+}
+
+.group-weekday-choice .mantine-Checkbox-label {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding-inline-start: var(--crm-space-2);
+}
+
+.group-weekday-choice .mantine-Checkbox-label::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.group-weekday-choice:has(input:checked) .mantine-Checkbox-body {
+  background: var(--crm-brand-primary-soft);
+  border-color: var(--crm-action-primary);
+}
+
+.group-weekday-choice:focus-within .mantine-Checkbox-body {
+  outline: 2px solid var(--crm-action-primary);
+  outline-offset: 2px;
+}
+
+.group-weekday-time {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem;
+  align-items: center;
+  gap: var(--crm-space-2);
+}
+
+.group-weekday-time__input {
+  min-width: 0;
+}
+
+.group-weekday-time .mantine-InputWrapper-error {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+  font-size: var(--crm-type-body-size, 1rem);
+}
+
+.group-weekday-choice .mantine-Checkbox-inner {
+  z-index: var(--crm-layer-raised, 1);
+}
+
+.group-weekday-time .mantine-InputWrapper-label,
+.group-weekday-choice .mantine-Checkbox-label {
+  font-size: var(--crm-type-body-size, 1rem);
+}

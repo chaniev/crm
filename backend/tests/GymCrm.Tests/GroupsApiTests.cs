@@ -887,6 +887,85 @@ public class GroupsApiTests
     }
 
     [Fact]
+    public async Task Group_create_initial_series_preserves_weekday_specific_times_after_read()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var request = new
+        {
+            name = "Weekday Times Group",
+            branchId = seeded.BranchId,
+            hallId = seeded.HallOneId,
+            groupTypeId = seeded.GroupTypeId,
+            trainingStartTime = "18:00",
+            durationMinutes = 60,
+            weekdays = new[] { 1, 3, 6 },
+            isActive = true,
+            trainerIds = Array.Empty<Guid>(),
+            initialLessonSeries = new
+            {
+                startsOn = "2026-10-26",
+                endsOn = "2026-10-31",
+                slots = new[]
+                {
+                    new { isoWeekday = 1, startTime = "18:00", durationMinutes = 60, hallId = seeded.HallOneId },
+                    new { isoWeekday = 3, startTime = "18:00", durationMinutes = 60, hallId = seeded.HallOneId },
+                    new { isoWeekday = 6, startTime = "10:00", durationMinutes = 60, hallId = seeded.HallOneId }
+                }
+            }
+        };
+
+        using var previewResponse = await PostJsonAsync(client, "/groups/preview", request, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var preview = await ReadJsonElementAsync(previewResponse);
+        using var createResponse = await PostJsonAsync(client, "/groups", new
+        {
+            request.name,
+            request.branchId,
+            request.hallId,
+            request.groupTypeId,
+            request.trainingStartTime,
+            request.durationMinutes,
+            request.weekdays,
+            request.isActive,
+            request.trainerIds,
+            request.initialLessonSeries,
+            confirmationToken = preview.GetProperty("confirmationToken").GetString()
+        }, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var created = await ReadJsonElementAsync(createResponse);
+        var groupId = GetGuidFromProperty(created, "id");
+
+        using var readResponse = await client.GetAsync($"/groups/{groupId}/lesson-series");
+        Assert.Equal(HttpStatusCode.OK, readResponse.StatusCode);
+        var series = await ReadJsonElementAsync(readResponse);
+        var slots = series.GetProperty("currentVersion").GetProperty("slots").EnumerateArray()
+            .OrderBy(slot => slot.GetProperty("isoWeekday").GetInt32()).ToArray();
+        Assert.Equal(new[] { 1, 3, 6 }, slots.Select(slot => slot.GetProperty("isoWeekday").GetInt32()).ToArray());
+        Assert.Equal(new[] { "18:00", "18:00", "10:00" }, slots.Select(slot => slot.GetProperty("startTime").GetString()).ToArray());
+        Assert.All(slots, slot =>
+        {
+            Assert.Equal(60, slot.GetProperty("durationMinutes").GetInt32());
+            Assert.Equal(seeded.HallOneId, GetGuidFromProperty(slot, "hallId"));
+        });
+
+        using var calendarResponse = await client.GetAsync($"/schedule/lessons?from=2026-10-26&to=2026-11-01&groupId={groupId}");
+        Assert.Equal(HttpStatusCode.OK, calendarResponse.StatusCode);
+        var calendar = await ReadJsonElementAsync(calendarResponse);
+        var lessons = calendar.GetProperty("items").EnumerateArray()
+            .OrderBy(lesson => lesson.GetProperty("lessonDate").GetString()).ToArray();
+        Assert.Equal(new[] { "2026-10-26", "2026-10-28", "2026-10-31" }, lessons.Select(lesson => lesson.GetProperty("lessonDate").GetString()).ToArray());
+        Assert.Equal(new[] { "18:00", "18:00", "10:00" }, lessons.Select(lesson => lesson.GetProperty("startTime").GetString()).ToArray());
+        Assert.All(lessons, lesson => Assert.Equal(groupId, GetGuidFromProperty(lesson, "groupId")));
+    }
+
+    [Fact]
     public async Task Group_create_with_initial_series_requires_preview_token_and_leaves_no_partial_group()
     {
         await using var factory = new GroupsAppFactory();

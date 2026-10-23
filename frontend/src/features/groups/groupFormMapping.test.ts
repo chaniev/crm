@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import type { TrainingGroupDetails } from '../../lib/api'
 import {
+  toCreateGroupWithInitialSeriesPayload,
   toFormValues,
   toUpdateGroupIdentityPayload,
   toUpsertGroupPayload,
@@ -14,6 +15,7 @@ describe('groupFormMapping', () => {
       hallId: 'hall-1',
       groupTypeId: 'type-1',
       name: '  Вечерняя группа  ',
+      weekdayStartTimes: {},
       trainingStartTime: ' 18:30 ',
       durationMinutes: 75,
       weekdays: ['5', '2', '4'],
@@ -55,6 +57,7 @@ describe('groupFormMapping', () => {
       hallId: '',
       groupTypeId: '',
       name: 'Группа без расписания',
+      weekdayStartTimes: {},
       trainingStartTime: '',
       durationMinutes: '',
       weekdays: [],
@@ -83,6 +86,7 @@ describe('groupFormMapping', () => {
       hallId: 'hall-1',
       groupTypeId: 'type-1',
       name: '  Новое имя  ',
+      weekdayStartTimes: {},
       trainingStartTime: '18:30',
       durationMinutes: 75,
       weekdays: ['2', '4'],
@@ -133,6 +137,7 @@ describe('groupFormMapping', () => {
       hallId: 'hall-1',
       groupTypeId: 'type-1',
       name: 'Утренняя',
+      weekdayStartTimes: {},
       trainingStartTime: '09:00',
       durationMinutes: 60,
       weekdays: ['1', '3'],
@@ -142,4 +147,45 @@ describe('groupFormMapping', () => {
       trainerIds: ['trainer-2', 'trainer-1'],
     })
   })
+})
+
+const createValues: GroupFormValues = {
+  branchId: 'branch-1', hallId: 'hall-1', groupTypeId: 'type-1', name: ' Группа ',
+  trainingStartTime: '07:00', durationMinutes: 60, weekdays: ['6', '1', '3'],
+  weekdayStartTimes: { '1': '18:00', '3': '18:00', '6': '10:00' },
+  initialSeriesStartsOn: '2026-10-26', initialSeriesEndsOn: '2026-11-30',
+  isActive: true, trainerIds: [],
+}
+
+test('create maps weekday times in canonical order and projects legacy fields from the first slot', () => {
+  const payload = toCreateGroupWithInitialSeriesPayload(createValues)
+  expect(payload.trainingStartTime).toBe('18:00')
+  expect(payload.weekdays).toEqual([1, 3, 6])
+  expect(payload.initialLessonSeries).toEqual({
+    startsOn: '2026-10-26', endsOn: '2026-11-30',
+    slots: [
+      { isoWeekday: 1, startTime: '18:00', durationMinutes: 60, hallId: 'hall-1' },
+      { isoWeekday: 3, startTime: '18:00', durationMinutes: 60, hallId: 'hall-1' },
+      { isoWeekday: 6, startTime: '10:00', durationMinutes: 60, hallId: 'hall-1' },
+    ],
+  })
+  expect(toCreateGroupWithInitialSeriesPayload(createValues, 'token')).toEqual({
+    ...payload, confirmationToken: 'token',
+  })
+})
+
+test('removing a weekday omits its draft and preserves the remaining times', () => {
+  expect(toCreateGroupWithInitialSeriesPayload({ ...createValues, weekdays: ['6', '3'] }))
+    .toMatchObject({ trainingStartTime: '18:00', weekdays: [3, 6], initialLessonSeries: {
+      slots: [expect.objectContaining({ isoWeekday: 3, startTime: '18:00' }),
+        expect.objectContaining({ isoWeekday: 6, startTime: '10:00' })],
+    } })
+})
+
+test('equal times remain independent and an empty selection has no legacy time', () => {
+  expect(toCreateGroupWithInitialSeriesPayload({ ...createValues,
+    weekdayStartTimes: { '1': '09:00', '3': '09:00', '6': '09:00' },
+  }).initialLessonSeries?.slots.map(slot => slot.startTime)).toEqual(['09:00', '09:00', '09:00'])
+  expect(toCreateGroupWithInitialSeriesPayload({ ...createValues, weekdays: [] }))
+    .toMatchObject({ trainingStartTime: '', weekdays: [], initialLessonSeries: { slots: [] } })
 })

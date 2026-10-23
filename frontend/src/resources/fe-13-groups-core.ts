@@ -1,4 +1,9 @@
 export const fe13GroupsCoreText = {
+  scheduleTitle: 'Расписание занятий',
+  weekdayNames: { '1': 'Понедельник', '2': 'Вторник', '3': 'Среда', '4': 'Четверг', '5': 'Пятница', '6': 'Суббота', '7': 'Воскресенье' } as Record<string, string>,
+  weekdayTimeLabel: (day: string) => `Время начала: ${day}`,
+  sharedDurationDescription: 'Длительность общая для всех дней.',
+
   groupClientRow_jsxText_353ad7d1: "Телефон: ",
   groupClientRow_jsxText_a912ec86: "Карточка клиента ",
   groupClientRow_template_a4942e1b: (value0: unknown) => "Открыть карточку клиента " + String(value0) + "",
