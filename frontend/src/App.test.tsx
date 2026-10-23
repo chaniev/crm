@@ -690,9 +690,11 @@ describe('App route access contract', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Обновить сессию' }))
 
-    await waitFor(() => expect(window.location.pathname).toBe('/attendance'))
-    expect(screen.queryByRole('heading', { level: 1, name: 'Нет доступа' })).not.toBeInTheDocument()
-    expect(showPoliteStatusNotificationMock).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(window.location.pathname).toBe('/attendance')
+      expect(screen.queryByRole('heading', { level: 1, name: 'Нет доступа' })).not.toBeInTheDocument()
+      expect(showPoliteStatusNotificationMock).toHaveBeenCalledTimes(1)
+    })
     expect(showPoliteStatusNotificationMock).toHaveBeenCalledWith(expect.objectContaining({
       message: expect.stringContaining('Открыт доступный раздел «Посещения»'),
       title: 'Открыт доступный раздел',
