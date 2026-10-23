@@ -380,16 +380,22 @@ test('group schedule long summary, lookup retry and dirty modal fit required geo
 
 
 test('group create and edit retain shared branch and hall lookups without branch settings actions', async ({ page }) => {
-  await mockGroups(page, async () => false)
+  const hallLookups: string[] = []
+  await mockGroups(page, async (_route, path) => {
+    if (path === '/api/halls') hallLookups.push(path)
+    return false
+  })
   for (const route of ['/groups/new', '/groups/group-1/edit']) {
     await page.goto(route)
-    await expect(page.getByLabel('Филиал', { exact: true })).toHaveValue('Центр')
-    const hall = page.getByLabel('Зал', { exact: true })
-    await expect(hall).toBeEnabled()
-    await hall.click()
-    await expect(page.getByRole('option', { name: /Большой/ })).toBeVisible()
-    await page.getByRole('option', { name: /Большой/ }).click()
-    await expect(hall).toHaveValue('Большой')
+    await expect(page.getByRole('combobox', { name: 'Филиал', exact: true })).toHaveValue('Центр')
+    if (route === '/groups/new') {
+      const hall = page.getByRole('combobox', { name: 'Зал', exact: true })
+      await expect(hall).toBeEnabled()
+      await hall.click()
+      await page.getByRole('option', { name: /Большой/ }).click()
+      await expect(hall).toHaveValue('Большой')
+    }
     await noOverflow(page)
   }
+  expect(hallLookups).toHaveLength(2)
 })

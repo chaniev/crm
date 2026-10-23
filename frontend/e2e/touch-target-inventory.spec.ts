@@ -185,7 +185,7 @@ const ROUTE_CASES: RouteWithState[] = [
     screenTestId: 'schedule-screen',
     state: 'default',
     controls: [
-      { label: 'Обновить', locator: (page) => page.getByRole('button', { name: 'Обновить' }).first() },
+      { label: 'Параметры календаря', locator: (page) => page.getByRole('button', { name: /Параметры календаря/ }) },
     ],
   },
   {
@@ -954,6 +954,16 @@ async function mockApi(
 
     if (pathname === '/api/clients/attention' && method === 'GET') {
       await fulfillJson(route, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      const query = new URL(route.request().url()).searchParams
+      await fulfillJson(route, {
+        from: query.get('from'), to: query.get('to'), items: [],
+        capabilities: { createOneOff: { allowed: false, reason: 'NoPermission' } },
+        filterOptions: { branches: [], halls: [], trainers: [], groups: [], groupTypes: [] },
+      })
       return
     }
 
