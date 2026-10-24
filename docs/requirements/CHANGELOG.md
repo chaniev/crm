@@ -1,5 +1,17 @@
 # Журнал изменения требований
 
+## 2026-10-24 — triage доступа к клиентам по филиалу
+
+- REQ-USR-001: по прямой заметке пользователя явно закреплён доступ
+  Administrator только к клиентам своего филиала, включая чтение и действия
+  в CRM и Telegram-боте. Решение принято, реализация остаётся «частично»:
+  в текущем main обнаружены пропуски применения филиального охвата.
+  [TASK-191](../../backlog/risky/TASK-191-administrator-client-branch-access.md)
+  требует authorization review до реализации.
+- REQ-CLI-009 и REQ-BRN-001 не меняются: у Coach действуют назначения групп
+  и активные замещения. Значение «своего филиала» требует решения в
+  [TASK-192](../../backlog/needs-clarification/TASK-192-coach-client-branch-scope.md).
+
 ## 2026-10-23 — TASK-190: проверенная локальная интеграция
 
 - В main `6b5e39c` открыто создание филиалов/залов SuperAdministrator, добавлены backend-owned actions, own-branch guards Administrator и atomic create/audit; shared GET сохранены по принятому варианту B ADR-0002.

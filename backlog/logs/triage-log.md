@@ -3680,3 +3680,57 @@
   с каталогами, все 3 source items сохранены и связаны с задачами.
 - `git diff --check`: PASS. Inbox/processing для обработанного файла пусты.
 - Изменены только backlog и требования; приложение и стенд не изменялись.
+
+### 2026-10-24 11:23 MSK — triage inbox: доступ к клиентам по филиалу
+
+- Mode: triage; scope: единственный `backlog/inbox/2026-10-24.md`, один
+  исходный пункт с двумя ролевыми частями. Глобальный status audit не выполнялся.
+- Созданы [TASK-191](../risky/TASK-191-administrator-client-branch-access.md)
+  (`risky`, исправление охвата Administrator) и
+  [TASK-192](../needs-clarification/TASK-192-coach-client-branch-scope.md)
+  (`needs-clarification`, смысл филиала Coach). Исправление администратора
+  независимо от решения по тренеру. Existing tasks не изменялись.
+- Evidence: main `8773321`; UserRoleAuthorizationPolicy, ClientQueryEndpoints,
+  ClientLifecycleRequestValidation, ClientPhotoService и BotApiService.
+  Чтение списка/карточки/фото не применяет филиал Administrator, в Bot API
+  также есть пропуски; ClientAttentionEndpoints уже ограничивает филиал.
+  Изучены ClientsApiTests, InternalBotApiTests, GroupTrainerSubstitutionAccessMatrixTests,
+  frontend API client и Python bot client. Это статический анализ; новый runtime
+  и application tests не выполнялись.
+- Duplicate check: active cards, unfinished plans и dated done рекурсивно;
+  максимальный прежний TASK-ID — 190. TASK-031/073/082 описывают филиалы,
+  группы и роли; TASK-085 — поиск; TASK-123/132 — декомпозицию;
+  TASK-187/190 — сотрудников и настройки. Прямых дублей не обнаружено,
+  завершённые карточки и чужие статусы не переоткрывались.
+- REQ-USR-001 и `docs/requirements/CHANGELOG.md` уточнены по прямой исходной
+  заметке: Administrator имеет доступ только к клиентам своего филиала в CRM
+  и боте; решение принято, реализация остаётся частичной. REQ-CLI-009 и
+  REQ-BRN-001 для Coach не менялись.
+- Блокер TASK-192: группа/активное замещение или все клиенты филиала; у тренера
+  нет отдельного филиала. Вопрос задан пользователю, ответ на момент записи
+  не получен. Новая модель не выбрана автоматически. TASK-191 требует
+  authorization review и готового implementation plan, реализация не начиналась.
+- Источник проходит `inbox → processing → processed`, итоговый путь:
+  [2026-10-24.md](../processed/2026-10-24.md). Исходное тело сохраняется
+  побайтно после metadata; SHA-256:
+  `333ca04c83fbc381d8a9b00c6d882f16aa4e60906f5e13ca7126aa9ae1545a5e`.
+- Итог scope: обработан 1/1 файл и обе части исходного пункта, создано 2 задачи,
+  обновлено существующих 0; 1 risky, 1 needs-clarification, 0 tasks-ready.
+- Changed paths: source inbox/processed, две новые карточки,
+  `docs/requirements/05-пользователи-и-роли.md`, CHANGELOG и этот журнал.
+- Validation: результат knowledge harness и проверки ссылок/ID/status/source
+  будет добавлен следующей append-only записью после выполнения.
+
+### 2026-10-24 11:24 MSK — validation result, triage 2026-10-24
+
+- Первый запуск выявил неподдерживаемый формат metadata: Markdown-ссылки
+  вместо plain REQ-ID и перенос строки внутри pending. Формат исправлен.
+- `python3 scripts/harness/verify_change.py --base origin/main`: PASS, все
+  4 knowledge checks (agent instructions, architecture decisions, plan readiness,
+  requirements registry); 58 требований, 41 активная задача, 1 незавершённый план.
+  Evidence: `.artifacts/verification/report.json`.
+- Локальные ссылки новых карточек, затронутых requirement-файлов и новой записи
+  журнала проверены; TASK-191/192 уникальны, статусы совпадают с каталогами.
+  SHA-256 исходного тела подтверждён, оба результата связаны с processed source.
+- `git diff --check`: PASS. Обработанный файл отсутствует в inbox/processing;
+  inbox пуст. Менялись только backlog и требования, приложение и стенд — без изменений.
