@@ -1,3 +1,4 @@
+import { useClientAccessError } from '../clientAccessBoundary'
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Group, Paper, Select, Stack, Text } from '@mantine/core'
 
@@ -30,6 +31,7 @@ export function MembershipGroupTransferSurface({
   pending = false,
   onTransferred,
 }: MembershipGroupTransferSurfaceProps) {
+  const reportClientError = useClientAccessError()
   const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [sourceGroupId, setSourceGroupId] = useState<string | null>(null)
@@ -90,6 +92,7 @@ export function MembershipGroupTransferSurface({
         expectedMembershipIds,
       }))
     } catch (previewError) {
+      void reportClientError(previewError)
       setPreview(null)
       setError(previewError instanceof Error ? previewError.message : fe7ClientMembershipText.membershipGroupTransferSurface_string_fb5e8413)
     } finally {
@@ -121,6 +124,7 @@ export function MembershipGroupTransferSurface({
       }
       setPreview(null)
     } catch (submitError) {
+      void reportClientError(submitError)
       setError(submitError instanceof ApiError || submitError instanceof Error
         ? submitError.message
         : fe7ClientMembershipText.membershipGroupTransferSurface_string_8d75ef84)

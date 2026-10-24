@@ -79,6 +79,7 @@ export function ClientPreviewPanel({
           >
             {state.previewError}
           </Alert>
+          {!state.previewUnavailable ? (
           <Group gap="xs" wrap="wrap">
             <Button
               leftSection={<IconRefresh size={16} />}
@@ -93,6 +94,7 @@ export function ClientPreviewPanel({
             >
               {fe5ClientListText.clientPreviewPanel_jsxText_82efa6ea}</Button>
           </Group>
+          ) : null}
         </Stack>
       </Paper>
     )

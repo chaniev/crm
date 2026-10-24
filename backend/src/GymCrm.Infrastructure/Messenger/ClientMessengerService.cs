@@ -3,9 +3,12 @@ using GymCrm.Application.Authorization;
 using GymCrm.Application.Messenger;
 using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace GymCrm.Infrastructure.Messenger;
 
@@ -13,7 +16,8 @@ internal sealed class ClientMessengerService(
     GymCrmDbContext dbContext,
     IAuditLogService auditLogService,
     IClientTelegramTransport telegramTransport,
-    IOptionsMonitor<ClientTelegramOptions> telegramOptions) : IClientMessengerService
+    IOptionsMonitor<ClientTelegramOptions> telegramOptions,
+    IServiceScopeFactory serviceScopeFactory) : IClientMessengerService
 {
     private const int DefaultMessageTake = 50;
     private const int MaxMessageTake = 100;
@@ -23,12 +27,20 @@ internal sealed class ClientMessengerService(
         User currentUser,
         CancellationToken cancellationToken = default)
     {
+        await using var accessTransaction = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [clientId], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (actor is null)
+        {
+            return ClientMessengerResult<ClientMessengerSummary>.Failure(ClientMessengerError.Forbidden);
+        }
+        currentUser = actor;
+
         if (!CanRead(currentUser))
         {
             return ClientMessengerResult<ClientMessengerSummary>.Failure(ClientMessengerError.Forbidden);
         }
 
-        if (!await ClientExistsAsync(clientId, cancellationToken))
+        if (!await ClientExistsAsync(clientId, currentUser, cancellationToken))
         {
             return ClientMessengerResult<ClientMessengerSummary>.Failure(ClientMessengerError.NotFound);
         }
@@ -44,12 +56,20 @@ internal sealed class ClientMessengerService(
         int? take,
         CancellationToken cancellationToken = default)
     {
+        await using var accessTransaction = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [clientId], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (actor is null)
+        {
+            return ClientMessengerResult<ClientMessengerMessagePage>.Failure(ClientMessengerError.Forbidden);
+        }
+        currentUser = actor;
+
         if (!CanRead(currentUser))
         {
             return ClientMessengerResult<ClientMessengerMessagePage>.Failure(ClientMessengerError.Forbidden);
         }
 
-        if (!await ClientExistsAsync(clientId, cancellationToken))
+        if (!await ClientExistsAsync(clientId, currentUser, cancellationToken))
         {
             return ClientMessengerResult<ClientMessengerMessagePage>.Failure(ClientMessengerError.NotFound);
         }
@@ -93,12 +113,20 @@ internal sealed class ClientMessengerService(
         User currentUser,
         CancellationToken cancellationToken = default)
     {
+        await using var accessTransaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, clientId, [], [], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (actor is null)
+        {
+            return ClientMessengerResult<ClientMessengerLinkTokenInfo>.Failure(ClientMessengerError.Forbidden);
+        }
+        currentUser = actor;
+
         if (!CanCreateLink(currentUser))
         {
             return ClientMessengerResult<ClientMessengerLinkTokenInfo>.Failure(ClientMessengerError.Forbidden);
         }
 
-        if (!await ClientExistsAsync(clientId, cancellationToken))
+        if (!await ClientExistsAsync(clientId, currentUser, cancellationToken))
         {
             return ClientMessengerResult<ClientMessengerLinkTokenInfo>.Failure(ClientMessengerError.NotFound);
         }
@@ -169,6 +197,7 @@ internal sealed class ClientMessengerService(
             Source: "Web",
             MessengerPlatform: ClientMessengerAuditConstants.TelegramPlatform), cancellationToken);
 
+        if (accessTransaction is not null) await accessTransaction.CommitAsync(cancellationToken);
         return ClientMessengerResult<ClientMessengerLinkTokenInfo>.Success(new ClientMessengerLinkTokenInfo(
             MessengerPlatform.Telegram.ToString(),
             deepLinkUrl,
@@ -189,9 +218,24 @@ internal sealed class ClientMessengerService(
         string? idempotencyKey,
         CancellationToken cancellationToken = default)
     {
+        await using var leaseScope = serviceScopeFactory.CreateAsyncScope();
+        var leaseDb = leaseScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        await using var accessTransaction = await ClientAccessTransaction.BeginReadAsync(leaseDb, currentUser.Id, [clientId], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(leaseDb, currentUser.Id, cancellationToken);
+        if (actor is null)
+        {
+            return ClientMessengerResult<ClientMessengerMessageItem>.Failure(ClientMessengerError.Forbidden);
+        }
+        currentUser = actor;
+
         if (!CanReply(currentUser))
         {
             return ClientMessengerResult<ClientMessengerMessageItem>.Failure(ClientMessengerError.Forbidden);
+        }
+
+        if (!await ClientExistsAsync(clientId, currentUser, cancellationToken))
+        {
+            return ClientMessengerResult<ClientMessengerMessageItem>.Failure(ClientMessengerError.NotFound);
         }
 
         var normalizedText = text.Trim();
@@ -199,11 +243,6 @@ internal sealed class ClientMessengerService(
         if (errors.Count > 0)
         {
             return ClientMessengerResult<ClientMessengerMessageItem>.Validation(errors);
-        }
-
-        if (!await ClientExistsAsync(clientId, cancellationToken))
-        {
-            return ClientMessengerResult<ClientMessengerMessageItem>.Failure(ClientMessengerError.NotFound);
         }
 
         var account = await GetActiveAccountAsync(clientId, cancellationToken);
@@ -253,7 +292,22 @@ internal sealed class ClientMessengerService(
         };
 
         dbContext.ClientMessengerMessages.Add(message);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception) when (exception.InnerException is PostgresException
+        { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "IX_ClientMessengerMessages_ClientId_Platform_IdempotencyKey" })
+        {
+            dbContext.Entry(message).State = EntityState.Detached;
+            var winner = await dbContext.ClientMessengerMessages.AsNoTracking()
+                .Include(candidate => candidate.CreatedByUser).Include(candidate => candidate.Account)
+                .SingleAsync(candidate => candidate.ClientId == clientId && candidate.Platform == MessengerPlatform.Telegram &&
+                    candidate.IdempotencyKey == normalizedIdempotencyKey, cancellationToken);
+            return winner.IdempotencyPayloadHash == payloadHash
+                ? ClientMessengerResult<ClientMessengerMessageItem>.Success(MapMessageItem(winner))
+                : ClientMessengerResult<ClientMessengerMessageItem>.Failure(ClientMessengerError.IdempotencyConflict);
+        }
 
         message.Status = ClientMessengerMessageStatus.Sending;
         message.UpdatedAt = DateTimeOffset.UtcNow;
@@ -320,12 +374,20 @@ internal sealed class ClientMessengerService(
         User currentUser,
         CancellationToken cancellationToken = default)
     {
+        await using var accessTransaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, clientId, [], [], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (actor is null)
+        {
+            return ClientMessengerResult<ClientMessengerReadStateInfo>.Failure(ClientMessengerError.Forbidden);
+        }
+        currentUser = actor;
+
         if (!CanRead(currentUser))
         {
             return ClientMessengerResult<ClientMessengerReadStateInfo>.Failure(ClientMessengerError.Forbidden);
         }
 
-        if (!await ClientExistsAsync(clientId, cancellationToken))
+        if (!await ClientExistsAsync(clientId, currentUser, cancellationToken))
         {
             return ClientMessengerResult<ClientMessengerReadStateInfo>.Failure(ClientMessengerError.NotFound);
         }
@@ -370,6 +432,7 @@ internal sealed class ClientMessengerService(
             MessengerPlatform: ClientMessengerAuditConstants.TelegramPlatform), cancellationToken);
 
         var unreadCount = await CountUnreadAsync(clientId, currentUser.Id, cancellationToken);
+        if (accessTransaction is not null) await accessTransaction.CommitAsync(cancellationToken);
         return ClientMessengerResult<ClientMessengerReadStateInfo>.Success(new ClientMessengerReadStateInfo(
             MessengerPlatform.Telegram.ToString(),
             readState.LastReadAt,
@@ -678,10 +741,11 @@ internal sealed class ClientMessengerService(
                 cancellationToken);
     }
 
-    private async Task<bool> ClientExistsAsync(Guid clientId, CancellationToken cancellationToken)
+    private async Task<bool> ClientExistsAsync(Guid clientId, User actor, CancellationToken cancellationToken)
     {
         return await dbContext.Clients
             .AsNoTracking()
+            .Where(ClientAccessPolicy.ScopePredicate(actor))
             .AnyAsync(client => client.Id == clientId, cancellationToken);
     }
 

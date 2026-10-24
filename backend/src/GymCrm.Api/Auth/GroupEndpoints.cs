@@ -2,10 +2,13 @@ using System.Globalization;
 using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Application.Scheduling;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Schedule;
+using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -56,6 +59,10 @@ internal static class GroupEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+
 
         var errors = GroupRequestValidator.ValidatePaging(page, pageSize, skip, take);
         if (errors.Count > 0)
@@ -67,10 +74,10 @@ internal static class GroupEndpoints
         var groupsQuery = GroupManagementScope.ApplyTo(TrainingGroupListQuery.CreateBaseQuery(dbContext), currentUser);
         groupsQuery = ApplyListCriteria(groupsQuery, query, isActive, withoutTrainer);
         var totalCount = await groupsQuery.CountAsync(cancellationToken);
-        var groups = await TrainingGroupListQuery.LoadPageAsync(groupsQuery, paging, cancellationToken);
+        var groups = await TrainingGroupListQuery.LoadPageAsync(groupsQuery, paging, cancellationToken, dbContext, currentUser);
 
         IReadOnlyList<GroupListItemResponse> response = groups
-            .Select(TrainingGroupListItemMapper.Map)
+            .Select(group => TrainingGroupListItemMapper.Map(group, currentUser))
             .ToArray();
 
         return TypedResults.Ok(new GroupListResponse(response, totalCount, paging.Skip, paging.Take));
@@ -86,6 +93,10 @@ internal static class GroupEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+
 
         var query = GroupManagementScope.ApplyTo(dbContext.TrainingGroups.AsNoTracking(), currentUser);
         var totalCount = await query.CountAsync(cancellationToken);
@@ -124,8 +135,12 @@ internal static class GroupEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
 
-        var group = await LoadGroupSnapshotAsync(id, dbContext, cancellationToken);
+
+        var group = await LoadGroupSnapshotAsync(id, dbContext, cancellationToken, currentUser);
         if (group is not null && !GroupManagementScope.Contains(currentUser, group.BranchId))
         {
             return GroupManagementScope.ForbiddenProblem();
@@ -147,6 +162,10 @@ internal static class GroupEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+
 
         var groupBranchId = await dbContext.TrainingGroups
             .AsNoTracking()
@@ -164,9 +183,10 @@ internal static class GroupEndpoints
             return GroupManagementScope.ForbiddenProblem();
         }
 
+        var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(currentUser)).Select(client => client.Id);
         var clients = await dbContext.ClientGroups
             .AsNoTracking()
-            .Where(clientGroup => clientGroup.GroupId == id)
+            .Where(clientGroup => clientGroup.GroupId == id && visibleClientIds.Contains(clientGroup.ClientId))
             .Select(clientGroup => new GroupClientProjection(
                 clientGroup.Client.Id,
                 clientGroup.Client.LastName,
@@ -406,7 +426,7 @@ internal static class GroupEndpoints
             dbContext.LessonScheduleRuleVersions.Add(rule);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            createdGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken)
+            createdGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, currentUser)
                 ?? throw new InvalidOperationException($"Created training group '{group.Id}' was not found.");
 
             await auditLogService.WriteAsync(
@@ -506,10 +526,11 @@ internal static class GroupEndpoints
                     group.Id,
                     businessDateProvider.Today,
                     dbContext,
-                    cancellationToken);
-                if (blockingMemberships.Count > 0)
+                    cancellationToken,
+                    currentUser);
+                if (blockingMemberships.HasBlockers)
                 {
-                    return CreateGroupActiveMembershipsProblem(blockingMemberships);
+                    return CreateGroupActiveMembershipsProblem(blockingMemberships.Details);
                 }
             }
 
@@ -533,7 +554,7 @@ internal static class GroupEndpoints
             }
         }
 
-        var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken)
+        var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, currentUser)
             ?? throw new InvalidOperationException($"Updated training group '{group.Id}' was not found.");
 
         await auditLogService.WriteAsync(
@@ -597,7 +618,7 @@ internal static class GroupEndpoints
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken)
+        var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, currentUser)
             ?? throw new InvalidOperationException($"Updated training group '{group.Id}' was not found.");
 
         await auditLogService.WriteAsync(
@@ -617,8 +638,10 @@ internal static class GroupEndpoints
     private static async Task<TrainingGroup?> LoadGroupSnapshotAsync(
         Guid id,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        User actor)
     {
+        var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(actor)).Select(client => client.Id);
         return await dbContext.TrainingGroups
             .AsNoTracking()
             .Include(group => group.Branch)
@@ -628,7 +651,7 @@ internal static class GroupEndpoints
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.TrainerAssignments)
                 .ThenInclude(assignment => assignment.Trainer)
-            .Include(group => group.Clients)
+            .Include(group => group.Clients.Where(clientGroup => visibleClientIds.Contains(clientGroup.ClientId)))
             .AsSplitQuery()
             .SingleOrDefaultAsync(group => group.Id == id, cancellationToken);
     }
@@ -708,25 +731,34 @@ internal static class GroupEndpoints
             cancellationToken);
     }
 
-    private static async Task<IReadOnlyList<GroupDeactivationBlockingMembership>> LoadGroupDeactivationBlockersAsync(
+    private static async Task<(bool HasBlockers, IReadOnlyList<GroupDeactivationBlockingMembership> Details)> LoadGroupDeactivationBlockersAsync(
         Guid groupId,
         DateOnly businessDate,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        User actor)
     {
         var candidates = await dbContext.ClientMemberships
             .AsNoTracking()
-            .Include(membership => membership.Client)
             .Include(membership => membership.TargetGroups)
-                .ThenInclude(target => target.Group)
-                    .ThenInclude(group => group.Branch)
             .Where(membership =>
                 membership.ValidTo == null &&
                 membership.TargetGroups.Any(target => target.GroupId == groupId))
             .AsSplitQuery()
             .ToArrayAsync(cancellationToken);
 
-        return candidates
+        var blockingIds = candidates
+            .Where(membership => ClientMembershipTargetPolicy.ResolveEntitlementState(membership, businessDate)
+                is ClientMembershipEntitlementState.Active or ClientMembershipEntitlementState.Future)
+            .Select(membership => membership.Id).ToArray();
+        var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(actor)).Select(client => client.Id);
+        var visibleCandidates = await dbContext.ClientMemberships.AsNoTracking()
+            .Where(membership => blockingIds.Contains(membership.Id) && visibleClientIds.Contains(membership.ClientId))
+            .Include(membership => membership.Client)
+            .Include(membership => membership.TargetGroups)
+                .ThenInclude(target => target.Group).ThenInclude(group => group.Branch)
+            .AsSplitQuery().ToArrayAsync(cancellationToken);
+        var details = visibleCandidates
             .Select(membership => new
             {
                 Membership = membership,
@@ -759,6 +791,7 @@ internal static class GroupEndpoints
                         target.Position))
                     .ToArray()))
             .ToArray();
+        return (blockingIds.Length > 0, details);
     }
 
     private static ProblemHttpResult CreateGroupActiveMembershipsProblem(

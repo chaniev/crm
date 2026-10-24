@@ -1,8 +1,10 @@
+import { useClientAccessError } from './clientAccessBoundary'
 
 import { useEffect, useId, useState, type ChangeEvent } from 'react'
 import { Alert, Badge, Button, Group, Loader, Modal, Paper, Stack, Text, ThemeIcon } from '@mantine/core'
 import { IconAlertCircle, IconCamera, IconPhotoOff, IconUpload } from '@tabler/icons-react'
 import {
+  ApiError,
   buildClientPhotoUrl,
   type ClientPhoto,
 } from '../../lib/api'
@@ -35,6 +37,7 @@ export function ClientPhotoSection({
   previewVersion,
   variant = 'default',
 }: ClientPhotoSectionProps) {
+  const reportClientError = useClientAccessError()
   const inputId = useId()
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -87,6 +90,7 @@ export function ClientPhotoSection({
         color: 'teal',
       })
     } catch (error) {
+      void reportClientError(error)
       setUploadError(
         error instanceof Error
           ? error.message
@@ -166,7 +170,7 @@ export function ClientPhotoSection({
                   <img
                     alt={fe8ClientMessengerMediaText.clientPhotoSection_template_b53a862a(clientName)}
                     className="client-photo-preview__image"
-                    onError={() => setPreviewStatus('error')}
+                    onError={() => { setPreviewStatus('error'); void reportClientError(new ApiError('', 404)) }}
                     onLoad={() => setPreviewStatus('ready')}
                     src={previewUrl}
                     style={{

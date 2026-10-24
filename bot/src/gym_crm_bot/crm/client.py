@@ -14,6 +14,7 @@ from gym_crm_bot.crm.errors import (
     CrmForbiddenError,
     CrmIdempotencyConflictError,
     CrmMustChangePasswordError,
+    CrmNotFoundError,
     CrmTemporaryError,
     CrmUserInactiveError,
     CrmUserNotConfiguredError,
@@ -382,6 +383,8 @@ class CrmBotApiClient:
                 payload=payload,
             )
 
+        if response.status_code == 404:
+            return CrmNotFoundError(detail, status_code=response.status_code, payload=payload)
         if response.status_code in {400, 409, 422}:
             return CrmValidationError(detail, status_code=response.status_code, payload=payload)
         if response.status_code in {401, 403}:

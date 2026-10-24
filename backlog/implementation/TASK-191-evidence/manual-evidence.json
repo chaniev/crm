@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "task_id": "TASK-191",
+  "confirmations": [
+    {
+      "id": "manual.client-scope-rendered-comparison",
+      "actor": "Codex",
+      "performed_at": "2026-10-24T11:06:19Z",
+      "note": "Restricted states compared at390/420 WebKit/1440 with approved renders: same title, alert, no PII/actions, visible focused Back. Transfer recovery and old-row removal passed on all3projects; success screenshot comparison follows. No physical Safari/keyboard/device claim.",
+      "artifacts": [
+        "backlog/implementation/TASK-191-evidence/restricted-390x844.png",
+        "backlog/implementation/TASK-191-evidence/restricted-420.png",
+        "backlog/implementation/TASK-191-evidence/restricted-1440x1200.png"
+      ]
+    }
+  ]
+}

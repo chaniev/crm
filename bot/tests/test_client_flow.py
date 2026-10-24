@@ -4,7 +4,9 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
 
+import httpx
 import pytest
+import respx
 
 from gym_crm_bot.core.client_flow import ClientFlow
 from gym_crm_bot.core.crm_error_mapping import CrmErrorMapper
@@ -14,6 +16,7 @@ from gym_crm_bot.core.dialog_state import (
     SEARCH_SCENARIO,
 )
 from gym_crm_bot.core.service_types import BotResponse
+from gym_crm_bot.crm.client import CrmBotApiClient
 from gym_crm_bot.crm.errors import CrmTemporaryError
 from gym_crm_bot.crm.models import (
     ClientCardResponse,
@@ -232,3 +235,39 @@ async def test_card_and_membership_errors_keep_dialog_state_and_exact_response(
         MEMBERSHIP_SCENARIO: membership_state,
     }
     assert crm_client.request_ids == ["client-card-failed", "memberships-failed"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("body", [None, {"title": "NotFound", "detail": "private stale client"}])
+@respx.mock
+async def test_stale_client_callback_replaces_card_and_keyboard_on_resource_404(
+    body: dict[str, str] | None,
+) -> None:
+    client_id = UUID("00000000-0000-0000-0000-000000000191")
+    route = respx.get(f"http://crm.local/internal/bot/clients/{client_id}").mock(
+        side_effect=[
+            httpx.Response(200, json={"id": str(client_id), "fullName": "Private old name"}),
+            httpx.Response(404) if body is None else httpx.Response(404, json=body),
+        ]
+    )
+    async with httpx.AsyncClient(base_url="http://crm.local") as http:
+        crm = CrmBotApiClient(
+            base_url="http://crm.local",
+            service_token="test-token",
+            timeout_seconds=5,
+            read_retry_attempts=3,
+            http_client=http,
+        )
+        flow = ClientFlow(
+            crm_client=crm, state_store=InMemoryDialogState(), error_mapper=CrmErrorMapper(crm)
+        )
+        event = _event(update_id=191, kind="callback", callback_data=f"client|{client_id}")
+        original = await flow.show_card(event, client_id, replace_existing=True)
+        assert "Private old name" in original.text
+        denied = await flow.show_card(event, client_id, replace_existing=True)
+    assert denied == BotResponse(
+        text="Данные больше недоступны. Откройте список заново.",
+        replace_existing=True,
+    )
+    assert denied.reply_markup is None
+    assert route.call_count == 2

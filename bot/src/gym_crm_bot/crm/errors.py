@@ -16,6 +16,10 @@ class CrmClientError(Exception):
         self.payload = payload or {}
 
 
+class CrmNotFoundError(CrmClientError):
+    pass
+
+
 class CrmTemporaryError(CrmClientError):
     pass
 

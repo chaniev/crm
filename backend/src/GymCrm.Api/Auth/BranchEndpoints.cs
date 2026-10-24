@@ -2,6 +2,8 @@ using System.Text.Json;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Authorization;
 using GymCrm.Domain.Branches;
+using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -39,21 +41,62 @@ internal static class BranchEndpoints
         return endpoints;
     }
 
-    private static async Task<Ok<IReadOnlyList<BranchResponse>>> ListBranchesAsync(
+    private static async Task<Results<Ok<IReadOnlyList<BranchResponse>>, UnauthorizedHttpResult>> ListBranchesAsync(
         bool? includeArchived,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser()!;
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
         var query = dbContext.Branches.AsNoTracking();
         if (includeArchived != true)
         {
             query = query.Where(branch => !branch.IsArchived);
         }
 
-        var branches = await query
+        var branches = await ProjectBranches(query, currentUser)
             .OrderBy(branch => branch.IsArchived)
             .ThenBy(branch => branch.Name)
             .ThenBy(branch => branch.Id)
+            .ToArrayAsync(cancellationToken);
+
+        return TypedResults.Ok<IReadOnlyList<BranchResponse>>(branches);
+    }
+
+    private static async Task<Results<Ok<BranchResponse>, NotFound, UnauthorizedHttpResult>> GetBranchAsync(
+        Guid id,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser()!;
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+        var branch = await ProjectBranches(dbContext.Branches.AsNoTracking().Where(branch => branch.Id == id), currentUser)
+            .SingleOrDefaultAsync(cancellationToken);
+        return branch is null
+            ? TypedResults.NotFound()
+            : TypedResults.Ok(branch);
+    }
+
+    private static async Task<BranchResponse> LoadBranchResponseAsync(Guid branchId, Guid actorId, GymCrmDbContext dbContext, CancellationToken cancellationToken)
+    {
+        if (dbContext.Database.CurrentTransaction is not null) await dbContext.Database.CurrentTransaction.DisposeAsync();
+        await using var lease = await ClientAccessTransaction.BeginReadAsync(dbContext, actorId, [], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, actorId, cancellationToken);
+        // Lookup remains shared; an inactive actor never receives a client counter.
+        actor ??= new User { Id = actorId, IsActive = false };
+        return await ProjectBranches(dbContext.Branches.AsNoTracking().Where(branch => branch.Id == branchId), actor).SingleAsync(cancellationToken);
+    }
+
+    private static IQueryable<BranchResponse> ProjectBranches(IQueryable<Branch> query, User actor)
+    {
+        var globalCounts = UserRoleAuthorizationPolicy.GetOperationalScopeKind(actor.Role) == AccessScopeKind.Global;
+        return query
             .Select(branch => new BranchResponse(
                 branch.Id,
                 branch.Name,
@@ -62,23 +105,9 @@ internal static class BranchEndpoints
                 branch.IsArchived,
                 branch.Halls.Count,
                 branch.Groups.Count,
-                branch.Clients.Count,
+                actor.IsActive && (globalCounts || actor.Role == UserRole.Administrator && actor.BranchId == branch.Id) ? (int?)branch.Clients.Count : null,
                 branch.CreatedAt,
-                branch.UpdatedAt))
-            .ToArrayAsync(cancellationToken);
-
-        return TypedResults.Ok<IReadOnlyList<BranchResponse>>(branches);
-    }
-
-    private static async Task<Results<Ok<BranchResponse>, NotFound>> GetBranchAsync(
-        Guid id,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
-    {
-        var branch = await LoadBranchSnapshotAsync(id, dbContext, cancellationToken);
-        return branch is null
-            ? TypedResults.NotFound()
-            : TypedResults.Ok(MapBranch(branch));
+                branch.UpdatedAt));
     }
 
     private static async Task<Results<Created<BranchResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateBranchAsync(
@@ -149,10 +178,8 @@ internal static class BranchEndpoints
             await transaction.CommitAsync(cancellationToken);
         }
 
-        var createdBranch = await LoadBranchSnapshotAsync(branch.Id, dbContext, cancellationToken)
-            ?? throw new InvalidOperationException($"Created branch '{branch.Id}' was not found.");
 
-        return TypedResults.Created($"/branches/{branch.Id}", MapBranch(createdBranch));
+        return TypedResults.Created($"/branches/{branch.Id}", await LoadBranchResponseAsync(branch.Id, currentUser.Id, dbContext, cancellationToken));
     }
 
     private static async Task<Results<Ok<BranchResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateBranchAsync(
@@ -219,10 +246,8 @@ internal static class BranchEndpoints
                 SerializeBranchAuditState(branch)),
             cancellationToken);
 
-        var updatedBranch = await LoadBranchSnapshotAsync(branch.Id, dbContext, cancellationToken)
-            ?? throw new InvalidOperationException($"Updated branch '{branch.Id}' was not found.");
 
-        return TypedResults.Ok(MapBranch(updatedBranch));
+        return TypedResults.Ok(await LoadBranchResponseAsync(branch.Id, currentUser.Id, dbContext, cancellationToken));
     }
 
     private static Task<Results<Ok<BranchResponse>, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> ArchiveBranchAsync(
@@ -320,14 +345,12 @@ internal static class BranchEndpoints
 
         if (branch.IsArchived == isArchived)
         {
-            var currentBranch = await LoadBranchSnapshotAsync(branch.Id, dbContext, cancellationToken)
-                ?? throw new InvalidOperationException($"Branch '{branch.Id}' was not found after archive state check.");
             if (transaction is not null)
             {
                 await transaction.CommitAsync(cancellationToken);
             }
 
-            return TypedResults.Ok(MapBranch(currentBranch));
+            return TypedResults.Ok(await LoadBranchResponseAsync(branch.Id, currentUser.Id, dbContext, cancellationToken));
         }
 
         var oldState = SerializeBranchAuditState(branch);
@@ -351,10 +374,8 @@ internal static class BranchEndpoints
             await transaction.CommitAsync(cancellationToken);
         }
 
-        var updatedBranch = await LoadBranchSnapshotAsync(branch.Id, dbContext, cancellationToken)
-            ?? throw new InvalidOperationException($"Updated branch '{branch.Id}' was not found.");
 
-        return TypedResults.Ok(MapBranch(updatedBranch));
+        return TypedResults.Ok(await LoadBranchResponseAsync(branch.Id, currentUser.Id, dbContext, cancellationToken));
     }
 
     private static async Task LockBranchAsync(

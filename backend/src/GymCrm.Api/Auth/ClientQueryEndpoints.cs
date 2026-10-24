@@ -5,6 +5,7 @@ using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,9 @@ internal static class ClientQueryEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
 
         if (!string.IsNullOrWhiteSpace(paymentStatus) ||
             string.Equals(membershipState, "Unpaid", StringComparison.OrdinalIgnoreCase) ||
@@ -112,11 +116,8 @@ internal static class ClientQueryEndpoints
             return TypedResults.Forbid();
         }
 
-        var clientsQuery = dbContext.Clients.AsNoTracking();
-        if (currentUser.Role == UserRole.Coach)
-        {
-            clientsQuery = ApplyCoachClientScope(clientsQuery, effectiveGroupIds);
-        }
+        var clientsQuery = dbContext.Clients.AsNoTracking()
+            .Where(ClientAccessPolicy.ScopePredicate(currentUser, effectiveGroupIds));
 
         if (!string.IsNullOrWhiteSpace(unifiedSearch))
         {
@@ -336,6 +337,7 @@ internal static class ClientQueryEndpoints
         var responseItems = await ClientResponseMapper.HydrateClientListItemsAsync(
             projectedItems,
             hasElevatedClientAccess,
+            currentUser,
             dbContext,
             effectiveGroupIds,
             today,
@@ -388,12 +390,19 @@ internal static class ClientQueryEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
 
         var today = businessDateProvider.Today;
         var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
+        var visibleClientIds = dbContext.Clients
+            .Where(ClientAccessPolicy.ScopePredicate(currentUser))
+            .Select(client => client.Id);
         var candidates = await dbContext.ClientMemberships
             .AsNoTracking()
+            .Where(membership => visibleClientIds.Contains(membership.ClientId))
             .Where(membership =>
                 membership.Client.Status == ClientStatus.Active &&
                 membership.ValidTo == null &&
@@ -532,6 +541,9 @@ internal static class ClientQueryEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [id], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
 
         var attendancePagingErrors = ValidateAttendanceHistoryPaging(attendanceSkip, attendanceTake);
         if (attendancePagingErrors.Count > 0)
@@ -540,6 +552,13 @@ internal static class ClientQueryEndpoints
         }
 
         var attendancePaging = ResolveAttendanceHistoryPaging(attendanceSkip, attendanceTake);
+        if (currentUser.Role == UserRole.Administrator &&
+            !await dbContext.Clients.Where(ClientAccessPolicy.ScopePredicate(currentUser))
+                .AnyAsync(client => client.Id == id, cancellationToken))
+        {
+            return TypedResults.NotFound();
+        }
+
         var client = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
         if (client is null)
         {
@@ -887,13 +906,6 @@ internal static class ClientQueryEndpoints
             : null;
     }
 
-
-    private static IQueryable<Client> ApplyCoachClientScope(
-        IQueryable<Client> query,
-        IReadOnlyCollection<Guid> effectiveGroupIds)
-    {
-        return query.Where(client => client.Groups.Any(clientGroup => effectiveGroupIds.Contains(clientGroup.GroupId)));
-    }
 
     private static IQueryable<Client> ApplyFullNameSearch(IQueryable<Client> query, string fullName)
     {

@@ -7,6 +7,7 @@ using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -44,6 +45,10 @@ internal static class AttendanceEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+
 
         var today = attendanceDatePolicy.GetWindow(currentUser.Role).Today;
         var lessons = (await ScheduleEndpoints.LoadScopedLessonsAsync(
@@ -67,6 +72,7 @@ internal static class AttendanceEndpoints
         var groupIds = lessons.Select(lesson => lesson.GroupId).ToHashSet();
         var activeRoster = await dbContext.Clients
             .AsNoTracking()
+            .Where(ClientAccessPolicy.BranchRestriction(currentUser))
             .Where(client => client.Status == ClientStatus.Active)
             .SelectMany(client => client.Groups
                 .Where(clientGroup => groupIds.Contains(clientGroup.GroupId))
@@ -134,12 +140,17 @@ internal static class AttendanceEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+
 
         var accessScope = await accessScopeService.GetAccessScopeAsync(currentUser, cancellationToken);
         var accessibleGroupIds = accessScope.AttendanceScope.Kind == AttendanceScopeKind.Global
             ? null
             : accessScope.AttendanceScope.GroupIds.ToHashSet();
 
+        var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(currentUser)).Select(client => client.Id);
         var query = dbContext.TrainingGroups.AsNoTracking();
         if (accessibleGroupIds is not null)
         {
@@ -162,7 +173,7 @@ internal static class AttendanceEndpoints
                 group.DurationMinutes,
                 group.Weekdays,
                 group.IsActive,
-                group.Clients.Count(clientGroup => clientGroup.Client.Status == ClientStatus.Active)))
+                group.Clients.Count(clientGroup => clientGroup.Client.Status == ClientStatus.Active && visibleClientIds.Contains(clientGroup.ClientId))))
             .ToListAsync(cancellationToken);
 
         var window = attendanceDatePolicy.GetWindow(currentUser.Role);
@@ -188,6 +199,10 @@ internal static class AttendanceEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+
 
         var accessDecision = await accessScopeService.EvaluateGroupAccessAsync(
             currentUser,
@@ -256,8 +271,14 @@ internal static class AttendanceEndpoints
                 .ToHashSet()
             : null;
 
+        var candidateIds = await dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(currentUser))
+            .Where(client => client.Status == ClientStatus.Active && client.Groups.Any(link => link.GroupId == groupId))
+            .Select(client => client.Id).ToArrayAsync(cancellationToken);
+        await ClientAccessTransaction.LockReadClientsAsync(dbContext, candidateIds, cancellationToken);
         var clients = await dbContext.Clients
             .AsNoTracking()
+            .Where(ClientAccessPolicy.BranchRestriction(currentUser))
+            .Where(client => candidateIds.Contains(client.Id))
                 .Where(client =>
                     client.Status == ClientStatus.Active &&
                     client.Groups.Any(clientGroup => clientGroup.GroupId == groupId))
@@ -324,6 +345,10 @@ internal static class AttendanceEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+
 
         var parsedLessonDate = ParseTrainingDate(lessonDate);
         if (!parsedLessonDate.HasValue)
@@ -450,7 +475,7 @@ internal static class AttendanceEndpoints
         {
             return mutationResult.Error switch
             {
-                AttendanceBatchMutationError.GroupMissing => TypedResults.NotFound(),
+                AttendanceBatchMutationError.GroupMissing or AttendanceBatchMutationError.ClientUnavailable => TypedResults.NotFound(),
                 AttendanceBatchMutationError.LessonOccurrenceMissing => CreateLessonOccurrenceNotFoundProblem(),
                 AttendanceBatchMutationError.InvalidRequest => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveInvalidRequest),
                 AttendanceBatchMutationError.ClientOutsideGroup => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveClientOutsideGroup),
@@ -464,6 +489,26 @@ internal static class AttendanceEndpoints
             };
         }
 
+        var responseClientIds = parsedMarks.Select(mark => mark.ClientId).Distinct().ToArray();
+        await using var responseLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, responseClientIds, cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+        if (!UserRoleAuthorizationPolicy.HasCapability(currentUser.Role, CrmCapability.MarkAttendance))
+            return AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem();
+        if (currentUser.Role == UserRole.Administrator)
+        {
+            if (await accessScopeService.EvaluateGroupAccessAsync(currentUser, groupId, cancellationToken) != GroupAccessDecision.Allowed)
+                return AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem();
+            if (await dbContext.Clients.Where(ClientAccessPolicy.ScopePredicate(currentUser))
+                .CountAsync(client => responseClientIds.Contains(client.Id), cancellationToken) != responseClientIds.Length)
+                return TypedResults.NotFound();
+        }
+        if (currentUser.Role == UserRole.Coach)
+        {
+            var lesson = await ResolveAttendanceLessonOccurrenceAsync(lessonOccurrenceId.Value, parsedTrainingDate.Value,
+                currentUser, dbContext, accessScopeService, cancellationToken);
+            if (lesson is null) return AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem();
+        }
         var details = mutationResult.Details!;
         var window = attendanceDatePolicy.GetWindow(currentUser.Role);
         return TypedResults.Ok(new AttendanceSaveResponse(

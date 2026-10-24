@@ -41,7 +41,7 @@ internal sealed class ClientMembershipRefundService(
 
         var targetGroupIds = await dbContext.ClientMemberships
             .AsNoTracking()
-            .Where(membership => membership.SaleId == command.SaleId && membership.ValidTo == null)
+            .Where(membership => membership.ClientId == clientId && membership.SaleId == command.SaleId && membership.ValidTo == null)
             .SelectMany(membership => membership.TargetGroups)
             .OrderBy(target => target.Position)
             .Select(target => target.GroupId)

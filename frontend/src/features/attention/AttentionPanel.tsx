@@ -29,9 +29,9 @@ import {
 import { fe9AttentionText } from '../../resources/fe-9-attention'
 
 
-type AttentionPanelProps = { onOpenClient?: (clientId: string) => void }
+type AttentionPanelProps = { focusOnReturn?: boolean; onOpenClient?: (clientId: string) => void }
 
-export function AttentionPanel({ onOpenClient }: AttentionPanelProps) {
+export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelProps) {
   const [clients, setClients] = useState<ClientAttentionItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -60,6 +60,10 @@ export function AttentionPanel({ onOpenClient }: AttentionPanelProps) {
     })
     return () => controller.abort()
   }, [reloadKey])
+
+  useEffect(() => {
+    if (focusOnReturn && !loading) headingRef.current?.focus()
+  }, [focusOnReturn, loading])
 
   async function contacted(client: ClientAttentionItem) {
     setPendingClientId(client.clientId)

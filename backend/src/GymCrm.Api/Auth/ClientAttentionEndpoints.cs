@@ -1,9 +1,11 @@
 using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +45,9 @@ internal static class ClientAttentionEndpoints
             return TypedResults.Unauthorized();
         }
 
+        await using var lease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
         var cards = await BuildCardsAsync(
             dbContext,
             calculator,
@@ -77,6 +82,9 @@ internal static class ClientAttentionEndpoints
             return TypedResults.Unauthorized();
         }
 
+        await using var transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, clientId, [], [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
         var clientExists = await ApplyScope(dbContext.Clients.AsNoTracking(), currentUser)
             .AnyAsync(client => client.Id == clientId, cancellationToken);
         if (!clientExists)
@@ -115,36 +123,12 @@ internal static class ClientAttentionEndpoints
             })
             .FirstAsync(cancellationToken);
 
-        // The integration-test host replaces PostgreSQL with EF's in-memory provider while
-        // retaining relational services in the container, so IsRelational() alone is not a
-        // reliable capability check here.
-        var supportsTransactions = dbContext.Database.IsRelational()
-            && dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory";
-        await using var transaction = supportsTransactions
-            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
-            : null;
         try
         {
             var acknowledgement = await dbContext.ClientMissedTrainingAcknowledgements
                 .SingleOrDefaultAsync(candidate => candidate.ClientId == clientId, cancellationToken);
             if (acknowledgement is not null && acknowledgement.LastAttendanceId == lastAttendance.Id)
-            {
-                if (transaction is not null)
-                {
-                    await transaction.CommitAsync(cancellationToken);
-                }
-
-                var unchanged = (await BuildCardsAsync(
-                        dbContext,
-                        calculator,
-                        options.Value.MembershipWindowDays,
-                        businessDateProvider.Today,
-                        currentUser,
-                        clientId,
-                        cancellationToken))
-                    .SingleOrDefault();
-                return unchanged is null ? TypedResults.NoContent() : TypedResults.Ok(unchanged);
-            }
+                return before is null ? TypedResults.NoContent() : TypedResults.Ok(before);
 
             if (acknowledgement is null)
             {
@@ -191,7 +175,7 @@ internal static class ClientAttentionEndpoints
         {
             if (transaction is not null)
             {
-                await transaction.RollbackAsync(cancellationToken);
+                await transaction.RollbackAsync(CancellationToken.None);
             }
 
             dbContext.ChangeTracker.Clear();
@@ -203,12 +187,17 @@ internal static class ClientAttentionEndpoints
         {
             if (transaction is not null)
             {
-                await transaction.RollbackAsync(cancellationToken);
+                await transaction.RollbackAsync(CancellationToken.None);
             }
 
             dbContext.ChangeTracker.Clear();
         }
 
+        if (transaction is not null) await transaction.DisposeAsync();
+        await using var responseLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [clientId], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, clientId, cancellationToken))
+            return TypedResults.NotFound();
         var after = (await BuildCardsAsync(
                 dbContext,
                 calculator,
@@ -235,6 +224,9 @@ internal static class ClientAttentionEndpoints
                 currentUser)
             .Where(client => !clientId.HasValue || client.Id == clientId.Value);
 
+        var candidateIds = await clientsQuery.Select(client => client.Id).ToArrayAsync(cancellationToken);
+        await ClientAccessTransaction.LockReadClientsAsync(dbContext, candidateIds, cancellationToken);
+        clientsQuery = clientsQuery.Where(client => candidateIds.Contains(client.Id));
         var clients = await clientsQuery
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
@@ -395,9 +387,7 @@ internal static class ClientAttentionEndpoints
 
     private static IQueryable<Client> ApplyScope(IQueryable<Client> query, User currentUser)
     {
-        return currentUser.Role == UserRole.Administrator
-            ? query.Where(client => currentUser.BranchId.HasValue && client.BranchId == currentUser.BranchId.Value)
-            : query;
+        return query.Where(ClientAccessPolicy.ScopePredicate(currentUser));
     }
 
     private static string BuildFullName(Client client) => string.Join(

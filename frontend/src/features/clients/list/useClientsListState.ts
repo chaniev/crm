@@ -1,3 +1,5 @@
+import { isClientAccessError } from '../clientAccessBoundary'
+import { fe6ClientProfileText } from '../../../resources/fe-6-client-profile'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   getClient,
@@ -85,6 +87,8 @@ export function useClientsListState({
   )
   const [previewCache, setPreviewCache] = useState<Record<string, ClientDetails>>({})
   const [previewLoading, setPreviewLoading] = useState(false)
+  const [unavailablePreviewIds, setUnavailablePreviewIds] = useState<string[]>([])
+  const previewUnavailable = selectedClientId !== null && unavailablePreviewIds.includes(selectedClientId)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [previewReloadKey, setPreviewReloadKey] = useState(0)
   const activeFiltersCount = useMemo(() => {
@@ -244,7 +248,7 @@ export function useClientsListState({
   }, [filters, page, previewClientId, reloadKey])
 
   useEffect(() => {
-    if (!selectedClientId || previewCache[selectedClientId]) {
+    if (!selectedClientId || previewCache[selectedClientId] || unavailablePreviewIds.includes(selectedClientId)) {
       if (!selectedClientId) {
         setPreviewError(null)
       }
@@ -269,6 +273,14 @@ export function useClientsListState({
         }
       } catch (loadError) {
         if (!controller.signal.aborted) {
+          if (isClientAccessError(loadError)) {
+            setUnavailablePreviewIds((ids) => [...ids, clientId])
+            setClients((items) => items.filter((item) => item.id !== clientId))
+            setPreviewCache((cache) => { const next = { ...cache }; delete next[clientId]; return next })
+            setPreviewError(fe6ClientProfileText.clientUnavailable)
+            setReloadKey((key) => key + 1)
+            return
+          }
           setPreviewError(
             loadError instanceof Error
               ? loadError.message
@@ -285,7 +297,7 @@ export function useClientsListState({
     void loadPreview()
 
     return () => controller.abort()
-  }, [previewCache, previewReloadKey, selectedClientId])
+  }, [previewCache, previewReloadKey, selectedClientId, unavailablePreviewIds])
 
   const returnSnapshot = useMemo(
     () =>
@@ -410,6 +422,7 @@ export function useClientsListState({
   }
 
   function reloadPreview() {
+    setUnavailablePreviewIds((ids) => ids.filter((id) => id !== selectedClientId))
     if (selectedClientId) {
       setPreviewCache((currentCache) => {
         const nextCache = { ...currentCache }
@@ -451,6 +464,7 @@ export function useClientsListState({
     returnRestoreSnapshot,
     previewLoading,
     previewError,
+    previewUnavailable,
     previewIntent,
     isFirstRunEmpty,
     setSearchDraft,

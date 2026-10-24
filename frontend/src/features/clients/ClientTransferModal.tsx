@@ -65,6 +65,7 @@ export function ClientTransferModal({
 
   return (
     <Modal
+      zIndex="calc(var(--crm-layer-mobile-navigation) + 1)"
       centered
       onClose={onClose}
       opened={opened}

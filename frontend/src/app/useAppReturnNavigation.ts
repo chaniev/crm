@@ -112,6 +112,7 @@ export function getClientProfileBackLabel(
     return fe1AppShellAuthText.useAppReturnNavigation_string_fde25c93
   }
 
+  if (context.origin.kind === 'attention') return fe1AppShellAuthText.clientReturnToAttention
   return context.origin.kind === 'attendance' ? fe1AppShellAuthText.useAppReturnNavigation_string_fc6d18f1 : fe1AppShellAuthText.useAppReturnNavigation_string_bd4176c8
 }
 

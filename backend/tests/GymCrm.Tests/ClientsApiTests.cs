@@ -1083,7 +1083,7 @@ public class ClientsApiTests
     }
 
     [Fact]
-    public async Task Client_transfer_changes_branch_requires_target_groups_preserves_membership_and_validates_target_group()
+    public async Task Client_transfer_changes_branch_with_optional_target_groups_preserves_membership_and_validates_target_group()
     {
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
@@ -1186,9 +1186,10 @@ public class ClientsApiTests
             Assert.True(payload.GetProperty("errors").TryGetProperty("targetGroupIds", out _));
         }
 
+        var ungroupedTransferClientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
         using (var transferWithoutGroupResponse = await PostMembershipJsonAsync(
                    client,
-                   $"/clients/{clientId}/transfer",
+                   $"/clients/{ungroupedTransferClientId}/transfer",
                    new
                    {
                        TargetBranchId = targetBranchId,
@@ -1197,9 +1198,10 @@ public class ClientsApiTests
                    session.CsrfToken,
                    $"clients-api-transfer-missing-group-{Guid.NewGuid():N}"))
         {
-            Assert.Equal(HttpStatusCode.BadRequest, transferWithoutGroupResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, transferWithoutGroupResponse.StatusCode);
             var payload = await ReadJsonElementAsync(transferWithoutGroupResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("targetGroupIds", out _));
+            Assert.Empty(payload.GetProperty("groupIds").EnumerateArray());
+            Assert.Equal(targetBranchId, payload.GetProperty("branchId").GetGuid());
         }
 
         using (var transferWithGroupResponse = await PostMembershipJsonAsync(

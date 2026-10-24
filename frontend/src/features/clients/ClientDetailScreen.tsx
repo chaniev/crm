@@ -1,3 +1,4 @@
+import { ClientAccessErrorContext, isClientAccessError, useClientAccessBoundary } from './clientAccessBoundary'
 
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Button, Group, Loader } from '@mantine/core'
@@ -64,7 +65,10 @@ export function ClientDetailScreen({
   onBack,
   onEdit,
 }: ClientDetailScreenProps) {
-  const [client, setClient] = useState<ClientDetails | null>(null)
+  const [loadedClient, setClient] = useState<ClientDetails | null>(null)
+  const { isCurrent, close, reportError, unavailable } = useClientAccessBoundary(clientId)
+  const client = unavailable ? null : loadedClient
+  const backRef = useRef<HTMLButtonElement>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -89,9 +93,32 @@ export function ClientDetailScreen({
     },
   })
 
+  useEffect(() => {
+    if (!unavailable) return
+    setClient(null)
+    setLoading(false)
+    setLoadError(fe6ClientProfileText.clientUnavailable)
+    setActionError(null)
+    setArchiveConfirmOpened(false)
+    setTransferModalOpened(false)
+    setMembershipActionMode(null)
+    setSelectedMembershipId(null)
+    setPhotoVersion(null)
+    setBranchOptions([])
+    setGroupOptions([])
+    backRef.current?.focus()
+  }, [unavailable])
+
+  const transferFormRef = useRef(transferForm)
+  transferFormRef.current = transferForm
+  useEffect(() => {
+    if (unavailable) transferFormRef.current.reset()
+  }, [unavailable])
+
   function handleMembershipCommentChange(
     updatedMembership: ClientMembership,
   ) {
+    if (!isCurrent()) return
     setClient((currentClient) =>
       currentClient
         ? applyMembershipSaleComment(currentClient, updatedMembership)
@@ -103,29 +130,31 @@ export function ClientDetailScreen({
     const controller = new AbortController()
 
     async function load() {
+      setClient(null)
       setLoading(true)
       setLoadError(null)
 
       try {
         const nextClient = await getClient(clientId, controller.signal)
 
-        if (controller.signal.aborted) {
+        if (controller.signal.aborted || !isCurrent()) {
           return
         }
 
         setClient(nextClient)
       } catch (error) {
-        if (controller.signal.aborted) {
+        if (controller.signal.aborted || !isCurrent()) {
           return
         }
 
+        if (isClientAccessError(error)) { close(); return }
         setLoadError(
           error instanceof Error
             ? error.message
             : fe6ClientProfileText.clientDetailScreen_string_63fa9b9e,
         )
       } finally {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted && isCurrent()) {
           setLoading(false)
         }
       }
@@ -134,7 +163,7 @@ export function ClientDetailScreen({
     void load()
 
     return () => controller.abort()
-  }, [clientId])
+  }, [clientId, close, isCurrent])
 
   async function toggleArchive() {
     if (!client) {
@@ -152,6 +181,7 @@ export function ClientDetailScreen({
         await restoreClient(client.id)
       }
 
+      if (!isCurrent()) return
       const nextStatus: ClientStatus =
         client.status === 'Active' ? 'Archived' : 'Active'
 
@@ -177,6 +207,7 @@ export function ClientDetailScreen({
         color: 'teal',
       })
     } catch (error) {
+      if (!isCurrent() || await reportError(error, false)) return
       setActionError(
         error instanceof Error
           ? error.message
@@ -206,6 +237,7 @@ export function ClientDetailScreen({
         getBranches({ includeArchived: true }),
         getGroups({ take: 100 }),
       ])
+      if (!isCurrent()) return
       setBranchOptions(branches)
       setGroupOptions(groupsResponse.items)
     } catch (error) {
@@ -241,7 +273,9 @@ export function ClientDetailScreen({
         },
       )
 
-      setClient(updatedClient ?? (await getClient(client.id)))
+      if (!isCurrent()) return
+      if (updatedClient === null) close(false)
+      setClient(updatedClient)
       setTransferModalOpened(false)
 
       showAppNotification({
@@ -250,7 +284,14 @@ export function ClientDetailScreen({
         message: fe6ClientProfileText.clientDetailScreen_message_66eefff6,
         color: 'teal',
       })
+      if (updatedClient === null) {
+        transferForm.reset()
+        setMembershipActionMode(null)
+        setSelectedMembershipId(null)
+        onBack()
+      }
     } catch (error) {
+      if (!isCurrent() || await reportError(error, false)) return
       if (error instanceof ApiError) {
         const fieldErrors = applyFieldErrors(error.fieldErrors)
         transferForm.setErrors({
@@ -291,7 +332,9 @@ export function ClientDetailScreen({
           ? renewClientMembership(client.id, submission.payload, options)
           : correctClientMembership(client.id, submission.payload, options))
 
-      setClient(await getClient(client.id))
+      const updatedClient = await getClient(client.id)
+      if (!isCurrent()) return
+      setClient(updatedClient)
       setMembershipActionMode(null)
       setSelectedMembershipId(null)
 
@@ -318,6 +361,7 @@ export function ClientDetailScreen({
         color: 'teal',
       })
     } catch (error) {
+      if (!isCurrent() || await reportError(error)) throw error
       setActionError(
         error instanceof Error
           ? error.message
@@ -336,7 +380,9 @@ export function ClientDetailScreen({
     }
 
     await uploadClientPhoto(client.id, file)
-    setClient(await getClient(client.id))
+    const updatedClient = await getClient(client.id)
+    if (!isCurrent()) return
+    setClient(updatedClient)
     setPhotoVersion(Date.now())
   }
 
@@ -356,12 +402,14 @@ export function ClientDetailScreen({
   }
 
   return (
+    <ClientAccessErrorContext value={reportError}>
     <PageLayout
       actions={
         <ResponsiveButtonGroup>
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onBack}
+            ref={backRef}
             variant="default"
           >
             {backLabel}
@@ -495,7 +543,7 @@ export function ClientDetailScreen({
               selectedMembershipId={selectedMembershipId}
               onCancelAction={cancelMembershipAction}
               onActionModeChange={toggleMembershipActionMode}
-              onClientChange={setClient}
+              onClientChange={(updatedClient) => { if (isCurrent()) setClient(updatedClient) }}
               onSubmit={handleMembershipAction}
               onMembershipCommentChange={handleMembershipCommentChange}
             />
@@ -515,6 +563,7 @@ export function ClientDetailScreen({
         </>
       ) : null}
     </PageLayout>
+    </ClientAccessErrorContext>
   )
 }
 

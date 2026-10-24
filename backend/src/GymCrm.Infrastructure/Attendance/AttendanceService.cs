@@ -7,6 +7,7 @@ using GymCrm.Application.Scheduling;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
@@ -57,34 +58,38 @@ internal sealed class AttendanceService(
             throw new InvalidOperationException("AttendanceService owns its transaction and cannot run inside an ambient database transaction.");
         }
 
-        await using var ownedTransaction = supportsTransactions
-            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
-            : null;
+        var requestedClientIds = command.Marks.Select(mark => mark.ClientId).Distinct().Order().ToArray();
+        await using var ownedTransaction = await ClientAccessTransaction.BeginMutationForClientsAsync(
+            dbContext, command.MarkedByUserId, requestedClientIds, [command.GroupId], [], [command.GroupId], cancellationToken);
 
+        async Task RollbackAsync()
+        {
+            try
+            {
+                if (ownedTransaction is not null) await ownedTransaction.RollbackAsync(CancellationToken.None);
+            }
+            finally
+            {
+                // The caller may save its idempotency reservation in this same scoped context.
+                dbContext.ChangeTracker.Clear();
+            }
+        }
         try
         {
             var lesson = await ResolveLessonForSaveAsync(command, cancellationToken);
             if (lesson is null)
             {
-                if (ownedTransaction is not null)
-                {
-                    await ownedTransaction.RollbackAsync(cancellationToken);
-                }
+                await RollbackAsync();
 
                 return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.LessonOccurrenceMissing);
             }
 
             if (lesson.Status != LessonOccurrenceStatus.Scheduled)
             {
-                if (ownedTransaction is not null)
-                {
-                    await ownedTransaction.RollbackAsync(cancellationToken);
-                }
+                await RollbackAsync();
 
                 return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.LessonOccurrenceUnavailable);
             }
-
-            await LockAttendanceAuthorizationRowsAsync(command.MarkedByUserId, lesson.BranchId, lesson.GroupId, cancellationToken);
 
             var authorization = await EvaluateLockedAuthorizationAsync(
                 command.MarkedByUserId,
@@ -95,15 +100,20 @@ internal sealed class AttendanceService(
                 authorization == AttendanceBatchMutationError.TrainingDateInFuture ||
                 authorization == AttendanceBatchMutationError.TrainingDateUnavailable)
             {
-                if (ownedTransaction is not null)
-                {
-                    await ownedTransaction.RollbackAsync(cancellationToken);
-                }
+                await RollbackAsync();
 
                 return AttendanceBatchMutationResult.Failure(authorization);
             }
 
-            var requestedClientIds = command.Marks.Select(mark => mark.ClientId).Order().ToArray();
+            var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, command.MarkedByUserId, cancellationToken);
+            var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(actor!)).Select(client => client.Id);
+            if (actor!.Role == UserRole.Administrator &&
+                await visibleClientIds.CountAsync(clientId => requestedClientIds.Contains(clientId), cancellationToken) != requestedClientIds.Length)
+            {
+                await RollbackAsync();
+                return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.ClientUnavailable);
+            }
+            await LockAttendanceClientMembershipRowsAsync(requestedClientIds, cancellationToken);
             var clientNames = requestedClientIds.Length == 0
                 ? new Dictionary<Guid, string>()
                 : await dbContext.ClientGroups
@@ -111,6 +121,7 @@ internal sealed class AttendanceService(
                     .Where(clientGroup =>
                         clientGroup.GroupId == lesson.GroupId &&
                         requestedClientIds.Contains(clientGroup.ClientId) &&
+                        visibleClientIds.Contains(clientGroup.ClientId) &&
                         clientGroup.Client.Status == ClientStatus.Active)
                     .Select(clientGroup => new
                     {
@@ -128,17 +139,12 @@ internal sealed class AttendanceService(
             var invalidClientIds = requestedClientIds.Except(clientNames.Keys).Order().ToArray();
             if (invalidClientIds.Length > 0)
             {
-                if (ownedTransaction is not null)
-                {
-                    await ownedTransaction.RollbackAsync(cancellationToken);
-                }
+                await RollbackAsync();
 
                 return AttendanceBatchMutationResult.Failure(
                     AttendanceBatchMutationError.ClientOutsideGroup,
                     new AttendanceBatchSaveResult(command.LessonOccurrenceId, lesson.GroupId, lesson.LessonDate, [], [], [], invalidClientIds));
             }
-
-            await LockAttendanceClientMembershipRowsAsync(requestedClientIds, cancellationToken);
 
             var existingEntries = requestedClientIds.Length == 0
             ? new Dictionary<Guid, AttendanceEntry>()
@@ -176,10 +182,7 @@ internal sealed class AttendanceService(
                         cancellationToken);
                     if (!restore.Applied || restore.PreviousMembership is null || restore.CurrentMembership is null)
                     {
-                        if (ownedTransaction is not null)
-                        {
-                            await ownedTransaction.RollbackAsync(cancellationToken);
-                        }
+                        await RollbackAsync();
 
                         return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.SingleVisitRestoreConflict);
                     }
@@ -231,10 +234,7 @@ internal sealed class AttendanceService(
                         cancellationToken);
                     if (entitlement.Status == ClientMembershipEntitlementResolutionStatus.InvariantConflict)
                     {
-                        if (ownedTransaction is not null)
-                        {
-                            await ownedTransaction.RollbackAsync(cancellationToken);
-                        }
+                        await RollbackAsync();
 
                         return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.MembershipEntitlementInvariantConflict);
                     }
@@ -250,10 +250,7 @@ internal sealed class AttendanceService(
                         cancellationToken);
                     if (writeOff.Status == SingleVisitWriteOffStatus.MembershipEntitlementInvariantConflict)
                     {
-                        if (ownedTransaction is not null)
-                        {
-                            await ownedTransaction.RollbackAsync(cancellationToken);
-                        }
+                        await RollbackAsync();
 
                         return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.MembershipEntitlementInvariantConflict);
                     }
@@ -295,10 +292,7 @@ internal sealed class AttendanceService(
         }
         catch
         {
-            if (ownedTransaction is not null)
-            {
-                await ownedTransaction.RollbackAsync(cancellationToken);
-            }
+            await RollbackAsync();
 
             throw;
         }
@@ -418,32 +412,6 @@ internal sealed class AttendanceService(
         }
     }
 
-    private async Task LockAttendanceAuthorizationRowsAsync(
-        Guid actorId,
-        Guid branchId,
-        Guid groupId,
-        CancellationToken cancellationToken)
-    {
-        var providerName = dbContext.Database.ProviderName ?? string.Empty;
-        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        await dbContext.Database.ExecuteSqlInterpolatedAsync(
-            $"""SELECT 1 FROM "Branches" WHERE "Id" = {branchId} FOR UPDATE""",
-            cancellationToken);
-        await dbContext.Database.ExecuteSqlInterpolatedAsync(
-            $"""SELECT 1 FROM "Users" WHERE "Id" = {actorId} FOR UPDATE""",
-            cancellationToken);
-        await dbContext.Database.ExecuteSqlInterpolatedAsync(
-            $"""SELECT 1 FROM "TrainingGroups" WHERE "Id" = {groupId} FOR UPDATE""",
-            cancellationToken);
-        await dbContext.Database.ExecuteSqlInterpolatedAsync(
-            $"""SELECT 1 FROM "AdministratorAttendanceGroupGrants" WHERE "AdministratorId" = {actorId} AND "GroupId" = {groupId} FOR UPDATE""",
-            cancellationToken);
-    }
-
     private async Task LockAttendanceClientMembershipRowsAsync(
         IReadOnlyList<Guid> clientIds,
         CancellationToken cancellationToken)
@@ -456,9 +424,6 @@ internal sealed class AttendanceService(
 
         foreach (var clientId in clientIds.Order())
         {
-            await dbContext.Database.ExecuteSqlInterpolatedAsync(
-                $"""SELECT 1 FROM "Clients" WHERE "Id" = {clientId} FOR UPDATE""",
-                cancellationToken);
             await dbContext.Database.ExecuteSqlInterpolatedAsync(
                 $"""SELECT 1 FROM "ClientMemberships" WHERE "ClientId" = {clientId} AND "ValidTo" IS NULL ORDER BY "Id" FOR UPDATE""",
                 cancellationToken);

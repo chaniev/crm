@@ -650,7 +650,7 @@ export type Branch = {
   isArchived: boolean
   hallCount: number
   groupCount: number
-  clientCount: number
+  clientCount: number | null
   createdAt?: string
   updatedAt?: string
 }
@@ -1004,7 +1004,7 @@ export type TrainingGroupListItem = {
   trainerIds: string[]
   trainerCount: number
   trainerNames: string[]
-  clientCount: number
+  clientCount: number | null
   updatedAt?: string
 }
 
@@ -1460,8 +1460,10 @@ export type GroupResponsePayload = {
   trainerAssignmentPeriods?: GroupTrainerAssignmentPeriod[]
 }
 
+export type GroupListItemPayload = Omit<GroupResponsePayload, 'clientCount'> & { clientCount: number | null }
+
 export type GroupsListEnvelopePayload = {
-  items: GroupResponsePayload[]
+  items: GroupListItemPayload[]
   totalCount: number
   skip: number
   take: number

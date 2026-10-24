@@ -1,4 +1,5 @@
 export const fe6ClientProfileText = {
+  clientUnavailable: "Клиент недоступен.",
   clientAttendanceHistorySection_jsxText_001835f0: "По этому клиенту пока нет отмеченных посещений. ",
   clientAttendanceHistorySection_jsxText_511e94e0: "Показана текущая порция истории: ",
   clientAttendanceHistorySection_jsxText_7f4adf31: "из ",

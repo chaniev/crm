@@ -192,11 +192,6 @@ internal static class ClientLifecycleRequestValidation
             errors["targetGroupIds"] = [ClientResources.InvalidGroupId];
         }
 
-        if (groupIds.Count == 0)
-        {
-            errors["targetGroupIds"] = [ClientResources.ClientGroupsRequired];
-        }
-
         if (errors.Count > 0)
         {
             return errors;

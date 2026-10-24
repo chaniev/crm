@@ -1,15 +1,26 @@
 using System.Text.Json;
 using GymCrm.Application.Audit;
-using GymCrm.Domain.Audit;
 using GymCrm.Domain.Clients;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Api.Auth;
 
 internal static class ClientEndpointSharedHelpers
 {
     internal static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
+
+    internal static async Task<Client?> LoadAuthorizedMutationSnapshotAsync(
+        Guid clientId, Guid actorId, GymCrmDbContext dbContext, CancellationToken cancellationToken)
+    {
+        await using var lease = await ClientAccessTransaction.BeginReadAsync(dbContext, actorId, [clientId], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, actorId, cancellationToken);
+        if (actor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, actor, clientId, cancellationToken))
+        {
+            return null;
+        }
+        return await ClientResponseMapper.LoadClientSnapshotAsync(clientId, dbContext, cancellationToken);
+    }
 
     internal static void ValidateAdditionalFields(
         IDictionary<string, JsonElement>? additionalFields,
@@ -103,7 +114,7 @@ internal static class ClientEndpointSharedHelpers
             NewValueJson: JsonSerializer.Serialize(new { transition }, AuditSerializerOptions));
     }
 
-    internal static async Task TryWriteClientAuditAsync(
+    internal static Task WriteClientAuditAsync(
         IAuditLogService auditLogService,
         GymCrmDbContext dbContext,
         ILoggerFactory loggerFactory,
@@ -112,24 +123,6 @@ internal static class ClientEndpointSharedHelpers
         AuditLogEntry entry,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            await auditLogService.WriteAsync(entry, cancellationToken);
-        }
-        catch (Exception exception)
-        {
-            foreach (var trackedAudit in dbContext.ChangeTracker.Entries<AuditLog>()
-                         .Where(tracked => tracked.State == EntityState.Added))
-            {
-                trackedAudit.State = EntityState.Detached;
-            }
-
-            loggerFactory.CreateLogger("ClientAudit").LogError(
-                exception,
-                "Client audit write failed. ActionType={ActionType} ClientId={ClientId} ActorId={ActorId}",
-                entry.ActionType,
-                clientId,
-                actorId);
-        }
+        return auditLogService.WriteAsync(entry, cancellationToken);
     }
 }

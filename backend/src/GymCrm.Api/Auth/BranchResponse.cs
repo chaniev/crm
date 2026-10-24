@@ -8,6 +8,6 @@ internal sealed record BranchResponse(
     bool IsArchived,
     int HallCount,
     int GroupCount,
-    int ClientCount,
+    int? ClientCount,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt);

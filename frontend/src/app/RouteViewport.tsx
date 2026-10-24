@@ -161,6 +161,7 @@ export function RouteViewport({
   if (route.kind === 'clientDetails') {
     return (
       <ClientDetailScreen
+        key={route.clientId}
         canManage={user.permissions.canManageClients}
         backLabel={clientProfileReturnLabel}
         clientId={route.clientId}
@@ -190,6 +191,9 @@ export function RouteViewport({
   if (route.kind === 'clientEdit') {
     return (
       <ClientEditScreen
+        key={route.clientId}
+        onUnavailableBack={onReturnToClients}
+        backLabel={clientProfileReturnLabel}
         clientId={route.clientId}
         onBack={() => onOpenClient(route.clientId)}
         onUpdated={onOpenClient}
@@ -368,6 +372,7 @@ export function RouteViewport({
   if (route.section === 'Attention') {
     return (
       <AttentionDashboard
+        focusOnReturn={clientProfileReturnContext?.origin.kind === 'attention'}
         onOpenClient={onOpenClient}
       />
     )

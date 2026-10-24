@@ -335,7 +335,7 @@ describe('AttentionDashboard', () => {
       expect(profileAction).not.toBeNull()
     })
     fireEvent.click(profileAction!)
-    expect(onOpenClient).toHaveBeenCalledWith('client-density')
+    expect(onOpenClient).toHaveBeenCalledWith('client-density', { kind: 'attention', route: { kind: 'section', section: 'Attention' }, anchorClientId: 'client-density' })
   })
 })
 

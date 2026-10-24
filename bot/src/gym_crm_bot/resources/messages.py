@@ -10,6 +10,7 @@ MUST_CHANGE_PASSWORD_MESSAGE = (
 )
 INACTIVE_USER_MESSAGE = "Доступ к боту отключен. Обратитесь к администратору CRM."
 FORBIDDEN_MESSAGE = "Это действие недоступно для вашей роли."
+RESOURCE_UNAVAILABLE_MESSAGE = "Данные больше недоступны. Откройте список заново."
 TEMPORARY_ERROR_MESSAGE = "CRM временно недоступна. Попробуйте еще раз позже."
 VALIDATION_ERROR_PREFIX = "CRM отклонила запрос:"
 EMPTY_GROUPS_MESSAGE = "Нет доступных групп для отметки посещаемости."

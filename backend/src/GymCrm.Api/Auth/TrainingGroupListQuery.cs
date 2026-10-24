@@ -1,4 +1,6 @@
+using GymCrm.Application.Authorization;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,8 +37,11 @@ internal static class TrainingGroupListQuery
     public static Task<List<TrainingGroup>> LoadPageAsync(
         IQueryable<TrainingGroup> query,
         GroupPaging paging,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        GymCrmDbContext dbContext,
+        User actor)
     {
+        var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(actor)).Select(client => client.Id);
         return query
             .OrderBy(group => group.Name)
             .ThenBy(group => group.TrainingStartTime)
@@ -48,7 +53,7 @@ internal static class TrainingGroupListQuery
             .Include(group => group.GroupType)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
-            .Include(group => group.Clients)
+            .Include(group => group.Clients.Where(clientGroup => visibleClientIds.Contains(clientGroup.ClientId)))
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
     }

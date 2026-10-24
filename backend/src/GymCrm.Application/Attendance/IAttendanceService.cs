@@ -39,7 +39,8 @@ public enum AttendanceBatchMutationError
     TrainingDateUnavailable = 7,
     MembershipEntitlementInvariantConflict = 8,
     LessonOccurrenceMissing = 9,
-    LessonOccurrenceUnavailable = 10
+    LessonOccurrenceUnavailable = 10,
+    ClientUnavailable = 11
 }
 
 public sealed record AttendanceEntryChangeResult(

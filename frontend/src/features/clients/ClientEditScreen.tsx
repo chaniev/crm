@@ -1,3 +1,4 @@
+import { ClientAccessErrorContext, isClientAccessError, useClientAccessBoundary } from './clientAccessBoundary'
 
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Button } from '@mantine/core'
@@ -32,15 +33,22 @@ import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
 type ClientEditScreenProps = {
   clientId: string
   onBack: () => void
+  onUnavailableBack?: () => void
+  backLabel?: string
   onUpdated: (clientId: string) => void
 }
 
 export function ClientEditScreen({
   clientId,
   onBack,
+  onUnavailableBack = onBack,
+  backLabel = fe6ClientProfileText.clientDetailScreen_string_fde25c93,
   onUpdated,
 }: ClientEditScreenProps) {
-  const [client, setClient] = useState<ClientDetails | null>(null)
+  const [loadedClient, setClient] = useState<ClientDetails | null>(null)
+  const { isCurrent, close, reportError, unavailable } = useClientAccessBoundary(clientId)
+  const client = unavailable ? null : loadedClient
+  const backRef = useRef<HTMLButtonElement>(null)
   const [groupOptions, setGroupOptions] = useState<TrainingGroupListItem[]>([])
   const [branchOptions, setBranchOptions] = useState<Branch[]>([])
   const [loading, setLoading] = useState(true)
@@ -53,9 +61,23 @@ export function ClientEditScreen({
   formRef.current = form
 
   useEffect(() => {
+    if (!unavailable) return
+    setClient(null)
+    setLoading(false)
+    setLoadError(fe6ClientProfileText.clientUnavailable)
+    setFormError(null)
+    setBranchOptions([])
+    setGroupOptions([])
+    setPhotoVersion(null)
+    formRef.current.reset()
+    backRef.current?.focus()
+  }, [unavailable])
+
+  useEffect(() => {
     const controller = new AbortController()
 
     async function load() {
+      setClient(null)
       setLoading(true)
       setLoadError(null)
 
@@ -66,7 +88,7 @@ export function ClientEditScreen({
           getGroups({ take: 100 }, controller.signal),
         ])
 
-        if (controller.signal.aborted) {
+        if (controller.signal.aborted || !isCurrent()) {
           return
         }
 
@@ -75,17 +97,18 @@ export function ClientEditScreen({
         setGroupOptions(groupsResponse.items)
         formRef.current.setValues(toClientFormValues(nextClient))
       } catch (error) {
-        if (controller.signal.aborted) {
+        if (controller.signal.aborted || !isCurrent()) {
           return
         }
 
+        if (await reportError(error)) return
         setLoadError(
           error instanceof Error
             ? error.message
             : fe6ClientProfileText.clientEditScreen_string_63fa9b9e,
         )
       } finally {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted && isCurrent()) {
           setLoading(false)
         }
       }
@@ -94,7 +117,7 @@ export function ClientEditScreen({
     void load()
 
     return () => controller.abort()
-  }, [clientId])
+  }, [clientId, isCurrent, reportError])
 
   async function submit(values: ClientFormValues) {
     setFormError(null)
@@ -111,6 +134,7 @@ export function ClientEditScreen({
 
     try {
       await updateClient(clientId, toUpsertClientPayload(values))
+      if (!isCurrent()) return
 
       showAppNotification({
         id: `client-edit-success-${clientId}`,
@@ -121,6 +145,8 @@ export function ClientEditScreen({
 
       onUpdated(clientId)
     } catch (error) {
+      if (!isCurrent()) return
+      if (isClientAccessError(error)) { close(); return }
       if (error instanceof ApiError) {
         form.setErrors(applyFieldErrors(error.fieldErrors, clientFieldErrorAliases))
         setFormError(error.message)
@@ -137,21 +163,24 @@ export function ClientEditScreen({
     const updatedClient = await uploadClientPhoto(clientId, file)
     const nextClient = updatedClient ?? (await getClient(clientId))
 
+    if (!isCurrent()) return
     setClient(nextClient)
     setPhotoVersion(Date.now())
   }
 
   return (
+    <ClientAccessErrorContext value={reportError}>
     <PageLayout
       actions={
         <Button
           leftSection={<IconArrowLeft size={18} />}
-          onClick={onBack}
+          onClick={unavailable ? onUnavailableBack : onBack}
+          ref={backRef}
           variant="default"
         >
-          {fe6ClientProfileText.clientEditScreen_jsxText_14a4b327}</Button>
+          {unavailable ? backLabel : fe6ClientProfileText.clientEditScreen_jsxText_14a4b327}</Button>
       }
-      title={client ? client.fullName : fe6ClientProfileText.clientEditScreen_string_a912ec86}
+      title={client ? client.fullName : unavailable ? fe6ClientProfileText.clientDetailScreen_string_48186f7a : fe6ClientProfileText.clientEditScreen_string_a912ec86}
     >
 
       {loading ? (
@@ -206,5 +235,6 @@ export function ClientEditScreen({
         </>
       ) : null}
     </PageLayout>
+    </ClientAccessErrorContext>
   )
 }

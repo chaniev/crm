@@ -7,7 +7,7 @@ import {
 import { mapGroupListItem } from './groups'
 import { request } from './transport'
 import type {
-  GroupResponsePayload,
+  GroupListItemPayload,
   GroupsListEnvelopePayload,
   ScheduleLessonCancellationExecuteRequest,
   ScheduleLessonCancellationPreviewResponse,
@@ -70,7 +70,7 @@ export async function getScheduleGroups(
     searchParams.set(GROUPS_QUERY_KEYS.pageSize, String(GROUPS_DEFAULT_PAGE_SIZE))
   }
 
-  const payload = await request<GroupResponsePayload[] | GroupsListEnvelopePayload>(
+  const payload = await request<GroupListItemPayload[] | GroupsListEnvelopePayload>(
     `${API_ENDPOINTS.schedule.groups}?${searchParams.toString()}`,
     { signal },
   )

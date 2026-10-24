@@ -15,6 +15,7 @@ import type {
   GroupLessonSeriesRequest,
   GroupPreviewResponse,
   GroupResponsePayload,
+  GroupListItemPayload,
   GroupTrainerAssignmentsExecuteRequest,
   GroupTrainerAssignmentsExecuteResponse,
   GroupTrainerAssignmentsPreviewRequest,
@@ -251,7 +252,7 @@ export async function applyGroupLessonSeries(
   )
 }
 
-export function mapGroupListItem(payload: GroupResponsePayload): TrainingGroupListItem {
+export function mapGroupListItem(payload: GroupListItemPayload): TrainingGroupListItem {
   const trainers = payload.trainers.map(mapGroupTrainerSummary)
 
   return {

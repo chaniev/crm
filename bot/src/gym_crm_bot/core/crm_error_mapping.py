@@ -8,6 +8,7 @@ from gym_crm_bot.crm.errors import (
     CrmForbiddenError,
     CrmIdempotencyConflictError,
     CrmMustChangePasswordError,
+    CrmNotFoundError,
     CrmTemporaryError,
     CrmUserInactiveError,
     CrmUserNotConfiguredError,
@@ -18,6 +19,7 @@ from gym_crm_bot.resources.messages import (
     FORBIDDEN_MESSAGE,
     INACTIVE_USER_MESSAGE,
     MUST_CHANGE_PASSWORD_MESSAGE,
+    RESOURCE_UNAVAILABLE_MESSAGE,
     TEMPORARY_ERROR_MESSAGE,
     VALIDATION_ERROR_PREFIX,
     unknown_user_message,
@@ -52,6 +54,10 @@ class CrmErrorMapper:
             except CrmClientError:
                 pass
 
+        if isinstance(error, CrmNotFoundError):
+            return BotResponse(
+                text=RESOURCE_UNAVAILABLE_MESSAGE, replace_existing=event.kind == "callback"
+            )
         if isinstance(error, CrmUserNotConfiguredError):
             return BotResponse(text=unknown_user_message(event.platform_user_id))
         if isinstance(error, CrmUserInactiveError):

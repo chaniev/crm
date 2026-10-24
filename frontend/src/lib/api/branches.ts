@@ -187,7 +187,7 @@ function mapBranch(payload: BranchResponsePayload): Branch {
     isArchived: payload.isArchived,
     hallCount: payload.hallCount ?? 0,
     groupCount: payload.groupCount ?? 0,
-    clientCount: payload.clientCount ?? 0,
+    clientCount: payload.clientCount ?? null,
     createdAt: payload.createdAt,
     updatedAt: payload.updatedAt,
   }

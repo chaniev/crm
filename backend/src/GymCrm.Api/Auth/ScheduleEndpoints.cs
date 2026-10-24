@@ -10,6 +10,7 @@ using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -1304,6 +1305,10 @@ internal static partial class ScheduleEndpoints
         {
             return TypedResults.Unauthorized();
         }
+        await using var actorLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+
 
         var errors = GroupRequestValidator.ValidatePaging(page, pageSize, skip, take);
         if (errors.Count > 0)
@@ -1321,10 +1326,10 @@ internal static partial class ScheduleEndpoints
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
-        var groups = await TrainingGroupListQuery.LoadPageAsync(query, paging, cancellationToken);
+        var groups = await TrainingGroupListQuery.LoadPageAsync(query, paging, cancellationToken, dbContext, currentUser);
 
         IReadOnlyList<GroupListItemResponse> items = groups
-            .Select(TrainingGroupListItemMapper.Map)
+            .Select(group => TrainingGroupListItemMapper.Map(group, currentUser))
             .ToArray();
 
         return TypedResults.Ok(new ScheduleGroupListResponse(

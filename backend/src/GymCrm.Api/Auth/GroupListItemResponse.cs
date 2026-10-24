@@ -17,5 +17,5 @@ internal sealed record GroupListItemResponse(
     IReadOnlyList<Guid> TrainerIds,
     int TrainerCount,
     IReadOnlyList<string> TrainerNames,
-    int ClientCount,
+    int? ClientCount,
     DateTimeOffset UpdatedAt);

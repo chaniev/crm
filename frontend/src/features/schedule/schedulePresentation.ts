@@ -24,7 +24,8 @@ function formatLessonWord(count: number) {
   return fe2ScheduleCoreText.schedulePresentation_string_ba6c01b2
 }
 
-export function formatScheduleClientCount(clientCount: number) {
+export function formatScheduleClientCount(clientCount: number | null) {
+  if (clientCount === null) return ''
   const absCount = Math.abs(clientCount)
   const lastDigit = absCount % 10
   const lastTwoDigits = absCount % 100

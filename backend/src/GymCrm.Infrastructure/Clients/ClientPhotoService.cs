@@ -3,8 +3,10 @@ using System.Text;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -15,7 +17,8 @@ internal sealed class ClientPhotoService(
     IEffectiveGroupAssignmentService effectiveGroupAssignmentService,
     IOptions<ClientPhotoStorageOptions> storageOptions,
     IClientPhotoImageProcessor imageProcessor,
-    ILogger<ClientPhotoService> logger) : IClientPhotoService
+    ILogger<ClientPhotoService> logger,
+    IServiceScopeFactory serviceScopeFactory) : IClientPhotoService
 {
     private static readonly IReadOnlyDictionary<string, DetectedPhotoFormat> FormatsByExtension =
         new Dictionary<string, DetectedPhotoFormat>(StringComparer.OrdinalIgnoreCase)
@@ -56,13 +59,13 @@ internal sealed class ClientPhotoService(
             return ClientPhotoUploadResult.Failure(ClientPhotoError.InvalidRequest);
         }
 
-        var actorRole = await LoadUserRoleAsync(command.RequestedByUserId, cancellationToken);
-        if (actorRole is null)
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, command.RequestedByUserId, cancellationToken);
+        if (actor is null)
         {
             return ClientPhotoUploadResult.Failure(ClientPhotoError.UserMissing);
         }
 
-        if (!CanManagePhotos(actorRole.Value))
+        if (!CanManagePhotos(actor.Role))
         {
             return ClientPhotoUploadResult.Failure(ClientPhotoError.Forbidden);
         }
@@ -70,7 +73,7 @@ internal sealed class ClientPhotoService(
         var client = await dbContext.Clients
             .SingleOrDefaultAsync(candidate => candidate.Id == clientId, cancellationToken);
 
-        if (client is null)
+        if (client is null || !ClientAccessPolicy.CanAccessBranch(actor, client.BranchId))
         {
             return ClientPhotoUploadResult.Failure(ClientPhotoError.ClientMissing);
         }
@@ -101,6 +104,17 @@ internal sealed class ClientPhotoService(
             return ClientPhotoUploadResult.Failure(preparedPhoto.Error.Value);
         }
 
+        await using var transaction = await ClientAccessTransaction.BeginMutationAsync(
+            dbContext, actor.Id, clientId, [], [], cancellationToken);
+        actor = await ClientAccessTransaction.LoadActorAsync(dbContext, actor.Id, cancellationToken);
+        if (actor is null) return ClientPhotoUploadResult.Failure(ClientPhotoError.UserMissing);
+        if (!CanManagePhotos(actor.Role)) return ClientPhotoUploadResult.Failure(ClientPhotoError.Forbidden);
+        await dbContext.Entry(client).ReloadAsync(cancellationToken);
+        if (!ClientAccessPolicy.CanAccessBranch(actor, client.BranchId))
+        {
+            return ClientPhotoUploadResult.Failure(ClientPhotoError.ClientMissing);
+        }
+
         var photoToStore = preparedPhoto.Value!;
         var oldPhotoPath = client.PhotoPath;
         var now = DateTimeOffset.UtcNow;
@@ -109,6 +123,7 @@ internal sealed class ClientPhotoService(
             photoToStore,
             cancellationToken);
 
+        var commitStarted = false;
         try
         {
             client.PhotoPath = storedPhoto.RelativePath;
@@ -118,10 +133,43 @@ internal sealed class ClientPhotoService(
             client.UpdatedAt = now;
 
             await dbContext.SaveChangesAsync(cancellationToken);
+            if (transaction is not null)
+            {
+                commitStarted = true;
+                await transaction.CommitAsync(cancellationToken);
+            }
         }
         catch
         {
-            await DeletePhotoIfExistsAsync(storedPhoto.RelativePath, CancellationToken.None);
+            if (transaction is not null)
+            {
+                try { await transaction.RollbackAsync(CancellationToken.None); }
+                catch (Exception exception) { logger.LogWarning(exception, "Photo transaction rollback could not be confirmed."); }
+                await transaction.DisposeAsync();
+            }
+            if (!commitStarted)
+            {
+                await DeletePhotoIfExistsAsync(storedPhoto.RelativePath, CancellationToken.None);
+            }
+            else
+            {
+                // A lost commit acknowledgement must never delete a file referenced by the database.
+                try
+                {
+                    await using var verificationScope = serviceScopeFactory.CreateAsyncScope();
+                    var verificationDb = verificationScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+                    var persistedPath = await verificationDb.Clients.AsNoTracking().Where(candidate => candidate.Id == clientId)
+                        .Select(candidate => candidate.PhotoPath).SingleOrDefaultAsync(CancellationToken.None);
+                    if (!string.Equals(persistedPath, storedPhoto.RelativePath, StringComparison.Ordinal))
+                    {
+                        await DeletePhotoIfExistsAsync(storedPhoto.RelativePath, CancellationToken.None);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    logger.LogWarning(exception, "Photo commit outcome could not be verified; retaining the uploaded file.");
+                }
+            }
             throw;
         }
 
@@ -158,10 +206,17 @@ internal sealed class ClientPhotoService(
             return ClientPhotoReadResult.Failure(ClientPhotoError.InvalidRequest);
         }
 
-        var actorRole = await LoadUserRoleAsync(command.RequestedByUserId, cancellationToken);
-        if (actorRole is null)
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, command.RequestedByUserId, [clientId], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, command.RequestedByUserId, cancellationToken);
+        if (actor is null)
         {
             return ClientPhotoReadResult.Failure(ClientPhotoError.UserMissing);
+        }
+
+        if (actor.Role == UserRole.Administrator &&
+            !await ClientAccessTransaction.CanAccessAsync(dbContext, actor, clientId, cancellationToken))
+        {
+            return ClientPhotoReadResult.Failure(ClientPhotoError.ClientMissing);
         }
 
         var clientPhoto = await dbContext.Clients
@@ -180,7 +235,7 @@ internal sealed class ClientPhotoService(
             return ClientPhotoReadResult.Failure(ClientPhotoError.ClientMissing);
         }
 
-        var hasAccess = actorRole.Value switch
+        var hasAccess = actor.Role switch
         {
             UserRole.HeadCoach or UserRole.SuperAdministrator => true,
             UserRole.Administrator => true,
@@ -207,7 +262,7 @@ internal sealed class ClientPhotoService(
         try
         {
             var absolutePath = ResolveAbsolutePhotoPath(clientPhoto.PhotoPath);
-            var stream = new FileStream(
+            await using var stream = new FileStream(
                 absolutePath,
                 FileMode.Open,
                 FileAccess.Read,
@@ -215,8 +270,13 @@ internal sealed class ClientPhotoService(
                 bufferSize: 64 * 1024,
                 options: FileOptions.Asynchronous | FileOptions.SequentialScan);
 
+            var snapshot = await ReadContentAsync(stream, maxUploadSizeBytes, cancellationToken);
+            if (snapshot.Error.HasValue)
+            {
+                return ClientPhotoReadResult.Failure(snapshot.Error.Value);
+            }
             return ClientPhotoReadResult.Success(new ClientPhotoContentResult(
-                stream,
+                new MemoryStream(snapshot.Content, writable: false),
                 clientPhoto.PhotoContentType,
                 clientPhoto.PhotoSizeBytes.Value,
                 clientPhoto.PhotoUploadedAt.Value));
@@ -248,17 +308,6 @@ internal sealed class ClientPhotoService(
                 cancellationToken);
     }
 
-    private async Task<UserRole?> LoadUserRoleAsync(
-        Guid userId,
-        CancellationToken cancellationToken)
-    {
-        return await dbContext.Users
-            .AsNoTracking()
-            .Where(user => user.Id == userId)
-            .Select(user => (UserRole?)user.Role)
-            .SingleOrDefaultAsync(cancellationToken);
-    }
-
     private async Task<SavedPhoto> SaveNewPhotoAsync(
         Guid clientId,
         PreparedPhoto photo,
@@ -269,7 +318,16 @@ internal sealed class ClientPhotoService(
         var fileName = $"{clientId:N}-{Guid.NewGuid():N}.{photo.FileExtension}";
         var absolutePath = Path.Combine(storageRootPath, fileName);
 
-        await File.WriteAllBytesAsync(absolutePath, photo.Content, cancellationToken);
+        try
+        {
+            await File.WriteAllBytesAsync(absolutePath, photo.Content, cancellationToken);
+        }
+        catch
+        {
+            // A cancelled write can leave a partial file before metadata persistence starts.
+            File.Delete(absolutePath);
+            throw;
+        }
 
         return new SavedPhoto(fileName, photo.ContentType, photo.Content.LongLength);
     }

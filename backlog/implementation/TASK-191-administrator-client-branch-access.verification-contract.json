@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "task_id": "TASK-191",
+  "expected_branch": "codex/TASK-191-administrator-client-branch-access",
+  "areas": [
+    "backend",
+    "frontend",
+    "bot",
+    "requirements"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.administrator-client-scope",
+      "spec": "e2e/administrator-client-branch-access.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.e2e.client-origin-regression",
+      "spec": "e2e/client-profile-context-navigation.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-191-evidence/manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.client-scope-rendered-comparison",
+      "description": "Compare implemented restricted and transfer return states with approved TASK-191 UI contract; record emulator/device limits."
+    }
+  ]
+}

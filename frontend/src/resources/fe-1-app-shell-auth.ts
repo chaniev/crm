@@ -1,4 +1,5 @@
 export const fe1AppShellAuthText = {
+  clientReturnToAttention: "К списку внимания",
   app_jsxText_10995e5b: "Проверьте подключение к сервису и повторите загрузку. ",
   app_jsxText_298e4132: "Повторить загрузку ",
   app_jsxText_2bf6591e: "Не удалось открыть экран входа",

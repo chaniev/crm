@@ -521,7 +521,7 @@ export function BranchSettingsScreen({
                             {branch.address || fe10SettingsBranchesShellText.branchSettingsScreen_string_51f4db1b}
                           </Text>
                           <Text c="dimmed" size="sm">
-                            {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_f8d072c0}{branch.hallCount} {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_0d7606f3}{branch.groupCount} {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_6ea69b07}{branch.clientCount}
+                            {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_f8d072c0}{branch.hallCount} {fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_0d7606f3}{branch.groupCount} {branch.clientCount !== null ? <>{fe10SettingsBranchesShellText.branchSettingsScreen_jsxText_6ea69b07}{branch.clientCount}</> : null}
                           </Text>
                         </Stack>
                       </Group>

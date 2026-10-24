@@ -1,7 +1,9 @@
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -30,7 +32,7 @@ internal static class ClientLifecycleEndpoints
         return group;
     }
 
-    private static async Task<Results<Created<ClientDetailsResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateClientAsync(
+    private static async Task<Results<Created<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateClientAsync(
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IBusinessDateProvider businessDateProvider,
@@ -60,6 +62,22 @@ internal static class ClientLifecycleEndpoints
         }
 
         var normalizedRequest = NormalizeRequest(request!);
+        if (!ClientAccessPolicy.CanAccessBranch(currentUser, normalizedRequest.BranchId))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
+        await using var transaction = await ClientAccessTransaction.BeginMutationAsync(
+            dbContext, currentUser.Id, null, normalizedRequest.GroupIds,
+            normalizedRequest.BranchId is Guid branchId ? [branchId] : [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+        if (!ClientAccessPolicy.CanAccessBranch(currentUser, normalizedRequest.BranchId))
+        {
+            return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
+        }
         var validationErrors = await ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
         if (validationErrors.Count > 0)
         {
@@ -98,7 +116,7 @@ internal static class ClientLifecycleEndpoints
         var createdClient = await ClientResponseMapper.LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Created client '{client.Id}' was not found.");
 
-        await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
+        await WriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
             new AuditLogEntry(
                 currentUser.Id,
                 ClientAuditConstants.ClientCreatedAction,
@@ -111,14 +129,20 @@ internal static class ClientLifecycleEndpoints
 
         if (noteTransition is not null)
         {
-            await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
+            await WriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
                 BuildNoteAuditEntry(currentUser.Id, client, currentUser.Login, noteTransition), cancellationToken);
         }
 
-        return TypedResults.Created($"/clients/{client.Id}", ClientResponseMapper.MapDetails(createdClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+            await transaction.DisposeAsync();
+        }
+        var responseClient = await LoadAuthorizedMutationSnapshotAsync(client.Id, currentUser.Id, dbContext, cancellationToken);
+        return responseClient is null ? TypedResults.NotFound() : TypedResults.Created($"/clients/{client.Id}", ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateClientAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateClientAsync(
         Guid id,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
@@ -148,13 +172,31 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.Unauthorized();
         }
 
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return TypedResults.NotFound();
+        }
+
+        var normalizedRequest = NormalizeRequest(request!);
+        await using var transaction = await ClientAccessTransaction.BeginMutationAsync(
+            dbContext, currentUser.Id, id, normalizedRequest.GroupIds,
+            normalizedRequest.BranchId is Guid branchId ? [branchId] : [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return TypedResults.NotFound();
+        }
+
         var client = await LoadClientForMutationAsync(id, dbContext, cancellationToken);
         if (client is null)
         {
             return TypedResults.NotFound();
         }
 
-        var normalizedRequest = NormalizeRequest(request!);
         var validationErrors = await ValidateUpsertRequestAsync(
             normalizedRequest,
             dbContext,
@@ -193,7 +235,7 @@ internal static class ClientLifecycleEndpoints
         var updatedClient = await ClientResponseMapper.LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated client '{client.Id}' was not found.");
 
-        await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
+        await WriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
             new AuditLogEntry(
                 currentUser.Id,
                 ClientAuditConstants.ClientUpdatedAction,
@@ -207,14 +249,20 @@ internal static class ClientLifecycleEndpoints
 
         if (noteTransition is not null)
         {
-            await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
+            await WriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
                 BuildNoteAuditEntry(currentUser.Id, client, currentUser.Login, noteTransition), cancellationToken);
         }
 
-        return TypedResults.Ok(ClientResponseMapper.MapDetails(updatedClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+            await transaction.DisposeAsync();
+        }
+        var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
+        return responseClient is null ? TypedResults.NotFound() : TypedResults.Ok(ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> TransferClientBranchAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> TransferClientBranchAsync(
         Guid id,
         TransferClientBranchRequest request,
         HttpContext httpContext,
@@ -238,6 +286,21 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var targetGroupIds = NormalizeTransferGroupIds(request);
+        var transferPayload = new
+        {
+            ClientId = id,
+            Action = ClientAuditConstants.ClientTransferredAction,
+            TargetBranchId = request.TargetBranchId,
+            TargetGroupIds = targetGroupIds.Order().ToArray()
+        };
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return await IsCompletedTransferReplayAsync(id, currentUser.Id, httpContext.Request, transferPayload, dbContext, cancellationToken)
+                ? TypedResults.NoContent()
+                : TypedResults.NotFound();
+        }
+
         var client = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
         if (client is null)
         {
@@ -251,7 +314,6 @@ internal static class ClientLifecycleEndpoints
         }
 
         var targetBranchId = request.TargetBranchId!.Value;
-        var targetGroupIds = NormalizeTransferGroupIds(request);
 
         return await ExecuteMembershipActionAsync(
             id,
@@ -316,13 +378,7 @@ internal static class ClientLifecycleEndpoints
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return ClientMembershipMutationResult.Success(new ClientMembershipDetailsResult(id, null, []));
             },
-            idempotencyPayload: new
-            {
-                ClientId = id,
-                Action = ClientAuditConstants.ClientTransferredAction,
-                TargetBranchId = targetBranchId,
-                TargetGroupIds = targetGroupIds.Order().ToArray()
-            },
+            idempotencyPayload: transferPayload,
             actionType: ClientAuditConstants.ClientTransferredAction,
             descriptionFactory: ClientAuditResources.ClientTransferredDescription,
             writeAuditAsync: (actor, clientBefore, clientAfter, _) => auditLogService.WriteAsync(
@@ -336,7 +392,10 @@ internal static class ClientLifecycleEndpoints
                         BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
                     SerializeAuditState(clientBefore),
                     SerializeAuditState(clientAfter)),
-                cancellationToken));
+                cancellationToken),
+            lockGroupIds: targetGroupIds,
+            lockBranchIds: [targetBranchId],
+            validateLockedAsync: () => ValidateTransferRequestAsync(request, dbContext, cancellationToken));
     }
 
     private static async Task LockClientAssignmentTransferRowsAsync(
@@ -437,6 +496,23 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.Unauthorized();
         }
 
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return TypedResults.NotFound();
+        }
+
+        await using var transaction = await ClientAccessTransaction.BeginMutationAsync(
+            dbContext, currentUser.Id, id, [], [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return TypedResults.NotFound();
+        }
+
         var client = await LoadClientForMutationAsync(id, dbContext, cancellationToken);
         if (client is null)
         {
@@ -473,6 +549,12 @@ internal static class ClientLifecycleEndpoints
                 SerializeAuditState(clientAfter)),
             cancellationToken);
 
-        return TypedResults.Ok(ClientResponseMapper.MapDetails(clientAfter, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+            await transaction.DisposeAsync();
+        }
+        var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
+        return responseClient is null ? TypedResults.NotFound() : TypedResults.Ok(ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 }

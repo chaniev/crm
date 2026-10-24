@@ -74,7 +74,8 @@ export function isClientProfileOriginInput(
     typeof value === 'object' &&
     value !== null &&
     'kind' in value &&
-    ((value as { kind?: unknown }).kind === 'attendance' ||
+    ((value as { kind?: unknown }).kind === 'attention' ||
+      (value as { kind?: unknown }).kind === 'attendance' ||
       (value as { kind?: unknown }).kind === 'groupEdit')
   )
 }

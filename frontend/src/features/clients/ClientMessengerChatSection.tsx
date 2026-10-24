@@ -1,3 +1,4 @@
+import { useClientAccessError } from './clientAccessBoundary'
 import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
@@ -69,6 +70,7 @@ const telegramShareText =
 export function ClientMessengerChatSection({
   clientId,
 }: ClientMessengerChatSectionProps) {
+  const reportClientError = useClientAccessError()
   const [hidden, setHidden] = useState(false)
   const [summary, setSummary] = useState<ClientMessengerSummary | null>(null)
   const [messages, setMessages] = useState<ClientMessengerMessage[]>([])
@@ -133,6 +135,7 @@ export function ClientMessengerChatSection({
           })
         }
       } catch (error) {
+      void reportClientError(error)
         if (controller.signal.aborted) {
           return
         }
@@ -157,7 +160,7 @@ export function ClientMessengerChatSection({
     void load()
 
     return () => controller.abort()
-  }, [clientId])
+  }, [clientId, reportClientError])
 
   useEffect(() => {
     if (!scrollRef.current) {
@@ -215,6 +218,7 @@ export function ClientMessengerChatSection({
         })
       }
     } catch (error) {
+      void reportClientError(error)
       setLoadError(
         error instanceof Error
           ? error.message
@@ -238,6 +242,7 @@ export function ClientMessengerChatSection({
       setMessages((currentMessages) => [...page.items, ...currentMessages])
       setMessageSkip(nextSkip)
     } catch (error) {
+      void reportClientError(error)
       showAppNotification({
         id: `client-messenger-load-more-${clientId}`,
         title: fe8ClientMessengerMediaText.clientMessengerChatSection_title_c3386376,
@@ -270,6 +275,7 @@ export function ClientMessengerChatSection({
           : currentSummary,
       )
     } catch (error) {
+      void reportClientError(error)
       setLinkError(
         getApiErrorMessage(error, fe8ClientMessengerMediaText.clientMessengerChatSection_getApiErrorMessage_850ac5ad),
       )
@@ -356,6 +362,7 @@ export function ClientMessengerChatSection({
         url: linkToken.deepLinkUrl,
       })
     } catch (error) {
+      void reportClientError(error)
       if (error instanceof DOMException && error.name === 'AbortError') {
         return
       }
@@ -406,6 +413,7 @@ export function ClientMessengerChatSection({
           : currentSummary,
       )
     } catch (error) {
+      void reportClientError(error)
       setSendError(
         error instanceof Error
           ? error.message

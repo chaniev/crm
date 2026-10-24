@@ -1,11 +1,13 @@
 using System.Globalization;
+using GymCrm.Application.Authorization;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Users;
 
 namespace GymCrm.Api.Auth;
 
 internal static class TrainingGroupListItemMapper
 {
-    public static GroupListItemResponse Map(TrainingGroup group)
+    public static GroupListItemResponse Map(TrainingGroup group, User actor)
     {
         var trainers = group.Trainers
             .Select(groupTrainer => groupTrainer.Trainer)
@@ -34,7 +36,8 @@ internal static class TrainingGroupListItemMapper
             trainers.Select(trainer => trainer.Id).ToArray(),
             trainers.Length,
             trainers.Select(trainer => trainer.FullName).ToArray(),
-            group.Clients.Count,
+            actor.Role != UserRole.Administrator || ClientAccessPolicy.CanAccessBranch(actor, group.BranchId)
+                ? group.Clients.Count : null,
             group.UpdatedAt);
     }
 }

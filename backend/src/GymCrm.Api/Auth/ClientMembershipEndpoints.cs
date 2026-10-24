@@ -7,6 +7,7 @@ using GymCrm.Application.Audit;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -49,7 +50,7 @@ internal static class ClientMembershipEndpoints
         return group;
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> PurchaseMembershipAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> PurchaseMembershipAsync(
         Guid id,
         PurchaseClientMembershipRequest request,
         HttpContext httpContext,
@@ -105,10 +106,11 @@ internal static class ClientMembershipEndpoints
                 request.ManualSaleAmount
             },
             actionType: ClientAuditConstants.MembershipPurchasedAction,
-            descriptionFactory: ClientAuditResources.MembershipPurchasedDescription);
+            descriptionFactory: ClientAuditResources.MembershipPurchasedDescription,
+            lockGroupIds: request.TargetGroupIds ?? []);
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateMembershipCommentAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateMembershipCommentAsync(
         Guid id, Guid saleId, UpdateClientMembershipCommentRequest request, HttpContext httpContext,
         GymCrmDbContext dbContext, IClientMembershipService membershipService, IAuditLogService auditLogService,
         IBusinessDateProvider businessDateProvider, ILoggerFactory loggerFactory, IAntiforgery antiforgery, CancellationToken cancellationToken)
@@ -117,6 +119,11 @@ internal static class ClientMembershipEndpoints
         if (csrf is not null) return csrf;
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
         if (currentUser is null) return TypedResults.Unauthorized();
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken)) return TypedResults.NotFound();
+        await using var transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id, [], [], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null) return TypedResults.Unauthorized();
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken)) return TypedResults.NotFound();
         string? normalized;
         try { normalized = ClientMembershipCommentPolicy.Normalize(request.Comment); }
         catch (ArgumentException)
@@ -134,15 +141,21 @@ internal static class ClientMembershipEndpoints
                 ClientAuditConstants.MembershipSaleEntityType, saleId.ToString(),
                 ClientAuditResources.MembershipCommentChangedDescription(currentUser.Login),
                 NewValueJson: JsonSerializer.Serialize(new { clientId = id, saleId, transition = mutation.Transition }, AuditSerializerOptions));
-            await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, id, entry, cancellationToken);
+            await WriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, id, entry, cancellationToken);
         }
 
         var client = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated client '{id}' was not found.");
-        return TypedResults.Ok(ClientResponseMapper.MapDetails(client, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today, loggerFactory.CreateLogger("ClientMembershipCommentMetadata")));
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+            await transaction.DisposeAsync();
+        }
+        var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
+        return responseClient is null ? TypedResults.NotFound() : TypedResults.Ok(ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today, loggerFactory.CreateLogger("ClientMembershipCommentMetadata")));
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RenewMembershipAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RenewMembershipAsync(
         Guid id,
         RenewClientMembershipRequest request,
         HttpContext httpContext,
@@ -198,10 +211,11 @@ internal static class ClientMembershipEndpoints
                 request.ManualSaleAmount
             },
             actionType: ClientAuditConstants.MembershipRenewedAction,
-            descriptionFactory: ClientAuditResources.MembershipRenewedDescription);
+            descriptionFactory: ClientAuditResources.MembershipRenewedDescription,
+            lockGroupIds: request.TargetGroupIds ?? []);
     }
 
-    private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CorrectMembershipAsync(
+    private static Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CorrectMembershipAsync(
         Guid id,
         CorrectClientMembershipRequest request,
         HttpContext httpContext,
@@ -250,10 +264,11 @@ internal static class ClientMembershipEndpoints
                 TargetGroupIds = request.TargetGroupIds ?? []
             },
             actionType: ClientAuditConstants.MembershipCorrectedAction,
-            descriptionFactory: ClientAuditResources.MembershipCorrectedDescription);
+            descriptionFactory: ClientAuditResources.MembershipCorrectedDescription,
+            lockGroupIds: request.TargetGroupIds ?? []);
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> MarkMembershipPaymentAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> MarkMembershipPaymentAsync(
         Guid id,
         MarkMembershipPaymentRequest request,
         HttpContext httpContext,
@@ -293,6 +308,7 @@ internal static class ClientMembershipEndpoints
         IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
+        IServiceScopeFactory serviceScopeFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -306,6 +322,11 @@ internal static class ClientMembershipEndpoints
         if (currentUser is null)
         {
             return TypedResults.Unauthorized();
+        }
+
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return TypedResults.NotFound();
         }
 
         var clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
@@ -340,6 +361,7 @@ internal static class ClientMembershipEndpoints
             new { ClientId = id, SaleId = saleId, RefundDate = refundDate, Amount = request.Amount!.Value, Comment = comment },
             dbContext,
             cancellationToken);
+        if (reservation.Denied) return TypedResults.NotFound();
         if (reservation.Problem is not null)
         {
             return reservation.Problem;
@@ -347,15 +369,28 @@ internal static class ClientMembershipEndpoints
 
         if (reservation.IsReplay)
         {
+            var replayClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
+            if (replayClient is null) return TypedResults.NotFound();
             return TypedResults.Ok(ClientResponseMapper.MapDetails(
-                clientBefore,
+                replayClient,
                 ClientResponseMapper.EmptyAttendanceHistoryPage(),
                 businessDateProvider.Today));
         }
 
-        var transaction = await BeginMembershipActionTransactionAsync(dbContext, cancellationToken);
+        IDbContextTransaction? transaction = null;
         try
         {
+            transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id, [], [], cancellationToken);
+
+            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+            if (lockedActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, lockedActor, id, cancellationToken))
+            {
+                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+                await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
+                return TypedResults.NotFound();
+            }
+            currentUser = lockedActor;
             var mutationResult = await membershipService.RegisterRefundAsync(
                 id,
                 new RegisterClientMembershipRefundCommand(
@@ -368,9 +403,9 @@ internal static class ClientMembershipEndpoints
 
             if (!mutationResult.Succeeded)
             {
-                await RollbackMembershipActionTransactionAsync(transaction, cancellationToken);
-                await DeleteRefundIdempotencyReservationAsync(
-                    currentUser.Id, idempotencyKey, dbContext, cancellationToken);
+                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+                await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
                 return MapRefundMutationError(mutationResult.Error);
             }
 
@@ -393,14 +428,17 @@ internal static class ClientMembershipEndpoints
             await CompleteRefundIdempotencyAsync(
                 currentUser.Id, idempotencyKey, refund.Id, saleId, dbContext, cancellationToken);
             await CommitMembershipActionTransactionAsync(transaction, cancellationToken);
+            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+            var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
+            if (responseClient is null) return TypedResults.NotFound();
 
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(clientAfter, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+            return TypedResults.Ok(ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
         }
         catch
         {
-            await RollbackMembershipActionTransactionAsync(transaction, cancellationToken);
-            await DeleteRefundIdempotencyReservationAsync(
-                currentUser.Id, idempotencyKey, dbContext, cancellationToken);
+            await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+            await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
             return CreateProblem(
                 StatusCodes.Status500InternalServerError,
                 "membership-refund-operation-failed",
@@ -420,6 +458,7 @@ internal static class ClientMembershipEndpoints
         Guid id,
         MembershipTargetTransferRequest request,
         HttpContext httpContext,
+        GymCrmDbContext dbContext,
         IClientMembershipTargetTransferService transferService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -434,6 +473,17 @@ internal static class ClientMembershipEndpoints
         if (currentUser is null)
         {
             return TypedResults.Unauthorized();
+        }
+
+        await using var readTransaction = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [id], cancellationToken);
+        currentUser = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return TypedResults.NotFound();
         }
 
         var preview = await transferService.PreviewAsync(
@@ -472,6 +522,11 @@ internal static class ClientMembershipEndpoints
             return TypedResults.Unauthorized();
         }
 
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return TypedResults.NotFound();
+        }
+
         var clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
         if (clientBefore is null)
         {
@@ -501,14 +556,21 @@ internal static class ClientMembershipEndpoints
 
         async Task<IResult?> HandleExistingIdempotencyAsync(ClientMembershipIdempotencyRecord record)
         {
+            await using var replayLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [id], cancellationToken);
+            var replayActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+            if (replayActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, replayActor, id, cancellationToken))
+            {
+                return TypedResults.NotFound();
+            }
             if (record.ExpiresAt <= now)
             {
                 dbContext.ClientMembershipIdempotencyRecords.Remove(record);
                 await dbContext.SaveChangesAsync(cancellationToken);
+                if (replayLease is not null) await replayLease.CommitAsync(cancellationToken);
                 return null;
             }
 
-            if (!string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal) ||
+            if (record.ClientId != id || !string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal) ||
                 !string.Equals(record.ActionType, actionType, StringComparison.Ordinal))
             {
                 return CreateProblem(
@@ -518,7 +580,7 @@ internal static class ClientMembershipEndpoints
                     new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine5183eeff138] });
             }
 
-            if (string.Equals(record.Status, MembershipIdempotencyPending, StringComparison.Ordinal))
+            if (!string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal))
             {
                 return CreateProblem(
                     StatusCodes.Status409Conflict,
@@ -550,9 +612,10 @@ internal static class ClientMembershipEndpoints
             }
         }
 
+        var reservedRecordId = Guid.NewGuid();
         dbContext.ClientMembershipIdempotencyRecords.Add(new ClientMembershipIdempotencyRecord
         {
-            Id = Guid.NewGuid(),
+            Id = reservedRecordId,
             ActorUserId = currentUser.Id,
             IdempotencyKey = idempotencyKey,
             ActionType = actionType,
@@ -584,26 +647,23 @@ internal static class ClientMembershipEndpoints
                 new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine584339319fd] });
         }
 
-        async Task DeleteReservedIdempotencyAsync()
-        {
-            await using var cleanupScope = serviceScopeFactory.CreateAsyncScope();
-            var cleanupDbContext = cleanupScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-            var record = await cleanupDbContext.ClientMembershipIdempotencyRecords
-                .SingleOrDefaultAsync(
-                    candidate =>
-                        candidate.ActorUserId == currentUser.Id &&
-                        candidate.IdempotencyKey == idempotencyKey,
-                    cancellationToken);
-            if (record is not null)
-            {
-                cleanupDbContext.ClientMembershipIdempotencyRecords.Remove(record);
-                await cleanupDbContext.SaveChangesAsync(cancellationToken);
-            }
-        }
+        Task DeleteReservedIdempotencyAsync() => DeletePendingMembershipReservationAsync(reservedRecordId, serviceScopeFactory);
 
-        var transaction = await BeginMembershipActionTransactionAsync(dbContext, cancellationToken);
+        IDbContextTransaction? transaction = null;
         try
         {
+            transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id,
+            new[] { request.SourceGroupId, request.TargetGroupId }.OfType<Guid>().ToArray(), [], cancellationToken);
+
+            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+            if (lockedActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, lockedActor, id, cancellationToken))
+            {
+                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+                await DeleteReservedIdempotencyAsync();
+                return TypedResults.NotFound();
+            }
+            currentUser = lockedActor;
             var transfer = await transferService.TransferAsync(
                 id,
                 new ClientMembershipTargetTransferCommand(
@@ -614,7 +674,8 @@ internal static class ClientMembershipEndpoints
                 cancellationToken);
             if (!transfer.Succeeded)
             {
-                await RollbackMembershipActionTransactionAsync(transaction, cancellationToken);
+                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
                 await DeleteReservedIdempotencyAsync();
                 return MapTransferProblemResult(transfer);
             }
@@ -641,15 +702,19 @@ internal static class ClientMembershipEndpoints
             idempotency.UpdatedAt = DateTimeOffset.UtcNow;
             await dbContext.SaveChangesAsync(cancellationToken);
             await CommitMembershipActionTransactionAsync(transaction, cancellationToken);
+            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+            var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
+            if (responseClient is null) return TypedResults.NotFound();
 
             return TypedResults.Ok(ClientResponseMapper.MapDetails(
-                clientAfter,
+                responseClient,
                 ClientResponseMapper.EmptyAttendanceHistoryPage(),
                 businessDateProvider.Today));
         }
         catch (Exception exception)
         {
-            await RollbackMembershipActionTransactionAsync(transaction, cancellationToken);
+            await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
             await DeleteReservedIdempotencyAsync();
             logger.LogError(
                 "Membership target transfer failed before commit. ExceptionType: {ExceptionType}",
@@ -776,6 +841,7 @@ internal static class ClientMembershipEndpoints
         IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
+        IServiceScopeFactory serviceScopeFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -789,6 +855,11 @@ internal static class ClientMembershipEndpoints
         if (currentUser is null)
         {
             return TypedResults.Unauthorized();
+        }
+
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return TypedResults.NotFound();
         }
 
         var clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
@@ -815,6 +886,7 @@ internal static class ClientMembershipEndpoints
             new { ClientId = id, RefundId = refundId },
             dbContext,
             cancellationToken);
+        if (reservation.Denied) return TypedResults.NotFound();
         if (reservation.Problem is not null)
         {
             return reservation.Problem;
@@ -822,15 +894,28 @@ internal static class ClientMembershipEndpoints
 
         if (reservation.IsReplay)
         {
+            var replayClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
+            if (replayClient is null) return TypedResults.NotFound();
             return TypedResults.Ok(ClientResponseMapper.MapDetails(
-                clientBefore,
+                replayClient,
                 ClientResponseMapper.EmptyAttendanceHistoryPage(),
                 businessDateProvider.Today));
         }
 
-        var transaction = await BeginMembershipActionTransactionAsync(dbContext, cancellationToken);
+        IDbContextTransaction? transaction = null;
         try
         {
+            transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id, [], [], cancellationToken);
+
+            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+            if (lockedActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, lockedActor, id, cancellationToken))
+            {
+                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+                await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
+                return TypedResults.NotFound();
+            }
+            currentUser = lockedActor;
             var mutationResult = await membershipService.CancelRefundAsync(
                 id,
                 new CancelClientMembershipRefundCommand(currentUser.Id, refundId),
@@ -838,9 +923,9 @@ internal static class ClientMembershipEndpoints
 
             if (!mutationResult.Succeeded)
             {
-                await RollbackMembershipActionTransactionAsync(transaction, cancellationToken);
-                await DeleteRefundIdempotencyReservationAsync(
-                    currentUser.Id, idempotencyKey, dbContext, cancellationToken);
+                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+                await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
                 return MapRefundMutationError(mutationResult.Error);
             }
 
@@ -864,14 +949,17 @@ internal static class ClientMembershipEndpoints
             await CompleteRefundIdempotencyAsync(
                 currentUser.Id, idempotencyKey, refund.Id, refund.SaleId, dbContext, cancellationToken);
             await CommitMembershipActionTransactionAsync(transaction, cancellationToken);
+            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+            var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
+            if (responseClient is null) return TypedResults.NotFound();
 
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(clientAfter, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+            return TypedResults.Ok(ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
         }
         catch
         {
-            await RollbackMembershipActionTransactionAsync(transaction, cancellationToken);
-            await DeleteRefundIdempotencyReservationAsync(
-                currentUser.Id, idempotencyKey, dbContext, cancellationToken);
+            await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
+            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
+            await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
             return CreateProblem(
                 StatusCodes.Status500InternalServerError,
                 "membership-refund-operation-failed",
@@ -896,6 +984,10 @@ internal static class ClientMembershipEndpoints
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
+        await using var lease = await ClientAccessTransaction.BeginReadAsync(dbContext, actorUserId, [clientId], cancellationToken);
+        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, actorUserId, cancellationToken);
+        if (actor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, actor, clientId, cancellationToken))
+            return new RefundIdempotencyReservation(false, null, Denied: true);
         var now = DateTimeOffset.UtcNow;
         var payloadHash = ComputeMembershipIdempotencyPayloadHash(payload);
         var existing = await dbContext.ClientMembershipIdempotencyRecords.SingleOrDefaultAsync(
@@ -931,12 +1023,14 @@ internal static class ClientMembershipEndpoints
 
         if (existing is not null)
         {
+            if (lease is not null) await lease.CommitAsync(cancellationToken);
             return MapExisting(existing);
         }
 
+        var reservedRecordId = Guid.NewGuid();
         dbContext.ClientMembershipIdempotencyRecords.Add(new ClientMembershipIdempotencyRecord
         {
-            Id = Guid.NewGuid(),
+            Id = reservedRecordId,
             ActorUserId = actorUserId,
             IdempotencyKey = idempotencyKey,
             ActionType = actionType,
@@ -950,10 +1044,12 @@ internal static class ClientMembershipEndpoints
         try
         {
             await dbContext.SaveChangesAsync(cancellationToken);
-            return new RefundIdempotencyReservation(false, null);
+            if (lease is not null) await lease.CommitAsync(cancellationToken);
+            return new RefundIdempotencyReservation(false, null, reservedRecordId);
         }
         catch (DbUpdateException exception) when (IsMembershipIdempotencyUniqueException(exception))
         {
+            if (lease is not null) { await lease.RollbackAsync(CancellationToken.None); await lease.DisposeAsync(); }
             dbContext.ChangeTracker.Clear();
             var winner = await dbContext.ClientMembershipIdempotencyRecords.SingleAsync(
                 record => record.ActorUserId == actorUserId && record.IdempotencyKey == idempotencyKey,
@@ -980,28 +1076,37 @@ internal static class ClientMembershipEndpoints
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private static async Task DeleteRefundIdempotencyReservationAsync(
-        Guid actorUserId,
-        string idempotencyKey,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+    private static async Task DeletePendingMembershipReservationAsync(Guid? recordId, IServiceScopeFactory serviceScopeFactory)
     {
-        dbContext.ChangeTracker.Clear();
+        if (recordId is null) return;
+        using var cleanupTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        await using var cleanupScope = serviceScopeFactory.CreateAsyncScope();
+        var dbContext = cleanupScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        // A failed/uncertain commit can have persisted Completed. Never delete that record.
+        if (dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+        {
+            await dbContext.ClientMembershipIdempotencyRecords
+                .Where(candidate => candidate.Id == recordId && candidate.Status == MembershipIdempotencyPending)
+                .ExecuteDeleteAsync(cleanupTimeout.Token);
+            return;
+        }
         var record = await dbContext.ClientMembershipIdempotencyRecords.SingleOrDefaultAsync(
-            candidate => candidate.ActorUserId == actorUserId && candidate.IdempotencyKey == idempotencyKey,
-            cancellationToken);
-        if (record is not null && string.Equals(record.Status, MembershipIdempotencyPending, StringComparison.Ordinal))
+            candidate => candidate.Id == recordId && candidate.Status == MembershipIdempotencyPending,
+            cleanupTimeout.Token);
+        if (record is not null)
         {
             dbContext.ClientMembershipIdempotencyRecords.Remove(record);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cleanupTimeout.Token);
         }
     }
 
     private readonly record struct RefundIdempotencyReservation(
         bool IsReplay,
-        ProblemHttpResult? Problem);
+        ProblemHttpResult? Problem,
+        Guid? RecordId = null,
+        bool Denied = false);
 
-    internal static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
+    internal static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
         Guid id,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
@@ -1016,7 +1121,10 @@ internal static class ClientMembershipEndpoints
         object idempotencyPayload,
         string actionType,
         Func<string, string, string> descriptionFactory,
-        Func<User, Client, Client, ClientMembershipMutationResult, Task>? writeAuditAsync = null)
+        Func<User, Client, Client, ClientMembershipMutationResult, Task>? writeAuditAsync = null,
+        IReadOnlyCollection<Guid>? lockGroupIds = null,
+        IReadOnlyCollection<Guid>? lockBranchIds = null,
+        Func<Task<Dictionary<string, string[]>>>? validateLockedAsync = null)
     {
         var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
@@ -1028,6 +1136,14 @@ internal static class ClientMembershipEndpoints
         if (currentUser is null)
         {
             return TypedResults.Unauthorized();
+        }
+
+        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        {
+            return actionType == ClientAuditConstants.ClientTransferredAction &&
+                await IsCompletedTransferReplayAsync(id, currentUser.Id, httpContext.Request, idempotencyPayload, dbContext, cancellationToken)
+                ? TypedResults.NoContent()
+                : TypedResults.NotFound();
         }
 
         var clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
@@ -1054,17 +1170,28 @@ internal static class ClientMembershipEndpoints
         var payloadHash = ComputeMembershipIdempotencyPayloadHash(idempotencyPayload);
         var now = DateTimeOffset.UtcNow;
         var logger = loggerFactory.CreateLogger("GymCrm.Api.Auth.ClientMembershipMutation");
-        async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>?> HandleExistingIdempotencyAsync(
+        async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>?> HandleExistingIdempotencyAsync(
             ClientMembershipIdempotencyRecord record)
         {
+            await using var replayLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [id], cancellationToken);
+            var replayActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+            if (replayActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, replayActor, id, cancellationToken))
+            {
+                return actionType == ClientAuditConstants.ClientTransferredAction &&
+                    IsCompletedTransferRecord(record, id, currentUser.Id, payloadHash, now)
+                    ? TypedResults.NoContent()
+                    : TypedResults.NotFound();
+            }
             if (record.ExpiresAt <= now)
             {
                 dbContext.ClientMembershipIdempotencyRecords.Remove(record);
                 await dbContext.SaveChangesAsync(cancellationToken);
+                if (replayLease is not null) await replayLease.CommitAsync(cancellationToken);
                 return null;
             }
 
-            if (!string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal) ||
+            if (record.ClientId != id ||
+                !string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal) ||
                 !string.Equals(record.ActionType, actionType, StringComparison.Ordinal))
             {
                 return CreateProblem(
@@ -1074,7 +1201,7 @@ internal static class ClientMembershipEndpoints
                     new Dictionary<string, string[]> { ["idempotencyKey"] = ["Idempotency key was already used with different membership content."] });
             }
 
-            if (string.Equals(record.Status, MembershipIdempotencyPending, StringComparison.Ordinal))
+            if (!string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal))
             {
                 return CreateProblem(
                     StatusCodes.Status409Conflict,
@@ -1143,24 +1270,9 @@ internal static class ClientMembershipEndpoints
                 new Dictionary<string, string[]> { ["idempotencyKey"] = ["The same membership operation is still in progress. Retry later."] });
         }
 
-        async Task DeleteReservedIdempotencyAsync()
-        {
-            await using var cleanupScope = serviceScopeFactory.CreateAsyncScope();
-            var cleanupDbContext = cleanupScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-            var record = await cleanupDbContext.ClientMembershipIdempotencyRecords
-                .SingleOrDefaultAsync(
-                    candidate =>
-                        candidate.ActorUserId == currentUser.Id &&
-                        candidate.IdempotencyKey == idempotencyKey,
-                    cancellationToken);
-            if (record is not null)
-            {
-                cleanupDbContext.ClientMembershipIdempotencyRecords.Remove(record);
-                await cleanupDbContext.SaveChangesAsync(cancellationToken);
-            }
-        }
+        Task DeleteReservedIdempotencyAsync() => DeletePendingMembershipReservationAsync(reservedIdempotency.Id, serviceScopeFactory);
 
-        var transaction = await BeginMembershipActionTransactionAsync(dbContext, cancellationToken);
+        IDbContextTransaction? transaction = null;
         async Task RollbackAndDisposeTransactionAsync()
         {
             if (transaction is not null)
@@ -1169,7 +1281,7 @@ internal static class ClientMembershipEndpoints
                 transaction = null;
                 try
                 {
-                    await RollbackMembershipActionTransactionAsync(transactionToRollback, cancellationToken);
+                    await RollbackMembershipActionTransactionAsync(transactionToRollback, CancellationToken.None);
                 }
                 finally
                 {
@@ -1180,6 +1292,25 @@ internal static class ClientMembershipEndpoints
 
         try
         {
+            transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id, lockGroupIds ?? [], lockBranchIds ?? [], cancellationToken);
+
+            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+            if (lockedActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, lockedActor, id, cancellationToken))
+            {
+                await RollbackAndDisposeTransactionAsync();
+                await DeleteReservedIdempotencyAsync();
+                return TypedResults.NotFound();
+            }
+            currentUser = lockedActor;
+            clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
+                ?? throw new InvalidOperationException("Locked client disappeared.");
+            validationErrors = validateLockedAsync is null ? validateRequest(clientBefore) : await validateLockedAsync();
+            if (validationErrors.Count > 0)
+            {
+                await RollbackAndDisposeTransactionAsync();
+                await DeleteReservedIdempotencyAsync();
+                return TypedResults.ValidationProblem(validationErrors);
+            }
             var mutationResult = await executeAsync(currentUser);
             if (!mutationResult.Succeeded)
             {
@@ -1250,7 +1381,7 @@ internal static class ClientMembershipEndpoints
                 transaction = null;
             }
 
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(clientAfter, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+
         }
         catch (Exception exception)
         {
@@ -1273,17 +1404,32 @@ internal static class ClientMembershipEndpoints
                 await transaction.DisposeAsync();
             }
         }
+        await using var responseLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [id], cancellationToken);
+        var responseActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+        if (responseActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, responseActor, id, cancellationToken))
+        {
+            return actionType == ClientAuditConstants.ClientTransferredAction ? TypedResults.NoContent() : TypedResults.NotFound();
+        }
+        var responseClient = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
+        return responseClient is null ? TypedResults.NotFound() : TypedResults.Ok(
+            ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
-    private static async Task<IDbContextTransaction?> BeginMembershipActionTransactionAsync(
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+    internal static async Task<bool> IsCompletedTransferReplayAsync(
+        Guid clientId, Guid actorId, HttpRequest request, object payload, GymCrmDbContext dbContext, CancellationToken cancellationToken)
     {
-        return dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory" ||
-               dbContext.Database.CurrentTransaction is not null
-            ? null
-            : await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        var key = GetMembershipIdempotencyKey(request);
+        if (key is null) return false;
+        var record = await dbContext.ClientMembershipIdempotencyRecords.AsNoTracking().SingleOrDefaultAsync(
+            candidate => candidate.ActorUserId == actorId && candidate.IdempotencyKey == key, cancellationToken);
+        return record is not null && IsCompletedTransferRecord(record, clientId, actorId,
+            ComputeMembershipIdempotencyPayloadHash(payload), DateTimeOffset.UtcNow);
     }
+
+    private static bool IsCompletedTransferRecord(ClientMembershipIdempotencyRecord record, Guid clientId, Guid actorId, string payloadHash, DateTimeOffset now) =>
+        record.ActorUserId == actorId && record.ClientId == clientId && record.ExpiresAt > now &&
+        record.Status == MembershipIdempotencyCompleted && record.ActionType == ClientAuditConstants.ClientTransferredAction &&
+        string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal);
 
     private static async Task CommitMembershipActionTransactionAsync(
         IDbContextTransaction? transaction,
@@ -1345,7 +1491,7 @@ internal static class ClientMembershipEndpoints
                    StringComparison.Ordinal);
     }
 
-    private static Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>
+    private static Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>
         MapMembershipMutationError(ClientMembershipMutationError error)
     {
         return error switch

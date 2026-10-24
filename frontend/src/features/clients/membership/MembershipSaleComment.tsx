@@ -1,3 +1,4 @@
+import { useClientAccessError } from '../clientAccessBoundary'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Group, Stack, Text, Textarea } from '@mantine/core'
 
@@ -18,6 +19,7 @@ export function MembershipSaleComment({
   membership,
   onMembershipCommentChange,
 }: MembershipSaleCommentProps) {
+  const reportClientError = useClientAccessError()
   const [editing, setEditing] = useState(false)
   const [comment, setComment] = useState(membership.comment ?? '')
   const [pending, setPending] = useState(false)
@@ -58,6 +60,7 @@ export function MembershipSaleComment({
       onMembershipCommentChange(updatedMembership)
       setEditing(false)
     } catch (saveError) {
+      void reportClientError(saveError)
       setError(
         saveError instanceof Error
           ? saveError.message

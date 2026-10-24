@@ -388,7 +388,7 @@ describe('Client route forms', () => {
     )
 
     expect(await screen.findByText('Карточка клиента не загрузилась')).toBeVisible()
-    expect(screen.getByText('Клиент не найден.')).toBeVisible()
+    expect(screen.getByText('Клиент недоступен.')).toBeVisible()
     expect(
       screen.getByRole('button', { name: 'К списку клиентов' }),
     ).toBeVisible()
@@ -1218,7 +1218,78 @@ describe('ClientDetailScreen immutable sale actions', () => {
   })
 })
 
+describe('Client scope invalidation', () => {
+  test('missing nested sale preserves an available parent and its draft', async () => {
+    const client = buildClientWithMemberships()
+    getClientMock.mockResolvedValue(client)
+    updateCommentMock.mockRejectedValue(new ApiError('Продажа не найдена.', 404))
+    renderClientDetails()
+    const sale = await screen.findByTestId('membership-sale-comment-sale-1')
+    fireEvent.click(within(sale).getByRole('button', { name: /Редактировать комментарий/ }))
+    fireEvent.change(within(sale).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Черновик' } })
+    fireEvent.click(within(sale).getByRole('button', { name: 'Сохранить' }))
+    await waitFor(() => expect(getClientMock).toHaveBeenCalledTimes(2))
+    expect(within(sale).getByRole('textbox', { name: 'Комментарий к покупке' })).toHaveValue('Черновик')
+    expect(screen.queryByText('Клиент недоступен.')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: client.fullName, level: 1 })).toBeVisible()
+  })
+
+  test('confirmed denial clears drafts and ignores a late successful comment response', async () => {
+    const client = buildClientWithMemberships()
+    getClientMock.mockResolvedValueOnce(client).mockRejectedValue(new ApiError('Denied', 404))
+    let resolveLate!: (value: ClientDetails) => void
+    const late = new Promise<ClientDetails>((resolve) => { resolveLate = resolve })
+    let rejectFirst!: (error: Error) => void
+    const first = new Promise<ClientDetails>((_resolve, reject) => { rejectFirst = reject })
+    updateCommentMock.mockReturnValueOnce(first).mockReturnValueOnce(late)
+    renderClientDetails()
+    for (const saleId of ['sale-1', 'sale-2']) {
+      const sale = await screen.findByTestId(`membership-sale-comment-${saleId}`)
+      fireEvent.click(within(sale).getByRole('button', { name: /Редактировать комментарий/ }))
+      fireEvent.change(within(sale).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Частный черновик' } })
+      fireEvent.click(within(sale).getByRole('button', { name: 'Сохранить' }))
+    }
+    await act(async () => rejectFirst(new ApiError('Denied', 404)))
+    expect(await screen.findByText('Клиент недоступен.')).toBeVisible()
+    await act(async () => resolveLate(client))
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: client.fullName, level: 1 })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Детали клиента' })).toBeVisible()
+  })
+})
+
 describe('ClientDetailScreen branch/group assignment transfer', () => {
+  test('204 transfer clears the card and returns without fetching it again', async () => {
+    getClientMock.mockResolvedValue(buildClientDetails())
+    setupTransferOptions()
+    transferClientMock.mockResolvedValue(null)
+    const onBack = vi.fn()
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={onBack} onEdit={() => undefined} />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Перевести клиента' }))
+    await waitFor(() => expect(onBack).toHaveBeenCalledTimes(1))
+    expect(getClientMock).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: buildClientDetails().fullName })).not.toBeInTheDocument()
+  })
+
+  test.each([403, 404])('scoped %s removes stale details and focuses recovery', async (status) => {
+    getClientMock.mockResolvedValue(buildClientDetails())
+    setupTransferOptions()
+    transferClientMock.mockRejectedValue(new ApiError('Private server detail', status))
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Перевести клиента' }))
+    expect(await screen.findByText('Клиент недоступен.')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Детали клиента' })).toBeVisible()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Редактировать' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Private server detail')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'К списку клиентов' })).toHaveFocus())
+  })
+
   test('does not render membership sale controls in assignment transfer', async () => {
     getClientMock.mockResolvedValue(buildClientDetails())
     setupTransferOptions()

@@ -10,7 +10,7 @@ import respx
 from pydantic import ValidationError
 
 from gym_crm_bot.crm.client import CrmBotApiClient
-from gym_crm_bot.crm.errors import CrmTemporaryError
+from gym_crm_bot.crm.errors import CrmNotFoundError, CrmTemporaryError, CrmUserNotConfiguredError
 from gym_crm_bot.crm.models import (
     AttendanceMarkRequest,
     AttendanceRosterResponse,
@@ -611,3 +611,30 @@ def test_crm_models_accept_status_free_attendance_and_expiring_contracts() -> No
     assert "has_unpaid_current_membership" not in type(saved.warnings[0]).model_fields
     assert "is_paid" not in type(expiring.items[0]).model_fields
     assert "has_unpaid_current_membership" not in type(expiring.items[0]).model_fields
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "code, expected", [(None, CrmNotFoundError), ("user_not_configured", CrmUserNotConfiguredError)]
+)
+@respx.mock
+async def test_resource_404_is_distinct_from_unconfigured_identity(
+    code: str | None, expected: type[Exception]
+) -> None:
+    route = respx.get(
+        "http://crm.local/internal/bot/clients/00000000-0000-0000-0000-000000000012"
+    ).mock(return_value=httpx.Response(404, json={"code": code} if code else None))
+    async with httpx.AsyncClient(base_url="http://crm.local") as http_client:
+        client = CrmBotApiClient(
+            base_url="http://crm.local",
+            service_token="test-token",
+            timeout_seconds=5,
+            http_client=http_client,
+        )
+        with pytest.raises(expected):
+            await client.get_client_card(
+                TelegramIdentity(platform_user_id="777"),
+                client_id=UUID("00000000-0000-0000-0000-000000000012"),
+                request_id="scope-404",
+            )
+    assert route.call_count == 1

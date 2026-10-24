@@ -12,10 +12,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Npgsql;
 
 namespace GymCrm.Tests;
 
-internal sealed class BranchSettingsAppFactory(string? connectionString = null, SaveChangesInterceptor? interceptor = null)
+internal sealed class BranchSettingsAppFactory(string? connectionString = null, IInterceptor? interceptor = null, string? botServiceToken = null, Action<IServiceCollection>? configureServices = null)
     : WebApplicationFactory<Program>
 {
     public const string Password = "branch-settings-password";
@@ -23,6 +24,7 @@ internal sealed class BranchSettingsAppFactory(string? connectionString = null, 
     public Guid ForeignBranchId { get; } = Guid.NewGuid();
     public Guid OwnHallId { get; } = Guid.NewGuid();
     public Guid ForeignHallId { get; } = Guid.NewGuid();
+    public string PhotoStorageRootPath { get; } = Path.Combine(Path.GetTempPath(), $"crm-scope-photos-{Guid.NewGuid():N}");
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -31,13 +33,21 @@ internal sealed class BranchSettingsAppFactory(string? connectionString = null, 
         {
             ["ConnectionStrings:Postgres"] = connectionString ?? "Host=localhost;Database=unused;Username=unused;Password=unused",
             ["Persistence:ApplyMigrationsOnStartup"] = (connectionString is not null).ToString(),
-            ["BootstrapUser:Login"] = "bootstrap-branch-settings"
+            ["BootstrapUser:Login"] = "bootstrap-branch-settings",
+            ["BotInternalApi:Enabled"] = (botServiceToken is not null).ToString(),
+            ["BotInternalApi:Token"] = botServiceToken,
+            ["ClientPhoto:StorageRootPath"] = PhotoStorageRootPath
         }));
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<DbContextOptions<GymCrmDbContext>>();
             services.RemoveAll<GymCrmDbContext>();
             services.RemoveAll<IDbContextOptionsConfiguration<GymCrmDbContext>>();
+            if (connectionString is not null)
+            {
+                services.RemoveAll<NpgsqlDataSource>();
+                services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
+            }
             var databaseName = $"branch-settings-{Guid.NewGuid():N}";
             services.AddDbContext<GymCrmDbContext>(options =>
             {
@@ -54,6 +64,7 @@ internal sealed class BranchSettingsAppFactory(string? connectionString = null, 
                     options.AddInterceptors(interceptor);
                 }
             });
+            configureServices?.Invoke(services);
         });
     }
 
@@ -90,7 +101,7 @@ internal sealed class BranchSettingsAppFactory(string? connectionString = null, 
 
     public async Task<(HttpClient Client, string Token)> LoginAsync(UserRole? role)
     {
-        var client = CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var client = CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = ClientOptions.BaseAddress, AllowAutoRedirect = false, HandleCookies = true });
         var session = await client.GetFromJsonAsync<JsonElement>("/auth/session");
         if (role.HasValue)
         {
@@ -114,5 +125,14 @@ internal sealed class BranchSettingsAppFactory(string? connectionString = null, 
             request.Headers.Add("X-CSRF-TOKEN", token);
         }
         return await client.SendAsync(request);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing && Directory.Exists(PhotoStorageRootPath))
+        {
+            Directory.Delete(PhotoStorageRootPath, recursive: true);
+        }
     }
 }

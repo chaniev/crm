@@ -330,7 +330,7 @@ export async function transferClientBranch(
   clientId: string,
   payload: TransferClientBranchRequest,
   options: MembershipWriteRequestOptions,
-) {
+): Promise<ClientDetails | null> {
   const response = await request<ClientResponsePayload | null>(
     API_ENDPOINTS.clients.transfer(clientId),
     {

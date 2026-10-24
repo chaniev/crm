@@ -25,7 +25,14 @@ export type ClientProfileGroupEditOrigin = {
   anchorClientId: string
 }
 
+export type ClientProfileAttentionOrigin = {
+  kind: 'attention'
+  route: { kind: 'section'; section: 'Attention' }
+  anchorClientId: string
+}
+
 export type ClientProfileOrigin =
+  | ClientProfileAttentionOrigin
   | ClientProfileAttendanceOrigin
   | ClientProfileGroupEditOrigin
 
@@ -153,6 +160,7 @@ export function isClientProfileOriginRoute(
   route: AppRoute,
   context: ClientProfileReturnContext,
 ) {
+  if (context.origin.kind === 'attention') return route.kind === 'section' && route.section === 'Attention'
   if (context.origin.kind === 'attendance') {
     if (context.origin.route.kind === 'section') {
       return route.kind === 'section' && route.section === 'Attendance'
@@ -223,6 +231,12 @@ function serializeClientProfileReturnContext(context: ClientProfileReturnContext
 function sanitizeOrigin(payload: unknown): ClientProfileOrigin | null {
   if (!isRecord(payload)) {
     return null
+  }
+
+  if (payload.kind === 'attention') {
+    const anchorClientId = sanitizeRequiredString(payload.anchorClientId)
+    if (!anchorClientId || !isRecord(payload.route) || payload.route.kind !== 'section' || payload.route.section !== 'Attention') return null
+    return { kind: 'attention', route: { kind: 'section', section: 'Attention' }, anchorClientId }
   }
 
   if (payload.kind === 'attendance') {

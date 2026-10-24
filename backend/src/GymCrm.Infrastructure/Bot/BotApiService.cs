@@ -12,6 +12,7 @@ using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -76,6 +77,12 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, user.Id, [], cancellationToken);
+        resolvedUser = await ResolveUserAsync(identity, cancellationToken);
+        if (!resolvedUser.Succeeded) return BotApiResult<IReadOnlyList<BotAttendanceGroup>>.Failure(resolvedUser.Error);
+        if (resolvedUser.Value!.Id != user.Id) return BotApiResult<IReadOnlyList<BotAttendanceGroup>>.Failure(BotApiError.Forbidden);
+        user = resolvedUser.Value!;
+
         if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance))
         {
             return BotApiResult<IReadOnlyList<BotAttendanceGroup>>.Failure(BotApiError.Forbidden);
@@ -86,6 +93,7 @@ internal sealed class BotApiService(
             ? null
             : accessScope.AttendanceScope.GroupIds.ToHashSet();
 
+        var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(user)).Select(client => client.Id);
         var query = dbContext.TrainingGroups.AsNoTracking();
         if (accessibleGroupIds is not null)
         {
@@ -108,7 +116,7 @@ internal sealed class BotApiService(
                 group.DurationMinutes,
                 group.Weekdays,
                 group.IsActive,
-                group.Clients.Count(clientGroup => clientGroup.Client.Status == ClientStatus.Active)))
+                group.Clients.Count(clientGroup => clientGroup.Client.Status == ClientStatus.Active && visibleClientIds.Contains(clientGroup.ClientId))))
             .ToArrayAsync(cancellationToken);
 
         return BotApiResult<IReadOnlyList<BotAttendanceGroup>>.Success(groups);
@@ -239,6 +247,12 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, user.Id, [], cancellationToken);
+        resolvedUser = await ResolveUserAsync(identity, cancellationToken);
+        if (!resolvedUser.Succeeded) return BotApiResult<BotAttendanceRoster>.Failure(resolvedUser.Error);
+        if (resolvedUser.Value!.Id != user.Id) return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.Forbidden);
+        user = resolvedUser.Value!;
+
         if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance))
         {
             return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.Forbidden);
@@ -264,8 +278,20 @@ internal sealed class BotApiService(
                 .Where(id => id != Guid.Empty)
                 .ToArray()
             : null;
+        if (lessonOccurrenceId.HasValue)
+        {
+            var currentLesson = await ResolveProjectedLessonAsync(identity, lessonOccurrenceId.Value, trainingDate, cancellationToken);
+            if (currentLesson.Error.HasValue) return BotApiResult<BotAttendanceRoster>.Failure(currentLesson.Error.Value);
+            occurrenceScopeAccessAllowed = currentLesson.IsOccurrenceScopedAccess;
+        }
+        var candidateIds = await dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(user))
+            .Where(client => client.Status == ClientStatus.Active && client.Groups.Any(link => link.GroupId == groupId))
+            .Select(client => client.Id).ToArrayAsync(cancellationToken);
+        await ClientAccessTransaction.LockReadClientsAsync(dbContext, candidateIds, cancellationToken);
         var clients = await dbContext.Clients
             .AsNoTracking()
+            .Where(ClientAccessPolicy.BranchRestriction(user))
+            .Where(client => candidateIds.Contains(client.Id))
             .Where(client =>
                 client.Status == ClientStatus.Active &&
                 client.Groups.Any(clientGroup => clientGroup.GroupId == groupId))
@@ -383,6 +409,12 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        var requestedClientIds = marks.Select(mark => mark.ClientId).Distinct().Order().ToArray();
+        await using var authorizationLease = await ClientAccessTransaction.BeginReadAsync(dbContext, user.Id, requestedClientIds, cancellationToken);
+        resolvedUser = await ResolveUserAsync(identity, cancellationToken);
+        if (!resolvedUser.Succeeded) return BotApiResult<BotAttendanceSaveResponse>.Failure(resolvedUser.Error);
+        if (resolvedUser.Value!.Id != user.Id) return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.Forbidden);
+        user = resolvedUser.Value!;
         if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance))
         {
             return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.Forbidden);
@@ -401,6 +433,12 @@ internal sealed class BotApiService(
             });
         }
 
+        if (lessonOccurrenceId.HasValue)
+        {
+            var currentLesson = await ResolveProjectedLessonAsync(identity, lessonOccurrenceId.Value, trainingDate, cancellationToken);
+            if (currentLesson.Error.HasValue) return BotApiResult<BotAttendanceSaveResponse>.Failure(currentLesson.Error.Value);
+            occurrenceScopeAccessAllowed = currentLesson.IsOccurrenceScopedAccess;
+        }
         var groupAccess = await GetAccessibleGroupAsync(user, groupId, cancellationToken);
         if (groupAccess.Error.HasValue && !occurrenceScopeAccessAllowed)
         {
@@ -410,6 +448,12 @@ internal sealed class BotApiService(
         var group = groupAccess.Group ?? await dbContext.TrainingGroups
             .AsNoTracking()
             .SingleAsync(candidate => candidate.Id == groupId, cancellationToken);
+        if (user.Role == UserRole.Administrator &&
+            await dbContext.Clients.Where(ClientAccessPolicy.ScopePredicate(user))
+                .CountAsync(client => requestedClientIds.Contains(client.Id), cancellationToken) != requestedClientIds.Length)
+        {
+            return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound);
+        }
         var reservation = await idempotencyService.ReserveAsync<BotAttendanceSaveResponse>(
             identity,
             BotAuditConstants.BotAttendanceSavedAction,
@@ -428,6 +472,12 @@ internal sealed class BotApiService(
         }
 
         var recordId = reservation.RecordId!.Value;
+        if (authorizationLease is not null)
+        {
+            await authorizationLease.CommitAsync(cancellationToken);
+            await authorizationLease.DisposeAsync();
+        }
+        var mutationCommitted = false;
         try
         {
             var mutationResult = await attendanceService.SaveAsync(
@@ -452,7 +502,7 @@ internal sealed class BotApiService(
 
                 return mutationResult.Error switch
                 {
-                    AttendanceBatchMutationError.GroupMissing => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound),
+                    AttendanceBatchMutationError.GroupMissing or AttendanceBatchMutationError.ClientUnavailable => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound),
                     AttendanceBatchMutationError.LessonOccurrenceMissing => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound),
                     AttendanceBatchMutationError.ClientOutsideGroup => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
                     {
@@ -474,8 +524,27 @@ internal sealed class BotApiService(
                 };
             }
 
-            var details = mutationResult.Details!;
-            var warningClients = await dbContext.Clients
+            mutationCommitted = true;
+            await using var responseLease = await ClientAccessTransaction.BeginReadAsync(dbContext, user.Id, requestedClientIds, cancellationToken);
+            var responseUser = await ResolveUserAsync(identity, cancellationToken);
+            BotApiError? responseError = responseUser.Succeeded ? null : responseUser.Error;
+            if (responseUser.Succeeded && responseUser.Value!.Id != user.Id) responseError = BotApiError.Forbidden;
+            if (responseUser.Succeeded && responseError is null)
+            {
+                user = responseUser.Value!;
+                if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance)) responseError = BotApiError.Forbidden;
+                else if (lessonOccurrenceId.HasValue)
+                {
+                    var currentLesson = await ResolveProjectedLessonAsync(identity, lessonOccurrenceId.Value, trainingDate, cancellationToken);
+                    responseError = currentLesson.Error;
+                }
+                else responseError = (await GetAccessibleGroupAsync(user, groupId, cancellationToken)).Error;
+                if (responseError is null && user.Role == UserRole.Administrator &&
+                    await dbContext.Clients.Where(ClientAccessPolicy.ScopePredicate(user))
+                        .CountAsync(client => requestedClientIds.Contains(client.Id), cancellationToken) != requestedClientIds.Length)
+                    responseError = BotApiError.NotFound;
+            }
+            var warningClients = responseError is not null ? [] : await dbContext.Clients
                 .AsNoTracking()
                 .Where(client => marks.Select(mark => mark.ClientId).Contains(client.Id))
                 .ToArrayAsync(cancellationToken);
@@ -533,11 +602,13 @@ internal sealed class BotApiService(
 
             await idempotencyService.CompleteAsync(recordId, response, cancellationToken);
 
-            return BotApiResult<BotAttendanceSaveResponse>.Success(response);
+            if (responseLease is not null) await responseLease.CommitAsync(cancellationToken);
+            return responseError.HasValue ? BotApiResult<BotAttendanceSaveResponse>.Failure(responseError.Value)
+                : BotApiResult<BotAttendanceSaveResponse>.Success(response);
         }
         catch
         {
-            await idempotencyService.ReleaseAsync(recordId, CancellationToken.None);
+            if (!mutationCommitted) await idempotencyService.ReleaseAsync(recordId, CancellationToken.None);
             throw;
         }
     }
@@ -585,6 +656,11 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, user.Id, [], cancellationToken);
+        resolvedUser = await ResolveUserAsync(identity, cancellationToken);
+        if (!resolvedUser.Succeeded) return BotApiResult<BotClientSearchResponse>.Failure(resolvedUser.Error);
+        if (resolvedUser.Value!.Id != user.Id) return BotApiResult<BotClientSearchResponse>.Failure(BotApiError.Forbidden);
+        user = resolvedUser.Value!;
         if (skip < 0 || take <= 0 || take > MaxSearchTake)
         {
             return BotApiResult<BotClientSearchResponse>.Validation(new Dictionary<string, string[]>
@@ -595,14 +671,15 @@ internal sealed class BotApiService(
 
         var baseQuery = dbContext.Clients
             .AsNoTracking()
+            .Where(ClientAccessPolicy.BranchRestriction(user))
             .Where(client => client.Status == ClientStatus.Active);
 
         IReadOnlyList<Guid>? effectiveGroupIds = null;
         if (user.Role == UserRole.Coach)
         {
             effectiveGroupIds = (await accessScopeService.GetAccessScopeAsync(user, cancellationToken)).AssignedGroupIds;
-            baseQuery = ApplyCoachClientScope(baseQuery, effectiveGroupIds);
         }
+        baseQuery = baseQuery.Where(ClientAccessPolicy.ScopePredicate(user, effectiveGroupIds));
 
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -672,6 +749,18 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, user.Id, [clientId], cancellationToken);
+        resolvedUser = await ResolveUserAsync(identity, cancellationToken);
+        if (!resolvedUser.Succeeded) return BotApiResult<BotClientCard>.Failure(resolvedUser.Error);
+        if (resolvedUser.Value!.Id != user.Id) return BotApiResult<BotClientCard>.Failure(BotApiError.Forbidden);
+        user = resolvedUser.Value!;
+        if (user.Role == UserRole.Administrator &&
+            !await dbContext.Clients.Where(ClientAccessPolicy.ScopePredicate(user))
+                .AnyAsync(client => client.Id == clientId, cancellationToken))
+        {
+            return BotApiResult<BotClientCard>.Failure(BotApiError.NotFound);
+        }
+
         var client = await dbContext.Clients
             .AsNoTracking()
             .Include(currentClient => currentClient.Branch)
@@ -749,6 +838,11 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        await using var readLease = await ClientAccessTransaction.BeginReadAsync(dbContext, user.Id, [], cancellationToken);
+        resolvedUser = await ResolveUserAsync(identity, cancellationToken);
+        if (!resolvedUser.Succeeded) return BotApiResult<IReadOnlyList<BotExpiringMembershipListItem>>.Failure(resolvedUser.Error);
+        if (resolvedUser.Value!.Id != user.Id) return BotApiResult<IReadOnlyList<BotExpiringMembershipListItem>>.Failure(BotApiError.Forbidden);
+        user = resolvedUser.Value!;
         if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.ManageClients))
         {
             return BotApiResult<IReadOnlyList<BotExpiringMembershipListItem>>.Failure(BotApiError.Forbidden);
@@ -757,8 +851,12 @@ internal sealed class BotApiService(
         var today = businessDateProvider.Today;
         var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
+        var visibleClientIds = dbContext.Clients
+            .Where(ClientAccessPolicy.ScopePredicate(user))
+            .Select(client => client.Id);
         var items = await dbContext.ClientMemberships
             .AsNoTracking()
+            .Where(membership => visibleClientIds.Contains(membership.ClientId))
             .Where(membership =>
                 membership.Client.Status == ClientStatus.Active &&
                 membership.ValidTo == null &&
@@ -1170,13 +1268,6 @@ internal sealed class BotApiService(
     {
         var window = attendanceDatePolicy.GetWindow(role);
         return new BotAttendanceDateWindow(window.Today, window.MinTrainingDate, window.MaxTrainingDate);
-    }
-
-    private static IQueryable<Client> ApplyCoachClientScope(
-        IQueryable<Client> query,
-        IReadOnlyCollection<Guid> effectiveGroupIds)
-    {
-        return query.Where(client => client.Groups.Any(clientGroup => effectiveGroupIds.Contains(clientGroup.GroupId)));
     }
 
     private static IQueryable<Client> ApplyFullNameSearch(IQueryable<Client> query, string fullName)

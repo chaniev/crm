@@ -5,10 +5,11 @@ import { fe9AttentionText } from '../../resources/fe-9-attention'
 
 
 type AttentionDashboardProps = {
+  focusOnReturn?: boolean
   onOpenClient?: (clientId: string, origin?: ClientProfileOriginInput | null) => void
 }
 
-export function AttentionDashboard({ onOpenClient }: AttentionDashboardProps) {
+export function AttentionDashboard({ onOpenClient, focusOnReturn }: AttentionDashboardProps) {
   return (
     <PageLayout
       className="attention-dashboard"
@@ -16,7 +17,9 @@ export function AttentionDashboard({ onOpenClient }: AttentionDashboardProps) {
       showHeader={false}
       title={fe9AttentionText.attentionDashboard_title_f17ceff0}
     >
-      <AttentionPanel onOpenClient={onOpenClient} />
+      <AttentionPanel focusOnReturn={focusOnReturn} onOpenClient={onOpenClient ? (clientId) => onOpenClient(clientId, {
+        kind: 'attention', route: { kind: 'section', section: 'Attention' }, anchorClientId: clientId,
+      }) : undefined} />
     </PageLayout>
   )
 }

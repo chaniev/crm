@@ -1,7 +1,10 @@
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -99,6 +102,7 @@ internal static class ClientResponseMapper
     internal static async Task<IReadOnlyList<ClientListItemResponse>> HydrateClientListItemsAsync(
         IReadOnlyList<ClientListItemResponse> items,
         bool hasElevatedClientAccess,
+        User actor,
         GymCrmDbContext dbContext,
         IReadOnlyCollection<Guid> effectiveGroupIds,
         DateOnly businessDate,
@@ -110,6 +114,11 @@ internal static class ClientResponseMapper
         }
 
         var clientIds = items.Select(item => item.Id).ToArray();
+        await ClientAccessTransaction.LockReadClientsAsync(dbContext, clientIds, cancellationToken);
+        var visibleIds = await dbContext.Clients.Where(ClientAccessPolicy.ScopePredicate(actor, effectiveGroupIds))
+            .Where(client => clientIds.Contains(client.Id)).Select(client => client.Id).ToArrayAsync(cancellationToken);
+        items = items.Where(item => visibleIds.Contains(item.Id)).ToArray();
+        clientIds = visibleIds;
         var currentMemberships = await dbContext.ClientMemberships
             .AsNoTracking()
             .Include(membership => membership.Sale)
