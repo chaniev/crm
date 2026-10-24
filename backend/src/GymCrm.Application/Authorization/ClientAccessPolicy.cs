@@ -28,9 +28,10 @@ public static class ClientAccessPolicy
 
     // Additional restriction for projections whose outer group/occurrence contract already scopes coaches.
     public static Expression<Func<Client, bool>> BranchRestriction(User actor) =>
+        !actor.IsActive ? _ => false :
         UserRoleAuthorizationPolicy.GetOperationalScopeKind(actor.Role) == AccessScopeKind.Branch
             ? ScopePredicate(actor)
-            : client => actor.IsActive;
+            : _ => true;
 
     public static bool CanAccessBranch(User actor, Guid? branchId)
     {

@@ -14,15 +14,15 @@ Branch: codex/TASK-191-administrator-client-branch-access. Base: 2462d8e.
 
 ## Review
 
-Independent authorization review identified and corrected stale-actor secondary reads, unscoped hydration, attention mutation, refund expiry cleanup, Bot identity mismatch, final attendance Coach access, and branch response counts. Final bounded re-review is pending.
+Independent authorization review identified and corrected stale-actor secondary reads, unscoped hydration, attention mutation, refund expiry cleanup, Bot identity mismatch, final attendance Coach access, and branch response counts. Final bounded re-review found no substantial remaining defects after fresh group reload and role-safe final snapshots. Pending status-only conflict retains fresh SQL scope without waiting on the winner; Completed/expiry paths keep client locks.
 
 ## Rendered acceptance
 
-Compared approved TASK-191 contract with implemented restricted390/420WebKit/1440: generic title, safe alert, no client data/actions and visible focus on Back. Viewport sweep:360×780,390×844,420×912,440×956,912×420,956×440,768×1024,1440×1200. Native WebKit profiles420/440 retain iPhoneUA/touch/3x.
+Compared approved TASK-191 contract with implemented restricted390/420WebKit/1440 and compact912x420: generic title, safe alert, no client data/actions and visible focus on Back. Viewport sweep:360×780,390×844,420×912,440×956,912×420,956×440,768×1024,1440×1200. Native WebKit profiles420/440 retain iPhoneUA/touch/3x.
 
 WebKit found bottom navigation covering transfer submit after validation; local modal now uses the existing layer-above-navigation pattern. Failure/retry works in all profiles.
 
-Physical Safari, Simulator, actual browser chrome, safe-area inset hardware and software keyboard were not tested. Weakest retained design choice: transient success notification temporarily occupies part of the narrow list; standard dismissal remains.
+Physical Safari, Simulator, actual browser chrome, safe-area inset hardware and software keyboard were not tested. Settled transfer success420WebKit/desktop matches the approved existing components; no old row/card/overlay remains. Weakest retained design choice: transient success notification temporarily covers the narrow list toolbar; standard close and10-second auto-dismissal remain (verified in all3projects).
 
 ## Final verification
 

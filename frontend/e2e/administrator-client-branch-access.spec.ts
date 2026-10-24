@@ -74,8 +74,10 @@ test('204 returns to refreshed clients without a fallback card GET', async ({ pa
   await expect(page.getByRole('heading', { name: client.fullName, level: 1 })).toHaveCount(0)
   expect(state.readsAfterTransfer).toBe(0)
   await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.locator('.mantine-Notification-root').filter({ hasText: 'Клиент переведен' })).toHaveCSS('opacity', '1')
   await page.screenshot({ path: testInfo.outputPath('transfer-success.png'), fullPage: true })
-  await expect(page.getByText('Клиент переведен', { exact: true })).toBeHidden({ timeout: 10_000 })
+  await page.mouse.move(0, 0)
+  await expect(page.getByText('Клиент переведен', { exact: true })).toBeHidden({ timeout: 15_000 })
 })
 
 test('foreign deep link clears PII and exposes focused recovery', async ({ page }, testInfo) => {

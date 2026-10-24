@@ -145,3 +145,19 @@ UI contract проверен на [rendered existing components](/backlog/mockup
 Актуальная карточка после preflight: [TASK-191](/backlog/implementation/TASK-191-administrator-client-branch-access.md).
 Историческая ссылка `/backlog/needs-clarification/TASK-191-administrator-client-branch-access.md`
 в начале review соответствует этой карточке; прежнее состояние сохранено.
+
+
+## Implementation review — 24.10.2026
+
+Независимый read-only authorization review реализации выявил и повторно
+проверил исправления stale actor в secondary projections, client hydration,
+attention mutation, refund expiry, Bot identity binding, final Coach attendance,
+branch/group responses. Группа перечитывается под lock; demoted actor не
+получает клиентский count. Последний bounded review: существенных остаточных
+замечаний в проверенных исправлениях нет.
+
+Pending membership conflict проверяет текущий SQL scope под actor SHARE без
+ожидания client write lock победителя; Completed replay и expiry cleanup
+сохраняют Clients SHARE до повторной проверки и hydration/удаления.
+Реальные PostgreSQL barriers и HTTP evidence —
+[verification](../implementation/TASK-191-evidence/verification.md).

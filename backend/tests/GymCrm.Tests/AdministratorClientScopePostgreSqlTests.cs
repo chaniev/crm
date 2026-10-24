@@ -103,6 +103,108 @@ public sealed class AdministratorClientScopePostgreSqlTests
     }
 
     [Fact]
+    public async Task Moved_group_is_reloaded_before_waiting_administrator_mutation()
+    {
+        var barrier = new BeforeLockBarrier("Branches");
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString(), barrier);
+        await factory.SeedAsync();
+        var (clientId, _) = await SeedClientAsync(factory);
+        var (groupId, typeId) = await SeedResponseGroupAsync(factory, clientId, includeClient: false);
+        var (admin, csrf) = await factory.LoginAsync(UserRole.Administrator);
+        using (admin)
+        {
+            barrier.Arm();
+            var waiting = UpdateResponseGroupAsync(admin, csrf, factory, groupId, typeId);
+            await barrier.Entered.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            try
+            {
+                using var move = factory.Services.CreateScope();
+                var db = move.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+                await db.TrainingGroups.Where(group => group.Id == groupId).ExecuteUpdateAsync(setters => setters
+                    .SetProperty(group => group.BranchId, factory.ForeignBranchId)
+                    .SetProperty(group => group.HallId, factory.ForeignHallId));
+            }
+            finally { barrier.Release.TrySetResult(); }
+            using var denied = await waiting.WaitAsync(TimeSpan.FromSeconds(15));
+            Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
+        }
+        using var verification = factory.Services.CreateScope();
+        var context = verification.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var stored = await context.TrainingGroups.SingleAsync(group => group.Id == groupId);
+        Assert.Equal(factory.ForeignBranchId, stored.BranchId);
+        Assert.Equal("Response group", stored.Name);
+        Assert.Empty(await context.AuditLogs.Where(log => log.ActionType == "TrainingGroupUpdated").ToArrayAsync());
+    }
+
+    [Fact]
+    public async Task Demoted_actor_final_group_snapshot_excludes_client_count()
+    {
+        var barrier = new AfterCommitBarrier();
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString(), barrier);
+        await factory.SeedAsync();
+        var (clientId, actorId) = await SeedClientAsync(factory);
+        var (groupId, typeId) = await SeedResponseGroupAsync(factory, clientId);
+        var (admin, csrf) = await factory.LoginAsync(UserRole.Administrator);
+        using (admin)
+        {
+            barrier.Arm();
+            var waiting = UpdateResponseGroupAsync(admin, csrf, factory, groupId, typeId);
+            await barrier.Entered.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            try
+            {
+                using var demote = factory.Services.CreateScope();
+                await demote.ServiceProvider.GetRequiredService<GymCrmDbContext>().Users
+                    .Where(user => user.Id == actorId).ExecuteUpdateAsync(setters => setters.SetProperty(user => user.Role, UserRole.Coach).SetProperty(user => user.BranchId, (Guid?)null));
+            }
+            finally { barrier.Release.TrySetResult(); }
+            using var response = await waiting.WaitAsync(TimeSpan.FromSeconds(15));
+            Assert.True(response.StatusCode == HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal(0, body.GetProperty("clientCount").GetInt32());
+        }
+        using var verification = factory.Services.CreateScope();
+        Assert.Single(await verification.ServiceProvider.GetRequiredService<GymCrmDbContext>().AuditLogs
+            .Where(log => log.ActionType == "TrainingGroupUpdated").ToArrayAsync());
+    }
+
+    private static async Task<(Guid GroupId, Guid TypeId)> SeedResponseGroupAsync(BranchSettingsAppFactory factory, Guid clientId, bool includeClient = true)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var type = new GroupType { Id = Guid.NewGuid(), Name = "Response scope" };
+        var group = new TrainingGroup
+        {
+            Id = Guid.NewGuid(),
+            BranchId = factory.OwnBranchId,
+            HallId = factory.OwnHallId,
+            GroupTypeId = type.Id,
+            Name = "Response group",
+            DurationMinutes = 60,
+            Weekdays = [1],
+            TrainingStartTime = new TimeOnly(12, 0)
+        };
+        db.GroupTypes.Add(type);
+        db.TrainingGroups.Add(group);
+        if (includeClient) db.ClientGroups.Add(new ClientGroup { ClientId = clientId, GroupId = group.Id, BranchId = factory.OwnBranchId });
+        await db.SaveChangesAsync();
+        return (group.Id, type.Id);
+    }
+
+    private static Task<HttpResponseMessage> UpdateResponseGroupAsync(HttpClient admin, string csrf, BranchSettingsAppFactory factory,
+        Guid groupId, Guid typeId) => BranchSettingsAppFactory.SendAsync(admin, HttpMethod.Put,
+        $"/groups/{groupId}", new
+        {
+            name = "Updated group",
+            branchId = factory.OwnBranchId,
+            groupTypeId = typeId,
+            isActive = true
+        }, csrf);
+
+    [Fact]
     public async Task Reassignment_before_group_deactivation_cannot_disclose_former_branch_blockers()
     {
         var barrier = new BeforeGroupReadBarrier();
@@ -689,6 +791,23 @@ public sealed class AdministratorClientScopePostgreSqlTests
             if (eventData.Context!.ChangeTracker.Entries<AuditLog>().Any(entry => entry.State == EntityState.Added && entry.Entity.ActionType == action))
                 throw new InvalidOperationException("Injected audit failure.");
             return ValueTask.FromResult(result);
+        }
+    }
+
+    private sealed class AfterCommitBarrier : DbTransactionInterceptor
+    {
+        private int armed;
+        public TaskCompletionSource Entered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public void Arm() => Interlocked.Exchange(ref armed, 1);
+        public override async Task TransactionCommittedAsync(DbTransaction transaction, TransactionEndEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            if (Interlocked.Exchange(ref armed, 0) == 1)
+            {
+                Entered.TrySetResult();
+                await Release.Task.WaitAsync(TimeSpan.FromSeconds(15), cancellationToken);
+            }
         }
     }
 
