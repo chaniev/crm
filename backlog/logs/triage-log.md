@@ -3734,3 +3734,40 @@
   SHA-256 исходного тела подтверждён, оба результата связаны с processed source.
 - `git diff --check`: PASS. Обработанный файл отсутствует в inbox/processing;
   inbox пуст. Менялись только backlog и требования, приложение и стенд — без изменений.
+
+### 2026-10-24 11:28 MSK — status audit: решение по TASK-192
+
+- Mode: scoped status reconciliation по прямому ответу пользователя:
+  «тренеру доступны только клиенты своих групп». Scope: TASK-192 и её текущие
+  ссылки; глобальный аудит и новый triage inbox не выполнялись.
+- Baseline: локальный main `d74b203`; использованы REQ-CLI-009/BRN-001/USR-001,
+  статическое evidence предшествующего triage и явное продуктовое решение.
+  Повторный runtime/application test run не выполнялся.
+- TASK-192 закрыта уточнением существующего группового охвата, включая ранее
+  принятые активные замещения. Дата завершения — дата решения 24.10.2026,
+  а не предполагаемая дата прежней реализации; approval source и
+  `completed_at`/`completion_date_evidence` записаны в карточке.
+- Перенос: `backlog/needs-clarification/TASK-192-coach-client-branch-scope.md`
+  → [backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md](../done/2026-10-24/TASK-192-coach-client-branch-scope.md).
+  Это также актуальный адрес исторических ссылок выше; прежние записи журнала
+  сохранены. Планов, verification contracts или task-owned evidence для переноса нет.
+- REQ-CLI-009 содержит подтверждение и явное отсутствие доступа по одному
+  совпадению филиала; решение/реализация сохранены. CHANGELOG обновлён,
+  ссылка из REQ-USR-001 исправлена. TASK-191 ссылается на закрытое уточнение;
+  её статус risky и обязательный authorization review сохранены.
+- Итог scope: закрыта 1 карточка, обновлены ссылки 1 связанной карточки;
+  новых задач и реализации нет, блокирующих вопросов по охвату Coach нет.
+  Исходное тело `backlog/processed/2026-10-24.md` не изменялось.
+- Validation: результат knowledge harness и проверки ссылок/status/source
+  будет записан после выполнения.
+
+### 2026-10-24 11:28 MSK — validation result, закрытие TASK-192
+
+- `python3 scripts/harness/verify_change.py --base origin/main`: PASS, все
+  4 knowledge checks; 58 требований, 40 активных задач, 1 незавершённый план.
+- Проверены 123 локальные ссылки затронутых карточек и requirement-файлов,
+  уникальность TASK-192, статус done, completion date и отсутствие
+  планов/контрактов/evidence, требующих совместного переноса.
+- Исходное тело processed source сохранено по SHA-256;
+  `git diff --check`: PASS. Runtime и application tests не требовались
+  для фиксации решения без изменения приложения.
