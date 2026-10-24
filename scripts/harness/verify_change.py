@@ -42,8 +42,8 @@ from scripts.harness.task_contract import (
 )
 
 
-SCHEMA_VERSION = 4
-RUNNER_VERSION = "4.0"
+SCHEMA_VERSION = 5
+RUNNER_VERSION = "5.0"
 GITHUB_ENVIRONMENT_KEYS = (
     "GITHUB_ACTIONS",
     "GITHUB_JOB",
@@ -94,8 +94,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--report",
-        default=".artifacts/verification/report.json",
-        help="JSON evidence path, relative to the repository root unless absolute",
+        help="JSON evidence path; defaults to report.json (final) or iteration.json (--check) under .artifacts/verification",
+    )
+    parser.add_argument(
+        "--check",
+        action="append",
+        default=[],
+        metavar="CHECK_ID",
+        help="debug selected check and prerequisites; repeat as needed; never produces merge evidence",
     )
     parser.add_argument(
         "--timeout-scale",
@@ -349,8 +355,20 @@ def execute(
     *,
     timeout_scale: float = 1.0,
 ) -> int:
+    statuses: dict[str, str] = {}
     for index, check in enumerate(checks):
         entry = report["checks"][index]
+        blocked_by = [
+            dependency for dependency in check.depends_on
+            if statuses.get(dependency) != "passed"
+        ]
+        if blocked_by:
+            entry["status"] = "not_run"
+            entry["blocked_by"] = blocked_by
+            statuses[check.identifier] = "not_run"
+            print(f"\n==> {check.identifier}: blocked by {', '.join(blocked_by)}", flush=True)
+            write_report(report_path, report)
+            continue
         print(f"\n==> {check.identifier}: {_command_text(check)}", flush=True)
         started = time.monotonic()
         entry["started_at"] = _utc_now()
@@ -386,16 +404,22 @@ def execute(
 
         entry["duration_seconds"] = round(time.monotonic() - started, 3)
         entry["completed_at"] = _utc_now()
+        statuses[check.identifier] = entry["status"]
         write_report(report_path, report)
 
-        if entry["status"] != "passed":
+        if entry["status"] == "interrupted":
             for remaining in report["checks"][index + 1 :]:
                 remaining["status"] = "not_run"
-            final_status = (
-                "interrupted" if entry["status"] == "interrupted" else "failed"
-            )
-            _finish_report(report, report_path, status=final_status)
-            return 130 if entry["status"] == "interrupted" else 1
+            _finish_report(report, report_path, status="interrupted")
+            return 130
+
+    if any(status != "passed" for status in statuses.values()):
+        _finish_report(report, report_path, status="failed")
+        return 1
+
+    if report.get("verification_mode") == "iteration":
+        _finish_report(report, report_path, status="partial")
+        return 0
 
     if any(
         check.get("status") == "not_confirmed"
@@ -408,8 +432,26 @@ def execute(
     return 0
 
 
+def select_checks(checks: list[CheckSpec], requested: list[str]) -> list[CheckSpec]:
+    """Select prerequisites from an already validated, ordered check matrix."""
+    selected = set(requested)
+    unknown = selected.difference(check.identifier for check in checks)
+    if unknown:
+        raise ContractError(f"unknown check ID: {', '.join(sorted(unknown))}")
+    for check in reversed(checks):
+        if check.identifier in selected:
+            selected.update(check.depends_on)
+    return [check for check in checks if check.identifier in selected]
+
+
 def main() -> int:
     args = parse_args()
+    if args.check and os.environ.get("GITHUB_ACTIONS") == "true":
+        print("--check is for local iteration and is not allowed in CI", file=sys.stderr)
+        return 2
+    if args.check and (args.confirm_manual or args.manual_evidence):
+        print("--check cannot confirm manual evidence", file=sys.stderr)
+        return 2
     if args.timeout_scale <= 0:
         print("--timeout-scale must be greater than zero", file=sys.stderr)
         return 2
@@ -459,7 +501,7 @@ def main() -> int:
                 branch=git_context.branch,
                 source_ref=args.source_ref,
             )
-            evidence_path = args.manual_evidence or contract.manual_evidence
+            evidence_path = None if args.check else args.manual_evidence or contract.manual_evidence
             if evidence_path:
                 manual_evidence = load_manual_evidence(
                     Path(evidence_path), contract=contract, root=ROOT
@@ -495,8 +537,11 @@ def main() -> int:
         canonical_checks = checks_for(impact.areas, base=requirements_base)
         extra_checks = task_checks(contract) if contract is not None else []
         checks = combine_checks(canonical_checks, extra_checks)
+        required_check_ids = [check.identifier for check in checks]
+        if args.check:
+            checks = select_checks(checks, args.check)
         manual_entries = (
-            manual_check_entries(contract, manual_evidence, dry_run=args.dry_run)
+            manual_check_entries(contract, manual_evidence, dry_run=args.dry_run or bool(args.check))
             if contract is not None
             else []
         )
@@ -512,9 +557,15 @@ def main() -> int:
         manual_checks=manual_entries,
     )
 
-    report_path = _report_path(args.report)
+    if args.check:
+        print("Iteration only: this partial run cannot satisfy the merge gate.")
+    report_path = _report_path(args.report or (
+        ".artifacts/verification/iteration.json" if args.check
+        else ".artifacts/verification/report.json"
+    ))
     e2e_port = None
-    if contract is not None and contract.playwright and not args.dry_run:
+    playwright_ids = {item.identifier for item in contract.playwright} if contract else set()
+    if any(check.identifier in playwright_ids for check in checks) and not args.dry_run:
         configured_e2e_port = os.environ.get("E2E_PORT")
         e2e_port = (
             int(configured_e2e_port)
@@ -529,6 +580,9 @@ def main() -> int:
         "started_at": _utc_now(),
         "repository": os.environ.get("GITHUB_REPOSITORY", ROOT.name),
         "profile": args.profile,
+        "verification_mode": "iteration" if args.check else "final",
+        "requested_check_ids": args.check,
+        "required_check_ids": required_check_ids,
         "base": args.base,
         "dry_run": args.dry_run,
         "status": "dry_run" if args.dry_run else "running",
@@ -558,6 +612,7 @@ def main() -> int:
                 "area": check.area,
                 "working_directory": check.working_directory,
                 "command": list(check.command),
+                "depends_on": list(check.depends_on),
                 "timeout_seconds": check.timeout_seconds * args.timeout_scale,
                 "selection_reasons": [
                     *impact.reasons.get(check.area, []),

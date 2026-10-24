@@ -13,7 +13,7 @@ from typing import Any, Iterable
 
 
 FAILURE_STATUSES = {"failed", "interrupted", "timed_out", "spawn_failed"}
-INCOMPLETE_STATUSES = {"dry_run", "running", "planned", "not_run", "incomplete"}
+INCOMPLETE_STATUSES = {"dry_run", "running", "planned", "not_run", "incomplete", "partial"}
 
 
 def _utc_now() -> str:
@@ -34,12 +34,15 @@ def aggregate_reports(
     statuses: list[str] = []
     report_names: set[str] = set()
     dirty_reports: list[str] = []
+    partial_reports: list[str] = []
 
     for path in sorted({item.resolve() for item in paths}):
         data = json.loads(path.read_text(encoding="utf-8"))
         report_names.add(path.name)
         status = str(data.get("status", "incomplete"))
         statuses.append(status)
+        if data.get("verification_mode", "final") != "final":
+            partial_reports.append(str(path))
         git = data.get("git") if isinstance(data.get("git"), dict) else {}
         head = git.get("head_sha")
         tree = git.get("head_tree_sha")
@@ -85,7 +88,7 @@ def aggregate_reports(
         status = "failed"
     elif "manual_required" in statuses:
         status = "manual_required"
-    elif not inputs or task_missing or missing_reports or any(
+    elif not inputs or task_missing or missing_reports or partial_reports or any(
         item in INCOMPLETE_STATUSES or item not in {"passed"}
         for item in statuses
     ):
@@ -100,6 +103,7 @@ def aggregate_reports(
         "required_task_id": required_task_id,
         "missing_reports": missing_reports,
         "dirty_reports": dirty_reports,
+        "partial_reports": partial_reports,
         "head_sha": next(iter(heads)) if len(heads) == 1 else None,
         "head_tree_sha": next(iter(trees)) if len(trees) == 1 else None,
         "task_contract_sha256": (

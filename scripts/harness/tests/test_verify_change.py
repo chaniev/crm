@@ -12,12 +12,13 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from scripts.harness.commands import CheckSpec
-from scripts.harness.git_changes import parse_name_status
+from scripts.harness.git_changes import GitContext, parse_name_status
 from scripts.harness.verify_change import (
     changed_paths,
     collect_tool_versions,
     execute,
     github_environment,
+    main,
     print_plan,
     write_github_summary,
 )
@@ -106,7 +107,7 @@ class ChangedPathsTests(unittest.TestCase):
                 changed_paths(base, root=root),
             )
 
-    def test_failed_check_returns_nonzero_and_marks_remaining_not_run(self) -> None:
+    def test_failed_check_returns_nonzero_but_runs_independent_check(self) -> None:
         checks = [
             CheckSpec("test.fail", "harness", (sys.executable, "-c", "raise SystemExit(3)")),
             CheckSpec("test.skip", "harness", (sys.executable, "-c", "raise SystemExit(0)")),
@@ -125,9 +126,27 @@ class ChangedPathsTests(unittest.TestCase):
         self.assertEqual(1, exit_code)
         self.assertEqual("failed", report["checks"][0]["status"])
         self.assertEqual(3, report["checks"][0]["exit_code"])
-        self.assertEqual("not_run", report["checks"][1]["status"])
+        self.assertEqual("passed", report["checks"][1]["status"])
         self.assertEqual("failed", report["status"])
         self.assertIn("completed_at", report)
+
+    def test_failure_blocks_transitive_dependents_without_starting_them(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            marker = Path(directory) / "must-not-exist"
+            checks = [
+                CheckSpec("restore", "harness", (sys.executable, "-c", "exit(3)")),
+                CheckSpec("build", "harness", (sys.executable, "-c", f"open({str(marker)!r}, 'w').close()"), depends_on=("restore",)),
+                CheckSpec("test", "harness", (sys.executable, "-c", "exit(0)"), depends_on=("build",)),
+                CheckSpec("independent", "harness", (sys.executable, "-c", "exit(0)")),
+            ]
+            report = {"checks": [{"status": "planned"} for _ in checks]}
+            with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
+                code = execute(checks, report, Path(directory) / "report.json")
+            self.assertFalse(marker.exists())
+        self.assertEqual(1, code)
+        self.assertEqual(["failed", "not_run", "not_run", "passed"], [c["status"] for c in report["checks"]])
+        self.assertEqual(["restore"], report["checks"][1]["blocked_by"])
+        self.assertEqual(["build"], report["checks"][2]["blocked_by"])
 
     def test_timeout_terminates_check_and_writes_final_report(self) -> None:
         checks = [
@@ -136,9 +155,10 @@ class ChangedPathsTests(unittest.TestCase):
                 "harness",
                 (sys.executable, "-c", "import time; time.sleep(10)"),
                 timeout_seconds=0.05,
-            )
+            ),
+            CheckSpec("independent", "harness", (sys.executable, "-c", "exit(0)")),
         ]
-        report = {"status": "running", "checks": [{"status": "planned"}]}
+        report = {"status": "running", "checks": [{"status": "planned"} for _ in checks]}
 
         with tempfile.TemporaryDirectory() as directory:
             report_path = Path(directory) / "report.json"
@@ -148,6 +168,7 @@ class ChangedPathsTests(unittest.TestCase):
 
         self.assertEqual(1, exit_code)
         self.assertEqual("timed_out", persisted["checks"][0]["status"])
+        self.assertEqual("passed", persisted["checks"][1]["status"])
         self.assertEqual("failed", persisted["status"])
         self.assertIn("completed_at", persisted)
 
@@ -173,8 +194,8 @@ class ChangedPathsTests(unittest.TestCase):
         self.assertEqual("failed", persisted["status"])
 
     def test_interrupt_terminates_process_group_and_writes_final_report(self) -> None:
-        checks = [CheckSpec("test.interrupt", "harness", (sys.executable,))]
-        report = {"status": "running", "checks": [{"status": "planned"}]}
+        checks = [CheckSpec("test.interrupt", "harness", (sys.executable,)), CheckSpec("independent", "harness", (sys.executable,))]
+        report = {"status": "running", "checks": [{"status": "planned"} for _ in checks]}
         process = Mock()
         process.wait.side_effect = KeyboardInterrupt
         process.returncode = -2
@@ -194,6 +215,67 @@ class ChangedPathsTests(unittest.TestCase):
         terminate.assert_called_once_with(process)
         self.assertEqual("interrupted", persisted["checks"][0]["status"])
         self.assertEqual("interrupted", persisted["status"])
+        self.assertEqual("not_run", persisted["checks"][1]["status"])
+
+
+class IterationCliTests(unittest.TestCase):
+    def run_cli(self, root: Path, *args: str) -> int:
+        checks = [
+            CheckSpec("restore", "harness", (sys.executable, "-c", "exit(0)")),
+            CheckSpec("build", "harness", (sys.executable, "-c", "exit(0); # build"), depends_on=("restore",)),
+            CheckSpec("test", "harness", (sys.executable, "-c", "exit(0); # test"), depends_on=("build",)),
+            CheckSpec("unrelated", "harness", (sys.executable, "-c", "exit(9)")),
+        ]
+        with (
+            patch("scripts.harness.verify_change.ROOT", root),
+            patch("scripts.harness.verify_change.checks_for", return_value=checks),
+            patch("scripts.harness.verify_change.collect_git_context", return_value=GitContext("head", "tree", "base", "base", "branch", False)),
+            patch("scripts.harness.verify_change.collect_tool_versions", return_value={}),
+            patch.object(sys, "argv", ["verify_change.py", "--profile", "full", "--area", "harness", *args]),
+            redirect_stdout(StringIO()), redirect_stderr(StringIO()),
+        ):
+            return main()
+
+    def test_iteration_runs_prerequisites_and_preserves_final_report(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            final = root / ".artifacts/verification/report.json"
+            final.parent.mkdir(parents=True)
+            final.write_text("existing final evidence")
+            with patch.dict(os.environ, {}, clear=True):
+                self.assertEqual(0, self.run_cli(root, "--check", "test", "--check", "build"))
+            report = json.loads((final.parent / "iteration.json").read_text())
+            self.assertEqual("existing final evidence", final.read_text())
+        self.assertEqual("partial", report["status"])
+        self.assertEqual("iteration", report["verification_mode"])
+        self.assertEqual(["restore", "build", "test"], [c["id"] for c in report["checks"]])
+        self.assertIn("unrelated", report["required_check_ids"])
+
+    def test_unknown_check_and_ci_iteration_are_rejected_before_execution(self) -> None:
+        for env, args in (({}, ("--check", "missing")), ({"GITHUB_ACTIONS": "true"}, ("--check", "test"))):
+            with self.subTest(env=env), tempfile.TemporaryDirectory() as directory:
+                with patch.dict(os.environ, env, clear=True), patch("scripts.harness.verify_change.execute") as execute_mock:
+                    self.assertEqual(2, self.run_cli(Path(directory), *args))
+                execute_mock.assert_not_called()
+
+    def test_final_mode_still_runs_all_checks_and_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch.dict(os.environ, {}, clear=True):
+                self.assertEqual(1, self.run_cli(root))
+            report = json.loads((root / ".artifacts/verification/report.json").read_text())
+        self.assertEqual("final", report["verification_mode"])
+        self.assertEqual("failed", report["status"])
+        self.assertEqual(4, len(report["checks"]))
+
+    def test_iteration_failure_is_nonzero_and_manual_confirmation_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch.dict(os.environ, {}, clear=True):
+                self.assertEqual(1, self.run_cli(root, "--check", "unrelated"))
+                self.assertEqual(2, self.run_cli(root, "--check", "test", "--confirm-manual", "manual.device"))
+            report = json.loads((root / ".artifacts/verification/iteration.json").read_text())
+        self.assertEqual("failed", report["status"])
 
 
 class GitStatusParsingTests(unittest.TestCase):
@@ -255,6 +337,17 @@ class EvidenceTests(unittest.TestCase):
 
         self.assertEqual(1, exit_code)
         self.assertEqual("manual_required", report["status"])
+
+    def test_successful_iteration_never_confirms_manual_checks(self) -> None:
+        report = {
+            "verification_mode": "iteration",
+            "checks": [],
+            "manual_checks": [{"id": "manual.device", "status": "not_confirmed"}],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(0, execute([], report, Path(directory) / "iteration.json"))
+        self.assertEqual("partial", report["status"])
+        self.assertEqual("not_confirmed", report["manual_checks"][0]["status"])
 
     def test_github_metadata_uses_strict_allowlist(self) -> None:
         with patch.dict(

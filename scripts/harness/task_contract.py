@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
@@ -566,6 +566,7 @@ def task_checks(contract: TaskContract) -> list[CheckSpec]:
                 ("npm", "run", "test:e2e:install"),
                 "frontend",
                 1200,
+                depends_on=("frontend.install",),
             )
         )
     checks.extend(
@@ -583,6 +584,7 @@ def task_checks(contract: TaskContract) -> list[CheckSpec]:
             ),
             "frontend",
             item.timeout_seconds,
+            depends_on=("frontend.playwright.install",),
         )
         for item in contract.playwright
     )
@@ -593,6 +595,7 @@ def task_checks(contract: TaskContract) -> list[CheckSpec]:
             item.command,
             item.working_directory,
             item.timeout_seconds,
+            depends_on=None,
         )
         for item in contract.runtime_smoke
     )
@@ -618,6 +621,7 @@ def task_checks(contract: TaskContract) -> list[CheckSpec]:
                 ),
                 ".",
                 total_timeout,
+                depends_on=None,
             )
         )
     return checks
@@ -627,15 +631,26 @@ def combine_checks(
     canonical: Iterable[CheckSpec], task_specific: Iterable[CheckSpec]
 ) -> list[CheckSpec]:
     combined: list[CheckSpec] = []
+    canonical = tuple(canonical)
+    baseline_ids = tuple(check.identifier for check in canonical)
     identifiers: set[str] = set()
     commands: set[tuple[str, tuple[str, ...]]] = set()
-    for check in (*tuple(canonical), *tuple(task_specific)):
+    for check in (*canonical, *tuple(task_specific)):
         if check.identifier in identifiers:
             raise ContractError(f"duplicate check identifier: {check.identifier}")
         signature = (check.working_directory, check.command)
         if signature in commands:
             raise ContractError(
                 f"duplicate check command for task contract check {check.identifier}"
+            )
+        if check.depends_on is None:
+            check = replace(check, depends_on=baseline_ids)
+        if len(set(check.depends_on)) != len(check.depends_on):
+            raise ContractError(f"duplicate prerequisite for {check.identifier}")
+        missing = set(check.depends_on).difference(identifiers)
+        if missing:
+            raise ContractError(
+                f"prerequisite must precede {check.identifier}: {', '.join(sorted(missing))}"
             )
         identifiers.add(check.identifier)
         commands.add(signature)

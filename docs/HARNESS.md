@@ -292,12 +292,46 @@ merge base, branch, dirty state, relevant tool versions, timestamps, and a
 strict allowlist of non-secret `GITHUB_*` metadata. `.artifacts/` is untracked
 and must not contain secrets.
 
-Report writes are atomic. Execution is fail-fast, matching the existing CI job
-behavior. A failed check returns a non-zero exit code, records remaining checks
-as `not_run`, and does not suppress dependency or security audit failures.
+Report writes are atomic. Execution is sequential and continues independent
+checks after a failure. `CheckSpec.depends_on` lists prerequisites: restore before
+backend build/format/audit, build before backend tests, and dependency installation
+before frontend/bot checks. A blocked check records `not_run` and `blocked_by`;
+transitive dependents are also blocked. Unknown, duplicate, self or later
+prerequisites are rejected before execution. Every failed or blocked check keeps
+the final run failed; dependency and security audit failures remain mandatory.
 Controlled failures use distinct statuses: `timed_out`, `interrupted`, and
 `spawn_failed`. The runner terminates the complete process group on timeout or
-interruption and still finalizes the JSON evidence.
+interruption and still finalizes the JSON evidence. Timeout/spawn failures allow
+independent checks to continue; user interruption stops the run with exit 130.
+
+Task Playwright checks depend on browser installation, which depends on frontend
+installation. Opaque `runtime_smoke` commands and managed runtime stacks depend
+conservatively on the entire canonical baseline. The contract schema is unchanged;
+the runner does not infer dependencies from arbitrary command text.
+
+For a local debugging iteration, select one or more check IDs from the dry-run:
+
+```bash
+python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-NNN --check backend.test
+```
+
+Repeat `--check` to select several checks. The runner includes their transitive
+prerequisites in canonical order, rejects unknown IDs, and skips unrelated checks.
+IDs must belong to the diff/contract-selected matrix; use `--profile full --area
+backend` when intentionally debugging an area outside that selection.
+An iteration records `verification_mode: iteration`, requested IDs, all required
+IDs, and each selected check's prerequisites. Its separate default report is
+`.artifacts/verification/iteration.json`; `--report` still overrides the path.
+Even selecting every check remains a partial run. Success returns exit 0 with
+status `partial`; failure returns nonzero. Iteration does not confirm manual
+checks, is disallowed in CI, and never satisfies `verification-gate`. Final
+verification remains the default command without `--check`, with all diff/contract
+checks and manual evidence required. Results are not cached across runs.
+
+Do not add a filtered test suite as task smoke when the identical environment and
+parameters already run that suite in the canonical baseline. Additional commands
+are for distinct scenarios or environments. The frontend text guard runs inside
+`frontend.check` and is not repeated as a standalone baseline step.
 
 With a task contract, evidence also contains its task ID, repository path,
 validated content, SHA-256 digest, expected branch, verified HEAD/tree, manual
@@ -323,7 +357,7 @@ ambiguous and stale contracts are not a route to lightweight verification.
 `scripts/harness/aggregate_evidence.py` remains the final `verification-gate`.
 It requires `verification.json`, plus the selected task identity when there is
 a contract, and rejects missing evidence, failures, unconfirmed manual checks,
-dirty checkouts, mixed HEAD/tree identities or mixed contract digests. The gate
+dirty checkouts, partial/iteration reports, mixed HEAD/tree identities or mixed contract digests. The gate
 also requires the verification job itself to succeed. Selection diagnostics
 are uploaded separately so their dry-run status cannot masquerade as passed
 verification evidence. The gate downloads the artifact ID produced by its

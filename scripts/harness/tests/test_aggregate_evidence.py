@@ -93,6 +93,14 @@ class AggregateEvidenceTests(unittest.TestCase):
 
         self.assertEqual("manual_required", aggregate["status"])
 
+    def test_iteration_cannot_pass_gate_even_with_passed_status(self) -> None:
+        for status in ("partial", "passed"):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as directory:
+                report = verification_report(status=status)
+                report["verification_mode"] = "iteration"
+                path = self.write(Path(directory), "verification.json", report)
+                self.assertEqual("incomplete", aggregate_reports([path])["status"])
+
     def test_missing_required_report_blocks_gate(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = self.write(
