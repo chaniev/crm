@@ -1,11 +1,11 @@
 # TASK-191: Ограничить доступ администратора к клиентам своим филиалом
 
 ## Status
-risky
+implementation
 
 ## Requirements
 - REQ-USR-001 — changes
-- REQ-CLI-007 — constrains
+- REQ-CLI-007 — changes
 - REQ-CLI-009 — constrains
 - REQ-BRN-001 — constrains
 
@@ -103,7 +103,7 @@ main `8773321` обнаружил несовпадение с этим прав�
   ссылке в frontend и Telegram; данные другого филиала не попадают в ответ.
 
 ## AI safety
-- Safe for autonomous implementation: no
+- Safe for autonomous implementation: yes — в рамках принятого плана после отдельного запроса на реализацию и readiness preflight
 - Risk level: high
 - Reason: пропущенный путь раскрывает персональные данные или позволяет
   изменить чужого клиента; чрезмерное ограничение ломает допустимый перевод.
@@ -129,6 +129,47 @@ main `8773321` обнаружил несовпадение с этим прав�
 - Original note: «администратор и тренер должен иметь доступ только к клентам своего филиала».
 - В этой карточке обрабатывается часть про администратора; часть про тренера — TASK-192.
 
+## Planning lifecycle
+- planned_at: 2026-10-24 11:48 MSK
+- moved_from: /backlog/risky — выявлены продуктовые и технические вопросы, а не только review gate
+- implementation_plan: /backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md
+- implementation_branch: codex/TASK-191-administrator-client-branch-access
+- authorization_review: /backlog/logs/TASK-191-authorization-review-2026-10-24.md
+- architecture_decision: /docs/architecture/adr/0003-administrator-client-branch-scope.md — Accepted (пользователь, 2026-10-24)
+- readiness: yes — решения владельца записаны; technical review и rendered existing-component states завершены
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-10-24 12:16
+- moved_from: /backlog/tasks-ready (после закрытия needs-clarification)
+- implementation_plan: /backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md
+- implementation_branch: codex/TASK-191-administrator-client-branch-access
+- execution_started: no — подготовлен готовый план; код не менялся
+
+## Product decisions
+- 24.10.2026, пользователь, владелец продукта, ответ на перечисленные вопросы:
+  «1. сохранить текущую модель
+  2. согласно рекомендации
+  3. согласно рекомендации».
+  P1: сохранить перевод отдельно от продажи и конфликт при затрагивании
+  active/future membership targets; привести REQ-CLI-007 к этой модели.
+  T1: принять рекомендованный вариант B — 404 для чужого/отсутствующего клиента,
+  204 после успешного перевода с утратой доступа, безопасное подтверждение
+  повторного запроса без повторной операции или выдачи карточки.
+  UX1: после перевода уведомление и возврат в исходный список; по устаревшей
+  ссылке очистка карточки и сообщение о недоступности с возвратом.
+  Техническая детализация синхронизации остаётся ответственностью Codex в
+  пределах принятого контракта, без новых продуктовых разрешений.
+- 24.10.2026, пользователь, владелец продукта: «Скрывать чужие клиентские
+  счётчики; общий справочник сохранить (рекомендуется)». Решение относится
+  также к secondary lists/counts; названия филиалов и залов остаются доступны
+  существующим lookup consumers. REQ-USR-001 актуализирована, реализация частичная.
+- Ограничение Administrator своим филиалом и scope Coach из TASK-192 уже
+  приняты; повторного согласования не требуют.
+
+## Open questions
+Нет. P1/P2/T1/UX1 закрыты; technical review и rendered verification записаны
+в plan/review/UI evidence. Планирование не запускает реализацию кода.
+
 ## Processing notes
 - Created at: 2026-10-24 11:23 MSK.
 - Created by skill: codex-backlog-skill.
@@ -138,4 +179,9 @@ main `8773321` обнаружил несовпадение с этим прав�
   Эти завершённые задачи не устраняют обнаруженные пропуски текущего main.
   TASK-132 — behavior-preserving рефакторинг Bot API, не исправление охвата;
   перед его выполнением учесть интеграцию исправления. Прямого дубля нет.
-- Реализация, implementation plan и изменение runtime не выполнялись.
+- На этапе triage реализация, implementation plan и изменение runtime не выполнялись.
+- 24.10.2026 составлены draft plan, authorization review и Proposed ADR;
+  текущие blockers перенесены в Open questions. Реализация не начиналась.
+
+- 24.10.2026 уточнения завершены: принятое решение, no-sale REQ-CLI-007,
+  Accepted ADR и rendered existing-component states включены в готовый план.

@@ -1961,3 +1961,35 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
   - `/backlog/implementation/TASK-190-manual-evidence.json` → `/backlog/done/2026-10-23/TASK-190-manual-evidence.json`
   - `/backlog/implementation/TASK-190-evidence` → `/backlog/done/2026-10-23/TASK-190-evidence`
   - `/backlog/mockups/TASK-190-existing-settings` → `/backlog/done/2026-10-23/TASK-190-existing-settings`
+
+# 2026-10-24 11:50
+- moved: none — в implementation не переводилась
+- planned_in_place: TASK-191 — draft; после authorization review risky → needs-clarification
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md
+- review: /backlog/logs/TASK-191-authorization-review-2026-10-24.md — primary/secondary reads, writes, error payloads, transfer, replay и consumers
+- architecture: /docs/architecture/adr/0003-administrator-client-branch-scope.md — Proposed; вариант B с client-scope 404, безопасным transfer 204/replay
+- decision: пользователь подтвердил «Скрывать чужие клиентские счётчики; общий справочник сохранить (рекомендуется)»; REQ-USR-001 и CHANGELOG обновлены
+- blockers: расхождение REQ-CLI-007 с no-sale transfer TASK-115; acceptance HTTP/replay contract; rendered подтверждение restricted/transfer consumer states
+- historical_paths: /backlog/risky/TASK-191-administrator-client-branch-access.md теперь соответствует /backlog/needs-clarification/TASK-191-administrator-client-branch-access.md; предыдущие triage logs сохранены
+- scope: planning/review/ADR/requirements artifacts; application code, runtime, task branches и worktrees не менялись
+- validation: knowledge harness — PASS (4 checks); executable preflight ожидаемо отклоняет readiness: no, что не является провалом проверки draft
+- final_review: дополнительный backend review подтвердил messenger replay и необходимость согласовать file/send-versus-transfer ordering до readiness; включены в T1 и regression specification
+- validation: финальные artifact links/unique task-plan/status-directory и git diff --check — PASS; application/runtime проверки не запускались для planning-only изменений
+
+# 2026-10-24 12:16
+- moved: TASK-191 — needs-clarification → tasks-ready → implementation после закрытия решений и PASS readiness preflight
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md
+- decision: пользователь «1. сохранить текущую модель; 2. согласно рекомендации; 3. согласно рекомендации» — no-sale transfer, 404/204/safe replay и existing restricted/success/back UX приняты
+- requirements: REQ-CLI-007 актуализирована (changes, частично до scope/response implementation); REQ-USR-001 сохраняет скрытие чужих counts; CHANGELOG и backlinks обновлены
+- architecture: ADR-0003 Accepted; ADR-0002 Superseded by ADR-0003 с сохранением прежнего branch/hall контракта кроме client counts
+- technical_review: завершены lock ordering, photo snapshot/upload cleanup, messenger read lease с durable Sending; новые permissions/schema/runtime config не вводятся
+- design: /backlog/mockups/TASK-191-client-scope/README.md — rendered current components на 390/420/440/1440, WebKit mobile для целевых iPhone; production 204 transition ещё не реализован
+- readiness: yes; open_questions: none; explicit preflight до переноса PASS
+- historical_paths: прежние risky/needs-clarification/tasks-ready TASK-191 paths теперь соответствуют /backlog/implementation/TASK-191-administrator-client-branch-access.md; предыдущие log entries сохранены
+- scope: только planning/REQ/ADR/evidence; implementation code не начинался, task branch/worktree не создавались
+- validation: explicit readiness preflight после переноса PASS; knowledge harness PASS (4 checks), scoped links/unique task-plan/status-directory и git diff --check PASS
+- evidence: .artifacts/verification/TASK-191-plan-ready.json; основной application/runtime regression suite не запускался для planning-only изменений
+- cleanup: отдельный Vite preview 43191 остановлен; основной stack 3000/8080 и его данные не менялись
