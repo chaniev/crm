@@ -34,5 +34,23 @@
       "id": "manual.client-scope-rendered-comparison",
       "description": "Compare implemented restricted and transfer return states with approved TASK-191 UI contract; record emulator/device limits."
     }
+  ],
+  "runtime_smoke": [
+    {
+      "id": "backend.runtime.administrator-client-scope-postgresql",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build",
+        "--filter",
+        "FullyQualifiedName~AdministratorClientScopePostgreSqlTests"
+      ],
+      "timeout_seconds": 600
+    }
   ]
 }

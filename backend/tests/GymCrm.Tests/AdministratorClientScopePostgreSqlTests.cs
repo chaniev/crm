@@ -8,6 +8,8 @@ using GymCrm.Application.Clients;
 using GymCrm.Application.Messenger;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -98,6 +100,69 @@ public sealed class AdministratorClientScopePostgreSqlTests
         Assert.Empty(await context.ClientMembershipSales.ToArrayAsync());
         Assert.Empty(await context.ClientMembershipRefunds.ToArrayAsync());
         Assert.Equal(1, await context.AuditLogs.CountAsync(log => log.ActionType == "ClientTransferred"));
+    }
+
+    [Fact]
+    public async Task Reassignment_before_group_deactivation_cannot_disclose_former_branch_blockers()
+    {
+        var barrier = new BeforeGroupReadBarrier();
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString(), barrier);
+        await factory.SeedAsync();
+        var (clientId, actorId) = await SeedClientAsync(factory);
+        var groupId = Guid.NewGuid();
+        var typeId = Guid.NewGuid();
+        using (var seed = factory.Services.CreateScope())
+        {
+            var db = seed.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.GroupTypes.Add(new GroupType { Id = typeId, Name = "Scope regression" });
+            db.TrainingGroups.Add(new TrainingGroup
+            {
+                Id = groupId, BranchId = factory.OwnBranchId, HallId = factory.OwnHallId,
+                GroupTypeId = typeId, Name = "Protected group", DurationMinutes = 60,
+                Weekdays = [1], TrainingStartTime = new TimeOnly(12, 0)
+            });
+            var sale = new ClientMembershipSale
+            {
+                Id = Guid.NewGuid(), ClientId = clientId,
+                BehaviorKind = MembershipBehaviorKind.Term, CreatedByUserId = actorId,
+                PricingMode = ClientMembershipSalePricingMode.AmountOnly, GrossAmount = 1000
+            };
+            var membership = new ClientMembership
+            {
+                Id = Guid.NewGuid(), ClientId = clientId, SaleId = sale.Id,
+                BehaviorKind = MembershipBehaviorKind.Term, ChangedByUserId = actorId,
+                IndividualValidFrom = seed.ServiceProvider.GetRequiredService<IBusinessDateProvider>().Today,
+                IndividualValidTo = seed.ServiceProvider.GetRequiredService<IBusinessDateProvider>().Today.AddDays(30)
+            };
+            membership.TargetGroups.Add(new ClientMembershipTargetGroup
+            {
+                ClientMembershipId = membership.Id, GroupId = groupId, BranchId = factory.OwnBranchId, Position = 1
+            });
+            db.ClientMembershipSales.Add(sale);
+            db.ClientMemberships.Add(membership);
+            await db.SaveChangesAsync();
+        }
+        var (admin, csrf) = await factory.LoginAsync(UserRole.Administrator);
+        using (admin)
+        {
+            barrier.Arm();
+            var pending = BranchSettingsAppFactory.SendAsync(admin, HttpMethod.Put, $"/groups/{groupId}",
+                new { name = "Protected group", branchId = factory.OwnBranchId, groupTypeId = typeId, isActive = false }, csrf);
+            await barrier.Entered.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            try { await ReassignAsync(postgres.GetConnectionString(), actorId, factory.ForeignBranchId); }
+            finally { barrier.Release.TrySetResult(); }
+            using var denied = await pending.WaitAsync(TimeSpan.FromSeconds(15));
+            Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
+            var body = await denied.Content.ReadAsStringAsync();
+            Assert.DoesNotContain(clientId.ToString(), body);
+            Assert.DoesNotContain("PostgreSQL scope", body);
+        }
+        using var verification = factory.Services.CreateScope();
+        var context = verification.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.True((await context.TrainingGroups.SingleAsync(group => group.Id == groupId)).IsActive);
+        Assert.Empty(await context.AuditLogs.Where(log => log.ActionType == "TrainingGroupUpdated").ToArrayAsync());
     }
 
     [Theory]
@@ -560,6 +625,24 @@ public sealed class AdministratorClientScopePostgreSqlTests
             {
                 if (Interlocked.Increment(ref arrived) == 2) bothArrived.TrySetResult();
                 await bothArrived.Task.WaitAsync(TimeSpan.FromSeconds(15), cancellationToken);
+            }
+            return result;
+        }
+    }
+
+    private sealed class BeforeGroupReadBarrier : DbCommandInterceptor
+    {
+        private int armed;
+        public TaskCompletionSource Entered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public void Arm() => Interlocked.Exchange(ref armed, 1);
+        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command,
+            CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+        {
+            if (command.CommandText.Contains("FROM \"TrainingGroups\"", StringComparison.Ordinal) && Interlocked.Exchange(ref armed, 0) == 1)
+            {
+                Entered.TrySetResult();
+                await Release.Task.WaitAsync(TimeSpan.FromSeconds(15), cancellationToken);
             }
             return result;
         }

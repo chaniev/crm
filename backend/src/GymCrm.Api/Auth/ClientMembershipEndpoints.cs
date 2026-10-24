@@ -556,7 +556,13 @@ internal static class ClientMembershipEndpoints
 
         async Task<IResult?> HandleExistingIdempotencyAsync(ClientMembershipIdempotencyRecord record)
         {
-            await using var replayLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [id], cancellationToken);
+            // Pending is a status-only response: do not wait on the winning operation's client write lock.
+            // Completed replay and expiry cleanup still serialize with client transfer before reading or writing.
+            await using var replayLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+            if (record.ExpiresAt <= now || string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal))
+            {
+                await ClientAccessTransaction.LockReadClientsAsync(dbContext, [id], cancellationToken);
+            }
             var replayActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
             if (replayActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, replayActor, id, cancellationToken))
             {
@@ -1173,7 +1179,13 @@ internal static class ClientMembershipEndpoints
         async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>?> HandleExistingIdempotencyAsync(
             ClientMembershipIdempotencyRecord record)
         {
-            await using var replayLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [id], cancellationToken);
+            // Pending is a status-only response: do not wait on the winning operation's client write lock.
+            // Completed replay and expiry cleanup still serialize with client transfer before reading or writing.
+            await using var replayLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+            if (record.ExpiresAt <= now || string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal))
+            {
+                await ClientAccessTransaction.LockReadClientsAsync(dbContext, [id], cancellationToken);
+            }
             var replayActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
             if (replayActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, replayActor, id, cancellationToken))
             {

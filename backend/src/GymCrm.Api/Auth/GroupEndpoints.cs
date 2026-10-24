@@ -516,9 +516,17 @@ internal static class GroupEndpoints
         var requestedIsActive = normalizedRequest.IsActive ?? group.IsActive;
         var deactivatingGroup = group.IsActive && !requestedIsActive;
         var oldState = SerializeAuditState(group);
-        var mutationTransaction = await BeginGroupMutationTransactionAsync(dbContext, cancellationToken);
+        var mutationTransaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, null,
+            [group.Id], [group.BranchId, normalizedRequest.BranchId!.Value], cancellationToken);
         try
         {
+            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+            if (lockedActor is null || !GroupManagementScope.Contains(lockedActor, group.BranchId) ||
+                !GroupManagementScope.Contains(lockedActor, normalizedRequest.BranchId!.Value))
+            {
+                return GroupManagementScope.ForbiddenProblem();
+            }
+            currentUser = lockedActor;
             if (deactivatingGroup)
             {
                 await LockGroupDeactivationRowsAsync(group.Id, dbContext, cancellationToken);
@@ -554,7 +562,10 @@ internal static class GroupEndpoints
             }
         }
 
-        var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, currentUser)
+        await using var responseLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        var responseActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken)
+            ?? new User { IsActive = false };
+        var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, responseActor)
             ?? throw new InvalidOperationException($"Updated training group '{group.Id}' was not found.");
 
         await auditLogService.WriteAsync(
@@ -567,6 +578,7 @@ internal static class GroupEndpoints
                 oldState,
                 SerializeAuditState(updatedGroup)),
             cancellationToken);
+        if (responseLease is not null) await responseLease.CommitAsync(cancellationToken);
 
         return TypedResults.Ok(MapDetails(updatedGroup));
     }
@@ -612,13 +624,26 @@ internal static class GroupEndpoints
 
         var oldState = SerializeAuditState(group);
 
-        var now = DateTimeOffset.UtcNow;
-        ApplyTrainerAssignments(group, normalizedTrainerIds, currentUser.Id, now, dbContext);
-        group.UpdatedAt = now;
+        await using (var mutationLease = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, null,
+            [group.Id], [group.BranchId], cancellationToken))
+        {
+            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
+            if (lockedActor is null || !GroupManagementScope.Contains(lockedActor, group.BranchId))
+            {
+                return GroupManagementScope.ForbiddenProblem();
+            }
+            currentUser = lockedActor;
+            var now = DateTimeOffset.UtcNow;
+            ApplyTrainerAssignments(group, normalizedTrainerIds, currentUser.Id, now, dbContext);
+            group.UpdatedAt = now;
+            await dbContext.SaveChangesAsync(cancellationToken);
+            if (mutationLease is not null) await mutationLease.CommitAsync(cancellationToken);
+        }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, currentUser)
+        await using var responseLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
+        var responseActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken)
+            ?? new User { IsActive = false };
+        var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, responseActor)
             ?? throw new InvalidOperationException($"Updated training group '{group.Id}' was not found.");
 
         await auditLogService.WriteAsync(
@@ -631,6 +656,7 @@ internal static class GroupEndpoints
                 oldState,
                 SerializeAuditState(updatedGroup)),
             cancellationToken);
+        if (responseLease is not null) await responseLease.CommitAsync(cancellationToken);
 
         return TypedResults.Ok(MapDetails(updatedGroup));
     }
