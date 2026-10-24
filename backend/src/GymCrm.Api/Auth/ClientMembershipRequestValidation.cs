@@ -1,7 +1,6 @@
 using System.Globalization;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
-using GymCrm.Domain.Memberships;
 using Microsoft.AspNetCore.Http.HttpResults;
 using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
 
@@ -209,66 +208,6 @@ internal static class ClientMembershipRequestValidation
         return errors;
     }
 
-    private static void ValidateMembershipDateRange(
-        MembershipBehaviorKind? behaviorKind,
-        DateOnly? purchaseDate,
-        DateOnly? expirationDate,
-        Dictionary<string, string[]> errors,
-        string expirationDateKey)
-    {
-        if (behaviorKind is MembershipBehaviorKind.SingleVisit || !purchaseDate.HasValue || !expirationDate.HasValue)
-        {
-            return;
-        }
-
-        if (expirationDate.Value < purchaseDate.Value)
-        {
-            errors[expirationDateKey] = [ClientResources.ExpirationBeforePurchaseDate];
-        }
-    }
-
-    private static MembershipBehaviorKind? ValidateRequiredBehaviorKind(
-        string? behaviorKind,
-        Dictionary<string, string[]> errors)
-    {
-        if (string.IsNullOrWhiteSpace(behaviorKind))
-        {
-            errors["behaviorKind"] = [ClientResources.BehaviorKindRequired];
-            return null;
-        }
-
-        var parsedBehaviorKind = ParseBehaviorKind(behaviorKind);
-        if (parsedBehaviorKind is null)
-        {
-            errors["behaviorKind"] = [ClientResources.InvalidBehaviorKind];
-        }
-
-        return parsedBehaviorKind;
-    }
-
-    private static void ValidateOptionalMatchingBehaviorKind(
-        string? behaviorKind,
-        MembershipBehaviorKind expectedBehaviorKind,
-        Dictionary<string, string[]> errors)
-    {
-        if (string.IsNullOrWhiteSpace(behaviorKind))
-        {
-            return;
-        }
-
-        var parsedBehaviorKind = ParseBehaviorKind(behaviorKind);
-        if (parsedBehaviorKind is null)
-        {
-            errors["behaviorKind"] = [ClientResources.InvalidBehaviorKind];
-            return;
-        }
-
-        if (parsedBehaviorKind.Value != expectedBehaviorKind)
-        {
-            errors["behaviorKind"] = [ClientResources.CurrentBehaviorKindMismatch(expectedBehaviorKind.ToString())];
-        }
-    }
-
     private static DateOnly? ValidateRequiredDate(
         string? value,
         string key,
@@ -318,13 +257,6 @@ internal static class ClientMembershipRequestValidation
         {
             errors[key] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipRequestValidationLine31962a0a730];
         }
-    }
-
-    private static MembershipBehaviorKind? ParseBehaviorKind(string? behaviorKind)
-    {
-        return Enum.TryParse<MembershipBehaviorKind>(behaviorKind?.Trim(), ignoreCase: true, out var parsedBehaviorKind)
-            ? parsedBehaviorKind
-            : null;
     }
 
     internal static DateOnly? ParseIsoDate(string? value)

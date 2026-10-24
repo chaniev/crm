@@ -82,6 +82,10 @@ internal static class GroupTypeEndpoints
             return TypedResults.ValidationProblem(validationErrors);
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var now = DateTimeOffset.UtcNow;
         var groupType = new GroupType
         {
@@ -104,6 +108,11 @@ internal static class GroupTypeEndpoints
                 GroupTypeResources.GroupTypeCreatedDescription(currentUser.Login, groupType.Name),
                 NewValueJson: SerializeAuditState(groupType)),
             cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         var createdGroupType = await LoadGroupTypeSnapshotAsync(groupType.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Created group type '{groupType.Id}' was not found.");
@@ -151,6 +160,10 @@ internal static class GroupTypeEndpoints
             return TypedResults.ValidationProblem(validationErrors);
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var oldState = SerializeAuditState(groupType);
 
         groupType.Name = normalizedRequest.Name;
@@ -169,6 +182,11 @@ internal static class GroupTypeEndpoints
                 oldState,
                 SerializeAuditState(groupType)),
             cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         var updatedGroupType = await LoadGroupTypeSnapshotAsync(groupType.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated group type '{groupType.Id}' was not found.");
@@ -212,6 +230,10 @@ internal static class GroupTypeEndpoints
             });
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var oldState = SerializeAuditState(groupType);
         dbContext.GroupTypes.Remove(groupType);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -225,6 +247,11 @@ internal static class GroupTypeEndpoints
                 GroupTypeResources.GroupTypeDeletedDescription(currentUser.Login, groupType.Name),
                 OldValueJson: oldState),
             cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         return TypedResults.NoContent();
     }

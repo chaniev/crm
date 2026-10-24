@@ -227,6 +227,10 @@ internal static class BranchEndpoints
             return TypedResults.ValidationProblem(validationErrors);
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var oldState = SerializeBranchAuditState(branch);
         branch.Name = normalizedRequest.Name;
         branch.Address = normalizedRequest.Address;
@@ -246,6 +250,10 @@ internal static class BranchEndpoints
                 SerializeBranchAuditState(branch)),
             cancellationToken);
 
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         return TypedResults.Ok(await LoadBranchResponseAsync(branch.Id, currentUser.Id, dbContext, cancellationToken));
     }
@@ -566,6 +574,10 @@ internal static class BranchEndpoints
             return TypedResults.ValidationProblem(validationErrors);
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var oldState = SerializeHallAuditState(hall);
         hall.Name = normalizedRequest.Name;
         hall.Description = normalizedRequest.Description;
@@ -582,6 +594,11 @@ internal static class BranchEndpoints
                 oldState,
                 SerializeHallAuditState(hall)),
             cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         var updatedHall = await LoadHallSnapshotAsync(hall.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated hall '{hall.Id}' was not found.");
@@ -684,6 +701,10 @@ internal static class BranchEndpoints
             return TypedResults.Ok(MapHall(currentHall));
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var oldState = SerializeHallAuditState(hall);
         hall.IsArchived = isArchived;
         hall.UpdatedAt = DateTimeOffset.UtcNow;
@@ -699,6 +720,11 @@ internal static class BranchEndpoints
                 oldState,
                 SerializeHallAuditState(hall)),
             cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         var updatedHall = await LoadHallSnapshotAsync(hall.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated hall '{hall.Id}' was not found.");
@@ -751,6 +777,10 @@ internal static class BranchEndpoints
             });
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var oldState = SerializeHallAuditState(hall);
         dbContext.Halls.Remove(hall);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -765,21 +795,12 @@ internal static class BranchEndpoints
                 oldState),
             cancellationToken);
 
-        return TypedResults.NoContent();
-    }
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
-    private static async Task<Branch?> LoadBranchSnapshotAsync(
-        Guid id,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
-    {
-        return await dbContext.Branches
-            .AsNoTracking()
-            .Include(branch => branch.Halls)
-            .Include(branch => branch.Groups)
-            .Include(branch => branch.Clients)
-            .AsSplitQuery()
-            .SingleOrDefaultAsync(branch => branch.Id == id, cancellationToken);
+        return TypedResults.NoContent();
     }
 
     private static async Task<Hall?> LoadHallSnapshotAsync(
@@ -793,21 +814,6 @@ internal static class BranchEndpoints
             .Include(hall => hall.Groups)
             .AsSplitQuery()
             .SingleOrDefaultAsync(hall => hall.Id == id, cancellationToken);
-    }
-
-    private static BranchResponse MapBranch(Branch branch)
-    {
-        return new BranchResponse(
-            branch.Id,
-            branch.Name,
-            branch.Address,
-            branch.Description,
-            branch.IsArchived,
-            branch.Halls.Count,
-            branch.Groups.Count,
-            branch.Clients.Count,
-            branch.CreatedAt,
-            branch.UpdatedAt);
     }
 
     private static HallResponse MapHall(Hall hall)

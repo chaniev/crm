@@ -90,9 +90,6 @@ internal sealed record ScheduleWarningResponse(
     string Code,
     string Message);
 
-internal sealed record ScheduleLessonMutationRequest(
-    string? Revision);
-
 internal sealed record ScheduleLessonCancellationPreviewRequest(
     string? Action,
     string? ExpectedRevision);

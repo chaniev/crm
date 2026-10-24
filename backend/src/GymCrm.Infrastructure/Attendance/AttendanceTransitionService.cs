@@ -870,41 +870,6 @@ internal sealed class AttendanceTransitionService(
         return affected;
     }
 
-    private async Task<IReadOnlyList<Guid>> LoadUnmappedRowIdsAsync(
-        IReadOnlyCollection<Guid> rowIds,
-        CancellationToken cancellationToken)
-    {
-        if (dbContext.Database.ProviderName?.Contains("InMemory", StringComparison.OrdinalIgnoreCase) == true)
-        {
-            return await dbContext.Attendance
-                .AsNoTracking()
-                .Where(attendance => rowIds.Contains(attendance.Id) && attendance.LessonOccurrenceId == Guid.Empty)
-                .Select(attendance => attendance.Id)
-                .OrderBy(id => id)
-                .ToArrayAsync(cancellationToken);
-        }
-
-        var connection = dbContext.Database.GetDbConnection();
-        await dbContext.Database.OpenConnectionAsync(cancellationToken);
-        var remaining = new List<Guid>();
-        foreach (var rowId in rowIds.OrderBy(id => id))
-        {
-            await using var command = connection.CreateCommand();
-            command.CommandText = """SELECT "Id" FROM "Attendance" WHERE "Id" = @rowId AND "LessonOccurrenceId" IS NULL""";
-            var parameter = command.CreateParameter();
-            parameter.ParameterName = "rowId";
-            parameter.Value = rowId;
-            command.Parameters.Add(parameter);
-            var value = await command.ExecuteScalarAsync(cancellationToken);
-            if (value is Guid id)
-            {
-                remaining.Add(id);
-            }
-        }
-
-        return remaining;
-    }
-
     private async Task<IDbContextTransaction?> BeginTransactionIfRelationalAsync(CancellationToken cancellationToken) =>
         dbContext.Database.IsRelational()
             ? await dbContext.Database.BeginTransactionAsync(cancellationToken)

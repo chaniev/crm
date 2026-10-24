@@ -1993,3 +1993,19 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - validation: explicit readiness preflight после переноса PASS; knowledge harness PASS (4 checks), scoped links/unique task-plan/status-directory и git diff --check PASS
 - evidence: .artifacts/verification/TASK-191-plan-ready.json; основной application/runtime regression suite не запускался для planning-only изменений
 - cleanup: отдельный Vite preview 43191 остановлен; основной stack 3000/8080 и его данные не менялись
+
+# 2026-10-24 — TASK-194 backend maintenance
+- source: прямой запрос пользователя после maintenance-аудита.
+- moved: TASK-194 (direct-user-request).
+- plans: /backlog/implementation-plans/TASK-194-backend-maintenance.plan.md
+- branch: codex/TASK-194-backend-maintenance; dependency base: 59765b7.
+- readiness: preflight passed; только существующие контракты и локальные обратимые решения.
+- initial evidence: 8/8 audit rollback regressions red before fix, 8/8 green after fix; 5/5 startup characterization tests green before refactor.
+
+# 2026-10-24 — TASK-194 local verification completed
+- scope: 11 unreachable private methods and an unused internal DTO removed; typed persistence startup; atomic mutation/audit in 10 settings/password/Telegram operations.
+- additional evidence: password and Telegram failure regressions red before fix; all 10 rollback cases and successful retries green on PostgreSQL.
+- validation: backend 708/708, frontend 750/750; builds, format, guards, lint/typecheck, dependency audits and knowledge checks passed.
+- canonical evidence: task worktree `.artifacts/verification/TASK-194-full-baseline.json` and `.artifacts/verification/TASK-194-final-backend.json`.
+- base drift: main/origin/main advanced from 59765b7 to addc759 through TASK-193 harness/docs changes; no production code overlap, task base preserved.
+- lifecycle: locally ready in codex/TASK-194-backend-maintenance; task/plan remain implementation pending integration; no persistent runtime stack.

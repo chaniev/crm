@@ -566,6 +566,10 @@ internal sealed class ClientMessengerService(
             return new ClientTelegramUpdateHandleResult(ClientTelegramUpdateHandleStatus.AccountConflict, token.ClientId);
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var account = existingUserAccount ?? existingClientAccount;
         if (account is null)
         {
@@ -599,6 +603,11 @@ internal sealed class ClientMessengerService(
             Source: "Telegram",
             MessengerPlatform: ClientMessengerAuditConstants.TelegramPlatform,
             MessengerPlatformUserIdHash: platformUserIdHash), cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         return new ClientTelegramUpdateHandleResult(ClientTelegramUpdateHandleStatus.AccountLinked, token.ClientId);
     }

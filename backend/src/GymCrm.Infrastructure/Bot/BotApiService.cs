@@ -1032,33 +1032,6 @@ internal sealed class BotApiService(
         return GroupAccessResult.Allowed(group);
     }
 
-    private async Task<IReadOnlyList<TrainingGroup>> LoadAccessibleGroupsAsync(
-        User user,
-        CancellationToken cancellationToken)
-    {
-        var accessScope = await accessScopeService.GetAccessScopeAsync(user, cancellationToken);
-        var accessibleGroupIds = accessScope.AttendanceScope.Kind == AttendanceScopeKind.Global
-            ? null
-            : accessScope.AttendanceScope.GroupIds.ToHashSet();
-
-        var query = dbContext.TrainingGroups
-            .AsNoTracking()
-            .Include(group => group.Branch)
-            .Include(group => group.Hall)
-            .Include(group => group.Trainers)
-                .ThenInclude(trainer => trainer.Trainer)
-            .AsSplitQuery();
-        if (accessibleGroupIds is not null)
-        {
-            query = query.Where(group => accessibleGroupIds.Contains(group.Id));
-        }
-
-        return await query
-            .OrderBy(group => group.Name)
-            .ThenBy(group => group.Id)
-            .ToArrayAsync(cancellationToken);
-    }
-
     private async Task<IReadOnlyList<LessonSeries>> LoadAccessibleSeriesAsync(
         User user,
         DateOnly from,

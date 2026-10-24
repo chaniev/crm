@@ -213,6 +213,10 @@ internal static class AuthEndpoints
             });
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
         var oldState = JsonSerializer.Serialize(
             new { user.MustChangePassword },
             AuditSerializerOptions);
@@ -238,6 +242,11 @@ internal static class AuthEndpoints
                 oldState,
                 newState),
             cancellationToken);
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
 
         await AuthSessionSync.SignInAsync(httpContext, user, now);
 

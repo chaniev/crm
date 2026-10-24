@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "task_id": "TASK-194",
+  "expected_branch": "codex/TASK-194-backend-maintenance",
+  "areas": ["backend"]
+}
