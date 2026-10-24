@@ -119,26 +119,40 @@ public sealed class AdministratorClientScopePostgreSqlTests
             db.GroupTypes.Add(new GroupType { Id = typeId, Name = "Scope regression" });
             db.TrainingGroups.Add(new TrainingGroup
             {
-                Id = groupId, BranchId = factory.OwnBranchId, HallId = factory.OwnHallId,
-                GroupTypeId = typeId, Name = "Protected group", DurationMinutes = 60,
-                Weekdays = [1], TrainingStartTime = new TimeOnly(12, 0)
+                Id = groupId,
+                BranchId = factory.OwnBranchId,
+                HallId = factory.OwnHallId,
+                GroupTypeId = typeId,
+                Name = "Protected group",
+                DurationMinutes = 60,
+                Weekdays = [1],
+                TrainingStartTime = new TimeOnly(12, 0)
             });
             var sale = new ClientMembershipSale
             {
-                Id = Guid.NewGuid(), ClientId = clientId,
-                BehaviorKind = MembershipBehaviorKind.Term, CreatedByUserId = actorId,
-                PricingMode = ClientMembershipSalePricingMode.AmountOnly, GrossAmount = 1000
+                Id = Guid.NewGuid(),
+                ClientId = clientId,
+                BehaviorKind = MembershipBehaviorKind.Term,
+                CreatedByUserId = actorId,
+                PricingMode = ClientMembershipSalePricingMode.AmountOnly,
+                GrossAmount = 1000
             };
             var membership = new ClientMembership
             {
-                Id = Guid.NewGuid(), ClientId = clientId, SaleId = sale.Id,
-                BehaviorKind = MembershipBehaviorKind.Term, ChangedByUserId = actorId,
+                Id = Guid.NewGuid(),
+                ClientId = clientId,
+                SaleId = sale.Id,
+                BehaviorKind = MembershipBehaviorKind.Term,
+                ChangedByUserId = actorId,
                 IndividualValidFrom = seed.ServiceProvider.GetRequiredService<IBusinessDateProvider>().Today,
                 IndividualValidTo = seed.ServiceProvider.GetRequiredService<IBusinessDateProvider>().Today.AddDays(30)
             };
             membership.TargetGroups.Add(new ClientMembershipTargetGroup
             {
-                ClientMembershipId = membership.Id, GroupId = groupId, BranchId = factory.OwnBranchId, Position = 1
+                ClientMembershipId = membership.Id,
+                GroupId = groupId,
+                BranchId = factory.OwnBranchId,
+                Position = 1
             });
             db.ClientMembershipSales.Add(sale);
             db.ClientMemberships.Add(membership);
