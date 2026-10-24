@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-194 Backend maintenance
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-194-backend-maintenance.md
+- source_task: /backlog/done/2026-10-24/TASK-194-backend-maintenance.md
 - requirements: REQ-AUD-001 (implements), REQ-BRN-001 (constrains), REQ-BRN-002 (constrains)
 - branch: codex/TASK-194-backend-maintenance
 - readiness: yes
@@ -32,7 +32,7 @@
   API/CLI, переходы retained-data, operational flags и общие ресурсы сохраняются.
 
 ## Decision evidence
-- [Исходный запрос и ограниченный scope](/backlog/implementation/TASK-194-backend-maintenance.md).
+- [Исходный запрос и ограниченный scope](/backlog/done/2026-10-24/TASK-194-backend-maintenance.md).
 - [Обязательные audit/persistence-инварианты](/backend/AGENTS.md) и
   [принятый журнал действий](/docs/requirements/06-аудит.md).
 - Существующий транзакционный шаблон:
@@ -105,8 +105,8 @@ AuthEndpoints.ChangePasswordAsync и ClientMessengerService.HandleStartTokenAsyn
 - После этого дополнены успешные PostgreSQL-повторы для восьми настроечных операций;
   полный backend baseline и knowledge validators прошли на итоговом тесте:
   708/708, без пропусков, Release build без предупреждений, dependency audit без уязвимостей.
-- Результаты локальных запусков: `.artifacts/verification/TASK-194-full-baseline.json`,
-  `.artifacts/verification/TASK-194-final-backend.json`.
+- Результаты локальных запусков: [initial baseline](TASK-194-evidence/history/initial-baseline.json),
+  [final backend](TASK-194-evidence/history/final-backend.json).
 - База не менялась: 59765b7. За время работы main/origin/main продвинулись до
   addc759 через TASK-193 (harness/docs); production code не пересекается с этой задачей.
 
@@ -123,3 +123,18 @@ python3 scripts/harness/verify_change.py --profile full --area backend --area re
 проверены с PostgreSQL 17 в изолированных Testcontainers; постоянный Compose stack
 для задачи не создавался. Playwright не запускался: UI и публичные контракты
 не изменены. Финальный diff просмотрен, `git diff --check` пройден.
+
+
+## Integration completion
+24.10.2026 пользователь запросил «влей в main». Main `addc759` объединён в
+ветку задачи без конфликтов; подготовлен чистый candidate `852ea36`.
+
+```sh
+python3 scripts/harness/verify_change.py --base addc759 --task-id TASK-194 --report .artifacts/verification/TASK-194-integration/verification.json
+python3 scripts/harness/aggregate_evidence.py --input-dir .artifacts/verification/TASK-194-integration --report .artifacts/verification/TASK-194-integration/gate.json --require-task-id TASK-194 --require-report verification.json
+```
+
+13/13 checks и gate прошли. Main fast-forward до проверенного commit/tree;
+backend 708/708 и frontend 750/750. [Evidence](TASK-194-evidence/verification.json)
+сохранено вместе с [gate](TASK-194-evidence/gate.json). Последующее закрытие
+карточки меняет только knowledge artifacts; application code остаётся проверенным.

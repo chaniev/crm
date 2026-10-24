@@ -1,7 +1,7 @@
 # TASK-194: Упростить backend по результатам maintenance-аудита
 
 ## Status
-implementation
+done
 
 ## Source
 Прямой запрос пользователя от 24.10.2026 в текущем диалоге:
@@ -43,12 +43,12 @@ implementation
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-10-24
 - moved_from: direct-user-request
-- implementation_plan: /backlog/implementation-plans/TASK-194-backend-maintenance.plan.md
+- implementation_plan: /backlog/done/2026-10-24/TASK-194-backend-maintenance.plan.md
 - implementation_branch: codex/TASK-194-backend-maintenance
 - dependency_base: 59765b7 — локальный main, проверенный предыдущим аудитом; при создании задачи origin/main отставал на 13 коммитов.
 - base_drift: во время проверки main/origin/main продвинулись до addc759 (TASK-193,
   два коммита с изменениями harness и документации). Production/backend-файлы
-  этой задачи не пересекаются; task-ветка остаётся на объявленной базе, без rebase.
+  этой задачи не пересекаются; перед интеграцией main объединён в task-ветку без конфликтов.
 
 ## Maintenance evidence
 - Удалены 11 приватных методов: прежние cancel/restore handlers и их helper в
@@ -76,14 +76,30 @@ implementation
   архитектурного плана и refactoring review; в эту локальную чистку не включён.
 - Operational flags и retained-data compatibility paths сохранены: нет
   эксплуатационных свидетельств, позволяющих считать их устаревшими.
-- Локально готовый результат остаётся в task-ветке до отдельной интеграции;
-  публикация, merge и deployment текущим запросом не выполняются.
+- Интеграция в локальную main выполнена по дополнительному запросу пользователя
+  «влей в main». Публикация в origin и deployment в этот запрос не включены.
 
 ## Local validation
-Локальная реализация завершена и проверена 24.10.2026, статус implementation
-сохранён до интеграции в main. Backend: 708/708 тестов (15 новых сценариев),
+Локальная реализация завершена и проверена 24.10.2026; ниже сохранены
+результаты до интеграции. Итоговая проверка и merge зафиксированы отдельно. Backend: 708/708 тестов (15 новых сценариев),
 frontend compatibility baseline: 750/750. Сборки, форматирование, guards,
 lint/typecheck, проверки требований и dependency audits прошли.
 PostgreSQL-проверки покрывают отказ/повтор десяти операций и повторяемый startup
 с сохранением данных; тестовые контейнеры освобождены. Команды, ограничения и
 пути JSON evidence приведены в связанном implementation plan.
+
+
+## Completion evidence
+- completed_at: 2026-10-24
+- delivered_on_main_at: 2026-10-24
+- moved_to_done_at: 2026-10-24
+- completion_date_evidence: main fast-forward до `852ea36d23bb61c4154d1ddd051dd0ee7266ab41`; tree `1a2afe026763b5ca36baa688d02822e7c2fc00ca` совпадает с проверенным candidate.
+- Прямое разрешение интеграции: пользователь «влей в main» в текущем диалоге.
+- На чистом candidate после объединения с main `addc759` выполнен полный
+  diff-selected harness: 13/13 checks passed, backend 708/708, frontend 750/750,
+  dependency audits passed; aggregate gate passed.
+- [Итоговая проверка](TASK-194-evidence/verification.json) и
+  [gate](TASK-194-evidence/gate.json). Отчёты сохранены без изменения исходных
+  путей контракта и worktree на момент запуска; предыдущие локальные проверки
+  сохранены в `TASK-194-evidence/history/` и не используются как merge gate.
+- Постоянный runtime stack для задачи не создавался. Testcontainers освобождены.

@@ -1,0 +1,276 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-10-24T12:55:41.239467+00:00",
+  "repository": "TASK-194-backend-maintenance",
+  "profile": "full",
+  "base": "59765b7",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "59765b734edd137a79b6241837e10d10ca01eed8",
+    "head_tree_sha": "c80b7c15f9657a6aae83430fe7e0c30e1ec7b2a3",
+    "base_sha": "59765b734edd137a79b6241837e10d10ca01eed8",
+    "merge_base_sha": "59765b734edd137a79b6241837e10d10ca01eed8",
+    "branch": "codex/TASK-194-backend-maintenance",
+    "working_tree_dirty": true,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-194-backend-maintenance.verification-contract.json",
+    "task_id": "TASK-194",
+    "expected_branch": "codex/TASK-194-backend-maintenance",
+    "sha256": "44e869a3fb6805a9c0084f5899b9336486fc9d40c0b45fcd69d9fe3d110ae1ba",
+    "verified_head_sha": "59765b734edd137a79b6241837e10d10ca01eed8",
+    "verified_head_tree_sha": "c80b7c15f9657a6aae83430fe7e0c30e1ec7b2a3",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-194\",\n  \"expected_branch\": \"codex/TASK-194-backend-maintenance\",\n  \"areas\": [\"backend\"]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-194",
+      "expected_branch": "codex/TASK-194-backend-maintenance",
+      "areas": [
+        "backend"
+      ]
+    }
+  },
+  "task_id": "TASK-194",
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [],
+  "changed_paths": [],
+  "selected_areas": [
+    "requirements",
+    "backend"
+  ],
+  "reasons": {
+    "backend": [
+      "explicit full-profile area",
+      "task contract TASK-194 requires backend"
+    ],
+    "requirements": [
+      "explicit full-profile area"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:41.325802+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.039,
+      "completed_at": "2026-10-24T12:55:41.365049+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:41.365820+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.039,
+      "completed_at": "2026-10-24T12:55:41.404439+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:41.405147+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.041,
+      "completed_at": "2026-10-24T12:55:41.445734+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "59765b7"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:41.446487+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-10-24T12:55:41.523336+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "explicit full-profile area",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:41.524127+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.709,
+      "completed_at": "2026-10-24T12:55:42.233191+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "explicit full-profile area",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:42.234089+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.882,
+      "completed_at": "2026-10-24T12:55:43.115647+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "explicit full-profile area",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:43.116529+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.225,
+      "completed_at": "2026-10-24T12:55:54.341327+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "explicit full-profile area",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:54.342953+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.297,
+      "completed_at": "2026-10-24T12:55:56.640356+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "explicit full-profile area",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:55:56.641201+00:00",
+      "exit_code": 0,
+      "duration_seconds": 146.707,
+      "completed_at": "2026-10-24T12:58:23.349005+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "explicit full-profile area",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:58:23.350804+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.755,
+      "completed_at": "2026-10-24T12:58:26.105822+00:00"
+    }
+  ],
+  "completed_at": "2026-10-24T12:58:26.106636+00:00"
+}

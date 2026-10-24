@@ -1,0 +1,646 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-10-24T13:12:30.323161+00:00",
+  "repository": "TASK-194-backend-maintenance",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check"
+  ],
+  "base": "addc759",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "852ea36d23bb61c4154d1ddd051dd0ee7266ab41",
+    "head_tree_sha": "1a2afe026763b5ca36baa688d02822e7c2fc00ca",
+    "base_sha": "addc759c17d45de0b035b64b306f8a8c607cc2b8",
+    "merge_base_sha": "addc759c17d45de0b035b64b306f8a8c607cc2b8",
+    "branch": "codex/TASK-194-backend-maintenance",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-194-backend-maintenance.verification-contract.json",
+    "task_id": "TASK-194",
+    "expected_branch": "codex/TASK-194-backend-maintenance",
+    "sha256": "44e869a3fb6805a9c0084f5899b9336486fc9d40c0b45fcd69d9fe3d110ae1ba",
+    "verified_head_sha": "852ea36d23bb61c4154d1ddd051dd0ee7266ab41",
+    "verified_head_tree_sha": "1a2afe026763b5ca36baa688d02822e7c2fc00ca",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-194\",\n  \"expected_branch\": \"codex/TASK-194-backend-maintenance\",\n  \"areas\": [\"backend\"]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-194",
+      "expected_branch": "codex/TASK-194-backend-maintenance",
+      "areas": [
+        "backend"
+      ]
+    }
+  },
+  "task_id": "TASK-194",
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AuthEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/PersistenceStartupTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation-plans/TASK-194-backend-maintenance.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-194-backend-maintenance.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-194-backend-maintenance.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/implementation-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/06-аудит.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+    "backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs",
+    "backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs",
+    "backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs",
+    "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+    "backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+    "backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/PersistenceStartupTests.cs",
+    "backlog/implementation-plans/TASK-194-backend-maintenance.plan.md",
+    "backlog/implementation/TASK-194-backend-maintenance.md",
+    "backlog/implementation/TASK-194-backend-maintenance.verification-contract.json",
+    "backlog/logs/implementation-log.md",
+    "docs/requirements/06-аудит.md",
+    "docs/requirements/CHANGELOG.md"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-194-backend-maintenance.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.md",
+      "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.verification-contract.json",
+      "documentation or instructions changed: backlog/logs/implementation-log.md",
+      "documentation or instructions changed: docs/requirements/06-аудит.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/PersistenceStartupTests.cs",
+      "task contract TASK-194 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-194-backend-maintenance.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.md",
+        "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.verification-contract.json",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:30.456051+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-24T13:12:30.496362+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-194-backend-maintenance.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.md",
+        "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.verification-contract.json",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:30.497265+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-24T13:12:30.536952+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-194-backend-maintenance.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.md",
+        "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.verification-contract.json",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:30.537909+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.039,
+      "completed_at": "2026-10-24T13:12:30.576974+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "addc759"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-194-backend-maintenance.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.md",
+        "documentation or instructions changed: backlog/implementation/TASK-194-backend-maintenance.verification-contract.json",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:30.577780+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.074,
+      "completed_at": "2026-10-24T13:12:30.651822+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/PersistenceStartupTests.cs",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:30.652741+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.717,
+      "completed_at": "2026-10-24T13:12:31.369874+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/PersistenceStartupTests.cs",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:31.370966+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.206,
+      "completed_at": "2026-10-24T13:12:34.577269+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/PersistenceStartupTests.cs",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:34.578623+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.124,
+      "completed_at": "2026-10-24T13:12:45.703105+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/PersistenceStartupTests.cs",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:45.704188+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.159,
+      "completed_at": "2026-10-24T13:12:49.863212+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/PersistenceStartupTests.cs",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:12:49.864117+00:00",
+      "exit_code": 0,
+      "duration_seconds": 149.733,
+      "completed_at": "2026-10-24T13:15:19.597204+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleLessonResponses.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Startup/PersistenceStartupExtensions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceTransitionService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/PersistenceStartupTests.cs",
+        "task contract TASK-194 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:15:19.598698+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.782,
+      "completed_at": "2026-10-24T13:15:22.380496+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:15:22.381761+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.975,
+      "completed_at": "2026-10-24T13:15:27.356620+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:15:27.357522+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.669,
+      "completed_at": "2026-10-24T13:15:28.026484+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTypeEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T13:15:28.028703+00:00",
+      "exit_code": 0,
+      "duration_seconds": 24.625,
+      "completed_at": "2026-10-24T13:15:52.653582+00:00"
+    }
+  ],
+  "completed_at": "2026-10-24T13:15:52.654985+00:00"
+}
