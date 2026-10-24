@@ -38,6 +38,9 @@ const CLIENT_FULL_NAME = 'Иван Иванов'
 const CLIENT_GROUPED_NAME =
   'Алексей Смирнов с очень длинным именем для проверки переноса внутри строки группы'
 const ATTENDANCE_TODAY = '2026-04-18'
+const LESSON_ID = 'lesson-1'
+const LESSON_DATE = '2026-04-17'
+const ATTENDANCE_PATH = `/attendance/${LESSON_ID}?lessonDate=${LESSON_DATE}`
 
 const ATTENDANCE_GROUP = {
   id: GROUP_ID,
@@ -246,6 +249,9 @@ function createGroupPersistState(): GroupPersistState {
 function buildRosterPayload(trainingDate: string) {
   return {
     groupId: GROUP_ID,
+    lessonOccurrenceId: LESSON_ID,
+    lessonDate: trainingDate,
+    canEditAttendance: { allowed: true, reason: null },
     trainingDate,
     today: ATTENDANCE_TODAY,
     minTrainingDate: ATTENDANCE_GROUPS_RESPONSE.minTrainingDate,
@@ -322,10 +328,12 @@ async function mockTask116Api(
     }
 
     if (
-      context.pathname === `/api/attendance/groups/${GROUP_ID}/clients` &&
+      (context.pathname === `/api/attendance/groups/${GROUP_ID}/clients` ||
+        context.pathname === `/api/attendance/lessons/${LESSON_ID}/clients`) &&
       context.method === 'GET'
     ) {
-      const requestedTrainingDate = context.searchParams.get('trainingDate') ?? ATTENDANCE_TODAY
+      const requestedTrainingDate = context.searchParams.get('lessonDate') ?? context.searchParams.get('trainingDate') ?? ATTENDANCE_TODAY
+      if (context.pathname.includes('/lessons/')) expect(requestedTrainingDate).toBe(LESSON_DATE)
       await fulfillJson(
         context.route,
         200,
@@ -335,7 +343,8 @@ async function mockTask116Api(
     }
 
     if (
-      context.pathname === `/api/attendance/groups/${GROUP_ID}` &&
+      (context.pathname === `/api/attendance/groups/${GROUP_ID}` ||
+        context.pathname === `/api/attendance/lessons/${LESSON_ID}`) &&
       context.method === 'POST'
     ) {
       const payload = context.route.request().postDataJSON() as Record<string, unknown>
@@ -352,10 +361,11 @@ async function mockTask116Api(
       const requestPayload = payload as {
         AttendanceMarks?: Array<{ ClientId: string; State: string }>
         TrainingDate?: string
+        LessonDate?: string
       }
       const marked = requestPayload.AttendanceMarks?.[0]
       const trainingDate =
-        requestPayload.TrainingDate ?? context.searchParams.get('trainingDate') ?? ATTENDANCE_TODAY
+        requestPayload.LessonDate ?? requestPayload.TrainingDate ?? context.searchParams.get('lessonDate') ?? context.searchParams.get('trainingDate') ?? ATTENDANCE_TODAY
 
       await fulfillJson(context.route, 200, {
         groupId: GROUP_ID,
@@ -522,21 +532,10 @@ test.describe('TASK-116: контекст возврата в карточку �
     })
 
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/attendance')
-
-    const dateInput = page.getByTestId('attendance-date-input')
-    const groupSelect = page.getByTestId('attendance-group-select')
-    const rosterViewControl = page.getByTestId('attendance-roster-view-control')
+    await page.goto(ATTENDANCE_PATH)
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
-    await dateInput.fill('2026-04-17')
-    await rosterViewControl.getByText('Все', { exact: true }).click()
-
-    await expect(groupSelect).toHaveValue(ATTENDANCE_GROUP.name)
-    await expect(dateInput).toHaveValue('2026-04-17')
-    await expect(
-      rosterViewControl.getByRole('radio', { name: 'Все', exact: true }),
-    ).toBeChecked()
+    await expect(page).toHaveURL(ATTENDANCE_PATH)
 
     const clientAction = page
       .getByTestId(`attendance-client-card-${CLIENT_ID}`)
@@ -551,13 +550,9 @@ test.describe('TASK-116: контекст возврата в карточку �
 
     await page.getByRole('button', { name: 'К посещениям' }).click()
 
-    await expect(page).toHaveURL('/attendance')
+    await expect(page).toHaveURL(ATTENDANCE_PATH)
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
-    await expect(groupSelect).toHaveValue(ATTENDANCE_GROUP.name)
-    await expect(dateInput).toHaveValue('2026-04-17')
-    await expect(
-      rosterViewControl.getByRole('radio', { name: 'Все', exact: true }),
-    ).toBeChecked()
+    await expect(clientAction).toBeFocused()
   })
 
   test('Во время ожидающейся отправке посещения карточка клиента блокируется и разблокируется после ответа', async ({
@@ -574,12 +569,8 @@ test.describe('TASK-116: контекст возврата в карточку �
     })
 
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/attendance')
+    await page.goto(ATTENDANCE_PATH)
 
-    await page
-      .getByTestId('attendance-roster-view-control')
-      .getByText('Все', { exact: true })
-      .click()
     const clientCard = page.getByTestId(`attendance-client-card-${CLIENT_ID}`)
     await clientCard.getByRole('radio', { name: 'Был', exact: true }).click()
 
@@ -600,6 +591,7 @@ test.describe('TASK-116: контекст возврата в карточку �
     await expect(page).not.toHaveURL(new RegExp(`/clients/${CLIENT_ID}(?:/|$)`))
 
     releaseBlockedAttendanceSave(attendanceSaveState)
+    await page.getByRole('button', { name: 'Показать всех', exact: true }).click()
 
     await expect.poll(() => attendanceSaveState.postCount).toBeGreaterThan(0)
     await expect(profileAction).not.toHaveAttribute('aria-disabled', 'true')
@@ -736,14 +728,14 @@ test.describe('TASK-116: контекст возврата в карточку �
       clientDetailsStatus: 403,
     })
 
-    await page.goto('/attendance')
+    await page.goto(ATTENDANCE_PATH)
     await page
       .getByTestId(`attendance-client-card-${CLIENT_ID}`)
       .getByRole('button', { name: `Открыть карточку клиента ${CLIENT_FULL_NAME}` })
       .click()
 
     await expect(page.getByText('Карточка клиента не загрузилась')).toBeVisible()
-    await expect(page.getByText('Нет доступа')).toBeVisible()
+    await expect(page.getByText('Клиент недоступен.', { exact: true })).toBeVisible()
     await page.getByRole('button', { name: 'К посещениям' }).click()
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
   })
@@ -806,7 +798,7 @@ test.describe('TASK-116: контекст возврата в карточку �
 
     for (const viewport of ATTENDANCE_GEO_VIEWPORTS) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height })
-      await page.goto('/attendance')
+      await page.goto(ATTENDANCE_PATH)
 
       const cardAction = page
         .getByTestId(`attendance-client-card-${CLIENT_ID}`)

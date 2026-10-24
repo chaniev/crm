@@ -24,6 +24,10 @@ WebKit found bottom navigation covering transfer submit after validation; local 
 
 Physical Safari, Simulator, actual browser chrome, safe-area inset hardware and software keyboard were not tested. Settled transfer success420WebKit/desktop matches the approved existing components; no old row/card/overlay remains. Weakest retained design choice: transient success notification temporarily covers the narrow list toolbar; standard close and10-second auto-dismissal remain (verified in all3projects).
 
+## Existing regression maintenance
+
+The context-navigation suite still targeted the pre-TASK-168 group/date attendance entry. Updated its fixtures to the current lesson occurrence route and API, asserted exact occurrence/date return and restored focus, retained pending-save denial, and checked re-enabled profile action after Show all. The scoped denial expectation now uses the approved safe message. Application attendance behavior was not changed.
+
 ## Final verification
 
 Canonical harness, exact candidate SHA/tree, integration and resource cleanup will be recorded after completion. No external deployment or push is part of this task.
