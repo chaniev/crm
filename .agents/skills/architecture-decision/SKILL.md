@@ -50,8 +50,17 @@ the plan's readiness metadata and `Decision evidence`.
 ## Compare the options
 
 State the decision that is needed now and the concrete forces that constrain
-it. Compare the current approach when it is credible and at least one genuine
-alternative. Do not invent weak alternatives to satisfy a count.
+it. Start with the smallest extension of an existing mechanism that could meet
+the accepted contract. Compare it with the proposed mechanism; when it cannot
+work, identify the concrete failing scenario or invariant. Do not invent weak
+alternatives to satisfy a count or prefer a new abstraction for future reuse alone.
+
+Separate required guarantees from optional hardening. For concurrency, replay,
+or external effects, identify the required authorization/commit boundary and the
+specific interleaving that could violate it. Evaluate existing transactions and
+guards before introducing locks, leases, retries, snapshots, or new coordination.
+Retain every required access and data-integrity guarantee; a speculative hazard
+does not by itself establish a need for a new mechanism.
 
 Evaluate only applicable criteria:
 
@@ -61,7 +70,8 @@ Evaluate only applicable criteria:
 - data integrity, migration safety, retention, rollback, and recovery;
 - operability, observability, deployment, and failure behavior;
 - performance and resource cost supported by evidence;
-- implementation and maintenance complexity;
+- implementation and maintenance cost, including affected boundaries, additional
+  connections or blocking, test infrastructure, and recovery paths;
 - compatibility, incremental adoption, and reversibility;
 - regression coverage and how the decision can be falsified.
 
@@ -69,6 +79,11 @@ Use relevant layer specialists for bounded evidence or review when the decision
 crosses their area. The coordinating agent resolves disagreements using the
 repository evidence precedence and records unresolved conflicts; a specialist
 preference does not override `REQ-*` or `AGENTS.md`.
+
+Keep this comparison in the existing ADR sections. An accepted direction does
+not automatically approve later additions that materially change its guarantees,
+operability, or implementation scope. Such additions follow the existing decision
+workflow; routine details within the accepted contract remain executor-owned.
 
 ## Record the decision
 
