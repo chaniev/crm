@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-193 Harness feedback
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-193-harness-feedback.md
+- source_task: /backlog/done/2026-10-24/TASK-193-harness-feedback.md
 - branch: codex/TASK-193-harness-feedback
 - readiness: yes
 - requirements: none — инструмент разработки; CRM behavior и обязательный финальный baseline не меняются
@@ -16,7 +16,7 @@
 Сократить повторные циклы проверки при сохранении строгого итогового gate.
 
 ## Decision evidence
-- [Запрос и границы](/backlog/implementation/TASK-193-harness-feedback.md) фиксируют разрешённую техническую доработку без изменения продукта.
+- [Запрос и границы](/backlog/done/2026-10-24/TASK-193-harness-feedback.md) фиксируют разрешённую техническую доработку без изменения продукта.
 
 ## Decisions and contracts
 - Сохраняется последовательный runner. CheckSpec получает prerequisites; проверка
@@ -48,3 +48,7 @@
 - Expected red: текущий runner прекращает независимый запуск и не поддерживает --check.
 - Полный diff-selected baseline обязателен для изменения execution core; task contract
   не добавляет повторный harness suite. Ручных продуктовых проверок нет.
+
+## Completion
+- Реализовано и интегрировано в main: `5d4c8d809c4cd466f657dbf7f22a964b779ef033`.
+- [Validation и дата завершения](TASK-193-harness-feedback.md#completion-evidence).

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-24T12:40:28.546811+00:00",
+  "status": "passed",
+  "required_task_id": "TASK-193",
+  "missing_reports": [],
+  "dirty_reports": [],
+  "partial_reports": [],
+  "head_sha": "5d4c8d809c4cd466f657dbf7f22a964b779ef033",
+  "head_tree_sha": "7c1b8db63470a31f0f4a66a70722d9cfa6c76679",
+  "task_contract_sha256": "1bdf863016a9eb22374897302ea310f11a802818683c00913012a0d4adae66a7",
+  "task_ids": [
+    "TASK-193"
+  ],
+  "inputs": [
+    {
+      "path": "/Users/muradchaniev/Documents/work/crm-worktrees/TASK-193-harness-feedback/.artifacts/final-gate/verification.json",
+      "status": "passed",
+      "head_sha": "5d4c8d809c4cd466f657dbf7f22a964b779ef033",
+      "head_tree_sha": "7c1b8db63470a31f0f4a66a70722d9cfa6c76679",
+      "task_id": "TASK-193",
+      "task_contract_sha256": "1bdf863016a9eb22374897302ea310f11a802818683c00913012a0d4adae66a7"
+    }
+  ]
+}
