@@ -2,7 +2,7 @@
 
 ## Authority and mode
 
-- [Source task](/backlog/implementation/TASK-191-administrator-client-branch-access.md), REQ-USR-001 и REQ-CLI-007.
+- [Source task](/backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md), REQ-USR-001 и REQ-CLI-007.
 - Владелец 24.10.2026 ответил «3. согласно рекомендации»: после успешного
   перевода уведомление и возврат в исходный список; по устаревшей ссылке —
   очистка карточки и сообщение о недоступности с возвратом.

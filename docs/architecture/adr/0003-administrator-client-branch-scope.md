@@ -9,7 +9,7 @@
 - [REQ-USR-001](/docs/requirements/05-пользователи-и-роли.md) — changes в TASK-191; ограничение уже принято.
 - [REQ-CLI-007/009](/docs/requirements/01-клиенты.md) — changes / constrains; текущая no-sale модель перевода подтверждена владельцем.
 - [REQ-BRN-001](/docs/requirements/09-филиалы-и-настройки.md) — constrains.
-- [TASK-191](/backlog/implementation/TASK-191-administrator-client-branch-access.md).
+- [TASK-191](/backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md).
 
 ## Контекст
 
@@ -212,7 +212,7 @@ HTTP matrix всех поверхностей из review; DB/file/outbox no-sid
 PostgreSQL interleavings transfer/write и actor reassignment; original/replay
 transfer с новым и прежним ключом; реальные Staff/Bot requests с двумя филиалами;
 frontend и bot stale-card tests. Конкретные сценарии — в
-[плане](/backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md).
+[плане](/backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.plan.md).
 
 ## Open questions
 
@@ -225,6 +225,6 @@ Accepted (пользователь, владелец продукта, 2026-10-2
 рекомендации; 3. согласно рекомендации». Приняты no-sale transfer, вариант B
 с 404/204/safe replay и existing error/success/back UX; ранее отдельно принято
 скрытие foreign client counts при сохранении общего справочника.
-[Точная запись решения](/backlog/implementation/TASK-191-administrator-client-branch-access.md).
+[Точная запись решения](/backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md).
 Lock ordering/read lease — техническая детализация Codex в рамках этого
 контракта, проверенная [backend review](/backlog/logs/TASK-191-authorization-review-2026-10-24.md).

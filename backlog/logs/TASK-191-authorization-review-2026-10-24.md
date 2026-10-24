@@ -161,3 +161,15 @@ Pending membership conflict проверяет текущий SQL scope под a
 сохраняют Clients SHARE до повторной проверки и hydration/удаления.
 Реальные PostgreSQL barriers и HTTP evidence —
 [verification](../implementation/TASK-191-evidence/verification.md).
+
+
+## Integration and archive — 2026-10-24
+
+Полный task harness passed; main fast-forward `1f26d270ec6c525af16f5a1e4aebbd8935b36e79`.
+- `backlog/implementation/TASK-191-administrator-client-branch-access.md` → `backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md`.
+- `backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md` → `backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.plan.md`.
+- `backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json` → `backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.verification-contract.json`.
+- `backlog/implementation/TASK-191-evidence` → `backlog/done/2026-10-24/TASK-191-evidence`.
+- `backlog/mockups/TASK-191-client-scope` → `backlog/done/2026-10-24/TASK-191-client-scope`.
+
+[Итоговое evidence](/backlog/done/2026-10-24/TASK-191-evidence/verification.md). Исторические записи и пути выше сохранены.

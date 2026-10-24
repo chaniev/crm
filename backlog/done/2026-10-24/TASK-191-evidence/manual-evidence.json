@@ -8,12 +8,12 @@
       "performed_at": "2026-10-24T11:42:39Z",
       "note": "Compared restricted390/420WebKit/1440 and compact912x420, plus settled transfer success420WebKit/desktop against approved renders: safe title/alert, no client data/actions, focused Back, refreshed empty list and existing success notification. Three-profile transfer test confirms no fallback GET and eventual notification dismissal. Physical Safari/browser chrome/keyboard/safe-area hardware were not tested.",
       "artifacts": [
-        "backlog/implementation/TASK-191-evidence/restricted-390x844.png",
-        "backlog/implementation/TASK-191-evidence/restricted-420.png",
-        "backlog/implementation/TASK-191-evidence/restricted-1440x1200.png",
-        "backlog/implementation/TASK-191-evidence/transfer-success-420.png",
-        "backlog/implementation/TASK-191-evidence/transfer-success-desktop.png",
-        "backlog/implementation/TASK-191-evidence/restricted-912x420.png"
+        "backlog/done/2026-10-24/TASK-191-evidence/restricted-390x844.png",
+        "backlog/done/2026-10-24/TASK-191-evidence/restricted-420.png",
+        "backlog/done/2026-10-24/TASK-191-evidence/restricted-1440x1200.png",
+        "backlog/done/2026-10-24/TASK-191-evidence/transfer-success-420.png",
+        "backlog/done/2026-10-24/TASK-191-evidence/transfer-success-desktop.png",
+        "backlog/done/2026-10-24/TASK-191-evidence/restricted-912x420.png"
       ]
     }
   ]

@@ -1,7 +1,7 @@
 # TASK-191: Ограничить доступ администратора к клиентам своим филиалом
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-USR-001 — changes
@@ -58,7 +58,7 @@ main `8773321` обнаружил несовпадение с этим прав�
   обработать устаревшую ссылку или открытую карточку после утраты доступа.
 
 ## Out of scope
-- Изменение охвата тренера: в [TASK-192](../done/2026-10-24/TASK-192-coach-client-branch-scope.md)
+- Изменение охвата тренера: в [TASK-192](TASK-192-coach-client-branch-scope.md)
   пользователь подтвердил доступ только к клиентам своих групп;
   уточнение закрыто, новая модель филиала не требуется.
 - Глобальный доступ к учётным записям Coach из TASK-187 и справочное чтение
@@ -75,31 +75,31 @@ main `8773321` обнаружил несовпадение с этим прав�
 - Definition of done включает состояние затронутых REQ и CHANGELOG.
 
 ## Acceptance criteria
-- [ ] Администратор филиала A не получает клиентов B через поиск, фильтры,
+- [x] Администратор филиала A не получает клиентов B через поиск, фильтры,
   страницы, счётчики, карточку, фото и связанные клиентские данные в обоих API.
-- [ ] Прямое обращение к чужому ID и подмена параметров не открывают доступ;
+- [x] Прямое обращение к чужому ID и подмена параметров не открывают доступ;
   запрещённая mutation не изменяет клиентские данные и связанные записи.
-- [ ] Клиенты своего филиала доступны в рамках существующих полномочий;
+- [x] Клиенты своего филиала доступны в рамках существующих полномочий;
   отсутствие назначенного филиала не даёт глобального доступа.
-- [ ] Перевод сохраняет REQ-CLI-007; после смены филиала последующие запросы
+- [x] Перевод сохраняет REQ-CLI-007; после смены филиала последующие запросы
   используют актуальный охват и не раскрывают клиента прежнему администратору.
-- [ ] HeadCoach/SuperAdministrator сохраняют глобальный охват; Coach сохраняет
+- [x] HeadCoach/SuperAdministrator сохраняют глобальный охват; Coach сохраняет
   доступ по назначенным группам и установленное скрытие чувствительных полей.
-- [ ] Пройдена проверка матрицы прав и согласованного контракта отказов;
+- [x] Пройдена проверка матрицы прав и согласованного контракта отказов;
   frontend/bot корректно обрабатывают недоступную карточку.
 
 ## Test checklist
-- [ ] Два филиала, два администратора, клиенты с группой/без группы,
+- [x] Два филиала, два администратора, клиенты с группой/без группы,
   активные/архивные; успешные свои и запрещённые чужие сценарии.
-- [ ] Staff API и Internal Bot API: поиск по ФИО/телефону, прямой ID, фото,
+- [x] Staff API и Internal Bot API: поиск по ФИО/телефону, прямой ID, фото,
   pagination, totals/quick filters и вторичные клиентские списки.
-- [ ] Create/update/archive/restore, membership/photo/messenger mutations:
+- [x] Create/update/archive/restore, membership/photo/messenger mutations:
   чужие идентификаторы, подмена branchId и отсутствие побочных изменений.
-- [ ] Перевод из своего филиала и последующий запрос по старой ссылке;
+- [x] Перевод из своего филиала и последующий запрос по старой ссылке;
   попытка перевести уже чужого клиента.
-- [ ] Администратор без филиала и изменение назначения; контроль глобальных
+- [x] Администратор без филиала и изменение назначения; контроль глобальных
   ролей, назначений Coach и активных замещений.
-- [ ] Consumer regression: разрешённая карточка и корректный отказ по старой
+- [x] Consumer regression: разрешённая карточка и корректный отказ по старой
   ссылке в frontend и Telegram; данные другого филиала не попадают в ответ.
 
 ## AI safety
@@ -114,25 +114,25 @@ main `8773321` обнаружил несовпадение с этим прав�
   либо контракт потребителя не синхронизирован.
 
 ## Evidence
-- [Role policy](../../backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs)
-- [Client queries](../../backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs)
-- [Lifecycle validation](../../backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs)
-- [Client photos](../../backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs)
-- [Bot API service](../../backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs)
-- [Client API tests](../../backend/tests/GymCrm.Tests/ClientsApiTests.cs)
-- [Internal Bot API tests](../../backend/tests/GymCrm.Tests/InternalBotApiTests.cs)
-- [Frontend API client](../../frontend/src/lib/api/clients.ts)
-- [Bot API client](../../bot/src/gym_crm_bot/crm/client.py)
+- [Role policy](../../../backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs)
+- [Client queries](../../../backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs)
+- [Lifecycle validation](../../../backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs)
+- [Client photos](../../../backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs)
+- [Bot API service](../../../backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs)
+- [Client API tests](../../../backend/tests/GymCrm.Tests/ClientsApiTests.cs)
+- [Internal Bot API tests](../../../backend/tests/GymCrm.Tests/InternalBotApiTests.cs)
+- [Frontend API client](../../../frontend/src/lib/api/clients.ts)
+- [Bot API client](../../../bot/src/gym_crm_bot/crm/client.py)
 
 ## Source notes
-- Source file: [2026-10-24.md](../processed/2026-10-24.md).
+- Source file: [2026-10-24.md](../../processed/2026-10-24.md).
 - Original note: «администратор и тренер должен иметь доступ только к клентам своего филиала».
 - В этой карточке обрабатывается часть про администратора; часть про тренера — TASK-192.
 
 ## Planning lifecycle
 - planned_at: 2026-10-24 11:48 MSK
 - moved_from: /backlog/risky — выявлены продуктовые и технические вопросы, а не только review gate
-- implementation_plan: /backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md
+- implementation_plan: /backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.plan.md
 - implementation_branch: codex/TASK-191-administrator-client-branch-access
 - authorization_review: /backlog/logs/TASK-191-authorization-review-2026-10-24.md
 - architecture_decision: /docs/architecture/adr/0003-administrator-client-branch-scope.md — Accepted (пользователь, 2026-10-24)
@@ -141,9 +141,9 @@ main `8773321` обнаружил несовпадение с этим прав�
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-10-24 12:16
 - moved_from: /backlog/tasks-ready (после закрытия needs-clarification)
-- implementation_plan: /backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md
+- implementation_plan: /backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.plan.md
 - implementation_branch: codex/TASK-191-administrator-client-branch-access
-- execution_started: no — подготовлен готовый план; код не менялся
+- execution_started: yes — выполнен запрос пользователя на реализацию, завершено 2026-10-24
 
 ## Product decisions
 - 24.10.2026, пользователь, владелец продукта, ответ на перечисленные вопросы:
@@ -185,3 +185,11 @@ main `8773321` обнаружил несовпадение с этим прав�
 
 - 24.10.2026 уточнения завершены: принятое решение, no-sale REQ-CLI-007,
   Accepted ADR и rendered existing-component states включены в готовый план.
+
+
+## Completion
+- completed_at: 2026-10-24
+- merged_to_main_at: 2026-10-24T15:05:19+03:00
+- completion_date_evidence: локальный fast-forward main до `1f26d270ec6c525af16f5a1e4aebbd8935b36e79`; полный task harness проверил `1eaa6f1a97df2236946850229bde95d7fd993be1`. Интеграционный merge добавил только обновление skills; application/runtime trees совпали, knowledge checks passed.
+- [Проверки и ограничения](TASK-191-evidence/verification.md).
+- Backend scope, безопасный перевод/replay, PostgreSQL concurrency, React/Bot recovery реализованы в согласованных границах ADR-0003.

@@ -1,11 +1,17 @@
 # Журнал изменения требований
 
+## 2026-10-24 — TASK-191: локальная интеграция
+
+- [TASK-191](../../backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md) интегрирована в main `1f26d27` после полного harness.
+- REQ-CLI-007 — «реализовано»; REQ-USR-001 — «частично» с закрытым client-scope delta и сохранёнными границами широкой карточки.
+- [Evidence и ограничения](../../backlog/done/2026-10-24/TASK-191-evidence/verification.md).
+
 ## 2026-10-24 — TASK-191: implementation candidate
 
 - Реализованы принятые scope/transfer/replay контракты REQ-USR-001 и REQ-CLI-007.
 - PostgreSQL и реальный HTTP подтверждают изоляцию филиалов; React/Bot обрабатывают утрату доступа.
 - Общий статус до итогового harness и локальной интеграции остаётся частичным.
-  [Evidence](../../backlog/implementation/TASK-191-evidence/verification.md).
+  [Evidence](../../backlog/done/2026-10-24/TASK-191-evidence/verification.md).
 
 ## 2026-10-24 — TASK-191: приняты перевод, API и восстановление интерфейса
 
@@ -15,14 +21,14 @@
 - Приняты 404 скрытого клиента, 204 после перевода с утратой доступа, безопасный
   повтор и возврат в список с уведомлением; устаревшая карточка очищается.
 - REQ-CLI-007 — решение принято, реализация частично до scope/response barrier.
-  [Источник решения](../../backlog/implementation/TASK-191-administrator-client-branch-access.md).
+  [Источник решения](../../backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md).
 
 ## 2026-10-24 — TASK-191: клиентские агрегаты и planning blockers
 
 - По прямому решению пользователя REQ-USR-001 запрещает чужие клиентские
   счётчики/агрегаты; общий справочник названий филиалов и залов сохраняется.
   Решение — принято, реализация — частично; код не менялся.
-- [TASK-191](../../backlog/implementation/TASK-191-administrator-client-branch-access.md)
+- [TASK-191](../../backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md)
   перенесена risky → needs-clarification после обнаружения конфликта перевода
   REQ-CLI-007 с кодом/TASK-115 и необходимости принять новый HTTP/replay contract.
   REQ-CLI-007 до ответа владельца не переписана; актуальные backlinks обновлены.
@@ -43,7 +49,7 @@
   Administrator только к клиентам своего филиала, включая чтение и действия
   в CRM и Telegram-боте. Решение принято, реализация остаётся «частично»:
   в текущем main обнаружены пропуски применения филиального охвата.
-  [TASK-191](../../backlog/implementation/TASK-191-administrator-client-branch-access.md)
+  [TASK-191](../../backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md)
   требует authorization review до реализации.
 - REQ-CLI-009 и REQ-BRN-001 не меняются: у Coach действуют назначения групп
   и активные замещения. Значение «своего филиала» требует решения в

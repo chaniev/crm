@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-191 Доступ администратора к клиентам своего филиала
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-191-administrator-client-branch-access.md
+- source_task: /backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md
 - requirements: REQ-USR-001 (changes), REQ-CLI-007 (changes), REQ-CLI-009 (constrains), REQ-BRN-001 (constrains)
 - branch: codex/TASK-191-administrator-client-branch-access
 - readiness: yes
@@ -40,13 +40,13 @@
 - product: [REQ-USR-001](/docs/requirements/05-пользователи-и-роли.md) — owner: пользователь, владелец продукта; decision: 24.10.2026 ограничить просмотр и действия Administrator клиентами своего филиала в CRM и Telegram.
 - product: [TASK-192](/backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md) — owner: пользователь, владелец продукта; decision: тренеру доступны только клиенты своих групп; совпадение филиала не даёт дополнительного доступа.
 - technical: [ADR-0003](/docs/architecture/adr/0003-administrator-client-branch-scope.md) — owner: пользователь, владелец продукта; decision: ответ «2. согласно рекомендации» 24.10.2026 принимает вариант B с 404/204/safe replay; Codex завершил техническую детализацию locks/lease в пределах этой границы.
-- product: [TASK-191, Product decisions](/backlog/implementation/TASK-191-administrator-client-branch-access.md) — owner: пользователь, владелец продукта; decision: 24.10.2026 скрывать чужие клиентские счётчики, сохранив общий справочник.
-- product: [TASK-191, Product decisions](/backlog/implementation/TASK-191-administrator-client-branch-access.md) — owner: пользователь, владелец продукта; decision: ответ «1. сохранить текущую модель; 3. согласно рекомендации» принимает no-sale transfer и очистку карточки/уведомление/возврат при утрате доступа.
+- product: [TASK-191, Product decisions](/backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md) — owner: пользователь, владелец продукта; decision: 24.10.2026 скрывать чужие клиентские счётчики, сохранив общий справочник.
+- product: [TASK-191, Product decisions](/backlog/done/2026-10-24/TASK-191-administrator-client-branch-access.md) — owner: пользователь, владелец продукта; decision: ответ «1. сохранить текущую модель; 3. согласно рекомендации» принимает no-sale transfer и очистку карточки/уведомление/возврат при утрате доступа.
 - review: [Authorization matrix](/backlog/logs/TASK-191-authorization-review-2026-10-24.md) — статическое evidence текущего кода; runtime и новые regression tests при планировании не выполнялись.
 
 ## UX contract
 Подтверждена локальная адаптация существующих компонентов; направление и
-interaction specification закреплены в [UI evidence](/backlog/mockups/TASK-191-client-scope/README.md).
+interaction specification закреплены в [UI evidence](/backlog/done/2026-10-24/TASK-191-client-scope/README.md).
 Rendered fixture states осмотрены на 390, 420, 440 и 1440 px; это planning
 preview, не доказательство реализованного перехода по 204. Новых экранов и
 редизайна нет. Во время реализации проверяется соответствие этому контракту.
@@ -216,3 +216,11 @@ routes плюс transfer/replay/no-side-effects tests. Consumer tests допол
   интеграцию; отдельный behavior-preserving рефакторинг в TASK-191 не включать.
 - Утверждённые текущие client/Coach/grant contracts не покрываются предлагаемой
   policy либо runtime расходится с evidence — вернуть readiness no до решения.
+
+
+## Completion
+- completed_at: 2026-10-24
+- merged_to_main_at: 2026-10-24T15:05:19+03:00
+- completion_date_evidence: локальный fast-forward main до `1f26d270ec6c525af16f5a1e4aebbd8935b36e79`; полный task harness проверил `1eaa6f1a97df2236946850229bde95d7fd993be1`. Интеграционный merge добавил только обновление skills; application/runtime trees совпали, knowledge checks passed.
+- [Проверки и ограничения](TASK-191-evidence/verification.md).
+- Backend scope, безопасный перевод/replay, PostgreSQL concurrency, React/Bot recovery реализованы в согласованных границах ADR-0003.

@@ -30,4 +30,37 @@ The context-navigation suite still targeted the pre-TASK-168 group/date attendan
 
 ## Final verification
 
-Canonical harness, exact candidate SHA/tree, integration and resource cleanup will be recorded after completion. No external deployment or push is part of this task.
+Candidate: `1eaa6f1a97df2236946850229bde95d7fd993be1`; tree: `73616fc4ab6b363708af58cc56be9ef2903d8ad2`.
+
+Command: `python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-191 --report .artifacts/verification/TASK-191-candidate.json`. Full task contract passed on a clean tree. [Machine evidence](harness-candidate.json).
+
+Backend:693 tests; frontend:750 tests; bot:71 tests. Browser scope19 passed/2 intentional viewport-loop skips; origin regression and focused PostgreSQL runtime are included below. All dependency audits passed.
+
+| Check | Outcome | Seconds |
+|---|---|---|
+| `requirements.agent-instructions` | passed | 0.04 |
+| `requirements.architecture-decisions` | passed | 0.04 |
+| `requirements.plan-readiness` | passed | 0.04 |
+| `requirements.registry` | passed | 0.077 |
+| `backend.restore` | passed | 0.679 |
+| `backend.user-facing-text` | passed | 2.992 |
+| `backend.format` | passed | 11.38 |
+| `backend.build` | passed | 4.136 |
+| `backend.test` | passed | 137.208 |
+| `backend.audit` | passed | 2.777 |
+| `frontend.install` | passed | 5.053 |
+| `frontend.audit` | passed | 0.558 |
+| `frontend.user-facing-text` | passed | 0.347 |
+| `frontend.check` | passed | 24.572 |
+| `bot.sync` | passed | 0.127 |
+| `bot.lint` | passed | 0.078 |
+| `bot.user-facing-text` | passed | 0.128 |
+| `bot.format` | passed | 0.041 |
+| `bot.types` | passed | 0.347 |
+| `bot.test` | passed | 1.684 |
+| `frontend.playwright.install` | passed | 0.454 |
+| `frontend.e2e.administrator-client-scope` | passed | 22.309 |
+| `frontend.e2e.client-origin-regression` | passed | 12.118 |
+| `backend.runtime.administrator-client-scope-postgresql` | passed | 75.601 |
+
+Integrated into local main at `1f26d270ec6c525af16f5a1e4aebbd8935b36e79` by fast-forward on 2026-10-24T15:05:19+03:00. Concurrent skills-only main changes were merged; application/runtime trees equal the fully verified candidate, with [integration knowledge checks](harness-integration.json) passed. Remaining closure changes are documentation/evidence/status only and receive knowledge checks. No external deployment or push is part of this task.

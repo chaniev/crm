@@ -1,0 +1,2290 @@
+{
+  "schema_version": 4,
+  "runner_version": "4.0",
+  "started_at": "2026-10-24T11:57:27.778156+00:00",
+  "repository": "TASK-191-administrator-client-branch-access",
+  "profile": "local",
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "1eaa6f1a97df2236946850229bde95d7fd993be1",
+    "head_tree_sha": "73616fc4ab6b363708af58cc56be9ef2903d8ad2",
+    "base_sha": "00780158bd499d04b6973268e67ea6b6c8cbbd75",
+    "merge_base_sha": "00780158bd499d04b6973268e67ea6b6c8cbbd75",
+    "branch": "codex/TASK-191-administrator-client-branch-access",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json",
+    "task_id": "TASK-191",
+    "expected_branch": "codex/TASK-191-administrator-client-branch-access",
+    "sha256": "13b2fe82f97e309c78b0bc2d0d15d32954804922718b472edc703b0402897e37",
+    "verified_head_sha": "1eaa6f1a97df2236946850229bde95d7fd993be1",
+    "verified_head_tree_sha": "73616fc4ab6b363708af58cc56be9ef2903d8ad2",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-191\",\n  \"expected_branch\": \"codex/TASK-191-administrator-client-branch-access\",\n  \"areas\": [\n    \"backend\",\n    \"frontend\",\n    \"bot\",\n    \"requirements\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.administrator-client-scope\",\n      \"spec\": \"e2e/administrator-client-branch-access.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1200\n    },\n    {\n      \"id\": \"frontend.e2e.client-origin-regression\",\n      \"spec\": \"e2e/client-profile-context-navigation.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1200\n    }\n  ],\n  \"manual_evidence\": \"backlog/implementation/TASK-191-evidence/manual-evidence.json\",\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.client-scope-rendered-comparison\",\n      \"description\": \"Compare implemented restricted and transfer return states with approved TASK-191 UI contract; record emulator/device limits.\"\n    }\n  ],\n  \"runtime_smoke\": [\n    {\n      \"id\": \"backend.runtime.administrator-client-scope-postgresql\",\n      \"area\": \"backend\",\n      \"working_directory\": \".\",\n      \"command\": [\n        \"dotnet\",\n        \"test\",\n        \"backend/GymCrm.slnx\",\n        \"--configuration\",\n        \"Release\",\n        \"--no-build\",\n        \"--filter\",\n        \"FullyQualifiedName~AdministratorClientScopePostgreSqlTests\"\n      ],\n      \"timeout_seconds\": 600\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-191",
+      "expected_branch": "codex/TASK-191-administrator-client-branch-access",
+      "areas": [
+        "backend",
+        "frontend",
+        "bot",
+        "requirements"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.administrator-client-scope",
+          "spec": "e2e/administrator-client-branch-access.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1200
+        },
+        {
+          "id": "frontend.e2e.client-origin-regression",
+          "spec": "e2e/client-profile-context-navigation.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1200
+        }
+      ],
+      "manual_evidence": "backlog/implementation/TASK-191-evidence/manual-evidence.json",
+      "manual_checks": [
+        {
+          "id": "manual.client-scope-rendered-comparison",
+          "description": "Compare implemented restricted and transfer return states with approved TASK-191 UI contract; record emulator/device limits."
+        }
+      ],
+      "runtime_smoke": [
+        {
+          "id": "backend.runtime.administrator-client-scope-postgresql",
+          "area": "backend",
+          "working_directory": ".",
+          "command": [
+            "dotnet",
+            "test",
+            "backend/GymCrm.slnx",
+            "--configuration",
+            "Release",
+            "--no-build",
+            "--filter",
+            "FullyQualifiedName~AdministratorClientScopePostgreSqlTests"
+          ],
+          "timeout_seconds": 600
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-191",
+  "source_ref": null,
+  "e2e_port": 63011,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6",
+    "uv": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchResponse.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Attendance/IAttendanceService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-administrator-client-branch-access.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-1440x1200.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-360x780.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-390x844.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-420x912.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-440x956.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-768x1024.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-912x420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-956x440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/restricted-desktop.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/transfer-success-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/transfer-success-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/transfer-success-desktop.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-191-evidence/verification.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/logs/TASK-191-authorization-review-2026-10-24.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/implementation-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/triage-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/existing-card-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/render-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/restricted-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/restricted-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/restricted-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/restricted-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/transfer-success-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/transfer-success-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/transfer-success-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-191-client-scope/transfer-success-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/processed/2026-10-24.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/core/crm_error_mapping.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/crm/client.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/crm/errors.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/resources/messages.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/tests/test_client_flow.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/tests/test_crm_client.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/0002-branch-settings-action-contract.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/architecture/adr/0003-administrator-client-branch-scope.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/01-клиенты.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/05-пользователи-и-роли.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/administrator-client-branch-access.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/client-profile-context-navigation.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/package-lock.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/RouteViewport.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/useAppReturnNavigation.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/useAppRoute.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/attention/AttentionDashboard.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/attention/AttentionDashboard.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/attention/AttentionPanel.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/ClientDetailScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/ClientEditScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/ClientManagement.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/ClientMessengerChatSection.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/ClientPhotoSection.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/ClientTransferModal.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/clients/clientAccessBoundary.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/clientProfileReturnState.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/list/ClientPreviewPanel.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/list/useClientsListState.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/clients/membership/MembershipSaleComment.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/schedule/schedulePresentation.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/BranchSettingsScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/branches.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/clients.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/groups.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/schedule.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/types.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-1-app-shell-auth.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-6-client-profile.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+    "backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+    "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+    "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+    "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+    "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+    "backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+    "backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+    "backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+    "backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+    "backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+    "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+    "backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+    "backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+    "backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+    "backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+    "backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md",
+    "backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md",
+    "backlog/implementation/TASK-191-administrator-client-branch-access.md",
+    "backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json",
+    "backlog/implementation/TASK-191-evidence/manual-evidence.json",
+    "backlog/implementation/TASK-191-evidence/restricted-1440x1200.png",
+    "backlog/implementation/TASK-191-evidence/restricted-360x780.png",
+    "backlog/implementation/TASK-191-evidence/restricted-390x844.png",
+    "backlog/implementation/TASK-191-evidence/restricted-420.png",
+    "backlog/implementation/TASK-191-evidence/restricted-420x912.png",
+    "backlog/implementation/TASK-191-evidence/restricted-440.png",
+    "backlog/implementation/TASK-191-evidence/restricted-440x956.png",
+    "backlog/implementation/TASK-191-evidence/restricted-768x1024.png",
+    "backlog/implementation/TASK-191-evidence/restricted-912x420.png",
+    "backlog/implementation/TASK-191-evidence/restricted-956x440.png",
+    "backlog/implementation/TASK-191-evidence/restricted-desktop.png",
+    "backlog/implementation/TASK-191-evidence/transfer-success-420.png",
+    "backlog/implementation/TASK-191-evidence/transfer-success-440.png",
+    "backlog/implementation/TASK-191-evidence/transfer-success-desktop.png",
+    "backlog/implementation/TASK-191-evidence/verification.md",
+    "backlog/logs/TASK-191-authorization-review-2026-10-24.md",
+    "backlog/logs/implementation-log.md",
+    "backlog/logs/triage-log.md",
+    "backlog/mockups/TASK-191-client-scope/README.md",
+    "backlog/mockups/TASK-191-client-scope/existing-card-390.png",
+    "backlog/mockups/TASK-191-client-scope/render-evidence.json",
+    "backlog/mockups/TASK-191-client-scope/restricted-1440.png",
+    "backlog/mockups/TASK-191-client-scope/restricted-390.png",
+    "backlog/mockups/TASK-191-client-scope/restricted-420.png",
+    "backlog/mockups/TASK-191-client-scope/restricted-440.png",
+    "backlog/mockups/TASK-191-client-scope/transfer-success-1440.png",
+    "backlog/mockups/TASK-191-client-scope/transfer-success-390.png",
+    "backlog/mockups/TASK-191-client-scope/transfer-success-420.png",
+    "backlog/mockups/TASK-191-client-scope/transfer-success-440.png",
+    "backlog/processed/2026-10-24.md",
+    "bot/src/gym_crm_bot/core/crm_error_mapping.py",
+    "bot/src/gym_crm_bot/crm/client.py",
+    "bot/src/gym_crm_bot/crm/errors.py",
+    "bot/src/gym_crm_bot/resources/messages.py",
+    "bot/tests/test_client_flow.py",
+    "bot/tests/test_crm_client.py",
+    "docs/architecture/adr/0002-branch-settings-action-contract.md",
+    "docs/architecture/adr/0003-administrator-client-branch-scope.md",
+    "docs/architecture/adr/README.md",
+    "docs/requirements/01-клиенты.md",
+    "docs/requirements/05-пользователи-и-роли.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/administrator-client-branch-access.spec.ts",
+    "frontend/e2e/client-profile-context-navigation.spec.ts",
+    "frontend/package-lock.json",
+    "frontend/playwright.config.ts",
+    "frontend/src/app/RouteViewport.tsx",
+    "frontend/src/app/useAppReturnNavigation.ts",
+    "frontend/src/app/useAppRoute.ts",
+    "frontend/src/features/attention/AttentionDashboard.test.tsx",
+    "frontend/src/features/attention/AttentionDashboard.tsx",
+    "frontend/src/features/attention/AttentionPanel.tsx",
+    "frontend/src/features/clients/ClientDetailScreen.tsx",
+    "frontend/src/features/clients/ClientEditScreen.tsx",
+    "frontend/src/features/clients/ClientManagement.test.tsx",
+    "frontend/src/features/clients/ClientMessengerChatSection.tsx",
+    "frontend/src/features/clients/ClientPhotoSection.tsx",
+    "frontend/src/features/clients/ClientTransferModal.tsx",
+    "frontend/src/features/clients/clientAccessBoundary.ts",
+    "frontend/src/features/clients/clientProfileReturnState.ts",
+    "frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+    "frontend/src/features/clients/list/useClientsListState.ts",
+    "frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+    "frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+    "frontend/src/features/schedule/schedulePresentation.ts",
+    "frontend/src/features/settings/BranchSettingsScreen.tsx",
+    "frontend/src/lib/api/branches.ts",
+    "frontend/src/lib/api/clients.ts",
+    "frontend/src/lib/api/groups.ts",
+    "frontend/src/lib/api/schedule.ts",
+    "frontend/src/lib/api/types.ts",
+    "frontend/src/resources/fe-1-app-shell-auth.ts",
+    "frontend/src/resources/fe-6-client-profile.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend",
+    "bot"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.md",
+      "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/manual-evidence.json",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-1440x1200.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-360x780.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-390x844.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420x912.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440x956.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-768x1024.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-912x420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-956x440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-desktop.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-desktop.png",
+      "documentation or instructions changed: backlog/implementation/TASK-191-evidence/verification.md",
+      "documentation or instructions changed: backlog/logs/TASK-191-authorization-review-2026-10-24.md",
+      "documentation or instructions changed: backlog/logs/implementation-log.md",
+      "documentation or instructions changed: backlog/logs/triage-log.md",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/README.md",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/existing-card-390.png",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/render-evidence.json",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-1440.png",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-390.png",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-420.png",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-440.png",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-1440.png",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-390.png",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-420.png",
+      "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-440.png",
+      "documentation or instructions changed: backlog/processed/2026-10-24.md",
+      "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+      "documentation or instructions changed: docs/architecture/adr/0003-administrator-client-branch-scope.md",
+      "documentation or instructions changed: docs/architecture/adr/README.md",
+      "documentation or instructions changed: docs/requirements/01-клиенты.md",
+      "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md",
+      "task contract TASK-191 requires requirements"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+      "task contract TASK-191 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+      "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+      "frontend-owned path changed: frontend/package-lock.json",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+      "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+      "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+      "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.test.tsx",
+      "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.tsx",
+      "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/ClientDetailScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/ClientEditScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/ClientManagement.test.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/ClientMessengerChatSection.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/ClientPhotoSection.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/ClientTransferModal.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/clientAccessBoundary.ts",
+      "frontend-owned path changed: frontend/src/features/clients/clientProfileReturnState.ts",
+      "frontend-owned path changed: frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/list/useClientsListState.ts",
+      "frontend-owned path changed: frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+      "frontend-owned path changed: frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+      "frontend-owned path changed: frontend/src/features/schedule/schedulePresentation.ts",
+      "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "frontend-owned path changed: frontend/src/lib/api/branches.ts",
+      "frontend-owned path changed: frontend/src/lib/api/clients.ts",
+      "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+      "frontend-owned path changed: frontend/src/lib/api/schedule.ts",
+      "frontend-owned path changed: frontend/src/lib/api/types.ts",
+      "frontend-owned path changed: frontend/src/resources/fe-1-app-shell-auth.ts",
+      "frontend-owned path changed: frontend/src/resources/fe-6-client-profile.ts",
+      "task contract TASK-191 requires frontend"
+    ],
+    "bot": [
+      "bot-owned path changed: bot/src/gym_crm_bot/core/crm_error_mapping.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/crm/errors.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+      "bot-owned path changed: bot/tests/test_client_flow.py",
+      "bot-owned path changed: bot/tests/test_crm_client.py",
+      "task contract TASK-191 requires bot"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.client-scope-rendered-comparison",
+      "description": "Compare implemented restricted and transfer return states with approved TASK-191 UI contract; record emulator/device limits.",
+      "status": "confirmed",
+      "actor": "Codex",
+      "performed_at": "2026-10-24T11:42:39Z",
+      "note": "Compared restricted390/420WebKit/1440 and compact912x420, plus settled transfer success420WebKit/desktop against approved renders: safe title/alert, no client data/actions, focused Back, refreshed empty list and existing success notification. Three-profile transfer test confirms no fallback GET and eventual notification dismissal. Physical Safari/browser chrome/keyboard/safe-area hardware were not tested.",
+      "artifacts": [
+        "backlog/implementation/TASK-191-evidence/restricted-390x844.png",
+        "backlog/implementation/TASK-191-evidence/restricted-420.png",
+        "backlog/implementation/TASK-191-evidence/restricted-1440x1200.png",
+        "backlog/implementation/TASK-191-evidence/transfer-success-420.png",
+        "backlog/implementation/TASK-191-evidence/transfer-success-desktop.png",
+        "backlog/implementation/TASK-191-evidence/restricted-912x420.png"
+      ],
+      "evidence_path": "backlog/implementation/TASK-191-evidence/manual-evidence.json",
+      "evidence_sha256": "ec5ee9d296b3adc3ccfc9af908f7c7c890138806626c3ccbe58e3944a83638c4"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.md",
+        "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-1440x1200.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-360x780.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-390x844.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420x912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440x956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-768x1024.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-912x420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-956x440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/verification.md",
+        "documentation or instructions changed: backlog/logs/TASK-191-authorization-review-2026-10-24.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/existing-card-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/render-evidence.json",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-1440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-420.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-1440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-420.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-440.png",
+        "documentation or instructions changed: backlog/processed/2026-10-24.md",
+        "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+        "documentation or instructions changed: docs/architecture/adr/0003-administrator-client-branch-scope.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md",
+        "task contract TASK-191 requires requirements"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:27.945288+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-24T11:57:27.985368+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.md",
+        "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-1440x1200.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-360x780.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-390x844.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420x912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440x956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-768x1024.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-912x420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-956x440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/verification.md",
+        "documentation or instructions changed: backlog/logs/TASK-191-authorization-review-2026-10-24.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/existing-card-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/render-evidence.json",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-1440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-420.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-1440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-420.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-440.png",
+        "documentation or instructions changed: backlog/processed/2026-10-24.md",
+        "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+        "documentation or instructions changed: docs/architecture/adr/0003-administrator-client-branch-scope.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md",
+        "task contract TASK-191 requires requirements"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:27.986683+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-24T11:57:28.027075+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.md",
+        "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-1440x1200.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-360x780.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-390x844.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420x912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440x956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-768x1024.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-912x420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-956x440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/verification.md",
+        "documentation or instructions changed: backlog/logs/TASK-191-authorization-review-2026-10-24.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/existing-card-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/render-evidence.json",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-1440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-420.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-1440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-420.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-440.png",
+        "documentation or instructions changed: backlog/processed/2026-10-24.md",
+        "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+        "documentation or instructions changed: docs/architecture/adr/0003-administrator-client-branch-scope.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md",
+        "task contract TASK-191 requires requirements"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:28.028458+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-24T11:57:28.068839+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-10-24/TASK-192-coach-client-branch-scope.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-191-administrator-client-branch-access.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.md",
+        "documentation or instructions changed: backlog/implementation/TASK-191-administrator-client-branch-access.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-1440x1200.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-360x780.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-390x844.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-420x912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-440x956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-768x1024.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-912x420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-956x440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/restricted-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/transfer-success-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-191-evidence/verification.md",
+        "documentation or instructions changed: backlog/logs/TASK-191-authorization-review-2026-10-24.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/existing-card-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/render-evidence.json",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-1440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-420.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/restricted-440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-1440.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-390.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-420.png",
+        "documentation or instructions changed: backlog/mockups/TASK-191-client-scope/transfer-success-440.png",
+        "documentation or instructions changed: backlog/processed/2026-10-24.md",
+        "documentation or instructions changed: docs/architecture/adr/0002-branch-settings-action-contract.md",
+        "documentation or instructions changed: docs/architecture/adr/0003-administrator-client-branch-scope.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md",
+        "task contract TASK-191 requires requirements"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:28.070222+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-10-24T11:57:28.147606+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "task contract TASK-191 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:28.149206+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.679,
+      "completed_at": "2026-10-24T11:57:28.828154+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "task contract TASK-191 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:28.829535+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.992,
+      "completed_at": "2026-10-24T11:57:31.821651+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "task contract TASK-191 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:31.823063+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.38,
+      "completed_at": "2026-10-24T11:57:43.202932+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "task contract TASK-191 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:43.205035+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.136,
+      "completed_at": "2026-10-24T11:57:47.341281+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "task contract TASK-191 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T11:57:47.343459+00:00",
+      "exit_code": 0,
+      "duration_seconds": 137.208,
+      "completed_at": "2026-10-24T12:00:04.551246+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "task contract TASK-191 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:04.553881+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.777,
+      "completed_at": "2026-10-24T12:00:07.331205+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.test.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientDetailScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientMessengerChatSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientPhotoSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientTransferModal.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/clientAccessBoundary.ts",
+        "frontend-owned path changed: frontend/src/features/clients/clientProfileReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/list/useClientsListState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/schedulePresentation.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/branches.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clients.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/schedule.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-1-app-shell-auth.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-6-client-profile.ts",
+        "task contract TASK-191 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:07.332899+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.053,
+      "completed_at": "2026-10-24T12:00:12.385876+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.test.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientDetailScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientMessengerChatSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientPhotoSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientTransferModal.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/clientAccessBoundary.ts",
+        "frontend-owned path changed: frontend/src/features/clients/clientProfileReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/list/useClientsListState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/schedulePresentation.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/branches.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clients.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/schedule.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-1-app-shell-auth.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-6-client-profile.ts",
+        "task contract TASK-191 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:12.387464+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.558,
+      "completed_at": "2026-10-24T12:00:12.945068+00:00"
+    },
+    {
+      "id": "frontend.user-facing-text",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check:user-facing-text"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.test.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientDetailScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientMessengerChatSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientPhotoSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientTransferModal.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/clientAccessBoundary.ts",
+        "frontend-owned path changed: frontend/src/features/clients/clientProfileReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/list/useClientsListState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/schedulePresentation.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/branches.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clients.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/schedule.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-1-app-shell-auth.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-6-client-profile.ts",
+        "task contract TASK-191 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:12.949022+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.347,
+      "completed_at": "2026-10-24T12:00:13.296095+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.test.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientDetailScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientMessengerChatSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientPhotoSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientTransferModal.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/clientAccessBoundary.ts",
+        "frontend-owned path changed: frontend/src/features/clients/clientProfileReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/list/useClientsListState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/schedulePresentation.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/branches.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clients.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/schedule.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-1-app-shell-auth.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-6-client-profile.ts",
+        "task contract TASK-191 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:13.297760+00:00",
+      "exit_code": 0,
+      "duration_seconds": 24.572,
+      "completed_at": "2026-10-24T12:00:37.869440+00:00"
+    },
+    {
+      "id": "bot.sync",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--extra",
+        "dev"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/src/gym_crm_bot/core/crm_error_mapping.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/errors.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_crm_client.py",
+        "task contract TASK-191 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:37.872042+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.127,
+      "completed_at": "2026-10-24T12:00:37.999266+00:00"
+    },
+    {
+      "id": "bot.lint",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "check",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/src/gym_crm_bot/core/crm_error_mapping.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/errors.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_crm_client.py",
+        "task contract TASK-191 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:38.001001+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.078,
+      "completed_at": "2026-10-24T12:00:38.079253+00:00"
+    },
+    {
+      "id": "bot.user-facing-text",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "python",
+        "scripts/check_user_facing_text.py",
+        ".."
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/src/gym_crm_bot/core/crm_error_mapping.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/errors.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_crm_client.py",
+        "task contract TASK-191 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:38.080974+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.128,
+      "completed_at": "2026-10-24T12:00:38.209301+00:00"
+    },
+    {
+      "id": "bot.format",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/src/gym_crm_bot/core/crm_error_mapping.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/errors.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_crm_client.py",
+        "task contract TASK-191 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:38.210959+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.041,
+      "completed_at": "2026-10-24T12:00:38.252158+00:00"
+    },
+    {
+      "id": "bot.types",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "mypy"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/src/gym_crm_bot/core/crm_error_mapping.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/errors.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_crm_client.py",
+        "task contract TASK-191 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:38.253783+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.347,
+      "completed_at": "2026-10-24T12:00:38.600964+00:00"
+    },
+    {
+      "id": "bot.test",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "pytest"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/src/gym_crm_bot/core/crm_error_mapping.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/errors.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_crm_client.py",
+        "task contract TASK-191 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:38.603183+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.684,
+      "completed_at": "2026-10-24T12:00:40.287570+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.test.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientDetailScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientMessengerChatSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientPhotoSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientTransferModal.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/clientAccessBoundary.ts",
+        "frontend-owned path changed: frontend/src/features/clients/clientProfileReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/list/useClientsListState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/schedulePresentation.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/branches.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clients.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/schedule.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-1-app-shell-auth.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-6-client-profile.ts",
+        "task contract TASK-191 requires frontend",
+        "task contract TASK-191 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:40.289486+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.454,
+      "completed_at": "2026-10-24T12:00:40.744019+00:00"
+    },
+    {
+      "id": "frontend.e2e.administrator-client-scope",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/administrator-client-branch-access.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.test.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientDetailScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientMessengerChatSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientPhotoSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientTransferModal.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/clientAccessBoundary.ts",
+        "frontend-owned path changed: frontend/src/features/clients/clientProfileReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/list/useClientsListState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/schedulePresentation.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/branches.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clients.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/schedule.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-1-app-shell-auth.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-6-client-profile.ts",
+        "task contract TASK-191 requires frontend",
+        "task contract TASK-191 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:00:40.745565+00:00",
+      "exit_code": 0,
+      "duration_seconds": 22.309,
+      "completed_at": "2026-10-24T12:01:03.054314+00:00"
+    },
+    {
+      "id": "frontend.e2e.client-origin-regression",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/client-profile-context-navigation.spec.ts",
+        "--project=chromium"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/package-lock.json",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/app/useAppReturnNavigation.ts",
+        "frontend-owned path changed: frontend/src/app/useAppRoute.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.test.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionDashboard.tsx",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientDetailScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientMessengerChatSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientPhotoSection.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/ClientTransferModal.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/clientAccessBoundary.ts",
+        "frontend-owned path changed: frontend/src/features/clients/clientProfileReturnState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/list/ClientPreviewPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/list/useClientsListState.ts",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipGroupTransferSurface.tsx",
+        "frontend-owned path changed: frontend/src/features/clients/membership/MembershipSaleComment.tsx",
+        "frontend-owned path changed: frontend/src/features/schedule/schedulePresentation.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api/branches.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clients.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/schedule.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-1-app-shell-auth.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-6-client-profile.ts",
+        "task contract TASK-191 requires frontend",
+        "task contract TASK-191 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:01:03.056637+00:00",
+      "exit_code": 0,
+      "duration_seconds": 12.118,
+      "completed_at": "2026-10-24T12:01:15.174335+00:00"
+    },
+    {
+      "id": "backend.runtime.administrator-client-scope-postgresql",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build",
+        "--filter",
+        "FullyQualifiedName~AdministratorClientScopePostgreSqlTests"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/IAttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientAccessPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/ClientAccessTransaction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Messenger/ClientMessengerService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopeApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "task contract TASK-191 requires backend",
+        "task contract TASK-191 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-24T12:01:15.175936+00:00",
+      "exit_code": 0,
+      "duration_seconds": 75.601,
+      "completed_at": "2026-10-24T12:02:30.776889+00:00"
+    }
+  ],
+  "completed_at": "2026-10-24T12:02:30.778592+00:00"
+}
