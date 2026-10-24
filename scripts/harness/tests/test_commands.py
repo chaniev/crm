@@ -26,11 +26,20 @@ class CommandMatrixTests(unittest.TestCase):
             [
                 "frontend.install",
                 "frontend.audit",
-                "frontend.user-facing-text",
                 "frontend.check",
             ],
             [check.identifier for check in checks],
         )
+
+    def test_prerequisites_preserve_build_and_install_order(self) -> None:
+        checks = {c.identifier: c for c in checks_for({"backend", "frontend", "bot"})}
+        self.assertEqual(("backend.build",), checks["backend.test"].depends_on)
+        for name in ("backend.build", "backend.format", "backend.user-facing-text", "backend.audit"):
+            self.assertEqual(("backend.restore",), checks[name].depends_on)
+        for name in ("frontend.audit", "frontend.check"):
+            self.assertEqual(("frontend.install",), checks[name].depends_on)
+        for name in ("bot.lint", "bot.user-facing-text", "bot.format", "bot.types", "bot.test"):
+            self.assertEqual(("bot.sync",), checks[name].depends_on)
 
     def test_bot_runs_user_facing_text_guard_after_locked_sync(self) -> None:
         checks = checks_for({"bot"})

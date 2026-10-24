@@ -118,6 +118,25 @@ class TaskContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "duplicate check identifier"):
             combine_checks(canonical, [duplicate])
 
+    def test_task_prerequisites_are_resolved_before_execution(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            contract = load_task_contract(self.make_contract(root), root=root)
+        canonical = checks_for(contract.required_areas)
+        combined = {c.identifier: c for c in combine_checks(canonical, task_checks(contract))}
+        self.assertEqual(("frontend.install",), combined["frontend.playwright.install"].depends_on)
+        self.assertEqual(("frontend.playwright.install",), combined["frontend.e2e.contract-test"].depends_on)
+        self.assertEqual(tuple(c.identifier for c in canonical), combined["deploy.smoke.contract-test"].depends_on)
+
+    def test_rejects_missing_self_later_or_duplicate_prerequisite(self) -> None:
+        for dependencies in (("missing",), ("dependent",), ("later",), ("first", "first")):
+            with self.subTest(dependencies=dependencies), self.assertRaisesRegex(ContractError, "prerequisite"):
+                combine_checks([
+                    CheckSpec("first", "harness", ("first",)),
+                    CheckSpec("dependent", "harness", ("dependent",), depends_on=dependencies),
+                    CheckSpec("later", "harness", ("later",)),
+                ], [])
+
     def test_rejects_duplicate_command_even_with_another_identifier(self) -> None:
         first = CheckSpec("harness.smoke.first", "harness", ("python3", "-V"))
         second = CheckSpec("harness.smoke.second", "harness", ("python3", "-V"))

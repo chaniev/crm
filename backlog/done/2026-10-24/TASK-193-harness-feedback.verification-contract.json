@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "task_id": "TASK-193",
+  "expected_branch": "codex/TASK-193-harness-feedback",
+  "areas": ["harness"]
+}

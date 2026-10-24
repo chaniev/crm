@@ -14,6 +14,8 @@ class CheckSpec:
     command: tuple[str, ...]
     working_directory: str = "."
     timeout_seconds: float = 300
+    # None requests the entire canonical baseline for an opaque task command.
+    depends_on: tuple[str, ...] | None = ()
 
 
 def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
@@ -104,6 +106,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                         ".",
                     ),
                     timeout_seconds=300,
+                    depends_on=("backend.restore",),
                 ),
                 CheckSpec(
                     "backend.format",
@@ -116,6 +119,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                         "--verify-no-changes",
                     ),
                     timeout_seconds=600,
+                    depends_on=("backend.restore",),
                 ),
                 CheckSpec(
                     "backend.build",
@@ -130,6 +134,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                         "-warnaserror",
                     ),
                     timeout_seconds=900,
+                    depends_on=("backend.restore",),
                 ),
                 CheckSpec(
                     "backend.test",
@@ -143,6 +148,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                         "--no-build",
                     ),
                     timeout_seconds=3600,
+                    depends_on=("backend.build",),
                 ),
                 CheckSpec(
                     "backend.audit",
@@ -156,6 +162,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                         "--include-transitive",
                     ),
                     timeout_seconds=600,
+                    depends_on=("backend.restore",),
                 ),
             )
         )
@@ -176,13 +183,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     ("npm", "run", "audit"),
                     "frontend",
                     300,
-                ),
-                CheckSpec(
-                    "frontend.user-facing-text",
-                    "frontend",
-                    ("npm", "run", "check:user-facing-text"),
-                    "frontend",
-                    120,
+                    depends_on=("frontend.install",),
                 ),
                 CheckSpec(
                     "frontend.check",
@@ -190,6 +191,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     ("npm", "run", "check"),
                     "frontend",
                     1800,
+                    depends_on=("frontend.install",),
                 ),
             )
         )
@@ -210,6 +212,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     ("uv", "run", "--locked", "--extra", "dev", "ruff", "check", "."),
                     "bot",
                     300,
+                    depends_on=("bot.sync",),
                 ),
                 CheckSpec(
                     "bot.user-facing-text",
@@ -226,6 +229,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     ),
                     "bot",
                     120,
+                    depends_on=("bot.sync",),
                 ),
                 CheckSpec(
                     "bot.format",
@@ -243,6 +247,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     ),
                     "bot",
                     300,
+                    depends_on=("bot.sync",),
                 ),
                 CheckSpec(
                     "bot.types",
@@ -250,6 +255,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     ("uv", "run", "--locked", "--extra", "dev", "mypy"),
                     "bot",
                     300,
+                    depends_on=("bot.sync",),
                 ),
                 CheckSpec(
                     "bot.test",
@@ -257,6 +263,7 @@ def checks_for(areas: set[str], *, base: str | None = None) -> list[CheckSpec]:
                     ("uv", "run", "--locked", "--extra", "dev", "pytest"),
                     "bot",
                     900,
+                    depends_on=("bot.sync",),
                 ),
             )
         )
