@@ -2,7 +2,7 @@
 
 ## 2026-10-25
 
-- 25.10.2026 — REQ-BRN-001 — [TASK-195](../../backlog/implementation/TASK-195-branch-list-postgresql.md): зафиксирована PostgreSQL-регрессия списка филиалов, выявленная exact-image smoke перед deployment; нормативное поведение и границы доступа сохраняются.
+- 25.10.2026 — REQ-BRN-001 — [TASK-195](../../backlog/done/2026-10-25/TASK-195-branch-list-postgresql.md): исправлена и проверена в main `ea45076` PostgreSQL-регрессия списка филиалов, выявленная exact-image smoke перед deployment; нормативное поведение и границы доступа сохраняются.
 
 ## 2026-10-24 — TASK-194: локальная интеграция
 

@@ -133,7 +133,7 @@ Origin/main по-прежнему 5b1e036, remote baseline/images/schema/counts 
 Exact-image API smoke выполнил 118 успешных assertions и воспроизвёл HTTP 500
 GET /branches для HeadCoach и Administrator: Npgsql не переводит сортировку
 после positional BranchResponse projection. Исправление отражено в
-[TASK-195](../backlog/implementation/TASK-195-branch-list-postgresql.md);
+[TASK-195](../backlog/done/2026-10-25/TASK-195-branch-list-postgresql.md);
 готовый план прошёл preflight. Требуется новый проверенный target и сборка.
 Удалённые данные, конфигурация и application services ещё не изменялись.
 
@@ -141,3 +141,5 @@ GET /branches для HeadCoach и Administrator: Npgsql не переводит 
 к официальным package sources, без изменения Dockerfiles/исходников или
 отключения проверки TLS. Runtime images не содержат proxy environment; relay
 остановлен после успешной сборки. Persistent caches сохранены.
+
+Возобновление и успешный релиз 25.10.2026 описаны в [итоговом отчёте](LOCAL_REMOTE_STAND_DIFF_2026-10-25.md). Исходный candidate 5b1e036 на сервер не устанавливался.

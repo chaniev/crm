@@ -1,0 +1,448 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-10-25T13:40:14.265943+00:00",
+  "repository": "release-2026-10-24",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check"
+  ],
+  "base": "5b1e036",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "ea450769080ebac349668069f8216ed5889950eb",
+    "head_tree_sha": "b57af0523b58f0bdf2412546cdeffa74511c1771",
+    "base_sha": "5b1e036078f22853f3fe54a3c0412bdcf4f2d07c",
+    "merge_base_sha": "5b1e036078f22853f3fe54a3c0412bdcf4f2d07c",
+    "branch": "codex/release-2026-10-24",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": null,
+  "task_id": null,
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation-plans/TASK-195-branch-list-postgresql.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-195-branch-list-postgresql.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/LOCAL_REMOTE_STAND_DIFF_2026-10-24.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/09-филиалы-и-настройки.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+    "backlog/implementation-plans/TASK-195-branch-list-postgresql.plan.md",
+    "backlog/implementation/TASK-195-branch-list-postgresql.md",
+    "docs/LOCAL_REMOTE_STAND_DIFF_2026-10-24.md",
+    "docs/requirements/09-филиалы-и-настройки.md",
+    "docs/requirements/CHANGELOG.md"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-195-branch-list-postgresql.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-195-branch-list-postgresql.md",
+      "documentation or instructions changed: docs/LOCAL_REMOTE_STAND_DIFF_2026-10-24.md",
+      "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-195-branch-list-postgresql.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-195-branch-list-postgresql.md",
+        "documentation or instructions changed: docs/LOCAL_REMOTE_STAND_DIFF_2026-10-24.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:14.570336+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-25T13:40:14.610580+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-195-branch-list-postgresql.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-195-branch-list-postgresql.md",
+        "documentation or instructions changed: docs/LOCAL_REMOTE_STAND_DIFF_2026-10-24.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:14.611463+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-25T13:40:14.651910+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-195-branch-list-postgresql.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-195-branch-list-postgresql.md",
+        "documentation or instructions changed: docs/LOCAL_REMOTE_STAND_DIFF_2026-10-24.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:14.652682+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-10-25T13:40:14.693014+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "5b1e036"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-195-branch-list-postgresql.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-195-branch-list-postgresql.md",
+        "documentation or instructions changed: docs/LOCAL_REMOTE_STAND_DIFF_2026-10-24.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:14.693709+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-10-25T13:40:14.770774+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:14.771914+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.719,
+      "completed_at": "2026-10-25T13:40:15.491207+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:15.492365+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.917,
+      "completed_at": "2026-10-25T13:40:17.409082+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:17.410104+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.0,
+      "completed_at": "2026-10-25T13:40:28.410274+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:28.411610+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.709,
+      "completed_at": "2026-10-25T13:40:32.121141+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:40:32.121947+00:00",
+      "exit_code": 0,
+      "duration_seconds": 150.946,
+      "completed_at": "2026-10-25T13:43:03.067107+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:43:03.070443+00:00",
+      "exit_code": 0,
+      "duration_seconds": 8.883,
+      "completed_at": "2026-10-25T13:43:11.953659+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:43:11.954640+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.938,
+      "completed_at": "2026-10-25T13:43:15.892366+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:43:15.893293+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.608,
+      "completed_at": "2026-10-25T13:43:16.501090+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-10-25T13:43:16.503184+00:00",
+      "exit_code": 0,
+      "duration_seconds": 23.886,
+      "completed_at": "2026-10-25T13:43:40.389095+00:00"
+    }
+  ],
+  "completed_at": "2026-10-25T13:43:40.390357+00:00"
+}

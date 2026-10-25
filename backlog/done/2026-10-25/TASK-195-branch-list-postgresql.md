@@ -1,6 +1,6 @@
 # TASK-195 — Восстановить список филиалов на PostgreSQL перед релизом
 
-Статус: implementation
+Статус: done
 Дата: 2026-10-25
 Источник: пользователь 24.10.2026 разрешил обновление удалённого стенда,
 25.10.2026 попросил возобновить. Exact-image API smoke обнаружил блокирующий
@@ -27,4 +27,17 @@ failed runtime check входит в deploy-project workflow; нового по�
 - Diff-selected harness и повтор exact-image API smoke проходят до rollout.
 
 ## План
-[Готовый план](../implementation-plans/TASK-195-branch-list-postgresql.plan.md).
+[Готовый план](TASK-195-branch-list-postgresql.plan.md).
+
+## Completion
+- completed_at: 2026-10-25
+- completion_date_evidence: исправление интегрировано и опубликовано в main commit `ea450769080ebac349668069f8216ed5889950eb`; exact-image smoke и remote rollout завершены в тот же день.
+- moved_to_done_at: 2026-10-25
+
+Шесть новых PostgreSQL-сценариев воспроизвели HTTP 500 до исправления.
+После исправления targeted fixture 9/9, canonical 13/13 checks (714 backend,
+750 frontend) passed. Exact-image API smoke: 118 assertions / 72 requests passed.
+Порядок/фильтр и scoped counts сохранены; схема, DTO и права не менялись.
+[Проверки](TASK-195-evidence/verification.json),
+[real-API smoke](TASK-195-evidence/api-smoke.json),
+[отчёт релиза](/docs/LOCAL_REMOTE_STAND_DIFF_2026-10-25.md).
