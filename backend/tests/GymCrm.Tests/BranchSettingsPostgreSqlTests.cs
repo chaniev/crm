@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Domain.Audit;
+using GymCrm.Domain.Branches;
+using GymCrm.Domain.Clients;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +15,68 @@ namespace GymCrm.Tests;
 
 public class BranchSettingsPostgreSqlTests
 {
+    [Theory]
+    [InlineData(UserRole.HeadCoach, false)]
+    [InlineData(UserRole.HeadCoach, true)]
+    [InlineData(UserRole.SuperAdministrator, false)]
+    [InlineData(UserRole.SuperAdministrator, true)]
+    [InlineData(UserRole.Administrator, false)]
+    [InlineData(UserRole.Administrator, true)]
+    public async Task Branch_list_preserves_archive_filter_sort_order_and_scoped_counts(UserRole role, bool includeArchived)
+    {
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString());
+        await factory.SeedAsync();
+        var firstTiedBranchId = Guid.Parse("10000000-0000-0000-0000-000000000001");
+        var secondTiedBranchId = Guid.Parse("10000000-0000-0000-0000-000000000002");
+        var archivedBranchId = Guid.Parse("10000000-0000-0000-0000-000000000003");
+        var timestamp = new DateTimeOffset(2026, 10, 25, 0, 0, 0, TimeSpan.Zero);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            (await db.Branches.SingleAsync(branch => branch.Id == factory.OwnBranchId)).Name = "Zulu";
+            (await db.Branches.SingleAsync(branch => branch.Id == factory.ForeignBranchId)).Name = "Alpha";
+            db.Branches.AddRange(
+                new Branch { Id = secondTiedBranchId, Name = "Beta", CreatedAt = timestamp, UpdatedAt = timestamp },
+                new Branch { Id = firstTiedBranchId, Name = "Beta", CreatedAt = timestamp, UpdatedAt = timestamp },
+                new Branch { Id = archivedBranchId, Name = "Aardvark", IsArchived = true, CreatedAt = timestamp, UpdatedAt = timestamp });
+            db.Clients.AddRange(
+                new Client { Id = Guid.Parse("20000000-0000-0000-0000-000000000001"), BranchId = factory.OwnBranchId, FirstName = "Own one", Phone = "+70000000001", CreatedAt = timestamp, UpdatedAt = timestamp },
+                new Client { Id = Guid.Parse("20000000-0000-0000-0000-000000000002"), BranchId = factory.OwnBranchId, FirstName = "Own two", Phone = "+70000000002", CreatedAt = timestamp, UpdatedAt = timestamp },
+                new Client { Id = Guid.Parse("20000000-0000-0000-0000-000000000003"), BranchId = factory.ForeignBranchId, FirstName = "Foreign", Phone = "+70000000003", CreatedAt = timestamp, UpdatedAt = timestamp },
+                new Client { Id = Guid.Parse("20000000-0000-0000-0000-000000000004"), BranchId = archivedBranchId, FirstName = "Archived branch", Phone = "+70000000004", CreatedAt = timestamp, UpdatedAt = timestamp });
+            await db.SaveChangesAsync();
+        }
+
+        var (client, _) = await factory.LoginAsync(role);
+        using (client)
+        using (var response = await client.GetAsync(includeArchived ? "/branches?includeArchived=true" : "/branches"))
+        {
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+            var branches = payload.EnumerateArray().ToArray();
+            Guid[] activeBranchIds = [factory.ForeignBranchId, firstTiedBranchId, secondTiedBranchId, factory.OwnBranchId];
+            Guid[] expectedBranchIds = includeArchived ? [.. activeBranchIds, archivedBranchId] : activeBranchIds;
+            Assert.Equal(expectedBranchIds, branches.Select(branch => branch.GetProperty("id").GetGuid()));
+            Assert.Equal(includeArchived ? 1 : 0, branches.Count(branch => branch.GetProperty("isArchived").GetBoolean()));
+            foreach (var branch in branches)
+            {
+                var branchId = branch.GetProperty("id").GetGuid();
+                var count = branch.GetProperty("clientCount");
+                if (role == UserRole.Administrator && branchId != factory.OwnBranchId)
+                {
+                    Assert.Equal(JsonValueKind.Null, count.ValueKind);
+                }
+                else
+                {
+                    var expectedCount = branchId == factory.OwnBranchId ? 2 : branchId == factory.ForeignBranchId || branchId == archivedBranchId ? 1 : 0;
+                    Assert.Equal(expectedCount, count.GetInt32());
+                }
+            }
+        }
+    }
+
     [Theory]
     [InlineData("/branches", "BranchCreated")]
     [InlineData("/halls", "HallCreated")]

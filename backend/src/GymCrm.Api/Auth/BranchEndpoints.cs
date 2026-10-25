@@ -57,10 +57,11 @@ internal static class BranchEndpoints
             query = query.Where(branch => !branch.IsArchived);
         }
 
-        var branches = await ProjectBranches(query, currentUser)
+        query = query
             .OrderBy(branch => branch.IsArchived)
             .ThenBy(branch => branch.Name)
-            .ThenBy(branch => branch.Id)
+            .ThenBy(branch => branch.Id);
+        var branches = await ProjectBranches(query, currentUser)
             .ToArrayAsync(cancellationToken);
 
         return TypedResults.Ok<IReadOnlyList<BranchResponse>>(branches);
