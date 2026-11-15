@@ -1,16 +1,21 @@
 # TASK-196: Импорт клиентов из XLSX через настройки
 
 ## Status
-needs-clarification
+implementation
 
 ## Implementation lifecycle
-- moved_to_implementation_at: 2026-11-15 22:47 MSK — историческое, CLI-план
+- moved_to_implementation_at: 2026-11-15 23:44 MSK — готовый веб-план
+- previous_cli_moved_to_implementation_at: 2026-11-15 22:47 MSK — историческое
 - returned_to_planning_at: 2026-11-15
-- moved_from: /backlog/implementation
+- moved_from: /backlog/tasks-ready
+- replanning_source: /backlog/needs-clarification
 - planning_origin: /backlog/risky
 - implementation_plan: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
 - implementation_branch: codex/TASK-196-xlsx-client-import
 - execution_started: no — обновляются только требования и планирование
+- replanned_at: 2026-11-15 — новая редакция веб-плана, review и rendered варианты A/B/C
+- visual_direction_selected_at: 2026-11-15 — A, единая форма
+- technical_decision_accepted_at: 2026-11-15 23:44 MSK — ADR-0005
 
 ## Requirements
 - REQ-CLI-010 — implements
@@ -31,8 +36,9 @@ needs-clarification
 Последний запрос владельца заменяет отдельную CLI веб-интерфейсом CRM.
 Название группы вводится отдельно, файл переименовывать не требуется.
 REQ-CLI-010, REQ-BRN-002 и REQ-USR-001 отражают принятую целевую редакцию. Прочие правила
-переноса сохранены; новый ADR и визуальный/интерактивный контракт ещё требуют
-согласования. Реализация не начата. Анализ исходников от 15.11.2026 ниже
+переноса сохранены; владелец выбрал вариант A и его визуальный/интерактивный
+контракт. ADR-0005 принят владельцем, решения для планирования закрыты.
+Реализация не начата. Анализ исходников от 15.11.2026 ниже
 сохраняет силу для состава данных, но не для старой точки входа.
 
 Оба файла содержат один лист `Клиенты` с одинаковыми заголовками A1:J1:
@@ -162,7 +168,7 @@ REQ-CLI-010, REQ-BRN-002 и REQ-USR-001 отражают принятую цел
   описывают продажи, оплаты, возвраты и отчёты. Перенос `Баланс` в финансовые
   операции требует отдельного продуктового решения; его нельзя вывести из числа.
 - Материальное решение о записи и восстановлении данных проходит
-  архитектурный workflow до реализации. Разовая утилита сохраняет владение
+  архитектурный workflow до реализации. Веб-импорт сохраняет владение
   CRM-правилами на backend.
 
 ## Acceptance criteria
@@ -170,9 +176,11 @@ REQ-CLI-010, REQ-BRN-002 и REQ-USR-001 отражают принятую цел
   указание названия группы; REQ-CLI-010/REQ-BRN-002 и CHANGELOG обновлены.
 - [x] Исходный mapping и read-only сверка 114 строк сохранены. Ошибки:
   B7 первого файла; B7/B9/B26/B41/B62 и A6/A32/A37/A46 второго.
-- [ ] Выбрано rendered UX/UI-направление и записан implementation-ready контракт.
-- [ ] Принят ADR-0005, закрыт review нового frontend/API/recovery контракта.
-- [ ] План проходит executable preflight после закрытия этих решений.
+- [x] Владелец выбрал вариант A — единую форму; записан implementation-ready UI-контракт.
+- [x] Подготовлены [варианты A/B/C и interaction contract A](../mockups/TASK-196-settings-import/README.md)
+  на 390/1440, включая неизвестный исход; выбор A подтверждён 2026-11-15.
+- [x] Принят ADR-0005, закрыт review нового frontend/API/recovery контракта.
+- [x] План проходит executable preflight после закрытия всех решений.
 
 ## Test checklist
 Будущие проверки приложения, сейчас не выполнены:
@@ -193,11 +201,11 @@ REQ-CLI-010, REQ-BRN-002 и REQ-USR-001 отражают принятую цел
 - [ ] Новый audit event читается только текущими разрешёнными ролями.
 
 ## AI safety
-- Safe for autonomous implementation: no — требуется ready plan с принятыми
-  ADR-0005 и визуальным/интерактивным контрактом новой вкладки.
+- Safe for autonomous implementation: yes — ADR-0005 принят, вариант A и его
+  UI-контракт выбраны; выполнение в пределах ready plan после обязательного preflight.
 - Risk level: high — массовая запись клиентов, назначения, права и аудит.
-- Required review: предыдущая проверка backend atomicity/scope остаётся evidence;
-  browser multipart/error/recovery и новый выбор группы требуют новой сверки.
+- Required review: повторная сверка backend writer/group identity и frontend
+  multipart/error/recovery завершена в technical review; ADR-0005 принят владельцем.
 - Stop conditions: неоднозначность вне принятого mapping; обход backend guards;
   частичная запись файла; автоматический replay mutation; новый материальный
   выбор вне согласованного ADR/UX. Реальные XLSX не исправлять автоматически.
@@ -336,11 +344,31 @@ ManageClients-only доступ и выбор филиала только при
 Право создания групп, финансовые операции и право аудита не добавляются.
 REQ-CLI-010, REQ-BRN-002 и REQ-USR-001 обновлены в этой задаче.
 
+## Visual direction decision — 2026-11-15
+
+Прямой ответ владельца после просмотра rendered вариантов:
+
+> выбираю вариант А
+
+Принят вариант A — единая форма, с представленным
+[UI-контрактом](../mockups/TASK-196-settings-import/README.md#выбор-владельца).
+Этот ответ закрывал визуальный вопрос; последующее техническое решение записано ниже.
+
+## Web technical approval — 2026-11-15
+
+Прямой ответ владельца после выбора варианта A и демонстрации экрана Администратора:
+
+> принимаю предложенное техническое решение
+
+Принят [ADR-0005](../../docs/architecture/adr/0005-settings-xlsx-client-import.md):
+backend batch с ImportClients/session scope, явными groupName/branchId,
+согласованным XLSX-профилем, общим writer, одной транзакцией файла и audit,
+проверкой group identity и recovery без replay с описанными ограничениями навигации.
+Решение закрывает последний planning blocker; реализация этим ответом не начата.
+
 ## Clarification questions
 
-- Выбор визуального направления и согласование interaction contract новой
-  вкладки после rendered comparison; владелец — пользователь.
-- Принятие предлагаемого веб-контракта ADR-0005 после review; владелец — пользователь.
+Нет. Продуктовые, визуальные и технические решения для текущего плана приняты.
 
 Продуктовые правила выбора XLSX и отдельного названия группы уже приняты;
 повторного подтверждения не требуют. Подготовка rendered вариантов относится
@@ -354,6 +382,17 @@ REQ-CLI-010, REQ-BRN-002 и REQ-USR-001 обновлены в этой зада�
   [10.11.2026](<../example/Ученики 10.11.2026.xlsx>), лист `Клиенты`.
 
 ## Processing notes
+- Ready web plan 2026-11-15: владелец отдельно принял ADR-0005 после выбора A;
+  все planning blockers закрыты, explicit preflight PASS до переноса.
+  Задача needs-clarification → tasks-ready → implementation. Более ранние записи о Proposed/readiness: no
+  ниже сохранены как история, реализация ещё не начата.
+- Visual selection 2026-11-15: владелец выбрал A; task/plan/UI evidence
+  синхронизированы, визуальный блокер закрыт. Остаётся принятие ADR-0005.
+- Replanning 2026-11-15: по запросу «подготовб новый план реализации task-196»
+  обновлён единственный активный plan; добавлены rendered варианты и UX-контракт,
+  повторный producer/consumer review и сценарии R1–R5. Дубликат плана не создан.
+  Статус needs-clarification и readiness: no сохранены до двух решений владельца.
+  Согласованные REQ не изменены; production code, реальные XLSX и БД не менялись.
 - Revision 2026-11-15: implementation → needs-clarification после изменения
   точки входа и выбора группы. REQ-CLI-010 и REQ-BRN-002 обновлены;
   ADR-0004 заменён ADR-0005 (Proposed), plan readiness: no до принятия

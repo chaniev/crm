@@ -2055,3 +2055,43 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - executable_preflight: ожидаемо отклоняет readiness: no; новый draft не является разрешением на implementation
 - evidence: .artifacts/verification/TASK-196-settings-plan.json; app/runtime tests не запускались для planning-only изменений
 - final_review: независимая сверка обновлённых task/plan/REQ/ADR завершена; устранены двусмысленность groupName, дублирующий session boolean и неверное отношение REQ-USR-001
+
+# 2026-11-15 — TASK-196: новый веб-план и визуальные варианты
+- moved: none
+- planned_in_place: TASK-196 — единственный plan переписан под актуальный scope
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
+- design: /backlog/mockups/TASK-196-settings-import/README.md — UX/brief, три направления A/B/C, ready/unknown на 390/1440 и текущий SettingsScreen; рекомендован A, выбор владельца ожидается
+- review: /backlog/logs/TASK-196-technical-review-2026-11-15.md — повторный producer/consumer review, общий writer без commit, проверка group identity, точная ручная сверка аудита
+- architecture: ADR-0005 остаётся Proposed; уточнения review записаны, approval не выдуман
+- readiness: no — принятие ADR-0005 и выбор визуального/interaction контракта; существующие продуктовые решения не переспрашиваются
+- scope: plan/task/ADR/review/design evidence; production code, реальные XLSX/БД и runtime stack не менялись, branch/worktree не создавались
+- validation: knowledge harness 4/4 PASS; ссылки, уникальность task/plan, status-directory и git diff --check PASS; explicit executable preflight ожидаемо отклоняет readiness: no
+- design_validation: 14 Chromium renders (current/ready/unknown на 390/1440), 0 page errors/overflow; production API/PG, Safari/device acceptance не выполнялись
+- evidence: .artifacts/verification/TASK-196-new-web-plan.json; runtime prototype изолирован, production routes/компоненты не менялись
+- final_review: SPA guard ограничен управляемыми section/password/logout; browser Back/Forward без нового history blocker; forced access redirect не блокируется, локальный ID может быть потерян с recovery через actor/time/action
+
+# 2026-11-15 — TASK-196: выбран вариант A
+- moved: none
+- planned_in_place: TASK-196
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
+- decision: пользователь «выбираю вариант А»; выбраны единая форма и представленный UI-контракт, B/C сохранены как история сравнения
+- design: /backlog/mockups/TASK-196-settings-import/README.md — approval provenance и implementation contract A актуализированы
+- readiness: no — остался только ADR-0005; выбор интерфейса не трактуется как принятие отдельного технического решения
+- scope: task/plan/UI/ADR status notes; production code и реальные данные не менялись
+- validation: knowledge harness 4/4 PASS; ссылки и git diff --check PASS; evidence .artifacts/verification/TASK-196-design-a-selected.json
+- cleanup: временный prototype удалён после выбора; rendered screenshots и отчёт геометрии сохранены, production runtime не менялся
+
+# 2026-11-15 23:44 MSK — TASK-196: принят технический контракт веб-импорта
+- moved: TASK-196 — needs-clarification → tasks-ready → implementation после закрытия последнего решения и PASS explicit preflight
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
+- decision: пользователь «принимаю предложенное техническое решение»; ADR-0005 Accepted, UI-вариант A принят ранее
+- readiness: yes; open_questions: none; technical/product evidence записаны раздельно; explicit preflight до и после переноса PASS
+- task: /backlog/implementation/TASK-196-xlsx-client-import.md; branch codex/TASK-196-xlsx-client-import только объявлена
+- historical_paths: прежний /backlog/needs-clarification/TASK-196-xlsx-client-import.md соответствует текущему /backlog/implementation/TASK-196-xlsx-client-import.md; прежние logs не переписывались
+- scope: planning/ADR/status/link updates; требования продукта и статусы реализации REQ не изменены; production code, исходные XLSX, БД и стенды не менялись, task branch/worktree не создавались, execution_started: no
+- validation: explicit executable preflight до/после переноса PASS; knowledge harness 4/4 PASS; ссылки, уникальность task/plan, status-directory и git diff --check PASS
+- evidence: .artifacts/verification/TASK-196-web-plan-ready.json; application/runtime проверки не запускались для изменений документов

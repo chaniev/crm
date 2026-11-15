@@ -1,6 +1,6 @@
 # ADR-0005: Импорт XLSX из настроек с явным названием группы
 
-- **Статус:** Proposed
+- **Статус:** Accepted (пользователь, владелец проекта, 2026-11-15)
 - **Дата:** 2026-11-15
 - **Автор / владелец:** Codex / пользователь, владелец проекта
 
@@ -11,7 +11,7 @@
 - REQ-CLI-001, REQ-CLI-003, REQ-CLI-005, REQ-CLI-006 — constrains, реестр клиентов.
 - REQ-BRN-001, [REQ-AUD-001](/docs/requirements/06-аудит.md) — constrains.
 - [REQ-USR-001](/docs/requirements/05-пользователи-и-роли.md) — changes.
-- [TASK-196](/backlog/needs-clarification/TASK-196-xlsx-client-import.md),
+- [TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md),
   [план](/backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md).
 
 ## Контекст
@@ -20,7 +20,7 @@
 XLSX и указывает название группы. Имя файла больше не выбирает группу.
 Последующим решением импорт ограничен SuperAdministrator с обязательным
 выбором филиала и Administrator только своего филиала; HeadCoach исключён.
-Это принятые продуктовые решения; новый технический контракт ниже Proposed.
+Это принятые продуктовые решения; технический контракт ниже принят владельцем 2026-11-15.
 [ADR-0004](0004-atomic-xlsx-client-import.md) сохраняется как история принятой
 CLI-архитектуры, заменяется этим ADR. Приложение по нему ещё не реализовано.
 
@@ -73,8 +73,9 @@ typed multipart/error mapping, session scope и регрессий browser recov
 
 ## Решение
 
-Предлагается B. Утверждённые пользователем изменения продукта не считаются
-автоматическим approval всех деталей этого технического предложения.
+Принят вариант B по прямому решению владельца от 2026-11-15:
+«принимаю предложенное техническое решение». Это отдельное принятие
+технического контракта, после выбора визуального варианта A.
 
 ### Frontend и доступ
 
@@ -146,6 +147,10 @@ typed multipart/error mapping, session scope и регрессий browser recov
 - Parser/normalization выполняются до locks, все диагностируемые ошибки
   собираются до записи. Общий create use case используется batch и обычным
   созданием; CLI и frontend не дублируют доменные правила.
+- Общий writer принимает текущую unit of work, но не владеет commit и не
+  выполняет послекоммитное чтение HTTP-ответа. Обычный create сохраняет своё
+  владение транзакцией/read-access response; batch владеет одной транзакцией
+  файла и возвращает только operationId/count после commit.
 - Одна ClientAccessTransaction, locks Branches → actor → TrainingGroups;
   после ожидания повторно проверить actor active/ImportClients capability,
   scope/текущий филиал Administrator и обязательный выбор SuperAdministrator, groupName,
@@ -154,6 +159,10 @@ typed multipart/error mapping, session scope и регрессий browser recov
   Смена разрешённой роли на HeadCoach блокирует запись, хотя ManageClients остаётся.
   Не вводить active-group запрет: текущий
   create требует активный филиал, не активную группу. Scope/lock drift — отказ.
+- Сохранить ID первоначально найденной группы и после locks проверить тот же
+  ID, имя и филиал. Удаление/переименование/замена одноимённой группой между
+  lookup и locks не перенаправляют файл молча. Существующие bounded preparation
+  retries ClientAccessTransaction сохраняются; новых mutation replay loops нет.
 - Clients, ClientGroups, периоды назначений, note metadata, ClientCreated и
   ClientNoteChanged сохраняются в одном scoped DbContext/transaction.
   Итоговый `ClientImportCompleted`, entity `ClientImport`, EntityId=operationId,
@@ -176,11 +185,23 @@ typed multipart/error mapping, session scope и регрессий browser recov
   Файл и клиентские данные не записываются в localStorage/sessionStorage;
   постоянного browser ledger не вводится. Перед уходом из pending/unknown
   состояния UI предупреждает о необходимости сохранить номер операции;
-  точная навигация/feedback фиксируется выбранным UX-контрактом до readiness.
+  точная навигация/feedback зафиксированы выбранным UX-контрактом A.
+- Принятый минимальный guard: диалог до управляемых section/password/logout
+  действий, best-effort beforeunload для reload/close. Существующий popstate
+  Back/Forward не получает новый history blocker: постоянное предупреждение
+  pending/unknown заранее объясняет сохранение номера, replay отсутствует.
+  Forced auth/access redirects не блокируются; после потери локального контекста
+  используется сохранённый номер либо actor/time/action. Это ограничение явно
+  входит в принятое решение, гарантия сохранения ID после ухода не вводится.
 - HeadCoach/SuperAdministrator сверяет actor/action/time/operationId в текущем
   журнале. Administrator получает понятную инструкцию обратиться к такой роли,
   не новое право аудита. Потерянный при reload номер ищется по actor/time/action;
   отсутствие summary до завершения запроса не доказывает rollback.
+- Точный путь сверки: фильтры по сотруднику, периоду и действию
+  «Импорт клиентов завершён», затем детали записи и сравнение полного
+  EntityId/operationId и createdCount. Текущий API не ищет по UUID; новый
+  фильтр или status endpoint не добавляются. Предложенная навигация и
+  focus/recovery описаны в [UI-контракте](/backlog/mockups/TASK-196-settings-import/README.md).
 - Успех сообщает createdCount; новый осознанный запуск создаёт новые карточки.
   Проверка исхода и запрет слепого повтора сохраняют семантику ADR-0004.
 
@@ -228,19 +249,26 @@ legacy filename-based request не требуется. Успешный импо
   revoked access/SA→HeadCoach/Admin смена филиала после locks.
 - Settings backend scope gate и неизменность соседних вкладок;
   Playwright основного/ошибочного/restricted путей mobile/desktop, новый audit.
-- Runtime comparison с выбранным UI-контрактом после реализации; сейчас
-  приложение и browser runtime не запускались.
+- Runtime comparison с выбранным UI-контрактом A после реализации; изолированные
+  rendered concepts подготовлены, production import и его runtime-тесты не запускались.
 
 ## Open questions
 
-- Владелец принимает либо уточняет предложенный веб-контракт ADR-0005.
-- Владелец выбирает rendered направление и interaction/recovery контракт
-  вкладки. Это planning blocker, не шаг будущей реализации.
+Нет. Владелец выбрал визуальный вариант A и затем отдельно принял
+настоящий технический контракт; [UI-решение](/backlog/mockups/TASK-196-settings-import/README.md#выбор-владельца).
 
 ## Approval
 
-Pending. Пользователь 15.11.2026 явно принял Settings/XLSX/название группы
-и последующее ограничение ролей/филиала
-в [Product revision TASK-196](/backlog/needs-clarification/TASK-196-xlsx-client-import.md#product-revision--2026-11-15).
-Это основание изменения требований; отдельного принятия ADR-0005 и визуального
-контракта пока нет. Исторический approval ADR-0004 не переносится автоматически.
+Accepted (пользователь, владелец проекта, 2026-11-15).
+Прямой ответ владельца в текущем чате после выбора UI-варианта A
+и демонстрации экрана Администратора:
+
+> принимаю предложенное техническое решение
+
+Принят описанный вариант B: authenticated backend batch, ImportClients/session
+scope, multipart с явными groupName/branchId, профиль XLSX и лимиты, общий writer
+без commit, одна транзакция файла с audit, проверка group identity под locks,
+runtime-валидация ответа и ручная сверка неизвестного исхода без replay.
+Приняты описанные ограничения навигации и восстановления, schema changes не нужны.
+[Запись решения в TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md#web-technical-approval--2026-11-15).
+Это принятие нового веб-контракта; историческое CLI-решение остаётся заменённым.

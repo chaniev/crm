@@ -109,3 +109,48 @@ HasCapability(ImportClients) от session-only clientImportScope, REQ-USR-001
 помечен changes. Других противоречий в ролях, обязательном request branchId,
 scope DTO и гарантиях записи reviewer не выявил. Это проверка документов,
 не runtime доказательство будущей реализации и не принятие ADR владельцем.
+
+## Повторный review нового плана — 2026-11-15
+
+Основание: запрос нового плана для текущего Settings import. Read-only review
+выполнили основной Codex и отдельный reviewer; backend-specialist capability
+оказалась недоступна в сессии, её evidence/review boundary выполнены доступным
+reviewer. Принятие ADR или реализация не заявляются.
+
+- `ClientLifecycleEndpoints.cs:69`: обычный create владеет транзакцией и затем
+  повторно проверяет read access для ответа. Общий writer выделяется без commit
+  и response reload, batch не вызывает endpoint для каждой строки.
+- `ClientAccessTransaction.cs:76`: существующие preparation retries и ID/scope
+  locks не заменяют проверки ImportClients и свежих group ID/name/branch.
+  Добавлен сценарий удаления/замены группы с тем же названием после lookup.
+- `AuditLogEndpoints.cs:22`, `AuditLogScreen.tsx:682`: фильтры по UUID отсутствуют;
+  полный EntityId и NewValueJson доступны в деталях. Восстановление — фильтры
+  actor/time/action → детали → сравнение ID/count. Не добавлять скрытый поиск
+  по operationId или право аудита Administrator; пустой журнал не доказывает rollback.
+- `frontend/src/lib/api/transport.ts:48`: generic cast не проверяет success
+  payload и не сохраняет import extensions. Runtime validation локализуется
+  в import client; optional errors расширяются без изменения прочих consumers.
+- Auth session содержит branchId, но не branchName; имя фиксированного филиала
+  Admin получать из существующего разрешённого branch lookup.
+- Существующий create требует активный филиал, а не активную группу;
+  сохраняется отдельный запрет HeadCoach, имеющего ManageClients.
+
+Новых оснований для сервиса, таблицы импорта, deduplication или глобальной
+перестройки create/navigation не найдено. Уточнения внесены в Proposed ADR-0005
+и новый plan. [UI evidence](/backlog/mockups/TASK-196-settings-import/README.md)
+содержит три rendered направления и предложенный interaction contract A.
+Проверка выполнена по исходникам/контрактам; backend/PG тесты не запускались,
+результат не является runtime-доказательством будущей реализации.
+
+Финальная проверка navigation contract:
+- `frontend/src/App.tsx:483` и `frontend/src/app/RouteViewport.tsx:357` дают
+  узкую границу section/password/logout callback; форма/dialog остаются Settings.
+  Logout предупреждается до вызова API, App не получает CRM-правила.
+- `frontend/src/app/useAppRoute.ts:92` обрабатывает popstate без history index
+  и отменяемого blocker. План не обещает custom dialog для browser Back/Forward;
+  выбран минимальный предложенный контракт постоянного предупреждения/no replay
+  и ручной сверки без нового history protocol.
+- `frontend/src/App.tsx:191` forced access redirect обходит guard. Пока Settings
+  доступен, recovery-состояние сохраняется; при полном уходе/local ID loss остаётся
+  сверка по сохранённому ID/actor/time/action. Дополнительный shell ledger не введён.
+Это уточнение Proposed UX/ADR до approval, не изменение принятого продукта.

@@ -47,4 +47,4 @@ ADR.
 
 - [ADR-0003: Авторизация клиентских данных по текущему филиалу администратора](0003-administrator-client-branch-scope.md) — Accepted (пользователь, владелец продукта, 2026-10-24)
 - [ADR-0004: Атомарный импорт XLSX через backend и разовую CLI](0004-atomic-xlsx-client-import.md) — Superseded by ADR-0005
-- [ADR-0005: Импорт XLSX из настроек с явным названием группы](0005-settings-xlsx-client-import.md) — Proposed
+- [ADR-0005: Импорт XLSX из настроек с явным названием группы](0005-settings-xlsx-client-import.md) — Accepted (пользователь, владелец проекта, 2026-11-15)
