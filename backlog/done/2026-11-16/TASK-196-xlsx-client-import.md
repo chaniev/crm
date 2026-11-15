@@ -1,7 +1,7 @@
 # TASK-196: Импорт клиентов из XLSX через настройки
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-15 23:44 MSK — готовый веб-план
@@ -10,7 +10,7 @@ implementation
 - moved_from: /backlog/tasks-ready
 - replanning_source: /backlog/needs-clarification
 - planning_origin: /backlog/risky
-- implementation_plan: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
+- implementation_plan: /backlog/done/2026-11-16/TASK-196-xlsx-client-import.plan.md
 - implementation_branch: codex/TASK-196-xlsx-client-import
 - execution_started: yes — 2026-11-15, по запросу владельца «реализуй план task-196»
 - replanned_at: 2026-11-15 — новая редакция веб-плана, review и rendered варианты A/B/C
@@ -49,7 +49,7 @@ REQ-CLI-010, REQ-BRN-002 и REQ-USR-001 отражают принятую цел
 `Имя`, `Телефон`, `Комментарий к телефону`, `Email`, `Дата рождения`, `Пол`,
 `Адрес`, `Статус`, `Баланс`, `Комментарий`.
 
-| Наблюдение | [09.11.2026](<../example/Ученики 09.11.2026.xlsx>) | [10.11.2026](<../example/Ученики 10.11.2026.xlsx>) |
+| Наблюдение | [09.11.2026](<../../example/Ученики 09.11.2026.xlsx>) | [10.11.2026](<../../example/Ученики 10.11.2026.xlsx>) |
 | --- | --- | --- |
 | Строки данных | 48, A2:J49 | 66, A2:J67 |
 | Телефон отсутствует | 1, B7 | 5, B7/B9/B26/B41/B62 |
@@ -382,8 +382,8 @@ backend batch с ImportClients/session scope, явными groupName/branchId,
 ## Source notes
 - Source file: [backlog/processed/2026-11-15.md](../processed/2026-11-15.md).
 - Original note: «нужна утилита импорта данных из xlsx файлов примеры файлов расположены в папке baclog\example».
-- Примеры: [09.11.2026](<../example/Ученики 09.11.2026.xlsx>) и
-  [10.11.2026](<../example/Ученики 10.11.2026.xlsx>), лист `Клиенты`.
+- Примеры: [09.11.2026](<../../example/Ученики 09.11.2026.xlsx>) и
+  [10.11.2026](<../../example/Ученики 10.11.2026.xlsx>), лист `Клиенты`.
 
 ## Processing notes
 - Ready web plan 2026-11-15: владелец отдельно принял ADR-0005 после выбора A;
@@ -405,7 +405,7 @@ backend batch с ImportClients/session scope, явными groupName/branchId,
 - Readiness 2026-11-15: владелец принял ADR-0004 и подтвердил сохранение V/Д
   в исходном ФИО; REQ-CLI-010 и план обновлены, required review закрыт.
   Предыдущая запись о risky/Proposed ниже описывает этап до этих решений.
-- Planning 2026-11-15: [implementation plan](../implementation-plans/TASK-196-xlsx-client-import.plan.md)
+- Planning 2026-11-15: [implementation plan](TASK-196-xlsx-client-import.plan.md)
   создан на месте, `readiness: no`; [ADR-0004](../../docs/architecture/adr/0004-atomic-xlsx-client-import.md)
   Proposed ожидает технического решения владельца. Продуктовые вопросы закрыты;
   status `risky` сохранён до завершения required review. Ветка
@@ -447,3 +447,9 @@ backend batch с ImportClients/session scope, явными groupName/branchId,
 результаты проверок сохранены, integration/done не объявлены.
 
 16.11.2026 — владелец явно принял A в ADR-0006; вопросы закрыты, задача возвращена в implementation до повторного preflight.
+
+## Completion
+- completed_at: 2026-11-16
+- delivered_on_main_at: 2026-11-16
+- completion_date_evidence: local fast-forward of verified candidate `58aa3e59a3a2dc89c708fb15ff986c1840036b36` into main; [verification](TASK-196-evidence/verification.md)
+- result: atomic Settings XLSX import, authorization and recovery, plus approved date/period fixes and retained-data migration validated locally.

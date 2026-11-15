@@ -29,4 +29,12 @@ Limits: Playwright WebKit is browser-engine evidence only. Native Safari chrome,
 ## Final canonical verification
 First canonical run on `d1be6cf13780ce17b6631c804232a0790cbf4e4d`: backend 780/780, frontend 769/769, bot 71/71, harness 119/119. Import 18/18, settings 30/30, access and transfer E2E passed. Registry rejected two not-yet-integrated requirement revisions still marked realized; both corrected to partial. A Chromium staffing regression had a focus timeout (29/30); unchanged main passed the isolated scenario. This run is retained as failed evidence, not merge approval.
 
-Additional import history/reload/Admin recovery test passed in all three browser projects (3/3). Final canonical run on the updated candidate is pending; its report will be linked before integration.
+Additional import history/reload/Admin recovery test passed in all three browser projects (3/3). The updated candidate passed the final canonical run; see Delivered candidate below.
+
+
+## Delivered candidate
+Final full canonical command `E2E_PORT=62422 python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-196` passed on `58aa3e59a3a2dc89c708fb15ff986c1840036b36`. [Raw report](final-candidate-report.json). Backend 780 passed/0 skipped, frontend unit 769 passed, bot 71 passed, harness 119 passed. Playwright import 21, settings 30, access 66, transfer 19, staffing 30 passed. Transfer's two pre-existing target-browser skips apply only to the Chromium-specific viewport matrix; the actual transfer flows passed on both WebKit projects.
+
+NuGet audit clean. npm audit command passed its configured threshold but reports 7 pre-existing moderate vulnerabilities; none suppressed or auto-fixed. The earlier staffing focus timeout did not reproduce in isolated checks on either tree; final full staffing suite passed.
+
+Verified candidate fast-forwarded to local main on 2026-11-16; identical tree was checked after integration. Closure changes only documentation/status/evidence and receive a separate knowledge verification. Deployment was outside scope; future retained-data upgrade follows ADR-0006 and the operator guide. Native Safari chrome/keyboard/safe-area and physical/Simulator acceptance remain unverified as recorded above.

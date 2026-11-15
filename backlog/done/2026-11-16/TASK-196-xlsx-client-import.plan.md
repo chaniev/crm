@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-196 Импорт клиентов из XLSX через настройки
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-196-xlsx-client-import.md
+- source_task: /backlog/done/2026-11-16/TASK-196-xlsx-client-import.md
 - requirements: REQ-CLI-010 (implements); REQ-BRN-002 (changes); REQ-USR-001 (changes); REQ-CLI-001 (constrains); REQ-CLI-003 (constrains); REQ-CLI-005 (constrains); REQ-CLI-006 (constrains); REQ-BRN-001 (constrains); REQ-AUD-001 (constrains); REQ-GRP-002 (changes); REQ-GRP-004 (constrains); REQ-SUB-010 (changes); REQ-CLI-007 (changes)
 - branch: codex/TASK-196-xlsx-client-import
 - revision: 2026-11-15 — новый веб-план после изменения точки входа и ролей
@@ -23,7 +23,7 @@ SA выбирает филиал, Admin работает в своём, HeadCoac
 
 ## Decisions and contracts
 - Mapping десяти столбцов, телефоны, V/Д/(Д)/(д), заметка и неоднозначные ФИО:
-  [TASK-196, Field mapping](/backlog/implementation/TASK-196-xlsx-client-import.md#field-mapping)
+  [TASK-196, Field mapping](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.md#field-mapping)
   и [REQ-CLI-010](/docs/requirements/01-клиенты.md). Эти решения не открываются заново.
 - Один backend import use case; браузер передаёт файл и параметры, не разбирает
   строки и не дублирует CRM-validation. Создаются новые карточки без dedup/merge;
@@ -44,7 +44,7 @@ SA выбирает филиал, Admin работает в своём, HeadCoac
 - Дополнительные date fixes и retained-data strategy: [ADR-0006](/docs/architecture/adr/0006-trainer-assignment-period-boundaries.md), принятый владельцем 2026-11-16.
 
 ## Decision evidence
-- product: [Product revision и Access revision TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md#product-revision--2026-11-15) — owner: пользователь, владелец продукта; decision: Settings → Import, XLSX и отдельное название группы; SA выбирает филиал, Admin только своего филиала, HeadCoach/Coach запрещены; mapping и атомарность сохранены.
+- product: [Product revision и Access revision TASK-196](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.md#product-revision--2026-11-15) — owner: пользователь, владелец продукта; decision: Settings → Import, XLSX и отдельное название группы; SA выбирает филиал, Admin только своего филиала, HeadCoach/Coach запрещены; mapping и атомарность сохранены.
 - technical-review: [повторный review](/backlog/logs/TASK-196-technical-review-2026-11-15.md#повторный-review-нового-плана--2026-11-15) — owner: Codex и отдельный read-only reviewer; outcome: общий writer без commit, повторная проверка group identity под locks, runtime-валидация ответа и точный путь сверки аудита; не является approval.
 - technical: [ADR-0005, Approval](/docs/architecture/adr/0005-settings-xlsx-client-import.md#approval) — owner: пользователь, владелец проекта; decision: «принимаю предложенное техническое решение», 2026-11-15; приняты backend batch/ImportClients/session scope, multipart, профиль XLSX, общий writer и одна транзакция с audit, group identity, runtime-валидация ответа и recovery без replay с описанными ограничениями навигации.
 - visual: [Выбор владельца](/backlog/mockups/TASK-196-settings-import/README.md#выбор-владельца) — owner: пользователь, владелец продукта; decision: «выбираю вариант А», 2026-11-15; выбрана единая форма и зафиксирован её UI-контракт без изменений. Выбор не является принятием ADR-0005.
@@ -253,3 +253,8 @@ constraints и projection → clean/retained/conflict/Down PostgreSQL migration
 checks → affected schedule/staffing/transfer/Bot regressions → полный harness.
 Производственный deployment остаётся вне scope. Откат и остановка на конфликте
 retained данных определены ADR-0006; новых выборов во время исполнения нет.
+
+## Completion
+- completed_at: 2026-11-16
+- completion_date_evidence: candidate `58aa3e59a3a2dc89c708fb15ff986c1840036b36` integrated into local main; [verification](TASK-196-evidence/verification.md)
+- status: done

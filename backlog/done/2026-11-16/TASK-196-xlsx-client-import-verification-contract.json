@@ -7,7 +7,7 @@
     "frontend",
     "bot"
   ],
-  "manual_evidence": "backlog/implementation/TASK-196-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-11-16/TASK-196-manual-evidence.json",
   "playwright": [
     {
       "id": "frontend.e2e.client-import",

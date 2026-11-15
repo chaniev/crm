@@ -1,8 +1,8 @@
 # TASK-196 — варианты вкладки импорта и контракт взаимодействия
 
 Дата: 2026-11-15. Статус: **выбран вариант A — единая форма**.
-Связь: [задача](/backlog/implementation/TASK-196-xlsx-client-import.md),
-[план](/backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md),
+Связь: [задача](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.md),
+[план](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.plan.md),
 [ADR-0005](/docs/architecture/adr/0005-settings-xlsx-client-import.md).
 
 ## UX contract

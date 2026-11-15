@@ -11,8 +11,8 @@
 - REQ-CLI-001, REQ-CLI-003, REQ-CLI-005, REQ-CLI-006 — constrains, реестр клиентов.
 - REQ-BRN-001, [REQ-AUD-001](/docs/requirements/06-аудит.md) — constrains.
 - [REQ-USR-001](/docs/requirements/05-пользователи-и-роли.md) — changes.
-- [TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md),
-  [план](/backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md).
+- [TASK-196](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.md),
+  [план](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.plan.md).
 
 ## Контекст
 
@@ -270,5 +270,5 @@ scope, multipart с явными groupName/branchId, профиль XLSX и ли
 без commit, одна транзакция файла с audit, проверка group identity под locks,
 runtime-валидация ответа и ручная сверка неизвестного исхода без replay.
 Приняты описанные ограничения навигации и восстановления, schema changes не нужны.
-[Запись решения в TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md#web-technical-approval--2026-11-15).
+[Запись решения в TASK-196](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.md#web-technical-approval--2026-11-15).
 Это принятие нового веб-контракта; историческое CLI-решение остаётся заменённым.

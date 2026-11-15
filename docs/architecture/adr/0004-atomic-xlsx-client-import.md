@@ -15,8 +15,8 @@ ADR-0005 принят владельцем 2026-11-15; прежний CLI-кон
 - [REQ-BRN-001](/docs/requirements/09-филиалы-и-настройки.md),
   [REQ-USR-001](/docs/requirements/05-пользователи-и-роли.md),
   [REQ-AUD-001](/docs/requirements/06-аудит.md) — constrains.
-- [TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md),
-  [план](/backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md).
+- [TASK-196](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.md),
+  [план](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.plan.md).
 
 ## Контекст
 
@@ -196,6 +196,6 @@ CLI cookie/CSRF/no-retry. Конкретные сценарии находятс
 Accepted (пользователь, владелец проекта, 2026-11-15).
 Прямой ответ владельца на вопрос о принятии описанного технического решения:
 «Принять техническое решение ADR-0004».
-[Запись решения в TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md#technical-approval--2026-11-15).
+[Запись решения в TASK-196](/backlog/done/2026-11-16/TASK-196-xlsx-client-import.md#technical-approval--2026-11-15).
 Приняты вариант B, auth/transaction, профиль файла и лимиты, аудит корреляции
 и сверка неопределённого исхода без автоматического повторения.
