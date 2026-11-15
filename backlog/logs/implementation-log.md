@@ -2009,3 +2009,31 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - canonical evidence: task worktree `.artifacts/verification/TASK-194-full-baseline.json` and `.artifacts/verification/TASK-194-final-backend.json`.
 - base drift: main/origin/main advanced from 59765b7 to addc759 through TASK-193 harness/docs changes; no production code overlap, task base preserved.
 - lifecycle: locally ready in codex/TASK-194-backend-maintenance; task/plan remain implementation pending integration; no persistent runtime stack.
+
+# 2026-11-15 22:40 MSK
+- moved: none
+- planned_in_place: TASK-196
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
+- review: /backlog/logs/TASK-196-technical-review-2026-11-15.md — read-only review прав, аудита, transaction и recovery завершён; принятие владельцем ADR-0004 ещё требуется
+- source_evidence: /backlog/logs/TASK-196-source-review-2026-11-15.md — все 114 строк проверены; 6 отсутствующих телефонов и 4 неоднозначных ФИО, включая дополнительно A6/A46 второго файла; исходники не изменены
+- architecture: /docs/architecture/adr/0004-atomic-xlsx-client-import.md — Proposed, рекомендованы authenticated backend batch + CLI и одна транзакция файла
+- readiness: no — задача остаётся risky до решения владельца по ADR-0004; product approval не запрашивается заново
+- validation: knowledge harness PASS, 4 checks; explicit executable preflight ожидаемо отклоняет draft; links, duplicate check и git diff --check PASS
+- evidence: .artifacts/verification/TASK-196-planning.json
+- scope: planning/review/ADR artifacts; project code, БД и реальные импорты не выполнялись; task branch/worktree не создавались
+
+# 2026-11-15 22:47 MSK
+- moved: TASK-196 — risky → tasks-ready → implementation после закрытия решений и PASS readiness preflight
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
+- technical_decision: пользователь «Принять техническое решение ADR-0004»; ADR-0004 Accepted, required review закрыт
+- product_decision: пользователь «V Д - не удаляй», затем «Оставлять в ФИО как в исходном файле»; V/Д/(Д) сохраняются в ФИО на исходных местах, не в заметке
+- requirements: REQ-CLI-010 и CHANGELOG синхронизированы; прежнее удаление этих пометок заменено, остальные правила сохранены; реализация не начата
+- source_evidence: повторно проверены 114 ФИО, сохранённые маркеры укладываются в лимиты; в source review добавлено уточнение без переписывания прежних результатов
+- readiness: yes; open_questions: none; preflight до переноса PASS
+- historical_paths: /backlog/risky/TASK-196-xlsx-client-import.md теперь соответствует /backlog/implementation/TASK-196-xlsx-client-import.md; старые triage/planning logs сохранены
+- scope: planning/REQ/ADR/evidence; application code, исходные XLSX, БД и стенд не менялись, task branch/worktree не создавались
+- validation: explicit readiness preflight после переноса PASS; knowledge harness 4/4 PASS, current artifact links/unique task-plan/status-directory и git diff --check PASS
+- evidence: .artifacts/verification/TASK-196-plan-ready.json; приложение не запускалось для изменений документации

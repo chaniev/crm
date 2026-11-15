@@ -46,3 +46,4 @@ ADR.
 - [ADR-0002: Backend-контракт действий и scope филиалов и залов](0002-branch-settings-action-contract.md) — Superseded by ADR-0003
 
 - [ADR-0003: Авторизация клиентских данных по текущему филиалу администратора](0003-administrator-client-branch-scope.md) — Accepted (пользователь, владелец продукта, 2026-10-24)
+- [ADR-0004: Атомарный импорт XLSX через backend и разовую CLI](0004-atomic-xlsx-client-import.md) — Accepted (пользователь, владелец проекта, 2026-11-15)
