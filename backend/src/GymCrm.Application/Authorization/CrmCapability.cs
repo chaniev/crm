@@ -13,5 +13,6 @@ public enum CrmCapability
     MarkAttendance = 9,
     ViewClientMessenger = 10,
     CreateClientMessengerLink = 11,
-    ReplyClientMessenger = 12
+    ReplyClientMessenger = 12,
+    ImportClients = 13
 }

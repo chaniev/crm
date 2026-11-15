@@ -36,21 +36,24 @@ export default defineConfig({
     },
     {
       name: 'iphone-air-webkit',
-      testMatch: /(?:administrator-client-branch-access|iphone-target-devices|reduced-motion|attendance-today-worklist|group-schedule-workflow|branch-hall-creation)\.spec\.ts/,
+      testMatch: /(?:settings-client-import|settings-group-types|route-access-feedback|administrator-client-branch-access|iphone-target-devices|reduced-motion|attendance-today-worklist|group-schedule-workflow|branch-hall-creation)\.spec\.ts/,
       use: targetIphoneProfile(420, 912),
     },
     {
       name: 'iphone-17-pro-max-webkit',
-      testMatch: /(?:administrator-client-branch-access|iphone-target-devices|reduced-motion|attendance-today-worklist|group-schedule-workflow|branch-hall-creation)\.spec\.ts/,
+      testMatch: /(?:settings-client-import|settings-group-types|route-access-feedback|administrator-client-branch-access|iphone-target-devices|reduced-motion|attendance-today-worklist|group-schedule-workflow|branch-hall-creation)\.spec\.ts/,
       use: targetIphoneProfile(440, 956),
     },
   ],
   webServer: {
-    command: `npm run dev -- --host 127.0.0.1 --port ${e2ePort}`,
+    command: process.argv.some(value => value.includes('settings-client-import.spec.ts'))
+      ? 'node e2e/helpers/import-runtime.mjs'
+      : `npm run dev -- --host 127.0.0.1 --port ${e2ePort}`,
     port: e2ePort,
     reuseExistingServer: true,
     timeout: 120_000,
     env: {
+      E2E_PORT: String(e2ePort),
       VITE_API_PROXY_TARGET: process.env.E2E_API_PROXY_TARGET ?? 'http://127.0.0.1:8080',
     },
   },

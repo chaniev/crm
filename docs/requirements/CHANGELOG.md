@@ -1,5 +1,16 @@
 # Журнал изменения требований
 
+## 2026-11-16 — TASK-196 implementation candidate
+
+- REQ-CLI-010/BRN-002/USR-001: реализован атомарный XLSX-import в настройках,
+  backend capability/session scope, issues и recovery без replay; до интеграции частично.
+- По прямым решениям владельца включены два date-fix и принят ADR-0006 A:
+  REQ-CLI-007 использует единый business day, REQ-GRP-002/GRP-004 и SUB-010
+  согласуют включительный последний день тренера. Forward migration сохраняет
+  даты и останавливается при конфликтующей истории; deployment не выполняется.
+- Evidence: [TASK-196 verification](../../backlog/implementation/TASK-196-evidence/verification.md).
+
+
 ## 2026-11-15
 
 - REQ-CLI-010, REQ-BRN-002, REQ-USR-001 — последующее прямое уточнение в

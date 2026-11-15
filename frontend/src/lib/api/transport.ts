@@ -6,7 +6,7 @@ import {
   JSON_CONTENT_TYPE,
   apiBasePath,
 } from './endpoints'
-import { ApiError } from './errors'
+import { ApiError, type ClientImportIssue } from './errors'
 
 type ProblemPayload = {
   type?: string
@@ -15,6 +15,8 @@ type ProblemPayload = {
   code?: string
   errorCode?: string
   errors?: Record<string, string[]>
+  operationId?: unknown
+  issues?: unknown
   csrfToken?: string
 }
 
@@ -60,6 +62,8 @@ export async function request<T>(
       response.status,
       payload?.errors ?? {},
       payload?.code ?? payload?.errorCode ?? normalizeProblemType(payload?.type) ?? null,
+      typeof payload?.operationId === 'string' ? payload.operationId : null,
+      mapImportIssues(payload?.issues),
     )
   }
 
@@ -82,4 +86,11 @@ function isJsonContentType(contentType: string) {
     normalizedContentType === JSON_CONTENT_TYPE ||
     normalizedContentType?.endsWith('+json') === true
   )
+}
+
+function mapImportIssues(value: unknown): ClientImportIssue[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is ClientImportIssue => item !== null && typeof item === 'object' &&
+    (item.row === null || Number.isSafeInteger(item.row) && item.row > 0) &&
+    (item.field === null || typeof item.field === 'string') && typeof item.code === 'string' && typeof item.message === 'string')
 }

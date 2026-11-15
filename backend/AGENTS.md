@@ -34,6 +34,7 @@ frontend impact analysis and consumer validation:
 - `src/GymCrm.Api/**/*Contracts.cs`
 - `src/GymCrm.Api/**/*ProblemDetails*.cs`
 - `src/GymCrm.Api/**/*ValidationProblems*.cs`
+- `src/GymCrm.Application/Clients/**/*Contracts.cs`
 - `src/GymCrm.Application/Authorization/**/*Contracts.cs`
 - `src/GymCrm.Application/Messenger/**/*Contracts.cs`
 - `src/GymCrm.Application/Reports/**/*Contracts.cs`

@@ -17,6 +17,7 @@ public static class UserRoleAuthorizationPolicy
         return capability switch
         {
             CrmCapability.ManageUsers => permissions.CanManageUsers,
+            CrmCapability.ImportClients => role is UserRole.SuperAdministrator or UserRole.Administrator,
             CrmCapability.ManageClients => permissions.CanManageClients,
             CrmCapability.ViewClients => role is UserRole.HeadCoach or UserRole.SuperAdministrator or UserRole.Administrator or UserRole.Coach,
             CrmCapability.ViewClientPhotos => role is UserRole.HeadCoach or UserRole.SuperAdministrator or UserRole.Administrator or UserRole.Coach,

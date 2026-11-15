@@ -1378,6 +1378,41 @@ public class GroupsApiTests
         Assert.Equal("group_trainer_assignment_overlap", warning.GetProperty("code").GetString());
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task Removing_trainer_preserves_one_day_history_and_revokes_current_projection(int previousDays)
+    {
+        var today = new DateOnly(2035, 1, 2);
+        await using var factory = new GroupsAppFactory(useSqlite: true, businessDate: today);
+        var seeded = await SeedGroupsDataAsync(factory);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var assignment = await db.GroupTrainerAssignments.SingleAsync(a => a.GroupId == seeded.GroupOneId);
+            assignment.ValidFrom = today.AddDays(-previousDays);
+            await db.SaveChangesAsync();
+        }
+        using var client = factory.CreateClient();
+        var session = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
+        using var previewResponse = await PostJsonAsync(client, $"/groups/{seeded.GroupOneId}/trainer-assignments/preview", new { assignments = Array.Empty<object>() }, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var preview = await ReadJsonElementAsync(previewResponse);
+        using var response = await PostJsonAsync(client, $"/groups/{seeded.GroupOneId}/trainer-assignments", new
+        {
+            assignments = Array.Empty<object>(),
+            expectedRevision = preview.GetProperty("revision").GetString(),
+            confirmationToken = preview.GetProperty("confirmationToken").GetString()
+        }, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var verification = factory.Services.CreateScope();
+        var context = verification.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Empty(await context.GroupTrainers.Where(t => t.GroupId == seeded.GroupOneId).ToArrayAsync());
+        var periods = await context.GroupTrainerAssignments.Where(a => a.GroupId == seeded.GroupOneId).ToArrayAsync();
+        if (previousDays == 0) Assert.Empty(periods);
+        else { var period = Assert.Single(periods); Assert.Equal(today.AddDays(-1), period.ValidFrom); Assert.Equal(period.ValidFrom, period.ValidTo); }
+    }
+
     [Fact]
     public async Task Administrator_retains_coach_CRUD_after_last_assignment_and_execute_rechecks_branch_scope()
     {

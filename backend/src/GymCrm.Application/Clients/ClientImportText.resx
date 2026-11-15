@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="ActiveStatus">
+    <value>Активный</value>
+  </data>
+  <data name="CreatedDescription">
+    <value>Пользователь '{0}' создал клиента '{1}'.</value>
+  </data>
+  <data name="NoteDescription">
+    <value>Пользователь '{0}' изменил рабочую заметку клиента '{1}'.</value>
+  </data>
+  <data name="CompletedDescription">
+    <value>Импорт клиентов завершён.</value>
+  </data>
+  <data name="InvalidRequest">
+    <value>Проверьте файл, филиал и название группы.</value>
+  </data>
+  <data name="Forbidden">
+    <value>Импорт в выбранный филиал недоступен.</value>
+  </data>
+  <data name="GroupMissing">
+    <value>Группа не найдена или название неоднозначно в выбранном филиале.</value>
+  </data>
+  <data name="GroupChanged">
+    <value>Выбранная группа изменилась. Проверьте назначение импорта.</value>
+  </data>
+  <data name="BranchInvalid">
+    <value>Выберите существующий активный филиал.</value>
+  </data>
+  <data name="Sheet">
+    <value>Клиенты</value>
+  </data>
+  <data name="InvalidFile">
+    <value>Файл не соответствует формату импорта. Проверьте лист, заголовки, значения и ограничения файла.</value>
+  </data>
+  <data name="InvalidName">
+    <value>Исправьте неоднозначное ФИО в исходном файле.</value>
+  </data>
+  <data name="InvalidPhone">
+    <value>Укажите корректный номер телефона в исходном файле.</value>
+  </data>
+  <data name="InvalidBirthDate">
+    <value>Укажите дату в формате ДД.ММ.ГГГГ или оставьте ячейку пустой.</value>
+  </data>
+  <data name="InvalidStatus">
+    <value>Поддерживается статус «Активный».</value>
+  </data>
+  <data name="NotesTooLong">
+    <value>Заметка не должна превышать 2000 символов.</value>
+  </data>
+  <data name="AdditionalPhones">
+    <value>Дополнительные телефоны</value>
+  </data>
+  <data name="SourceBalance">
+    <value>Баланс из исходного файла</value>
+  </data>
+  <data name="Header0">
+    <value>Имя</value>
+  </data>
+  <data name="Header1">
+    <value>Телефон</value>
+  </data>
+  <data name="Header2">
+    <value>Комментарий к телефону</value>
+  </data>
+  <data name="Header3">
+    <value>Email</value>
+  </data>
+  <data name="Header4">
+    <value>Дата рождения</value>
+  </data>
+  <data name="Header5">
+    <value>Пол</value>
+  </data>
+  <data name="Header6">
+    <value>Адрес</value>
+  </data>
+  <data name="Header7">
+    <value>Статус</value>
+  </data>
+  <data name="Header8">
+    <value>Баланс</value>
+  </data>
+  <data name="Header9">
+    <value>Комментарий</value>
+  </data>
+  <data name="PhoneRequired">
+    <value>Укажите номер телефона.</value>
+  </data>
+  <data name="PhoneTooLong">
+    <value>Номер телефона не должен превышать 32 символа.</value>
+  </data>
+  <data name="LastNameTooLong">
+    <value>Фамилия не должна превышать 128 символов.</value>
+  </data>
+  <data name="FirstNameTooLong">
+    <value>Имя не должно превышать 128 символов.</value>
+  </data>
+  <data name="MiddleNameTooLong">
+    <value>Отчество не должно превышать 128 символов.</value>
+  </data>
+  <data name="FullNameRequired">
+    <value>Укажите хотя бы одно из полей фамилии, имени или отчества.</value>
+  </data>
+  <data name="AmbiguousNameToken">
+    <value>год</value>
+  </data>
+</root>

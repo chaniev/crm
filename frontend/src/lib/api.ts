@@ -296,3 +296,8 @@ export {
 } from './api/reports'
 
 export { BRANCH_SETTINGS_ACTIONS } from './api/types'
+
+export { importClients } from './api/clientImport'
+export type { ClientImportInput, ClientImportResponse } from './api/clientImport'
+export type { ClientImportScope } from './api/types'
+export type { ClientImportIssue } from './api/errors'

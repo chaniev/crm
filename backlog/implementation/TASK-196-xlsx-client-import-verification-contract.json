@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "task_id": "TASK-196",
+  "expected_branch": "codex/TASK-196-xlsx-client-import",
+  "areas": [
+    "backend",
+    "frontend",
+    "bot"
+  ],
+  "manual_evidence": "backlog/implementation/TASK-196-manual-evidence.json",
+  "playwright": [
+    {
+      "id": "frontend.e2e.client-import",
+      "spec": "e2e/settings-client-import.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.settings-regression",
+      "spec": "e2e/settings-group-types.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 600
+    },
+    {
+      "id": "frontend.e2e.audit-access",
+      "spec": "e2e/route-access-feedback.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.e2e.transfer-regression",
+      "spec": "e2e/administrator-client-branch-access.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.e2e.staffing-regression",
+      "spec": "e2e/group-schedule-workflow.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.import-design",
+      "description": "Compare rendered import ready/errors/unknown/dialog against selected A at desktop/mobile and record device limitations."
+    }
+  ]
+}

@@ -12,7 +12,7 @@ internal sealed class GroupTrainerAssignmentConfiguration : IEntityTypeConfigura
     {
         builder.ToTable(table => table.HasCheckConstraint(
             "CK_GroupTrainerAssignments_Period_NonEmpty",
-            "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\""));
+            "\"ValidTo\" IS NULL OR \"ValidTo\" >= \"ValidFrom\""));
 
         builder.HasKey(assignment => assignment.Id);
 

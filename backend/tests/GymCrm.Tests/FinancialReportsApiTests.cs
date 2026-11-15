@@ -20,6 +20,30 @@ namespace GymCrm.Tests;
 public class FinancialReportsApiTests
 {
     [Fact]
+    public async Task Trainer_attribution_includes_last_day_and_one_day_assignment()
+    {
+        await using var factory = new FinancialReportsAppFactory();
+        var seeded = await SeedReportDataAsync(factory);
+        var date = new DateOnly(2026, 5, 14);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.GroupTrainerAssignments.RemoveRange(await db.GroupTrainerAssignments.ToArrayAsync());
+            db.GroupTrainerAssignments.Add(new GroupTrainerAssignment { Id = Guid.NewGuid(), GroupId = seeded.GroupAId, TrainerId = seeded.CoachOneId, ValidFrom = date, ValidTo = date, CreatedByUserId = seeded.HeadCoachId, CreatedAt = DateTimeOffset.UtcNow });
+            var client = CreateClient(seeded.BranchAId, "Boundary", DateTimeOffset.UtcNow);
+            db.Clients.Add(client);
+            AddSale(db, client.Id, date, 999m, seeded.HeadCoachId, DateTimeOffset.UtcNow, seeded.BranchAId, seeded.GroupAId);
+            await db.SaveChangesAsync();
+        }
+        using var http = factory.CreateClient();
+        _ = await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
+        using var response = await http.GetAsync($"/reports/financial?periodPreset=custom&from=2026-05-14&to=2026-05-14&trainerId={seeded.CoachOneId}");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.True(payload.GetProperty("totals").GetProperty("grossSales").GetDecimal() >= 999m);
+    }
+
+    [Fact]
     public async Task HeadCoach_can_read_month_report_with_sales_refunds_attribution_and_breakdowns()
     {
         await using var factory = new FinancialReportsAppFactory();

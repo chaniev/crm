@@ -12,7 +12,7 @@ implementation
 - planning_origin: /backlog/risky
 - implementation_plan: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
 - implementation_branch: codex/TASK-196-xlsx-client-import
-- execution_started: no — обновляются только требования и планирование
+- execution_started: yes — 2026-11-15, по запросу владельца «реализуй план task-196»
 - replanned_at: 2026-11-15 — новая редакция веб-плана, review и rendered варианты A/B/C
 - visual_direction_selected_at: 2026-11-15 — A, единая форма
 - technical_decision_accepted_at: 2026-11-15 23:44 MSK — ADR-0005
@@ -27,6 +27,10 @@ implementation
 - REQ-BRN-001 — constrains
 - REQ-USR-001 — changes
 - REQ-AUD-001 — constrains
+- REQ-GRP-002 — changes
+- REQ-GRP-004 — constrains
+- REQ-SUB-010 — changes
+- REQ-CLI-007 — changes
 
 ## Goal
 Из «Настройки → Импорт» выбрать XLSX, указать название существующей группы
@@ -38,7 +42,7 @@ implementation
 REQ-CLI-010, REQ-BRN-002 и REQ-USR-001 отражают принятую целевую редакцию. Прочие правила
 переноса сохранены; владелец выбрал вариант A и его визуальный/интерактивный
 контракт. ADR-0005 принят владельцем, решения для планирования закрыты.
-Реализация не начата. Анализ исходников от 15.11.2026 ниже
+Реализация выполняется в объявленной task-ветке. Анализ исходников от 15.11.2026 ниже
 сохраняет силу для состава данных, но не для старой точки входа.
 
 Оба файла содержат один лист `Клиенты` с одинаковыми заголовками A1:J1:
@@ -435,3 +439,11 @@ backend batch с ImportClients/session scope, явными groupName/branchId,
   Карточка перенесена из needs-clarification в risky: продуктовых вопросов
   нет, до реализации требуется review прав, аудита и сохранности записи
   и готовый план. Исходные XLSX не исправлялись, реализация не начиналась.
+
+## Execution revision — 2026-11-16
+Владелец разрешил включить оба прежних дефекта дат и завершить локальную интеграцию.
+При review обнаружен материальный конфликт включительной/исключительной границы
+истории тренеров. План временно non-ready до решения ADR-0006. Код импорта и
+результаты проверок сохранены, integration/done не объявлены.
+
+16.11.2026 — владелец явно принял A в ADR-0006; вопросы закрыты, задача возвращена в implementation до повторного preflight.

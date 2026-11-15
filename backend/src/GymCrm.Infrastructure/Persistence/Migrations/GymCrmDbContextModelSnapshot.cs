@@ -1191,7 +1191,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.ToTable("GroupTrainerAssignments", t =>
                         {
-                            t.HasCheckConstraint("CK_GroupTrainerAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+                            t.HasCheckConstraint("CK_GroupTrainerAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" >= \"ValidFrom\"");
                         });
                 });
 

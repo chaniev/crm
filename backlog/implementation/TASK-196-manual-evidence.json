@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-196",
+  "confirmations": [
+    {
+      "id": "manual.import-design",
+      "note": "Compared rendered ready/errors/unknown/dialog with selected A at desktop/mobile; retained screenshots and explicitly recorded native Safari/keyboard/device limitations.",
+      "artifacts": [
+        "backlog/implementation/TASK-196-evidence/verification.md"
+      ],
+      "actor": "coding-agent:TASK-196",
+      "performed_at": "2026-11-16T00:43:42+03:00"
+    }
+  ]
+}

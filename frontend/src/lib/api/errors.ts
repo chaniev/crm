@@ -2,9 +2,13 @@ import { DEFAULT_FIELD_ERROR_MESSAGE } from './endpoints'
 
 type FieldErrorAliases = Record<string, string>
 
+export type ClientImportIssue = { row: number | null; field: string | null; code: string; message: string }
+
 export class ApiError extends Error {
   status: number
   code: string | null
+  operationId: string | null
+  issues: ClientImportIssue[]
   fieldErrors: Record<string, string[]>
 
   constructor(
@@ -12,10 +16,14 @@ export class ApiError extends Error {
     status: number,
     fieldErrors: Record<string, string[]> = {},
     code: string | null = null,
+    operationId: string | null = null,
+    issues: ClientImportIssue[] = [],
   ) {
     super(message)
     this.name = 'ApiError'
     this.status = status
+    this.operationId = operationId
+    this.issues = issues
     this.code = code
     this.fieldErrors = fieldErrors
   }

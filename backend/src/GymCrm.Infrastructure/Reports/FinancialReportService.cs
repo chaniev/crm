@@ -208,7 +208,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             .Where(assignment =>
                 groupIds.Contains(assignment.GroupId) &&
                 assignment.ValidFrom <= to &&
-                (assignment.ValidTo == null || assignment.ValidTo > from))
+                (assignment.ValidTo == null || assignment.ValidTo >= from))
             .Select(assignment => new TrainerAssignmentProjection(
                 assignment.Id,
                 assignment.GroupId,
@@ -439,7 +439,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
 
     private static bool ContainsDate(DateOnly validFrom, DateOnly? validTo, DateOnly eventDate)
     {
-        return validFrom <= eventDate && (validTo is null || eventDate < validTo.Value);
+        return validFrom <= eventDate && (validTo is null || eventDate <= validTo.Value);
     }
 
     private static AttributionDateRange GetAttributionRange(IReadOnlyCollection<FinancialEventProjection> events)

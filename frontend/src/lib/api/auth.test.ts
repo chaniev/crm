@@ -209,3 +209,17 @@ function jsonResponse(payload: unknown) {
     headers: { 'content-type': 'application/json; charset=utf-8' },
   })
 }
+
+test.each([
+  [undefined, { kind: 'None', branchId: null }],
+  [{ kind: 'SelectBranch', branchId: null }, { kind: 'SelectBranch', branchId: null }],
+  [{ kind: 'OwnBranch', branchId: null }, { kind: 'OwnBranch', branchId: null }],
+  [{ kind: 'OwnBranch', branchId: 'bad' }, { kind: 'None', branchId: null }],
+  [{ kind: 'Future', branchId: null }, { kind: 'None', branchId: null }],
+  [{ kind: 'SelectBranch', branchId: 'unexpected' }, { kind: 'None', branchId: null }],
+])('import scope fails closed without role inference: %j', async (scope, expected) => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+    isAuthenticated: true, user: { role: 'SuperAdministrator', landingScreen: 'Settings', allowedSections: ['Settings'], clientImportScope: scope },
+  })))
+  expect((await loadSession()).user).toMatchObject({ clientImportScope: expected })
+})

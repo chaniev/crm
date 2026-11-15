@@ -341,7 +341,8 @@ internal static class AuthEndpoints
                 accessScope.AttendanceScope.GroupIds),
             accessScope.AssignedGroupIds,
             StaffManagementBoundary.GetCreateRoleOptions(user),
-            BranchSettingsActionPolicy.GetSurfaceActions(user));
+            BranchSettingsActionPolicy.GetSurfaceActions(user),
+            ClientImportScope.For(user));
     }
 
     private sealed record LoginRequest(string Login, string Password);
@@ -368,7 +369,8 @@ internal static class AuthEndpoints
         AttendanceScopeResponse AttendanceScope,
         IReadOnlyList<Guid> AssignedGroupIds,
         IReadOnlyList<string> CreateRoleOptions,
-        IReadOnlyList<string> BranchSettingsActions);
+        IReadOnlyList<string> BranchSettingsActions,
+        ClientImportScope ClientImportScope);
 
     private sealed record AttendanceScopeResponse(
         string Kind,

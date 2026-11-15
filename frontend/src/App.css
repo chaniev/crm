@@ -1091,6 +1091,10 @@
     padding-inline: 0.5rem;
   }
 
+  .settings-tabs .mantine-Tabs-tab:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
   .settings-tabs .mantine-Tabs-tabSection {
     display: none;
   }

@@ -1,5 +1,6 @@
 import {
   startTransition,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -68,6 +69,8 @@ import './App.css'
 import { fe1AppShellAuthText } from './resources/fe-1-app-shell-auth'
 
 
+import type { NavigationGuard } from './features/settings/useClientImport'
+
 export type AppProps = {
   appConfig: AppConfigResponse
   authBackground: AuthStageBackground
@@ -90,6 +93,9 @@ export function App({ appConfig, authBackground }: AppProps) {
     useState<PasswordReturnState | null>(null)
   const authenticatedUserBoundaryRef = useRef<string | null>(null)
   const routeAccessBoundaryRef = useRef<RouteAccessResolution | null>(null)
+  const settingsNavigationGuard = useRef<NavigationGuard | null>(null)
+  const registerSettingsNavigationGuard = useCallback((guard: NavigationGuard | null) => { settingsNavigationGuard.current = guard }, [])
+  const managedNavigation = (action: () => void) => { if (settingsNavigationGuard.current) settingsNavigationGuard.current(action); else action() }
   const displayedClubName = appConfig.clubName
 
   const routeAccess = useMemo(() => {
@@ -480,9 +486,9 @@ export function App({ appConfig, authBackground }: AppProps) {
       clubName={displayedClubName}
       currentSection={currentSection}
       logoutPending={logoutPending}
-      onLogout={handleLogout}
-      onNavigateSection={(section) => navigate({ kind: 'section', section })}
-      onOpenPassword={openUtilityPassword}
+      onLogout={async () => managedNavigation(() => { void handleLogout() })}
+      onNavigateSection={(section) => section === 'Settings' ? navigate({ kind: 'section', section }) : managedNavigation(() => navigate({ kind: 'section', section }))}
+      onOpenPassword={() => managedNavigation(openUtilityPassword)}
       mainLabel={mainLabel}
       user={authenticatedUser}
     >
@@ -505,6 +511,7 @@ export function App({ appConfig, authBackground }: AppProps) {
         />
       ) : (
         <RouteViewport
+          onSettingsNavigationGuardChange={registerSettingsNavigationGuard}
           onCreateClient={() => navigate({ kind: 'clientCreate' })}
           onEditClient={editClient}
           onOpenClient={openClientDetails}

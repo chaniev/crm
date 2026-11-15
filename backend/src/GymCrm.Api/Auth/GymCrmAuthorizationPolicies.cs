@@ -6,6 +6,7 @@ namespace GymCrm.Api.Auth;
 internal static class GymCrmAuthorizationPolicies
 {
     public const string ManageUsers = "gym-crm.manage-users";
+    public const string ImportClients = "gym-crm.import-clients";
     public const string ManageClients = "gym-crm.manage-clients";
     public const string ViewClients = "gym-crm.view-clients";
     public const string ViewClientPhotos = "gym-crm.view-client-photos";
@@ -23,6 +24,8 @@ internal static class GymCrmAuthorizationPolicies
         options.AddPolicy(
             ManageUsers,
             policy => policy.RequireRole(GetRoleNames(CrmCapability.ManageUsers)));
+
+        options.AddPolicy(ImportClients, policy => policy.RequireRole(GetRoleNames(CrmCapability.ImportClients)));
 
         options.AddPolicy(
             ManageClients,

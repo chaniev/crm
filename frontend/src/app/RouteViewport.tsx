@@ -46,7 +46,10 @@ import { RestrictedState } from '../features/shared/RestrictedState'
 import { fe1AppShellAuthText } from '../resources/fe-1-app-shell-auth'
 
 
+import type { NavigationGuardRegistration } from '../features/settings/useClientImport'
+
 type RouteViewportProps = {
+  onSettingsNavigationGuardChange?: NavigationGuardRegistration
   route: Exclude<AppRoute, { kind: 'password' }>
   user: AuthenticatedUser
   currentUserId: string
@@ -91,6 +94,7 @@ type RouteViewportProps = {
 }
 
 export function RouteViewport({
+  onSettingsNavigationGuardChange,
   route,
   user,
   currentUserId,
@@ -355,7 +359,7 @@ export function RouteViewport({
   }
 
   if (route.section === 'Settings') {
-    return <SettingsScreen user={user} />
+    return <SettingsScreen onNavigationGuardChange={onSettingsNavigationGuardChange} user={user} />
   }
 
   if (route.section === 'Attendance') {

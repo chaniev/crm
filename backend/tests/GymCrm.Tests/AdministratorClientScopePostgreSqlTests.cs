@@ -513,15 +513,22 @@ public sealed class AdministratorClientScopePostgreSqlTests
         Assert.Empty(await db.ClientMembershipIdempotencyRecords.ToArrayAsync());
     }
 
-    [Fact]
-    public async Task Transfer_and_completed_replay_are_empty_and_keep_one_assignment_transition_without_sales()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Transfer_and_completed_replay_are_empty_and_keep_one_assignment_transition_without_sales(bool fixedBusinessDay)
     {
         await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
         await postgres.StartAsync();
-        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString());
+        var calendar = new TransferBusinessDate();
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString(), configureServices: services =>
+        {
+            if (fixedBusinessDay) services.AddSingleton<IBusinessDateProvider>(calendar);
+        });
         await factory.SeedAsync();
         var (clientId, _) = await SeedClientAsync(factory);
         var (admin, token) = await factory.LoginAsync(UserRole.Administrator);
+        calendar.Advance = fixedBusinessDay;
         using (admin)
         {
             foreach (var key in new[] { "completed-transfer", "completed-transfer", "new-transfer" })
@@ -534,6 +541,8 @@ public sealed class AdministratorClientScopePostgreSqlTests
         using var verification = factory.Services.CreateScope();
         var db = verification.ServiceProvider.GetRequiredService<GymCrmDbContext>();
         Assert.Equal(2, await db.ClientBranchAssignments.CountAsync());
+        var periods = await db.ClientBranchAssignments.OrderBy(a => a.ValidFrom).ToArrayAsync();
+        Assert.Equal(periods[0].ValidTo, periods[1].ValidFrom);
         Assert.Equal(1, await db.ClientBranchAssignments.CountAsync(assignment => assignment.ValidTo == null));
         Assert.Equal(1, await db.AuditLogs.CountAsync(log => log.ActionType == "ClientTransferred"));
         Assert.Equal("Completed", Assert.Single(await db.ClientMembershipIdempotencyRecords.ToArrayAsync()).Status);
@@ -827,4 +836,11 @@ public sealed class AdministratorClientScopePostgreSqlTests
             return Task.CompletedTask;
         }
     }
+}
+
+internal sealed class TransferBusinessDate : IBusinessDateProvider
+{
+    public bool Advance { get; set; }
+    private int reads;
+    public DateOnly Today => new DateOnly(2035, 1, 2).AddDays(Advance ? reads++ : 0);
 }

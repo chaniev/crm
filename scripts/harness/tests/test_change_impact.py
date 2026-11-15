@@ -45,6 +45,12 @@ class ChangeImpactTests(unittest.TestCase):
             {"requirements", "backend", "frontend"},
         )
 
+    def test_application_client_import_contract_adds_frontend_consumer(self) -> None:
+        self.assert_areas(
+            ["backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs"],
+            {"requirements", "backend", "frontend"},
+        )
+
     def test_application_report_contract_adds_frontend_consumer(self) -> None:
         self.assert_areas(
             ["backend/src/GymCrm.Application/Reports/FinancialReportContracts.cs"],

@@ -45,6 +45,9 @@ public static class DependencyInjection
 
         services.AddScoped<IPasswordHashService, PasswordHashService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IClientCreationWriter, ClientCreationWriter>();
+        services.AddScoped<IClientXlsxReader, ClientXlsxReader>();
+        services.AddScoped<IClientImportService, ClientImportService>();
         services.AddScoped<IEffectiveGroupAssignmentService, EffectiveGroupAssignmentService>();
         services.AddScoped<IAccessScopeService, AccessScopeService>();
         services.AddScoped<IAdministratorAttendanceGroupGrantService, AdministratorAttendanceGroupGrantService>();

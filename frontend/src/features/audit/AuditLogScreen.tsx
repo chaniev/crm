@@ -1,3 +1,4 @@
+import { clientImportText } from '../../resources/client-import'
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 import {
   Badge,
@@ -687,6 +688,7 @@ function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
             </Group>
           </Stack>
 
+          {entry.actionType === 'ClientImportCompleted' && importCount(entry.newValueJson) !== null && <Text>{clientImportText.success(importCount(entry.newValueJson)!)}</Text>}
           <SimpleGrid cols={{ base: 1, md: 2 }}>
             <JsonPanel
               emptyLabel={fe16AuditText.auditLogScreen_emptyLabel_7ec59469}
@@ -1020,4 +1022,10 @@ function formatJsonForDisplay(value: AuditLogEntry['oldValueJson']) {
   } catch {
     return String(value)
   }
+}
+
+function importCount(value: unknown): number | null {
+  if (value && typeof value === 'object' && 'createdCount' in value && Number.isSafeInteger(value.createdCount) && (value.createdCount as number) > 0)
+    return value.createdCount as number
+  return null
 }

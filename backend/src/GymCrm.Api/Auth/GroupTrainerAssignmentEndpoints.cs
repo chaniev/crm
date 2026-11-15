@@ -509,20 +509,14 @@ internal static class GroupTrainerAssignmentEndpoints
             });
         }
 
-        var activeTodayTrainerIds = (await dbContext.GroupTrainerAssignments
-                .AsNoTracking()
-                .Where(assignment =>
-                    assignment.GroupId == group.Id &&
-                    assignment.ValidFrom <= today &&
-                    (assignment.ValidTo == null || assignment.ValidTo >= today))
-                .Select(assignment => assignment.TrainerId)
-                .ToArrayAsync(cancellationToken))
-            .Concat(requestedAssignments
-                .Where(assignment =>
-                    assignment.ValidFrom <= today &&
-                    (assignment.ValidTo is null || assignment.ValidTo >= today))
-                .Select(assignment => assignment.TrainerId))
-            .Distinct()
+        // Loaded periods are tracked; include their pending changes and new rows,
+        // never the stale database projection before the enclosing atomic save.
+        var activeTodayTrainerIds = dbContext.ChangeTracker.Entries<GroupTrainerAssignment>()
+            .Where(entry => entry.State != EntityState.Deleted)
+            .Select(entry => entry.Entity)
+            .Where(assignment => assignment.GroupId == group.Id && assignment.ValidFrom <= today &&
+                (assignment.ValidTo is null || assignment.ValidTo >= today))
+            .Select(assignment => assignment.TrainerId)
             .ToHashSet();
 
         foreach (var trainer in group.Trainers.ToArray())

@@ -99,6 +99,7 @@ function mapAuthenticatedUser(payload: unknown): AuthenticatedUser | null {
       role,
       assignedGroupIds,
     ),
+    clientImportScope: mapClientImportScope(payload.clientImportScope ?? payload.ClientImportScope),
     branchId: readString(payload, ['branchId', 'BranchId']) ?? null,
     createRoleOptions: mapUserRoles(payload.createRoleOptions ?? payload.CreateRoleOptions),
     branchSettingsActions: mapStringArray(payload.branchSettingsActions ?? payload.BranchSettingsActions)
@@ -201,4 +202,14 @@ function mapStringArray(payload: unknown) {
   }
 
   return payload.filter((item): item is string => typeof item === 'string')
+}
+
+function mapClientImportScope(payload: unknown): import('./types').ClientImportScope {
+  const none = { kind: 'None', branchId: null } as const
+  if (!isRecord(payload)) return none
+  const kind = payload.kind ?? payload.Kind
+  const branchId = 'branchId' in payload ? payload.branchId : payload.BranchId
+  if (kind === 'None' && branchId === null || kind === 'SelectBranch' && branchId === null) return { kind, branchId }
+  if (kind === 'OwnBranch' && (branchId === null || typeof branchId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(branchId) && !/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(branchId))) return { kind, branchId }
+  return none
 }

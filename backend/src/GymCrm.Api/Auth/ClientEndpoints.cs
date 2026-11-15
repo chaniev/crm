@@ -8,6 +8,7 @@ internal static class ClientEndpoints
 
         group.MapClientQueryEndpoints();
         group.MapClientLifecycleEndpoints();
+        group.MapClientImportEndpoints();
         group.MapClientMembershipEndpoints();
 
         return endpoints;

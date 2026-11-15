@@ -26,32 +26,8 @@ internal static class ClientLifecycleRequestValidation
         CancellationToken cancellationToken,
         Guid? currentBranchId = null)
     {
-        var errors = new Dictionary<string, string[]>();
-
-        if (string.IsNullOrWhiteSpace(request.Phone))
-        {
-            errors["phone"] = [ClientResources.PhoneRequired];
-        }
-        else if (request.Phone.Length > 32)
-        {
-            errors["phone"] = [ClientResources.PhoneTooLong];
-        }
-
-        if (request.Notes is not null && request.Notes.Length > ClientApiConstants.NotesMaxLength)
-        {
-            errors["notes"] = [ClientResources.NotesTooLong];
-        }
-
-        ValidateNamePart(request.LastName, "lastName", ClientResources.LastNameTooLong, errors);
-        ValidateNamePart(request.FirstName, "firstName", ClientResources.FirstNameTooLong, errors);
-        ValidateNamePart(request.MiddleName, "middleName", ClientResources.MiddleNameTooLong, errors);
-
-        if (string.IsNullOrWhiteSpace(request.LastName) &&
-            string.IsNullOrWhiteSpace(request.FirstName) &&
-            string.IsNullOrWhiteSpace(request.MiddleName))
-        {
-            errors["fullName"] = [ClientResources.FullNameRequired];
-        }
+        var errors = GymCrm.Application.Clients.ClientCreationValidation.Validate(
+            request.LastName, request.FirstName, request.MiddleName, request.Phone, request.Notes);
 
         await ValidateClientBranchAsync(request.BranchId, currentBranchId, errors, dbContext, cancellationToken);
 
@@ -332,11 +308,11 @@ internal static class ClientLifecycleRequestValidation
         IReadOnlyList<Guid> requestedGroupIds,
         Guid changedByUserId,
         DateTimeOffset now,
+        DateOnly today,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
         var requested = requestedGroupIds.ToHashSet();
-        var today = DateOnly.FromDateTime(now.UtcDateTime.Date);
 
         var existingGroups = await dbContext.ClientGroups
             .Where(clientGroup => clientGroup.ClientId == clientId)
@@ -401,6 +377,7 @@ internal static class ClientLifecycleRequestValidation
         Guid branchId,
         Guid changedByUserId,
         DateTimeOffset now,
+        DateOnly today,
         GymCrmDbContext dbContext)
     {
         dbContext.ClientBranchAssignments.Add(new ClientBranchAssignment
@@ -408,7 +385,7 @@ internal static class ClientLifecycleRequestValidation
             Id = Guid.NewGuid(),
             ClientId = clientId,
             BranchId = branchId,
-            ValidFrom = DateOnly.FromDateTime(now.UtcDateTime.Date),
+            ValidFrom = today,
             CreatedByUserId = changedByUserId,
             CreatedAt = now
         });
@@ -417,10 +394,10 @@ internal static class ClientLifecycleRequestValidation
     internal static async Task CloseActiveBranchAssignmentsAsync(
         Guid clientId,
         DateTimeOffset now,
+        DateOnly today,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(now.UtcDateTime.Date);
         var activeAssignments = await dbContext.ClientBranchAssignments
             .Where(assignment => assignment.ClientId == clientId && assignment.ValidTo == null)
             .ToArrayAsync(cancellationToken);

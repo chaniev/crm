@@ -26,7 +26,10 @@ export const BRANCH_SETTINGS_ACTIONS = [
 
 export type BranchSettingsAction = typeof BRANCH_SETTINGS_ACTIONS[number]
 
+export type ClientImportScope = { kind: 'None' | 'SelectBranch' | 'OwnBranch'; branchId: string | null }
+
 export type AuthenticatedUser = {
+  clientImportScope?: ClientImportScope
   id: string
   fullName: string
   login: string

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -54,15 +54,27 @@ import { MembershipCatalogSettings } from './MembershipCatalogSettings'
 import { fe10SettingsBranchesShellText } from '../../resources/fe-10-settings-branches-shell'
 
 
-type SettingsTab = 'catalog' | 'group-types' | 'branches' | 'administrators'
+import { ClientImportPanel, ImportOperationNumber } from './ClientImportPanel'
+import { useClientImport, type NavigationGuardRegistration } from './useClientImport'
+import { clientImportText } from '../../resources/client-import'
 
-export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
+type SettingsTab = 'catalog' | 'group-types' | 'branches' | 'administrators' | 'import'
+
+export function SettingsScreen({ user, onNavigationGuardChange }: { user: AuthenticatedUser; onNavigationGuardChange?: NavigationGuardRegistration }) {
+  const clientImport = useClientImport()
+  const stayButton = useRef<HTMLDivElement>(null)
+  const [leaveAction, setLeaveAction] = useState<(() => void) | null>(null)
+  const canImport = user.clientImportScope?.kind === 'SelectBranch' || user.clientImportScope?.kind === 'OwnBranch'
+  useEffect(() => {
+    onNavigationGuardChange?.(clientImport.uncertain ? action => setLeaveAction(() => action) : null)
+    return () => onNavigationGuardChange?.(null)
+  }, [clientImport.uncertain, onNavigationGuardChange])
   const isMobile = useMediaQuery('(max-width: 48em)')
   const [activeTab, setActiveTab] = useState<SettingsTab>('catalog')
   const canManageAdministrators = user.createRoleOptions?.includes('Administrator') === true
   const canManageGroupTypes = user.permissions.canManageSettings
   const canViewBranches = user.branchSettingsActions?.includes('View') === true
-  const visibleTab = activeTab === 'branches' && !canViewBranches ? 'catalog' : activeTab
+  const visibleTab = (activeTab === 'branches' && !canViewBranches || activeTab === 'import' && !canImport) ? 'catalog' : activeTab
 
   if (activeTab !== visibleTab) {
     setActiveTab(visibleTab)
@@ -70,6 +82,14 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
 
   return (
     <PageLayout data-testid="settings-screen" showHeader={false} title={fe10SettingsBranchesShellText.settingsScreen_title_985b5e0f}>
+      {!canImport && clientImport.state.kind !== 'ready' && <><Text>{clientImportText.revoked}</Text><ImportOperationNumber operationId={clientImport.state.operationId} /><Text>{user.permissions.canViewAuditLog ? clientImportText.audit : clientImportText.askAudit}</Text></>}
+      <Modal onEnterTransitionEnd={() => stayButton.current?.querySelector<HTMLButtonElement>('[data-import-stay]')?.focus()} opened={leaveAction !== null} onClose={() => setLeaveAction(null)} title={clientImportText.leaveTitle}>
+        <Stack ref={stayButton} gap="lg"><Text>{clientImportText.leaveWarning}</Text>
+          {clientImport.state.kind !== 'ready' && <ImportOperationNumber operationId={clientImport.state.operationId} />}
+          <Button data-import-stay data-autofocus onClick={() => setLeaveAction(null)}>{clientImportText.stay}</Button>
+          <Button variant="secondary" onClick={() => { const action = leaveAction; setLeaveAction(null); action?.() }}>{clientImportText.leave}</Button>
+        </Stack>
+      </Modal>
       <Tabs
         className="settings-tabs"
         keepMounted={false}
@@ -101,6 +121,7 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
               >
                 {fe10SettingsBranchesShellText.settingsScreen_jsxText_0a3fd3c7}</Tabs.Tab>
             ) : null}
+            {canImport && <Tabs.Tab value="import">{clientImportText.tab}</Tabs.Tab>}
           </Tabs.List>
         </PageSection>
 
@@ -130,6 +151,7 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
             }
           />
         </PageTabsPanel> : null}
+        {canImport && <PageTabsPanel value="import"><ClientImportPanel user={user} model={clientImport} /></PageTabsPanel>}
       </Tabs>
     </PageLayout>
   )

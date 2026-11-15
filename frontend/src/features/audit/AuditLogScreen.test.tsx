@@ -70,6 +70,17 @@ beforeEach(() => {
 })
 
 describe('AuditLogScreen', () => {
+  test('import summary keeps the full operation ID and readable count', async () => {
+    const operationId = '20000000-0000-4000-8000-000000000001'
+    getAuditLogEntriesMock.mockResolvedValue(buildAuditResponse({ items: [buildAuditEntry({ actionType: 'ClientImportCompleted', entityType: 'ClientImport', entityId: operationId, newValueJson: { operationId, createdCount: 48, clientIds: [] } })] }))
+    renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
+    fireEvent.click(await screen.findByTestId('audit-log-details-action'))
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog).toHaveTextContent('Импорт клиентов завершён')
+    expect(dialog).toHaveTextContent(operationId)
+    expect(dialog).toHaveTextContent('Создано 48 клиентов')
+  })
+
   test.each([['list', 401], ['list', 403], ['options', 401], ['options', 403]] as const)(
     '%s %s clears sensitive data immediately while session refresh is pending', async (endpoint, status) => {
       const denied = deferred<never>()

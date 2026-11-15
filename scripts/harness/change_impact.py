@@ -41,6 +41,7 @@ KNOWLEDGE_HARNESS_MODULES = {
 }
 
 STAFF_APPLICATION_CONTRACT_PREFIXES = (
+    "backend/src/GymCrm.Application/Clients/",
     "backend/src/GymCrm.Application/Authorization/",
     "backend/src/GymCrm.Application/Messenger/",
     "backend/src/GymCrm.Application/Reports/",

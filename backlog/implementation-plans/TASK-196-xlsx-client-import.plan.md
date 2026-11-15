@@ -2,13 +2,13 @@
 
 ## Metadata
 - source_task: /backlog/implementation/TASK-196-xlsx-client-import.md
-- requirements: REQ-CLI-010 (implements); REQ-BRN-002 (changes); REQ-USR-001 (changes); REQ-CLI-001 (constrains); REQ-CLI-003 (constrains); REQ-CLI-005 (constrains); REQ-CLI-006 (constrains); REQ-BRN-001 (constrains); REQ-AUD-001 (constrains)
+- requirements: REQ-CLI-010 (implements); REQ-BRN-002 (changes); REQ-USR-001 (changes); REQ-CLI-001 (constrains); REQ-CLI-003 (constrains); REQ-CLI-005 (constrains); REQ-CLI-006 (constrains); REQ-BRN-001 (constrains); REQ-AUD-001 (constrains); REQ-GRP-002 (changes); REQ-GRP-004 (constrains); REQ-SUB-010 (changes); REQ-CLI-007 (changes)
 - branch: codex/TASK-196-xlsx-client-import
 - revision: 2026-11-15 — новый веб-план после изменения точки входа и ролей
 - readiness: yes
 - product_decisions: accepted
 - technical_decisions: accepted
-- architecture_decisions: ADR-0003; ADR-0005
+- architecture_decisions: ADR-0003; ADR-0005; ADR-0006
 - open_questions: none
 - dependencies: none — client scope и audit transaction уже интегрированы
 - risk: high — массовая запись, отдельное import-разрешение, неизвестный исход после потери ответа
@@ -38,14 +38,18 @@ SA выбирает филиал, Admin работает в своём, HeadCoac
 - [UI brief и три rendered направления](/backlog/mockups/TASK-196-settings-import/README.md)
   содержат UX-анализ, состояния и responsive/focus/navigation/recovery контракт A.
   Владелец выбрал A — единую форму; B/C сохранены только как история сравнения.
-- Новые schema, очередь, status service, audit permission и runtime variables
-  не нужны. Откат приложения сохраняет уже импортированных клиентов и аудит.
+- Для исходного импорта schema, очередь, status service, audit permission и runtime variables
+  не нужны. Дополнительное исправление ADR-0006 добавляет trainer-only forward migration. Откат приложения сохраняет уже импортированных клиентов и аудит.
+
+- Дополнительные date fixes и retained-data strategy: [ADR-0006](/docs/architecture/adr/0006-trainer-assignment-period-boundaries.md), принятый владельцем 2026-11-16.
 
 ## Decision evidence
 - product: [Product revision и Access revision TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md#product-revision--2026-11-15) — owner: пользователь, владелец продукта; decision: Settings → Import, XLSX и отдельное название группы; SA выбирает филиал, Admin только своего филиала, HeadCoach/Coach запрещены; mapping и атомарность сохранены.
 - technical-review: [повторный review](/backlog/logs/TASK-196-technical-review-2026-11-15.md#повторный-review-нового-плана--2026-11-15) — owner: Codex и отдельный read-only reviewer; outcome: общий writer без commit, повторная проверка group identity под locks, runtime-валидация ответа и точный путь сверки аудита; не является approval.
 - technical: [ADR-0005, Approval](/docs/architecture/adr/0005-settings-xlsx-client-import.md#approval) — owner: пользователь, владелец проекта; decision: «принимаю предложенное техническое решение», 2026-11-15; приняты backend batch/ImportClients/session scope, multipart, профиль XLSX, общий writer и одна транзакция с audit, group identity, runtime-валидация ответа и recovery без replay с описанными ограничениями навигации.
 - visual: [Выбор владельца](/backlog/mockups/TASK-196-settings-import/README.md#выбор-владельца) — owner: пользователь, владелец продукта; decision: «выбираю вариант А», 2026-11-15; выбрана единая форма и зафиксирован её UI-контракт без изменений. Выбор не является принятием ADR-0005.
+
+- technical: [ADR-0006, Approval](/docs/architecture/adr/0006-trainer-assignment-period-boundaries.md#approval) — owner: пользователь, владелец проекта; decision: «Принять A: включительный последний день и безопасная проверка истории», 2026-11-16.
 
 ## Readiness closure
 Вся подготовка ниже выполнена до реализации: сверены текущие contracts/tests,
@@ -58,7 +62,7 @@ approval provenance записан в task/ADR/UI evidence. Подготовка
 ## Scope
 ### In
 - Backend capability/session scope, XLSX reader, mapping и атомарный import API.
-- Общий create writer без изменения edit/transfer/archive; стандартный и итоговый audit.
+- Общий create writer и audit; согласованный date-fix расширяет create/edit/transfer assignment day по ADR-0006.
 - Settings form, typed multipart/errors/success, navigation/recovery, audit labels.
 - Synthetic fixtures, authorization/HTTP/PG/component/Playwright regressions,
   операторская инструкция и evidence требований.
@@ -220,3 +224,32 @@ skip из-за отсутствия Docker не является проверк�
 - Формат вне принятого профиля/неоднозначность — явная ошибка без угадывания.
 - Separate commits, best-effort audit, частичный импорт и удаление записей
   при откате версии нарушают принятые контракты.
+
+## Execution scope revision — 2026-11-16
+Владелец в текущем чате явно решил: «Включить исправление обоих прежних
+дефектов дат и завершить объединение». Это разрешает исправление обнаруженных
+падений базовой ветки, но не выбирает представление периода или миграцию данных.
+
+После уточнения producer/consumer evidence выявлен конфликт: API, UI, календарь,
+посещения и Bot читают конец периода тренера включительно; ограничения БД и
+финансовые отчёты используют исключающую границу. Закрытие вчерашнего назначения
+создаёт `ValidFrom == ValidTo` и падает на реальной БД. Зависимая реализация
+приостановлена до принятия [ADR-0006](/docs/architecture/adr/0006-trainer-assignment-period-boundaries.md).
+Исходная реализация импорта сохранена в task-worktree; дополнительные project
+изменения до повторного readiness preflight запрещены.
+
+Второй дефект: клиентский transfer рассчитывает календарный день из UTC вместо
+существующего IBusinessDateProvider. После закрытия решения использовать единый
+business day для открытия/закрытия назначений клиента и общего create writer,
+сохраняя timestamps в UTC и текущие half-open интервалы клиентских назначений.
+
+### Revision closure — 2026-11-16
+Владелец явно принял ADR-0006, вариант A. Plan readiness восстановлена до
+дополнительного project code; выполнить preflight повторно.
+
+Дополнительный slice: red детерминированные client-date/one-day trainer/current
+access/financial last-day tests → business date helpers, inclusive trainer DB
+constraints и projection → clean/retained/conflict/Down PostgreSQL migration
+checks → affected schedule/staffing/transfer/Bot regressions → полный harness.
+Производственный deployment остаётся вне scope. Откат и остановка на конфликте
+retained данных определены ADR-0006; новых выборов во время исполнения нет.

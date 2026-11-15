@@ -36,8 +36,7 @@ internal static class ClientLifecycleEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        ILoggerFactory loggerFactory,
+        IClientCreationWriter creationWriter,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -84,54 +83,12 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.ValidationProblem(validationErrors);
         }
 
-        var now = DateTimeOffset.UtcNow;
-        var client = new Client
-        {
-            Id = Guid.NewGuid(),
-            BranchId = normalizedRequest.BranchId!.Value,
-            LastName = normalizedRequest.LastName,
-            FirstName = normalizedRequest.FirstName,
-            MiddleName = normalizedRequest.MiddleName,
-            Phone = normalizedRequest.Phone,
-            BirthDate = normalizedRequest.BirthDate,
-            Status = ClientStatus.Active,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
-        var noteTransition = ClientNotesMetadataPolicy.Apply(client, normalizedRequest.Notes, currentUser.Id, now);
-
-        dbContext.Clients.Add(client);
-        await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
-        OpenBranchAssignment(client.Id, normalizedRequest.BranchId!.Value, currentUser.Id, now, dbContext);
-        await ReplaceGroupAssignmentsAsync(
-            client.Id,
-            normalizedRequest.BranchId!.Value,
-            normalizedRequest.GroupIds,
-            currentUser.Id,
-            now,
-            dbContext,
-            cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        var createdClient = await ClientResponseMapper.LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
-            ?? throw new InvalidOperationException($"Created client '{client.Id}' was not found.");
-
-        await WriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
-            new AuditLogEntry(
-                currentUser.Id,
-                ClientAuditConstants.ClientCreatedAction,
-                ClientAuditConstants.ClientEntityType,
-                client.Id.ToString(),
-                ClientAuditResources.ClientCreatedDescription(
-                    currentUser.Login,
-                    BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
-                NewValueJson: SerializeAuditState(createdClient)), cancellationToken);
-
-        if (noteTransition is not null)
-        {
-            await WriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
-                BuildNoteAuditEntry(currentUser.Id, client, currentUser.Login, noteTransition), cancellationToken);
-        }
+        var client = await creationWriter.WriteAsync(new ClientCreationData(
+            normalizedRequest.LastName, normalizedRequest.FirstName, normalizedRequest.MiddleName,
+            normalizedRequest.Phone, normalizedRequest.BranchId!.Value, normalizedRequest.BirthDate,
+            normalizedRequest.Notes, normalizedRequest.GroupIds,
+            normalizedRequest.Contacts.Select(contact => new ClientContact
+            { Type = contact.Type, FullName = contact.FullName, Phone = contact.Phone }).ToArray()), currentUser, cancellationToken);
 
         if (transaction is not null)
         {
@@ -227,6 +184,7 @@ internal static class ClientLifecycleEndpoints
             normalizedRequest.GroupIds,
             currentUser.Id,
             now,
+            businessDateProvider.Today,
             dbContext,
             cancellationToken);
 
@@ -361,10 +319,11 @@ internal static class ClientLifecycleEndpoints
                 }
 
                 var now = DateTimeOffset.UtcNow;
+                var businessDay = businessDateProvider.Today;
                 clientForMutation.BranchId = targetBranchId;
                 clientForMutation.UpdatedAt = now;
-                await CloseActiveBranchAssignmentsAsync(clientForMutation.Id, now, dbContext, cancellationToken);
-                OpenBranchAssignment(clientForMutation.Id, targetBranchId, actor.Id, now, dbContext);
+                await CloseActiveBranchAssignmentsAsync(clientForMutation.Id, now, businessDay, dbContext, cancellationToken);
+                OpenBranchAssignment(clientForMutation.Id, targetBranchId, actor.Id, now, businessDay, dbContext);
 
                 await ReplaceGroupAssignmentsAsync(
                     clientForMutation.Id,
@@ -372,6 +331,7 @@ internal static class ClientLifecycleEndpoints
                     targetGroupIds,
                     actor.Id,
                     now,
+                    businessDay,
                     dbContext,
                     cancellationToken);
 
