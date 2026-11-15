@@ -1,121 +1,149 @@
-# Implementation Plan: TASK-196 Утилита импорта клиентов из XLSX
+# Implementation Plan: TASK-196 Импорт клиентов из XLSX через настройки
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-196-xlsx-client-import.md
-- requirements: REQ-CLI-010 (implements); REQ-CLI-001 (constrains); REQ-CLI-003 (constrains); REQ-CLI-005 (constrains); REQ-CLI-006 (constrains); REQ-BRN-001 (constrains); REQ-USR-001 (constrains); REQ-AUD-001 (constrains)
+- source_task: /backlog/needs-clarification/TASK-196-xlsx-client-import.md
+- requirements: REQ-CLI-010 (implements); REQ-BRN-002 (changes); REQ-USR-001 (changes); REQ-CLI-001 (constrains); REQ-CLI-003 (constrains); REQ-CLI-005 (constrains); REQ-CLI-006 (constrains); REQ-BRN-001 (constrains); REQ-AUD-001 (constrains)
 - branch: codex/TASK-196-xlsx-client-import
-- readiness: yes
-- product_decisions: accepted
-- technical_decisions: accepted
-- architecture_decisions: ADR-0003; ADR-0004
-- open_questions: none
-- dependencies: none — необходимые client scope и audit transaction уже интегрированы; новая task-зависимость не требуется
-- risk: high — массовая запись клиентских данных и аудита, ошибка scope/commit затрагивает весь файл
+- readiness: no — требуется принятие ADR-0005 и выбранный rendered UI/interaction contract новой вкладки
+- product_decisions: accepted — Settings/XLSX/явная группа, только SuperAdministrator с выбором филиала и Administrator своего филиала; visual direction ещё не выбран
+- technical_decisions: proposed — ADR-0005 заменяет CLI-контракт ADR-0004
+- architecture_decisions: ADR-0003; ADR-0005 (Proposed)
+- open_questions: принятие веб-контракта ADR-0005; выбор визуального направления и interaction/recovery contract
+- dependencies: none — существующие client scope и audit transaction интегрированы
+- risk: high — массовая запись клиентов, отдельное import-разрешение и неопределённый сетевой результат
 
 ## Goal
-Одним запуском утилиты перенести корректный XLSX в заранее созданную группу:
-создать все строки с сохранением согласованных данных либо не создать ни одной.
-Неисправленные примеры дают 0 новых клиентов; исправленные — 48 и 66
-соответственно при существующей однозначной группе и разрешённом доступе.
+В «Настройки → Импорт» выбрать XLSX и указать группу внутри целевого филиала,
+создать все корректные строки с согласованными данными либо ни одной.
+SuperAdministrator предварительно выбирает филиал; Administrator работает
+только в своём. Главный тренер и Тренер не импортируют. Исходные примеры
+отклоняются целиком; исправленные synthetic аналоги создают 48/66 клиентов.
 
 ## Decisions and contracts
-- Продуктовый mapping и границы переноса нормативны в
-  [TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md#field-mapping)
-  и [REQ-CLI-010](/docs/requirements/01-клиенты.md#req-cli-010-разовый-импорт-новых-клиентов-из-xlsx).
-  Повторный запуск — независимое создание; баланс — только текст заметки.
-- Технический вариант полностью описан в
-  [ADR-0004](/docs/architecture/adr/0004-atomic-xlsx-client-import.md):
-  authenticated CLI → один backend endpoint → одна транзакция файла;
-  общий use case создания; parser на backend; summary audit для сверки
-  неподтверждённого commit. Владелец принял контракт 15.11.2026.
+- Текущий product mapping нормативен в
+  [TASK-196](/backlog/needs-clarification/TASK-196-xlsx-client-import.md#field-mapping)
+  и [REQ-CLI-010](/docs/requirements/01-клиенты.md#req-cli-010-импорт-новых-клиентов-из-xlsx-через-настройки).
+  Новая точка входа — Settings tab «Импорт»; имя файла произвольное.
+- [REQ-BRN-002](/docs/requirements/09-филиалы-и-настройки.md) задаёт вкладку,
+  [REQ-USR-001](/docs/requirements/05-пользователи-и-роли.md) — специальное
+  право импорта двух ролей. Это исключение из общих прав HeadCoach.
+- Backend ищет введённое название существующей группы в целевом филиале;
+  одноимённые группы других филиалов не влияют. Группы не создаются.
+- Повторный осознанный импорт создаёт новых клиентов, баланс остаётся заметкой.
+  V/Д/(Д)/(д) сохраняются на исходных местах и с исходным регистром; маркеры
+  не считаются частями ФИО. Префикс V остаётся у фамилии, суффикс у своей части.
+- [Source review](/backlog/logs/TASK-196-source-review-2026-11-15.md) сохраняет
+  mapping 114 строк: исправляются B7 первого файла, B7/B9/B26/B41/B62
+  и A6/A32/A37/A46 второго. Реальные данные не угадывать и не менять.
 - [ADR-0003](/docs/architecture/adr/0003-administrator-client-branch-scope.md)
-  ограничивает доступ и порядок блокировок. Не добавлять требование активной
-  группы: текущее создание требует активный филиал, но не active group.
-- [Построчная сверка](/backlog/logs/TASK-196-source-review-2026-11-15.md)
-  охватывает все 114 строк. Исправить надо B7 первого файла, B7/B9/B26/B41/B62
-  второго и A6/A32/A37/A46 второго. Исполнитель не исправляет реальные ФИО
-  и не придумывает отсутствующие телефоны.
-- Итоговое уточнение владельца: `V` и `Д`, включая `(Д)`, сохраняются в ФИО
-  на исходных местах с исходным написанием/скобками, не в заметке.
-  Разбор 2/3 основных частей имени не считает пометки самостоятельной частью:
-  начальный V остаётся префиксом фамилии; пометка после части остаётся
-  суффиксом той же части. Например, `V Иванов (Д) Иван Иванович` →
-  LastName `V Иванов (Д)`, FirstName `Иван`, MiddleName `Иванович`;
-  `Иванов Иван Иванович (Д)` сохраняет `(Д)` в MiddleName.
-  Не менять регистр маркеров; варианты `(д)` сохраняются как `(д)`.
-  Остальные пометки удаляются по прежнему правилу. Полная длина части имени
-  с сохранёнными пометками проходит существующую backend-валидацию.
+  сохраняет scope/lock ordering; import добавляет проверку нового разрешения.
+  Не вводить active-group запрет: создание требует активный филиал.
+
+## Proposed technical contract
+[ADR-0005](/docs/architecture/adr/0005-settings-xlsx-client-import.md) — единый
+источник предложенного auth/session/multipart/transaction/recovery контракта.
+Вместо CLI браузер отправляет файл, groupName, branchId и operationId одной
+операцией. Отдельный backend ImportClients capability разрешает SA/Admin;
+clientImportScope управляет вкладкой и выбором/фиксацией филиала в UI.
+Обычный create, parser и audit остаются на backend. Пока ADR Proposed,
+описанные ниже slices не разрешают менять project code.
 
 ## Decision evidence
-- product: [Product decisions TASK-196](/backlog/implementation/TASK-196-xlsx-client-import.md) — owner: пользователь, владелец продукта; decision: разовая утилита, новые независимые импорты, группа по имени файла и уточнение филиала, согласованный mapping с сохранением V/Д в исходном ФИО, исправление неоднозначных ФИО в источнике, результат файла «всё или ничего».
-- technical-review: [Проверка прав, аудита и сохранности](/backlog/logs/TASK-196-technical-review-2026-11-15.md) — owner: Codex, отдельный backend reviewer; outcome: вариант B рекомендован, owner approval не подменяется review.
-- technical: [ADR-0004](/docs/architecture/adr/0004-atomic-xlsx-client-import.md#approval) — owner: пользователь, владелец проекта; decision: вариант B, authenticated backend batch и CLI, одна транзакция файла с обязательным аудитом, согласованные transport/file limits и сверка неопределённого commit по operationId без автоматического повтора; прямой ответ «Принять техническое решение ADR-0004».
+- product: [Product revision и Access revision TASK-196](/backlog/needs-clarification/TASK-196-xlsx-client-import.md#product-revision--2026-11-15) — owner: пользователь, владелец продукта; decision: вкладка импорта в настройках, XLSX и отдельное название существующей группы; только SuperAdministrator с обязательным выбором филиала и Administrator в свой текущий филиал, HeadCoach/Coach запрещены; прежний mapping и atomicity сохранены.
+- technical-review: [Review TASK-196](/backlog/logs/TASK-196-technical-review-2026-11-15.md) — owner: Codex и отдельный reviewer; outcome: предложены backend batch, отдельный import capability и backend scope, общий transport и состояние выше размонтируемой панели; review не заменяет approval.
+- technical: [ADR-0005](/docs/architecture/adr/0005-settings-xlsx-client-import.md#approval) — owner: пользователь, владелец проекта; decision: Pending, новый ADR не принят. Старый approval ADR-0004 относится к CLI и прежней матрице доступа.
+- visual: направление и rendered evidence пока отсутствуют; текстовый UX draft ниже не является утверждённым визуальным дизайном.
+
+## Planning blockers
+1. Подготовить rendered варианты новой вкладки в контексте существующих
+   настроек и получить выбор владельца; на его основе завершить точный
+   UI/interaction contract, включая pending/unknown и уход со страницы.
+2. Принять или уточнить ADR-0005 после review producer/consumer. Повторного
+   утверждения уже принятых ролей, полей и точки входа не требуется.
+Это работа планирования, не implementation slices. До её завершения задача
+остаётся needs-clarification. После решений синхронизировать evidence и
+выполнить readiness preflight; не переносить согласование на этап реализации.
+
+## UX contract draft
+Принятый сценарий: Settings → Import; SA выбирает филиал, Administrator видит
+фиксированный свой филиал; пользователь выбирает XLSX, вводит название группы,
+нажимает «Импортировать», получает число созданных клиентов или причины ошибок.
+HeadCoach/Coach вкладку не видят; сервер также запрещает операцию.
+
+Предложение для design gate, не финальный макет:
+- Primary: выбор файла, название группы, выбор филиала для SelectBranch,
+  отправка. Secondary: заменить файл, исправить параметры после отказа.
+  Exceptional: сверка неизвестного исхода по номеру операции через аудит.
+- Форма без дублирующего заголовка активной вкладки; обычные поля с постоянными
+  подписями. Пользователю не нужны base URL, login CLI или technical operationId
+  как поле ввода. Номер операции показывается в статусе для восстановления.
+- Состояния: empty, branch lookup loading/failed, ready, pending, field/row
+  validation errors, no group/ambiguous within branch, scope changed/restricted,
+  success и unconfirmed. Errors сохраняют введённый контекст и объясняют исправление.
+- Backend clientImportScope, а не role switch, определяет выбор/фиксацию филиала;
+  OwnBranch без назначения даёт недоступное состояние, не глобальный выбор.
+- Pending блокирует повторную отправку; tab switching сохраняет состояние
+  выше Tabs.Panel. Закрытие страницы не означает rollback. Место предупреждения,
+  focus, возврат и способ сохранения номера согласуются в visual/interaction contract.
+- Двойной клик отправляет один POST. Намеренный новый запуск после известного
+  исхода остаётся независимым импортом. При неизвестном исходе нет автоматического retry.
+
+Visual brief: React/Mantine/Onest и текущие shared form/status компоненты;
+спокойная компактная форма, одна основная операция. Проверить длинное название
+группы/файла и полный список ошибок без горизонтального скролла. Сравнить
+варианты композиции полей и отчёта на mobile/desktop; критерий выбора — легко
+увидеть целевой филиал/группу и понять исход без риска повторной отправки.
+Rendered current UI и варианты в этой правке документации не создавались.
 
 ## Scope
 ### In
-- Backend parser согласованного XLSX, нормализация полей, диагностика всех строк.
-- Узкое переиспользование одиночного создания, атомарное создание файла и аудит.
-- CLI с обычным входом в CRM, operationId и понятным результатом/отчётом ошибок.
-- API consumer mirror, локализованное представление нового события журнала,
-  инструкция оператора и обезличенные fixtures/regressions.
+- Settings import tab, browser workflow, backend-derived import scope/auth.
+- XLSX reader/mapping, единый create use case, file transaction и аудит.
+- Typed API request/result/errors, audit labels, инструкция пользователя.
+- Synthetic fixtures, authorization/HTTP/PostgreSQL/component/Playwright tests.
 
 ### Out
-- Экран импорта CRM, бот-команда, создание групп, изменение схемы БД.
-- Обновление/слияние/дедупликация клиентов, повторяемые фоновые задания.
-- Финансовые операции, контактные лица из свободного текста, угадывание ФИО.
-- Реальный импорт предоставленных персональных данных и deployment.
+- CLI, bot import, создание групп, schema/очередь/status service.
+- Дедупликация, обновление/слияние клиентов, финансовые операции.
+- Реальные импорты, исправление персональных XLSX и deployment.
 
 ## Implementation slices
-Порядок ниже реализует принятые решения; приложение на этапе планирования
-не изменялось.
-
-1. **XLSX → проверенный набор.** Добавить обезличенные fixtures и mapping tests,
-   затем reader в Infrastructure и import normalization в Application.
-   Результат — все нормализованные строки или все ошибки с Excel row/field.
-   Не обращаться к БД из XLSX reader и не сохранять workbook как постоянный
-   артефакт; штатные временные request buffers освобождаются после запроса.
-2. **Единый путь создания.** Зафиксировать текущий контракт обычного create
-   characterization tests, выделить только его validate/build/assignments/audit
-   в общий use case, сохранив HTTP mapping. Добавить file transaction regression
-   до реализации batch orchestration. Существующие edit/transfer/archive paths
-   затрагивать только для совместимости общего validation helper.
-3. **Авторизованная операция импорта.** Сначала HTTP/PG regressions, затем
-   endpoint, повторная проверка actor/group, единая transaction и итоговый
-   audit. Существующий одиночный create и новый batch используют одну логику
-   создания; число SaveChanges не определяет границу commit.
-4. **CLI и consumers.** Сначала тесты с реальным HTTP/cookie/CSRF и сетевым
-   обрывом, затем CLI. Синхронизировать frontend DTO/facade/ошибки и подписи
-   аудита; проверить новый event в существующем журнале без перестройки UX.
-5. **Проверка сценария и документация.** Проверить CLI → API → PostgreSQL на
-   обезличенных аналогах примеров; оформить operator guide с base URL, именем
-   файла, branchId, ошибками, сверкой operationId и запретом автоматического
-   повторения. Зафиксировать implementation evidence в REQ-CLI-010 и
-   CHANGELOG; затронутые constraining REQ не объявлять реализованными целиком
-   на основании только этой задачи.
+Применяются только после закрытия Planning blockers; решения здесь не выбираются.
+1. **Reader/mapping.** Сначала synthetic fixtures и tests, затем Infrastructure
+   reader и Application normalization; все ошибки с Excel row/field до записи.
+2. **Единый create.** Characterization обычного create должны быть green до
+   узкого выделения validate/build/assignments/audit. Затем file rollback tests
+   до batch orchestration; edit/transfer/archive без структурной перестройки.
+3. **Import authorization/API.** Сначала role/session/HTTP/PG regressions,
+   затем ImportClients capability/policy, auth scope, groupName+branchId request,
+   повторная проверка actor/scope/group под locks, transaction и summary audit.
+4. **API consumer и настройки.** Сначала tests auth mapping, multipart/errors,
+   вкладки/формы/состояний, затем mirror/facade и UI по утверждённому дизайну.
+   Состояние запроса не теряется при переключении tab; no retry на remount.
+   Синхронизировать новые audit labels и отображение в существующем журнале.
+5. **Сквозная проверка и evidence.** Playwright с backend/PG на обезличенных
+   профилях, сравнение runtime с выбранным дизайном, инструкция Settings → Import
+   и сверка неизвестного исхода. REQ-CLI-010/BRN-002/USR-001 и CHANGELOG обновить
+   по фактической реализации, не объявляя широкие BRN/USR полностью выполненными.
 
 ## Likely files and layers
-Новые пути ниже — предложения для реализации, сейчас файлов нет.
-- `backend/src/GymCrm.Application/Clients/` — импортные commands/results,
-  нормализация, общий create use case и interfaces.
-- `backend/src/GymCrm.Infrastructure/Clients/` — XLSX reader и persistence
-  реализации; `Infrastructure/Authorization/ClientAccessTransaction.cs` —
-  существующий механизм для использования, без нового глобального lock.
-- `backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs`,
-  `ClientLifecycleRequestValidation.cs`, `ClientEndpointSharedHelpers.cs` —
-  узкое выделение общего создания; новые `ClientImportEndpoints.cs`/DTO.
-- `backend/src/GymCrm.Api/Auth/ClientEndpoints.cs`, startup registration и
-  соответствующие resources — подключение handler/use case и сообщения.
-- `backend/tools/GymCrm.ClientImport/` (новый проект), `backend/GymCrm.slnx`,
-  `.csproj`/lockfiles — CLI и OpenXML dependency; tool включить в Release build.
-- `frontend/src/lib/api/clients.ts`, `types.ts`, `endpoints.ts`,
-  `frontend/src/lib/api.ts` — mirror/facade; API tests и audit resources/tests.
-- `backend/tests/GymCrm.Tests/` — reader/HTTP/PostgreSQL/CLI coverage;
-  `frontend/e2e/` — сценарий чтения нового audit event.
+Новые файлы — предложения для реализации, сейчас их нет.
+- `backend/src/GymCrm.Application/Clients/`, Infrastructure/Clients — reader,
+  import contracts/normalization, общий create и persistence interfaces.
+- `backend/src/GymCrm.Application/Authorization/` — ImportClients, policy и
+  backend import scope; API auth response/mapper/policy registration — consumer contract.
+- `backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs`, validation/shared
+  helpers, новые import endpoint/DTO, ClientEndpoints/startup/resources.
+- Infrastructure csproj/lockfiles — OpenXML; отдельного CLI-проекта нет.
+- `frontend/src/features/settings/SettingsScreen.tsx`, новый ClientImportPanel
+  и tests/resources; session scope приходит из API, CRM rules не копируются.
+- `frontend/src/lib/api/{auth,clients,types,transport,errors,endpoints}.ts` и
+  `frontend/src/lib/api.ts` — auth scope/request/result/issues/facade; tests.
+- `backend/tests/GymCrm.Tests/`, `frontend/e2e/` — regressions ниже.
 - `backend/AGENTS.md`, `scripts/harness/change_impact.py` и selector tests —
-  добавить новый Application contract path, если DTO выносятся за уже
-  распознаваемый Staff API boundary; это обязательная часть синхронизации.
-- `docs/operations/client-xlsx-import.md` (новый) — operator guide;
-  task verification contract и evidence — рядом с активной task.
+  расширить contract boundary для новых Application DTO при необходимости.
+- `docs/operations/client-xlsx-import.md` (новый) — инструкция формы/ошибок/
+  ручной сверки; task verification contract/evidence рядом с активной задачей.
 
 ## Regression specification
 ### Automated tests to add or update
@@ -134,10 +162,12 @@
   2001 отклоняется без обрезки. Существующие записи/финансы не изменяются.
 - `ClientImportApiTests`: успешный файл; ошибки начала/середины/конца
   возвращаются вместе до записи; отсутствующая/неоднозначная группа,
-  branchId разрешает выбор или оставляет отказ; переименованный файл выбирает
-  нужную группу. Неактивная группа не получает новый неоговорённый запрет.
-- HTTP access matrix: anonymous 401, Coach 403, Administrator свой/чужой/
-  отсутствующий филиал, global roles, inactive actor, CSRF и password-change
+  groupName+branchId определяют выбор; переименование файла не меняет группу.
+  Один файл с разными значениями groupName выбирает разные группы целевого филиала;
+  совпадения в других филиалах не влияют на результат. Неактивная группа не получает новый неоговорённый запрет.
+- HTTP access matrix: anonymous 401, HeadCoach/Coach 403; Administrator свой/чужой/
+  отсутствующий филиал; SuperAdministrator любой активный выбранный филиал,
+  отсутствие branchId — ошибка; inactive actor, CSRF и password-change
   gate. Отказ не создаёт client/import audit и не раскрывает чужих клиентов.
 - `ClientImportPostgreSqlTests`: сбой SaveChanges на поздней строке, сбой
   ClientCreated, ClientNoteChanged и итогового audit после сохранённых внутри
@@ -146,48 +176,59 @@
   существующие данные сохранены. InMemory не доказывает этот контракт.
 - PostgreSQL barriers: до получения locks actor переведён/деактивирован либо
   выбранная группа сменила филиал/имя — старый scope не записывает файл.
+  SuperAdministrator → HeadCoach после ожидания locks отклоняется именно
+  ImportClients guard, хотя обычный ManageClients остаётся разрешённым.
   Уже неоднозначный выбор отклоняется; глобальная уникальность имени при
   конкурентном создании группы не обещается.
 - Success: N клиентов, ожидаемые назначения и note metadata, стандартные
   audit events и один summary. Два осознанных запуска одного файла создают 2N;
   одинаковые телефоны/содержимое не служат дедупликации.
-- `ClientImportCliTests`: cookie/CSRF flow, безопасный ввод пароля, base URL
-  с proxy prefix, строки/причины ошибок, operationId до отправки; штатные
-  auth/proxy/non-JSON errors без import extensions не ломают отчёт. Потеря ответа
-  после commit и rollback различимы по журналу, CLI в обоих случаях не шлёт
-  mutation повторно и не утверждает отсутствие записи.
-- `frontend/src/lib/api/clients.test.ts` и audit tests: DTO/result/problem
-  mapping, новый event/operationId/count, сохранение ограничений чтения аудита.
+- Policy: HasCapability(ImportClients) false для HeadCoach/Coach и true для
+  SA/Admin. Auth/session возвращает только clientImportScope
+  SelectBranch/OwnBranch/None, fixed branch и отсутствие
+  назначения. Отсутствующий/unknown/malformed scope в frontend → безопасный None.
+- API consumer: FormData поля и CSRF/cookies, import issues/operationId,
+  обычные ошибки без extensions и non-JSON сохраняют безопасный feedback.
+  malformed/mismatched/non-JSON 2xx не подтверждает успех.
+- Settings/component: capability scope, обязательный филиал SA, fixed Admin,
+  groupName/file validation, полный отчёт строк; соседние tabs не меняются.
+  Одно нажатие/двойной клик → один POST; переключение вкладки во время запроса
+  сохраняет pending/result/operationId без повторной отправки.
+- Network: обрыв после commit и rollback → одинаковый unconfirmed UI с ID,
+  разные фактические audit outcomes; 5xx/timeout не объявляют отсутствие записи.
+- Playwright: SA импорт в выбранный другой филиал; Admin в свой; HeadCoach
+  restricted; ошибка XLSX → исправленный synthetic файл → success; произвольное
+  имя файла и явная группа; no-retry, state после tab switch, audit summary.
 
 ### Expected red evidence
-Новый HTTP success сначала получает 404; parser tests отсутствующего reader
-и тесты batch contract требуют минимального compile-only seam и затем падают
-по отсутствующему поведению. Для PG rollback использовать детерминированный
-failpoint, доказывающий выполнение ранних SaveChanges до отказа. Старые
-create characterization tests должны быть green до extraction; искусственный
-red для неизменяемого поведения не нужен.
+Новый endpoint сначала 404; capability/scope/session/UI tests падают из-за
+отсутствия поведения. Parser tests используют минимальный compile-only seam.
+PG failpoint доказывает ранние SaveChanges перед поздним отказом. Старый
+create characterization должен быть green до extraction, искусственный red не нужен.
 
 ### Required validation
-Task contract добавляет существующему baseline сценарий Playwright нового
-audit event: desktop и target-iPhone projects по текущей конфигурации,
-с assertions на отображение и доступ. Synthetic CLI/HTTP/PG tests включить
-в основной backend suite; не дублировать их фильтром как ещё один smoke.
-Если PG test infrastructure умеет skip без Docker, evidence обязан подтверждать
-фактическое выполнение всех import PG cases. Без доступной PostgreSQL/Docker
-атомарность и lock interleavings остаются непроверенными.
+Task contract добавляет affected Playwright import/settings/audit flows с
+основным, failure/recovery и restricted путями на desktop и target-iPhone
+projects по текущей конфигурации. Полная mobile matrix и runtime comparison
+берутся из UI-контракта и применимых правил; проверяется доступность новой вкладки
+при большем числе tabs, keyboard/file-picker, отсутствие overflow.
+Synthetic HTTP/PG cases входят в основной suite. Evidence обязан подтвердить
+фактическое выполнение PG tests: skip при отсутствии Docker не доказывает
+атомарность/lock interleavings. Реальные Safari keyboard/chrome/safe-area
+проверки отмечаются выполненными только при наличии device/Simulator evidence.
 
 ### Regression barrier
-`ClientImportPostgreSqlTests` через публичный HTTP контракт: поздний сбой
-клиента/назначений/аудита → нулевой прирост графа файла; success/repeated run
-→ ровно N/2N с обязательным аудитом и сохранённым доступом.
+Публичный import API + PostgreSQL: поздний сбой любой записи/аудита → нулевой
+прирост всего графа файла; success/repeated run → N/2N. Отдельный запрет
+HeadCoach и чужого филиала Administrator действует также после ожидания locks;
+web UI отправляет один запрос и корректно сообщает неподтверждённый исход.
 
 ## Risks and stop conditions
-- Изменение принятых границ ADR-0004 требует возврата плана к согласованию.
-- Новый формат источника или неоднозначность вне принятого mapping — отказ
-  с причиной, без эвристик, потери данных или расширения продуктового scope.
-- Необходимость schema/replay table/DB credentials или обхода текущих guards
-  возвращает план на архитектурное согласование.
-- Раздельный commit строк, подавление audit exceptions, перезапуск mutation
-  после сетевого обрыва нарушают цель: остановить affected slice и исправить.
-- Откат версии не удаляет успешный импорт; реальные исходные XLSX не править
-  и персональные данные не переносить в новые fixtures, evidence или CLI logs.
+- Proposed ADR/невыбранный дизайн не разрешают execution; новое материальное
+  решение возвращает affected plan к планированию.
+- Нельзя использовать ManageClients вместо ImportClients: HeadCoach имеет
+  первое, но запрещён для нового импорта по прямому решению владельца.
+- Новый формат или неоднозначность вне mapping — ошибка без эвристик/потери данных.
+- Раздельный commit строк, best-effort audit и автоматический replay нарушают цель.
+- Откат версии сохраняет успешно импортированных клиентов и append-only audit.
+  Реальные XLSX/персональные данные не копировать в fixtures и логи.

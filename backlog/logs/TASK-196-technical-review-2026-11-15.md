@@ -58,3 +58,54 @@ required review доступа, аудита, транзакции и восст
 Последующее продуктовое уточнение V/Д сохраняет маркеры в исходном ФИО;
 технические границы ADR не меняются. План и REQ-CLI-010 синхронизированы.
 Никакие runtime/tests приложения этим подтверждением не объявляются выполненными.
+
+## Пересмотр: веб-импорт и отдельные роли — 2026-11-15
+
+Предыдущие результаты описывают CLI и ManageClients. По последующим прямым
+решениям владельца актуальна
+[TASK-196](/backlog/needs-clarification/TASK-196-xlsx-client-import.md):
+Settings → Import, явные файл/название группы; только SuperAdministrator
+с предварительным выбором филиала и Administrator своего филиала.
+Исторический путь `/backlog/implementation/TASK-196-xlsx-client-import.md`
+теперь соответствует `/backlog/needs-clarification/TASK-196-xlsx-client-import.md`.
+
+Read-only delta review выполнен основным Codex и отдельным reviewer:
+
+- `AuthorizationFlowTests.cs`, Application `UserRoleAuthorizationPolicy.cs`:
+  ManageClients разрешает также HeadCoach, поэтому для импорта непригоден.
+  Предложен ImportClients в существующей capability/policy, без новой системы auth.
+- `AuthEndpoints.cs`/AuthenticatedUserResponse и frontend `auth.ts`/`types.ts`:
+  additive backend `clientImportScope` None/SelectBranch/OwnBranch управляет
+  доступом и режимом филиала; дублирующий PermissionSet boolean не нужен.
+  None — HeadCoach/Coach/inactive; OwnBranch без назначения не даёт выбрать чужой.
+- `appRoutes.ts`/`appRoutes.test.ts`: существующий Settings gate сохраняется.
+  `SettingsScreen.tsx`/`.test.tsx`: вкладки размонтируются, состояние import
+  следует держать выше панели; роль и scope не вычислять в UI самостоятельно.
+- `transport.ts`: FormData, cookie/CSRF, один fetch без retry уже есть.
+  `errors.ts` теряет import extensions; нужны additive typed operationId/issues
+  и безопасный разбор non-JSON. Невалидный/mismatched/non-JSON success payload
+  не доказывает commit, UI должен показать неподтверждённый результат.
+- Request branchId обязателен для обеих разрешённых ролей: SA выбирает,
+  Admin UI передаёт backend OwnBranch.branchId. Backend подтверждает актуальный
+  филиал до lookup и после locks; foreign branch — existing scope rejection
+  без раскрытия существования. Привязка запроса не меняется после перевода Admin.
+- ClientAccessTransaction.LoadActorAsync проверяет active actor, но новое
+  ImportClients нужно проверять отдельно после ожидания locks. Критическая
+  регрессия SA → HeadCoach: ManageClients/global scope не изменятся, импорт запрещён.
+- Bot использует отдельные session resolve/BotUserContext, не Staff auth scope;
+  Python mirror и Bot API не меняются. Клиентский mapping/transaction/audit
+  прежнего review сохраняются, filename lookup и CLI исключены.
+- Scope-specific tests: session четырёх ролей; SA без выбранного филиала;
+  Admin без назначения/с чужим филиалом; HC direct HTTP; revoke role/branch
+  при ожидании; tab switch/double click/network loss/no retry; audit права прежние.
+
+Рекомендация оформлена в [ADR-0005](/docs/architecture/adr/0005-settings-xlsx-client-import.md).
+Статус Proposed: owner approval и rendered UI/interaction contract пока отсутствуют.
+Этот review не объявляет их принятыми. Приложение и тесты не запускались.
+
+Финальная независимая сверка новой редакции task/plan/REQ/ADR завершена:
+уточнено тестовое groupName вместо двусмысленного «названия», отделён
+HasCapability(ImportClients) от session-only clientImportScope, REQ-USR-001
+помечен changes. Других противоречий в ролях, обязательном request branchId,
+scope DTO и гарантиях записи reviewer не выявил. Это проверка документов,
+не runtime доказательство будущей реализации и не принятие ADR владельцем.

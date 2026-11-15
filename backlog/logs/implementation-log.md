@@ -2037,3 +2037,21 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - scope: planning/REQ/ADR/evidence; application code, исходные XLSX, БД и стенд не менялись, task branch/worktree не создавались
 - validation: explicit readiness preflight после переноса PASS; knowledge harness 4/4 PASS, current artifact links/unique task-plan/status-directory и git diff --check PASS
 - evidence: .artifacts/verification/TASK-196-plan-ready.json; приложение не запускалось для изменений документации
+
+# 2026-11-15 — TASK-196: импорт через настройки и уточнение ролей
+- moved: TASK-196 — implementation → needs-clarification после изменения точки входа, контракта группы и прав импорта
+- planned_in_place: TASK-196
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md
+- product_decision: Settings → Import, XLSX и явное название существующей группы вместо CLI/имени файла; только SuperAdministrator с предварительным выбором филиала и Administrator своего филиала, HeadCoach/Coach запрещены
+- requirements: REQ-CLI-010 (не начато), REQ-BRN-002/REQ-USR-001 (частично), CHANGELOG; mapping/atomicity/audit сохранены
+- architecture: ADR-0004 Superseded by ADR-0005; ADR-0005 Proposed, отдельный ImportClients capability и backend session scope, обязательный branchId, browser recovery без retry
+- review: /backlog/logs/TASK-196-technical-review-2026-11-15.md — read-only backend/frontend delta review завершён; runtime/tests приложения не выполнялись
+- readiness: no — требуются принятие ADR-0005 и выбранный rendered UI/interaction contract; это planning blockers, не implementation slices
+- historical_paths: /backlog/implementation/TASK-196-xlsx-client-import.md теперь соответствует /backlog/needs-clarification/TASK-196-xlsx-client-import.md; прежние logs и решения сохранены как история
+- scope: только task/plan/requirements/ADR/evidence; project code, исходные XLSX, БД/стенд, task branch/worktree не менялись
+- validation: будет добавлена после выполнения knowledge harness и проверки ссылок
+- validation_result: knowledge harness 4/4 PASS; current artifact links, unique task/plan и status-directory PASS; git diff --check PASS
+- executable_preflight: ожидаемо отклоняет readiness: no; новый draft не является разрешением на implementation
+- evidence: .artifacts/verification/TASK-196-settings-plan.json; app/runtime tests не запускались для planning-only изменений
+- final_review: независимая сверка обновлённых task/plan/REQ/ADR завершена; устранены двусмысленность groupName, дублирующий session boolean и неверное отношение REQ-USR-001
