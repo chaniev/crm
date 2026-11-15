@@ -1,0 +1,2330 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-15T21:45:22.471237+00:00",
+  "repository": "TASK-196-xlsx-client-import",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "harness.unit",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "bot.sync",
+    "bot.lint",
+    "bot.user-facing-text",
+    "bot.format",
+    "bot.types",
+    "bot.test",
+    "frontend.playwright.install",
+    "frontend.e2e.client-import",
+    "frontend.e2e.settings-regression",
+    "frontend.e2e.audit-access",
+    "frontend.e2e.transfer-regression",
+    "frontend.e2e.staffing-regression"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "failed",
+  "git": {
+    "head_sha": "d1be6cf13780ce17b6631c804232a0790cbf4e4d",
+    "head_tree_sha": "b777ac51ec7dc07ec450a5edc4eee54d1c2c49af",
+    "base_sha": "9edbda275f9e7bc07de6efc245863f05f1e18c28",
+    "merge_base_sha": "9edbda275f9e7bc07de6efc245863f05f1e18c28",
+    "branch": "codex/TASK-196-xlsx-client-import",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-196-xlsx-client-import-verification-contract.json",
+    "task_id": "TASK-196",
+    "expected_branch": "codex/TASK-196-xlsx-client-import",
+    "sha256": "0cd6e0982633ee0f78164427f252cd273a5daf0b9ee7628fb508e63c443c5ef5",
+    "verified_head_sha": "d1be6cf13780ce17b6631c804232a0790cbf4e4d",
+    "verified_head_tree_sha": "b777ac51ec7dc07ec450a5edc4eee54d1c2c49af",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-196\",\n  \"expected_branch\": \"codex/TASK-196-xlsx-client-import\",\n  \"areas\": [\n    \"backend\",\n    \"frontend\",\n    \"bot\"\n  ],\n  \"manual_evidence\": \"backlog/implementation/TASK-196-manual-evidence.json\",\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.client-import\",\n      \"spec\": \"e2e/settings-client-import.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.settings-regression\",\n      \"spec\": \"e2e/settings-group-types.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 600\n    },\n    {\n      \"id\": \"frontend.e2e.audit-access\",\n      \"spec\": \"e2e/route-access-feedback.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1200\n    },\n    {\n      \"id\": \"frontend.e2e.transfer-regression\",\n      \"spec\": \"e2e/administrator-client-branch-access.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1200\n    },\n    {\n      \"id\": \"frontend.e2e.staffing-regression\",\n      \"spec\": \"e2e/group-schedule-workflow.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1200\n    }\n  ],\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.import-design\",\n      \"description\": \"Compare rendered import ready/errors/unknown/dialog against selected A at desktop/mobile and record device limitations.\"\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-196",
+      "expected_branch": "codex/TASK-196-xlsx-client-import",
+      "areas": [
+        "backend",
+        "frontend",
+        "bot"
+      ],
+      "manual_evidence": "backlog/implementation/TASK-196-manual-evidence.json",
+      "playwright": [
+        {
+          "id": "frontend.e2e.client-import",
+          "spec": "e2e/settings-client-import.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.settings-regression",
+          "spec": "e2e/settings-group-types.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 600
+        },
+        {
+          "id": "frontend.e2e.audit-access",
+          "spec": "e2e/route-access-feedback.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1200
+        },
+        {
+          "id": "frontend.e2e.transfer-regression",
+          "spec": "e2e/administrator-client-branch-access.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1200
+        },
+        {
+          "id": "frontend.e2e.staffing-regression",
+          "spec": "e2e/group-schedule-workflow.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1200
+        }
+      ],
+      "manual_checks": [
+        {
+          "id": "manual.import-design",
+          "description": "Compare rendered import ready/errors/unknown/dialog against selected A at desktop/mobile and record device limitations."
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-196",
+  "source_ref": null,
+  "e2e_port": 62422,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6",
+    "uv": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/AGENTS.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AuthEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientImportResponse.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/CrmCapability.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientCreationData.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportLimits.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportMapping.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportResult.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportRow.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportText.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientImportText.resx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientImportService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/DependencyInjection.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientImportApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientImportMappingTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-evidence/desktop-ready.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-evidence/iphone-air-dialog.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-evidence/iphone-air-unknown.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-evidence/iphone-pro-max-dialog.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-evidence/mobile-errors.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-evidence/mobile-ready.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-evidence/verification.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-196-xlsx-client-import-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/implementation/TASK-196-xlsx-client-import.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/architecture/adr/0006-trainer-assignment-period-boundaries.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/operations/client-xlsx-import.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/01-клиенты.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/02-группы.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/03-абонементы-и-оплаты.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/05-пользователи-и-роли.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/09-филиалы-и-настройки.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/fixtures/client-import/48-corrected.xlsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/fixtures/client-import/48-invalid.xlsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/fixtures/client-import/66-corrected.xlsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/fixtures/client-import/66-invalid.xlsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/helpers/import-runtime.mjs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/settings-client-import.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.css"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/RouteViewport.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/audit/AuditLogScreen.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/audit/AuditLogScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/settings/ClientImportPanel.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/settings/ClientImportPanel.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/SettingsScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/settings/useClientImport.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/auth.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/auth.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/lib/api/clientImport.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/lib/api/clientImport.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/errors.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/transport.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/types.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/resources.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/resources/client-import.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "scripts/harness/change_impact.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "scripts/harness/tests/test_change_impact.py"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/AGENTS.md",
+    "backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+    "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+    "backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs",
+    "backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+    "backend/src/GymCrm.Application/Authorization/CrmCapability.cs",
+    "backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+    "backend/src/GymCrm.Application/Clients/ClientCreationData.cs",
+    "backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportLimits.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportMapping.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportResult.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportRow.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportText.cs",
+    "backend/src/GymCrm.Application/Clients/ClientImportText.resx",
+    "backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs",
+    "backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs",
+    "backend/src/GymCrm.Application/Clients/IClientImportService.cs",
+    "backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs",
+    "backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+    "backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+    "backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+    "backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs",
+    "backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/ClientImportApiTests.cs",
+    "backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs",
+    "backend/tests/GymCrm.Tests/ClientImportMappingTests.cs",
+    "backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs",
+    "backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs",
+    "backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+    "backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs",
+    "backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+    "backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md",
+    "backlog/implementation/TASK-196-evidence/desktop-ready.png",
+    "backlog/implementation/TASK-196-evidence/iphone-air-dialog.png",
+    "backlog/implementation/TASK-196-evidence/iphone-air-unknown.png",
+    "backlog/implementation/TASK-196-evidence/iphone-pro-max-dialog.png",
+    "backlog/implementation/TASK-196-evidence/mobile-errors.png",
+    "backlog/implementation/TASK-196-evidence/mobile-ready.png",
+    "backlog/implementation/TASK-196-evidence/verification.md",
+    "backlog/implementation/TASK-196-manual-evidence.json",
+    "backlog/implementation/TASK-196-xlsx-client-import-verification-contract.json",
+    "backlog/implementation/TASK-196-xlsx-client-import.md",
+    "docs/architecture/adr/0006-trainer-assignment-period-boundaries.md",
+    "docs/architecture/adr/README.md",
+    "docs/operations/client-xlsx-import.md",
+    "docs/requirements/01-клиенты.md",
+    "docs/requirements/02-группы.md",
+    "docs/requirements/03-абонементы-и-оплаты.md",
+    "docs/requirements/05-пользователи-и-роли.md",
+    "docs/requirements/09-филиалы-и-настройки.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+    "frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+    "frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+    "frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+    "frontend/e2e/helpers/import-runtime.mjs",
+    "frontend/e2e/settings-client-import.spec.ts",
+    "frontend/playwright.config.ts",
+    "frontend/src/App.css",
+    "frontend/src/App.tsx",
+    "frontend/src/app/RouteViewport.tsx",
+    "frontend/src/features/audit/AuditLogScreen.test.tsx",
+    "frontend/src/features/audit/AuditLogScreen.tsx",
+    "frontend/src/features/settings/ClientImportPanel.test.tsx",
+    "frontend/src/features/settings/ClientImportPanel.tsx",
+    "frontend/src/features/settings/SettingsScreen.tsx",
+    "frontend/src/features/settings/useClientImport.ts",
+    "frontend/src/lib/api.ts",
+    "frontend/src/lib/api/auth.test.ts",
+    "frontend/src/lib/api/auth.ts",
+    "frontend/src/lib/api/clientImport.test.ts",
+    "frontend/src/lib/api/clientImport.ts",
+    "frontend/src/lib/api/errors.ts",
+    "frontend/src/lib/api/transport.ts",
+    "frontend/src/lib/api/types.ts",
+    "frontend/src/lib/resources.ts",
+    "frontend/src/resources/client-import.ts",
+    "scripts/harness/change_impact.py",
+    "scripts/harness/tests/test_change_impact.py"
+  ],
+  "selected_areas": [
+    "requirements",
+    "harness",
+    "backend",
+    "frontend",
+    "bot"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backend/AGENTS.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-196-evidence/desktop-ready.png",
+      "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-dialog.png",
+      "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-unknown.png",
+      "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-pro-max-dialog.png",
+      "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-errors.png",
+      "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-ready.png",
+      "documentation or instructions changed: backlog/implementation/TASK-196-evidence/verification.md",
+      "documentation or instructions changed: backlog/implementation/TASK-196-manual-evidence.json",
+      "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import-verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import.md",
+      "documentation or instructions changed: docs/architecture/adr/0006-trainer-assignment-period-boundaries.md",
+      "documentation or instructions changed: docs/architecture/adr/README.md",
+      "documentation or instructions changed: docs/operations/client-xlsx-import.md",
+      "documentation or instructions changed: docs/requirements/01-клиенты.md",
+      "documentation or instructions changed: docs/requirements/02-группы.md",
+      "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+      "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+      "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/CrmCapability.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationData.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportLimits.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMapping.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportResult.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportRow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.resx",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientImportService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportMappingTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+      "task contract TASK-196 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+      "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+      "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+      "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+      "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+      "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+      "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/App.css",
+      "frontend-owned path changed: frontend/src/App.tsx",
+      "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+      "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+      "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+      "frontend-owned path changed: frontend/src/lib/api.ts",
+      "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+      "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+      "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+      "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+      "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+      "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+      "frontend-owned path changed: frontend/src/lib/api/types.ts",
+      "frontend-owned path changed: frontend/src/lib/resources.ts",
+      "frontend-owned path changed: frontend/src/resources/client-import.ts",
+      "task contract TASK-196 requires frontend"
+    ],
+    "harness": [
+      "selector, knowledge validator or harness tests changed: scripts/harness/change_impact.py",
+      "selector, knowledge validator or harness tests changed: scripts/harness/tests/test_change_impact.py"
+    ],
+    "bot": [
+      "task contract TASK-196 requires bot"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.import-design",
+      "description": "Compare rendered import ready/errors/unknown/dialog against selected A at desktop/mobile and record device limitations.",
+      "status": "confirmed",
+      "actor": "coding-agent:TASK-196",
+      "performed_at": "2026-11-16T00:43:42+03:00",
+      "note": "Compared rendered ready/errors/unknown/dialog with selected A at desktop/mobile; retained screenshots and explicitly recorded native Safari/keyboard/device limitations.",
+      "artifacts": [
+        "backlog/implementation/TASK-196-evidence/verification.md"
+      ],
+      "evidence_path": "backlog/implementation/TASK-196-manual-evidence.json",
+      "evidence_sha256": "a7513928f289430e99bfedf8f55dbf36601659b27ddc436af4da2a1682916661"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backend/AGENTS.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/desktop-ready.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-dialog.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-unknown.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-pro-max-dialog.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-errors.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-ready.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-196-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import.md",
+        "documentation or instructions changed: docs/architecture/adr/0006-trainer-assignment-period-boundaries.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/operations/client-xlsx-import.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:22.727021+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.037,
+      "completed_at": "2026-11-15T21:45:22.763749+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backend/AGENTS.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/desktop-ready.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-dialog.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-unknown.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-pro-max-dialog.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-errors.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-ready.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-196-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import.md",
+        "documentation or instructions changed: docs/architecture/adr/0006-trainer-assignment-period-boundaries.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/operations/client-xlsx-import.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:22.765148+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-15T21:45:22.805566+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backend/AGENTS.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/desktop-ready.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-dialog.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-unknown.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-pro-max-dialog.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-errors.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-ready.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-196-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import.md",
+        "documentation or instructions changed: docs/architecture/adr/0006-trainer-assignment-period-boundaries.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/operations/client-xlsx-import.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:22.806938+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-15T21:45:22.847210+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backend/AGENTS.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-196-xlsx-client-import.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/desktop-ready.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-dialog.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-air-unknown.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/iphone-pro-max-dialog.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-errors.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/mobile-ready.png",
+        "documentation or instructions changed: backlog/implementation/TASK-196-evidence/verification.md",
+        "documentation or instructions changed: backlog/implementation/TASK-196-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-196-xlsx-client-import.md",
+        "documentation or instructions changed: docs/architecture/adr/0006-trainer-assignment-period-boundaries.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/operations/client-xlsx-import.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "failed",
+      "started_at": "2026-11-15T21:45:22.848539+00:00",
+      "exit_code": 1,
+      "duration_seconds": 0.07,
+      "completed_at": "2026-11-15T21:45:22.918876+00:00"
+    },
+    {
+      "id": "harness.unit",
+      "area": "harness",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/harness/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "selector, knowledge validator or harness tests changed: scripts/harness/change_impact.py",
+        "selector, knowledge validator or harness tests changed: scripts/harness/tests/test_change_impact.py"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:22.920260+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.449,
+      "completed_at": "2026-11-15T21:45:25.369009+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/CrmCapability.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationData.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportLimits.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMapping.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.resx",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportMappingTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "task contract TASK-196 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:25.370509+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.668,
+      "completed_at": "2026-11-15T21:45:26.038738+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/CrmCapability.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationData.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportLimits.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMapping.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.resx",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportMappingTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "task contract TASK-196 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:26.040245+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.974,
+      "completed_at": "2026-11-15T21:45:28.014274+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/CrmCapability.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationData.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportLimits.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMapping.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.resx",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportMappingTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "task contract TASK-196 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:28.015848+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.21,
+      "completed_at": "2026-11-15T21:45:39.225638+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/CrmCapability.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationData.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportLimits.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMapping.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.resx",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportMappingTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "task contract TASK-196 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:39.227678+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.033,
+      "completed_at": "2026-11-15T21:45:43.260395+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/CrmCapability.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationData.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportLimits.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMapping.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.resx",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportMappingTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "task contract TASK-196 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:45:43.261864+00:00",
+      "exit_code": 0,
+      "duration_seconds": 165.985,
+      "completed_at": "2026-11-15T21:48:29.247262+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleRequestValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GymCrmAuthorizationPolicies.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/CrmCapability.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationData.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportLimits.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappedRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMapping.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportMappingResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportRow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientImportText.resx",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientXlsxReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientCreationWriter.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerAssignmentConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261116010000_UseInclusiveTrainerPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AdministratorClientScopePostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportBrowserHostTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportMappingTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientImportPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientXlsxReaderTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/FinancialReportsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/SyntheticImportProfiles.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "task contract TASK-196 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:48:29.249554+00:00",
+      "exit_code": 0,
+      "duration_seconds": 9.706,
+      "completed_at": "2026-11-15T21:48:38.955371+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:48:38.956869+00:00",
+      "exit_code": 0,
+      "duration_seconds": 27.727,
+      "completed_at": "2026-11-15T21:49:06.683447+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:06.684960+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.813,
+      "completed_at": "2026-11-15T21:49:08.497535+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:08.499023+00:00",
+      "exit_code": 0,
+      "duration_seconds": 25.889,
+      "completed_at": "2026-11-15T21:49:34.388335+00:00"
+    },
+    {
+      "id": "bot.sync",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--extra",
+        "dev"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "task contract TASK-196 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:34.390425+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.576,
+      "completed_at": "2026-11-15T21:49:37.966696+00:00"
+    },
+    {
+      "id": "bot.lint",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "task contract TASK-196 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:37.968176+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.551,
+      "completed_at": "2026-11-15T21:49:38.519062+00:00"
+    },
+    {
+      "id": "bot.user-facing-text",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "python",
+        "scripts/check_user_facing_text.py",
+        ".."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-196 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:38.520536+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.074,
+      "completed_at": "2026-11-15T21:49:38.594694+00:00"
+    },
+    {
+      "id": "bot.format",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "task contract TASK-196 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:38.596116+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.074,
+      "completed_at": "2026-11-15T21:49:38.670127+00:00"
+    },
+    {
+      "id": "bot.types",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "mypy"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "task contract TASK-196 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:38.671567+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.307,
+      "completed_at": "2026-11-15T21:49:43.978847+00:00"
+    },
+    {
+      "id": "bot.test",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "pytest"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "task contract TASK-196 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:43.980401+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.833,
+      "completed_at": "2026-11-15T21:49:49.813077+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend",
+        "task contract TASK-196 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:49.815230+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.461,
+      "completed_at": "2026-11-15T21:49:50.276437+00:00"
+    },
+    {
+      "id": "frontend.e2e.client-import",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/settings-client-import.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend",
+        "task contract TASK-196 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:49:50.277959+00:00",
+      "exit_code": 0,
+      "duration_seconds": 23.797,
+      "completed_at": "2026-11-15T21:50:14.074585+00:00"
+    },
+    {
+      "id": "frontend.e2e.settings-regression",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/settings-group-types.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend",
+        "task contract TASK-196 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:50:14.076803+00:00",
+      "exit_code": 0,
+      "duration_seconds": 13.456,
+      "completed_at": "2026-11-15T21:50:27.532694+00:00"
+    },
+    {
+      "id": "frontend.e2e.audit-access",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/route-access-feedback.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend",
+        "task contract TASK-196 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:50:27.534548+00:00",
+      "exit_code": 0,
+      "duration_seconds": 23.464,
+      "completed_at": "2026-11-15T21:50:50.998184+00:00"
+    },
+    {
+      "id": "frontend.e2e.transfer-regression",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/administrator-client-branch-access.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend",
+        "task contract TASK-196 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-15T21:50:50.999848+00:00",
+      "exit_code": 0,
+      "duration_seconds": 21.336,
+      "completed_at": "2026-11-15T21:51:12.336397+00:00"
+    },
+    {
+      "id": "frontend.e2e.staffing-regression",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule-workflow.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientImportResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerAssignmentEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Authorization/ClientImportScopeContracts.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Application/Clients/ClientImportIssueContracts.cs",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/48-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-corrected.xlsx",
+        "frontend-owned path changed: frontend/e2e/fixtures/client-import/66-invalid.xlsx",
+        "frontend-owned path changed: frontend/e2e/helpers/import-runtime.mjs",
+        "frontend-owned path changed: frontend/e2e/settings-client-import.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/audit/AuditLogScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.test.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/ClientImportPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/useClientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/auth.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/clientImport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/errors.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/client-import.ts",
+        "task contract TASK-196 requires frontend",
+        "task contract TASK-196 defines this check"
+      ],
+      "status": "failed",
+      "started_at": "2026-11-15T21:51:12.338120+00:00",
+      "exit_code": 1,
+      "duration_seconds": 26.791,
+      "completed_at": "2026-11-15T21:51:39.129572+00:00"
+    }
+  ],
+  "completed_at": "2026-11-15T21:51:39.131477+00:00"
+}

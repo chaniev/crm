@@ -27,4 +27,6 @@ Observed screenshots retained beside this report: desktop-ready, mobile-ready/er
 Limits: Playwright WebKit is browser-engine evidence only. Native Safari chrome, real software keyboard, native file picker, dynamic safe-area and physical-device/Simulator interaction were not exercised. Available simulators were inventoried but not used. No physical-device acceptance is claimed.
 
 ## Final canonical verification
-Pending final candidate run; this section will link the exact SHA report before integration.
+First canonical run on `d1be6cf13780ce17b6631c804232a0790cbf4e4d`: backend 780/780, frontend 769/769, bot 71/71, harness 119/119. Import 18/18, settings 30/30, access and transfer E2E passed. Registry rejected two not-yet-integrated requirement revisions still marked realized; both corrected to partial. A Chromium staffing regression had a focus timeout (29/30); unchanged main passed the isolated scenario. This run is retained as failed evidence, not merge approval.
+
+Additional import history/reload/Admin recovery test passed in all three browser projects (3/3). Final canonical run on the updated candidate is pending; its report will be linked before integration.
