@@ -56,9 +56,7 @@ internal static partial class ScheduleEndpoints
         Guid? groupId,
         Guid? groupTypeId,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
-        IAccessScopeService accessScopeService,
-        IAttendanceDatePolicy attendanceDatePolicy,
+        IScheduleLessonReader lessonReader,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -73,63 +71,10 @@ internal static partial class ScheduleEndpoints
             return CreateCalendarRangeValidationProblem();
         }
 
-        var scopedSeries = await LoadScopedSeriesAsync(
-            currentUser,
-            range.Value.From,
-            range.Value.To,
-            dbContext,
-            accessScopeService,
+        var read = await lessonReader.ReadAsync(currentUser,
+            new ScheduleReadQuery(range.Value.From, range.Value.To, branchId, hallId, groupId, groupTypeId),
             cancellationToken);
-        var filterOptions = BuildFilterOptions(scopedSeries);
-
-        var series = scopedSeries.AsEnumerable();
-        if (branchId.HasValue)
-        {
-            series = series.Where(item => item.Group.BranchId == branchId.Value);
-        }
-
-        if (hallId.HasValue)
-        {
-            series = series.Where(item => item.RuleVersions.Any(version =>
-                version.Slots.Any(slot => slot.HallId == hallId.Value)));
-        }
-
-        if (groupId.HasValue)
-        {
-            series = series.Where(item => item.GroupId == groupId.Value);
-        }
-
-        if (groupTypeId.HasValue)
-        {
-            series = series.Where(item => item.Group.GroupTypeId == groupTypeId.Value);
-        }
-
-        var attendanceMarks = await LoadAttendanceMarkFactsAsync(
-            dbContext,
-            range.Value.From,
-            range.Value.To,
-            cancellationToken);
-        var materialized = await LoadMaterializedOccurrencesAsync(
-            dbContext,
-            series.Select(item => item.GroupId).ToHashSet(),
-            await LoadAccessibleSubstituteOccurrenceIdsAsync(
-                dbContext,
-                currentUser,
-                range.Value.From,
-                range.Value.To,
-                cancellationToken),
-            range.Value.From,
-            range.Value.To,
-            cancellationToken);
-
-        var items = ProjectLessons(
-                series,
-                materialized,
-                range.Value.From,
-                range.Value.To,
-                currentUser,
-                attendanceDatePolicy,
-                attendanceMarks)
+        var items = read.Lessons.Select(lesson => MapLesson(lesson, currentUser))
             .Where(lesson => !trainerId.HasValue ||
                 lesson.EffectiveTrainers.Any(trainer => trainer.TrainerId == trainerId.Value))
             .OrderBy(lesson => lesson.LessonDate)
@@ -143,16 +88,14 @@ internal static partial class ScheduleEndpoints
             range.Value.To,
             items,
             BuildCapabilities(currentUser),
-            filterOptions));
+            MapFilterOptions(read.FilterOptions)));
     }
 
     private static async Task<Results<Ok<ScheduleLessonResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> GetLessonAsync(
         Guid lessonOccurrenceId,
         string? lessonDate,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
-        IAccessScopeService accessScopeService,
-        IAttendanceDatePolicy attendanceDatePolicy,
+        IScheduleLessonReader lessonReader,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -170,39 +113,10 @@ internal static partial class ScheduleEndpoints
             });
         }
 
-        var scopedSeries = await LoadScopedSeriesAsync(
-            currentUser,
-            parsedDate.Value,
-            parsedDate.Value,
-            dbContext,
-            accessScopeService,
-            cancellationToken);
-        var attendanceMarks = await LoadAttendanceMarkFactsAsync(
-            dbContext,
-            parsedDate.Value,
-            parsedDate.Value,
-            cancellationToken);
-        var materialized = await LoadMaterializedOccurrencesAsync(
-            dbContext,
-            scopedSeries.Select(item => item.GroupId).ToHashSet(),
-            await LoadAccessibleSubstituteOccurrenceIdsAsync(
-                dbContext,
-                currentUser,
-                parsedDate.Value,
-                parsedDate.Value,
-                cancellationToken),
-            parsedDate.Value,
-            parsedDate.Value,
-            cancellationToken);
-        var lesson = ProjectLessons(
-                scopedSeries,
-                materialized,
-                parsedDate.Value,
-                parsedDate.Value,
-                currentUser,
-                attendanceDatePolicy,
-                attendanceMarks)
-            .SingleOrDefault(candidate => candidate.LessonOccurrenceId == lessonOccurrenceId);
+        var read = await lessonReader.ReadAsync(currentUser,
+            new ScheduleReadQuery(parsedDate.Value, parsedDate.Value), cancellationToken);
+        var facts = read.Lessons.SingleOrDefault(candidate => candidate.LessonOccurrenceId == lessonOccurrenceId);
+        var lesson = facts is null ? null : MapLesson(facts, currentUser);
 
         return lesson is null
             ? CreateOccurrenceNotFoundProblem()
@@ -213,45 +127,11 @@ internal static partial class ScheduleEndpoints
         User currentUser,
         DateOnly from,
         DateOnly to,
-        GymCrmDbContext dbContext,
-        IAccessScopeService accessScopeService,
-        IAttendanceDatePolicy attendanceDatePolicy,
+        IScheduleLessonReader lessonReader,
         CancellationToken cancellationToken)
     {
-        var scopedSeries = await LoadScopedSeriesAsync(
-            currentUser,
-            from,
-            to,
-            dbContext,
-            accessScopeService,
-            cancellationToken);
-        var attendanceMarks = await LoadAttendanceMarkFactsAsync(
-            dbContext,
-            from,
-            to,
-            cancellationToken);
-        var materialized = await LoadMaterializedOccurrencesAsync(
-            dbContext,
-            scopedSeries.Select(item => item.GroupId).ToHashSet(),
-            await LoadAccessibleSubstituteOccurrenceIdsAsync(
-                dbContext,
-                currentUser,
-                from,
-                to,
-                cancellationToken),
-            from,
-            to,
-            cancellationToken);
-
-        return ProjectLessons(
-                scopedSeries,
-                materialized,
-                from,
-                to,
-                currentUser,
-                attendanceDatePolicy,
-                attendanceMarks)
-            .ToArray();
+        var read = await lessonReader.ReadAsync(currentUser, new ScheduleReadQuery(from, to), cancellationToken);
+        return read.Lessons.Select(lesson => MapLesson(lesson, currentUser)).ToArray();
     }
 
     private static async Task<IResult> PreviewOneOffLessonAsync(
@@ -1121,228 +1001,13 @@ internal static partial class ScheduleEndpoints
         Guid lessonOccurrenceId,
         DateOnly lessonDate,
         User currentUser,
-        GymCrmDbContext dbContext,
-        IAccessScopeService accessScopeService,
+        IScheduleLessonReader lessonReader,
         CancellationToken cancellationToken)
     {
-        var scopedSeries = await LoadScopedSeriesAsync(
-            currentUser,
-            lessonDate,
-            lessonDate,
-            dbContext,
-            accessScopeService,
-            cancellationToken);
-        var resolved = ProjectLessons(
-                scopedSeries,
-                [],
-                lessonDate,
-                lessonDate,
-                currentUser,
-                new AttendanceDatePolicy(new FixedBusinessDateProvider(lessonDate)),
-                new HashSet<Guid>())
-            .SingleOrDefault(candidate => candidate.LessonOccurrenceId == lessonOccurrenceId);
-
+        var resolved = await lessonReader.FindRecurringAsync(currentUser, lessonOccurrenceId, lessonDate, cancellationToken);
         return resolved is null
             ? null
-            : new LegacyScheduleOccurrenceResolution(
-                resolved.GroupId,
-                lessonDate,
-                TimeOnly.ParseExact(resolved.StartTime, "HH\\:mm", CultureInfo.InvariantCulture),
-                resolved.DurationMinutes);
-    }
-
-    private static async Task<List<LessonSeries>> LoadScopedSeriesAsync(
-        User currentUser,
-        DateOnly from,
-        DateOnly to,
-        GymCrmDbContext dbContext,
-        IAccessScopeService accessScopeService,
-        CancellationToken cancellationToken)
-    {
-        var accessScope = await accessScopeService.GetAccessScopeAsync(currentUser, cancellationToken);
-        var accessibleGroupIds = accessScope.AttendanceScope.Kind == AttendanceScopeKind.Global
-            ? null
-            : accessScope.AttendanceScope.GroupIds.ToHashSet();
-
-        var query = dbContext.LessonSeries
-            .AsNoTracking()
-            .Where(series =>
-                series.StartsOn <= to &&
-                (series.EndsOn == null || series.EndsOn >= from))
-            .Include(series => series.Group)
-                .ThenInclude(group => group.Branch)
-            .Include(series => series.Group)
-                .ThenInclude(group => group.GroupType)
-            .Include(series => series.Group)
-                .ThenInclude(group => group.TrainerAssignments)
-                .ThenInclude(assignment => assignment.Trainer)
-            .Include(series => series.RuleVersions)
-                .ThenInclude(version => version.Slots)
-                    .ThenInclude(slot => slot.Hall)
-            .AsSplitQuery();
-        if (accessibleGroupIds is not null)
-        {
-            query = query.Where(series => accessibleGroupIds.Contains(series.GroupId));
-        }
-
-        return await query
-            .OrderBy(series => series.Group.Name)
-            .ThenBy(series => series.GroupId)
-            .ToListAsync(cancellationToken);
-    }
-
-    private static async Task<HashSet<Guid>> LoadAttendanceMarkFactsAsync(
-        GymCrmDbContext dbContext,
-        DateOnly from,
-        DateOnly to,
-        CancellationToken cancellationToken)
-    {
-        return (await dbContext.Attendance
-                .AsNoTracking()
-                .Where(attendance => attendance.TrainingDate >= from && attendance.TrainingDate <= to)
-                .Select(attendance => attendance.LessonOccurrenceId)
-                .Distinct()
-                .ToArrayAsync(cancellationToken))
-            .ToHashSet();
-    }
-
-    private static async Task<IReadOnlyList<LessonOccurrence>> LoadMaterializedOccurrencesAsync(
-        GymCrmDbContext dbContext,
-        IReadOnlySet<Guid> groupIds,
-        IReadOnlySet<Guid> substituteOccurrenceIds,
-        DateOnly from,
-        DateOnly to,
-        CancellationToken cancellationToken)
-    {
-        if (groupIds.Count == 0 && substituteOccurrenceIds.Count == 0)
-        {
-            return [];
-        }
-
-        return await dbContext.LessonOccurrences
-            .AsNoTracking()
-            .Where(occurrence =>
-                (groupIds.Contains(occurrence.GroupId) || substituteOccurrenceIds.Contains(occurrence.Id)) &&
-                ((occurrence.LessonDate >= from && occurrence.LessonDate <= to) ||
-                    (occurrence.ProjectedDate != null &&
-                        occurrence.ProjectedDate >= from &&
-                        occurrence.ProjectedDate <= to)))
-            .Include(occurrence => occurrence.Group)
-                .ThenInclude(group => group.Branch)
-            .Include(occurrence => occurrence.Group)
-                .ThenInclude(group => group.GroupType)
-            .Include(occurrence => occurrence.Group)
-                .ThenInclude(group => group.TrainerAssignments)
-                    .ThenInclude(assignment => assignment.Trainer)
-            .Include(occurrence => occurrence.Hall)
-            .Include(occurrence => occurrence.TrainerSubstitutions.Where(substitution => substitution.CancelledAt == null))
-                .ThenInclude(substitution => substitution.ReplacedTrainer)
-            .Include(occurrence => occurrence.TrainerSubstitutions.Where(substitution => substitution.CancelledAt == null))
-                .ThenInclude(substitution => substitution.SubstituteTrainer)
-            .AsSplitQuery()
-            .ToArrayAsync(cancellationToken);
-    }
-
-    private static async Task<HashSet<Guid>> LoadAccessibleSubstituteOccurrenceIdsAsync(
-        GymCrmDbContext dbContext,
-        User currentUser,
-        DateOnly from,
-        DateOnly to,
-        CancellationToken cancellationToken)
-    {
-        if (currentUser.Role != UserRole.Coach)
-        {
-            return [];
-        }
-
-        return (await dbContext.LessonOccurrenceTrainerSubstitutions
-                .AsNoTracking()
-                .Where(substitution =>
-                    substitution.SubstituteTrainerId == currentUser.Id &&
-                    substitution.CancelledAt == null &&
-                    substitution.LessonOccurrence.LessonDate >= from &&
-                    substitution.LessonOccurrence.LessonDate <= to)
-                .Select(substitution => substitution.LessonOccurrenceId)
-                .ToArrayAsync(cancellationToken))
-            .ToHashSet();
-    }
-
-    private static IEnumerable<ScheduleLessonResponse> ProjectLessons(
-        IEnumerable<LessonSeries> series,
-        IReadOnlyList<LessonOccurrence> materialized,
-        DateOnly from,
-        DateOnly to,
-        User currentUser,
-        IAttendanceDatePolicy attendanceDatePolicy,
-        IReadOnlySet<Guid> attendanceMarks)
-    {
-        var materializedById = materialized.ToDictionary(occurrence => occurrence.Id);
-        var yieldedIds = new HashSet<Guid>();
-        for (var date = from; date <= to; date = date.AddDays(1))
-        {
-            var weekday = ToIsoWeekday(date);
-            foreach (var candidate in series)
-            {
-                if (date < candidate.StartsOn || (candidate.EndsOn is not null && date > candidate.EndsOn.Value))
-                {
-                    continue;
-                }
-
-                foreach (var version in candidate.RuleVersions
-                    .Where(version =>
-                        version.EffectiveFrom <= date &&
-                        (version.EffectiveTo is null || version.EffectiveTo >= date))
-                    .OrderBy(version => version.VersionNumber))
-                {
-                    foreach (var slot in version.Slots
-                        .Where(slot => slot.IsoWeekday == weekday)
-                        .OrderBy(slot => slot.StartTime)
-                        .ThenBy(slot => slot.Id))
-                    {
-                        var occurrenceId = LessonOccurrenceIdPolicy.CreateRecurring(slot.SlotLineageId, date);
-                        if (materializedById.TryGetValue(occurrenceId, out var occurrence))
-                        {
-                            if (occurrence.LessonDate == date)
-                            {
-                                var materializedLesson = MapMaterializedLesson(
-                                    occurrence,
-                                    currentUser,
-                                    attendanceDatePolicy,
-                                    attendanceMarks);
-                                yieldedIds.Add(materializedLesson.LessonOccurrenceId);
-                                yield return materializedLesson;
-                            }
-
-                            continue;
-                        }
-
-                        var lesson = MapLesson(
-                                candidate,
-                                version,
-                                slot,
-                                date,
-                                currentUser,
-                                attendanceDatePolicy,
-                                attendanceMarks);
-                        yieldedIds.Add(lesson.LessonOccurrenceId);
-                        yield return lesson;
-                    }
-                }
-            }
-        }
-
-        foreach (var occurrence in materialized
-            .Where(occurrence =>
-                !yieldedIds.Contains(occurrence.Id) &&
-                occurrence.LessonDate >= from &&
-                occurrence.LessonDate <= to)
-            .OrderBy(occurrence => occurrence.LessonDate)
-            .ThenBy(occurrence => occurrence.StartTime)
-            .ThenBy(occurrence => occurrence.Id))
-        {
-            yieldedIds.Add(occurrence.Id);
-            yield return MapMaterializedLesson(occurrence, currentUser, attendanceDatePolicy, attendanceMarks);
-        }
+            : new LegacyScheduleOccurrenceResolution(resolved.GroupId, lessonDate, resolved.StartTime, resolved.DurationMinutes);
     }
 
     private static ScheduleLessonResponse MapMaterializedLesson(
@@ -1386,11 +1051,21 @@ internal static partial class ScheduleEndpoints
         string sourceRevision,
         IEnumerable<LessonOccurrenceTrainerSubstitution>? substitutions = null)
     {
-        var effectiveTrainers = MapEffectiveTrainers(group, lessonDate, substitutions ?? []);
+        return MapLesson(ScheduleLessonProjector.Create(
+            occurrenceId, Enum.Parse<LessonOccurrenceSourceKind>(sourceKind), isMaterialized, lessonSeriesId,
+            lessonDate, startTime, durationMinutes, group, hall, Enum.Parse<LessonOccurrenceStatus>(status),
+            currentUser.Role, attendanceDatePolicy, attendanceMarks, sourceRevision, substitutions), currentUser, recurringProjection: false);
+    }
+
+    private static ScheduleLessonResponse MapLesson(ScheduleLessonFacts lesson, User currentUser, bool recurringProjection = true)
+    {
+        var effectiveTrainers = lesson.EffectiveTrainers.Select(trainer => new ScheduleLessonTrainerResponse(
+            trainer.TrainerId, trainer.FullName, trainer.Kind.ToString(), trainer.ReplacedTrainerId, trainer.SubstitutionId)).ToArray();
+        var status = lesson.Status.ToString();
         var isManagement = currentUser.Role is UserRole.Administrator or UserRole.HeadCoach or UserRole.SuperAdministrator;
-        var canEditAttendance = status == "Scheduled" && attendanceDatePolicy.IsAllowed(currentUser.Role, lessonDate);
+        var canEditAttendance = lesson.CanEditAttendance;
         var allowedActions = new ScheduleLessonAllowedActionsResponse(
-            new ScheduleActionResponse(true, null),
+            new ScheduleActionResponse(lesson.CanViewAttendance, null),
             new ScheduleActionResponse(canEditAttendance, canEditAttendance ? null : "attendance-date-unavailable"),
             new ScheduleActionResponse(isManagement, isManagement ? null : "role-not-allowed"),
             new ScheduleActionResponse(isManagement, isManagement ? null : "role-not-allowed"),
@@ -1399,153 +1074,58 @@ internal static partial class ScheduleEndpoints
                 !isManagement ? "role-not-allowed" : status == "Scheduled" ? null : "lesson-not-scheduled"),
             new ScheduleActionResponse(
                 isManagement && status == "Cancelled",
-                !isManagement ? "role-not-allowed" : status == "Cancelled" ? null : "lesson-not-cancelled"),
+                recurringProjection && !lesson.IsMaterialized && lesson.SourceKind == LessonOccurrenceSourceKind.Recurring
+                    ? "lesson-not-cancelled"
+                    : !isManagement ? "role-not-allowed" : status == "Cancelled" ? null : "lesson-not-cancelled"),
             new ScheduleActionResponse(
                 isManagement && status == "Scheduled",
                 !isManagement ? "role-not-allowed" : status == "Scheduled" ? null : "lesson-not-scheduled"),
             new ScheduleActionResponse(
                 isManagement && status == "Scheduled" && effectiveTrainers.Any(trainer => trainer.Kind == "Substitute"),
-                !isManagement
+                recurringProjection && !lesson.IsMaterialized && lesson.SourceKind == LessonOccurrenceSourceKind.Recurring
+                    ? "no-active-substitution"
+                    : !isManagement
                     ? "role-not-allowed"
                     : status != "Scheduled"
                         ? "lesson-not-scheduled"
                         : effectiveTrainers.Any(trainer => trainer.Kind == "Substitute")
                             ? null
                             : "no-active-substitution"));
-        var hasAttendanceMarks = attendanceMarks.Contains(occurrenceId);
-        var endTime = startTime.AddMinutes(durationMinutes);
+        var hasAttendanceMarks = lesson.HasAttendanceMarks;
+        var endTime = lesson.StartTime.AddMinutes(lesson.DurationMinutes);
 
         return new ScheduleLessonResponse(
-            occurrenceId,
-            sourceKind,
-            isMaterialized,
-            lessonSeriesId,
-            lessonDate,
-            startTime.ToString("HH\\:mm", CultureInfo.InvariantCulture),
-            durationMinutes,
+            lesson.LessonOccurrenceId,
+            lesson.SourceKind.ToString(),
+            lesson.IsMaterialized,
+            lesson.LessonSeriesId,
+            lesson.LessonDate,
+            lesson.StartTime.ToString("HH\\:mm", CultureInfo.InvariantCulture),
+            lesson.DurationMinutes,
             endTime.ToString("HH\\:mm", CultureInfo.InvariantCulture),
-            group.Id,
-            group.Name,
-            group.GroupTypeId,
-            group.GroupType.Name,
-            group.BranchId,
-            group.Branch.Name,
-            hall.Id,
-            hall.Name,
+            lesson.GroupId,
+            lesson.GroupName,
+            lesson.GroupTypeId,
+            lesson.GroupTypeName,
+            lesson.BranchId,
+            lesson.BranchName,
+            lesson.HallId,
+            lesson.HallName,
             effectiveTrainers,
             status,
             hasAttendanceMarks,
             allowedActions,
             BuildRevision(
-                occurrenceId,
-                group.Id,
-                lessonDate,
-                startTime,
-                durationMinutes,
-                hall.Id,
+                lesson.LessonOccurrenceId,
+                lesson.GroupId,
+                lesson.LessonDate,
+                lesson.StartTime,
+                lesson.DurationMinutes,
+                lesson.HallId,
                 effectiveTrainers,
                 status,
                 hasAttendanceMarks,
-                sourceRevision));
-    }
-
-    private static ScheduleLessonResponse MapLesson(
-        LessonSeries series,
-        LessonScheduleRuleVersion version,
-        LessonScheduleSlot slot,
-        DateOnly lessonDate,
-        User currentUser,
-        IAttendanceDatePolicy attendanceDatePolicy,
-        IReadOnlySet<Guid> attendanceMarks)
-    {
-        var group = series.Group;
-        var startTime = slot.StartTime;
-        var durationMinutes = slot.DurationMinutes;
-        var endTime = startTime.AddMinutes(durationMinutes);
-        var occurrenceId = LessonOccurrenceIdPolicy.CreateRecurring(slot.SlotLineageId, lessonDate);
-        var effectiveTrainers = MapEffectiveTrainers(group, lessonDate, []);
-        var isManagement = currentUser.Role is UserRole.Administrator or UserRole.HeadCoach or UserRole.SuperAdministrator;
-        var canEditAttendance = attendanceDatePolicy.IsAllowed(currentUser.Role, lessonDate);
-        var allowedActions = new ScheduleLessonAllowedActionsResponse(
-            new ScheduleActionResponse(true, null),
-            new ScheduleActionResponse(canEditAttendance, canEditAttendance ? null : "attendance-date-unavailable"),
-            new ScheduleActionResponse(isManagement, isManagement ? null : "role-not-allowed"),
-            new ScheduleActionResponse(isManagement, isManagement ? null : "role-not-allowed"),
-            new ScheduleActionResponse(isManagement, isManagement ? null : "role-not-allowed"),
-            new ScheduleActionResponse(false, "lesson-not-cancelled"),
-            new ScheduleActionResponse(isManagement, isManagement ? null : "role-not-allowed"),
-            new ScheduleActionResponse(false, "no-active-substitution"));
-        var hasAttendanceMarks = attendanceMarks.Contains(occurrenceId);
-
-        return new ScheduleLessonResponse(
-            occurrenceId,
-            "Recurring",
-            false,
-            series.Id,
-            lessonDate,
-            startTime.ToString("HH\\:mm", CultureInfo.InvariantCulture),
-            durationMinutes,
-            endTime.ToString("HH\\:mm", CultureInfo.InvariantCulture),
-            group.Id,
-            group.Name,
-            group.GroupTypeId,
-            group.GroupType.Name,
-            group.BranchId,
-            group.Branch.Name,
-            slot.HallId,
-            slot.Hall.Name,
-            effectiveTrainers,
-            "Scheduled",
-            hasAttendanceMarks,
-            allowedActions,
-            BuildRevision(
-                occurrenceId,
-                group.Id,
-                lessonDate,
-                startTime,
-                durationMinutes,
-                slot.HallId,
-                effectiveTrainers,
-                "Scheduled",
-                hasAttendanceMarks,
-                $"{series.Id:D}:{version.Id:D}:{slot.Id:D}:{slot.SlotLineageId:D}"));
-    }
-
-    private static IReadOnlyList<ScheduleLessonTrainerResponse> MapEffectiveTrainers(
-        GymCrm.Domain.Groups.TrainingGroup group,
-        DateOnly lessonDate,
-        IEnumerable<LessonOccurrenceTrainerSubstitution> substitutions)
-    {
-        var activeSubstitutions = substitutions
-            .Where(substitution => substitution.CancelledAt == null)
-            .GroupBy(substitution => substitution.ReplacedTrainerId)
-            .Select(grouping => grouping.OrderBy(substitution => substitution.CreatedAt).ThenBy(substitution => substitution.Id).First())
-            .ToDictionary(substitution => substitution.ReplacedTrainerId);
-
-        var permanent = group.TrainerAssignments
-            .Where(assignment =>
-                assignment.ValidFrom <= lessonDate &&
-                (assignment.ValidTo is null || assignment.ValidTo >= lessonDate) &&
-                !activeSubstitutions.ContainsKey(assignment.TrainerId))
-            .Select(assignment => new ScheduleLessonTrainerResponse(
-                assignment.TrainerId,
-                assignment.Trainer.FullName,
-                "Permanent",
-                null,
-                null));
-        var substitute = activeSubstitutions.Values
-            .Select(substitution => new ScheduleLessonTrainerResponse(
-                substitution.SubstituteTrainerId,
-                substitution.SubstituteTrainer.FullName,
-                "Substitute",
-                substitution.ReplacedTrainerId,
-                substitution.Id));
-
-        return permanent
-            .Concat(substitute)
-            .OrderBy(trainer => trainer.FullName)
-            .ThenBy(trainer => trainer.TrainerId)
-            .ToArray();
+                lesson.SourceRevision));
     }
 
     private static ScheduleCapabilitiesResponse BuildCapabilities(User currentUser)
@@ -1555,38 +1135,14 @@ internal static partial class ScheduleEndpoints
             new ScheduleActionResponse(isManagement, isManagement ? null : "role-not-allowed"));
     }
 
-    private static ScheduleFilterOptionsResponse BuildFilterOptions(
-        IReadOnlyCollection<LessonSeries> series)
-    {
-        return new ScheduleFilterOptionsResponse(
-            series
-                .GroupBy(item => new { item.Group.BranchId, item.Group.Branch.Name })
-                .OrderBy(group => group.Key.Name)
-                .Select(group => new ScheduleFilterOptionResponse(group.Key.BranchId, group.Key.Name))
-                .ToArray(),
-            series
-                .SelectMany(item => item.RuleVersions.SelectMany(version => version.Slots))
-                .GroupBy(slot => new { slot.HallId, slot.Hall.Name })
-                .OrderBy(group => group.Key.Name)
-                .Select(group => new ScheduleFilterOptionResponse(group.Key.HallId, group.Key.Name))
-                .ToArray(),
-            series
-                .SelectMany(item => item.Group.TrainerAssignments)
-                .GroupBy(assignment => new { Id = assignment.TrainerId, Name = assignment.Trainer.FullName })
-                .OrderBy(group => group.Key.Name)
-                .Select(group => new ScheduleFilterOptionResponse(group.Key.Id, group.Key.Name))
-                .ToArray(),
-            series
-                .OrderBy(item => item.Group.Name)
-                .ThenBy(item => item.GroupId)
-                .Select(item => new ScheduleFilterOptionResponse(item.GroupId, item.Group.Name))
-                .ToArray(),
-            series
-                .GroupBy(item => new { item.Group.GroupTypeId, item.Group.GroupType.Name })
-                .OrderBy(group => group.Key.Name)
-                .Select(group => new ScheduleFilterOptionResponse(group.Key.GroupTypeId, group.Key.Name))
-                .ToArray());
-    }
+    private static ScheduleFilterOptionsResponse MapFilterOptions(ScheduleFilterOptions options) => new(
+        options.Branches.Select(MapFilterOption).ToArray(),
+        options.Halls.Select(MapFilterOption).ToArray(),
+        options.Trainers.Select(MapFilterOption).ToArray(),
+        options.Groups.Select(MapFilterOption).ToArray(),
+        options.GroupTypes.Select(MapFilterOption).ToArray());
+
+    private static ScheduleFilterOptionResponse MapFilterOption(ScheduleFilterOption option) => new(option.Id, option.Name);
 
     private static string BuildRevision(
         Guid occurrenceId,
@@ -1680,11 +1236,6 @@ internal static partial class ScheduleEndpoints
                 ["code"] = "lesson-occurrence-not-found"
             }
         });
-    }
-
-    private sealed class FixedBusinessDateProvider(DateOnly today) : IBusinessDateProvider
-    {
-        public DateOnly Today { get; } = today;
     }
 
     private sealed record OneOffLessonRequestValidation(

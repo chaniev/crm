@@ -108,7 +108,7 @@ class AttendanceFlow:
                 "training_date": training_date.isoformat(),
             },
         )
-        groups = [(item.id, item.name) for item in response.items]
+        groups = [(item.id, item.name) for item in response.items if item.can_edit_attendance]
         return BotResponse(
             text=render_attendance_groups_text(training_date, response.items),
             reply_markup=render_attendance_groups_keyboard(groups),

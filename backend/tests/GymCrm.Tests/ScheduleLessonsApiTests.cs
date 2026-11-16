@@ -20,7 +20,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GymCrm.Tests;
 
-public sealed class ScheduleLessonsApiTests
+public sealed partial class ScheduleLessonsApiTests
 {
     [Fact]
     public async Task Calendar_read_projects_same_day_slots_with_distinct_slot_lineage_ids_without_writes()
@@ -1863,6 +1863,7 @@ public sealed class ScheduleLessonsApiTests
                 {
                     ["ConnectionStrings:Postgres"] = "Host=localhost;Port=5432;Database=gym_crm;Username=gym_crm;Password=gym_crm",
                     ["Persistence:ApplyMigrationsOnStartup"] = "false",
+                    ["BotInternalApi:Token"] = "schedule-bot-test-token",
                     ["BootstrapUser:Login"] = "bootstrap-schedule-lessons",
                     ["BootstrapUser:FullName"] = "Bootstrap Schedule Lessons"
                 });

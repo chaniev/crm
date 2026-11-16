@@ -16,7 +16,7 @@ from gym_crm_bot.core.dialog_state import (
 )
 from gym_crm_bot.core.service_types import BotResponse
 from gym_crm_bot.crm.errors import CrmTemporaryError
-from gym_crm_bot.crm.models import AttendanceSaveResponse
+from gym_crm_bot.crm.models import AttendanceLessonsResponse, AttendanceSaveResponse
 from gym_crm_bot.resources.messages import TEMPORARY_ERROR_MESSAGE
 from gym_crm_bot.telegram.normalization import NormalizedTelegramEvent
 
@@ -102,6 +102,22 @@ class FlakyAttendanceCrmClient:
         )
 
 
+@dataclass
+class AttendanceListCrmClient:
+    response: AttendanceLessonsResponse
+
+    async def list_attendance_lessons(  # noqa: ANN001
+        self,
+        identity,
+        *,
+        training_date: date,
+        request_id: str,
+    ) -> AttendanceLessonsResponse:
+        assert training_date == date(2026, 5, 13)
+        assert request_id
+        return self.response
+
+
 def _save_event() -> NormalizedTelegramEvent:
     return NormalizedTelegramEvent(
         update_id=920,
@@ -112,6 +128,77 @@ def _save_event() -> NormalizedTelegramEvent:
         kind="callback",
         callback_data="asv",
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("cancelled_only", [False, True])
+async def test_select_date_keeps_cancelled_rows_without_attendance_buttons(
+    cancelled_only: bool,
+) -> None:
+    cancelled_id = UUID("00000000-0000-0000-0000-000000000101")
+    editable_id = UUID("00000000-0000-0000-0000-000000000102")
+    restricted_id = UUID("00000000-0000-0000-0000-000000000103")
+    base_lesson = {
+        "lessonDate": "2026-05-13",
+        "groupId": "00000000-0000-0000-0000-000000000021",
+        "groupName": "Cancelled lesson",
+        "startTime": "12:30",
+        "durationMinutes": 45,
+        "hallName": "Actual hall",
+        "branchName": "Branch",
+        "effectiveTrainers": ["Actual trainer"],
+        "canViewAttendance": True,
+        "canEditAttendance": False,
+        "status": "Cancelled",
+        "lessonOccurrenceId": str(cancelled_id),
+    }
+    lessons = [base_lesson]
+    if not cancelled_only:
+        lessons.extend(
+            [
+                {
+                    **base_lesson,
+                    "lessonOccurrenceId": str(editable_id),
+                    "groupName": "Editable lesson",
+                    "status": "Scheduled",
+                    "canEditAttendance": True,
+                },
+                {
+                    **base_lesson,
+                    "lessonOccurrenceId": str(restricted_id),
+                    "groupName": "Restricted lesson",
+                    "status": "Scheduled",
+                },
+            ]
+        )
+    crm_client = AttendanceListCrmClient(
+        AttendanceLessonsResponse.model_validate({"items": lessons})
+    )
+    state_store = InMemoryDialogState()
+    flow = AttendanceFlow(
+        crm_client=crm_client,
+        state_store=state_store,
+        error_mapper=CrmErrorMapper(crm_client),
+    )
+    event = _save_event()
+    await state_store.save(event, ATTENDANCE_SCENARIO, {"step": "select_date", "role": "Coach"})
+
+    response = await flow.select_date(event, "2026-05-13")
+
+    assert "Cancelled lesson" in response.text
+    assert "отменено" in response.text
+    assert "12:30" in response.text
+    assert "Actual hall" in response.text
+    assert "Actual trainer" in response.text
+    assert response.reply_markup is not None
+    buttons = [button for row in response.reply_markup.inline_keyboard for button in row]
+    assert [button.text for button in buttons] == ([] if cancelled_only else ["Editable lesson"])
+    assert all(str(cancelled_id) not in (button.callback_data or "") for button in buttons)
+    assert all(str(restricted_id) not in (button.callback_data or "") for button in buttons)
+    state = await state_store.get(event, ATTENDANCE_SCENARIO)
+    assert state is not None
+    assert state["step"] == "select_lesson"
+    assert "marks" not in state
 
 
 @pytest.mark.asyncio

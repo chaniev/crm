@@ -153,7 +153,10 @@ def analyze_paths(paths: list[str], *, full: bool = False) -> ChangeImpact:
 
         if path.startswith("backend/") or path == "global.json":
             impact.add("backend", f"backend-owned path changed: {path}")
-            if _is_internal_bot_api_boundary(path):
+            if path.startswith("backend/src/GymCrm.Application/Scheduling/"):
+                impact.add("frontend", f"Shared schedule boundary changed: {path}")
+                impact.add("bot", f"Shared schedule boundary changed: {path}")
+            elif _is_internal_bot_api_boundary(path):
                 impact.add("bot", f"Internal Bot API boundary changed: {path}")
             elif _is_staff_api_boundary(path):
                 impact.add("frontend", f"Staff API boundary changed: {path}")

@@ -1,0 +1,207 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-16T18:38:08.396117+00:00",
+  "repository": "TASK-199-schedule-read-model",
+  "profile": "full",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "bot.sync",
+    "bot.lint",
+    "bot.user-facing-text",
+    "bot.format",
+    "bot.types",
+    "bot.test"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "6f2e27c5796de9ff9db2def48a319ea48ca78b28",
+    "head_tree_sha": "df4af8ca562d5921122f36544dfbb4001d5a2601",
+    "base_sha": "eda13c57bdcd7cea96637bb2c89b7e5fafe4653b",
+    "merge_base_sha": "eda13c57bdcd7cea96637bb2c89b7e5fafe4653b",
+    "branch": "codex/TASK-199-schedule-read-model",
+    "working_tree_dirty": true,
+    "base_error": null
+  },
+  "task_contract": null,
+  "task_id": null,
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "python3": "Python 3.9.6",
+    "uv": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+  },
+  "changes": [],
+  "changed_paths": [],
+  "selected_areas": [
+    "bot"
+  ],
+  "reasons": {
+    "bot": [
+      "explicit full-profile area"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "bot.sync",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--extra",
+        "dev"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:38:08.430646+00:00",
+      "exit_code": 0,
+      "duration_seconds": 13.438,
+      "completed_at": "2026-11-16T18:38:21.868190+00:00"
+    },
+    {
+      "id": "bot.lint",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:38:21.868781+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.359,
+      "completed_at": "2026-11-16T18:38:23.228312+00:00"
+    },
+    {
+      "id": "bot.user-facing-text",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "python",
+        "scripts/check_user_facing_text.py",
+        ".."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:38:23.229400+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.091,
+      "completed_at": "2026-11-16T18:38:23.320817+00:00"
+    },
+    {
+      "id": "bot.format",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:38:23.321570+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.047,
+      "completed_at": "2026-11-16T18:38:23.368590+00:00"
+    },
+    {
+      "id": "bot.types",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "mypy"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:38:23.369317+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.917,
+      "completed_at": "2026-11-16T18:38:28.286858+00:00"
+    },
+    {
+      "id": "bot.test",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "pytest"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "explicit full-profile area"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:38:28.287708+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.754,
+      "completed_at": "2026-11-16T18:38:34.042127+00:00"
+    }
+  ],
+  "completed_at": "2026-11-16T18:38:34.043114+00:00"
+}

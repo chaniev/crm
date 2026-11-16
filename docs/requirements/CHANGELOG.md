@@ -1,5 +1,15 @@
 # Журнал изменения требований
 
+
+## 2026-11-17 — единое расписание web и бота
+
+- 2026-11-17: REQ-GRP-004 implementation is partial pending [TASK-199](../../backlog/implementation/TASK-199-schedule-read-model.md) standalone occurrence query fix; normative behavior unchanged.
+
+- REQ-BOT-003 — пользователь в [TASK-199](../../backlog/implementation/TASK-199-schedule-read-model.md)
+  принял актуальные занятия, one-off, перенос без дубля, отказ устаревших
+  действий и отменённую строку без кнопки отметок. Права, даты и snapshot
+  сохранены; реализация текущей редакции частичная, код ещё не изменён.
+
 ## 2026-11-16 — TASK-197: атомарность обновления группы
 
 - REQ-AUD-001: воспроизведён отказ аудита после commit обновления группы.

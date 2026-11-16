@@ -41,7 +41,9 @@ frontend impact analysis and consumer validation:
 
 `src/GymCrm.Application/Bot/**` and
 `src/GymCrm.Api/Auth/BotInternal*` are Internal Bot API boundaries and require
-bot consumer validation. When a new application-layer shared-contract location
+bot consumer validation. `src/GymCrm.Application/Scheduling/**` owns the shared
+calendar read model consumed by Staff and Bot APIs and requires both frontend
+and bot consumer validation. When a new application-layer shared-contract location
 is introduced, update this list and `scripts/harness/change_impact.py` tests in
 the same task.
 

@@ -51,3 +51,5 @@ ADR.
 - [ADR-0006: Включительная граница назначения тренера](0006-trainer-assignment-period-boundaries.md) — Accepted (пользователь, владелец проекта, 2026-11-16)
 
 - [ADR-0007: Граница выполнения операций абонемента](0007-membership-execution-boundary.md) — Accepted (project owner, 2026-11-16)
+
+- [ADR-0008: Shared actual schedule projection](0008-shared-schedule-projection.md) - Accepted (project owner, 2026-11-17)

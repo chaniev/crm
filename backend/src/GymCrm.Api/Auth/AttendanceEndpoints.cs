@@ -36,7 +36,7 @@ internal static class AttendanceEndpoints
     private static async Task<Results<Ok<AttendanceTodayLessonsResponse>, UnauthorizedHttpResult>> ListTodayLessonsAsync(
         HttpContext httpContext,
         GymCrmDbContext dbContext,
-        IAccessScopeService accessScopeService,
+        IScheduleLessonReader lessonReader,
         IAttendanceDatePolicy attendanceDatePolicy,
         CancellationToken cancellationToken)
     {
@@ -55,9 +55,7 @@ internal static class AttendanceEndpoints
                 currentUser,
                 today,
                 today,
-                dbContext,
-                accessScopeService,
-                attendanceDatePolicy,
+                lessonReader,
                 cancellationToken))
             .Where(lesson =>
                 string.Equals(lesson.Status, "Scheduled", StringComparison.Ordinal) &&
@@ -336,6 +334,7 @@ internal static class AttendanceEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
+        IScheduleLessonReader lessonReader,
         IAttendanceDatePolicy attendanceDatePolicy,
         IClientMembershipEntitlementResolver entitlementResolver,
         CancellationToken cancellationToken)
@@ -362,6 +361,7 @@ internal static class AttendanceEndpoints
             currentUser,
             dbContext,
             accessScopeService,
+            lessonReader,
             cancellationToken);
         if (resolved is null)
         {
@@ -387,6 +387,7 @@ internal static class AttendanceEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
+        IScheduleLessonReader lessonReader,
         IAttendanceService attendanceService,
         IAttendanceDatePolicy attendanceDatePolicy,
         IAntiforgery antiforgery,
@@ -506,7 +507,7 @@ internal static class AttendanceEndpoints
         if (currentUser.Role == UserRole.Coach)
         {
             var lesson = await ResolveAttendanceLessonOccurrenceAsync(lessonOccurrenceId.Value, parsedTrainingDate.Value,
-                currentUser, dbContext, accessScopeService, cancellationToken);
+                currentUser, dbContext, accessScopeService, lessonReader, cancellationToken);
             if (lesson is null) return AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem();
         }
         var details = mutationResult.Details!;
@@ -529,6 +530,7 @@ internal static class AttendanceEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
+        IScheduleLessonReader lessonReader,
         IAttendanceService attendanceService,
         IAttendanceDatePolicy attendanceDatePolicy,
         IAntiforgery antiforgery,
@@ -552,6 +554,7 @@ internal static class AttendanceEndpoints
             currentUser,
             dbContext,
             accessScopeService,
+            lessonReader,
             cancellationToken);
         if (resolved is null)
         {
@@ -564,6 +567,7 @@ internal static class AttendanceEndpoints
             httpContext,
             dbContext,
             accessScopeService,
+            lessonReader,
             attendanceService,
             attendanceDatePolicy,
             antiforgery,
@@ -578,6 +582,7 @@ internal static class AttendanceEndpoints
         User currentUser,
         GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
+        IScheduleLessonReader lessonReader,
         CancellationToken cancellationToken)
     {
         var materialized = await dbContext.LessonOccurrences
@@ -614,8 +619,7 @@ internal static class AttendanceEndpoints
             lessonOccurrenceId,
             lessonDate,
             currentUser,
-            dbContext,
-            accessScopeService,
+            lessonReader,
             cancellationToken);
     }
 

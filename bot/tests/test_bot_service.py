@@ -81,9 +81,24 @@ class FakeCrmClient:
         *,
         training_date: date,
         request_id: str,
-    ):
-        _ = training_date
-        return AttendanceGroupsResponse(items=list(self.attendance_groups))
+    ) -> AttendanceLessonsResponse:
+        return AttendanceLessonsResponse(
+            items=[
+                AttendanceLesson(
+                    lessonOccurrenceId=group.id,
+                    lessonDate=training_date,
+                    groupId=group.id,
+                    groupName=group.name,
+                    startTime=group.training_start_time,
+                    durationMinutes=60,
+                    hallName="Зал",
+                    branchName="Филиал",
+                    canViewAttendance=True,
+                    canEditAttendance=True,
+                )
+                for group in self.attendance_groups
+            ]
+        )
 
     async def audit_access_denied(  # noqa: ANN001
         self,
@@ -189,9 +204,24 @@ class TranscriptCrmClient:
         *,
         training_date: date,
         request_id: str,
-    ):
-        _ = training_date
-        return await self.list_attendance_groups(identity, request_id=request_id)
+    ) -> AttendanceLessonsResponse:
+        self.request_ids.append(request_id)
+        return AttendanceLessonsResponse(
+            items=[
+                AttendanceLesson(
+                    lessonOccurrenceId=self.group_id,
+                    lessonDate=training_date,
+                    groupId=self.group_id,
+                    groupName="Группа",
+                    startTime="19:00",
+                    durationMinutes=60,
+                    hallName="Зал",
+                    branchName="Филиал",
+                    canViewAttendance=True,
+                    canEditAttendance=True,
+                )
+            ]
+        )
 
     async def get_attendance_roster(  # noqa: ANN001
         self,
@@ -979,8 +1009,8 @@ async def test_super_administrator_attendance_groups_render_backend_data(
 
     response = await service.handle_event(event)
 
-    assert "Филиал A: старт 10:00 · Пн" in response.text
-    assert "Филиал B: старт 18:30 · Пт" in response.text
+    assert "Филиал A: старт 10:00 · 60 мин · Зал · Филиал" in response.text
+    assert "Филиал B: старт 18:30 · 60 мин · Зал · Филиал" in response.text
     assert response.reply_markup is not None
     rendered_callbacks = [
         button.callback_data for row in response.reply_markup.inline_keyboard for button in row
@@ -1481,7 +1511,7 @@ async def test_attendance_transcript_saves_with_idempotency_and_cleans_state(
             callback_data="adt|2026-05-13",
         )
     )
-    assert "Группа: старт 19:00 · Ср" in group_response.text
+    assert "Группа: старт 19:00 · 60 мин · Зал · Филиал" in group_response.text
     assert group_response.reply_markup is not None
     assert group_response.reply_markup.inline_keyboard[0][0].callback_data == (
         "agr|00000000-0000-0000-0000-000000000021"

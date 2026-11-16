@@ -69,6 +69,14 @@ class ChangeImpactTests(unittest.TestCase):
             {"requirements", "backend", "bot"},
         )
 
+    def test_shared_schedule_boundary_adds_both_consumers(self) -> None:
+        for name in ("IScheduleReadService.cs", "ScheduleLesson.cs", "ScheduleLessonProjector.cs"):
+            with self.subTest(name=name):
+                self.assert_areas(
+                    ["backend/src/GymCrm.Application/Scheduling/" + name],
+                    {"requirements", "backend", "frontend", "bot"},
+                )
+
     def test_deploy_change_selects_deploy(self) -> None:
         self.assert_areas(
             ["deploy/docker-compose.yml"],
