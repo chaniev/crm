@@ -553,6 +553,18 @@ internal static class GroupEndpoints
             group.UpdatedAt = DateTimeOffset.UtcNow;
 
             await dbContext.SaveChangesAsync(cancellationToken);
+            var auditSnapshot = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, currentUser)
+                ?? throw new InvalidOperationException($"Updated training group '{group.Id}' was not found.");
+            await auditLogService.WriteAsync(
+                new AuditLogEntry(
+                    currentUser.Id,
+                    GroupAuditConstants.TrainingGroupUpdatedAction,
+                    GroupAuditConstants.TrainingGroupEntityType,
+                    group.Id.ToString(),
+                    GroupResources.TrainingGroupUpdatedDescription(currentUser.Login, group.Name),
+                    oldState,
+                    SerializeAuditState(auditSnapshot)),
+                cancellationToken);
             if (mutationTransaction is not null)
             {
                 await mutationTransaction.CommitAsync(cancellationToken);
@@ -574,16 +586,6 @@ internal static class GroupEndpoints
         var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken, responseActor)
             ?? throw new InvalidOperationException($"Updated training group '{group.Id}' was not found.");
 
-        await auditLogService.WriteAsync(
-            new AuditLogEntry(
-                currentUser.Id,
-                GroupAuditConstants.TrainingGroupUpdatedAction,
-                GroupAuditConstants.TrainingGroupEntityType,
-                group.Id.ToString(),
-                GroupResources.TrainingGroupUpdatedDescription(currentUser.Login, group.Name),
-                oldState,
-                SerializeAuditState(updatedGroup)),
-            cancellationToken);
         if (responseLease is not null) await responseLease.CommitAsync(cancellationToken);
 
         return TypedResults.Ok(MapDetails(updatedGroup));

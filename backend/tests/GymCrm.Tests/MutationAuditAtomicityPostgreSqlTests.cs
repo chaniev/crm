@@ -20,6 +20,88 @@ namespace GymCrm.Tests;
 public class MutationAuditAtomicityPostgreSqlTests
 {
     [Theory]
+    [InlineData(UserRole.HeadCoach, 2)]
+    [InlineData(UserRole.Administrator, 2)]
+    public async Task Group_update_audit_failure_rolls_back_change_and_retry_records_old_and_new_state(UserRole role, int visibleClientCount)
+    {
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        var interceptor = new AuditFailureInterceptor("TrainingGroupUpdated");
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString(), interceptor);
+        await factory.SeedAsync();
+        var groupId = Guid.NewGuid();
+        var groupTypeId = Guid.NewGuid();
+        var timestamp = new DateTimeOffset(2026, 11, 16, 8, 0, 0, TimeSpan.Zero);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.GroupTypes.Add(new GroupType
+            {
+                Id = groupTypeId,
+                Name = "Group type",
+                CreatedAt = timestamp,
+                UpdatedAt = timestamp
+            });
+            db.TrainingGroups.Add(new TrainingGroup
+            {
+                Id = groupId,
+                Name = "Original group",
+                BranchId = factory.OwnBranchId,
+                HallId = factory.OwnHallId,
+                GroupTypeId = groupTypeId,
+                TrainingStartTime = new TimeOnly(18, 0),
+                DurationMinutes = 60,
+                Weekdays = [1, 3],
+                CreatedAt = timestamp,
+                UpdatedAt = timestamp
+            });
+            foreach (var branchId in new[] { factory.OwnBranchId, factory.OwnBranchId })
+            {
+                var clientId = Guid.NewGuid();
+                db.Clients.Add(new Client
+                {
+                    Id = clientId,
+                    BranchId = branchId,
+                    FirstName = "Client",
+                    Phone = "+79990001234",
+                    CreatedAt = timestamp,
+                    UpdatedAt = timestamp
+                });
+                db.ClientGroups.Add(new ClientGroup { ClientId = clientId, GroupId = groupId, BranchId = factory.OwnBranchId });
+            }
+            await db.SaveChangesAsync();
+        }
+
+        var (client, token) = await factory.LoginAsync(role);
+        using (client)
+        {
+            var before = await SnapshotAsync(factory);
+            var body = new { name = "Changed group", branchId = factory.OwnBranchId, groupTypeId, isActive = true };
+            using var failed = await BranchSettingsAppFactory.SendAsync(client, HttpMethod.Put, $"/groups/{groupId}", body, token);
+            Assert.Equal(HttpStatusCode.InternalServerError, failed.StatusCode);
+            Assert.True(interceptor.FailureInjected);
+            Assert.Equal(before, await SnapshotAsync(factory));
+
+            interceptor.Enabled = false;
+            using var retried = await BranchSettingsAppFactory.SendAsync(client, HttpMethod.Put, $"/groups/{groupId}", body, token);
+            Assert.Equal(HttpStatusCode.OK, retried.StatusCode);
+            using var verificationScope = factory.Services.CreateScope();
+            var db = verificationScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var group = await db.TrainingGroups.SingleAsync(item => item.Id == groupId);
+            Assert.Equal("Changed group", group.Name);
+            var audit = Assert.Single(await db.AuditLogs.Where(item => item.ActionType == "TrainingGroupUpdated").ToArrayAsync());
+            Assert.Equal(groupId.ToString(), audit.EntityId);
+            using var oldState = JsonDocument.Parse(audit.OldValueJson!);
+            using var newState = JsonDocument.Parse(audit.NewValueJson!);
+            Assert.Equal("Original group", oldState.RootElement.GetProperty("name").GetString());
+            Assert.Equal("Changed group", newState.RootElement.GetProperty("name").GetString());
+            Assert.Equal(group.UpdatedAt, newState.RootElement.GetProperty("updatedAt").GetDateTimeOffset());
+            Assert.Equal(2, oldState.RootElement.GetProperty("clientCount").GetInt32());
+            Assert.Equal(visibleClientCount, newState.RootElement.GetProperty("clientCount").GetInt32());
+        }
+    }
+
+    [Theory]
     [InlineData("PUT", "/branches/{branchId}", "BranchUpdated", false)]
     [InlineData("PUT", "/halls/{hallId}", "HallUpdated", false)]
     [InlineData("PUT", "/halls/{hallId}/archive", "HallArchived", false)]
@@ -215,6 +297,8 @@ public class MutationAuditAtomicityPostgreSqlTests
                 .Select(item => new { item.Id, item.BranchId, item.Name, item.Description, item.IsArchived, item.CreatedAt, item.UpdatedAt }).ToArrayAsync(),
             groupTypes = await db.GroupTypes.AsNoTracking().OrderBy(item => item.Id)
                 .Select(item => new { item.Id, item.Name, item.Description, item.CreatedAt, item.UpdatedAt }).ToArrayAsync(),
+            groups = await db.TrainingGroups.AsNoTracking().OrderBy(item => item.Id)
+                .Select(item => new { item.Id, item.Name, item.BranchId, item.HallId, item.GroupTypeId, item.IsActive, item.UpdatedAt }).ToArrayAsync(),
             users = await db.Users.AsNoTracking().OrderBy(item => item.Id)
                 .Select(item => new { item.Id, item.PasswordHash, item.MustChangePassword, item.UpdatedAt }).ToArrayAsync(),
             accounts = await db.ClientMessengerAccounts.AsNoTracking().OrderBy(item => item.Id).ToArrayAsync(),
