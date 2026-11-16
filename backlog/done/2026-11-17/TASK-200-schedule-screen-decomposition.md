@@ -1,7 +1,7 @@
 # TASK-200: Разделить компонент расписания по обязанностям
 
 ## Status
-implementation
+done
 
 ## Requirements
 - none — сохраняются интерфейс, маршруты, запросы, backend allowances, обработка ошибок, черновики и восстановление контекста
@@ -21,5 +21,9 @@ frontend/src/features/schedule/GroupScheduleScreen.tsx, локальные ко�
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-17
 - moved_from: /backlog/risky
-- implementation_plan: /backlog/implementation-plans/TASK-200-schedule-screen-decomposition.plan.md
+- implementation_plan: /backlog/done/2026-11-17/TASK-200-schedule-screen-decomposition.plan.md
 - implementation_branch: codex/TASK-200-schedule-screen-decomposition
+
+## Completion
+- completed_at: 2026-11-17
+- completion_date_evidence: local main fast-forward to 176420d after all checks; [review](TASK-200-review.md), [verification](TASK-200-evidence/verification.json)

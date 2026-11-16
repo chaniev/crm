@@ -1,7 +1,7 @@
 # TASK-200: Разделение компонента расписания
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-200-schedule-screen-decomposition.md
+- source_task: /backlog/done/2026-11-17/TASK-200-schedule-screen-decomposition.md
 - branch: codex/TASK-200-schedule-screen-decomposition
 - readiness: yes
 - requirements: none — локальное извлечение компонентов и hooks без изменения наблюдаемого поведения
@@ -13,10 +13,10 @@
 - risk: medium — lifetime guards и точное сохранение history/focus behavior
 
 ## Decisions and contracts
-[Source task](/backlog/implementation/TASK-200-schedule-screen-decomposition.md) фиксирует авторизацию и сохранение поведения. Извлечь существующий код по владельцу состояния; общие presentation helpers только при фактическом совместном использовании. Сохранить route exports GroupScheduleScreen для текущих callers/mocks. Rollback — revert task commit.
+[Source task](/backlog/done/2026-11-17/TASK-200-schedule-screen-decomposition.md) фиксирует авторизацию и сохранение поведения. Извлечь существующий код по владельцу состояния; общие presentation helpers только при фактическом совместном использовании. Сохранить route exports GroupScheduleScreen для текущих callers/mocks. Rollback — revert task commit.
 
 ## Decision evidence
-[Source and authorization](/backlog/implementation/TASK-200-schedule-screen-decomposition.md): owner — project user; execute the proposed sequential refactoring. This slice preserves product and technical contracts through local reversible extraction; independent planning review below confirms no additional owner decision is required.
+[Source and authorization](/backlog/done/2026-11-17/TASK-200-schedule-screen-decomposition.md): owner — project user; execute the proposed sequential refactoring. This slice preserves product and technical contracts through local reversible extraction; independent planning review below confirms no additional owner decision is required.
 
 ## Implementation slices
 1. Подтвердить существующие component tests. Добавить только отсутствующий существенный regression barrier для игнорирования устаревшего calendar response, если review подтвердит пробел; он должен проходить на исходном коде. Искусственный red неприменим к сохранению поведения.
