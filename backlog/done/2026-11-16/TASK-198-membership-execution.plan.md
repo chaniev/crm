@@ -1,7 +1,7 @@
 # TASK-198: Membership execution extraction
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-198-membership-execution.md
+- source_task: /backlog/done/2026-11-16/TASK-198-membership-execution.md
 - branch: refactor/TASK-198-membership-execution
 - readiness: yes
 - requirements: none — behavior-preserving extraction, без API/schema/domain changes

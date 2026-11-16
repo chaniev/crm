@@ -1,7 +1,7 @@
 # TASK-198: Выделить lifecycle операций абонемента из HTTP
 
 ## Status
-implementation
+done
 
 ## Requirements
 - none — сохраняются API, бизнес-правила, scope, audit payloads, hash/replay, locks и transaction semantics
@@ -30,5 +30,10 @@ Common membership execution (включая существующего consumer 
 Пользователю предъявлена граница: три отдельных серверных сценария — обычные операции абонемента, возвраты и перенос групп — управляют проверками повторных запросов, транзакциями и записью аудита. HTTP-слой сохраняет проверку запросов, формирование ответов и текста аудита. Поведение, API и схема БД сохраняются. Явный ответ: «Подтверждаю, продолжай последовательно».
 
 ## Implementation lifecycle
-- implementation_plan: /backlog/implementation-plans/TASK-198-membership-execution.plan.md
+- implementation_plan: /backlog/done/2026-11-16/TASK-198-membership-execution.plan.md
 - implementation_branch: refactor/TASK-198-membership-execution
+
+## Completion
+- completed_at: 2026-11-16
+- completion_date_evidence: local main fast-forward to 00bf8fb; [review](TASK-198-review.md), [verification](TASK-198-evidence/verification.json)
+- delivered_on_main_at: 2026-11-16
