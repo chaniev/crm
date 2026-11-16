@@ -3,9 +3,11 @@
 
 ## 2026-11-17 — единое расписание web и бота
 
-- 2026-11-17: REQ-GRP-004 implementation is partial pending [TASK-199](../../backlog/implementation/TASK-199-schedule-read-model.md) standalone occurrence query fix; normative behavior unchanged.
+- REQ-BOT-003 / REQ-GRP-004 implemented on local main cbe1cac; [TASK-199 evidence](../../backlog/done/2026-11-17/TASK-199-evidence/verification.json), all required checks passed.
 
-- REQ-BOT-003 — пользователь в [TASK-199](../../backlog/implementation/TASK-199-schedule-read-model.md)
+- 2026-11-17: REQ-GRP-004 implementation is partial pending [TASK-199](../../backlog/done/2026-11-17/TASK-199-schedule-read-model.md) standalone occurrence query fix; normative behavior unchanged.
+
+- REQ-BOT-003 — пользователь в [TASK-199](../../backlog/done/2026-11-17/TASK-199-schedule-read-model.md)
   принял актуальные занятия, one-off, перенос без дубля, отказ устаревших
   действий и отменённую строку без кнопки отметок. Права, даты и snapshot
   сохранены; реализация текущей редакции частичная, код ещё не изменён.

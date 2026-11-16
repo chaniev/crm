@@ -22,3 +22,7 @@ Review also caught and fixed recurring Restore reason regression for Coach in co
 
 ## Final implementation review before full baseline - 2026-11-17
 Root independently reviewed shared source queries, materialized overlay and revisions, role/action reasons, API dependency propagation, Bot exact locator/status guard and standalone occurrence scope/filter predicates. No remaining blocker. Backend implementer independently reviewed root Python button filter, real DTO test doubles and shared-contract routing: no blocker. Focused backend 68 passed (including 13 new cases, AttendanceApiTests, InternalBotApiTests and PostgreSQL schedule concurrency); Bot 73 passed; harness120 passed. Final canonical baseline remains pending. Commit candidate first so final evidence identifies a clean exact SHA, then integrate only after all required checks pass.
+
+## Full verification and integration — 2026-11-17
+Canonical command: `python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-199`.
+Passed all 20 required checks on clean SHA cbe1cac8ae6934755b26ee692b206064848b768b (tree 9a5d27301c1a5be55b2d3db5adfb14cdda9e08b8): backend795, frontend769, bot73, harness120; no failures/skips. Backend Release build had zero warnings; NuGet audit clean. Frontend audit passed its existing high-severity threshold; seven pre-existing moderate transitive vulnerabilities remain. Local main fast-forward tree equals candidate tree. Evidence moved with task; historical paths inside JSON are retained exactly as reported.

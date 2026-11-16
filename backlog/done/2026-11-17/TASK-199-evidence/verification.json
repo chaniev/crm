@@ -1,0 +1,1599 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-16T22:10:05.741147+00:00",
+  "repository": "TASK-199-schedule-read-model",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "harness.unit",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "bot.sync",
+    "bot.lint",
+    "bot.user-facing-text",
+    "bot.format",
+    "bot.types",
+    "bot.test"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "cbe1cac8ae6934755b26ee692b206064848b768b",
+    "head_tree_sha": "9a5d27301c1a5be55b2d3db5adfb14cdda9e08b8",
+    "base_sha": "eda13c57bdcd7cea96637bb2c89b7e5fafe4653b",
+    "merge_base_sha": "eda13c57bdcd7cea96637bb2c89b7e5fafe4653b",
+    "branch": "codex/TASK-199-schedule-read-model",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-199-verification-contract.json",
+    "task_id": "TASK-199",
+    "expected_branch": "codex/TASK-199-schedule-read-model",
+    "sha256": "e3aaf79d034d814af86f5c8b8e61decc961c63e8ef9442b054eab6f9567907b7",
+    "verified_head_sha": "cbe1cac8ae6934755b26ee692b206064848b768b",
+    "verified_head_tree_sha": "9a5d27301c1a5be55b2d3db5adfb14cdda9e08b8",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-199\",\n  \"expected_branch\": \"codex/TASK-199-schedule-read-model\",\n  \"areas\": [\n    \"backend\",\n    \"frontend\",\n    \"bot\"\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-199",
+      "expected_branch": "codex/TASK-199-schedule-read-model",
+      "areas": [
+        "backend",
+        "frontend",
+        "bot"
+      ]
+    }
+  },
+  "task_id": "TASK-199",
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6",
+    "uv": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/AGENTS.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/DependencyInjection.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-197-evidence/review.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-197-evidence/verification.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-198-evidence/verification.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-198-membership-execution.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-198-membership-execution.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-198-review.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation-plans/TASK-199-schedule-read-model.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-199-schedule-read-model.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-199-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/logs/TASK-199-evidence/bot-baseline.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/logs/TASK-199-review.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/core/attendance_flow.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/tests/test_attendance_flow.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/tests/test_bot_service.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/architecture/adr/0007-membership-execution-boundary.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/architecture/adr/0008-shared-schedule-projection.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/02-группы.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/06-аудит.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/07-бот.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "scripts/harness/change_impact.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "scripts/harness/tests/test_change_impact.py"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/AGENTS.md",
+    "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+    "backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+    "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+    "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+    "backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+    "backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+    "backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+    "backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+    "backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+    "backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+    "backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+    "backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+    "backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+    "backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+    "backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+    "backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+    "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+    "backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+    "backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+    "backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs",
+    "backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs",
+    "backlog/done/2026-11-16/TASK-197-evidence/review.md",
+    "backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+    "backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+    "backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+    "backlog/done/2026-11-16/TASK-198-evidence/verification.json",
+    "backlog/done/2026-11-16/TASK-198-membership-execution.md",
+    "backlog/done/2026-11-16/TASK-198-membership-execution.plan.md",
+    "backlog/done/2026-11-16/TASK-198-review.md",
+    "backlog/implementation-plans/TASK-199-schedule-read-model.plan.md",
+    "backlog/implementation/TASK-199-schedule-read-model.md",
+    "backlog/implementation/TASK-199-verification-contract.json",
+    "backlog/logs/TASK-199-evidence/bot-baseline.json",
+    "backlog/logs/TASK-199-review.md",
+    "bot/src/gym_crm_bot/core/attendance_flow.py",
+    "bot/tests/test_attendance_flow.py",
+    "bot/tests/test_bot_service.py",
+    "docs/architecture/adr/0007-membership-execution-boundary.md",
+    "docs/architecture/adr/0008-shared-schedule-projection.md",
+    "docs/architecture/adr/README.md",
+    "docs/requirements/02-группы.md",
+    "docs/requirements/06-аудит.md",
+    "docs/requirements/07-бот.md",
+    "docs/requirements/CHANGELOG.md",
+    "scripts/harness/change_impact.py",
+    "scripts/harness/tests/test_change_impact.py"
+  ],
+  "selected_areas": [
+    "requirements",
+    "harness",
+    "backend",
+    "frontend",
+    "bot"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backend/AGENTS.md",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-evidence/verification.json",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.md",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.plan.md",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-review.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-199-schedule-read-model.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-199-schedule-read-model.md",
+      "documentation or instructions changed: backlog/implementation/TASK-199-verification-contract.json",
+      "documentation or instructions changed: backlog/logs/TASK-199-evidence/bot-baseline.json",
+      "documentation or instructions changed: backlog/logs/TASK-199-review.md",
+      "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+      "documentation or instructions changed: docs/architecture/adr/0008-shared-schedule-projection.md",
+      "documentation or instructions changed: docs/architecture/adr/README.md",
+      "documentation or instructions changed: docs/requirements/02-группы.md",
+      "documentation or instructions changed: docs/requirements/06-аудит.md",
+      "documentation or instructions changed: docs/requirements/07-бот.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs",
+      "task contract TASK-199 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+      "task contract TASK-199 requires frontend"
+    ],
+    "bot": [
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+      "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+      "bot-owned path changed: bot/tests/test_attendance_flow.py",
+      "bot-owned path changed: bot/tests/test_bot_service.py",
+      "task contract TASK-199 requires bot"
+    ],
+    "harness": [
+      "selector, knowledge validator or harness tests changed: scripts/harness/change_impact.py",
+      "selector, knowledge validator or harness tests changed: scripts/harness/tests/test_change_impact.py"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backend/AGENTS.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-review.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-199-schedule-read-model.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-199-schedule-read-model.md",
+        "documentation or instructions changed: backlog/implementation/TASK-199-verification-contract.json",
+        "documentation or instructions changed: backlog/logs/TASK-199-evidence/bot-baseline.json",
+        "documentation or instructions changed: backlog/logs/TASK-199-review.md",
+        "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+        "documentation or instructions changed: docs/architecture/adr/0008-shared-schedule-projection.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/07-бот.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:05.991957+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.024,
+      "completed_at": "2026-11-16T22:10:06.015680+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backend/AGENTS.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-review.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-199-schedule-read-model.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-199-schedule-read-model.md",
+        "documentation or instructions changed: backlog/implementation/TASK-199-verification-contract.json",
+        "documentation or instructions changed: backlog/logs/TASK-199-evidence/bot-baseline.json",
+        "documentation or instructions changed: backlog/logs/TASK-199-review.md",
+        "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+        "documentation or instructions changed: docs/architecture/adr/0008-shared-schedule-projection.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/07-бот.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:06.016642+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.024,
+      "completed_at": "2026-11-16T22:10:06.040789+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backend/AGENTS.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-review.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-199-schedule-read-model.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-199-schedule-read-model.md",
+        "documentation or instructions changed: backlog/implementation/TASK-199-verification-contract.json",
+        "documentation or instructions changed: backlog/logs/TASK-199-evidence/bot-baseline.json",
+        "documentation or instructions changed: backlog/logs/TASK-199-review.md",
+        "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+        "documentation or instructions changed: docs/architecture/adr/0008-shared-schedule-projection.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/07-бот.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:06.041761+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.048,
+      "completed_at": "2026-11-16T22:10:06.089872+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backend/AGENTS.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-membership-execution.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-198-review.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-199-schedule-read-model.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-199-schedule-read-model.md",
+        "documentation or instructions changed: backlog/implementation/TASK-199-verification-contract.json",
+        "documentation or instructions changed: backlog/logs/TASK-199-evidence/bot-baseline.json",
+        "documentation or instructions changed: backlog/logs/TASK-199-review.md",
+        "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+        "documentation or instructions changed: docs/architecture/adr/0008-shared-schedule-projection.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/07-бот.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:06.091124+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.081,
+      "completed_at": "2026-11-16T22:10:06.171929+00:00"
+    },
+    {
+      "id": "harness.unit",
+      "area": "harness",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/harness/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "selector, knowledge validator or harness tests changed: scripts/harness/change_impact.py",
+        "selector, knowledge validator or harness tests changed: scripts/harness/tests/test_change_impact.py"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:06.173454+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.312,
+      "completed_at": "2026-11-16T22:10:08.485187+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs",
+        "task contract TASK-199 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:08.487080+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.618,
+      "completed_at": "2026-11-16T22:10:09.105406+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs",
+        "task contract TASK-199 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:09.106643+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.788,
+      "completed_at": "2026-11-16T22:10:11.894369+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs",
+        "task contract TASK-199 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:11.895631+00:00",
+      "exit_code": 0,
+      "duration_seconds": 10.378,
+      "completed_at": "2026-11-16T22:10:22.273246+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs",
+        "task contract TASK-199 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:22.274751+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.104,
+      "completed_at": "2026-11-16T22:10:26.378603+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs",
+        "task contract TASK-199 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:10:26.379990+00:00",
+      "exit_code": 0,
+      "duration_seconds": 156.191,
+      "completed_at": "2026-11-16T22:38:36.265473+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ScheduleLessonsBotApiTests.cs",
+        "task contract TASK-199 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:38:36.267314+00:00",
+      "exit_code": 0,
+      "duration_seconds": 9.39,
+      "completed_at": "2026-11-16T22:38:45.657424+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "task contract TASK-199 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:38:45.658695+00:00",
+      "exit_code": 0,
+      "duration_seconds": 24.963,
+      "completed_at": "2026-11-16T22:39:10.621510+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "task contract TASK-199 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:39:10.622756+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.911,
+      "completed_at": "2026-11-16T22:39:11.533828+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "task contract TASK-199 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:39:11.535055+00:00",
+      "exit_code": 0,
+      "duration_seconds": 24.254,
+      "completed_at": "2026-11-16T22:39:35.788868+00:00"
+    },
+    {
+      "id": "bot.sync",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--extra",
+        "dev"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "task contract TASK-199 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:39:35.790828+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.084,
+      "completed_at": "2026-11-16T22:39:35.875104+00:00"
+    },
+    {
+      "id": "bot.lint",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "task contract TASK-199 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:39:35.876341+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.086,
+      "completed_at": "2026-11-16T22:39:35.962386+00:00"
+    },
+    {
+      "id": "bot.user-facing-text",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "python",
+        "scripts/check_user_facing_text.py",
+        ".."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "task contract TASK-199 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:39:35.963688+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.149,
+      "completed_at": "2026-11-16T22:39:36.113145+00:00"
+    },
+    {
+      "id": "bot.format",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "task contract TASK-199 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:39:36.114592+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.048,
+      "completed_at": "2026-11-16T22:39:36.162708+00:00"
+    },
+    {
+      "id": "bot.types",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "mypy"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "task contract TASK-199 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:39:36.164025+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.501,
+      "completed_at": "2026-11-16T22:39:36.664818+00:00"
+    },
+    {
+      "id": "bot.test",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "pytest"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleEffectiveTrainer.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOption.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleFilterOptions.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonFacts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleLessonProjector.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadQuery.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleReadResult.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/ScheduleTrainerKind.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "task contract TASK-199 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T22:39:36.666087+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.424,
+      "completed_at": "2026-11-16T22:39:38.089926+00:00"
+    }
+  ],
+  "completed_at": "2026-11-16T22:39:38.091465+00:00"
+}

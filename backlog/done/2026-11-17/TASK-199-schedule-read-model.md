@@ -1,7 +1,7 @@
 # TASK-199: Единое поведение расписания в календаре и боте
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-BOT-003 — changes
@@ -48,5 +48,10 @@ Application: единая проекция фактических занятий
 Review обнаружил, что AttendanceService проверяет право Coach save через постоянный GroupTrainers, хотя чтение допускает exact substitution. TASK-199 не расширяет права и не обещает substitute-only save success; сохраняет существующий финальный authorization guard.
 
 ## Implementation lifecycle
-- implementation_plan: /backlog/implementation-plans/TASK-199-schedule-read-model.plan.md
+- implementation_plan: /backlog/done/2026-11-17/TASK-199-schedule-read-model.plan.md
 - implementation_branch: codex/TASK-199-schedule-read-model
+
+## Completion
+- completed_at: 2026-11-17
+- completion_date_evidence: local main fast-forward to cbe1cac8ae6934755b26ee692b206064848b768b; [verification](TASK-199-evidence/verification.json)
+- delivered_on_main_at: 2026-11-17

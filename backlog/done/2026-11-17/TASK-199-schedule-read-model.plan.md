@@ -1,7 +1,7 @@
 # TASK-199: Общая проекция фактического расписания
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-199-schedule-read-model.md
+- source_task: /backlog/done/2026-11-17/TASK-199-schedule-read-model.md
 - branch: codex/TASK-199-schedule-read-model
 - readiness: yes
 - requirements: REQ-BOT-003 — changes; REQ-GRP-004 — implements; REQ-ATT-002, REQ-ATT-003, REQ-BOT-002 — constrains
@@ -16,7 +16,7 @@
 [ADR-0008](/docs/architecture/adr/0008-shared-schedule-projection.md) фиксирует общую серверную проекцию и scoped reader. REQ-BOT-003 принят до project code: one-off/переносы/замещения, Cancelled строка без кнопки; устаревший locator не сохраняет отметки. Existing rights/date policies, AttendanceService transaction checks, DTO shape, web filters/revisions и idempotency сохраняются. Новых блокировок, schema или framework нет. Rollback через revert task commit.
 
 ## Decision evidence
-- product: [Решения владельца](/backlog/implementation/TASK-199-schedule-read-model.md) — owner: пользователь проекта; decision: единые актуальные занятия и отменённые строки без кнопки отметок.
+- product: [Решения владельца](/backlog/done/2026-11-17/TASK-199-schedule-read-model.md) — owner: пользователь проекта; decision: единые актуальные занятия и отменённые строки без кнопки отметок.
 - technical: [Общая серверная модель](/docs/architecture/adr/0008-shared-schedule-projection.md) — owner: пользователь проекта; decision: выполнить общий backend read model для принятого единого фактического календаря без расходящихся сборок.
 
 ## Implementation slices
