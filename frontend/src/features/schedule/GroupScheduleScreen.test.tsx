@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
@@ -169,6 +169,35 @@ beforeEach(() => {
 })
 
 describe('GroupScheduleScreen occurrence calendar', () => {
+  test('an obsolete calendar response cannot overwrite the newer URL selection', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20&trainerId=trainer-1')
+    let resolveObsolete!: (response: Awaited<ReturnType<typeof getScheduleLessons>>) => void
+    getLessons.mockImplementationOnce(() => new Promise((resolve) => { resolveObsolete = resolve }))
+    getLessons.mockResolvedValueOnce(buildScheduleResponse([
+      buildLesson({ lessonOccurrenceId: 'new-selection', lessonDate: '2026-08-21' }),
+    ]))
+    renderSchedule()
+    await waitFor(() => expect(getLessons).toHaveBeenCalledOnce())
+
+    window.history.replaceState({}, '', '/schedule?date=2026-08-21&trainerId=trainer-2')
+    fireEvent.popState(window)
+    await screen.findByTestId('schedule-card-new-selection')
+    expect(getLessons).toHaveBeenLastCalledWith(
+      expect.objectContaining({ from: '2026-08-21', to: '2026-08-21', trainerId: 'trainer-2' }),
+      expect.any(AbortSignal),
+    )
+
+    await act(async () => {
+      resolveObsolete(buildScheduleResponse([
+        buildLesson({ lessonOccurrenceId: 'obsolete-selection', lessonDate: '2026-08-20' }),
+      ]))
+    })
+
+    expect(screen.getByTestId('schedule-card-new-selection')).toBeVisible()
+    expect(screen.queryByTestId('schedule-card-obsolete-selection')).not.toBeInTheDocument()
+    expect(window.location.search).toBe('?date=2026-08-21&trainerId=trainer-2')
+  })
+
   test('loads date/view/filter state from URL and keeps same-day occurrences distinct', async () => {
     window.history.replaceState({}, '', '/schedule?date=2026-08-20&view=day&trainerId=trainer-1')
     const onOpenAttendance = vi.fn()

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "task_id": "TASK-200",
+  "expected_branch": "codex/TASK-200-schedule-screen-decomposition",
+  "areas": [
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.schedule",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.schedule-workflow",
+      "spec": "e2e/group-schedule-workflow.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.schedule-iphone",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": [
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    }
+  ]
+}
