@@ -49,3 +49,5 @@ ADR.
 - [ADR-0004: Атомарный импорт XLSX через backend и разовую CLI](0004-atomic-xlsx-client-import.md) — Superseded by ADR-0005
 - [ADR-0005: Импорт XLSX из настроек с явным названием группы](0005-settings-xlsx-client-import.md) — Accepted (пользователь, владелец проекта, 2026-11-15)
 - [ADR-0006: Включительная граница назначения тренера](0006-trainer-assignment-period-boundaries.md) — Accepted (пользователь, владелец проекта, 2026-11-16)
+
+- [ADR-0007: Граница выполнения операций абонемента](0007-membership-execution-boundary.md) — Accepted (project owner, 2026-11-16)

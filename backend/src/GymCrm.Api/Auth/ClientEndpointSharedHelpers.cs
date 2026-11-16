@@ -1,7 +1,6 @@
 using System.Text.Json;
 using GymCrm.Application.Audit;
 using GymCrm.Domain.Clients;
-using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 
 namespace GymCrm.Api.Auth;
@@ -10,17 +9,9 @@ internal static class ClientEndpointSharedHelpers
 {
     internal static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
 
-    internal static async Task<Client?> LoadAuthorizedMutationSnapshotAsync(
-        Guid clientId, Guid actorId, GymCrmDbContext dbContext, CancellationToken cancellationToken)
-    {
-        await using var lease = await ClientAccessTransaction.BeginReadAsync(dbContext, actorId, [clientId], cancellationToken);
-        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, actorId, cancellationToken);
-        if (actor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, actor, clientId, cancellationToken))
-        {
-            return null;
-        }
-        return await ClientResponseMapper.LoadClientSnapshotAsync(clientId, dbContext, cancellationToken);
-    }
+    internal static Task<Client?> LoadAuthorizedMutationSnapshotAsync(
+        Guid clientId, Guid actorId, GymCrmDbContext dbContext, CancellationToken cancellationToken) =>
+        GymCrm.Infrastructure.Clients.ClientSnapshotReader.LoadAuthorizedAsync(clientId, actorId, dbContext, cancellationToken);
 
     internal static void ValidateAdditionalFields(
         IDictionary<string, JsonElement>? additionalFields,

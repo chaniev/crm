@@ -71,6 +71,9 @@ public static class DependencyInjection
         services.AddScoped<ClientMembershipVisitService>();
         services.AddScoped<IClientMembershipTargetTransferService, ClientMembershipTargetTransferService>();
         services.AddScoped<IClientMembershipService, ClientMembershipService>();
+        services.AddScoped<IClientMembershipExecutionWorkflow, ClientMembershipExecutionWorkflow>();
+        services.AddScoped<IClientMembershipRefundExecutionWorkflow, ClientMembershipRefundExecutionWorkflow>();
+        services.AddScoped<IClientMembershipTargetExecutionWorkflow, ClientMembershipTargetExecutionWorkflow>();
         services.AddScoped<IFinancialReportService, FinancialReportService>();
         services.Configure<ClientTelegramOptions>(
             configuration.GetSection(ClientTelegramOptions.SectionName));

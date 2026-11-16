@@ -226,9 +226,7 @@ internal static class ClientLifecycleEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
-        ILoggerFactory loggerFactory,
+        IClientMembershipExecutionWorkflow executionWorkflow,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -254,7 +252,7 @@ internal static class ClientLifecycleEndpoints
         };
         if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
         {
-            return await IsCompletedTransferReplayAsync(id, currentUser.Id, httpContext.Request, transferPayload, dbContext, cancellationToken)
+            return await executionWorkflow.IsCompletedTransferReplayAsync(id, currentUser.Id, GetMembershipIdempotencyKey(httpContext.Request), transferPayload, cancellationToken)
                 ? TypedResults.NoContent()
                 : TypedResults.NotFound();
         }
@@ -276,11 +274,8 @@ internal static class ClientLifecycleEndpoints
         return await ExecuteMembershipActionAsync(
             id,
             httpContext,
-            dbContext,
+            executionWorkflow,
             businessDateProvider,
-            auditLogService,
-            serviceScopeFactory,
-            loggerFactory,
             antiforgery,
             cancellationToken,
             validateRequest: _ => [],
@@ -341,8 +336,7 @@ internal static class ClientLifecycleEndpoints
             idempotencyPayload: transferPayload,
             actionType: ClientAuditConstants.ClientTransferredAction,
             descriptionFactory: ClientAuditResources.ClientTransferredDescription,
-            writeAuditAsync: (actor, clientBefore, clientAfter, _) => auditLogService.WriteAsync(
-                new AuditLogEntry(
+            createAuditEntries: (actor, clientBefore, clientAfter, _) => [new AuditLogEntry(
                     actor.Id,
                     ClientAuditConstants.ClientTransferredAction,
                     ClientAuditConstants.ClientEntityType,
@@ -351,8 +345,7 @@ internal static class ClientLifecycleEndpoints
                         actor.Login,
                         BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
                     SerializeAuditState(clientBefore),
-                    SerializeAuditState(clientAfter)),
-                cancellationToken),
+                    SerializeAuditState(clientAfter))],
             lockGroupIds: targetGroupIds,
             lockBranchIds: [targetBranchId],
             validateLockedAsync: () => ValidateTransferRequestAsync(request, dbContext, cancellationToken));

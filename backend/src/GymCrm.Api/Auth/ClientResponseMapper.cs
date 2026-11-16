@@ -12,44 +12,9 @@ namespace GymCrm.Api.Auth;
 
 internal static class ClientResponseMapper
 {
-    internal static async Task<Client?> LoadClientSnapshotAsync(
-        Guid id,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
-    {
-        return await dbContext.Clients
-            .AsNoTracking()
-            .Include(client => client.Branch)
-            .Include(client => client.NotesChangedByUser)
-            .Include(client => client.Contacts)
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.Sale)
-                    .ThenInclude(sale => sale.MembershipCatalogItem)
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.Sale)
-                    .ThenInclude(sale => sale.Refunds)
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.Sale)
-                    .ThenInclude(sale => sale.CommentChangedByUser)
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.Sale)
-                    .ThenInclude(sale => sale.CreatedByUser)
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.TargetGroups)
-                    .ThenInclude(target => target.Group)
-                        .ThenInclude(group => group.Branch)
-            .Include(client => client.Groups)
-                .ThenInclude(clientGroup => clientGroup.Group)
-                    .ThenInclude(group => group.Trainers)
-            .Include(client => client.Groups)
-                .ThenInclude(clientGroup => clientGroup.Group)
-                    .ThenInclude(group => group.Branch)
-            .Include(client => client.Groups)
-                .ThenInclude(clientGroup => clientGroup.Group)
-                    .ThenInclude(group => group.Hall)
-            .AsSplitQuery()
-            .SingleOrDefaultAsync(client => client.Id == id, cancellationToken);
-    }
+    internal static Task<Client?> LoadClientSnapshotAsync(
+        Guid id, GymCrmDbContext dbContext, CancellationToken cancellationToken) =>
+        GymCrm.Infrastructure.Clients.ClientSnapshotReader.LoadAsync(id, dbContext, cancellationToken);
 
     internal static async Task<ClientAttendanceHistoryPageResponse> LoadAttendanceHistoryAsync(
         Guid clientId,

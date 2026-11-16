@@ -1,6 +1,4 @@
 using System.Globalization;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
@@ -11,9 +9,6 @@ using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Npgsql;
 using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
 using static GymCrm.Api.Auth.ClientMembershipAudit;
 using static GymCrm.Api.Auth.ClientMembershipRequestValidation;
@@ -23,8 +18,6 @@ namespace GymCrm.Api.Auth;
 internal static class ClientMembershipEndpoints
 {
     private const int MembershipIdempotencyKeyMaxLength = 128;
-    private const string MembershipIdempotencyPending = "Pending";
-    private const string MembershipIdempotencyCompleted = "Completed";
 
     internal static RouteGroupBuilder MapClientMembershipEndpoints(this RouteGroupBuilder group)
     {
@@ -54,12 +47,9 @@ internal static class ClientMembershipEndpoints
         Guid id,
         PurchaseClientMembershipRequest request,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
+        IClientMembershipExecutionWorkflow executionWorkflow,
         IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
-        ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -72,11 +62,8 @@ internal static class ClientMembershipEndpoints
         return await ExecuteMembershipActionAsync(
             id,
             httpContext,
-            dbContext,
+            executionWorkflow,
             businessDateProvider,
-            auditLogService,
-            serviceScopeFactory,
-            loggerFactory,
             antiforgery,
             cancellationToken,
             validateRequest: _ => ValidatePurchaseMembershipRequest(request, businessDateProvider.Today),
@@ -159,12 +146,9 @@ internal static class ClientMembershipEndpoints
         Guid id,
         RenewClientMembershipRequest request,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
+        IClientMembershipExecutionWorkflow executionWorkflow,
         IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
-        ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -177,11 +161,8 @@ internal static class ClientMembershipEndpoints
         return await ExecuteMembershipActionAsync(
             id,
             httpContext,
-            dbContext,
+            executionWorkflow,
             businessDateProvider,
-            auditLogService,
-            serviceScopeFactory,
-            loggerFactory,
             antiforgery,
             cancellationToken,
             validateRequest: clientBefore => ValidateRenewMembershipRequest(request, clientBefore, businessDateProvider.Today),
@@ -219,23 +200,17 @@ internal static class ClientMembershipEndpoints
         Guid id,
         CorrectClientMembershipRequest request,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
+        IClientMembershipExecutionWorkflow executionWorkflow,
         IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
-        ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
         return ExecuteMembershipActionAsync(
             id,
             httpContext,
-            dbContext,
+            executionWorkflow,
             businessDateProvider,
-            auditLogService,
-            serviceScopeFactory,
-            loggerFactory,
             antiforgery,
             cancellationToken,
             validateRequest: clientBefore =>
@@ -272,11 +247,6 @@ internal static class ClientMembershipEndpoints
         Guid id,
         MarkMembershipPaymentRequest request,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
-        IClientMembershipService membershipService,
-        IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
         ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -304,11 +274,9 @@ internal static class ClientMembershipEndpoints
         Guid saleId,
         CreateClientMembershipRefundRequest request,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
+        IClientMembershipRefundExecutionWorkflow executionWorkflow,
         IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -324,134 +292,26 @@ internal static class ClientMembershipEndpoints
             return TypedResults.Unauthorized();
         }
 
-        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
-        {
-            return TypedResults.NotFound();
-        }
-
-        var clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
-        if (clientBefore is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var validationErrors = ValidateRefundRequest(request);
-        if (validationErrors.Count > 0)
-        {
-            return TypedResults.ValidationProblem(validationErrors);
-        }
-
-        var idempotencyKey = GetMembershipIdempotencyKey(httpContext.Request);
-        if (idempotencyKey is null)
-        {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+        var result = await executionWorkflow.ExecuteAsync(new ClientMembershipRefundExecutionOperation(
+            id, currentUser, GetMembershipIdempotencyKey(httpContext.Request),
+            () => new
             {
-                ["idempotencyKey"] = ["Idempotency-Key header is required for this membership operation."]
-            });
-        }
-
-        var refundDate = ParseIsoDate(request.RefundDate)!.Value;
-        var comment = NormalizeOptionalText(request.Comment);
-        var actionType = ClientAuditConstants.MembershipRefundCreatedAction;
-        var reservation = await ReserveRefundIdempotencyAsync(
-            currentUser.Id,
-            id,
-            idempotencyKey,
-            actionType,
-            new { ClientId = id, SaleId = saleId, RefundDate = refundDate, Amount = request.Amount!.Value, Comment = comment },
-            dbContext,
-            cancellationToken);
-        if (reservation.Denied) return TypedResults.NotFound();
-        if (reservation.Problem is not null)
-        {
-            return reservation.Problem;
-        }
-
-        if (reservation.IsReplay)
-        {
-            var replayClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
-            if (replayClient is null) return TypedResults.NotFound();
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(
-                replayClient,
-                ClientResponseMapper.EmptyAttendanceHistoryPage(),
-                businessDateProvider.Today));
-        }
-
-        IDbContextTransaction? transaction = null;
-        try
-        {
-            transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id, [], [], cancellationToken);
-
-            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
-            if (lockedActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, lockedActor, id, cancellationToken))
-            {
-                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-                await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
-                return TypedResults.NotFound();
-            }
-            currentUser = lockedActor;
-            var mutationResult = await membershipService.RegisterRefundAsync(
-                id,
-                new RegisterClientMembershipRefundCommand(
-                    currentUser.Id,
-                    saleId,
-                    refundDate,
-                    request.Amount.Value,
-                    comment),
-                cancellationToken);
-
-            if (!mutationResult.Succeeded)
-            {
-                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-                await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
-                return MapRefundMutationError(mutationResult.Error);
-            }
-
-            var clientAfter = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
-                ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership refund registration.");
-            var refund = mutationResult.Refund
-                ?? throw new InvalidOperationException("Membership refund mutation succeeded without a refund snapshot.");
-
-            await auditLogService.WriteAsync(
-                new AuditLogEntry(
-                    currentUser.Id,
-                    actionType,
-                    ClientAuditConstants.MembershipRefundEntityType,
-                    refund.Id.ToString(),
-                    ClientAuditResources.MembershipRefundCreatedDescription(
-                        currentUser.Login,
-                        BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
-                    NewValueJson: SerializeRefundAuditState(refund)),
-                cancellationToken);
-            await CompleteRefundIdempotencyAsync(
-                currentUser.Id, idempotencyKey, refund.Id, saleId, dbContext, cancellationToken);
-            await CommitMembershipActionTransactionAsync(transaction, cancellationToken);
-            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-            var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
-            if (responseClient is null) return TypedResults.NotFound();
-
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
-        }
-        catch
-        {
-            await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-            await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
-            return CreateProblem(
-                StatusCodes.Status500InternalServerError,
-                "membership-refund-operation-failed",
-                "Membership refund operation failed.",
-                new Dictionary<string, string[]> { ["refund"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine4088cf17618] });
-        }
-        finally
-        {
-            if (transaction is not null)
-            {
-                await transaction.DisposeAsync();
-            }
-        }
+                ClientId = id,
+                SaleId = saleId,
+                RefundDate = ParseIsoDate(request.RefundDate)!.Value,
+                Amount = request.Amount!.Value,
+                Comment = NormalizeOptionalText(request.Comment)
+            },
+            ClientAuditConstants.MembershipRefundCreatedAction,
+            () => ValidateRefundRequest(request),
+            actor => membershipService.RegisterRefundAsync(id, new RegisterClientMembershipRefundCommand(
+                actor.Id, saleId, ParseIsoDate(request.RefundDate)!.Value, request.Amount!.Value, NormalizeOptionalText(request.Comment)), cancellationToken),
+            (actor, after, mutation) => new AuditLogEntry(actor.Id, ClientAuditConstants.MembershipRefundCreatedAction,
+                ClientAuditConstants.MembershipRefundEntityType, mutation.Refund!.Id.ToString(),
+                ClientAuditResources.MembershipRefundCreatedDescription(actor.Login, BuildClientFullName(after.LastName, after.FirstName, after.MiddleName)),
+                null, SerializeRefundAuditState(mutation.Refund)),
+            saleId), cancellationToken);
+        return await MapRefundExecutionResultAsync(result, executionWorkflow, businessDateProvider, cancellation: false);
     }
 
     private static async Task<Results<Ok<MembershipTargetTransferPreviewResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> PreviewMembershipTargetTransferAsync(
@@ -501,11 +361,9 @@ internal static class ClientMembershipEndpoints
         Guid id,
         MembershipTargetTransferRequest request,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
+        IClientMembershipTargetExecutionWorkflow executionWorkflow,
         IClientMembershipTargetTransferService transferService,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
         ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -522,223 +380,69 @@ internal static class ClientMembershipEndpoints
             return TypedResults.Unauthorized();
         }
 
-        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        var actionType = ClientAuditConstants.MembershipTargetsTransferredAction;
+        var result = await executionWorkflow.ExecuteAsync(new ClientMembershipTargetExecutionOperation(
+            id, currentUser, GetMembershipIdempotencyKey(httpContext.Request),
+            () => new
+            {
+                ClientId = id,
+                Action = actionType,
+                request.SourceGroupId,
+                request.TargetGroupId,
+                ExpectedMembershipIds = request.ExpectedMembershipIds ?? []
+            },
+            actionType,
+            actor => transferService.TransferAsync(id, new ClientMembershipTargetTransferCommand(
+                actor.Id, request.SourceGroupId, request.TargetGroupId, request.ExpectedMembershipIds ?? []), cancellationToken),
+            (actor, before, after) => new AuditLogEntry(actor.Id, actionType,
+                ClientAuditConstants.MembershipEntityType, id.ToString(),
+                global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine63016aaa323(
+                    actor.Login, BuildClientFullName(after.LastName, after.FirstName, after.MiddleName)),
+                SerializeMembershipCollectionAuditState(before.Memberships), SerializeMembershipCollectionAuditState(after.Memberships)),
+            new[] { request.SourceGroupId, request.TargetGroupId }.OfType<Guid>().ToArray()), cancellationToken);
+        if (result.Status == ClientMutationExecutionStatus.Success)
         {
-            return TypedResults.NotFound();
+            if (result.IsReplay)
+                return TypedResults.Ok(ClientResponseMapper.MapDetails(result.Client!, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+            try
+            {
+                return TypedResults.Ok(ClientResponseMapper.MapDetails(result.Client!, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+            }
+            catch (Exception exception)
+            {
+                await executionWorkflow.CleanupFailedResultAsync(result.ReservationId);
+                loggerFactory.CreateLogger("GymCrm.Api.Auth.ClientMembershipTargetTransfer").LogError(
+                    "Membership target transfer failed before commit. ExceptionType: {ExceptionType}", exception.GetType().Name);
+                return TargetExecutionFailure();
+            }
         }
-
-        var clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
-        if (clientBefore is null)
+        return result.Status switch
         {
-            return TypedResults.NotFound();
-        }
-
-        var idempotencyKey = GetMembershipIdempotencyKey(httpContext.Request);
-        if (idempotencyKey is null)
-        {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            ClientMutationExecutionStatus.NotFound => TypedResults.NotFound(),
+            ClientMutationExecutionStatus.MissingIdempotencyKey => TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
                 ["idempotencyKey"] = ["Idempotency-Key header is required for this membership operation."]
-            });
-        }
-
-        var actionType = ClientAuditConstants.MembershipTargetsTransferredAction;
-        var payloadHash = ComputeMembershipIdempotencyPayloadHash(new
-        {
-            ClientId = id,
-            Action = actionType,
-            request.SourceGroupId,
-            request.TargetGroupId,
-            ExpectedMembershipIds = request.ExpectedMembershipIds ?? []
-        });
-        var now = DateTimeOffset.UtcNow;
-        var logger = loggerFactory.CreateLogger("GymCrm.Api.Auth.ClientMembershipTargetTransfer");
-
-        async Task<IResult?> HandleExistingIdempotencyAsync(ClientMembershipIdempotencyRecord record)
-        {
-            // Pending is a status-only response: do not wait on the winning operation's client write lock.
-            // Completed replay and expiry cleanup still serialize with client transfer before reading or writing.
-            await using var replayLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
-            if (record.ExpiresAt <= now || string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal))
-            {
-                await ClientAccessTransaction.LockReadClientsAsync(dbContext, [id], cancellationToken);
-            }
-            var replayActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
-            if (replayActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, replayActor, id, cancellationToken))
-            {
-                return TypedResults.NotFound();
-            }
-            if (record.ExpiresAt <= now)
-            {
-                dbContext.ClientMembershipIdempotencyRecords.Remove(record);
-                await dbContext.SaveChangesAsync(cancellationToken);
-                if (replayLease is not null) await replayLease.CommitAsync(cancellationToken);
-                return null;
-            }
-
-            if (record.ClientId != id || !string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal) ||
-                !string.Equals(record.ActionType, actionType, StringComparison.Ordinal))
-            {
-                return CreateProblem(
-                    StatusCodes.Status409Conflict,
-                    "idempotency-conflict",
-                    "Idempotency key was already used for another membership operation.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine5183eeff138] });
-            }
-
-            if (!string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal))
-            {
-                return CreateProblem(
-                    StatusCodes.Status409Conflict,
-                    "membership-operation-in-progress",
-                    "Membership operation is still in progress.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine527339319fd] });
-            }
-
-            var replayClient = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
-                ?? throw new InvalidOperationException($"Updated client '{id}' was not found during membership target transfer replay.");
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(
-                replayClient,
-                ClientResponseMapper.EmptyAttendanceHistoryPage(),
-                businessDateProvider.Today));
-        }
-
-        var existingIdempotency = await dbContext.ClientMembershipIdempotencyRecords
-            .SingleOrDefaultAsync(
-                record =>
-                    record.ActorUserId == currentUser.Id &&
-                    record.IdempotencyKey == idempotencyKey,
-                cancellationToken);
-        if (existingIdempotency is not null)
-        {
-            var existingResult = await HandleExistingIdempotencyAsync(existingIdempotency);
-            if (existingResult is not null)
-            {
-                return existingResult;
-            }
-        }
-
-        var reservedRecordId = Guid.NewGuid();
-        dbContext.ClientMembershipIdempotencyRecords.Add(new ClientMembershipIdempotencyRecord
-        {
-            Id = reservedRecordId,
-            ActorUserId = currentUser.Id,
-            IdempotencyKey = idempotencyKey,
-            ActionType = actionType,
-            PayloadHash = payloadHash,
-            Status = MembershipIdempotencyPending,
-            ClientId = id,
-            CreatedAt = now,
-            UpdatedAt = now,
-            ExpiresAt = now.AddDays(7)
-        });
-        try
-        {
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException exception) when (IsMembershipIdempotencyUniqueException(exception))
-        {
-            dbContext.ChangeTracker.Clear();
-            var winningRecord = await dbContext.ClientMembershipIdempotencyRecords
-                .SingleAsync(
-                    record =>
-                        record.ActorUserId == currentUser.Id &&
-                        record.IdempotencyKey == idempotencyKey,
-                    cancellationToken);
-            var winningResult = await HandleExistingIdempotencyAsync(winningRecord);
-            return winningResult ?? CreateProblem(
-                StatusCodes.Status409Conflict,
-                "membership-operation-in-progress",
-                "Membership operation is still in progress.",
-                new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine584339319fd] });
-        }
-
-        Task DeleteReservedIdempotencyAsync() => DeletePendingMembershipReservationAsync(reservedRecordId, serviceScopeFactory);
-
-        IDbContextTransaction? transaction = null;
-        try
-        {
-            transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id,
-            new[] { request.SourceGroupId, request.TargetGroupId }.OfType<Guid>().ToArray(), [], cancellationToken);
-
-            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
-            if (lockedActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, lockedActor, id, cancellationToken))
-            {
-                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-                await DeleteReservedIdempotencyAsync();
-                return TypedResults.NotFound();
-            }
-            currentUser = lockedActor;
-            var transfer = await transferService.TransferAsync(
-                id,
-                new ClientMembershipTargetTransferCommand(
-                    currentUser.Id,
-                    request.SourceGroupId,
-                    request.TargetGroupId,
-                    request.ExpectedMembershipIds ?? []),
-                cancellationToken);
-            if (!transfer.Succeeded)
-            {
-                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-                await DeleteReservedIdempotencyAsync();
-                return MapTransferProblemResult(transfer);
-            }
-
-            var clientAfter = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
-                ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership target transfer.");
-            await auditLogService.WriteAsync(
-                new AuditLogEntry(
-                    currentUser.Id,
-                    actionType,
-                    ClientAuditConstants.MembershipEntityType,
-                    id.ToString(),
-                    global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine63016aaa323(currentUser.Login, BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
-                    SerializeMembershipCollectionAuditState(clientBefore.Memberships),
-                    SerializeMembershipCollectionAuditState(clientAfter.Memberships)),
-                cancellationToken);
-
-            var idempotency = await dbContext.ClientMembershipIdempotencyRecords.SingleAsync(
-                record =>
-                    record.ActorUserId == currentUser.Id &&
-                    record.IdempotencyKey == idempotencyKey,
-                cancellationToken);
-            idempotency.Status = MembershipIdempotencyCompleted;
-            idempotency.UpdatedAt = DateTimeOffset.UtcNow;
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await CommitMembershipActionTransactionAsync(transaction, cancellationToken);
-            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-            var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
-            if (responseClient is null) return TypedResults.NotFound();
-
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(
-                responseClient,
-                ClientResponseMapper.EmptyAttendanceHistoryPage(),
-                businessDateProvider.Today));
-        }
-        catch (Exception exception)
-        {
-            await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-            await DeleteReservedIdempotencyAsync();
-            logger.LogError(
-                "Membership target transfer failed before commit. ExceptionType: {ExceptionType}",
-                exception.GetType().Name);
-            return CreateProblem(
-                StatusCodes.Status500InternalServerError,
-                "membership-operation-failed",
-                "Membership operation failed.",
-                new Dictionary<string, string[]> { ["membership"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine6611c294390] });
-        }
-        finally
-        {
-            if (transaction is not null)
-            {
-                await transaction.DisposeAsync();
-            }
-        }
+            }),
+            ClientMutationExecutionStatus.IdempotencyConflict => CreateProblem(
+                StatusCodes.Status409Conflict, "idempotency-conflict", "Idempotency key was already used for another membership operation.",
+                new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine5183eeff138] }),
+            ClientMutationExecutionStatus.InProgress or ClientMutationExecutionStatus.InProgressAfterReservationCollision => CreateProblem(
+                StatusCodes.Status409Conflict, "membership-operation-in-progress", "Membership operation is still in progress.",
+                new Dictionary<string, string[]>
+                {
+                    ["idempotencyKey"] = [result.Status == ClientMutationExecutionStatus.InProgress
+                    ? global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine527339319fd
+                    : global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine584339319fd]
+                }),
+            ClientMutationExecutionStatus.Rejected => MapTransferProblemResult(result.Failure),
+            ClientMutationExecutionStatus.Failed => TargetExecutionFailure(),
+            _ => throw new InvalidOperationException("Unexpected target transfer execution result.")
+        };
     }
+
+    private static ProblemHttpResult TargetExecutionFailure() => CreateProblem(
+        StatusCodes.Status500InternalServerError, "membership-operation-failed", "Membership operation failed.",
+        new Dictionary<string, string[]> { ["membership"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine6611c294390] });
 
     private static Results<Ok<MembershipTargetTransferPreviewResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult> MapTransferPreviewResult(
         ClientMembershipTargetTransferResult result)
@@ -843,11 +547,9 @@ internal static class ClientMembershipEndpoints
         Guid id,
         Guid refundId,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
+        IClientMembershipRefundExecutionWorkflow executionWorkflow,
         IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -863,263 +565,75 @@ internal static class ClientMembershipEndpoints
             return TypedResults.Unauthorized();
         }
 
-        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
-        {
-            return TypedResults.NotFound();
-        }
+        var result = await executionWorkflow.ExecuteAsync(new ClientMembershipRefundExecutionOperation(
+            id, currentUser, GetMembershipIdempotencyKey(httpContext.Request),
+            () => new { ClientId = id, RefundId = refundId },
+            ClientAuditConstants.MembershipRefundCanceledAction,
+            null,
+            actor => membershipService.CancelRefundAsync(id, new CancelClientMembershipRefundCommand(actor.Id, refundId), cancellationToken),
+            (actor, after, mutation) => new AuditLogEntry(actor.Id, ClientAuditConstants.MembershipRefundCanceledAction,
+                ClientAuditConstants.MembershipRefundEntityType, mutation.Refund!.Id.ToString(),
+                ClientAuditResources.MembershipRefundCanceledDescription(actor.Login, BuildClientFullName(after.LastName, after.FirstName, after.MiddleName)),
+                mutation.PreviousRefund is null ? null : SerializeRefundAuditState(mutation.PreviousRefund), SerializeRefundAuditState(mutation.Refund)),
+            null), cancellationToken);
+        return await MapRefundExecutionResultAsync(result, executionWorkflow, businessDateProvider, cancellation: true);
+    }
 
-        var clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
-        if (clientBefore is null)
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> MapRefundExecutionResultAsync(
+        ClientMutationExecutionResult<ClientMembershipRefundMutationError> result,
+        IClientMembershipRefundExecutionWorkflow executionWorkflow,
+        IBusinessDateProvider businessDateProvider,
+        bool cancellation)
+    {
+        if (result.Status == ClientMutationExecutionStatus.Success)
         {
-            return TypedResults.NotFound();
+            // Replay mapping historically occurs outside the mutation error boundary.
+            if (result.IsReplay)
+                return TypedResults.Ok(ClientResponseMapper.MapDetails(result.Client!, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+            try
+            {
+                return TypedResults.Ok(ClientResponseMapper.MapDetails(result.Client!, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+            }
+            catch
+            {
+                await executionWorkflow.CleanupFailedResultAsync(result.ReservationId);
+                return RefundExecutionFailure(cancellation);
+            }
         }
-
-        var idempotencyKey = GetMembershipIdempotencyKey(httpContext.Request);
-        if (idempotencyKey is null)
+        return result.Status switch
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            ClientMutationExecutionStatus.NotFound => TypedResults.NotFound(),
+            ClientMutationExecutionStatus.InvalidRequest => TypedResults.ValidationProblem(result.ValidationErrors!),
+            ClientMutationExecutionStatus.MissingIdempotencyKey => TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
                 ["idempotencyKey"] = ["Idempotency-Key header is required for this membership operation."]
-            });
-        }
-
-        var actionType = ClientAuditConstants.MembershipRefundCanceledAction;
-        var reservation = await ReserveRefundIdempotencyAsync(
-            currentUser.Id,
-            id,
-            idempotencyKey,
-            actionType,
-            new { ClientId = id, RefundId = refundId },
-            dbContext,
-            cancellationToken);
-        if (reservation.Denied) return TypedResults.NotFound();
-        if (reservation.Problem is not null)
-        {
-            return reservation.Problem;
-        }
-
-        if (reservation.IsReplay)
-        {
-            var replayClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
-            if (replayClient is null) return TypedResults.NotFound();
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(
-                replayClient,
-                ClientResponseMapper.EmptyAttendanceHistoryPage(),
-                businessDateProvider.Today));
-        }
-
-        IDbContextTransaction? transaction = null;
-        try
-        {
-            transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id, [], [], cancellationToken);
-
-            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
-            if (lockedActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, lockedActor, id, cancellationToken))
-            {
-                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-                await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
-                return TypedResults.NotFound();
-            }
-            currentUser = lockedActor;
-            var mutationResult = await membershipService.CancelRefundAsync(
-                id,
-                new CancelClientMembershipRefundCommand(currentUser.Id, refundId),
-                cancellationToken);
-
-            if (!mutationResult.Succeeded)
-            {
-                await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-                if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-                await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
-                return MapRefundMutationError(mutationResult.Error);
-            }
-
-            var clientAfter = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
-                ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership refund cancellation.");
-            var refund = mutationResult.Refund
-                ?? throw new InvalidOperationException("Membership refund cancellation succeeded without a refund snapshot.");
-
-            await auditLogService.WriteAsync(
-                new AuditLogEntry(
-                    currentUser.Id,
-                    actionType,
-                    ClientAuditConstants.MembershipRefundEntityType,
-                    refund.Id.ToString(),
-                    ClientAuditResources.MembershipRefundCanceledDescription(
-                        currentUser.Login,
-                        BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
-                    mutationResult.PreviousRefund is null ? null : SerializeRefundAuditState(mutationResult.PreviousRefund),
-                    SerializeRefundAuditState(refund)),
-                cancellationToken);
-            await CompleteRefundIdempotencyAsync(
-                currentUser.Id, idempotencyKey, refund.Id, refund.SaleId, dbContext, cancellationToken);
-            await CommitMembershipActionTransactionAsync(transaction, cancellationToken);
-            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-            var responseClient = await LoadAuthorizedMutationSnapshotAsync(id, currentUser.Id, dbContext, cancellationToken);
-            if (responseClient is null) return TypedResults.NotFound();
-
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
-        }
-        catch
-        {
-            await RollbackMembershipActionTransactionAsync(transaction, CancellationToken.None);
-            if (transaction is not null) { await transaction.DisposeAsync(); transaction = null; }
-            await DeletePendingMembershipReservationAsync(reservation.RecordId, serviceScopeFactory);
-            return CreateProblem(
-                StatusCodes.Status500InternalServerError,
-                "membership-refund-operation-failed",
-                "Membership refund operation failed.",
-                new Dictionary<string, string[]> { ["refund"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine8792a8c74ae] });
-        }
-        finally
-        {
-            if (transaction is not null)
-            {
-                await transaction.DisposeAsync();
-            }
-        }
+            }),
+            ClientMutationExecutionStatus.IdempotencyConflict => CreateProblem(
+                StatusCodes.Status409Conflict, "idempotency-conflict", "Idempotency key was already used for another membership operation.",
+                new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine9203eeff138] }),
+            ClientMutationExecutionStatus.InProgress => CreateProblem(
+                StatusCodes.Status409Conflict, "membership-operation-in-progress", "Membership operation is still in progress.",
+                new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine929339319fd] }),
+            ClientMutationExecutionStatus.Rejected => MapRefundMutationError(result.Failure),
+            ClientMutationExecutionStatus.Failed => RefundExecutionFailure(cancellation),
+            _ => throw new InvalidOperationException("Unexpected refund execution result.")
+        };
     }
 
-    private static async Task<RefundIdempotencyReservation> ReserveRefundIdempotencyAsync(
-        Guid actorUserId,
-        Guid clientId,
-        string idempotencyKey,
-        string actionType,
-        object payload,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
-    {
-        await using var lease = await ClientAccessTransaction.BeginReadAsync(dbContext, actorUserId, [clientId], cancellationToken);
-        var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, actorUserId, cancellationToken);
-        if (actor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, actor, clientId, cancellationToken))
-            return new RefundIdempotencyReservation(false, null, Denied: true);
-        var now = DateTimeOffset.UtcNow;
-        var payloadHash = ComputeMembershipIdempotencyPayloadHash(payload);
-        var existing = await dbContext.ClientMembershipIdempotencyRecords.SingleOrDefaultAsync(
-            record => record.ActorUserId == actorUserId && record.IdempotencyKey == idempotencyKey,
-            cancellationToken);
-        if (existing is not null && existing.ExpiresAt <= now)
+    private static ProblemHttpResult RefundExecutionFailure(bool cancellation) => CreateProblem(
+        StatusCodes.Status500InternalServerError, "membership-refund-operation-failed", "Membership refund operation failed.",
+        new Dictionary<string, string[]>
         {
-            dbContext.ClientMembershipIdempotencyRecords.Remove(existing);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            existing = null;
-        }
-
-        RefundIdempotencyReservation MapExisting(ClientMembershipIdempotencyRecord record)
-        {
-            if (!string.Equals(record.ActionType, actionType, StringComparison.Ordinal) ||
-                !string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal))
-            {
-                return new RefundIdempotencyReservation(false, CreateProblem(
-                    StatusCodes.Status409Conflict,
-                    "idempotency-conflict",
-                    "Idempotency key was already used for another membership operation.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine9203eeff138] }));
-            }
-
-            return string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal)
-                ? new RefundIdempotencyReservation(true, null)
-                : new RefundIdempotencyReservation(false, CreateProblem(
-                    StatusCodes.Status409Conflict,
-                    "membership-operation-in-progress",
-                    "Membership operation is still in progress.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = [global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine929339319fd] }));
-        }
-
-        if (existing is not null)
-        {
-            if (lease is not null) await lease.CommitAsync(cancellationToken);
-            return MapExisting(existing);
-        }
-
-        var reservedRecordId = Guid.NewGuid();
-        dbContext.ClientMembershipIdempotencyRecords.Add(new ClientMembershipIdempotencyRecord
-        {
-            Id = reservedRecordId,
-            ActorUserId = actorUserId,
-            IdempotencyKey = idempotencyKey,
-            ActionType = actionType,
-            PayloadHash = payloadHash,
-            Status = MembershipIdempotencyPending,
-            ClientId = clientId,
-            CreatedAt = now,
-            UpdatedAt = now,
-            ExpiresAt = now.AddDays(7)
+            ["refund"] = [cancellation
+            ? global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine8792a8c74ae
+            : global::GymCrm.Api.UserFacingText.BE3ClientMembershipText.ClientMembershipEndpointsLine4088cf17618]
         });
-        try
-        {
-            await dbContext.SaveChangesAsync(cancellationToken);
-            if (lease is not null) await lease.CommitAsync(cancellationToken);
-            return new RefundIdempotencyReservation(false, null, reservedRecordId);
-        }
-        catch (DbUpdateException exception) when (IsMembershipIdempotencyUniqueException(exception))
-        {
-            if (lease is not null) { await lease.RollbackAsync(CancellationToken.None); await lease.DisposeAsync(); }
-            dbContext.ChangeTracker.Clear();
-            var winner = await dbContext.ClientMembershipIdempotencyRecords.SingleAsync(
-                record => record.ActorUserId == actorUserId && record.IdempotencyKey == idempotencyKey,
-                cancellationToken);
-            return MapExisting(winner);
-        }
-    }
-
-    private static async Task CompleteRefundIdempotencyAsync(
-        Guid actorUserId,
-        string idempotencyKey,
-        Guid refundId,
-        Guid saleId,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
-    {
-        var record = await dbContext.ClientMembershipIdempotencyRecords.SingleAsync(
-            candidate => candidate.ActorUserId == actorUserId && candidate.IdempotencyKey == idempotencyKey,
-            cancellationToken);
-        record.Status = MembershipIdempotencyCompleted;
-        record.ResultMembershipId = refundId;
-        record.ResultSaleId = saleId;
-        record.UpdatedAt = DateTimeOffset.UtcNow;
-        await dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    private static async Task DeletePendingMembershipReservationAsync(Guid? recordId, IServiceScopeFactory serviceScopeFactory)
-    {
-        if (recordId is null) return;
-        using var cleanupTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        await using var cleanupScope = serviceScopeFactory.CreateAsyncScope();
-        var dbContext = cleanupScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-        // A failed/uncertain commit can have persisted Completed. Never delete that record.
-        if (dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
-        {
-            await dbContext.ClientMembershipIdempotencyRecords
-                .Where(candidate => candidate.Id == recordId && candidate.Status == MembershipIdempotencyPending)
-                .ExecuteDeleteAsync(cleanupTimeout.Token);
-            return;
-        }
-        var record = await dbContext.ClientMembershipIdempotencyRecords.SingleOrDefaultAsync(
-            candidate => candidate.Id == recordId && candidate.Status == MembershipIdempotencyPending,
-            cleanupTimeout.Token);
-        if (record is not null)
-        {
-            dbContext.ClientMembershipIdempotencyRecords.Remove(record);
-            await dbContext.SaveChangesAsync(cleanupTimeout.Token);
-        }
-    }
-
-    private readonly record struct RefundIdempotencyReservation(
-        bool IsReplay,
-        ProblemHttpResult? Problem,
-        Guid? RecordId = null,
-        bool Denied = false);
 
     internal static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
         Guid id,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
+        IClientMembershipExecutionWorkflow executionWorkflow,
         IBusinessDateProvider businessDateProvider,
-        IAuditLogService auditLogService,
-        IServiceScopeFactory serviceScopeFactory,
-        ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken,
         Func<Client, Dictionary<string, string[]>> validateRequest,
@@ -1127,340 +641,71 @@ internal static class ClientMembershipEndpoints
         object idempotencyPayload,
         string actionType,
         Func<string, string, string> descriptionFactory,
-        Func<User, Client, Client, ClientMembershipMutationResult, Task>? writeAuditAsync = null,
+        Func<User, Client, Client, ClientMembershipMutationResult, IReadOnlyList<AuditLogEntry>>? createAuditEntries = null,
         IReadOnlyCollection<Guid>? lockGroupIds = null,
         IReadOnlyCollection<Guid>? lockBranchIds = null,
         Func<Task<Dictionary<string, string[]>>>? validateLockedAsync = null)
     {
         var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
-        if (csrfValidationResult is not null)
-        {
-            return csrfValidationResult;
-        }
-
+        if (csrfValidationResult is not null) return csrfValidationResult;
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
-        if (currentUser is null)
-        {
-            return TypedResults.Unauthorized();
-        }
+        if (currentUser is null) return TypedResults.Unauthorized();
 
-        if (!await ClientAccessTransaction.CanAccessAsync(dbContext, currentUser, id, cancellationToken))
+        var result = await executionWorkflow.ExecuteAsync(new ClientMembershipExecutionOperation(
+            id, currentUser, GetMembershipIdempotencyKey(httpContext.Request), () => idempotencyPayload,
+            actionType, validateRequest, executeAsync,
+            (actor, before, after, mutation) => CreateMembershipExecutionAuditEntries(
+                actor, before, after, mutation, actionType, descriptionFactory, createAuditEntries),
+            lockGroupIds ?? [], lockBranchIds ?? [], validateLockedAsync), cancellationToken);
+        return result.Status switch
         {
-            return actionType == ClientAuditConstants.ClientTransferredAction &&
-                await IsCompletedTransferReplayAsync(id, currentUser.Id, httpContext.Request, idempotencyPayload, dbContext, cancellationToken)
-                ? TypedResults.NoContent()
-                : TypedResults.NotFound();
-        }
-
-        var clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
-        if (clientBefore is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var validationErrors = validateRequest(clientBefore);
-        if (validationErrors.Count > 0)
-        {
-            return TypedResults.ValidationProblem(validationErrors);
-        }
-
-        var idempotencyKey = GetMembershipIdempotencyKey(httpContext.Request);
-        if (idempotencyKey is null)
-        {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            ClientMutationExecutionStatus.Success => TypedResults.Ok(ClientResponseMapper.MapDetails(
+                result.Client!, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today)),
+            ClientMutationExecutionStatus.CompletedWithoutVisibleClient => TypedResults.NoContent(),
+            ClientMutationExecutionStatus.NotFound => TypedResults.NotFound(),
+            ClientMutationExecutionStatus.InvalidRequest => TypedResults.ValidationProblem(result.ValidationErrors!),
+            ClientMutationExecutionStatus.MissingIdempotencyKey => TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
                 ["idempotencyKey"] = ["Idempotency-Key header is required for this membership operation."]
-            });
-        }
-
-        var payloadHash = ComputeMembershipIdempotencyPayloadHash(idempotencyPayload);
-        var now = DateTimeOffset.UtcNow;
-        var logger = loggerFactory.CreateLogger("GymCrm.Api.Auth.ClientMembershipMutation");
-        async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>?> HandleExistingIdempotencyAsync(
-            ClientMembershipIdempotencyRecord record)
-        {
-            // Pending is a status-only response: do not wait on the winning operation's client write lock.
-            // Completed replay and expiry cleanup still serialize with client transfer before reading or writing.
-            await using var replayLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [], cancellationToken);
-            if (record.ExpiresAt <= now || string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal))
-            {
-                await ClientAccessTransaction.LockReadClientsAsync(dbContext, [id], cancellationToken);
-            }
-            var replayActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
-            if (replayActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, replayActor, id, cancellationToken))
-            {
-                return actionType == ClientAuditConstants.ClientTransferredAction &&
-                    IsCompletedTransferRecord(record, id, currentUser.Id, payloadHash, now)
-                    ? TypedResults.NoContent()
-                    : TypedResults.NotFound();
-            }
-            if (record.ExpiresAt <= now)
-            {
-                dbContext.ClientMembershipIdempotencyRecords.Remove(record);
-                await dbContext.SaveChangesAsync(cancellationToken);
-                if (replayLease is not null) await replayLease.CommitAsync(cancellationToken);
-                return null;
-            }
-
-            if (record.ClientId != id ||
-                !string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal) ||
-                !string.Equals(record.ActionType, actionType, StringComparison.Ordinal))
-            {
-                return CreateProblem(
-                    StatusCodes.Status409Conflict,
-                    "idempotency-conflict",
-                    "Idempotency key was already used for another membership operation.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = ["Idempotency key was already used with different membership content."] });
-            }
-
-            if (!string.Equals(record.Status, MembershipIdempotencyCompleted, StringComparison.Ordinal))
-            {
-                return CreateProblem(
-                    StatusCodes.Status409Conflict,
-                    "membership-operation-in-progress",
-                    "Membership operation is still in progress.",
-                    new Dictionary<string, string[]> { ["idempotencyKey"] = ["The same membership operation is still in progress. Retry later."] });
-            }
-
-            var replayClient = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
-                ?? throw new InvalidOperationException($"Updated client '{id}' was not found during membership idempotency replay.");
-            return TypedResults.Ok(ClientResponseMapper.MapDetails(replayClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
-        }
-
-        var existingIdempotency = await dbContext.ClientMembershipIdempotencyRecords
-            .SingleOrDefaultAsync(
-                record =>
-                    record.ActorUserId == currentUser.Id &&
-                    record.IdempotencyKey == idempotencyKey,
-                cancellationToken);
-        if (existingIdempotency is not null)
-        {
-            var existingResult = await HandleExistingIdempotencyAsync(existingIdempotency);
-            if (existingResult is not null)
-            {
-                return existingResult;
-            }
-        }
-
-        var reservedIdempotency = new ClientMembershipIdempotencyRecord
-        {
-            Id = Guid.NewGuid(),
-            ActorUserId = currentUser.Id,
-            IdempotencyKey = idempotencyKey,
-            ActionType = actionType,
-            PayloadHash = payloadHash,
-            Status = MembershipIdempotencyPending,
-            ClientId = id,
-            CreatedAt = now,
-            UpdatedAt = now,
-            ExpiresAt = now.AddDays(7)
+            }),
+            ClientMutationExecutionStatus.IdempotencyConflict => CreateProblem(
+                StatusCodes.Status409Conflict, "idempotency-conflict", "Idempotency key was already used for another membership operation.",
+                new Dictionary<string, string[]> { ["idempotencyKey"] = ["Idempotency key was already used with different membership content."] }),
+            ClientMutationExecutionStatus.InProgress => CreateProblem(
+                StatusCodes.Status409Conflict, "membership-operation-in-progress", "Membership operation is still in progress.",
+                new Dictionary<string, string[]> { ["idempotencyKey"] = ["The same membership operation is still in progress. Retry later."] }),
+            ClientMutationExecutionStatus.Rejected => MapMembershipMutationError(result.Failure),
+            ClientMutationExecutionStatus.Failed => CreateProblem(
+                StatusCodes.Status500InternalServerError, "membership-operation-failed", "Membership operation failed.",
+                new Dictionary<string, string[]> { ["membership"] = ["Membership operation failed."] }),
+            _ => throw new InvalidOperationException("Unexpected membership execution result.")
         };
-        dbContext.ClientMembershipIdempotencyRecords.Add(reservedIdempotency);
-        try
-        {
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException exception) when (IsMembershipIdempotencyUniqueException(exception))
-        {
-            dbContext.ChangeTracker.Clear();
-            var winningRecord = await dbContext.ClientMembershipIdempotencyRecords
-                .SingleAsync(
-                    record =>
-                        record.ActorUserId == currentUser.Id &&
-                        record.IdempotencyKey == idempotencyKey,
-                    cancellationToken);
-            var winningResult = await HandleExistingIdempotencyAsync(winningRecord);
-            if (winningResult is not null)
-            {
-                return winningResult;
-            }
-
-            return CreateProblem(
-                StatusCodes.Status409Conflict,
-                "membership-operation-in-progress",
-                "Membership operation is still in progress.",
-                new Dictionary<string, string[]> { ["idempotencyKey"] = ["The same membership operation is still in progress. Retry later."] });
-        }
-
-        Task DeleteReservedIdempotencyAsync() => DeletePendingMembershipReservationAsync(reservedIdempotency.Id, serviceScopeFactory);
-
-        IDbContextTransaction? transaction = null;
-        async Task RollbackAndDisposeTransactionAsync()
-        {
-            if (transaction is not null)
-            {
-                var transactionToRollback = transaction;
-                transaction = null;
-                try
-                {
-                    await RollbackMembershipActionTransactionAsync(transactionToRollback, CancellationToken.None);
-                }
-                finally
-                {
-                    await transactionToRollback.DisposeAsync();
-                }
-            }
-        }
-
-        try
-        {
-            transaction = await ClientAccessTransaction.BeginMutationAsync(dbContext, currentUser.Id, id, lockGroupIds ?? [], lockBranchIds ?? [], cancellationToken);
-
-            var lockedActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
-            if (lockedActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, lockedActor, id, cancellationToken))
-            {
-                await RollbackAndDisposeTransactionAsync();
-                await DeleteReservedIdempotencyAsync();
-                return TypedResults.NotFound();
-            }
-            currentUser = lockedActor;
-            clientBefore = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
-                ?? throw new InvalidOperationException("Locked client disappeared.");
-            validationErrors = validateLockedAsync is null ? validateRequest(clientBefore) : await validateLockedAsync();
-            if (validationErrors.Count > 0)
-            {
-                await RollbackAndDisposeTransactionAsync();
-                await DeleteReservedIdempotencyAsync();
-                return TypedResults.ValidationProblem(validationErrors);
-            }
-            var mutationResult = await executeAsync(currentUser);
-            if (!mutationResult.Succeeded)
-            {
-                await RollbackAndDisposeTransactionAsync();
-                await DeleteReservedIdempotencyAsync();
-                if (mutationResult.Error == ClientMembershipMutationError.ClientMissing)
-                {
-                    return TypedResults.NotFound();
-                }
-
-                return MapMembershipMutationError(mutationResult.Error);
-            }
-
-            var clientAfter = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken)
-                ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership change.");
-            var operationMembership = mutationResult.Details?.CurrentMembership;
-
-            if (writeAuditAsync is not null)
-            {
-                await writeAuditAsync(currentUser, clientBefore, clientAfter, mutationResult);
-            }
-            else
-            {
-                await auditLogService.WriteAsync(
-                    new AuditLogEntry(
-                        currentUser.Id,
-                        actionType,
-                        ClientAuditConstants.MembershipEntityType,
-                        operationMembership?.Id.ToString() ?? clientAfter.Id.ToString(),
-                        descriptionFactory(
-                            currentUser.Login,
-                            BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
-                        SerializeMembershipCollectionAuditState(clientBefore.Memberships),
-                        SerializeMembershipCollectionAuditState(clientAfter.Memberships)),
-                    cancellationToken);
-            }
-
-            if (mutationResult.SaleAudit is not null)
-            {
-                await auditLogService.WriteAsync(
-                    new AuditLogEntry(
-                        currentUser.Id,
-                        ClientAuditConstants.MembershipSaleCorrectedAction,
-                        ClientAuditConstants.MembershipSaleEntityType,
-                        mutationResult.SaleAudit.NewSale.Id.ToString(),
-                        ClientAuditResources.MembershipSaleCorrectedDescription(
-                            currentUser.Login,
-                            BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
-                        SerializeSaleAuditState(mutationResult.SaleAudit.OldSale),
-                        SerializeSaleAuditState(mutationResult.SaleAudit.NewSale)),
-                    cancellationToken);
-            }
-
-            var idempotency = await dbContext.ClientMembershipIdempotencyRecords.SingleAsync(
-                record =>
-                    record.ActorUserId == currentUser.Id &&
-                    record.IdempotencyKey == idempotencyKey,
-                cancellationToken);
-            idempotency.Status = MembershipIdempotencyCompleted;
-            idempotency.ResultMembershipId = operationMembership?.Id;
-            idempotency.ResultSaleId = operationMembership?.SaleId;
-            idempotency.UpdatedAt = DateTimeOffset.UtcNow;
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await CommitMembershipActionTransactionAsync(transaction, cancellationToken);
-            if (transaction is not null)
-            {
-                await transaction.DisposeAsync();
-                transaction = null;
-            }
-
-
-        }
-        catch (Exception exception)
-        {
-            await RollbackAndDisposeTransactionAsync();
-            await DeleteReservedIdempotencyAsync();
-            logger.LogError(
-                "Membership operation failed before commit. ActionType: {ActionType}; ExceptionType: {ExceptionType}",
-                actionType,
-                exception.GetType().Name);
-            return CreateProblem(
-                StatusCodes.Status500InternalServerError,
-                "membership-operation-failed",
-                "Membership operation failed.",
-                new Dictionary<string, string[]> { ["membership"] = ["Membership operation failed."] });
-        }
-        finally
-        {
-            if (transaction is not null)
-            {
-                await transaction.DisposeAsync();
-            }
-        }
-        await using var responseLease = await ClientAccessTransaction.BeginReadAsync(dbContext, currentUser.Id, [id], cancellationToken);
-        var responseActor = await ClientAccessTransaction.LoadActorAsync(dbContext, currentUser.Id, cancellationToken);
-        if (responseActor is null || !await ClientAccessTransaction.CanAccessAsync(dbContext, responseActor, id, cancellationToken))
-        {
-            return actionType == ClientAuditConstants.ClientTransferredAction ? TypedResults.NoContent() : TypedResults.NotFound();
-        }
-        var responseClient = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
-        return responseClient is null ? TypedResults.NotFound() : TypedResults.Ok(
-            ClientResponseMapper.MapDetails(responseClient, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
-    internal static async Task<bool> IsCompletedTransferReplayAsync(
-        Guid clientId, Guid actorId, HttpRequest request, object payload, GymCrmDbContext dbContext, CancellationToken cancellationToken)
+    private static IReadOnlyList<AuditLogEntry> CreateMembershipExecutionAuditEntries(
+        User actor, Client before, Client after, ClientMembershipMutationResult mutation,
+        string actionType, Func<string, string, string> descriptionFactory,
+        Func<User, Client, Client, ClientMembershipMutationResult, IReadOnlyList<AuditLogEntry>>? createAuditEntries)
     {
-        var key = GetMembershipIdempotencyKey(request);
-        if (key is null) return false;
-        var record = await dbContext.ClientMembershipIdempotencyRecords.AsNoTracking().SingleOrDefaultAsync(
-            candidate => candidate.ActorUserId == actorId && candidate.IdempotencyKey == key, cancellationToken);
-        return record is not null && IsCompletedTransferRecord(record, clientId, actorId,
-            ComputeMembershipIdempotencyPayloadHash(payload), DateTimeOffset.UtcNow);
-    }
-
-    private static bool IsCompletedTransferRecord(ClientMembershipIdempotencyRecord record, Guid clientId, Guid actorId, string payloadHash, DateTimeOffset now) =>
-        record.ActorUserId == actorId && record.ClientId == clientId && record.ExpiresAt > now &&
-        record.Status == MembershipIdempotencyCompleted && record.ActionType == ClientAuditConstants.ClientTransferredAction &&
-        string.Equals(record.PayloadHash, payloadHash, StringComparison.Ordinal);
-
-    private static async Task CommitMembershipActionTransactionAsync(
-        IDbContextTransaction? transaction,
-        CancellationToken cancellationToken)
-    {
-        if (transaction is not null)
+        var entries = createAuditEntries is null
+            ? new List<AuditLogEntry>
+            {
+                new(actor.Id, actionType, ClientAuditConstants.MembershipEntityType,
+                    mutation.Details?.CurrentMembership?.Id.ToString() ?? after.Id.ToString(),
+                    descriptionFactory(actor.Login, BuildClientFullName(after.LastName, after.FirstName, after.MiddleName)),
+                    SerializeMembershipCollectionAuditState(before.Memberships),
+                    SerializeMembershipCollectionAuditState(after.Memberships))
+            }
+            : createAuditEntries(actor, before, after, mutation).ToList();
+        if (mutation.SaleAudit is not null)
         {
-            await transaction.CommitAsync(cancellationToken);
+            entries.Add(new AuditLogEntry(actor.Id, ClientAuditConstants.MembershipSaleCorrectedAction,
+                ClientAuditConstants.MembershipSaleEntityType, mutation.SaleAudit.NewSale.Id.ToString(),
+                ClientAuditResources.MembershipSaleCorrectedDescription(
+                    actor.Login, BuildClientFullName(after.LastName, after.FirstName, after.MiddleName)),
+                SerializeSaleAuditState(mutation.SaleAudit.OldSale), SerializeSaleAuditState(mutation.SaleAudit.NewSale)));
         }
-    }
-
-    private static async Task RollbackMembershipActionTransactionAsync(
-        IDbContextTransaction? transaction,
-        CancellationToken cancellationToken)
-    {
-        if (transaction is not null)
-        {
-            await transaction.RollbackAsync(cancellationToken);
-        }
+        return entries;
     }
 
     internal static string? GetMembershipIdempotencyKey(HttpRequest request)
@@ -1484,23 +729,6 @@ internal static class ClientMembershipEndpoints
     internal static string? NormalizeIsoDateForIdempotency(string? value)
     {
         return ParseIsoDate(value)?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-    }
-
-    private static string ComputeMembershipIdempotencyPayloadHash(object payload)
-    {
-        var json = JsonSerializer.Serialize(payload, AuditSerializerOptions);
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(json));
-        return Convert.ToHexString(bytes);
-    }
-
-    private static bool IsMembershipIdempotencyUniqueException(DbUpdateException exception)
-    {
-        return exception.InnerException is PostgresException postgresException &&
-               string.Equals(postgresException.SqlState, PostgresErrorCodes.UniqueViolation, StringComparison.Ordinal) &&
-               string.Equals(
-                   postgresException.ConstraintName,
-                   GymCrmDbContext.ClientMembershipIdempotencyActorKeyIndexName,
-                   StringComparison.Ordinal);
     }
 
     private static Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>

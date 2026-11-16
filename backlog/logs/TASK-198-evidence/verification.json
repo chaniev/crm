@@ -1,0 +1,849 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-16T17:57:47.644117+00:00",
+  "repository": "TASK-198-membership-execution",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "5fb81ea380681041dd9b8fd412727979297e4f27",
+    "head_tree_sha": "1cd28ee8e79f18f5388714b3e1a84e1b5ccea3e0",
+    "base_sha": "eda13c57bdcd7cea96637bb2c89b7e5fafe4653b",
+    "merge_base_sha": "eda13c57bdcd7cea96637bb2c89b7e5fafe4653b",
+    "branch": "refactor/TASK-198-membership-execution",
+    "working_tree_dirty": true,
+    "base_error": null
+  },
+  "task_contract": null,
+  "task_id": null,
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-197-evidence/review.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-197-evidence/verification.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/06-аудит.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/DependencyInjection.cs"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/README.md"
+      ],
+      "source": "unstaged"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/implementation-plans/TASK-198-membership-execution.plan.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/implementation/TASK-198-membership-execution.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/logs/TASK-198-review.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "docs/architecture/adr/0007-membership-execution-boundary.md"
+      ],
+      "source": "untracked"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+    "backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+    "backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+    "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+    "backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+    "backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+    "backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+    "backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+    "backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+    "backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+    "backlog/done/2026-11-16/TASK-197-evidence/review.md",
+    "backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+    "backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+    "backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+    "backlog/implementation-plans/TASK-198-membership-execution.plan.md",
+    "backlog/implementation/TASK-198-membership-execution.md",
+    "backlog/logs/TASK-198-review.md",
+    "docs/architecture/adr/0007-membership-execution-boundary.md",
+    "docs/architecture/adr/README.md",
+    "docs/requirements/06-аудит.md",
+    "docs/requirements/CHANGELOG.md"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+      "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-198-membership-execution.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-198-membership-execution.md",
+      "documentation or instructions changed: backlog/logs/TASK-198-review.md",
+      "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+      "documentation or instructions changed: docs/architecture/adr/README.md",
+      "documentation or instructions changed: docs/requirements/06-аудит.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-198-membership-execution.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-198-membership-execution.md",
+        "documentation or instructions changed: backlog/logs/TASK-198-review.md",
+        "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:57:47.774902+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-16T17:57:47.815162+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-198-membership-execution.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-198-membership-execution.md",
+        "documentation or instructions changed: backlog/logs/TASK-198-review.md",
+        "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:57:47.816087+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-16T17:57:47.856481+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-198-membership-execution.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-198-membership-execution.md",
+        "documentation or instructions changed: backlog/logs/TASK-198-review.md",
+        "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:57:47.857394+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-16T17:57:47.897611+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/review.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md",
+        "documentation or instructions changed: backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-198-membership-execution.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-198-membership-execution.md",
+        "documentation or instructions changed: backlog/logs/TASK-198-review.md",
+        "documentation or instructions changed: docs/architecture/adr/0007-membership-execution-boundary.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/06-аудит.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:57:47.898507+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-11-16T17:57:47.975635+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:57:47.976621+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.606,
+      "completed_at": "2026-11-16T17:57:48.583104+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:57:48.584084+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.87,
+      "completed_at": "2026-11-16T17:57:50.454511+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:57:50.455528+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.101,
+      "completed_at": "2026-11-16T17:58:01.556262+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:58:01.558240+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.974,
+      "completed_at": "2026-11-16T17:58:03.532638+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T17:58:03.533824+00:00",
+      "exit_code": 0,
+      "duration_seconds": 159.496,
+      "completed_at": "2026-11-16T18:00:43.028981+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientEndpointSharedHelpers.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipRefundExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMembershipTargetExecutionOperation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationActionNames.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionResult.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/ClientMutationExecutionStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipRefundReservation.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMembershipTargetExecutionWorkflow.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientMutationPersistence.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientSnapshotReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/DependencyInjection.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:00:43.030659+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.71,
+      "completed_at": "2026-11-16T18:00:45.741103+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:00:45.742022+00:00",
+      "exit_code": 0,
+      "duration_seconds": 28.205,
+      "completed_at": "2026-11-16T18:01:13.946900+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:01:13.947913+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.0,
+      "completed_at": "2026-11-16T18:01:15.947826+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientLifecycleEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-16T18:01:15.948788+00:00",
+      "exit_code": 0,
+      "duration_seconds": 24.407,
+      "completed_at": "2026-11-16T18:01:40.355835+00:00"
+    }
+  ],
+  "completed_at": "2026-11-16T18:01:40.357120+00:00"
+}
