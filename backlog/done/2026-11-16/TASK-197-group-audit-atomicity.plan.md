@@ -1,7 +1,7 @@
 # TASK-197: План атомарности обновления группы
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-197-group-audit-atomicity.md
+- source_task: /backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md
 - branch: fix/TASK-197-group-audit-atomicity
 - readiness: yes
 - requirements: REQ-AUD-001 — implements
@@ -16,7 +16,7 @@
 Обязательный audit write выполняется после SaveChanges, но до commit mutation transaction. После commit остаётся отдельное чтение ответа с актуальной проверкой доступа. Snapshot для нового значения аудита читается внутри mutation transaction; формат audit не меняется. Миграций нет; rollback через revert task commit.
 
 ## Decision evidence
-[Запрос пользователя и scope](/backlog/implementation/TASK-197-group-audit-atomicity.md). Существующие REQ-AUD-001 и backend invariant требуют согласованности изменения и аудита.
+[Запрос пользователя и scope](/backlog/done/2026-11-16/TASK-197-group-audit-atomicity.md). Существующие REQ-AUD-001 и backend invariant требуют согласованности изменения и аудита.
 
 ## Implementation slices
 1. Добавить PostgreSQL тест на audit failure / rollback / retry / old-new payload для PUT группы; подтвердить red на текущем коде.

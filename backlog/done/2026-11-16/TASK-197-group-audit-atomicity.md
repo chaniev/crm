@@ -1,7 +1,7 @@
 # TASK-197: Атомарность обновления группы и аудита
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-AUD-001 — implements
@@ -23,5 +23,10 @@ implementation
 - Сохраняются блокировки доступа и повторная проверка доступа при формировании ответа.
 
 ## Implementation lifecycle
-- implementation_plan: /backlog/implementation-plans/TASK-197-group-audit-atomicity.plan.md
+- implementation_plan: /backlog/done/2026-11-16/TASK-197-group-audit-atomicity.plan.md
 - implementation_branch: fix/TASK-197-group-audit-atomicity
+
+## Completion
+- completed_at: 2026-11-16
+- completion_date_evidence: local main fast-forward to f05716e; [verification](TASK-197-evidence/review.md)
+- delivered_on_main_at: 2026-11-16
