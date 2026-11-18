@@ -39,8 +39,8 @@ Read only the references needed for the current mode:
 
 Use this sequence:
 
-1. Define the UX contract without prematurely choosing a layout; prefer
-   `ux-researcher` when available.
+1. Define the UX contract with `../crm-ux-design/SKILL.md` without prematurely
+   choosing a visual layout; prefer `ux-researcher` when available.
 2. Create a visual brief and three meaningfully different rendered directions
    using `references/visual-direction.md`; prefer `ui-designer`.
 3. Present the directions with their tradeoffs. A product owner selects or
@@ -59,7 +59,8 @@ language, backend capabilities, and mobile acceptance before implementation.
 
 ### Existing workflow analysis
 
-Identify task and recovery problems, then inspect the rendered hierarchy.
+Use `../crm-ux-design/SKILL.md` to identify task and recovery problems, then
+inspect the rendered hierarchy.
 Prefer `ux-researcher` for the first outcome and `ui-designer` for the second
 when those capabilities are available. Do not infer usability from source code
 or visual preference alone.
@@ -90,29 +91,17 @@ implementing agent owns the same artifacts and review boundaries.
 
 ## Define the UX contract
 
-Before visual design, state:
+`../crm-ux-design/SKILL.md` owns scenario analysis, information architecture,
+interaction sketches, action classification, and usability criteria. Its
+`../crm-ux-design/references/ux-contract.md` defines the handoff. Reuse an
+approved contract and its decision evidence; do not repeat research or reopen
+settled decisions without new conflicting evidence.
 
-- user, role, device, and usage context;
-- result the user needs and the completion signal;
-- primary path and required information at each decision;
-- primary, frequent, secondary, and exceptional actions;
-- current action count and decision points when redesigning;
-- loading, empty, failure, stale, restricted, and recovery paths;
-- measurable task-success criteria;
-- backend capabilities and product uncertainties.
-
-Classify every control:
-
-| Class | Placement |
-|---|---|
-| Primary | Visible and visually dominant in the active task state |
-| Frequent | Visible or reachable in one obvious interaction |
-| Secondary | Lower emphasis or contextual placement |
-| Exceptional or destructive | Context surface or explicit confirmation |
-| Unmapped | Remove until a user operation justifies it |
-
-Do not use visual preference as evidence of usability, and do not use a UX
-contract as evidence of visual quality.
+This skill owns rendered visual directions, product-owner selection, the
+visual implementation contract, implementation, and final runtime acceptance.
+An interaction sketch does not replace the rendered visual selection gate.
+Do not use visual preference as evidence of usability or a UX contract as
+evidence of visual quality.
 
 ## Require a visual contract
 

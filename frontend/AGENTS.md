@@ -33,8 +33,8 @@ For a new screen or materially changed workflow:
 
 1. Read `.agents/skills/crm-mobile-first-ui/SKILL.md` completely.
 2. Read `frontend/DESIGN.md` and inspect the current rendered flow.
-3. Define the UX contract before layout decisions; prefer `ux-researcher` when
-   available.
+3. Define the UX contract with `.agents/skills/crm-ux-design/SKILL.md` before
+   visual layout decisions; prefer `ux-researcher` when available.
 4. Create a visual brief and three meaningfully different rendered directions;
    prefer `ui-designer`. An approved user-supplied design replaces this step.
 5. Record the product owner's selected or refined direction before production
