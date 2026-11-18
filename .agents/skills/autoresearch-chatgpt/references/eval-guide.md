@@ -1,68 +1,71 @@
-# Binary eval guide
+# Бинарные критерии оценки
 
-Use this guide when defining or repairing the eval suite.
+Использовать при определении или исправлении набора проверок.
 
-## Write observable checks
+## Формулировать наблюдаемые проверки
 
-Each eval must contain:
+Каждый критерий должен содержать:
 
 ```text
-EVAL <id>: <short name>
-Question: <yes/no question about one output>
-Pass: <specific observable evidence>
-Fail: <specific counter-evidence>
-Method: <command, parser, rubric, or blind semantic scorer>
-Applies to: <all prompts or listed prompt IDs>
+EVAL <id>: <краткое название>
+Question: <вопрос с ответом да/нет об одном результате>
+Pass: <конкретное наблюдаемое доказательство выполнения>
+Fail: <конкретное доказательство невыполнения>
+Method: <команда, парсер, рубрика или слепая смысловая оценка>
+Applies to: <все запросы или перечисленные идентификаторы>
 ```
 
-Good checks are binary, distinct, relevant to the user's goal, and likely to be scored the same way by two independent evaluators.
+Хорошие проверки бинарны, различны, связаны с целью пользователя и позволяют
+двум независимым оценщикам с высокой вероятностью прийти к одинаковому результату.
 
-## Prefer the strongest evidence
+## Предпочитать наиболее надёжные доказательства
 
-Use evidence in this order:
+Использовать такой порядок:
 
-1. Executed test, parser, schema, or validator.
-2. Deterministic inspection such as file existence, exact fields, or forbidden tokens.
-3. Evidence-based semantic judgment with explicit pass and fail anchors.
-4. Subjective judgment only when the quality itself is subjective and no observable proxy is honest.
+1. Выполненный тест, парсер, схема или валидатор.
+2. Детерминированная проверка: наличие файла, точные поля, запрещённые токены.
+3. Смысловая оценка по доказательствам с явными признаками выполнения и невыполнения.
+4. Субъективная оценка только для субъективного качества без честного наблюдаемого заменителя.
 
-Do not let a semantic scorer infer that code works when it can be executed. Preserve the command output or other evidence with the score.
+Не позволять смысловому оценщику предполагать работоспособность кода, который
+можно выполнить. Сохранять вывод команды или другое доказательство вместе с оценкой.
 
-## Avoid weak evals
+## Избегать слабых критериев
 
-Rewrite checks such as:
+Переформулировать проверки вида:
 
-- "Is it good/professional/engaging?"
-- "Rate it from 1 to 10."
-- "Does it follow best practices?"
-- "Would a user like it?"
+- «Хорошо ли это, профессионально или увлекательно?»
+- «Оцените от 1 до 10».
+- «Соответствует ли это лучшим практикам?»
+- «Понравится ли это пользователю?»
 
-Prefer:
+Предпочитать:
 
-- "Does the output include every required section: A, B, and C?"
-- "Does the generated project pass the specified test command?"
-- "Does every factual claim include a source URL or supplied-file citation?"
-- "Does the response avoid all phrases in the supplied banned list?"
+- «Есть ли все обязательные разделы: A, B и C?»
+- «Проходит ли созданный проект указанную тестовую команду?»
+- «У каждого утверждения о фактах есть URL источника или ссылка на предоставленный файл?»
+- «Отсутствуют ли все фразы из предоставленного списка запрещённых?»
 
-## Prevent gaming and overfitting
+## Предотвратить подгонку и переобучение
 
-- Test outcomes, not arbitrary wording.
-- Avoid exact counts unless the count is a real product requirement.
-- Keep evals independent; do not count the same defect twice.
-- Include negative or edge-case prompts.
-- Reserve at least one prompt for holdout validation when the dataset permits.
-- Freeze evals before candidate mutations.
-- Keep the trial runner blind to eval answers and previous failures.
-- Reject improvements that trade away an important non-scored invariant; add the missing invariant and restart the baseline if necessary.
+- Проверять результат, а не произвольную формулировку.
+- Не требовать точного количества, если это не реальное продуктовое требование.
+- Сохранять независимость критериев; не учитывать один дефект дважды.
+- Добавлять отрицательные и граничные запросы.
+- Если набор позволяет, оставлять хотя бы один запрос для отложенной проверки.
+- Зафиксировать критерии до изменения варианта.
+- Не раскрывать исполнителю ответы критериев и прошлые ошибки.
+- Отклонять улучшения за счёт важного неоцениваемого инварианта; при необходимости
+  добавить этот инвариант и повторить базовые запуски.
 
-## Sanity-check every eval
+## Проверить разумность каждого критерия
 
-Ask:
+Задать вопросы:
 
-1. Would two independent scorers agree?
-2. Can the skill pass without genuinely improving?
-3. Does the check represent something the user cares about?
-4. Can it be executed instead of judged?
-5. Is it applicable to every prompt it will score?
+1. Согласятся ли два независимых оценщика?
+2. Может ли навык пройти проверку без реального улучшения?
+3. Проверяется ли что-то важное пользователю?
+4. Можно ли выполнить проверку вместо субъективной оценки?
+5. Применима ли она ко всем оцениваемым запросам?
 
-If any answer exposes ambiguity, repair the eval before running the baseline.
+Если ответ выявляет неоднозначность, исправить критерий до базовых запусков.

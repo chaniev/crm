@@ -1,115 +1,113 @@
 ---
 name: web-design-guidelines
-description: Use only when an independent audit is explicitly requested for an implemented CRM interface, accessibility, semantic structure, keyboard behavior, focus management, forms, dialogs, navigation, responsive overflow, or general web-interface compliance. Report findings without redesigning the CRM workflow or overriding crm-mobile-first-ui.
+description: Использовать только по явному запросу независимого аудита реализованного интерфейса CRM — доступности, семантической структуры, клавиатуры, фокуса, форм, диалогов, навигации, адаптивного переполнения или соответствия правилам веб-интерфейсов. Сообщать находки без перепроектирования сценария CRM и без переопределения crm-mobile-first-ui.
 ---
 
-# Web Design Guidelines Audit
+# Независимый аудит веб-интерфейса
 
-Audit implemented behavior independently. Do not use this skill to invent a
-new CRM workflow.
+Независимо проверять реализованное поведение. Не использовать навык для
+изобретения нового сценария CRM.
 
-## Source priority
+## Приоритет источников
 
-1. User request.
-2. Nearest `AGENTS.md`.
-3. Existing code, tests, and backend contracts.
-4. Approved UX contract and
-   `.agents/skills/crm-mobile-first-ui/SKILL.md`.
-5. This audit checklist.
+1. Запрос пользователя.
+2. Ближайший `AGENTS.md`.
+3. Существующий код, тесты и серверные контракты.
+4. Согласованный UX-контракт и `.agents/skills/crm-mobile-first-ui/SKILL.md`.
+5. Этот список проверок.
 
-Report conflicts instead of silently replacing project requirements.
+Сообщать конфликты вместо молчаливой замены требований проекта.
 
-Use external interface guidelines as prompts to inspect actual behavior, not
-as new product requirements. Preserve Russian sentence case, Mantine semantics,
-the established form-control model, and project mobile acceptance. Do not add
-custom key handlers to native controls that already work by keyboard, disable
-autocomplete globally, or require virtualization from a list-length threshold
-alone. Check demonstrated behavior and measured cost before recommending change.
+Внешние рекомендации — повод проверить фактическое поведение, а не новые
+продуктовые требования. Сохранять русский регистр предложений, семантику Mantine,
+действующую модель форм и мобильную приёмку проекта. Не добавлять собственные
+клавиатурные обработчики к нативным элементам, уже работающим с клавиатуры,
+не отключать автозаполнение глобально и не требовать виртуализации только
+по порогу длины списка. До рекомендации проверить поведение и измеренную стоимость.
 
-If only source code is available, return concrete source observations and
-candidate defects separately from checks requiring runtime evidence. State that
-the audit is limited to source inspection; neither an empty defect list nor
-native library controls establish accessibility of the rendered form.
+Если доступны лишь исходники, отдельно вернуть конкретные наблюдения по коду,
+кандидаты в дефекты и проверки, требующие работающего интерфейса. Указать
+ограничение аудита исходниками; пустой список дефектов и нативные компоненты
+библиотеки не доказывают доступность отрисованной формы.
 
-## Inspect
+## Изучить интерфейс
 
-Resolve one coherent route, flow, or change scope before inspecting. For a
-change-scoped review, inspect the affected runtime surfaces and direct
-consumers; expand a second hop only for shared primitives, theme values, and
-tokens. State excluded surfaces instead of implying repository-wide coverage.
+До проверки определить один связный маршрут, сценарий или объём изменения.
+При ревью изменения проверить затронутые работающие экраны и прямых потребителей;
+расширять поиск ещё на один шаг только для общих примитивов, значений темы
+и токенов. Назвать исключённые поверхности, не подразумевая проверку всего репозитория.
 
-- semantic page structure, landmarks, headings, and accessible names;
-- keyboard order, visible focus, focus trapping, focus return, and Escape/back
-  behavior;
-- button, link, menu, tab, dialog, drawer, table, list, and form semantics;
-- persistent form labels, validation association, error recovery, and status
-  announcements;
-- contrast, zoom, text wrapping, long content, and reduced-motion behavior;
-- touch target reachability and unintended horizontal page overflow;
-- loading, empty, error, disabled, stale, success, and permission-restricted
-  states;
-- narrow and compact-height behavior required by `crm-mobile-first-ui`;
-- Safari visible viewport, software keyboard, and safe-area risk where
-  applicable.
+Проверить:
 
-Do not treat placeholder text as an accessible name. Do not require visible
-labels where the approved project skill explicitly permits a visually hidden
-label and the accessible name remains stable.
+- семантическую структуру страницы, ориентиры, заголовки и доступные имена;
+- порядок клавиатурной навигации, видимый фокус, его удержание и возврат,
+  поведение Escape и возврата назад;
+- семантику кнопок, ссылок, меню, вкладок, диалогов, выдвижных панелей,
+  таблиц, списков и форм;
+- постоянные подписи форм, связь валидации с полем, восстановление и объявления статуса;
+- контраст, масштабирование, перенос текста, длинные данные и уменьшенное движение;
+- достижимость сенсорных целей и случайное горизонтальное переполнение страницы;
+- загрузку, пустые данные, ошибки, недоступность, устаревание, успех и ограничения прав;
+- узкие экраны и малую высоту по `crm-mobile-first-ui`;
+- видимую область Safari, экранную клавиатуру и безопасные отступы, где применимо.
 
-## Classify findings
+Не считать подсказку внутри поля доступным именем. Не требовать видимую подпись,
+если согласованный навык явно разрешает визуально скрытую, а доступное имя стабильно.
 
-Keep a verified defect when both proofs exist:
+## Классифицировать находки
 
-1. **Contract** — a binding project rule or a direct observable contradiction
-   within the same task;
-2. **Runtime** — evidence that the affected owner and behavior reach the
-   rendered surface;
+Считать дефект подтверждённым при наличии обоих доказательств:
 
-Then describe a supported remediation or the decision needed to choose among
-valid remedies. Multiple incompatible corrections do not invalidate a proven
-defect; keep the defect and identify the required product or technical choice
-without making it on the owner's behalf.
+1. **Контракт** — обязательное правило проекта или прямое наблюдаемое
+   противоречие внутри той же задачи.
+2. **Работающий интерфейс** — доказательство, что затронутые компонент и поведение
+   действительно достигают отрисованной поверхности.
 
-Attempt to falsify every candidate. Remove it when counterevidence shows a
-deliberate exception or no violated contract or observable contradiction can be
-established. In change reviews, distinguish introduced or regressed defects
-from pre-existing observations.
+Затем описать обоснованное исправление или решение для выбора между допустимыми
+исправлениями. Несколько несовместимых исправлений не отменяют доказанный дефект;
+сохранить его и назвать требуемый продуктовый или технический выбор,
+не принимая его от имени владельца.
 
-For each finding provide:
+Пытаться опровергнуть каждую находку. Удалять её, если встречные доказательства
+показывают намеренное исключение или нельзя установить нарушение контракта
+либо наблюдаемое противоречие. При ревью изменений отличать новые дефекты
+и регрессии от ранее существовавших наблюдений.
 
-- location;
-- affected user and task;
-- reproducible evidence;
-- severity: blocker, high, medium, or low;
-- violated project contract or web principle;
-- smallest supported remediation, or viable alternatives and the decision needed;
-- recommended automated and manual validation.
+Для каждой находки указать:
 
-Separate verified defects from assumptions and cosmetic preferences. Do not
-report generic advice without a concrete affected interaction.
+- место;
+- затронутого пользователя и задачу;
+- воспроизводимые доказательства;
+- серьёзность: blocker, high, medium или low;
+- нарушенный контракт проекта или принцип веб-интерфейса;
+- минимальное обоснованное исправление либо варианты и необходимое решение;
+- рекомендуемые автоматические и ручные проверки.
 
-Lead with the five highest-impact supported findings when there are many.
-Briefly list any additional material defects with location, evidence, and
-impact; do not hide them to satisfy a count. A clean review may return
-`No supported findings`; do not pad it with taste preferences.
+Отделять подтверждённые дефекты от предположений и вкусовых предпочтений.
+Не давать общие советы без конкретного затронутого взаимодействия.
 
-This result means no defect was substantiated within the audited scope; it is
-not approval of the palette or proof of an efficient workflow. If the request
-also includes design improvement, pass observed friction and owner preferences
-to `../crm-ux-design/SKILL.md` or
-`../crm-mobile-first-ui/references/visual-review.md`. Keep their hypotheses
-separate from audit defects and continue only within the requested scope.
+При большом числе находок начать с пяти наиболее значимых подтверждённых.
+Кратко перечислить остальные существенные дефекты с местом, доказательством
+и влиянием; не скрывать их ради количества. Допустимый итог чистого ревью —
+«Подтверждённых находок нет»; не дополнять его вкусовыми замечаниями.
 
-## Validate
+Это означает отсутствие доказанного дефекта в проверенных границах, а не
+согласование палитры или доказательство эффективности сценария. Если запрошено
+и улучшение дизайна, передать наблюдаемые затруднения и предпочтения владельца
+в `../crm-ux-design/SKILL.md` или
+`../crm-mobile-first-ui/references/visual-review.md`. Отделить их гипотезы
+от дефектов аудита и продолжать только в запрошенных границах.
 
-Prefer semantic and behavior assertions over screenshot-only checks. Run
-affected lint, build, unit, and Playwright checks when modification is in
-scope. Clearly report checks requiring Simulator, physical iPhone, assistive
-technology, or manual browser verification.
+## Проверить результат
 
-## Adaptation sources
+Предпочитать семантические и поведенческие проверки одним снимкам экрана.
+Если изменение входит в задачу, выполнить затронутые проверки стиля, сборки,
+модульные тесты и Playwright. Явно назвать проверки, требующие Simulator,
+физического iPhone, вспомогательных технологий или ручной проверки браузера.
 
-Selected Vercel interface checks and their exclusions are tracked in
-[adapted sources](../crm-mobile-first-ui/references/adapted-sources.md).
-Review upstream changes deliberately when maintaining this skill; do not fetch
-and apply a moving external checklist as authority on every audit.
+## Источники адаптации
+
+Выбранные проверки Vercel и исключения записаны в
+[источниках адаптации](../crm-mobile-first-ui/references/adapted-sources.md).
+При сопровождении навыка осознанно проверять изменения источника; не загружать
+и не применять меняющийся внешний список как высший приоритет каждого аудита.

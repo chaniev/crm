@@ -1,4 +1,4 @@
 interface:
-  display_name: "Tasks Ready to Implementation"
-  short_description: "Подготовить задачи и компактные implementation plans"
-  default_prompt: "Используй $tasks-ready-to-implementation, чтобы подготовить выбранные backlog tasks и создать компактные test-first plans без повторения project workflow."
+  display_name: "Подготовка задач к реализации"
+  short_description: "Подготовка задач и компактных планов реализации"
+  default_prompt: "Используй $tasks-ready-to-implementation, чтобы подготовить выбранные задачи бэклога и создать компактные планы с тестами до кода, без повторения общих правил проекта."

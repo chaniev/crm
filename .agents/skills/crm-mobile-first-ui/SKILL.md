@@ -1,190 +1,187 @@
 ---
 name: crm-mobile-first-ui
-description: Design, implement, review, or test CRM interfaces for coaches and gym administrators. Use for new screens, workflow simplification, palette or visual-language redesign, responsive behavior, and mobile acceptance in the React 19, Mantine, and Onest frontend. Preserve backend-owned CRM rules and use a rendered design gate before implementing material visual changes.
+description: Проектировать, реализовывать, проверять и тестировать интерфейсы CRM для тренеров и администраторов. Использовать для новых экранов, упрощения сценариев, изменения палитры или визуального языка, адаптивности и мобильной приёмки в React 19, Mantine и Onest. Сохранять серверное владение бизнес-правилами CRM и выбирать дизайн по отрисованным вариантам до существенных визуальных изменений.
 ---
 
-# CRM UI design and implementation
+# Проектирование и реализация интерфейса CRM
 
-Create a fast operational tool whose interaction and visual quality are both
-demonstrated. A correct UX contract is necessary, but it is not evidence that
-the resulting interface is visually strong.
+Создавать быстрый рабочий инструмент с доказанным качеством взаимодействия
+и визуального исполнения. Корректный UX-контракт необходим, но сам по себе
+не доказывает высокого визуального качества.
 
-## Establish authority and context
+## Определить основания и контекст
 
-1. Read the nearest `AGENTS.md`.
-2. Inspect the affected route, components, API contracts, tests, and current
-   rendered interface when it exists.
-3. Read `frontend/DESIGN.md` for the product's visual language.
-4. Preserve React 19, TypeScript, Mantine, Onest, semantic token ownership, and
-   shared CRM components. Reuse current visual values by default; an explicitly
-   requested palette or visual-language redesign may propose replacements
-   through the design gate below. Do not introduce Tailwind or another
-   component library.
-5. Keep roles, permissions, validation, membership, attendance, audit, and
-   other CRM semantics in backend contracts.
+1. Прочитать ближайший `AGENTS.md`.
+2. Изучить затронутый маршрут, компоненты, API-контракты, тесты и текущий
+   отрисованный интерфейс, если он существует.
+3. Прочитать `frontend/DESIGN.md` о визуальном языке продукта.
+4. Сохранить React 19, TypeScript, Mantine, Onest, владение семантическими
+   токенами и общие компоненты CRM. По умолчанию переиспользовать текущие
+   визуальные значения; при явном запросе смены палитры или визуального языка
+   предлагать замену через описанный ниже выбор дизайна. Не добавлять Tailwind
+   или другую библиотеку компонентов.
+5. Оставить роли, права, валидацию, абонементы, посещения, аудит и прочую
+   бизнес-семантику CRM в серверных контрактах.
 
-Read only the references needed for the current mode:
+Читать только материалы текущего режима:
 
-- new screen or material redesign: `references/visual-direction.md`,
-  `references/mobile-acceptance.md`, and `references/mantine-patterns.md`;
-- palette or visual-language redesign: `references/visual-direction.md`;
-  reuse the approved UX contract and applicable mobile acceptance;
-- responsive implementation or correction: `references/mobile-acceptance.md`
-  and `references/mantine-patterns.md`;
-- interaction copy, errors, empty states, or confirmations:
+- новый экран или существенный редизайн: `references/visual-direction.md`,
+  `references/mobile-acceptance.md`, `references/mantine-patterns.md`;
+- палитра или визуальный язык: `references/visual-direction.md`; переиспользовать
+  согласованный UX-контракт и применимые критерии мобильной приёмки;
+- реализация или исправление адаптивности: `references/mobile-acceptance.md`
+  и `references/mantine-patterns.md`;
+- тексты взаимодействия, ошибки, пустые состояния и подтверждения:
   `references/ux-writing.md`;
-- animation or transition work: `references/motion.md`;
-- implementation review or final design acceptance:
-  `references/visual-review.md` and `references/mobile-acceptance.md`.
+- анимации и переходы: `references/motion.md`;
+- ревью реализации или итоговая приёмка дизайна:
+  `references/visual-review.md` и `references/mobile-acceptance.md`.
 
-## Choose the mode
+## Выбрать режим
 
-### New screen or material redesign
+### Новый экран или существенный редизайн
 
-Use this sequence:
+Соблюдать последовательность:
 
-1. Define the UX contract with `../crm-ux-design/SKILL.md` without prematurely
-   choosing a visual layout; prefer `ux-researcher` when available.
-2. Create a visual brief and three meaningfully different rendered directions
-   using `references/visual-direction.md`; prefer `ui-designer`. Compare task
-   structure first; compare palettes on the selected structure when color is
-   also an open decision. Do not multiply every layout by every palette.
-3. Present the directions with their tradeoffs. A product owner selects or
-   refines one direction before production implementation begins.
-4. Turn the selected direction into an implementation contract; prefer
-   `ui-designer`.
-5. Implement that contract and its primary mobile regression coverage in the
-   plan's test-first order without silently redesigning it; prefer
-   `react-specialist` and `test-automator`.
-6. Complete remaining coverage and independently compare runtime output with
-   the selected direction and UX contract using `references/visual-review.md`.
+1. Определить UX-контракт через `../crm-ux-design/SKILL.md` без преждевременного
+   выбора визуальной композиции; по возможности использовать `ux-researcher`.
+2. Подготовить визуальный бриф и три существенно разных отрисованных направления
+   по `references/visual-direction.md`; предпочитать `ui-designer`.
+   Сначала сравнить структуру задачи; если цвет не выбран, сравнить палитры
+   на выбранной структуре. Не перемножать все макеты на все палитры.
+3. Показать направления и компромиссы. Владелец продукта выбирает или уточняет
+   одно направление до изменения рабочего кода.
+4. Преобразовать выбор в контракт реализации; предпочитать `ui-designer`.
+5. Реализовать контракт и основное мобильное регрессионное покрытие в порядке
+   «сначала тесты», заданном планом, без молчаливого изменения дизайна;
+   предпочитать `react-specialist` и `test-automator`.
+6. Завершить оставшееся покрытие и независимо сравнить работающий интерфейс
+   с выбранным направлением и UX-контрактом по `references/visual-review.md`.
 
-If the user supplies an already approved design, the three-direction step is
-unnecessary. Validate that design against the UX contract, project visual
-language, backend capabilities, and mobile acceptance before implementation.
+Если пользователь предоставил уже согласованный дизайн, три направления не
+нужны. До реализации проверить дизайн на соответствие UX-контракту, визуальному
+языку проекта, возможностям сервера и мобильной приёмке.
 
-### Palette or visual-language redesign
+### Изменение палитры или визуального языка
 
-Reuse the approved scenario, content, actions, and backend capabilities. Name
-which visual properties the user wants reconsidered and which remain fixed.
-Follow the palette comparison in `references/visual-direction.md`; color-only
-alternatives are valid here and do not require new navigation or UX research.
-For a broader visual-language change, vary only its unresolved visual axes.
+Переиспользовать согласованные сценарий, содержание, действия и возможности
+сервера. Назвать свойства, которые пользователь хочет пересмотреть, и неизменные.
+Сравнивать палитры по `references/visual-direction.md`; варианты только по цвету
+здесь допустимы и не требуют новой навигации или UX-исследования. При более
+широкой смене визуального языка варьировать только незакрытые визуальные параметры.
 
-Selection precedes production changes. Promote the chosen values through the
-shared theme and update `frontend/DESIGN.md` in the implementation task; do not
-leave route-local theme overrides. If a proposal changes the workflow or
-information availability, resolve that part with `crm-ux-design` first.
-Existing accepted requirements and plan readiness still apply: permission to
-explore a palette is not approval of a particular palette or new behavior.
+Выбор предшествует рабочим изменениям. В задаче реализации внести выбранные
+значения в общую тему и обновить `frontend/DESIGN.md`; не оставлять переопределения
+темы внутри отдельных маршрутов. Если предложение меняет сценарий или
+доступность информации, сначала проработать эту часть через `crm-ux-design`.
+Принятые требования и готовность плана по-прежнему обязательны: разрешение
+изучить палитру не является выбором конкретной палитры или нового поведения.
 
-### Existing workflow analysis
+### Анализ существующего сценария
 
-Use `../crm-ux-design/SKILL.md` to identify task and recovery problems, then
-inspect the rendered hierarchy.
-Prefer `ux-researcher` for the first outcome and `ui-designer` for the second
-when those capabilities are available. Do not infer usability from source code
-or visual preference alone.
+Через `../crm-ux-design/SKILL.md` выявить проблемы выполнения задачи
+и восстановления, затем проверить отрисованную иерархию.
+Для первой части предпочитать `ux-researcher`, для второй — `ui-designer`,
+когда они доступны. Не выводить удобство только из кода или визуального вкуса.
 
-### Local visual or interaction correction
+### Локальная визуальная правка или правка взаимодействия
 
-Keep the brief proportional, render the affected state at its narrowest
-relevant width, and compare before and after. Prefer `ui-designer` for the
-design correction and `react-specialist` for implementation when available. Do
-not generate three variants when the requested correction and correct result
-are already deterministic.
+Соразмерить бриф задаче, отрисовать затронутое состояние на минимальной применимой
+ширине и сравнить до/после. Для дизайна предпочитать `ui-designer`, для реализации —
+`react-specialist`, когда они доступны. Не создавать три варианта, если правка
+и корректный результат уже однозначны.
 
-### Approved specification implementation
+### Реализация согласованной спецификации
 
-Implement and establish regression coverage in the plan's test-first order;
-prefer `react-specialist` and `test-automator` when available. Return material
-conflicts to the design owner instead of improvising a different workflow or
-visual hierarchy.
+Реализовать и покрыть регрессию в заданном планом порядке «сначала тесты»;
+по возможности использовать `react-specialist` и `test-automator`.
+Возвращать существенные конфликты владельцу дизайна, а не придумывать другой
+сценарий или визуальную иерархию.
 
-The coordinating agent owns the handoffs, selected direction, final evidence,
-and unresolved product decisions.
+Координатор отвечает за передачу результатов, выбранное направление,
+итоговые доказательства и незакрытые продуктовые решения.
 
-Design approval precedes production changes, and runtime acceptance follows
-implementation. Test/code ordering follows the plan; do not defer all tests
-until after implementation. The outcomes are mandatory; separate agents are
-not. When a specialist is unavailable or delegation is disproportionate, the
-implementing agent owns the same artifacts and review boundaries.
+Согласование дизайна предшествует рабочим изменениям, приёмка работающего
+интерфейса следует за реализацией. Порядок тестов и кода определяется планом;
+не откладывать все тесты до конца реализации. Результаты обязательны,
+отдельные агенты — нет. При отсутствии специалиста или несоразмерности
+делегирования исполнитель отвечает за те же артефакты и границы ревью.
 
-## Define the UX contract
+## Определить UX-контракт
 
-`../crm-ux-design/SKILL.md` owns scenario analysis, information architecture,
-interaction sketches, action classification, and usability criteria. Its
-`../crm-ux-design/references/ux-contract.md` defines the handoff. Reuse an
-approved contract and its decision evidence; do not repeat research or reopen
-settled decisions without new conflicting evidence.
+`../crm-ux-design/SKILL.md` отвечает за анализ сценария, информационную
+архитектуру, эскизы взаимодействия, классификацию действий и критерии удобства.
+Формат передачи определён в `../crm-ux-design/references/ux-contract.md`.
+Переиспользовать согласованный контракт и доказательства решений;
+не повторять исследование и не открывать закрытые решения без новых противоречий.
 
-This skill owns rendered visual directions, product-owner selection, the
-visual implementation contract, implementation, and final runtime acceptance.
-An interaction sketch does not replace the rendered visual selection gate.
-Do not use visual preference as evidence of usability or a UX contract as
-evidence of visual quality.
+Этот навык отвечает за отрисованные направления, выбор владельца продукта,
+визуальный контракт реализации, реализацию и итоговую приёмку работающего
+интерфейса. Эскиз взаимодействия не заменяет выбор отрисованного дизайна.
+Визуальное предпочтение не доказывает удобство, UX-контракт — визуальное качество.
 
-## Require a visual contract
+## Зафиксировать визуальный контракт
 
-The selected direction becomes a contract. Record:
+Выбранное направление становится контрактом. Записать:
 
-- content hierarchy and component order;
-- exact visible, hidden, and deferred fields;
-- reasons for removed or deferred content and comparable before/after task
-  evidence from the UX contract when simplifying a workflow;
-- typography, density, grouping, surface, and emphasis decisions;
-- primary and secondary actions;
-- responsive transformation at required widths;
-- loading, empty, error, disabled, stale, success, and restricted states;
-- focus order, keyboard, modal/drawer/menu, and back-navigation behavior;
-- safe-area, dynamic viewport, compact-height, and software-keyboard behavior;
-- reused components and tokens, plus any justified additions;
-- implementation and visual acceptance criteria.
+- иерархию содержания и порядок компонентов;
+- точный состав видимых, скрытых и отложенных полей;
+- причины удаления или откладывания информации и сопоставимые доказательства
+  до/после из UX-контракта при упрощении сценария;
+- решения о типографике, плотности, группировке, поверхностях и акцентах;
+- основные и второстепенные действия;
+- адаптивное преобразование на требуемых ширинах;
+- загрузку, пустое состояние, ошибку, недоступность, устаревшие данные,
+  успех и ограничения доступа;
+- порядок фокуса, клавиатуру, диалоги, выдвижные панели, меню и возврат назад;
+- безопасные отступы, динамическую видимую область, малую высоту и экранную клавиатуру;
+- повторно используемые компоненты и токены, обоснованные дополнения;
+- критерии реализации и визуальной приёмки.
 
-Use exact values only when they are real acceptance requirements. Terms such
-as `clean`, `compact`, `premium`, `intuitive`, or `mobile-friendly` are not
-requirements unless translated into observable decisions.
+Точные значения нужны только для настоящих критериев приёмки. Слова «чистый»,
+«компактный», «премиальный», «интуитивный» и «удобный на мобильном» не являются
+требованиями без перевода в наблюдаемые решения.
 
-## Implement and validate the selected direction
+## Реализовать и проверить выбранное направление
 
-The implementer must preserve controlled form behavior, focus return, async
-state safety, backend ProblemDetails semantics, and shared Mantine patterns.
-Avoid new global state or abstractions for a local interaction.
+Сохранить управляемое поведение форм, возврат фокуса, безопасность асинхронных
+состояний, серверную семантику ProblemDetails и общие подходы Mantine.
+Не добавлять глобальное состояние или абстракции ради локального взаимодействия.
 
-Validate both behavior and appearance:
+Проверить поведение и внешний вид:
 
-1. Complete the primary task at the 390 x 844 stress baseline.
-2. Verify the target iPhone sizes and desktop transformation defined in
+1. Выполнить основную задачу на проверочной ширине 390 x 844.
+2. Проверить целевые размеры iPhone и настольное преобразование из
    `references/mobile-acceptance.md`.
-3. Verify one failure and recovery path and one restricted path when roles are
-   affected.
-4. Inspect long real content and every applicable operational state.
-5. Compare rendered runtime with the selected direction rather than judging
-   source code alone.
-6. Run the required frontend checks and affected Playwright coverage.
+3. Пройти один сбой с восстановлением и один ограниченный правами путь,
+   если роли затронуты.
+4. Проверить длинные реальные данные и все применимые рабочие состояния.
+5. Сравнить отрисованный работающий интерфейс с выбранным направлением,
+   а не оценивать только код.
+6. Выполнить обязательные проверки клиентской части и затронутые тесты Playwright.
 
-Do not claim that a result is polished, clear, accessible, or mobile-friendly
-without rendered and behavioral evidence.
+Не называть результат качественным, понятным, доступным или удобным на мобильном
+без визуальных и поведенческих доказательств.
 
-## Required handoff
+## Обязательная передача результата
 
-Scale the handoff to the chosen mode. Reuse approved artifacts by reference;
-a local correction or palette comparison does not require rewriting the UX
-contract or repeating unrelated research. Distinguish prototype evidence from
-runtime verification. For the in-scope work, return:
+Соразмерить результат выбранному режиму. Ссылаться на согласованные артефакты;
+локальная правка или сравнение палитр не требуют переписывания UX-контракта
+и повторения постороннего исследования. Отделять доказательства прототипа
+от проверки работающего интерфейса. В границах задачи передать:
 
-- UX contract;
-- visual brief and explored directions, or the approved design supplied;
-- selected direction and product-owner feedback;
-- implementation contract and responsive behavior;
-- operational and interaction states;
-- before/after or concept/runtime rendered evidence;
-- validation commands and results;
-- unresolved decisions and residual risks;
-- a short self-critique naming the weakest remaining design decision.
+- UX-контракт;
+- визуальный бриф и изученные направления либо предоставленный согласованный дизайн;
+- выбранное направление и обратную связь владельца;
+- контракт реализации и адаптивное поведение;
+- рабочие состояния и состояния взаимодействия;
+- отрисованные сравнения до/после или концепции с работающей реализацией;
+- команды проверок и результаты;
+- незакрытые решения и остаточные риски;
+- краткую самокритику с самым слабым оставшимся дизайнерским решением.
 
-## Adaptation sources
+## Источники адаптации
 
-See [adapted sources](references/adapted-sources.md) when maintaining these
-instructions. External design ideas supplement this workflow; they do not
-replace CRM contracts or require loading another general design skill.
+При сопровождении инструкций читать [источники адаптации](references/adapted-sources.md).
+Внешние идеи дополняют процесс, но не заменяют контракты CRM и не требуют
+загрузки ещё одного общего навыка дизайна.

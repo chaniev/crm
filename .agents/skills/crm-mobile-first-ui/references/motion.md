@@ -1,47 +1,46 @@
-# CRM motion
+# Анимация в CRM
 
-Use when adding, changing, or reviewing animation and transition behavior.
+Использовать при добавлении, изменении или ревью анимаций и переходов.
 
-## Decide whether motion belongs
+## Определить необходимость движения
 
-Name the frequency and purpose before choosing a technique.
+До выбора техники назвать частоту и назначение.
 
-| Frequency | Default decision |
+| Частота | Решение по умолчанию |
 |---|---|
-| Repeated navigation or keyboard-first action | Instant; no animation |
-| Frequent row, filter, or mode interaction | None or near-imperceptible feedback |
-| Occasional modal, drawer, disclosure, or notification | Short functional motion |
-| Rare onboarding or milestone | Restrained delight may be considered |
+| Повторная навигация или действие преимущественно с клавиатуры | Мгновенно, без анимации |
+| Частое действие со строкой, фильтром или режимом | Без анимации или с почти незаметной обратной связью |
+| Периодический диалог, панель, раскрытие или уведомление | Короткое функциональное движение |
+| Редкое знакомство с продуктом или значимое достижение | Допустимо рассмотреть сдержанный эмоциональный эффект |
 
-Allowed purposes are feedback, spatial continuity, state indication, or
-preventing a jarring change. `It feels modern` is not a purpose. Do not move
-data the user is reading or acting on for decoration.
+Допустимые цели: обратная связь, пространственная связность, показ состояния
+или смягчение резкого изменения. «Выглядит современно» — не цель.
+Не двигать ради украшения данные, которые пользователь читает или использует.
 
-## Select the smallest compatible technique
+## Выбрать минимальную совместимую технику
 
-1. Reuse Mantine transition behavior or existing project tokens.
-2. Use a CSS transition for hover, press, opacity, and controlled state changes.
-3. Use CSS animation or WAAPI only when a transition cannot express the
-   lifecycle.
-4. Add a motion dependency only when an approved interaction genuinely needs
-   springs, gestures, coordinated layout, or exit orchestration and existing
-   tools cannot provide it.
+1. Переиспользовать переходы Mantine или существующие токены проекта.
+2. Применять CSS-переход для наведения, нажатия, прозрачности и управляемых смен состояния.
+3. Использовать CSS-анимацию или WAAPI, только если переход не выражает жизненный цикл.
+4. Добавлять библиотеку анимации, только если согласованное взаимодействие
+   действительно требует пружин, жестов, согласованного изменения раскладки
+   или управления исчезновением, а существующих средств недостаточно.
 
-Prefer `transform` and `opacity`. Avoid layout animation, large blur, and
-permanent `will-change`. Do not invent a parallel duration or easing system.
+Предпочитать `transform` и `opacity`. Избегать анимации раскладки, сильного
+размытия и постоянного `will-change`. Не вводить параллельную систему
+длительностей или кривых плавности.
 
-## Required behavior
+## Обязательное поведение
 
-- Entrance motion uses a decelerating curve; exits do not linger.
-- Frequent feedback should normally complete within 200 ms; ordinary temporary
-  surfaces should remain below 300 ms unless the existing Mantine pattern
-  defines otherwise.
-- Animation is interruptible and cannot block the next operation.
-- Open and close behavior preserve focus placement and focus return.
-- `prefers-reduced-motion` produces an equivalent, understandable state change.
-- Hover-only feedback is gated for devices that support hover.
-- Motion does not delay primary actions, validation, recovery, or status
-  announcements.
+- Появление использует замедляющуюся кривую; исчезновение не затягивается.
+- Частая обратная связь обычно завершается в пределах 200 мс; обычные временные
+  поверхности — менее чем за 300 мс, если действующий подход Mantine не задаёт иное.
+- Анимацию можно прервать; она не блокирует следующую операцию.
+- Открытие и закрытие сохраняют размещение и возврат фокуса.
+- `prefers-reduced-motion` обеспечивает эквивалентную понятную смену состояния.
+- Эффект только при наведении включается лишь на устройствах с его поддержкой.
+- Движение не задерживает основные действия, валидацию, восстановление
+  и объявления статуса.
 
-Verify the actual interaction, including rapid repetition, interruption,
-reduced motion, compact height, and mobile WebKit behavior.
+Проверить реальное взаимодействие, включая быстрые повторы, прерывание,
+уменьшенное движение, малую высоту и мобильный WebKit.

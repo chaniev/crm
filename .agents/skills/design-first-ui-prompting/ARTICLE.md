@@ -1,154 +1,166 @@
-# Design-First UI Prompting Playbook (Draft)
+# Подготовка запросов через дизайн: памятка (черновик)
 
-AI doesn’t make great design.
-It makes **average design fast**.
-Your edge is still taste + craft.
+ИИ быстро создаёт **средний дизайн**.
+Ваше преимущество остаётся в визуальном вкусе и мастерстве.
 
-Here’s the workflow that actually ships.
-
----
-
-## 1) Screenshots beat prompts
-One screenshot contains **fonts, spacing, colors, icons, layout**.
-Gemini 3 reads it instantly.
-
-**Rule:** Stop writing 1000-word descriptions.
-Start collecting references.
+Ниже — рабочий порядок создания результата.
 
 ---
 
-## 2) The hero section is half the job
-Hero = your cover image for social.
-Everything else is secondary.
+## 1. Снимки экрана полезнее описаний
 
-**Workflow**
-- Use **Superhero** to collect hero references
-- Lock hero first
-- Build the rest section-by-section
+Один снимок содержит **шрифты, отступы, цвета, иконки и композицию**.
+Gemini 3 считывает это сразу.
+
+**Правило:** вместо описаний на 1000 слов собирать визуальные примеры.
 
 ---
 
-## 3) Templates are leverage
-Template business prints money.
-Sell on **Webflow / Framer / UI8** for ~$50–$100.
-Stack enough and it compounds.
+## 2. Первый экран — половина работы
 
-**Rule:** Build assets, not one-offs.
+Главный экран — обложка для публикации в социальных сетях.
+Остальное вторично.
 
----
+**Порядок работы:**
 
-## 4) Taste is the moat
-AI raises the baseline.
-Your visual judgment becomes the differentiator, not your Figma speed.
-
-**Rule:** Curate hard.
-Ship fewer, better.
+- Собрать примеры первого экрана через **Superhero**.
+- Сначала зафиксировать первый экран.
+- Строить остальное по разделам.
 
 ---
 
-## 5) Avoid AI slop
-Common slop:
-- purple gradients
-- Lucide icons everywhere
-- generic layout rhythm
+## 3. Шаблоны позволяют масштабировать работу
 
-**Fix**
-- Switch to **Iconify Solar** for variety (outline, broken, duotone)
+На шаблонах можно зарабатывать: продавать на **Webflow / Framer / UI8**
+примерно за $50–$100. С ростом набора эффект накапливается.
+
+**Правило:** создавать повторно используемые материалы, а не одноразовые работы.
 
 ---
 
-## 6) Use Simple Icons (logos) via Iconify
-Stop hunting SVGs.
-Use Simple Icons via Iconify for brand logos.
+## 4. Вкус — ваше преимущество
 
-**Rule:** One API reference in your prompt.
-No more manual logo scavenger hunts.
+ИИ поднимает базовый уровень. Отличие создаёт визуальное суждение,
+а не скорость работы в Figma.
 
----
-
-## 7) Work section-by-section (not full-page)
-Build in your preferred AI builder, prototyping tool, or code editor:
-- hero → features → footer
-
-**Benefit:** faster iterations + better creative control.
+**Правило:** тщательно отбирать и выпускать меньше, но качественнее.
 
 ---
 
-## 8) Remix everything
-Great sources:
-- **Mobbin** (sites → sections)
-- **Bento Grids** (cards)
+## 5. Избегать шаблонного оформления ИИ
 
-**Workflow:** screenshot → remix → change colors/text/animation → make it yours.
+Характерные признаки:
 
----
+- фиолетовые градиенты;
+- иконки Lucide повсюду;
+- однообразный ритм композиции.
 
-## 9) Use negative prompts like guardrails
-Add constraints:
-- “Don’t change anything else.”
-- “Keep the hero.”
-
-**Benefit:** prevents AI from breaking what already works.
+**Исправление:** использовать **Iconify Solar** для разнообразия:
+контурные, разомкнутые и двухтоновые иконки.
 
 ---
 
-## 10) Fix images manually (AI breaks them)
-When images are wrong:
-- generate replacements in **Midjourney** or **Nano Banana Pro**
-- swap them in
+## 6. Логотипы Simple Icons через Iconify
 
-**Rule:** Don’t wait for the model to get it perfect.
-Patch the weak link.
+Вместо поиска SVG брать логотипы брендов из Simple Icons через Iconify.
+
+**Правило:** одна ссылка на API в запросе вместо ручного поиска логотипов.
 
 ---
 
-## 11) Typography still matters
-Google Fonts are free + AI-friendly.
-Inter is overused—try:
-- **Newsreader**
-- **Playfair Display**
+## 7. Работать по разделам
 
-**Rule:** pick one type “move” that signals taste.
+В выбранном генераторе, средстве прототипирования или редакторе кода строить:
+первый экран → возможности → нижнюю часть страницы.
 
----
-
-## 12) Add craft signals
-Small details that instantly level up:
-- 01/02/03 numbering
-- container-sized grid lines
-- subtle beam/noodle animations
-- hero backgrounds via **Unicorn Studio**
+**Польза:** более быстрые итерации и лучший контроль творчества.
 
 ---
 
-## 13) Steal better headlines
-Hooks = conversions.
-Use:
-- H1 Gallery
+## 8. Перерабатывать примеры
+
+Полезные источники:
+
+- **Mobbin** — сайты и разделы;
+- **Bento Grids** — карточки.
+
+**Порядок:** снимок → переработка → смена цветов, текста и анимации → собственный результат.
+
+---
+
+## 9. Указывать запреты
+
+Добавлять ограничения:
+
+- «Больше ничего не меняй».
+- «Сохрани первый экран».
+
+**Польза:** ИИ реже ломает то, что уже работает.
+
+---
+
+## 10. Исправлять неудачные изображения вручную
+
+Если изображения неудачны:
+
+- создать замену в **Midjourney** или **Nano Banana Pro**;
+- подставить её в работу.
+
+**Правило:** не ждать идеального результата модели, а исправлять слабое место.
+
+---
+
+## 11. Типографика по-прежнему важна
+
+Google Fonts бесплатны и удобны для ИИ. Inter встречается слишком часто;
+можно попробовать **Newsreader** или **Playfair Display**.
+
+**Правило:** выбрать один выразительный типографический приём.
+
+---
+
+## 12. Добавлять признаки мастерства
+
+Небольшие детали, повышающие качество:
+
+- нумерация 01/02/03;
+- линии сетки по размерам контейнера;
+- сдержанная анимация лучей или извивающихся линий;
+- фон первого экрана через **Unicorn Studio**.
+
+---
+
+## 13. Заимствовать удачные заголовки
+
+Цепляющий заголовок помогает конверсии. Источники:
+
+- H1 Gallery;
 - http://cta.gallery
 
 ---
 
-## 14) Present properly (social is distribution)
-- Record with **Screen Studio**
-- Screenshot on polished backgrounds
+## 14. Правильно представлять результат
 
-**Rule:** presentation is part of the product.
+Социальные сети помогают распространению:
 
----
+- записывать через **Screen Studio**;
+- показывать снимки на аккуратных фонах.
 
-## 15) Speed trick: pick the right model
-- **GPT‑5.1** for small text/color tweaks
-- **Gemini 3** for complex UI generation
+**Правило:** презентация — часть продукта.
 
 ---
 
-## Bottom line
-**Superhero** for heroes.
-**Mobbin** for sections.
-**Bento Grids** for cards.
-**Iconify** for icons.
+## 15. Выбирать модель под задачу
 
-**Screenshot → Gemini 3 → Remix → Polish**
-Your taste curates.
-AI executes.
+- **GPT‑5.1** — небольшие правки текста и цвета.
+- **Gemini 3** — сложная генерация интерфейса.
+
+---
+
+## Итоговая последовательность
+
+**Superhero** — первые экраны, **Mobbin** — разделы, **Bento Grids** — карточки,
+**Iconify** — иконки.
+
+**Снимок → Gemini 3 → переработка → доводка.**
+Вкус определяет отбор, ИИ выполняет работу.

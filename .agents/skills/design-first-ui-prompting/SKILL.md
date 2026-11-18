@@ -1,141 +1,143 @@
 ---
 name: design-first-ui-prompting
-description: Create prompts for external UI generators, static visual concepts, and demos. Use when the deliverable is a generation prompt rather than implementation of a CRM interface.
+description: Создавать запросы для внешних генераторов интерфейса, статичных визуальных концепций и демонстраций. Использовать, когда результатом должен быть запрос для генерации, а не реализация интерфейса CRM.
 ---
 
-# Design-First UI Prompting Skill
+# Подготовка запросов через проектирование дизайна
 
-This skill is for **design-first prompting**: turn fuzzy ideas into a tight spec that produces consistent UI.
+Преобразовывать расплывчатую идею в точную спецификацию запроса,
+дающую согласованный интерфейс.
 
-## Scope boundary
+## Границы применения
 
-Use this skill for prompts that generate static visual directions, demos,
-landing pages, marketing surfaces, or external UI-generator output.
+Использовать для запросов, создающих статичные визуальные направления,
+демонстрации, посадочные и рекламные страницы либо результат внешнего генератора.
 
-For CRM product screens, `.agents/skills/crm-mobile-first-ui/SKILL.md`, the UX
-contract, `frontend/DESIGN.md`, backend contracts, Mantine and Onest, and
-measurable interaction acceptance are authoritative. Do not translate
-image-oriented format, imagery, style, or negative-prompt examples into product
-requirements unless the deliverable explicitly includes a generated visual
-artifact.
+Для рабочих экранов CRM приоритет имеют `.agents/skills/crm-mobile-first-ui/SKILL.md`,
+UX-контракт, `frontend/DESIGN.md`, серверные контракты, подходы Mantine и Onest
+и измеримые критерии взаимодействия. Не превращать примеры формата изображений,
+визуальных материалов, стилей и отрицательных запросов в требования продукта,
+если задача явно не включает генерируемый визуальный артефакт.
 
-When the generated artifact depicts an operational product workflow, add an
-`OPERATIONAL CONTRACT` block to every screen prompt. State which controls are
-visible, disabled, absent, or deferred from supplied capabilities; preserve
-supplied backend reasons verbatim; forbid inferred role, urgency, conflict, or
-validation semantics. For every temporary surface or route transition, state
-open/close behavior, focus return, and the exact context restored on return
-(URL/query, entity or group anchor, and scroll position). Keep these behavioral
-requirements in the prompt even when a static image cannot prove them; identify
-them as implementation annotations rather than inventing visual decoration.
+Если артефакт показывает рабочий сценарий продукта, добавить в запрос каждого
+экрана блок `OPERATIONAL CONTRACT`. Указать видимые, недоступные, отсутствующие
+и отложенные элементы по предоставленным возможностям; сохранить серверные
+причины дословно; запретить выдумывание ролей, срочности, конфликтов и валидации.
+Для каждой временной поверхности и перехода описать открытие/закрытие,
+возврат фокуса и точно восстанавливаемый контекст: URL/параметры, привязку
+к сущности или группе и позицию прокрутки. Сохранить эти требования даже в
+запросе статичного изображения; обозначить их как пояснения для реализации,
+а не заменять визуальными украшениями.
 
-Also add a `VISUAL CONTRACT` block derived from the accepted visual brief.
-Name the intended character, density, hierarchy, project tokens and components,
-reference properties, directions to avoid, target viewports, and the quality
-criteria used to choose between variants. For material CRM workflow redesigns,
-compare meaningful task structures with the palette held stable. For palette
-selection, use the same approved composition, data, and states across color
-variants, following
-[visual direction](../crm-mobile-first-ui/references/visual-direction.md).
-Do not treat an image as approval until the product owner selects a direction.
+Добавить блок `VISUAL CONTRACT` из принятого визуального брифа. Назвать характер,
+плотность, иерархию, токены и компоненты проекта, заимствуемые свойства примеров,
+нежелательные направления, целевые размеры и критерии выбора. При существенном
+редизайне сценария CRM сравнивать значимо разные структуры задачи с неизменной
+палитрой. Для выбора палитры сохранять согласованную композицию, данные
+и состояния по [правилам визуального направления](../crm-mobile-first-ui/references/visual-direction.md).
+Не считать изображение согласованием до выбора владельцем продукта.
 
-## Core principle
-**Prompt like a design system, not a wish.**
+## Основной принцип
 
-## Prompt Structure (copy/paste)
-Use this skeleton, then fill the blanks.
+**Формулировать запрос как дизайн-систему, а не пожелание.**
+
+## Структура запроса
+
+Скопировать основу и заполнить:
 
 ```text
-GOAL
-- What are we making? (e.g., landing page hero / onboarding / dashboard / carousel slide)
-- Who is it for? (persona)
-- What’s the success criteria? (clarity, conversion, vibe)
+ЦЕЛЬ
+- Что создаём? Например: первый экран посадочной страницы, панель, карусель.
+- Для кого? Характеристика пользователя.
+- Критерий успеха: ясность, конверсия, настроение.
 
-FORMAT
-- Size/aspect: (e.g., 1080x1350)
-- Safe margins: (e.g., 90px)
+ФОРМАТ
+- Размер и пропорции: например, 1080x1350.
+- Безопасные поля: например, 90px.
 
-LAYOUT (wireframe in words)
-- Grid: (e.g., Swiss 6-col)
-- Placement: (e.g., type-left / image-right)
-- Hierarchy: H1 → subhead → body → CTA
+КОМПОЗИЦИЯ
+- Сетка: например, швейцарская, 6 колонок.
+- Расположение: текст слева, изображение справа.
+- Иерархия: H1 → подзаголовок → основной текст → действие.
 
-TYPE SYSTEM
-- Font vibe: (e.g., Söhne / Neue Haas / SF Pro)
-- Weights: (H1 700, body 400)
-- Leading: (tight for H1, readable for body)
-- Tracking: (micro labels wider)
+ТИПОГРАФИКА
+- Характер шрифта: например, Söhne, Neue Haas, SF Pro.
+- Насыщенность: H1 700, основной текст 400.
+- Межстрочный интервал: плотный в заголовке, читаемый в основном тексте.
+- Межбуквенный интервал: например, широкие короткие подписи.
 
-COLOR + MATERIAL
-- Background: (hex or description)
-- Text: (white/ivory/charcoal)
-- One accent only: (cyan/lime/purple)
-- Texture: (subtle grain, no plastic HDR)
+ЦВЕТ И МАТЕРИАЛ
+- Фон: hex или описание.
+- Текст: белый, слоновая кость, графитовый.
+- Только один акцент: голубой, лаймовый, фиолетовый.
+- Фактура: лёгкое зерно, без пластикового HDR.
 
-IMAGERY / UI STYLE
-- UI style: (minimal / glass / editorial / playful 3D)
-- If photo: lighting + crop + texture rules
-- If 3D: materials + lighting + softness
+ИЗОБРАЖЕНИЯ И СТИЛЬ
+- Стиль: минимализм, редакционный, стеклянный, игровой 3D.
+- Для фото: освещение и правила кадрирования.
+- Для 3D: материалы, освещение и мягкость.
 
-COPY (render EXACTLY)
-- Line 1:
-- Line 2:
+ТЕКСТ — воспроизвести ТОЧНО
+- Строка 1:
+- Строка 2:
 - ...
 
-CONSTRAINTS (change 1–2 things only)
-- FONT: ___
-- STYLE: ___
-- MODE: ___
+ОГРАНИЧЕНИЯ — менять только 1–2 свойства
+- ШРИФТ: ___
+- СТИЛЬ: ___
+- РЕЖИМ: ___
 
-NEGATIVE PROMPT
-- No logos, no watermarks
-- No extra text beyond provided lines
-- No gibberish typography
+ЗАПРЕТЫ
+- Без логотипов и водяных знаков.
+- Без текста сверх предоставленных строк.
+- Без бессмысленных надписей.
 ```
 
-## Rules that improve consistency
+## Правила согласованности
 
-### 1) Lock one “system”, then iterate with variants
-- First output: nail **layout + hierarchy + copy**.
-- Variants: change **ONE variable** at a time:
-  - angle / crop
-  - accent color
-  - card arrangement
-  - background tone
+### 1. Зафиксировать систему, затем сравнивать варианты
 
-### 2) Treat typography as fragile
-If the model keeps misspelling:
-- Use **2-pass workflow**:
-  1) Generate without text (reserve a clean text-safe area)
-  2) Typeset in Figma
+- Сначала определить композицию, иерархию и текст.
+- В вариантах менять ОДНУ переменную: угол/кадрирование, акцентный цвет,
+  расположение карточек или тон фона.
 
-### 3) Use “constraints cards”
-When you want the model to obey a style:
-- Add a small “Constraints” panel with explicit values.
-- It anchors the output like a mini style guide.
+### 2. Учитывать хрупкость текста в изображении
 
-Example:
+Если модель ошибается в написании, использовать два этапа:
+
+1. Сгенерировать изображение без текста, оставив безопасное место.
+2. Набрать текст в Figma.
+
+### 3. Использовать карточки ограничений
+
+- Добавить небольшую панель ограничений с точными значениями.
+- Она закрепляет результат как краткий стилевой справочник.
+
+Пример:
+
 ```text
-Constraints
-FONT  CANELA
-STYLE  MINIMAL
-MODE  DARK
+Ограничения
+ШРИФТ  CANELA
+СТИЛЬ  МИНИМАЛИЗМ
+РЕЖИМ  ТЁМНЫЙ
 ```
 
-### 4) Keep a local reference pack
-Don’t ask the model to “remember” taste.
-- Save references into a gitignored local reference folder, such as `refs/...`
-- Point prompts to the reference style
+### 4. Хранить локальный набор примеров
 
-## Fast iteration checklist (what to tweak)
-- Spacing: margins, leading, baseline rhythm
-- Contrast: background vs text
-- Hierarchy: one hero line, one support line
-- One accent only (don’t rainbow)
-- Texture: add grain, remove smoothing
+Не просить модель «помнить» вкус. Сохранять примеры в локальный каталог,
+исключённый из Git, например `refs/...`, и ссылаться на нужный стиль в запросах.
 
-## Questions to ask (when user is vague)
-- What’s the single message of this screen?
-- What’s the hierarchy (H1 / sub / CTA)?
-- Which style lane: minimal editorial vs playful 3D vs glass UI?
-- Any must-keep constraints (font vibe, color, spacing, grid)?
+## Краткая проверка итерации
+
+- Отступы: поля, межстрочный интервал, ритм базовых линий.
+- Контраст: фон и текст.
+- Иерархия: один главный заголовок, одна вспомогательная строка, действие.
+- Один акцент, без разноцветной смеси.
+- Фактура: добавить зерно, уменьшить сглаженность.
+
+## Вопросы при неопределённом запросе
+
+- Каково единственное основное сообщение экрана?
+- Какова иерархия: H1, подзаголовок, действие?
+- Какое направление: минималистичное редакционное, игровое 3D или стеклянное?
+- Что обязательно сохранить: шрифт, цвет, отступы, сетку?

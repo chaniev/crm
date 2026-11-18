@@ -1,79 +1,82 @@
 ---
 name: codex-backlog-skill
-description: Create or update backlog cards from inbox notes, or reconcile task statuses against integrated code. Use for requested triage or status reconciliation within the selected scope.
+description: Создавать и обновлять карточки бэклога из входящих заметок или сверять статусы задач с интегрированным кодом. Использовать для запрошенного разбора заметок или сверки статусов в выбранных границах.
 ---
 
-# Backlog triage and status reconciliation
+# Разбор бэклога и сверка статусов
 
-Turn source notes into traceable tasks or reconcile existing task statuses.
-Read the root and `backlog/AGENTS.md`; use `backlog/README.md` for status,
-completion-date, and archive conventions. These operations do not authorize
-project-code changes, implementation, or deployment.
+Преобразовать исходные заметки в прослеживаемые задачи или сверить статусы
+существующих задач. Прочитать корневой `AGENTS.md` и `backlog/AGENTS.md`;
+правила статусов, даты завершения и архивирования брать из `backlog/README.md`.
+Эти операции не разрешают изменение кода проекта, реализацию или развёртывание.
 
-## Select the requested mode
+## Выбрать запрошенный режим
 
-| Request | Mode and reference |
+| Запрос | Режим и материал |
 |---|---|
-| Process selected notes, process inbox, or invoke this skill without a status-audit request | **Triage** — [triage workflow](references/triage.md) |
-| Reconcile statuses, check which tasks are complete, or actualize backlog state | **Status reconciliation** — [status workflow](references/status-reconciliation.md) |
-| Explicitly request both operations or a full backlog pass | **Full pass** — status reconciliation, then triage, using both references |
+| Разобрать выбранные заметки, входящие или вызвать навык без запроса аудита статусов | **Разбор** — [порядок разбора](references/triage.md) |
+| Сверить статусы, проверить завершённые задачи, актуализировать бэклог | **Сверка статусов** — [порядок сверки](references/status-reconciliation.md) |
+| Явно запросить обе операции или полный проход бэклога | **Полный проход** — сначала сверка статусов, затем разбор; использовать оба материала |
 
-State the selected mode and scope briefly. Respect explicit file or TASK-ID
-selection. Triage checks duplicates and related tasks; it does not require a
-repository-wide status audit. Status reconciliation does not process inbox
-unless requested. An empty inbox ends triage after a short log entry; it does
-not trigger another mode. For a full pass, perform the requested status audit
-even if the inbox is empty.
+Кратко назвать режим и границы. Соблюдать явный выбор файлов или TASK-ID.
+При разборе проверять дубли и связанные задачи; полный аудит статусов репозитория
+не обязателен. Сверка статусов не включает разбор входящих без запроса.
+Пустая папка входящих завершает разбор после краткой записи в журнале,
+а не запускает другой режим. При полном проходе выполнить запрошенный аудит
+статусов, даже если входящие пусты.
 
-Load only the selected workflow reference. Read the
-[task template](references/task-template.md) when creating a card; do not load
-it merely to reconcile statuses. The root capture trigger handles raw note
-capture separately and does not imply triage.
+Загружать только материал выбранного процесса. Читать
+[шаблон задачи](references/task-template.md) при создании карточки,
+но не только ради сверки статусов. Корневой триггер фиксации заметок работает
+отдельно и не подразумевает их разбор.
 
-## Classify the actual change
+## Классифицировать фактическое изменение
 
-Evaluate the proposed behavior and failure consequences, not just the names of
-the affected modules:
+Оценивать предлагаемое поведение и последствия сбоя, а не только имена модулей:
 
-- `needs-clarification`: the desired result, scope, or a material product or
-  architecture decision remains unresolved after inspecting available evidence.
-- `risky`: a concrete change to authorization, money, data, compatibility,
-  critical domain behavior, or recovery requires explicit human review. Record the
-  failure mechanism, affected users/data, required review, and stop conditions.
-- `tasks-ready`: the result is clear, accepted requirements are present when
-  behavior changes, and the bounded change needs no unresolved special review.
+- `needs-clarification`: после изучения доступных доказательств неясны результат,
+  границы или существенное продуктовое либо архитектурное решение.
+- `risky`: конкретное изменение авторизации, денег, данных, совместимости,
+  критичного бизнес-поведения или восстановления требует явного человеческого
+  ревью. Записать механизм сбоя, затронутых пользователей и данные,
+  необходимое ревью и условия остановки.
+- `tasks-ready`: результат ясен, при изменении поведения есть принятые требования,
+  ограниченное изменение не требует незакрытого специального ревью.
 
-Permissions, memberships, billing, migrations, scheduling, jobs, caching, and
-import/export are prompts for impact analysis, not automatic risk labels. A
-permission-description typo or a test of an existing access denial can remain
-behavior-preserving work; changing who may access a client record requires
-security review. If material risk cannot be established without a missing
-decision, record that question rather than assuming safety.
+Права, абонементы, платежи, миграции, расписание, фоновые задания, кэширование
+и импорт/экспорт — повод проанализировать влияние, а не автоматически назначать
+риск. Исправление опечатки в описании права или тест существующего отказа могут
+не менять поведение; изменение доступа к карточке клиента требует ревью
+безопасности. Если существенный риск нельзя установить без отсутствующего
+решения, записать вопрос вместо предположения о безопасности.
 
-## Requirements and source integrity
+## Требования и сохранность источников
 
-Every created or updated active card must satisfy the requirements metadata
-contract in `backlog/AGENTS.md`. Read `docs/requirements/README.md` when mapping
-or changing requirements. Use accepted `REQ-*` for product behavior, `none`
-with a concrete behavior-preserving reason, or `pending` only in
-`needs-clarification`. Proposed requirements do not authorize ready/risky
-implementation preparation. Do not invent approvals or product rules.
+Каждая созданная или обновлённая активная карточка должна соответствовать
+контракту метаданных требований в `backlog/AGENTS.md`. При сопоставлении или
+изменении требований читать `docs/requirements/README.md`. Для поведения продукта
+использовать принятые `REQ-*`; `none` — с конкретным обоснованием сохранения
+поведения; `pending` — только в `needs-clarification`. Предложенные требования
+не разрешают подготовку к реализации задач в готовом или рискованном статусе.
+Не выдумывать согласования и продуктовые правила.
 
-Preserve original notes and append-only historical logs. Search active cards,
-unfinished plans, and all dated `backlog/done/` directories for duplicates and
-TASK-ID allocation. Check related code and accepted decisions as needed to
-distinguish an existing task from a new regression; do not rewrite unrelated
-statuses during this check.
+Сохранять исходные заметки и только дополнять исторические журналы. Для поиска
+дублей и выделения TASK-ID проверять активные карточки, незавершённые планы
+и все датированные каталоги `backlog/done/`. При необходимости изучать связанный
+код и принятые решения, чтобы отличить существующую задачу от новой регрессии;
+не переписывать посторонние статусы в ходе этой проверки.
 
-## Validate and report
+## Проверить и сообщить результат
 
-Use the root verification harness for changed artifacts. Verify affected
-links, IDs, status/directory consistency, source traceability, requirements,
-and colocated completed task/plan/evidence sets. Report unresolved blockers
-without guessing and finish independent in-scope items when possible.
+Проверить изменённые артефакты корневой системой проверок. Проверить затронутые
+ссылки, идентификаторы, соответствие статусов каталогам, связь с источниками,
+требования и совместное размещение завершённых задач, планов и доказательств.
+Сообщить незакрытые препятствия без догадок; по возможности завершить независимые
+элементы в запрошенных границах.
 
-Append a concise entry to `backlog/logs/triage-log.md` identifying mode, scope,
-evidence, changed paths, counts within that scope, validation, and unresolved
-items. Record a zero-change result when applicable. Report outcomes and links
-to changed artifacts; omit the full backlog tree and unchanged-card inventory
-unless the user requests them. Do not claim a global audit after scoped triage.
+Добавить краткую запись в `backlog/logs/triage-log.md`: режим, границы,
+доказательства, изменённые пути, количество результатов в этих границах,
+проверки и незакрытые вопросы. При отсутствии изменений тоже записать результат.
+Показать итог и ссылки на изменённые артефакты; не выводить полное дерево бэклога
+и перечень неизменённых карточек без запроса. Не называть ограниченный разбор
+глобальным аудитом.

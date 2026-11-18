@@ -1,49 +1,49 @@
-# Triage selected inbox notes
+# Разбор выбранных входящих заметок
 
-Use for inbox processing. A global status audit is not a prerequisite; use the
-classification and integrity rules in the parent skill.
+Использовать для обработки входящих. Глобальный аудит статусов не является
+предварительным условием; применять правила классификации и сохранности
+из основного навыка.
 
-## Scope and duplicate checks
+## Границы и поиск дублей
 
-1. Resolve the selected inbox files. When no selection is given, process the
-   Markdown files in `backlog/inbox/`. Create only directories needed by the
-   selected operation. If there are no notes, log and report that result.
-2. Inspect the selected notes and identify related cards by user flow, goal,
-   keywords, source references, and expected result. Search all active task
-   folders, unfinished plans, and `backlog/done/` recursively. Inspect related
-   code and history where needed; a similar title alone is not proof of a
-   duplicate or completion.
-3. Before processing each file, move it to `backlog/processing/` without
-   overwriting an existing file. For an interrupted run, resume the matching
-   processing file only after checking source ownership and tasks already
-   created from it. Do not duplicate cards or silently take another run's work.
+1. Определить выбранные входящие файлы. Без явного выбора обрабатывать Markdown
+   в `backlog/inbox/`. Создавать только нужные операции каталоги. При отсутствии
+   заметок записать и сообщить результат.
+2. Изучить заметки и найти связанные карточки по сценарию, цели, ключевым словам,
+   ссылкам на источники и ожидаемому результату. Проверить все активные каталоги,
+   незавершённые планы и рекурсивно `backlog/done/`. При необходимости изучить
+   связанный код и историю; похожее название не доказывает дубль или завершение.
+3. Перед обработкой каждого файла переместить его в `backlog/processing/`,
+   не перезаписывая существующий файл. После прерванного запуска продолжать
+   соответствующий файл только после проверки принадлежности источника
+   и уже созданных задач. Не создавать дубли и не забирать молча чужую работу.
 
-## Produce or update cards
+## Создать или обновить карточки
 
-- Group related ideas and deduplicate task creation without deleting text from
-  the original source note.
-- For a confirmed existing task, append the new source reference under
-  `## Source notes`, explain the relationship under `## Processing notes`,
-  and record the update. Preserve lifecycle and approval evidence.
-- If overlap remains unresolved after inspecting available evidence, record
-  the potential overlap and blocking question in `needs-clarification`.
-- For a new task, allocate the next unused TASK number across active tasks,
-  plans, and dated archives. Never reuse a number. Use
-  `TASK-NNN-short-english-slug.md`; the card title may be Russian.
-- Use [the task template](task-template.md), map requirements under the parent
-  skill's rules, and classify the concrete change. Keep blocking questions in
-  `needs-clarification`; a risky task records its required review and stop
-  conditions. Do not move tasks to implementation as part of triage.
+- Группировать связанные идеи и исключать дубли задач без удаления текста
+  из исходной заметки.
+- Для подтверждённой существующей задачи добавить новый источник в
+  `## Source notes`, объяснить связь в `## Processing notes` и записать обновление.
+  Сохранить историю жизненного цикла и согласований.
+- Если пересечение остаётся неясным после изучения доказательств, записать
+  возможное пересечение и блокирующий вопрос в `needs-clarification`.
+- Для новой задачи выбрать следующий неиспользованный TASK-номер среди активных
+  задач, планов и датированных архивов. Никогда не использовать номер повторно.
+  Имя файла — `TASK-NNN-short-english-slug.md`; заголовок карточки может быть русским.
+- Использовать [шаблон задачи](task-template.md), связать требования по правилам
+  основного навыка и классифицировать конкретное изменение. Блокирующие вопросы
+  оставлять в `needs-clarification`; для рискованной задачи записывать необходимое
+  ревью и условия остановки. Разбор не переводит задачи в реализацию.
 
-## Complete the source lifecycle
+## Завершить обработку источника
 
-A source is complete only when every in-scope idea has a created or updated
-card, or a recorded duplicate/disposition with traceability. A failure must
-not cause silent loss of an idea.
+Источник обработан только когда каждой идее в выбранных границах соответствует
+созданная или обновлённая карточка либо прослеживаемая запись о дубле или другом
+решении. Сбой не должен приводить к молчаливой потере идеи.
 
-Record task outcomes in `backlog/logs/triage-log.md`, then move a completed
-source from `backlog/processing/` to `backlog/processed/`. Keep its original
-body and add or update one metadata block:
+Записать результаты в `backlog/logs/triage-log.md`, затем переместить завершённый
+источник из `backlog/processing/` в `backlog/processed/`. Сохранить исходный текст
+и добавить либо обновить один блок метаданных:
 
 ```yaml
 ---
@@ -56,23 +56,23 @@ updated_existing_tasks:
 ---
 ```
 
-Use actual filenames; empty lists are valid for a recorded duplicate-only
-result. Preserve existing metadata rather than duplicating it. On interruption
-or incomplete processing, leave the source in `processing/`, record completed
-work and the blocker, and resume from that evidence.
+Использовать фактические имена файлов; пустые списки допустимы для записанного
+результата только с дублями. Сохранять существующие метаданные без повторения.
+При прерывании или неполной обработке оставить источник в `processing/`,
+записать завершённую работу и препятствие, продолжать по этим доказательствам.
 
-Verify final source links resolve after the move. Preserve the original note;
-do not delete it or mark an incompletely processed source as processed.
+Проверить ссылки на источник после перемещения. Сохранить исходную заметку;
+не удалять её и не помечать обработанной при незавершённой обработке.
 
-## Log and handoff
+## Журнал и передача результата
 
-Use a concise append-only entry containing the date/time and:
+Добавить краткую запись с датой, временем и:
 
-- mode: triage, with the selected source files;
-- created and updated TASK paths, duplicate decisions, and remaining blockers;
-- processed paths and any interrupted processing files;
-- counts scoped to this run;
-- validation performed and outcome.
+- режимом `triage` и выбранными исходными файлами;
+- путями созданных и обновлённых TASK, решениями по дублям и препятствиями;
+- путями обработанных файлов и файлов с прерванной обработкой;
+- количеством результатов только этого запуска;
+- выполненными проверками и результатом.
 
-For a full pass, add these results to the same run's status-audit entry. Report
-changed artifacts and unresolved items, not the entire backlog tree.
+При полном проходе добавить результаты в запись аудита статусов того же запуска.
+Сообщить изменённые артефакты и открытые вопросы, а не всё дерево бэклога.

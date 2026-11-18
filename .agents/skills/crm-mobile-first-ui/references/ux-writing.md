@@ -1,47 +1,36 @@
-# CRM UX writing
+# Тексты интерфейса CRM
 
-Use for labels, instructions, validation, errors, confirmations, empty states,
-notifications, and recovery copy.
+Использовать для подписей, инструкций, валидации, ошибок, подтверждений,
+пустых состояний, уведомлений и восстановления.
 
-## Preserve product vocabulary
+## Сохранить словарь продукта
 
-- Inspect nearby Russian copy and use one term for one CRM concept throughout a
-  flow.
-- Preserve backend-provided validation and permission reasons. Clarify their
-  presentation without inventing a different rule.
-- Prefer plain, short language that a busy coach or administrator understands
-  on the first pass.
-- Use sentence case unless an established component convention requires
-  otherwise.
+- Изучать соседние русские тексты и использовать один термин для одного понятия CRM во всём сценарии.
+- Сохранять серверные причины ошибок и ограничений прав. Улучшать подачу, не изобретая другое правило.
+- Предпочитать короткий простой текст, понятный занятому тренеру или администратору с первого прочтения.
+- Использовать регистр обычного предложения, если действующее соглашение компонента не требует иного.
 
-## Actions and confirmations
+## Действия и подтверждения
 
-- Start action labels with a verb that names the operation.
-- Avoid `OK`, `Yes`, `No`, and playful copy for consequential actions.
-- A destructive confirmation repeats the affected entity and consequence; its
-  confirm button names that consequence.
-- Keep one progression vocabulary within a multi-step flow.
-- Match input-neutral wording when the same interface supports touch and
-  pointer; prefer `select` over device-specific instructions when possible.
+- Начинать подпись действия с глагола, называющего операцию.
+- Избегать «ОК», «Да», «Нет» и шутливых текстов для значимых действий.
+- Разрушительное подтверждение повторяет сущность и последствие; кнопка называет это последствие.
+- Сохранять одинаковые названия шагов продвижения во многошаговом сценарии.
+- Если интерфейс поддерживает касание и указатель, выбирать нейтральные формулировки,
+  например «выберите», вместо инструкции для конкретного устройства.
 
-## Errors and recovery
+## Ошибки и восстановление
 
-- Place the message beside the failed field, action, or state surface.
-- State what failed, what remains preserved, and the next recovery action when
-  those facts are known.
-- Use calm, direct language. Data loss, access, and security copy is explicit
-  and never playful.
-- Do not expose internal exception wording unless it is an intentional public
-  ProblemDetails detail.
-- Success feedback names the affected entity or operation and does not mask
-  partial or stale completion.
+- Размещать сообщение рядом с ошибочным полем, действием или областью состояния.
+- Сообщать, что не удалось, что сохранилось и что делать дальше, когда это известно.
+- Писать спокойно и прямо. Потерю данных, доступ и безопасность описывать явно, без шуток.
+- Не показывать внутренний текст исключения, если он не является намеренной публичной частью ProblemDetails.
+- Успех называет сущность или операцию и не скрывает частичное либо устаревшее завершение.
 
-## Localization and layout
+## Локализация и раскладка
 
-- Do not concatenate sentence fragments around variables. Use complete
-  localized templates and correct pluralization.
-- Validate longer translations, names, numbers, and unbroken content.
-- Never use truncation to hide a consequence, validation reason, or recovery
-  instruction.
-- Placeholder is an example or hint, not a persistent field label or
-  accessible name.
+- Не склеивать фрагменты предложения вокруг переменных. Использовать полные
+  локализованные шаблоны и корректные формы множественного числа.
+- Проверять длинные переводы, имена, числа и непрерывные строки.
+- Не обрезать последствия, причины валидации и инструкции восстановления.
+- Подсказка внутри поля — пример или помощь, а не постоянная подпись или доступное имя.

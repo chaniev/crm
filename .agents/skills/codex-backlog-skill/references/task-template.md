@@ -1,8 +1,9 @@
-# Backlog task template
+# Шаблон задачи бэклога
 
-Use when creating a card. Fill only applicable optional sections, while keeping
-requirements, goal, scope, acceptance, source traceability, and processing
-metadata. Follow `backlog/AGENTS.md` for status and requirements rules.
+Использовать при создании карточки. Заполнять только применимые необязательные
+разделы, сохраняя требования, цель, границы, приёмку, связь с источником
+и метаданные обработки. Правила статусов и требований — в `backlog/AGENTS.md`.
+Английские имена разделов и полей в шаблоне — часть формата карточки; сохранять их.
 
 ```markdown
 # TASK-NNN: Название задачи
@@ -12,14 +13,14 @@ tasks-ready / risky / needs-clarification
 
 ## Requirements
 - REQ-XXX-000 — implements | changes | constrains | verifies
-<!-- Or: none — concrete behavior-preserving reason. -->
-<!-- Or, only in needs-clarification: pending — missing product decision. -->
+<!-- Или: none — конкретная причина сохранения поведения. -->
+<!-- Или, только в needs-clarification: pending — отсутствующее продуктовое решение. -->
 
 ## Goal
 Наблюдаемый пользовательский или системный результат.
 
 ## Context
-Существенный контекст из исходных заметок и связанного evidence.
+Существенный контекст из исходных заметок и связанных доказательств.
 
 ## User role
 Затронутый пользователь или система, когда это влияет на сценарий.
@@ -46,11 +47,11 @@ tasks-ready / risky / needs-clarification
 - Safe for autonomous implementation: yes/no
 - Risk level: low/medium/high
 - Reason: конкретный механизм риска или обоснование его отсутствия.
-<!-- For risky work, specify required review and stop conditions here. -->
-<!-- This assessment does not authorize implementation without a ready plan. -->
+<!-- Для рискованной задачи указать необходимое ревью и условия остановки. -->
+<!-- Эта оценка не разрешает реализацию без готового плана. -->
 
 ## Clarification questions
-<!-- Only for needs-clarification. -->
+<!-- Только для needs-clarification. -->
 - [ ] Конкретное отсутствующее решение и зависимое от него поведение.
 
 ## Source notes
@@ -63,6 +64,7 @@ tasks-ready / risky / needs-clarification
 - Duplicate check: проверенные связи и результат.
 ```
 
-Replace examples with actual values; select one status and put the card in its
-matching directory. Omit empty optional sections rather than copying a blank
-checklist. Preserve concrete risk, unresolved-question, and source evidence.
+Заменить примеры фактическими значениями, выбрать один статус и поместить карточку
+в соответствующий каталог. Пропускать пустые необязательные разделы вместо
+копирования пустого списка. Сохранять доказательства конкретного риска,
+незакрытых вопросов и связи с источником.

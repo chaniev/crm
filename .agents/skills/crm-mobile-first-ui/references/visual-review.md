@@ -1,92 +1,90 @@
-# Visual review and acceptance
+# Визуальное ревью и приёмка
 
-Use after implementation or for an explicitly requested design review. Review
-the rendered surface, not source code alone.
+Использовать после реализации или по явному запросу ревью дизайна.
+Проверять отрисованный интерфейс, а не только исходный код.
 
-## Resolve scope and evidence
+## Определить границы и доказательства
 
-State the route, flow, states, roles, and viewports inspected. For a change,
-inspect the affected runtime surface and direct consumers; expand a second hop
-only for shared tokens, theme values, or primitives.
+Указать проверенные маршрут, сценарий, состояния, роли и размеры экрана.
+Для изменения проверить затронутые рабочие поверхности и прямых потребителей;
+расширять поиск ещё на один шаг только для общих токенов, значений темы или примитивов.
 
-Use this evidence order:
+Порядок доказательств:
 
-1. approved UX and visual contracts;
-2. `frontend/DESIGN.md` and explicit project rules;
-3. selected rendered direction;
-4. current runtime at required states and widths;
-5. source code only to locate the cause.
+1. Согласованные UX- и визуальные контракты.
+2. `frontend/DESIGN.md` и явные правила проекта.
+3. Выбранное отрисованное направление.
+4. Текущий работающий интерфейс в нужных состояниях и размерах.
+5. Исходный код только для поиска причины.
 
-A verified defect must pass both gates:
+Подтверждённый дефект проходит обе проверки:
 
-1. **Contract** — identify a governing decision or an observable contradiction
-   within the same task.
-2. **Runtime** — demonstrate that the issue reaches the rendered surface.
+1. **Контракт** — управляющее решение или наблюдаемое противоречие внутри той же задачи.
+2. **Работающий интерфейс** — доказательство проявления проблемы в отрисованной поверхности.
 
-Describe the smallest supported correction after establishing the defect. If
-several incompatible remedies remain plausible, retain the verified defect
-and separately state the product or technical decision needed to choose a
-remedy. Do not invent intent or discard evidence because correction needs a choice.
+После подтверждения описать минимальное обоснованное исправление. Если возможны
+несколько несовместимых решений, сохранить дефект и отдельно назвать нужный
+продуктовый или технический выбор. Не выдумывать намерение и не отбрасывать
+доказательство только потому, что исправление требует выбора.
 
-Attempt to falsify each finding before reporting it. Separate introduced or
-regressed issues from pre-existing observations.
+Пытаться опровергнуть каждую находку. Отличать новые проблемы и регрессии
+от ранее существовавших наблюдений.
 
-These gates classify defects; they do not prove that a compliant design is
-useful or visually satisfying. Keep improvement opportunities separate: name
-the observed surface or owner feedback, proposed change, expected task benefit,
-tradeoff, and a way to compare it. Label untested benefit as a hypothesis;
-do not invent a contract violation to justify exploring a better design.
-Opportunities are not blockers or authorization to redesign an approved flow.
+Эти проверки классифицируют дефекты, но не доказывают полезность или визуальную
+привлекательность корректного дизайна. Отдельно записывать возможности улучшения:
+наблюдаемый экран или отзыв владельца, предлагаемое изменение, ожидаемую пользу
+для задачи, компромисс и способ сравнения. Непроверенную пользу обозначать
+гипотезой; не выдумывать нарушение контракта ради поиска лучшего дизайна.
+Возможность улучшения не является блокером или разрешением менять согласованный сценарий.
 
-## Inspect visual quality
+## Оценить визуальное качество
 
-Score each dimension from 1 to 5 and attach concrete evidence; a number without
-evidence is not a result.
+Оценивать каждое измерение от 1 до 5 с конкретными доказательствами;
+число без доказательств не является результатом.
 
-| Dimension | Evidence to inspect |
+| Измерение | Что проверять |
 |---|---|
-| Task hierarchy | Primary task and required decision data are immediately distinguishable |
-| Scanability | Reading order, grouping, alignment, and repeated structures support fast scanning |
-| Density | Information is compact without cramped targets, labels, or recovery paths |
-| Typography | Onest hierarchy, wrapping, numerals, and emphasis are consistent and readable |
-| Rhythm | Spacing and alignment follow a coherent system rather than local patchwork |
-| Visual identity | Surfaces, borders, color, icons, and emphasis match the selected direction and its approved changes to `frontend/DESIGN.md` |
-| Interaction feedback | Focus, pending, disabled, success, error, and motion are legible |
-| Responsive integrity | Mobile and desktop are deliberate transformations of the same task |
+| Иерархия задачи | Основная задача и нужные для решения данные сразу различимы |
+| Быстрота просмотра | Порядок чтения, группы, выравнивание и повторы помогают просмотру |
+| Плотность | Компактная информация без тесных целей нажатия, подписей и путей восстановления |
+| Типографика | Иерархия Onest, переносы, числа и акценты согласованы и читаемы |
+| Ритм | Отступы и выравнивание образуют систему, а не набор локальных заплаток |
+| Визуальная идентичность | Поверхности, границы, цвета, иконки и акценты соответствуют выбранному направлению и согласованным изменениям `frontend/DESIGN.md` |
+| Обратная связь | Понятны фокус, ожидание, недоступность, успех, ошибка и движение |
+| Адаптивная целостность | Мобильный и настольный виды осознанно преобразуют одну задачу |
 
-Inspect at least 390 x 844, both target iPhone portrait sizes for a significant
-mobile workflow, and 1440 px. Include long realistic content and all applicable
-operational states. Use behavioral assertions for semantics and interaction;
-screenshots supplement rather than replace them.
+Проверить как минимум 390 x 844, оба целевых портретных размера iPhone при
+существенном мобильном сценарии и ширину 1440 px. Использовать длинные
+реалистичные данные и все применимые рабочие состояния. Семантику и
+взаимодействие проверять поведением; снимки дополняют, а не заменяют такие проверки.
 
-For simplification, compare the UX contract's before/after task and content
-decisions: confirm removed duplicates, discoverable deferred details, preserved
-context, and reachable frequent actions. For palette work, compare the same
-composition and data, including focus, selection, and consequential status
-states. Do not infer faster work from a cleaner screenshot or accept lost
-functionality in exchange for a higher visual score.
+При упрощении сверить решения по сценарию и данным до/после из UX-контракта:
+удалённые дубли, обнаружимость отложенных подробностей, сохранение контекста
+и достижимость частых действий. Для палитры сравнивать одинаковую композицию
+и данные, включая фокус, выбор и значимые статусы. Не выводить ускорение работы
+из более чистого снимка и не принимать потерю функций ради визуальной оценки.
 
-## Report
+## Передать отчёт
 
-Lead with the five highest-impact supported design findings when there are
-many, ordered by user impact, confidence, reach, and correction cost. Briefly
-list additional material defects with location, evidence, and impact rather
-than omitting them to satisfy a count:
+При большом числе находок начать с пяти наиболее значимых подтверждённых,
+упорядочив по влиянию на пользователя, уверенности, охвату и цене исправления.
+Остальные существенные дефекты кратко перечислить с местом, доказательством
+и влиянием, не скрывая их ради ограничения количества:
 
-| # | Problem | Contract | Runtime evidence | Correction | Scope | Confidence |
+| № | Проблема | Контракт | Доказательство в работе | Исправление | Границы | Уверенность |
 |---|---|---|---|---|---|---|
 
-Then provide:
+Затем указать:
 
-- a separate list of supported improvement opportunities when relevant to the
-  requested design review; none is a valid outcome;
-- the highest-leverage improvement;
-- comparison with the selected direction;
-- quality-rubric evidence;
-- validation performed and unverified device conditions;
-- one self-critique naming the weakest remaining design decision.
+- отдельные обоснованные возможности улучшения, если это входит в запрошенное
+  ревью; их отсутствие допустимо;
+- улучшение с наибольшим ожидаемым эффектом;
+- сравнение с выбранным направлением;
+- доказательства оценок качества;
+- выполненные проверки и непроверенные условия устройств;
+- одну самокритичную оценку самого слабого оставшегося решения.
 
-Do not pad a clean defect review with preferences. `No supported defects` is a
-valid result and does not mean that improvement opportunities were tested or
-the owner approved the design. A taste preference may guide a requested visual
-comparison when clearly attributed to its owner.
+Не дополнять чистое ревью дефектов вкусами. «Подтверждённых дефектов нет» —
+допустимый итог, не означающий проверки гипотез улучшения или согласования
+дизайна владельцем. Вкусовое предпочтение может направлять запрошенное визуальное
+сравнение, если ясно указано, кому оно принадлежит.

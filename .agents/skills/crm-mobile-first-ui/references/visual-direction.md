@@ -1,149 +1,150 @@
-# Visual direction and design gate
+# Визуальное направление и согласование дизайна
 
-Use for a new screen, material redesign, or an explicitly requested palette
-change. Resolve task structure and color as separate decisions so the owner
-can tell what improved the result.
+Использовать для нового экрана, существенного редизайна или явно запрошенной
+смены палитры. Решать структуру задачи и цвет отдельно, чтобы владелец мог
+понять причину улучшения результата.
 
-## Gather evidence
+## Собрать доказательства
 
-Inspect:
+Изучить:
 
-- the current rendered screen and adjacent flows;
-- `frontend/DESIGN.md`, theme tokens, and shared components;
-- realistic CRM content, including long names and values;
-- user-provided references and explicit likes or dislikes;
-- backend capabilities and the approved UX contract.
+- текущий отрисованный экран и соседние сценарии;
+- `frontend/DESIGN.md`, токены темы и общие компоненты;
+- реалистичные данные CRM, включая длинные имена и значения;
+- примеры пользователя и явные предпочтения или замечания;
+- возможности сервера и согласованный UX-контракт.
 
-Do not infer the owner's taste from generic words such as `modern`, `clean`, or
-`professional`. When references are unavailable, preserve the established CRM
-visual language unless its replacement is the requested scope. In that case,
-propose bounded alternatives and state the uncertainty without treating the
-current colors as immutable or inventing a preferred style for the owner.
+Не выводить вкус владельца из общих слов «современный», «чистый» или
+«профессиональный». Без примеров сохранять действующий визуальный язык,
+если его замена не входит в запрос. При запросе замены предлагать ограниченные
+альтернативы и отмечать неопределённость, не считая текущие цвета неизменными
+и не выдумывая любимый стиль владельца.
 
-## Write the visual brief
+## Подготовить визуальный бриф
 
-Record:
+Записать:
 
 ```text
-SURFACE
-- Route or component:
-- Primary user and task:
-- Current problem:
+ПОВЕРХНОСТЬ
+- Маршрут или компонент:
+- Основной пользователь и задача:
+- Текущая проблема:
 
-VISUAL INTENT
-- One-sentence visual thesis tied to the user's task:
-- Fixed properties and properties open for redesign:
-- Desired character:
-- Density:
-- Hierarchy:
-- Acceptable novelty:
-- Existing successful exemplar:
-- References and the exact property taken from each:
-- Directions to avoid:
+ВИЗУАЛЬНЫЙ ЗАМЫСЕЛ
+- Одна фраза о визуальном замысле, связанном с задачей пользователя:
+- Неизменные свойства и свойства для пересмотра:
+- Желаемый характер:
+- Плотность:
+- Иерархия:
+- Допустимая новизна:
+- Существующий удачный пример:
+- Референсы и конкретное заимствуемое свойство каждого:
+- Нежелательные направления:
 
-CONSTRAINTS
-- Required content and actions:
-- Backend-supplied states and reasons:
-- Shared components and tokens:
-- Target viewports:
+ОГРАНИЧЕНИЯ
+- Обязательная информация и действия:
+- Состояния и причины, предоставляемые сервером:
+- Общие компоненты и токены:
+- Целевые размеры видимой области:
 
-SELECTION CRITERIA
-- What must become faster to understand or operate:
-- What visual qualities distinguish a strong result:
+КРИТЕРИИ ВЫБОРА
+- Что должно стать быстрее понимать или выполнять:
+- Какие визуальные качества отличают сильный результат:
 ```
 
-## Compare task structure
+## Сравнить структуру задачи
 
-Create three directions by default. Each must differ on a named, consequential
-axis such as information architecture, density, grouping, navigation model, or
-interaction model, within the agreed UX contract. Color-only, radius-only,
-and spacing-only differences do not demonstrate an alternative task structure.
-Keep the palette stable during this comparison. Do not reopen an approved
-workflow merely to manufacture three options; a palette-only request skips
-this comparison. Resolve proposed changes to the UX contract before treating
-them as implementation-ready.
+По умолчанию создать три направления. Каждое отличается по названной значимой
+оси: информационная архитектура, плотность, группировка, модель навигации
+или взаимодействия — внутри согласованного UX-контракта. Только цвет,
+скругление или отступы не доказывают альтернативную структуру задачи.
+В этом сравнении сохранить палитру. Не открывать согласованный сценарий ради
+трёх вариантов; запрос только о палитре пропускает этот этап. Согласовать
+предлагаемые изменения UX-контракта до признания их готовыми к реализации.
 
-Every direction must:
+Каждое направление должно:
 
-- preserve the same backend capabilities and UX contract;
-- use Mantine, Onest, shared token roles, and realistic product content;
-- show the primary state at 390 x 844 and 1440 px;
-- include at least the most consequential non-happy state;
-- be complete enough to judge hierarchy, rhythm, density, and interaction;
-- state when it is the right choice and what it costs.
+- сохранять одинаковые возможности сервера и UX-контракт;
+- использовать Mantine, Onest, общие роли токенов и реалистичные данные продукта;
+- показывать основное состояние на 390 x 844 и ширине 1440 px;
+- включать хотя бы наиболее существенное состояние вне успешного пути;
+- позволять оценить иерархию, ритм, плотность и взаимодействие;
+- объяснять, когда оно подходит и какой ценой.
 
-Prefer a live isolated prototype using real project components. A high-fidelity
-static artifact is acceptable when interaction is not the decision under
-review. Do not modify production routes or components before selection.
+Предпочитать работающий изолированный прототип на реальных компонентах проекта.
+Детальный статичный макет допустим, если выбор не касается взаимодействия.
+Не менять рабочие маршруты и компоненты до выбора.
 
-## Compare palettes on one composition
+## Сравнить палитры на одной композиции
 
-When color is unresolved, show three palette candidates by default on the
-same selected or existing composition. Reuse an already selected palette;
-a deterministic local color fix needs before/after evidence, not alternatives.
-Hold text, data, actions, density, typography, states, and viewport constant.
-Show mobile and desktop plus a consequential error, selected, or restricted
-state. A row of color swatches alone does not establish interface quality.
+Если цвет не выбран, по умолчанию показать три палитры на одной выбранной
+или существующей композиции. Переиспользовать уже выбранную палитру;
+однозначная локальная цветовая правка требует сравнения до/после, а не вариантов.
+Сохранить одинаковые тексты, данные, действия, плотность, типографику,
+состояния и размеры. Показать мобильный и настольный вид и существенное
+состояние ошибки, выбора или ограничения. Одних образцов цвета недостаточно
+для оценки интерфейса.
 
-Describe candidates by their intended effect on this workspace rather than
-marketing names. For each, define page and raised surfaces, primary/secondary
-text, borders, action accent, selection, focus, and their interactive states.
-Neutral surfaces with an accent are a useful candidate, not a mandatory style;
-do not impose a universal color ratio or a predetermined winning hue.
+Описывать варианты через ожидаемый эффект в рабочем интерфейсе, а не рекламные
+названия. Для каждого задать фон страницы и приподнятых поверхностей,
+основной и второстепенный текст, границы, акцент действия, выделение, фокус
+и состояния взаимодействия. Нейтральные поверхности с акцентом — полезный
+кандидат, а не обязательный стиль. Не навязывать универсальное соотношение
+цветов или заранее выбранный оттенок-победитель.
 
-Preserve functional status meanings and non-color cues. Check action versus
-status distinction, actual foreground/background contrast, and whether
-decorative tinting competes with data. Inspect both profile-driven and fixed
-semantic values before promising a complete theme change. The design contract
-must identify the shared values affected, including fallback/customer-branding
-compatibility when relevant; changing only the primary hue may be insufficient.
+Сохранить значения функциональных статусов и нецветовые признаки. Проверить
+различимость действия и статуса, фактический контраст текста и фона,
+конкуренцию декоративной окраски с данными. До обещания полной смены темы
+изучить значения профиля и фиксированные семантические значения. В контракте
+назвать затронутые общие значения, включая резервное оформление и совместимость
+с клиентским брендингом, если применимо: смены основного оттенка может быть мало.
 
-Prototype proposed values in an isolated artifact without changing production
-tokens. Choosing a palette does not authorize changing business status semantics,
-branding API contracts, or persistence; route any such dependency to planning.
+Предлагать значения в изолированном прототипе без изменения рабочих токенов.
+Выбор палитры не разрешает менять смысл бизнес-статусов, API брендинга
+или хранение данных; такую зависимость возвращать в планирование.
 
-## Critique hierarchy and visual character
+## Оценить иерархию и визуальный характер
 
-Use a working-product composition: a clear locator, task content, and contextual
-actions. Cards, badges, separators, icons, and helper copy need a grouping,
-recognition, decision, or feedback purpose. Compare removal or consolidation
-of a questionable element before adding more styling. Preserve labels, frequent
-actions, consequences, and recovery information required by the UX contract.
+Строить рабочую композицию: понятный поиск или выбор, содержание задачи
+и контекстные действия. Карточки, значки статуса, разделители, иконки и подсказки
+должны помогать группировке, распознаванию, решению или обратной связи.
+До добавления оформления сравнить удаление или объединение сомнительного
+элемента. Сохранить подписи, частые действия, последствия и восстановление,
+требуемые UX-контрактом.
 
-Use Onest weight, scale, alignment, and spacing to establish hierarchy before
-adding color. Keep intentional identity where it helps recognition without
-requiring novelty, a hero, ornamental typography, or animation. Review the
-rendered screen for competing accents and fragmented groups; identify the
-weakest remaining choice and what evidence would justify changing it.
+Создавать иерархию начертанием Onest, размером, выравниванием и отступами до
+добавления цвета. Сохранять намеренную индивидуальность, полезную распознаванию,
+без обязательной новизны, рекламного первого экрана, декоративной типографики
+или анимации. Проверить отрисованный экран на конкурирующие акценты и раздробленные
+группы; назвать самое слабое оставшееся решение и доказательства для его изменения.
 
-## Present and select
+## Показать и выбрать
 
-Use a comparison table:
+Использовать сравнительную таблицу:
 
-| Direction | Design axis | Main advantage | Cost or risk | UX-contract fit |
+| Направление | Ось изменения | Основное преимущество | Цена или риск | Соответствие UX-контракту |
 |---|---|---|---|---|
 
-Do not preselect a winner merely because it is visually expressive. Recommend
-one only when the recommendation is tied to task frequency, product character,
-content, and selection criteria.
+Не выбирать победителя заранее за выразительность. Рекомендация должна быть
+связана с частотой задачи, характером продукта, данными и критериями выбора.
 
-The user may select one direction, combine compatible parts, or request another
-round. Record the feedback and produce one refined direction. This is a
-meaningful product choice; do not silently choose on the user's behalf.
+Пользователь может выбрать направление, совместить совместимые части или
+запросить ещё один раунд. Записать обратную связь и подготовить один уточнённый
+вариант. Это значимый продуктовый выбор; не принимать его молча за пользователя.
 
-## Promote the selected direction
+## Подготовить выбранное направление к реализации
 
-Before implementation, record:
+До реализации записать:
 
-- selected direction and rejected alternatives;
-- user feedback incorporated;
-- exact hierarchy and responsive transformations;
-- selected palette, its semantic role mapping, and authorized deviations from
-  current visual values when those were part of the requested redesign;
-- operational and interaction states;
-- visual acceptance criteria;
-- differences between the selected artifact and the implementation contract.
+- выбранное направление и отклонённые варианты;
+- учтённую обратную связь;
+- точную иерархию и адаптивные преобразования;
+- выбранную палитру, её соответствие семантическим ролям и согласованные
+  отклонения от текущих значений, если они входили в редизайн;
+- рабочие состояния и состояния взаимодействия;
+- критерии визуальной приёмки;
+- отличия выбранного артефакта от контракта реализации.
 
-Delete temporary prototype code after promotion unless the user explicitly
-asks to retain it. Preserve rendered evidence needed for review according to
-the task workspace policy.
+После переноса в реализацию удалить временный код прототипа, если пользователь
+не попросил сохранить его. Сохранить визуальные доказательства для ревью
+по правилам рабочей копии задачи.

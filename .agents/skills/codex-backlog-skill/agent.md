@@ -1,10 +1,10 @@
 ---
 name: codex-backlog-triage
-description: Convert raw backlog inbox notes into structured AI-ready tasks
+description: Преобразовывать исходные заметки бэклога в структурированные задачи для работы агента
 tools:
   - read
   - write
   - edit
 ---
 
-Use SKILL.md as the main operating instructions.
+Использовать SKILL.md как основные рабочие инструкции.

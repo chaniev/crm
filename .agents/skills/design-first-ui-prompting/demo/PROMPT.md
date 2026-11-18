@@ -1,43 +1,52 @@
-# Design First UI Prompting Demo Prompts
+# Демонстрационные запросы проектирования через дизайн
 
-## Minimal prompt
+## Минимальный запрос
 
-Use $design-first-ui-prompting to create a polished standalone HTML example that clearly demonstrates the skill.
+Используй $design-first-ui-prompting, чтобы создать качественный самостоятельный
+HTML-пример, наглядно демонстрирующий навык.
 
-## Recreate the demo
+## Воссоздание демонстрации
 
-Use $design-first-ui-prompting to build a responsive reference demo for this capability:
+Используй $design-first-ui-prompting для адаптивной эталонной демонстрации:
 
-> Use when you need design-first, spec-driven, skimmable prompts for UI generation. Covers prompt structure, constraints, variations, typography/spacing rules, and iteration workflow for consistent UI outputs.
+> Подходит для структурированных, легко просматриваемых запросов генерации
+> интерфейса на основе заранее продуманного дизайна и спецификации.
+> Охватывает структуру запроса, ограничения, варианты, типографику,
+> отступы и итерации для согласованного результата.
 
-### Direction
+### Направление
 
-Build a complete editorial hero and supporting card grid that clearly expresses the named visual system.
+Создай законченный редакционный первый экран и сетку вспомогательных карточек,
+ясно выражающие названную визуальную систему.
 
-Use an art-directed composition with one clear focal point, restrained supporting copy, and enough surrounding interface to show how the technique behaves in a real product or landing page.
+Используй осознанную композицию с одним центром внимания, сдержанным вспомогательным
+текстом и достаточным окружением интерфейса, чтобы показать приём в реальном
+продукте или на посадочной странице.
 
-### Canonical example
+### Эталонный пример
 
-- Use Design First UI Prompting as the central system title.
-- Pair the hero with three structural cards labeled Frame, Rhythm, and Signal.
+- Центральное название системы: Design First UI Prompting.
+- Рядом с первым экраном три структурные карточки с названиями Frame, Rhythm и Signal.
 
-### Deliverable
+### Результат
 
-- Create demo/index.html as a standalone document.
-- Keep CSS and JavaScript inline.
-- Put any required images, fonts, models, textures, or vendor files in demo/assets/.
-- Do not add a framework, package manager, build step, or node_modules.
-- Add controls only when they help inspect or replay the technique.
+- Создать `demo/index.html` как самостоятельный документ.
+- Встроить CSS и JavaScript в него.
+- Нужные изображения, шрифты, модели, текстуры и сторонние файлы разместить в `demo/assets/`.
+- Не добавлять фреймворк, пакетный менеджер, этап сборки или `node_modules`.
+- Добавлять элементы управления только для изучения или повторного запуска приёма.
 
-### Acceptance checks
+### Критерии приёмки
 
-- Keep the demo responsive from 390px through 1440px.
-- Use semantic HTML, visible focus states, and reduced-motion handling.
-- Keep all HTML, CSS, and JavaScript inside demo/index.html.
-- Use only relative local asset paths.
-- Keep the visual hierarchy obvious without explanatory paragraphs.
-- Use one restrained interaction that supports the design direction.
+- Адаптивность от 390px до 1440px.
+- Семантический HTML, видимый фокус и поддержка уменьшенного движения.
+- Весь HTML, CSS и JavaScript находятся в `demo/index.html`.
+- Только относительные локальные пути ресурсов.
+- Визуальная иерархия понятна без объясняющих абзацев.
+- Одно сдержанное взаимодействие, поддерживающее направление дизайна.
 
-## Remix prompt
+## Запрос переработки
 
-Use $design-first-ui-prompting and keep the same implementation contract, but change the subject, copy, palette, and content hierarchy. Preserve the core technique, accessibility behavior, responsive rules, and performance constraints demonstrated by the reference.
+Используй $design-first-ui-prompting и сохрани контракт реализации, но измени тему,
+текст, палитру и иерархию содержания. Сохрани основной приём, доступность,
+адаптивные правила и ограничения производительности эталона.

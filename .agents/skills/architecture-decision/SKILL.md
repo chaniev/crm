@@ -1,125 +1,127 @@
 ---
 name: architecture-decision
-description: Evaluate and record a significant CRM technical or architectural choice as an ADR when alternatives affect boundaries, contracts, data, security, operability, or long-term reversibility. Do not use for product decisions or routine local implementation choices.
+description: Оценивать и документировать значимый технический или архитектурный выбор CRM в ADR, если варианты влияют на границы, контракты, данные, безопасность, эксплуатацию или долгосрочную обратимость. Не использовать для продуктовых решений и обычных локальных деталей реализации.
 ---
 
-# Architecture decision
+# Архитектурное решение
 
-Produce a reviewable Architecture Decision Record without changing product
-behavior or approving the decision on behalf of its owner.
+Подготовить ADR — запись архитектурного решения, пригодную для ревью. Не менять
+поведение продукта и не утверждать решение от имени его владельца.
 
-## Establish authority and evidence
+## Определить основания и доказательства
 
-1. Read the root `AGENTS.md` and every scoped `AGENTS.md` for affected producers
-   and consumers.
-2. Read the accepted `REQ-*` cards, source task, implementation plan, existing
-   ADRs, and approved UX or architecture contracts that constrain the choice.
-3. Establish current behavior from tests and public contracts first, then
-   runtime/build configuration, source code, and supporting documentation.
-4. Separate product uncertainty from technical uncertainty. If different
-   answers change user-visible behavior, roles, business rules, or scope, stop
-   and request a product decision instead of resolving it in an ADR.
+1. Прочитать корневой `AGENTS.md` и все вложенные `AGENTS.md` затронутых
+   поставщиков и потребителей контрактов.
+2. Изучить принятые карточки `REQ-*`, исходную задачу, план реализации,
+   существующие ADR и согласованные UX- или архитектурные контракты,
+   ограничивающие выбор.
+3. Установить текущее поведение прежде всего по тестам и публичным контрактам,
+   затем по конфигурации запуска и сборки, исходному коду и документации.
+4. Отделить продуктовую неопределённость от технической. Если ответ меняет
+   видимое пользователю поведение, роли, бизнес-правила или границы задачи,
+   остановиться и запросить продуктовое решение вместо его принятия через ADR.
 
-An ADR may explain how accepted requirements will be implemented. It never
-overrides or silently changes them.
+ADR может объяснять реализацию принятых требований, но никогда не отменяет
+и не меняет их неявно.
 
-## Decide whether an ADR is warranted
+## Определить необходимость ADR
 
-Use an ADR when the choice is material, including:
+Использовать ADR для существенного выбора, включая:
 
-- ownership or boundaries between Domain, Application, API, Infrastructure,
-  frontend, bot, or deploy;
-- a public Staff API or Internal Bot API contract with lasting consumer impact;
-- a database, migration, data-ownership, retention, or recovery strategy;
-- an authentication, authorization, audit, privacy, or security boundary;
-- a new service, runtime integration, framework, major dependency, or shared
-  cross-cutting pattern;
-- a deployment topology or operability choice;
-- a broad structural refactor or another costly-to-reverse decision;
-- two or more credible approaches with materially different consequences.
+- ответственность и границы между Domain, Application, API, Infrastructure,
+  клиентским интерфейсом, ботом и развёртыванием;
+- публичный Staff API или Internal Bot API с долгосрочным влиянием на потребителей;
+- стратегию базы данных, миграций, владения данными, хранения или восстановления;
+- границы аутентификации, авторизации, аудита, приватности или безопасности;
+- новый сервис, интеграцию при выполнении, фреймворк, крупную зависимость или
+  общий сквозной подход;
+- топологию развёртывания или решение об эксплуатации;
+- широкий структурный рефакторинг или другое решение с дорогим откатом;
+- два и более реалистичных подхода с существенно разными последствиями.
 
-Do not create an ADR for a small, local, readily reversible implementation
-choice that follows established contracts and project conventions.
+Не создавать ADR для небольшого локального и легко обратимого выбора,
+который соответствует действующим контрактам и соглашениям проекта.
 
-Resolve material choices and obtain required acceptance during planning,
-before the plan becomes executable. Discovery of a new material choice during
-execution returns the affected plan to planning with `readiness: no`; it is not
-an implementation slice. Link the accepted ADR and approval provenance from
-the plan's readiness metadata and `Decision evidence`.
+Закрыть существенные решения и получить необходимое согласование при
+планировании, до готовности плана к исполнению. Новый существенный выбор,
+обнаруженный при исполнении, возвращает затронутый план в планирование с
+`readiness: no`, а не становится этапом реализации. Указать принятый ADR
+и источник согласования в метаданных готовности плана и `Decision evidence`.
 
-## Compare the options
+## Сравнить варианты
 
-State the decision that is needed now and the concrete forces that constrain
-it. Start with the smallest extension of an existing mechanism that could meet
-the accepted contract. Compare it with the proposed mechanism; when it cannot
-work, identify the concrete failing scenario or invariant. Do not invent weak
-alternatives to satisfy a count or prefer a new abstraction for future reuse alone.
+Сформулировать решение, необходимое сейчас, и конкретные ограничения.
+Начать с минимального расширения существующего механизма, способного выполнить
+принятый контракт. Сравнить его с предлагаемым механизмом; если первый не
+подходит, назвать конкретный неработающий сценарий или нарушаемый инвариант.
+Не придумывать слабые альтернативы ради количества и не выбирать новую
+абстракцию только ради потенциального повторного использования.
 
-Separate required guarantees from optional hardening. For concurrency, replay,
-or external effects, identify the required authorization/commit boundary and the
-specific interleaving that could violate it. Evaluate existing transactions and
-guards before introducing locks, leases, retries, snapshots, or new coordination.
-Retain every required access and data-integrity guarantee; a speculative hazard
-does not by itself establish a need for a new mechanism.
+Отделять обязательные гарантии от дополнительного усиления защиты. Для
+конкурентного выполнения, повторов и внешних эффектов определить требуемую
+границу авторизации и фиксации, а также конкретное чередование операций,
+которое может её нарушить. Оценить существующие транзакции и проверки до
+добавления блокировок, аренд, повторных попыток, снимков или новой координации.
+Сохранить все гарантии доступа и целостности данных; гипотетическая опасность
+сама по себе не доказывает необходимость нового механизма.
 
-Evaluate only applicable criteria:
+Оценивать только применимые критерии:
 
-- consistency with accepted requirements and backend-owned CRM semantics;
-- contract and cross-layer impact;
-- authorization, audit, privacy, and security;
-- data integrity, migration safety, retention, rollback, and recovery;
-- operability, observability, deployment, and failure behavior;
-- performance and resource cost supported by evidence;
-- implementation and maintenance cost, including affected boundaries, additional
-  connections or blocking, test infrastructure, and recovery paths;
-- compatibility, incremental adoption, and reversibility;
-- regression coverage and how the decision can be falsified.
+- соответствие принятым требованиям и бизнес-правилам CRM, принадлежащим серверу;
+- влияние на контракты и взаимодействие слоёв;
+- авторизация, аудит, приватность и безопасность;
+- целостность данных, безопасность миграций, хранение, откат и восстановление;
+- эксплуатация, наблюдаемость, развёртывание и поведение при сбоях;
+- производительность и затраты ресурсов, подтверждённые данными;
+- стоимость реализации и сопровождения: затронутые границы, дополнительные
+  соединения или блокировки, тестовая инфраструктура и пути восстановления;
+- совместимость, постепенное внедрение и обратимость;
+- регрессионное покрытие и способ опровергнуть решение.
 
-Use relevant layer specialists for bounded evidence or review when the decision
-crosses their area. The coordinating agent resolves disagreements using the
-repository evidence precedence and records unresolved conflicts; a specialist
-preference does not override `REQ-*` or `AGENTS.md`.
+Привлекать специалистов соответствующих слоёв для ограниченного сбора
+доказательств или ревью, если решение затрагивает их область. Координатор
+разрешает разногласия по приоритету доказательств репозитория и фиксирует
+незакрытые конфликты; предпочтение специалиста не отменяет `REQ-*` и `AGENTS.md`.
 
-Keep this comparison in the existing ADR sections. An accepted direction does
-not automatically approve later additions that materially change its guarantees,
-operability, or implementation scope. Such additions follow the existing decision
-workflow; routine details within the accepted contract remain executor-owned.
+Сохранять сравнение в существующих разделах ADR. Принятое направление не
+разрешает автоматически последующие дополнения, существенно меняющие гарантии,
+эксплуатацию или объём реализации. Для них действует тот же процесс принятия
+решений; обычные детали внутри принятого контракта остаются за исполнителем.
 
-## Record the decision
+## Записать решение
 
-Read [the ADR convention and template](../../../docs/architecture/adr/README.md),
-then create the next `docs/architecture/adr/NNNN-kebab-title.md` from
+Прочитать [соглашение и шаблон ADR](../../../docs/architecture/adr/README.md),
+затем создать очередной `docs/architecture/adr/NNNN-kebab-title.md` на основе
 `docs/architecture/adr/_template.md`.
 
-- Use `Proposed` for an agent-authored draft.
-- Use `Accepted (name, role, YYYY-MM-DD)` only when the user or named human
-  owner explicitly approves this exact decision.
-- Preserve accepted ADRs. Replace a changed decision with a new ADR and mark
-  the old one `Superseded by ADR-NNNN`.
-- Link every applicable `REQ-*`. Use `none — <specific behavior-preserving
-  reason>` only when the decision cannot change product behavior.
-- Record honest negative consequences, cross-layer consumers, migration and
-  rollback implications, and concrete validation.
-- Update the ADR index in `docs/architecture/adr/README.md` in the same change.
+- Для черновика агента использовать `Proposed`.
+- Использовать `Accepted (name, role, YYYY-MM-DD)` только после явного
+  согласования именно этого решения пользователем или названным человеком-владельцем.
+- Сохранять принятые ADR. Изменённое решение оформлять новым ADR, а старое
+  помечать `Superseded by ADR-NNNN`.
+- Связать все применимые `REQ-*`. Использовать `none — <specific behavior-preserving
+  reason>` с конкретным обоснованием только для решения без изменения поведения продукта.
+- Честно описать отрицательные последствия, потребителей в других слоях,
+  влияние на миграции и откат, конкретную проверку.
+- В том же изменении обновить индекс ADR в `docs/architecture/adr/README.md`.
 
-If an implementation plan exists, add or update one concise link in its
-`Decisions and contracts` section. Do not copy the ADR into the plan.
+Если есть план реализации, добавить или обновить одну краткую ссылку в его
+разделе `Decisions and contracts`. Не копировать ADR в план.
 
-## Stop conditions
+## Условия остановки
 
-Leave the ADR `Proposed` and stop before implementation when:
+Оставить ADR в статусе `Proposed` и остановиться до реализации, если:
 
-- a required product decision or accepted requirement is missing;
-- the choice conflicts with an architecture, security, data-retention, or
-  deployment invariant;
-- data migration or rollback cannot be made safe;
-- affected producer and consumer contracts cannot be coordinated;
-- evidence cannot distinguish the options and the choice is costly to reverse;
-- the approving owner is unknown for a decision that requires acceptance.
+- отсутствует обязательное продуктовое решение или принятое требование;
+- выбор противоречит архитектурному инварианту, безопасности, хранению данных
+  или правилам развёртывания;
+- нельзя обеспечить безопасную миграцию или откат;
+- нельзя согласовать затронутые контракты поставщиков и потребителей;
+- доказательства не позволяют выбрать вариант, а откат решения дорог;
+- неизвестен владелец, который должен согласовать решение.
 
-## Handoff
+## Передать результат
 
-Report the ADR path and status, selected option and decisive criteria,
-discarded options, affected contracts and layers, required reviewers,
-validation evidence, and remaining open questions. Never report a draft as an
-accepted project decision.
+Сообщить путь и статус ADR, выбранный вариант и решающие критерии, отклонённые
+варианты, затронутые контракты и слои, необходимых рецензентов, результаты
+проверок и открытые вопросы. Не представлять черновик как принятое решение проекта.

@@ -1,6 +1,6 @@
 ---
 name: tasks-ready-to-implementation
-description: Move eligible backlog tasks into implementation and generate implementation plans
+description: Переводить подходящие задачи бэклога в реализацию и создавать планы реализации
 tools:
   - read
   - write
@@ -8,4 +8,4 @@ tools:
   - shell
 ---
 
-Use SKILL.md as the main operating instructions.
+Использовать SKILL.md как основные рабочие инструкции.

@@ -1,26 +1,26 @@
-# Selected external design guidance
+# Выбранные внешние рекомендации по дизайну
 
-Maintenance reference for the CRM design, React, and interface-audit skills.
-Reviewed on 2026-11-18. Links pin the reviewed repository revisions; they are
-provenance, not runtime dependencies or authority above project contracts.
-The adaptation is written for this repository rather than installing parallel
-skills with overlapping names. Preserve source attribution when revising it.
+Материал для сопровождения навыков CRM по дизайну, React и аудиту интерфейса.
+Источники проверены 2026-11-18. Ссылки закреплены на изученных версиях;
+это происхождение рекомендаций, а не зависимость выполнения и не правила
+выше контрактов проекта. Адаптация написана для этого репозитория без установки
+параллельных навыков с пересекающимися именами. При изменениях сохранять атрибуцию.
 
-| Source | Applied in CRM | Deliberately not adopted |
+| Источник | Применено в CRM | Намеренно не перенесено |
 |---|---|---|
-| [PracticalSwan frontend-design v2.0](https://github.com/PracticalSwan/agent-skills/blob/1d800c81c5af4eec2e8ed4a2bfb8adda4e76ceac/frontend-design/SKILL.md) | Working-product hierarchy, purposeful grouping and color, complete states, rendered comparisons | Universal weighted scores, unrelated marketing/immersive modes, replacement of stronger project mobile criteria |
-| [Anthropic frontend-design](https://github.com/anthropics/skills/blob/e4bb5d960d87126ff3b3a8af1a104b7db67560ba/skills/frontend-design/SKILL.md) | Explicit visual thesis, intentional typography and palette, critique of decoration and templated composition | Hero-first layouts, novelty as a goal, typeface or stack replacement, arbitrary raw colors in production components |
-| [Vercel React best practices](https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/react-best-practices/SKILL.md) | Independent request concurrency, responsive interactions, measured rendering and bundle work | Next.js/RSC APIs, automatic dependency additions, unconditional memoization, bypassing project API facades |
-| [Vercel composition patterns](https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/composition-patterns/SKILL.md) | Explicit variants and composition when actual caller complexity warrants them | Blanket bans on booleans, unnecessary providers, broad component rewrites |
-| [Vercel audit skill](https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/web-design-guidelines/SKILL.md) and [interface checklist](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md) | Inspect form labels, focus, recovery, long content, input methods, and layout stability | Live upstream policy replacement, English Title Case in Russian UI, blanket autocomplete/keyboard-handler rules, list-size-only virtualization |
+| [PracticalSwan: проектирование интерфейсов v2.0](https://github.com/PracticalSwan/agent-skills/blob/1d800c81c5af4eec2e8ed4a2bfb8adda4e76ceac/frontend-design/SKILL.md) | Рабочая иерархия, осмысленная группировка и цвет, полные состояния, отрисованные сравнения | Универсальные взвешенные оценки, посторонние рекламные и иммерсивные режимы, замена более строгих мобильных правил проекта |
+| [Anthropic: проектирование интерфейсов](https://github.com/anthropics/skills/blob/e4bb5d960d87126ff3b3a8af1a104b7db67560ba/skills/frontend-design/SKILL.md) | Явный визуальный замысел, осознанная типографика и палитра, критика декора и шаблонной композиции | Обязательный рекламный первый экран, новизна как цель, замена шрифта или стека, произвольные сырые цвета в рабочих компонентах |
+| [Vercel: практики React](https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/react-best-practices/SKILL.md) | Параллельные независимые запросы, отзывчивость, измеренное улучшение отрисовки и сборки | API Next.js/RSC, автоматическое добавление зависимостей, безусловная мемоизация, обход API-фасадов проекта |
+| [Vercel: композиция компонентов](https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/composition-patterns/SKILL.md) | Явные варианты и композиция при подтверждённой сложности использования | Безусловный запрет булевых параметров, ненужные провайдеры, массовое переписывание компонентов |
+| [Vercel: навык аудита](https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/web-design-guidelines/SKILL.md) и [список проверок интерфейса](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md) | Проверка подписей форм, фокуса, восстановления, длинных данных, способов ввода и стабильности раскладки | Автоматическая замена правил внешним источником, английский регистр заголовков в русском интерфейсе, общие запреты автозаполнения и требования обработчиков клавиатуры, виртуализация только по длине списка |
 
-UX content usefulness and before/after scenario evidence live in
-`../../crm-ux-design/SKILL.md` and its contract reference. Visual comparisons
-live in `visual-direction.md`; acceptance separates defects from opportunities
-in `visual-review.md`. React mechanics and independent audits retain their own
-skills. Do not copy those workflows into this provenance file.
+Полезность информации и доказательства сценария до/после описаны в
+`../../crm-ux-design/SKILL.md` и его шаблоне контракта. Визуальные сравнения —
+в `visual-direction.md`; разделение дефектов и возможностей при приёмке —
+в `visual-review.md`. Механика React и независимые аудиты остаются в своих навыках.
+Не копировать эти процессы в файл происхождения рекомендаций.
 
-When updating upstream revisions, inspect the changed source and retain only
-guidance that improves a demonstrated CRM use case. Check local routing,
-backend ownership, current components, Russian copy, and mobile acceptance for
-conflicts. Updating a source link never approves a product or visual change.
+При обновлении версии изучить изменения источника и оставить только полезное
+для доказанного случая CRM. Проверить совместимость с выбором навыков,
+серверной ответственностью, текущими компонентами, русскими текстами и мобильной
+приёмкой. Обновление ссылки само по себе не согласует продуктовый или визуальный выбор.

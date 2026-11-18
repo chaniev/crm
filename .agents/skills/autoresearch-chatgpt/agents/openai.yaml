@@ -1,4 +1,4 @@
 interface:
-  display_name: "Autoresearch for ChatGPT"
-  short_description: "Optimize skills with scored, isolated trials"
-  default_prompt: "Use $autoresearch-chatgpt to benchmark and improve an attached skill with bounded, isolated evaluations."
+  display_name: "Экспериментальное улучшение навыков"
+  short_description: "Улучшение навыков через изолированные эксперименты"
+  default_prompt: "Используй $autoresearch-chatgpt, чтобы измерить и улучшить приложенный навык в ограниченных изолированных экспериментах."

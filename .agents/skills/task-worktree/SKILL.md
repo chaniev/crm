@@ -1,24 +1,24 @@
 ---
 name: task-worktree
-description: Create, resume, verify, and safely clean up isolated Git worktrees for CRM implementation tasks. Use before starting or resuming any task that changes project code, when several tasks must run in parallel, when an implementation plan declares a branch, when a task needs an isolated Docker Compose stack, or when a merged task workspace must be removed.
+description: Создавать, возобновлять, проверять и безопасно удалять изолированные рабочие деревья Git для задач реализации CRM. Использовать до начала или возобновления изменения кода, при параллельных задачах, заданной планом ветке, необходимости отдельного Docker Compose или удалении рабочей копии уже объединённой задачи.
 ---
 
-# Task worktree
+# Рабочая копия задачи
 
-Keep the primary repository directory on `main`. Perform implementation only
-in a dedicated task branch checked out in a separate Git worktree.
+Основной каталог репозитория оставлять на `main`. Реализацию вести только
+в отдельной ветке задачи, открытой в отдельном рабочем дереве Git.
 
-## Establish the task identity
+## Определить задачу
 
-Determine:
+Установить:
 
-- task ID and short name;
-- intended branch from the implementation plan, if present;
-- primary repository directory;
-- worktree parent directory;
-- whether project services must run for this task.
+- идентификатор и краткое название задачи;
+- ветку из плана реализации, если она задана;
+- основной каталог репозитория;
+- родительский каталог рабочих копий;
+- необходимость запуска сервисов проекта для задачи.
 
-Use the plan's branch verbatim. Otherwise choose exactly one prefix:
+Использовать ветку плана без изменений. Иначе выбрать ровно один префикс:
 
 ```text
 feature/TASK-XXX-short-name
@@ -26,18 +26,18 @@ fix/TASK-XXX-short-name
 refactor/TASK-XXX-short-name
 ```
 
-Default the worktree path to a sibling of the primary repository:
+По умолчанию размещать рабочую копию рядом с основным репозиторием:
 
 ```text
 ../crm-worktrees/TASK-XXX-short-name
 ```
 
-Adjust the parent path to the user's local layout when necessary, but keep the
-task worktree outside the primary repository directory.
+При необходимости учитывать расположение каталогов пользователя, но оставлять
+рабочую копию задачи вне основного каталога репозитория.
 
-## Inspect before mutating
+## Проверить состояние до изменений
 
-From any directory inside the repository, inspect:
+Из любого каталога репозитория проверить:
 
 ```bash
 git rev-parse --show-toplevel
@@ -48,52 +48,51 @@ git branch --list '<intended-branch>'
 git branch --remotes --list 'origin/<intended-branch>'
 ```
 
-Locate the primary worktree from `git worktree list --porcelain`; do not assume
-the current directory is primary.
+Найти основное рабочее дерево через `git worktree list --porcelain`;
+не считать текущий каталог основным без проверки.
 
-Stop and report the conflict when:
+Остановиться и сообщить конфликт, если:
 
-- the task branch is checked out in a worktree owned by a different task, or
-  its ownership cannot be established;
-- a target directory exists but is not the registered task worktree;
-- a branch or worktree appears to belong to another task;
-- the intended branch differs from the implementation plan;
-- the primary worktree has unexplained changes that make coordination unsafe.
+- ветка открыта в рабочем дереве другой задачи или её принадлежность неясна;
+- целевой каталог существует, но не является зарегистрированной копией задачи;
+- ветка или рабочее дерево, вероятно, принадлежат другой задаче;
+- предполагаемая ветка отличается от плана;
+- в основной копии есть необъяснённые изменения, делающие координацию небезопасной.
 
-Do not delete, overwrite, stash, reset, or force-clean existing work.
+Не удалять, не перезаписывать, не прятать в stash, не сбрасывать и не очищать
+принудительно существующую работу.
 
-A registered worktree belonging to this task is a resume target, not a
-conflict. Verify its branch and change ownership, then continue there using
-the resume procedure below.
+Зарегистрированная копия этой задачи — место продолжения, а не конфликт.
+Проверить ветку и принадлежность изменений, затем продолжить по процедуре ниже.
 
-## Refresh the base
+## Обновить базовую версию
 
-Run from the primary repository:
+Выполнить в основном репозитории:
 
 ```bash
 git fetch origin
 git show-ref --verify --quiet refs/remotes/origin/main
 ```
 
-Use `origin/main` as the base. Do not require switching or pulling the primary
-worktree to create a task workspace.
+Использовать базу `origin/main`. Создание рабочей копии не требует переключения
+или получения изменений через pull в основной копии.
 
-## Resume an existing workspace
+## Продолжить в существующей копии
 
-If the intended branch is already assigned to a registered worktree:
+Если нужная ветка уже назначена зарегистрированному рабочему дереву:
 
-1. reuse that worktree;
-2. verify its branch and status;
-3. continue only when its existing changes belong to the same task;
-4. do not create a duplicate branch or worktree.
+1. Переиспользовать его.
+2. Проверить ветку и состояние.
+3. Продолжать, только если существующие изменения принадлежат этой задаче.
+4. Не создавать дублирующую ветку или рабочее дерево.
 
-If the local branch exists but has no worktree:
+Если локальная ветка есть, но рабочего дерева нет:
 
 ```bash
 git worktree add '<worktree-path>' '<intended-branch>'
 ```
 
-If only the remote task branch exists:
+Если существует только удалённая ветка задачи:
 
 ```bash
 git worktree add \
@@ -102,13 +101,13 @@ git worktree add \
   'origin/<intended-branch>'
 ```
 
-Do not rebase or reset an existing task branch merely to make it match the
-latest `origin/main`. Report base drift and follow the task's integration
-decision.
+Не переносить коммиты и не сбрасывать существующую ветку только ради совпадения
+с последней `origin/main`. Сообщить расхождение базы и следовать решению
+об интеграции задачи.
 
-## Create a new workspace
+## Создать новую копию
 
-Only when neither a local nor remote task branch exists, run:
+Только при отсутствии локальной и удалённой веток задачи выполнить:
 
 ```bash
 git worktree add \
@@ -117,12 +116,11 @@ git worktree add \
   origin/main
 ```
 
-Continue the task from `<worktree-path>`. Do not change project code in the
-primary repository directory.
+Продолжить из `<worktree-path>`. Не менять код проекта в основном каталоге репозитория.
 
-## Verify before implementation
+## Проверить перед реализацией
 
-Inside the task worktree, run:
+В рабочем дереве задачи выполнить:
 
 ```bash
 git rev-parse --show-toplevel
@@ -131,28 +129,26 @@ git status --short --branch
 git merge-base --is-ancestor origin/main HEAD
 ```
 
-Confirm:
+Подтвердить:
 
-- repository root equals the registered task worktree;
-- current branch equals the intended branch;
-- status contains no unexplained changes;
-- `origin/main` is an ancestor for a newly created task branch.
+- корень репозитория совпадает с зарегистрированным рабочим деревом задачи;
+- текущая ветка совпадает с ожидаемой;
+- нет необъяснённых изменений;
+- для новой ветки `origin/main` является предком.
 
-The ancestor check does not prove that an old resumed branch is current.
-Report its base drift rather than silently rebasing it.
+Проверка предка не доказывает актуальность старой возобновлённой ветки.
+Сообщать расхождение базы, а не молча переносить её коммиты.
 
-Return the verified worktree path, branch, base, and current commit before
-implementation begins.
+До реализации вернуть проверенные путь рабочей копии, ветку, базу и текущий коммит.
 
-## Isolate a local CRM stack
+## Изолировать локальный запуск CRM
 
-Skip runtime setup when the task needs only static checks or component-level
-tests.
+Пропустить настройку запуска, если достаточно статических или компонентных проверок.
 
-When starting Docker Compose, create a task-local `.env` from
-`deploy/.env.example`. Never commit it.
+Для Docker Compose создать локальный `.env` задачи из `deploy/.env.example`.
+Никогда не включать его в коммит.
 
-Set unique values:
+Задать уникальные значения:
 
 ```env
 COMPOSE_PROJECT_NAME=crm-task-xxx
@@ -161,16 +157,16 @@ FRONTEND_PORT=<unused-host-port>
 BOT_ENABLED=false
 ```
 
-Before choosing ports, inspect active Compose projects and listening ports.
-Do not derive a port only from the task number without checking availability.
+До выбора портов проверить активные проекты Compose и занятые порты.
+Не вычислять порт только из номера задачи без проверки доступности.
 
-Keep `BOT_ENABLED=false` by default. Enable it only when:
+По умолчанию сохранять `BOT_ENABLED=false`. Включать бота, только если:
 
-- bot runtime validation is required;
-- its Telegram token is configured locally;
-- no other running stack uses that token for long polling.
+- нужна проверка его работы;
+- токен Telegram настроен локально;
+- другой экземпляр не использует этот токен для длительного опроса.
 
-Start and operate the stack with the task-local environment:
+Запускать и обслуживать проект с окружением задачи:
 
 ```bash
 docker compose \
@@ -180,34 +176,33 @@ docker compose \
   up --build -d
 ```
 
-Never use another task's Compose project, ports, containers, networks, or
-volumes.
+Не использовать проект Compose, порты, контейнеры, сети или тома другой задачи.
 
-## Handoff after implementation
+## Передать результат реализации
 
-Before handoff:
+Перед завершением:
 
-1. run repository-required validation;
-2. verify intended changes are committed;
-3. verify no unexplained files remain;
-4. push the task branch when the user requested or the workflow requires it;
-5. report worktree path, branch, commit SHA, validation, and runtime project.
+1. Выполнить обязательные проверки репозитория.
+2. Убедиться, что нужные изменения закоммичены.
+3. Проверить отсутствие необъяснённых файлов.
+4. Отправить ветку, если это запросил пользователь или требует процесс.
+5. Сообщить путь рабочей копии, ветку, SHA коммита, результаты проверок и проект запуска.
 
-Do not remove the task worktree merely because implementation is complete.
-Keep it until the branch is merged or the user explicitly requests cleanup.
+Не удалять рабочее дерево только потому, что реализация закончена. Сохранить
+его до объединения ветки или явного запроса пользователя на очистку.
 
-## Clean up safely
+## Безопасно очистить ресурсы
 
-Before cleanup, resolve the exact worktree, branch, and Compose project.
-Confirm:
+До очистки установить точные рабочее дерево, ветку и проект Compose.
+Подтвердить:
 
-- the worktree belongs to the requested task;
-- no required uncommitted changes remain;
-- required commits are available outside the worktree;
-- the branch is merged, or the user explicitly authorized removal;
-- no task stack must remain running.
+- копия принадлежит нужной задаче;
+- нет необходимых незакоммиченных изменений;
+- нужные коммиты доступны вне удаляемого дерева;
+- ветка объединена или пользователь явно разрешил удаление;
+- запущенная среда задачи больше не должна оставаться доступной.
 
-Stop the exact task stack without deleting volumes by default:
+Остановить именно среду задачи, по умолчанию без удаления томов:
 
 ```bash
 docker compose \
@@ -218,19 +213,19 @@ docker compose \
   down
 ```
 
-Remove the worktree and prune stale administrative records:
+Удалить рабочее дерево и очистить устаревшие служебные записи:
 
 ```bash
 git worktree remove '<worktree-path>'
 git worktree prune
 ```
 
-Delete the local task branch only after confirming it is merged:
+Удалять локальную ветку только после проверки, что она объединена:
 
 ```bash
 git branch -d '<intended-branch>'
 ```
 
-Do not use `git worktree remove --force`, `git branch -D`, destructive resets,
-or `docker compose down -v` as normal cleanup. Require explicit user approval
-and an exact target for destructive cleanup.
+Не использовать `git worktree remove --force`, `git branch -D`, разрушительные
+сбросы или `docker compose down -v` как обычную очистку. Для разрушительных
+действий требовать явное согласие пользователя и точную цель.

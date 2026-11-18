@@ -1,116 +1,116 @@
 ---
 name: react-best-practices
-description: Use when implementing, reviewing, profiling, or refactoring the CRM React 19 frontend built with TypeScript, Vite, and Mantine, especially for component boundaries, state flow, effects, asynchronous data loading, rendering performance, large lists, forms, bundle behavior, and frontend reliability. Do not use for UX workflow design or backend business rules.
+description: Реализовывать, проверять, профилировать и рефакторить клиентскую часть CRM на React 19, TypeScript, Vite и Mantine, особенно границы компонентов, состояние, эффекты, асинхронную загрузку, производительность отрисовки, большие списки, формы, сборку и надёжность. Не использовать для проектирования пользовательских сценариев или серверных бизнес-правил.
 ---
 
-# React Best Practices
+# Практики разработки на React
 
-Improve implementation quality without redesigning the approved CRM workflow.
+Улучшать качество реализации, сохраняя согласованный сценарий CRM.
 
-## Establish the boundary
+## Определить границы
 
-1. Read the nearest `AGENTS.md`.
-2. Inspect the affected feature, shared components, API client, routes, tests,
-   and nearby project conventions.
-3. For responsive CRM work, read
+1. Прочитать ближайший `AGENTS.md`.
+2. Изучить затронутую функциональность, общие компоненты, API-клиент,
+   маршруты, тесты и ближайшие соглашения проекта.
+3. Для адаптивного интерфейса CRM прочитать
    `.agents/skills/crm-mobile-first-ui/SKILL.md`.
-4. Preserve React 19, TypeScript, Vite, Mantine, Onest, and established
-   project abstractions.
+4. Сохранить React 19, TypeScript, Vite, Mantine, Onest и действующие абстракции.
 
-Do not introduce Next.js APIs, Server Components, App Router, server actions,
-Next.js caching, Tailwind, or a second component library.
+Не добавлять API Next.js, Server Components, App Router, серверные действия,
+кэширование Next.js, Tailwind или вторую библиотеку компонентов.
 
-## Keep state minimal
+## Минимизировать состояние
 
-- Derive values during render when they can be computed from props or state.
-- Use effects only to synchronize with external systems.
-- Keep transient UI state close to the component that owns it.
-- Avoid duplicated server data in unrelated local or global stores.
-- Use functional state updates when the next value depends on the previous one.
-- Keep form control mode deliberate; do not accidentally switch between
-  controlled and uncontrolled behavior.
+- Вычислять значения при отрисовке, если они выводятся из параметров или состояния.
+- Использовать эффекты только для синхронизации с внешними системами.
+- Держать временное состояние интерфейса рядом с владеющим им компонентом.
+- Не дублировать серверные данные в несвязанных локальных и глобальных хранилищах.
+- Использовать функциональное обновление состояния, если новое значение зависит от старого.
+- Осознанно выбирать модель формы; не переключаться случайно между управляемыми
+  и неуправляемыми полями.
 
-## Keep asynchronous behavior explicit
+## Явно задавать асинхронное поведение
 
-- Represent loading, success, empty, stale, and failure states intentionally.
-- Prevent stale responses from overwriting newer user intent.
-- Cancel or ignore obsolete work when navigation, filters, or search changes.
-- Avoid request waterfalls when independent data can load concurrently.
-- Do not use an effect to perform an action that belongs in an event handler.
-- Preserve backend `ProblemDetails` and validation semantics instead of
-  inventing client-side business rules.
+- Намеренно представлять загрузку, успех, отсутствие данных, устаревание и сбой.
+- Не позволять устаревшему ответу перезаписывать более новое намерение пользователя.
+- Отменять или игнорировать устаревшую работу при смене маршрута, фильтра или поиска.
+- Не выполнять независимые запросы последовательно, если данные можно загрузить параллельно.
+- Не выполнять эффектом действие, принадлежащее обработчику события.
+- Сохранять серверную семантику `ProblemDetails` и валидации, не изобретая
+  клиентские бизнес-правила.
 
-## Control rendering cost
+## Контролировать стоимость отрисовки
 
-- Measure or identify a concrete render problem before adding memoization.
-- Keep list keys stable and based on durable entity identity.
-- Avoid recreating expensive derived collections on unrelated renders.
-- Split components at ownership and update-frequency boundaries, not by size
-  alone.
-- Virtualize only when data volume and measured interaction cost justify it.
-- Keep context values stable and narrow when frequent provider updates cause
-  broad rendering.
+- До мемоизации измерить или выявить конкретную проблему отрисовки.
+- Использовать стабильные ключи списков на основе постоянной идентичности сущности.
+- Не пересоздавать дорогие производные коллекции при несвязанных перерисовках.
+- Разделять компоненты по ответственности и частоте обновления, а не только по размеру.
+- Виртуализировать только при обосновании объёмом данных и измеренной стоимостью взаимодействия.
+- Сужать и стабилизировать значения контекста, если частые обновления провайдера
+  вызывают широкую перерисовку.
 
-## Compose around real variation
+## Строить композицию по реальным вариантам
 
-- When a shared component accumulates interacting boolean modes, inspect its
-  actual callers. Prefer explicit variants or composed children when they make
-  valid combinations and ownership clearer; a simple boolean is not a defect.
-- Reuse existing Mantine and CRM composition before introducing a provider or
-  wrapper. Lift state only to the closest owner that needs to coordinate it.
-- Keep props, events, pending states, and API error ownership explicit. A shared
-  component must not infer permissions or CRM rules from presentation options.
-- Apply performance advice to the installed React/Vite runtime. Keep inputs
-  responsive, avoid independent-request waterfalls, and load heavy optional
-  surfaces on demand when justified. Do not import Next.js mechanisms, switch
-  form control mode, add SWR, or replace API facades solely to match an example.
+- Если общий компонент накапливает взаимодействующие булевы режимы, изучить
+  реальные места использования. Предпочитать явные варианты или композицию
+  дочерних элементов, если так понятнее допустимые сочетания и ответственность;
+  простой булев параметр сам по себе не дефект.
+- Переиспользовать композицию Mantine и CRM до добавления провайдера или обёртки.
+  Поднимать состояние только к ближайшему владельцу, которому нужна координация.
+- Явно определять параметры, события, состояния ожидания и ответственность
+  за ошибки API. Общий компонент не должен выводить права или правила CRM
+  из параметров оформления.
+- Применять советы по производительности к установленной среде React/Vite.
+  Сохранять отзывчивость ввода, избегать цепочек независимых запросов и при
+  обосновании загружать тяжёлые необязательные части по требованию. Не переносить
+  механизмы Next.js, не менять модель форм, не добавлять SWR и не заменять
+  API-фасады только ради соответствия примеру.
 
-## Measure user-visible performance
+## Измерять заметную пользователю производительность
 
-- Do not claim that LCP, INP, or CLS is failing from source inspection alone.
-  Source can identify a risk; runtime evidence establishes a failure.
-- Record equivalent conditions before and after an optimization. Distinguish a
-  browser trace, a controlled lab measurement, and production field data.
-- Prioritize INP for frequent CRM operations and CLS during loading, filtering,
-  navigation, and operational-state changes.
-- Use React profiling to identify component work before adding memoization or
-  virtualization. State the interaction and data volume measured.
-- Inspect production build output when changing route loading, dependencies, or
-  import structure.
-- Do not claim immediate field improvement from a local run; field metrics need
-  new production visits.
+- Не утверждать нарушение LCP, INP или CLS только по коду. Код выявляет риск,
+  измерение работающего приложения подтверждает проблему.
+- Записывать сопоставимые условия до/после оптимизации. Различать трассу браузера,
+  контролируемое лабораторное измерение и данные реального использования.
+- Для частых операций CRM приоритетен INP; при загрузке, фильтрации, навигации
+  и смене рабочих состояний — CLS.
+- До мемоизации или виртуализации выявить работу компонентов профилированием React.
+  Указать измеренное взаимодействие и объём данных.
+- Изучать результат сборки для промышленной эксплуатации при изменении загрузки маршрутов,
+  зависимостей или структуры импортов.
+- Не заявлять улучшение реальных пользовательских метрик по локальному запуску;
+  для этого нужны новые посещения рабочего приложения.
 
-## Protect bundle and runtime behavior
+## Сохранить поведение сборки и выполнения
 
-- Reuse installed dependencies and shared components before adding packages.
-- Lazy-load route-level or genuinely heavy optional surfaces when it improves
-  initial interaction.
-- Avoid importing broad utility or icon entry points when a narrow import is
-  available in the current dependency version.
-- Verify production build output when changing dependency or import structure.
+- Переиспользовать установленные зависимости и общие компоненты до добавления пакетов.
+- Откладывать загрузку маршрутов и действительно тяжёлых необязательных частей,
+  когда это улучшает начальное взаимодействие.
+- Избегать широких точек импорта утилит и иконок, если текущая версия зависимости
+  позволяет узкий импорт.
+- Проверять результат сборки для промышленной эксплуатации при изменении зависимостей или импортов.
 
-## Validate
+## Проверить результат
 
-Use the root verification harness for the mandatory checks selected by the
-diff and task contract. Keep command definitions in
-`scripts/harness/commands.py`. Use targeted tests while developing; do not add
-a second mandatory baseline here or repeat unchanged checks without a relevant
-code, configuration, or environment change.
+Использовать корневую систему обязательных проверок по изменениям и контракту
+задачи. Определения команд хранить в `scripts/harness/commands.py`. При разработке
+запускать целевые тесты; не добавлять сюда второй обязательный общий набор
+и не повторять неизменные проверки без изменения кода, конфигурации или окружения.
 
-When user-visible behavior changes, run affected Playwright coverage and the
-mobile checks required by `crm-mobile-first-ui`.
+При изменении видимого поведения выполнить затронутые тесты Playwright
+и мобильные проверки, требуемые `crm-mobile-first-ui`.
 
-Return:
+Передать:
 
-- affected component and data-flow boundary;
-- confirmed problem or risk;
-- smallest compatible change;
-- behavior and performance intentionally preserved;
-- exact validation performed;
-- remaining browser, data-volume, or environment risk.
+- границы затронутых компонентов и потока данных;
+- подтверждённую проблему или риск;
+- минимальное совместимое изменение;
+- намеренно сохранённые поведение и производительность;
+- точные выполненные проверки;
+- оставшиеся риски браузера, объёма данных или окружения.
 
-## Adaptation sources
+## Источники адаптации
 
-Selected Vercel React and composition guidance is tracked in
-[adapted sources](../crm-mobile-first-ui/references/adapted-sources.md).
-Read it when maintaining this skill, not as an additional implementation checklist.
+Выбранные рекомендации Vercel по React и композиции записаны в
+[источниках адаптации](../crm-mobile-first-ui/references/adapted-sources.md).
+Читать при сопровождении навыка, а не как дополнительный список проверок реализации.

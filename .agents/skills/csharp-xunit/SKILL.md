@@ -1,66 +1,67 @@
 ---
 name: csharp-xunit
-description: Use when creating, reviewing, or substantially restructuring xUnit tests in backend/tests/GymCrm.Tests for CRM domain behavior, ASP.NET Core endpoints, authorization, persistence, integration boundaries, regression fixes, or asynchronous C# code. Use for xUnit mechanics and test structure, while deriving behavior from existing CRM contracts and project conventions.
+description: Создавать, проверять и существенно перерабатывать тесты xUnit в backend/tests/GymCrm.Tests для бизнес-поведения CRM, обработчиков ASP.NET Core, авторизации, хранения данных, интеграционных границ, исправления регрессий и асинхронного C#-кода. Использовать для механики xUnit и структуры тестов; ожидаемое поведение определять по существующим контрактам CRM и соглашениям проекта.
 ---
 
-# C# xUnit Testing
+# Тестирование C# с xUnit
 
-Create durable behavior tests that follow the existing backend test suite.
+Создавать устойчивые тесты поведения в соответствии с существующим набором
+серверных тестов.
 
-## Establish the contract
+## Определить контракт
 
-1. Read the root and `backend/AGENTS.md`.
-2. Inspect the changed entry point, application flow, authorization boundary,
-   persistence behavior, and nearby tests.
-3. Derive expected behavior from production contracts and confirmed regression
-   risk, not from private implementation details.
-4. Reuse existing fixtures, factories, test host, database setup, naming, and
-   assertion style.
+1. Прочитать корневой `AGENTS.md` и `backend/AGENTS.md`.
+2. Изучить изменённую точку входа, прикладной сценарий, границу авторизации,
+   поведение хранения данных и соседние тесты.
+3. Выводить ожидаемое поведение из рабочих контрактов и подтверждённого риска
+   регрессии, а не из закрытых деталей реализации.
+4. Переиспользовать существующие фикстуры, фабрики, тестовый хост, настройку
+   базы данных, соглашения об именах и стиль проверок.
 
-Do not introduce a second assertion, mocking, fixture, or data-generation
-library without a demonstrated gap.
+Не добавлять вторую библиотеку проверок, имитаций, фикстур или генерации данных
+без доказанного недостатка существующих средств.
 
-## Select coverage
+## Выбрать покрытие
 
-Cover the smallest set that proves the changed contract:
+Покрыть минимальный набор, доказывающий изменённый контракт:
 
-- one valid path;
-- one invalid or failure path;
-- negative authorization and access-scope behavior when affected;
-- serialization, validation, and `ProblemDetails` behavior at API boundaries;
-- transaction, concurrency, duplicate submission, or idempotency behavior
-  when relevant;
-- date, timezone, sorting, filtering, and pagination boundaries when touched;
-- a regression test that fails for the original defect.
+- один корректный путь;
+- один некорректный путь или сбой;
+- отказ в авторизации и ограничения области доступа, если они затронуты;
+- сериализацию, валидацию и `ProblemDetails` на границах API;
+- транзакции, конкурентное выполнение, повторную отправку или идемпотентность,
+  когда это применимо;
+- границы дат, часовых поясов, сортировки, фильтрации и пагинации при их изменении;
+- регрессионный тест, который падает на исходном дефекте.
 
-Use `[Theory]` only when multiple inputs prove the same behavior contract.
-Prefer named test cases or readable data sources over opaque positional data.
+Использовать `[Theory]` только когда несколько входов проверяют один контракт
+поведения. Предпочитать именованные случаи и читаемые источники данных
+непонятным позиционным наборам.
 
-## Keep tests reliable
+## Обеспечить надёжность тестов
 
-- Await asynchronous operations; never block with `.Result` or `.Wait()`.
-- Propagate cancellation where the tested contract supports it.
-- Avoid shared mutable state and order-dependent tests.
-- Make time, identifiers, and test data deterministic.
-- Assert observable outcomes and material side effects.
-- Keep fixture scope no broader than required.
-- Do not weaken production validation or bypass authorization solely to make
-  setup easier.
-- Do not remove or rewrite unrelated tests to make a change pass.
+- Ожидать асинхронные операции; не блокировать их через `.Result` или `.Wait()`.
+- Передавать отмену, если тестируемый контракт её поддерживает.
+- Избегать общего изменяемого состояния и зависимости от порядка тестов.
+- Делать время, идентификаторы и тестовые данные детерминированными.
+- Проверять наблюдаемые результаты и существенные побочные эффекты.
+- Не расширять область фикстуры сверх необходимого.
+- Не ослаблять рабочую валидацию и не обходить авторизацию ради удобства подготовки.
+- Не удалять и не переписывать посторонние тесты ради успешной проверки изменения.
 
-## Validate
+## Проверить результат
 
-Use targeted tests while developing and the root verification harness for the
-mandatory checks selected by the diff and task contract. Keep command
-definitions in `scripts/harness/commands.py`; do not add another full-suite
-command here. Repeat checks when relevant code, configuration, or environment
-changes, not merely because another skill requests the same baseline.
+При разработке запускать целевые тесты, а для обязательных проверок по изменениям
+и контракту задачи использовать корневую систему проверок. Определения команд
+хранить в `scripts/harness/commands.py`; не добавлять сюда ещё одну команду
+полного набора. Повторять проверки при изменении соответствующего кода,
+конфигурации или окружения, а не потому, что другой навык требует тот же набор.
 
-Return:
+Передать:
 
-- behavior contract covered;
-- tests added or changed;
-- reason for Fact, Theory, fixture, or integration-test choices;
-- exact commands and results;
-- failure, authorization, persistence, or environment boundaries not covered;
-- remaining regression risk.
+- покрытый контракт поведения;
+- добавленные или изменённые тесты;
+- обоснование выбора Fact, Theory, фикстуры или интеграционного теста;
+- точные команды и результаты;
+- непокрытые границы сбоев, авторизации, хранения или окружения;
+- оставшийся риск регрессии.

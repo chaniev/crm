@@ -1,50 +1,51 @@
-# Mantine mobile patterns
+# Мобильные подходы Mantine
 
-Use the installed Mantine version and inspect existing shared components before adding a pattern.
+Использовать установленную версию Mantine и изучать общие компоненты до добавления подхода.
 
-## Selection guide
+## Выбор подхода
 
-| Need | Preferred direction |
+| Потребность | Предпочтительное решение |
 |---|---|
-| Compact mobile filters | Trigger button plus `Drawer`; keep search visible when it is the primary locator |
-| Secondary row actions | `Menu` with a clear accessible label |
-| Destructive confirmation | `Modal` with explicit entity and consequence |
-| Short mobile form | Single-column `Stack`; keep validation near the field |
-| Dense desktop data | Task-oriented mobile rows/cards and desktop table from the same typed data model |
-| Temporary status | Notification for transient feedback; persistent inline state when recovery is required |
-| Segmented mode switch | Use only for a small mutually exclusive set; do not use as navigation for many destinations |
+| Компактные мобильные фильтры | Кнопка открытия и `Drawer`; поиск видим, если это основной способ найти объект |
+| Второстепенные действия строки | `Menu` с понятным доступным именем |
+| Подтверждение разрушительного действия | `Modal` с явными сущностью и последствием |
+| Короткая мобильная форма | Одноколоночный `Stack`; валидация рядом с полем |
+| Плотные настольные данные | Мобильные строки/карточки по задаче и настольная таблица из одной типизированной модели |
+| Временный статус | Уведомление для краткой обратной связи; постоянное встроенное состояние, если требуется восстановление |
+| Сегментированный переключатель режима | Только для небольшого взаимоисключающего набора, не для навигации по многим разделам |
 
-## Rules
+## Правила
 
-- Prefer existing shared wrappers and theme tokens over raw inline values.
-- Keep DOM and accessible names stable across breakpoints where practical.
-- Responsive variants must expose equivalent information and operations.
-- A `Drawer` or `Modal` must have a clear title, close behavior, initial focus strategy, and focus return.
-- Icon-only controls require accessible labels and 44 x 44 px interaction areas.
-- Do not add an icon when text alone is clearer.
-- Do not place every row action permanently on mobile.
-- Do not hide the primary row action in `Menu`.
-- Avoid nested modals and nested scroll regions.
-- Preserve pending state and prevent repeated submission.
-- Bottom-anchored controls combine normal spacing with `env(safe-area-inset-bottom)` or an equivalent inset.
-- Full-height mobile `Drawer` and `Modal` surfaces use dynamic viewport sizing and retain a usable compact-height scroll path.
+- Предпочитать существующие общие обёртки и токены сырым локальным значениям.
+- По возможности сохранять DOM и доступные имена между контрольными ширинами.
+- Адаптивные варианты предоставляют эквивалентные данные и операции.
+- `Drawer` и `Modal` имеют понятный заголовок, закрытие, начальный фокус и возврат фокуса.
+- Кнопкам только с иконкой нужны доступное имя и область взаимодействия 44 x 44 px.
+- Не добавлять иконку, когда текст понятнее.
+- Не показывать постоянно все действия каждой строки на мобильном.
+- Не прятать основное действие строки в `Menu`.
+- Избегать вложенных диалогов и областей прокрутки.
+- Сохранять состояние ожидания и предотвращать повторную отправку.
+- Нижние элементы сочетают обычный отступ с `env(safe-area-inset-bottom)` или аналогом.
+- Полноэкранные мобильные `Drawer` и `Modal` используют динамический размер видимой области
+  и сохраняют рабочую прокрутку при малой высоте.
 
-## Filters
+## Фильтры
 
-- Keep the filter surface collapsed by default on mobile unless filtering is the screen's primary task.
-- Show active state on the trigger.
-- Provide clear application semantics: immediate application or explicit apply, not a mixture.
-- Preserve selections while the surface is temporarily closed.
-- Reset only the affected filter scope and make the effect predictable.
-- Do not display redundant headings, explanatory copy, counts, and reset controls when they do not improve the task.
+- На мобильном по умолчанию сворачивать фильтры, если фильтрация не основная задача.
+- Показывать активность фильтров на кнопке открытия.
+- Явно выбрать немедленное применение или отдельное подтверждение, не смешивать их.
+- Сохранять выбор при временном закрытии панели.
+- Сбрасывать только затронутую область фильтров с предсказуемым результатом.
+- Не показывать дублирующие заголовки, пояснения, счётчики и сброс без пользы для задачи.
 
-## Forms
+## Формы
 
-- Use the correct input type and autocomplete attributes.
-- Keep text inputs, textareas, and selects at 16 CSS px or larger on iPhone.
-- Keep labels persistent for ordinary forms, multiple or ambiguous fields, and
-  period/date/scope controls. A sole obvious route-level search may use a
-  visually-hidden label or ARIA name, but never placeholder-only identification.
-- Scroll or focus the first invalid field after submit.
-- Preserve entered values after recoverable API errors.
-- Keep the submit action visible or reachable with the mobile keyboard open.
+- Использовать правильный тип ввода и атрибуты автозаполнения.
+- На iPhone текст в полях, многострочном вводе и списках — от 16 CSS px.
+- Сохранять постоянные подписи обычных форм, нескольких или неоднозначных полей,
+  элементов периода, даты и области. Единственный очевидный поиск страницы
+  может иметь визуально скрытую подпись или ARIA-имя, но не только подсказку внутри поля.
+- После отправки прокручивать к первому ошибочному полю или переводить на него фокус.
+- Сохранять введённые значения после исправимой ошибки API.
+- Кнопка отправки видима или достижима при открытой мобильной клавиатуре.
