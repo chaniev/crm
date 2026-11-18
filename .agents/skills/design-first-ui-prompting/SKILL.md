@@ -32,9 +32,12 @@ them as implementation annotations rather than inventing visual decoration.
 Also add a `VISUAL CONTRACT` block derived from the accepted visual brief.
 Name the intended character, density, hierarchy, project tokens and components,
 reference properties, directions to avoid, target viewports, and the quality
-criteria used to choose between variants. For material CRM redesigns, generate
-meaningfully different directions rather than color-only variations and do not
-treat an image as approval until the product owner selects a direction.
+criteria used to choose between variants. For material CRM workflow redesigns,
+compare meaningful task structures with the palette held stable. For palette
+selection, use the same approved composition, data, and states across color
+variants, following
+[visual direction](../crm-mobile-first-ui/references/visual-direction.md).
+Do not treat an image as approval until the product owner selects a direction.
 
 ## Core principle
 **Prompt like a design system, not a wish.**

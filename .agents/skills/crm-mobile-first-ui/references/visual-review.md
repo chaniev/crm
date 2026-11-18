@@ -31,6 +31,13 @@ remedy. Do not invent intent or discard evidence because correction needs a choi
 Attempt to falsify each finding before reporting it. Separate introduced or
 regressed issues from pre-existing observations.
 
+These gates classify defects; they do not prove that a compliant design is
+useful or visually satisfying. Keep improvement opportunities separate: name
+the observed surface or owner feedback, proposed change, expected task benefit,
+tradeoff, and a way to compare it. Label untested benefit as a hypothesis;
+do not invent a contract violation to justify exploring a better design.
+Opportunities are not blockers or authorization to redesign an approved flow.
+
 ## Inspect visual quality
 
 Score each dimension from 1 to 5 and attach concrete evidence; a number without
@@ -43,7 +50,7 @@ evidence is not a result.
 | Density | Information is compact without cramped targets, labels, or recovery paths |
 | Typography | Onest hierarchy, wrapping, numerals, and emphasis are consistent and readable |
 | Rhythm | Spacing and alignment follow a coherent system rather than local patchwork |
-| Visual identity | Surfaces, borders, color, icons, and emphasis match `frontend/DESIGN.md` |
+| Visual identity | Surfaces, borders, color, icons, and emphasis match the selected direction and its approved changes to `frontend/DESIGN.md` |
 | Interaction feedback | Focus, pending, disabled, success, error, and motion are legible |
 | Responsive integrity | Mobile and desktop are deliberate transformations of the same task |
 
@@ -51,6 +58,13 @@ Inspect at least 390 x 844, both target iPhone portrait sizes for a significant
 mobile workflow, and 1440 px. Include long realistic content and all applicable
 operational states. Use behavioral assertions for semantics and interaction;
 screenshots supplement rather than replace them.
+
+For simplification, compare the UX contract's before/after task and content
+decisions: confirm removed duplicates, discoverable deferred details, preserved
+context, and reachable frequent actions. For palette work, compare the same
+composition and data, including focus, selection, and consequential status
+states. Do not infer faster work from a cleaner screenshot or accept lost
+functionality in exchange for a higher visual score.
 
 ## Report
 
@@ -64,11 +78,15 @@ than omitting them to satisfy a count:
 
 Then provide:
 
+- a separate list of supported improvement opportunities when relevant to the
+  requested design review; none is a valid outcome;
 - the highest-leverage improvement;
 - comparison with the selected direction;
 - quality-rubric evidence;
 - validation performed and unverified device conditions;
 - one self-critique naming the weakest remaining design decision.
 
-Do not pad a clean review with preferences. `No supported findings` is a valid
-result.
+Do not pad a clean defect review with preferences. `No supported defects` is a
+valid result and does not mean that improvement opportunities were tested or
+the owner approved the design. A taste preference may guide a requested visual
+comparison when clearly attributed to its owner.

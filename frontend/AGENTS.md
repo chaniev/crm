@@ -36,7 +36,8 @@ For a new screen or materially changed workflow:
 3. Define the UX contract with `.agents/skills/crm-ux-design/SKILL.md` before
    visual layout decisions; prefer `ux-researcher` when available.
 4. Create a visual brief and three meaningfully different rendered directions;
-   prefer `ui-designer`. An approved user-supplied design replaces this step.
+   prefer `ui-designer`. Follow the skill's separation of task structure and
+   palette comparisons. An approved user-supplied design replaces this step.
 5. Record the product owner's selected or refined direction before production
    implementation.
 6. Convert the selected direction into an implementation-ready visual and
@@ -69,6 +70,19 @@ A small local visual correction that does not change the workflow may start
 with `ui-designer`, does not require three variants when the correction is
 deterministic, and still requires a rendered before/after check and proportional
 regression coverage.
+
+For an explicitly requested palette or visual-language redesign, use the
+corresponding mode in `crm-mobile-first-ui`. Preserve the approved workflow;
+color-only alternatives are valid for palette selection. Existing colors are
+the default, not a prohibition on proposing replacements within that scope.
+Record the owner's selection before production changes and update shared theme
+values and `frontend/DESIGN.md` together. This does not authorize changing
+business behavior, branding contracts, or the implementation stack.
+
+Workflow simplification must show concrete content decisions and comparable
+before/after task evidence in the UX contract. Design review distinguishes
+confirmed defects from improvement hypotheses; a clean compliance audit does
+not by itself establish usability, visual quality, or owner approval.
 
 Optional visual-generation guidance:
 

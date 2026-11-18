@@ -51,6 +51,20 @@ Next.js caching, Tailwind, or a second component library.
 - Keep context values stable and narrow when frequent provider updates cause
   broad rendering.
 
+## Compose around real variation
+
+- When a shared component accumulates interacting boolean modes, inspect its
+  actual callers. Prefer explicit variants or composed children when they make
+  valid combinations and ownership clearer; a simple boolean is not a defect.
+- Reuse existing Mantine and CRM composition before introducing a provider or
+  wrapper. Lift state only to the closest owner that needs to coordinate it.
+- Keep props, events, pending states, and API error ownership explicit. A shared
+  component must not infer permissions or CRM rules from presentation options.
+- Apply performance advice to the installed React/Vite runtime. Keep inputs
+  responsive, avoid independent-request waterfalls, and load heavy optional
+  surfaces on demand when justified. Do not import Next.js mechanisms, switch
+  form control mode, add SWR, or replace API facades solely to match an example.
+
 ## Measure user-visible performance
 
 - Do not claim that LCP, INP, or CLS is failing from source inspection alone.
@@ -94,3 +108,9 @@ Return:
 - behavior and performance intentionally preserved;
 - exact validation performed;
 - remaining browser, data-volume, or environment risk.
+
+## Adaptation sources
+
+Selected Vercel React and composition guidance is tracked in
+[adapted sources](../crm-mobile-first-ui/references/adapted-sources.md).
+Read it when maintaining this skill, not as an additional implementation checklist.

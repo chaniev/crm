@@ -19,6 +19,18 @@ new CRM workflow.
 
 Report conflicts instead of silently replacing project requirements.
 
+Use external interface guidelines as prompts to inspect actual behavior, not
+as new product requirements. Preserve Russian sentence case, Mantine semantics,
+the established form-control model, and project mobile acceptance. Do not add
+custom key handlers to native controls that already work by keyboard, disable
+autocomplete globally, or require virtualization from a list-length threshold
+alone. Check demonstrated behavior and measured cost before recommending change.
+
+If only source code is available, return concrete source observations and
+candidate defects separately from checks requiring runtime evidence. State that
+the audit is limited to source inspection; neither an empty defect list nor
+native library controls establish accessibility of the rendered form.
+
 ## Inspect
 
 Resolve one coherent route, flow, or change scope before inspecting. For a
@@ -81,9 +93,23 @@ Briefly list any additional material defects with location, evidence, and
 impact; do not hide them to satisfy a count. A clean review may return
 `No supported findings`; do not pad it with taste preferences.
 
+This result means no defect was substantiated within the audited scope; it is
+not approval of the palette or proof of an efficient workflow. If the request
+also includes design improvement, pass observed friction and owner preferences
+to `../crm-ux-design/SKILL.md` or
+`../crm-mobile-first-ui/references/visual-review.md`. Keep their hypotheses
+separate from audit defects and continue only within the requested scope.
+
 ## Validate
 
 Prefer semantic and behavior assertions over screenshot-only checks. Run
 affected lint, build, unit, and Playwright checks when modification is in
 scope. Clearly report checks requiring Simulator, physical iPhone, assistive
 technology, or manual browser verification.
+
+## Adaptation sources
+
+Selected Vercel interface checks and their exclusions are tracked in
+[adapted sources](../crm-mobile-first-ui/references/adapted-sources.md).
+Review upstream changes deliberately when maintaining this skill; do not fetch
+and apply a moving external checklist as authority on every audit.

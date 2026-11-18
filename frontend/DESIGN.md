@@ -11,6 +11,13 @@ Executable theme values and component behavior take precedence when this
 document drifts. Update this document together with an intentional visual-system
 change; do not treat an isolated local style as a new convention.
 
+An explicitly requested visual-language or palette redesign may propose
+replacements for current visual values through the selection workflow in
+`crm-mobile-first-ui`. Existing values describe the baseline, not an approved
+answer to that redesign. Keep the workflow, Mantine, Onest, semantic token
+ownership, and business status meanings intact; record the selected direction
+before production changes and update this document with the shared theme.
+
 Governing sources:
 
 - `src/theme/createGymCrmTheme.ts`;
@@ -252,7 +259,10 @@ A design is not approved because it compiles or satisfies a checklist. For a
 material redesign, acceptance requires:
 
 - an explicit UX contract and visual brief;
+- concrete content-removal/disclosure decisions and comparable before/after
+  task evidence when simplifying an existing workflow;
 - rendered alternatives or an already approved design;
+- palette comparison on one composition when color is an unresolved decision;
 - a recorded selected direction;
 - runtime comparison at mobile and desktop widths;
 - realistic content and consequential operational states;
@@ -261,3 +271,7 @@ material redesign, acceptance requires:
 
 Record approved deviations in the task's visual contract. Do not silently turn
 one exception into a global design rule.
+
+Separate substantiated defects from improvement hypotheses and owner taste.
+Passing compliance checks does not settle the latter or demonstrate faster
+task completion; use rendered comparisons and actual scenario evidence.

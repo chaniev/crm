@@ -1,6 +1,6 @@
 ---
 name: crm-mobile-first-ui
-description: Design, implement, review, or test CRM interfaces for coaches and gym administrators. Use for new screens, workflow redesigns, responsive behavior, interaction design, visual quality, and mobile acceptance in the React 19, Mantine, and Onest frontend. Preserve backend-owned CRM rules and use a rendered design gate before implementing material visual changes.
+description: Design, implement, review, or test CRM interfaces for coaches and gym administrators. Use for new screens, workflow simplification, palette or visual-language redesign, responsive behavior, and mobile acceptance in the React 19, Mantine, and Onest frontend. Preserve backend-owned CRM rules and use a rendered design gate before implementing material visual changes.
 ---
 
 # CRM UI design and implementation
@@ -15,9 +15,11 @@ the resulting interface is visually strong.
 2. Inspect the affected route, components, API contracts, tests, and current
    rendered interface when it exists.
 3. Read `frontend/DESIGN.md` for the product's visual language.
-4. Preserve React 19, TypeScript, Mantine, Onest, existing theme tokens, and
-   shared CRM components. Do not introduce Tailwind or another component
-   library.
+4. Preserve React 19, TypeScript, Mantine, Onest, semantic token ownership, and
+   shared CRM components. Reuse current visual values by default; an explicitly
+   requested palette or visual-language redesign may propose replacements
+   through the design gate below. Do not introduce Tailwind or another
+   component library.
 5. Keep roles, permissions, validation, membership, attendance, audit, and
    other CRM semantics in backend contracts.
 
@@ -25,6 +27,8 @@ Read only the references needed for the current mode:
 
 - new screen or material redesign: `references/visual-direction.md`,
   `references/mobile-acceptance.md`, and `references/mantine-patterns.md`;
+- palette or visual-language redesign: `references/visual-direction.md`;
+  reuse the approved UX contract and applicable mobile acceptance;
 - responsive implementation or correction: `references/mobile-acceptance.md`
   and `references/mantine-patterns.md`;
 - interaction copy, errors, empty states, or confirmations:
@@ -42,7 +46,9 @@ Use this sequence:
 1. Define the UX contract with `../crm-ux-design/SKILL.md` without prematurely
    choosing a visual layout; prefer `ux-researcher` when available.
 2. Create a visual brief and three meaningfully different rendered directions
-   using `references/visual-direction.md`; prefer `ui-designer`.
+   using `references/visual-direction.md`; prefer `ui-designer`. Compare task
+   structure first; compare palettes on the selected structure when color is
+   also an open decision. Do not multiply every layout by every palette.
 3. Present the directions with their tradeoffs. A product owner selects or
    refines one direction before production implementation begins.
 4. Turn the selected direction into an implementation contract; prefer
@@ -56,6 +62,21 @@ Use this sequence:
 If the user supplies an already approved design, the three-direction step is
 unnecessary. Validate that design against the UX contract, project visual
 language, backend capabilities, and mobile acceptance before implementation.
+
+### Palette or visual-language redesign
+
+Reuse the approved scenario, content, actions, and backend capabilities. Name
+which visual properties the user wants reconsidered and which remain fixed.
+Follow the palette comparison in `references/visual-direction.md`; color-only
+alternatives are valid here and do not require new navigation or UX research.
+For a broader visual-language change, vary only its unresolved visual axes.
+
+Selection precedes production changes. Promote the chosen values through the
+shared theme and update `frontend/DESIGN.md` in the implementation task; do not
+leave route-local theme overrides. If a proposal changes the workflow or
+information availability, resolve that part with `crm-ux-design` first.
+Existing accepted requirements and plan readiness still apply: permission to
+explore a palette is not approval of a particular palette or new behavior.
 
 ### Existing workflow analysis
 
@@ -109,6 +130,8 @@ The selected direction becomes a contract. Record:
 
 - content hierarchy and component order;
 - exact visible, hidden, and deferred fields;
+- reasons for removed or deferred content and comparable before/after task
+  evidence from the UX contract when simplifying a workflow;
 - typography, density, grouping, surface, and emphasis decisions;
 - primary and secondary actions;
 - responsive transformation at required widths;
@@ -145,7 +168,10 @@ without rendered and behavioral evidence.
 
 ## Required handoff
 
-Return:
+Scale the handoff to the chosen mode. Reuse approved artifacts by reference;
+a local correction or palette comparison does not require rewriting the UX
+contract or repeating unrelated research. Distinguish prototype evidence from
+runtime verification. For the in-scope work, return:
 
 - UX contract;
 - visual brief and explored directions, or the approved design supplied;
@@ -156,3 +182,9 @@ Return:
 - validation commands and results;
 - unresolved decisions and residual risks;
 - a short self-critique naming the weakest remaining design decision.
+
+## Adaptation sources
+
+See [adapted sources](references/adapted-sources.md) when maintaining these
+instructions. External design ideas supplement this workflow; they do not
+replace CRM contracts or require loading another general design skill.

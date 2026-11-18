@@ -1,7 +1,8 @@
 # Visual direction and design gate
 
-Use for a new screen or material redesign. The purpose is to discover a strong
-direction before production code makes an early idea expensive to challenge.
+Use for a new screen, material redesign, or an explicitly requested palette
+change. Resolve task structure and color as separate decisions so the owner
+can tell what improved the result.
 
 ## Gather evidence
 
@@ -15,7 +16,9 @@ Inspect:
 
 Do not infer the owner's taste from generic words such as `modern`, `clean`, or
 `professional`. When references are unavailable, preserve the established CRM
-visual language and state the uncertainty.
+visual language unless its replacement is the requested scope. In that case,
+propose bounded alternatives and state the uncertainty without treating the
+current colors as immutable or inventing a preferred style for the owner.
 
 ## Write the visual brief
 
@@ -28,6 +31,8 @@ SURFACE
 - Current problem:
 
 VISUAL INTENT
+- One-sentence visual thesis tied to the user's task:
+- Fixed properties and properties open for redesign:
 - Desired character:
 - Density:
 - Hierarchy:
@@ -47,17 +52,21 @@ SELECTION CRITERIA
 - What visual qualities distinguish a strong result:
 ```
 
-## Produce divergent directions
+## Compare task structure
 
 Create three directions by default. Each must differ on a named, consequential
 axis such as information architecture, density, grouping, navigation model, or
-interaction model. Color-only, radius-only, and spacing-only differences are
-not separate directions.
+interaction model, within the agreed UX contract. Color-only, radius-only,
+and spacing-only differences do not demonstrate an alternative task structure.
+Keep the palette stable during this comparison. Do not reopen an approved
+workflow merely to manufacture three options; a palette-only request skips
+this comparison. Resolve proposed changes to the UX contract before treating
+them as implementation-ready.
 
 Every direction must:
 
 - preserve the same backend capabilities and UX contract;
-- use Mantine, Onest, current tokens, and realistic product content;
+- use Mantine, Onest, shared token roles, and realistic product content;
 - show the primary state at 390 x 844 and 1440 px;
 - include at least the most consequential non-happy state;
 - be complete enough to judge hierarchy, rhythm, density, and interaction;
@@ -66,6 +75,46 @@ Every direction must:
 Prefer a live isolated prototype using real project components. A high-fidelity
 static artifact is acceptable when interaction is not the decision under
 review. Do not modify production routes or components before selection.
+
+## Compare palettes on one composition
+
+When color is unresolved, show three palette candidates by default on the
+same selected or existing composition. Reuse an already selected palette;
+a deterministic local color fix needs before/after evidence, not alternatives.
+Hold text, data, actions, density, typography, states, and viewport constant.
+Show mobile and desktop plus a consequential error, selected, or restricted
+state. A row of color swatches alone does not establish interface quality.
+
+Describe candidates by their intended effect on this workspace rather than
+marketing names. For each, define page and raised surfaces, primary/secondary
+text, borders, action accent, selection, focus, and their interactive states.
+Neutral surfaces with an accent are a useful candidate, not a mandatory style;
+do not impose a universal color ratio or a predetermined winning hue.
+
+Preserve functional status meanings and non-color cues. Check action versus
+status distinction, actual foreground/background contrast, and whether
+decorative tinting competes with data. Inspect both profile-driven and fixed
+semantic values before promising a complete theme change. The design contract
+must identify the shared values affected, including fallback/customer-branding
+compatibility when relevant; changing only the primary hue may be insufficient.
+
+Prototype proposed values in an isolated artifact without changing production
+tokens. Choosing a palette does not authorize changing business status semantics,
+branding API contracts, or persistence; route any such dependency to planning.
+
+## Critique hierarchy and visual character
+
+Use a working-product composition: a clear locator, task content, and contextual
+actions. Cards, badges, separators, icons, and helper copy need a grouping,
+recognition, decision, or feedback purpose. Compare removal or consolidation
+of a questionable element before adding more styling. Preserve labels, frequent
+actions, consequences, and recovery information required by the UX contract.
+
+Use Onest weight, scale, alignment, and spacing to establish hierarchy before
+adding color. Keep intentional identity where it helps recognition without
+requiring novelty, a hero, ornamental typography, or animation. Review the
+rendered screen for competing accents and fragmented groups; identify the
+weakest remaining choice and what evidence would justify changing it.
 
 ## Present and select
 
@@ -89,6 +138,8 @@ Before implementation, record:
 - selected direction and rejected alternatives;
 - user feedback incorporated;
 - exact hierarchy and responsive transformations;
+- selected palette, its semantic role mapping, and authorized deviations from
+  current visual values when those were part of the requested redesign;
 - operational and interaction states;
 - visual acceptance criteria;
 - differences between the selected artifact and the implementation contract.
