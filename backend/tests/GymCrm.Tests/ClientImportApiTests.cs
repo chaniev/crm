@@ -11,6 +11,41 @@ namespace GymCrm.Tests;
 public class ClientImportApiTests
 {
     [Theory]
+    [InlineData("formula")]
+    [InlineData("error")]
+    public async Task Unsupported_empty_phone_cell_rejects_the_file_even_with_a_default(string kind)
+    {
+        await using var factory = new BranchSettingsAppFactory();
+        await factory.SeedAsync();
+        await ClientImportPostgreSqlTests.SeedGroupAsync(factory);
+        var (client, token) = await factory.LoginAsync(UserRole.Administrator);
+        var cells = ClientXlsxReaderTests.ValidRow();
+        cells[1] = "";
+        using var file = ClientXlsxReaderTests.Workbook([cells]);
+        ClientXlsxReaderTests.Rewrite(file, "xl/worksheets/sheet1.xml", xml => xml.Replace(
+            "<c r=\"B2\" t=\"inlineStr\">",
+            kind == "formula" ? "<c r=\"B2\" t=\"inlineStr\"><f>1+1</f>" : "<c r=\"B2\" t=\"e\">", StringComparison.Ordinal));
+        var operation = Guid.NewGuid();
+
+        using (client)
+        using (var response = await ClientImportPostgreSqlTests.SendImportFileAsync(client, token, factory.OwnBranchId, operation, file))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal(operation, payload.GetProperty("operationId").GetGuid());
+            Assert.Equal("file_invalid", payload.GetProperty("code").GetString());
+            var issue = Assert.Single(payload.GetProperty("issues").EnumerateArray());
+            Assert.Equal(2, issue.GetProperty("row").GetInt32());
+            Assert.Equal("phone", issue.GetProperty("field").GetString());
+            Assert.Equal("cell_unsupported", issue.GetProperty("code").GetString());
+        }
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Empty(await db.Clients.ToArrayAsync());
+        Assert.Empty(await db.AuditLogs.Where(a => a.ActionType.StartsWith("Client")).ToArrayAsync());
+    }
+
+    [Theory]
     [InlineData(768 * 1024, HttpStatusCode.BadRequest)]
     [InlineData(768 * 1024 + 1, HttpStatusCode.RequestEntityTooLarge)]
     public async Task Body_limit_accepts_boundary_for_parsing_and_rejects_one_extra_byte(int length, HttpStatusCode expected)

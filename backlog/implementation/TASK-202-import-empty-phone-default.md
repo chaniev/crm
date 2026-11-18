@@ -8,8 +8,11 @@ implementation
 - moved_from: /backlog/tasks-ready
 - implementation_plan: /backlog/implementation-plans/TASK-202-import-empty-phone-default.plan.md
 - implementation_branch: codex/TASK-202-import-empty-phone-default
-- execution_started: no
-- Подготовлен готовый план по запросу пользователя; branch/worktree не созданы, код не изменён.
+- execution_started: yes
+- На этапе подготовки плана branch/worktree не создавались, код не изменялся.
+- execution_authorization: 2026-11-18 — пользователь «реализуй план task-202».
+- workspace: /Users/muradchaniev/Documents/work/crm-worktrees/TASK-202-import-empty-phone-default
+- execution_base: origin/main e654e25; coordination plan c65d70f included by fast-forward before edits.
 
 ## Requirements
 - REQ-CLI-010 — changes

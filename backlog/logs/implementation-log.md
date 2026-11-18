@@ -2114,3 +2114,14 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - artifact_validation: 35 локальных ссылок, единственность TASK-202/plan, status-directory, lifecycle, свободная объявленная branch и дословный source PASS; `git diff --check` PASS
 - review: план 179 строк; decisions не отложены в execution, test-first red указан, contract добавляет только backend/frontend и существующий import browser suite; новым механизмам и manual approval gates оснований нет
 - execution_started: no; готовность плана не является выполнением или авторизацией deployment
+
+# 2026-11-18 — TASK-202 implementation
+- authorization: пользователь «реализуй план task-202»; локальная реализация и интеграция, без deployment
+- workspace: /Users/muradchaniev/Documents/work/crm-worktrees/TASK-202-import-empty-phone-default
+- branch/base: codex/TASK-202-import-empty-phone-default from origin/main e654e25; coordination plan c65d70f included before edits
+- preflight: PASS before edits; requirements accepted; existing ADR-0005 preserved
+- regression: backend red 19 failed / 63 passed, then green 82/82; Chromium red confirmed obsolete errors for blank rows
+- implementation: one original-cell blank branch in ClientImportMapping; shared validation, DTO, writer and reader unchanged
+- fixture_isolation: two XLSX scenarios per browser project use separate synthetic surnames to isolate parallel browser assertions
+- evidence: /backlog/implementation/TASK-202-evidence/verification.md
+- final_validation: pending canonical clean-candidate run

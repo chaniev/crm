@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "task_id": "TASK-202",
+  "expected_branch": "codex/TASK-202-import-empty-phone-default",
+  "areas": ["backend", "frontend"],
+  "playwright": [{
+    "id": "frontend.e2e.client-import",
+    "spec": "e2e/settings-client-import.spec.ts",
+    "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"],
+    "timeout_seconds": 1800
+  }]
+}

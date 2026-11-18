@@ -33,7 +33,47 @@ async function noOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1)
 }
 
+async function phoneFixtureClients(page: Page, marker: string): Promise<{ id: string; firstName: string; phone: string }[]> {
+  const response = await page.request.get('/api/clients', { params: { search: marker, take: '100' } })
+  expect(response.ok()).toBeTruthy()
+  return (await response.json()).items
+}
+
 for (const role of ['SuperAdministrator', 'Administrator']) {
+  test(`${role}: blank phones get defaults, nonblank invalid phone rejects the whole file`, async ({ page }, info) => {
+    test.setTimeout(120_000)
+    const state = await login(page, role)
+    const markers: Record<string, string> = {
+      chromium: 'ТелефонпроверкаХром',
+      'iphone-air-webkit': 'ТелефонпроверкаЭйр',
+      'iphone-17-pro-max-webkit': 'ТелефонпроверкаМакс',
+    }
+    const marker = markers[info.project.name]
+    const before = await phoneFixtureClients(page, marker)
+    const previousIds = new Set(before.map(client => client.id))
+    await fill(page, role, `nonblank-invalid-phone-${info.project.name}`)
+    await page.getByRole('button', { name: 'Импортировать', exact: true }).click()
+    await expect(page.getByText('Исправьте ошибки импорта', { exact: true })).toBeVisible()
+    await expect(page.getByText(/Строка 4 · Телефон/)).toBeVisible()
+    await expect(page.getByText(/Строка [23] · Телефон/)).toHaveCount(0)
+    expect((await phoneFixtureClients(page, marker)).map(client => client.id).sort()).toEqual([...previousIds].sort())
+
+    await page.locator('input[type=file]').setInputFiles(resolve(`e2e/fixtures/client-import/blank-phones-${info.project.name}.xlsx`))
+    await page.getByRole('button', { name: 'Импортировать', exact: true }).click()
+    await expect(page.getByText('Создано 3 клиентов', { exact: true })).toBeVisible({ timeout: 30_000 })
+    expect(state.posts).toBe(2)
+    const after = await phoneFixtureClients(page, marker)
+    const added = after.filter(client => !previousIds.has(client.id))
+    expect(added).toHaveLength(3)
+    expect(added.map(({ firstName, phone }) => ({ firstName, phone }))).toEqual(expect.arrayContaining([
+      { firstName: 'Пустой', phone: '+79111111111' },
+      { firstName: 'Пробельный', phone: '+79111111111' },
+      { firstName: 'Заполненный', phone: '+79000000002' },
+    ]))
+    expect(after.filter(client => previousIds.has(client.id)).map(client => client.id).sort()).toEqual([...previousIds].sort())
+    await noOverflow(page)
+  })
+
   test(`${role}: invalid file writes zero, corrected file imports all rows`, async ({ page }, info) => {
     test.setTimeout(120_000)
     if (info.project.name === 'chromium') await page.setViewportSize({ width: 390, height: 844 })
@@ -42,7 +82,7 @@ for (const role of ['SuperAdministrator', 'Administrator']) {
     await page.screenshot({ path: info.outputPath('ready.png'), fullPage: true })
     await page.getByRole('button', { name: 'Импортировать', exact: true }).click()
     await expect(page.getByText('Исправьте ошибки импорта', { exact: true })).toBeVisible()
-    await expect(page.getByText(/Строка 62 · Телефон/)).toBeVisible()
+    await expect(page.getByText(/Строка 32 · ФИО/)).toBeVisible()
     await expect(page.getByLabel('Название группы', { exact: true })).toHaveValue('Import group')
     await noOverflow(page)
     await page.screenshot({ path: info.outputPath('errors.png'), fullPage: true })

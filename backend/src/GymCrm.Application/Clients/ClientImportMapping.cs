@@ -27,7 +27,9 @@ public static partial class ClientImportMapping
             }
             if (prefix.Count > 0 && parts.Count > 0) parts[^1] += " " + string.Join(' ', prefix);
             if (ambiguous || parts.Count is < 2 or > 3) Invalid("fullName", ClientImportText.InvalidName);
-            var phones = cells[1].Split(',').Select(NormalizePhone).ToArray();
+            var phones = string.IsNullOrWhiteSpace(cells[1])
+                ? ["+79111111111"]
+                : cells[1].Split(',').Select(NormalizePhone).ToArray();
             if (phones.Any(phone => phone is null)) Invalid("phone", ClientImportText.InvalidPhone);
             DateOnly? birthDate = null;
             if (!string.IsNullOrWhiteSpace(cells[4]))

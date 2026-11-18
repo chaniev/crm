@@ -74,7 +74,7 @@
 - `backend/tests/GymCrm.Tests/ClientImportApiTests.cs` — ошибки reader/данных
   вместе с пустым телефоном, неизменный ProblemDetails и нулевая запись.
 - `frontend/e2e/settings-client-import.spec.ts` и
-  `frontend/e2e/fixtures/client-import/` — два новых небольших synthetic fixtures,
+  `frontend/e2e/fixtures/client-import/` — два вида небольших synthetic fixtures с раздельными именами клиентов для browser projects,
   проверка результата через реальный API и актуальные ожидания старого файла.
 - `backlog/implementation/TASK-202-import-empty-phone-default-verification-contract.json`
   — создать executor'у до проверки; содержание определено ниже.

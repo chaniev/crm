@@ -5,8 +5,8 @@ namespace GymCrm.Tests;
 public class ClientImportMappingTests
 {
     [Theory]
-    [InlineData(48, 1, 47)]
-    [InlineData(66, 9, 57)]
+    [InlineData(48, 0, 48)]
+    [InlineData(66, 4, 62)]
     public async Task All_source_profiles_are_synthetic_and_fixable(int count, int invalid, int valid)
     {
         foreach (var corrected in new[] { false, true })
@@ -17,7 +17,85 @@ public class ClientImportMappingTests
             var mapped = ClientImportMapping.Map(read.Rows);
             Assert.Equal(corrected ? count : valid, mapped.Rows.Count);
             Assert.Equal(corrected ? 0 : invalid, mapped.Issues.Select(issue => issue.Row).Distinct().Count());
+            if (!corrected)
+            {
+                Assert.Equal(count == 48 ? [] : new[] { 6, 32, 37, 46 }, mapped.Issues.Select(issue => issue.Row!.Value).Distinct());
+                Assert.All(mapped.Issues, issue => Assert.Equal("fullName", issue.Field));
+                Assert.Equal(count == 48 ? 1 : 5, mapped.Rows.Count(row => row.Phone == "+79111111111"));
+            }
         }
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\t")]
+    [InlineData("\u00a0")]
+    public void Blank_phone_gets_default_without_changing_notes(string phone)
+    {
+        var cells = ClientXlsxReaderTests.ValidRow();
+        var original = Assert.Single(ClientImportMapping.Map([new(2, cells)]).Rows);
+        cells[1] = phone;
+
+        var result = ClientImportMapping.Map([new(2, cells)]);
+
+        Assert.Empty(result.Issues);
+        var row = Assert.Single(result.Rows);
+        Assert.Equal("+79111111111", row.Phone);
+        Assert.Equal(original.Notes, row.Notes);
+    }
+
+    [Theory]
+    [InlineData("-")]
+    [InlineData("+")]
+    [InlineData("123")]
+    [InlineData(",")]
+    [InlineData("+79000000001,")]
+    [InlineData(",+79000000001")]
+    [InlineData("+79000000001, ,+79000000002")]
+    public void Nonblank_invalid_phone_is_never_replaced(string phone)
+    {
+        var cells = ClientXlsxReaderTests.ValidRow();
+        cells[1] = phone;
+
+        var result = ClientImportMapping.Map([new(12, cells)]);
+
+        Assert.Empty(result.Rows);
+        var issue = Assert.Single(result.Issues);
+        Assert.Equal(12, issue.Row);
+        Assert.Equal("phone", issue.Field);
+        Assert.Equal("invalid_value", issue.Code);
+    }
+
+    [Theory]
+    [InlineData("8 900 000-00-01", "+79000000001")]
+    [InlineData("79000000001", "+79000000001")]
+    [InlineData("+79000000001", "+79000000001")]
+    [InlineData("8000000003", "+78000000003")]
+    public void Filled_phone_keeps_existing_normalization(string phone, string expected)
+    {
+        var cells = ClientXlsxReaderTests.ValidRow();
+        cells[1] = phone;
+
+        var result = ClientImportMapping.Map([new(2, cells)]);
+
+        Assert.Empty(result.Issues);
+        Assert.Equal(expected, Assert.Single(result.Rows).Phone);
+    }
+
+    [Fact]
+    public void Blank_phone_does_not_hide_an_invalid_birth_date()
+    {
+        var cells = ClientXlsxReaderTests.ValidRow();
+        cells[1] = "";
+        cells[4] = "31.02.2010";
+
+        var result = ClientImportMapping.Map([new(25, cells)]);
+
+        Assert.Empty(result.Rows);
+        var issue = Assert.Single(result.Issues);
+        Assert.Equal(25, issue.Row);
+        Assert.Equal("birthDate", issue.Field);
     }
 
     [Theory]
@@ -74,7 +152,7 @@ public class ClientImportMappingTests
     {
         var rows = new[] { 2, 25, 67 }.Select(number =>
         {
-            var cells = ClientXlsxReaderTests.ValidRow(); cells[1] = ""; cells[4] = "31.02.2010";
+            var cells = ClientXlsxReaderTests.ValidRow(); cells[1] = "123"; cells[4] = "31.02.2010";
             return new ClientImportRow(number, cells);
         }).ToArray();
         var result = ClientImportMapping.Map(rows);

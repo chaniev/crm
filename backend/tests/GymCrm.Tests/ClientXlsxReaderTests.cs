@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Security;
 using System.Text;
+using GymCrm.Application.Clients;
 using GymCrm.Infrastructure.Clients;
 
 namespace GymCrm.Tests;
@@ -9,6 +10,29 @@ public class ClientXlsxReaderTests
 {
     internal static readonly string[] Headers = ["Имя", "Телефон", "Комментарий к телефону", "Email", "Дата рождения", "Пол", "Адрес", "Статус", "Баланс", "Комментарий"];
     internal static string[] ValidRow() => ["Иванов Иван Иванович", "8 900 000-00-01", "мама", "a@example.test", "01.02.2010", "Мужской", "Адрес", "Активный", "0", "Заметка"];
+
+    [Theory]
+    [InlineData("missing")]
+    [InlineData("empty")]
+    [InlineData("whitespace")]
+    public async Task Blank_phone_cells_are_defaulted_and_whole_empty_rows_are_skipped(string kind)
+    {
+        var cells = ValidRow();
+        cells[1] = kind == "whitespace" ? " \t\u00a0 " : "";
+        using var file = Workbook([new string[10], cells]);
+        if (kind == "missing")
+            Rewrite(file, "xl/worksheets/sheet1.xml", xml => xml.Replace("<c r=\"B3\" t=\"inlineStr\"><is><t></t></is></c>", "", StringComparison.Ordinal));
+
+        var read = await new ClientXlsxReader().ReadAsync(file);
+        var mapped = ClientImportMapping.Map(read.Rows);
+
+        Assert.Empty(read.Issues);
+        Assert.Equal(3, Assert.Single(read.Rows).Row);
+        Assert.Empty(mapped.Issues);
+        var row = Assert.Single(mapped.Rows);
+        Assert.Equal(3, row.Row);
+        Assert.Equal("+79111111111", row.Phone);
+    }
 
     [Fact]
     public async Task Reader_preserves_excel_row_numbers_and_all_ten_fields()
@@ -119,7 +143,7 @@ public class ClientXlsxReaderTests
         Assert.Equal("-18000", result.Rows[0].Cells[8]);
     }
 
-    private static void Rewrite(MemoryStream file, string path, Func<string, string> update)
+    internal static void Rewrite(MemoryStream file, string path, Func<string, string> update)
     {
         using (var zip = new ZipArchive(file, ZipArchiveMode.Update, true))
         {

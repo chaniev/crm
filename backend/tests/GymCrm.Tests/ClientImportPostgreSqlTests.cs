@@ -31,7 +31,10 @@ public class ClientImportPostgreSqlTests
         using (client)
         {
             var operation = Guid.NewGuid();
-            using var response = await SendImportAsync(client, token, factory.OwnBranchId, operation);
+            var rows = new[] { ClientXlsxReaderTests.ValidRow(), ClientXlsxReaderTests.ValidRow() };
+            rows[0][1] = "";
+            rows[1][1] = " \t ";
+            using var response = await SendImportAsync(client, token, factory.OwnBranchId, operation, rows);
             Assert.Equal(failureAction is null ? HttpStatusCode.OK : HttpStatusCode.InternalServerError, response.StatusCode);
             if (failureAction is null)
             {
@@ -44,6 +47,7 @@ public class ClientImportPostgreSqlTests
         var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
         var expected = failureAction is null ? 2 : 0;
         Assert.Equal(expected, await db.Clients.CountAsync());
+        Assert.True(await db.Clients.AllAsync(c => c.Phone == "+79111111111"));
         Assert.Equal(expected, await db.ClientGroups.CountAsync());
         Assert.Equal(expected, await db.ClientGroupAssignments.CountAsync());
         Assert.Equal(expected, await db.ClientBranchAssignments.CountAsync());
@@ -67,7 +71,9 @@ public class ClientImportPostgreSqlTests
         var (client, token) = await factory.LoginAsync(UserRole.Administrator);
         using (client)
         {
-            using var invalid = await SendImportAsync(client, token, factory.OwnBranchId, Guid.NewGuid(), SyntheticImportProfiles.Rows(count, false));
+            var invalidRows = SyntheticImportProfiles.Rows(count, true);
+            invalidRows[0][1] = "123";
+            using var invalid = await SendImportAsync(client, token, factory.OwnBranchId, Guid.NewGuid(), invalidRows);
             Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
             using (var scope = factory.Services.CreateScope()) Assert.Empty(await scope.ServiceProvider.GetRequiredService<GymCrmDbContext>().Clients.ToArrayAsync());
             for (var run = 0; run < 2; run++)
@@ -84,6 +90,75 @@ public class ClientImportPostgreSqlTests
         Assert.True(await db.Clients.AllAsync(c => c.NotesChangedAt != null && c.NotesChangedByUserId != null));
         Assert.Empty(await db.ClientContacts.ToArrayAsync());
         Assert.Empty(await db.ClientMembershipSales.ToArrayAsync());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Mixed_phone_import_preserves_existing_clients_and_commits_only_valid_files(bool invalidRow)
+    {
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString());
+        await factory.SeedAsync();
+        var groupId = await SeedGroupAsync(factory);
+        var (client, token) = await factory.LoginAsync(UserRole.Administrator);
+        using (client)
+        {
+            using var initial = await SendImportAsync(client, token, factory.OwnBranchId, Guid.NewGuid(), [ClientXlsxReaderTests.ValidRow()]);
+            Assert.Equal(HttpStatusCode.OK, initial.StatusCode);
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var existing = await db.Clients.AsNoTracking().SingleAsync();
+            var auditBefore = await db.AuditLogs.CountAsync();
+            var rows = new[] { ClientXlsxReaderTests.ValidRow(), ClientXlsxReaderTests.ValidRow(), ClientXlsxReaderTests.ValidRow() };
+            rows[0][1] = "";
+            rows[1][1] = "\t\u00a0";
+            rows[2][1] = invalidRow ? "123" : "8 900 000-00-02";
+            var operation = Guid.NewGuid();
+
+            using var response = await SendImportAsync(client, token, factory.OwnBranchId, operation, rows);
+
+            Assert.Equal(invalidRow ? HttpStatusCode.BadRequest : HttpStatusCode.OK, response.StatusCode);
+            var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal(operation, payload.GetProperty("operationId").GetGuid());
+            var savedExisting = await db.Clients.AsNoTracking().SingleAsync(c => c.Id == existing.Id);
+            Assert.Equal(JsonSerializer.Serialize(existing), JsonSerializer.Serialize(savedExisting));
+            var added = await db.Clients.AsNoTracking().Where(c => c.Id != existing.Id).ToArrayAsync();
+            var addedCount = invalidRow ? 0 : 3;
+            Assert.Equal(addedCount, added.Length);
+            Assert.Equal(1 + addedCount, await db.ClientGroups.CountAsync());
+            Assert.Equal(1 + addedCount, await db.ClientGroupAssignments.CountAsync());
+            Assert.Equal(1 + addedCount, await db.ClientBranchAssignments.CountAsync());
+            if (invalidRow)
+            {
+                Assert.Equal("file_invalid", payload.GetProperty("code").GetString());
+                var issue = Assert.Single(payload.GetProperty("issues").EnumerateArray());
+                Assert.Equal(4, issue.GetProperty("row").GetInt32());
+                Assert.Equal("phone", issue.GetProperty("field").GetString());
+                Assert.Equal(auditBefore, await db.AuditLogs.CountAsync());
+            }
+            else
+            {
+                Assert.Equal(3, payload.GetProperty("createdCount").GetInt32());
+                Assert.Equal(3, added.Select(c => c.Id).Distinct().Count());
+                Assert.Equal(["+79000000002", "+79111111111", "+79111111111"], added.Select(c => c.Phone).Order());
+                var actorId = await db.Users.Where(u => u.Role == UserRole.Administrator).Select(u => u.Id).SingleAsync();
+                foreach (var addedClient in added)
+                {
+                    Assert.Equal(factory.OwnBranchId, addedClient.BranchId);
+                    Assert.Equal(actorId, addedClient.NotesChangedByUserId);
+                    Assert.True(await db.ClientGroups.AnyAsync(g => g.ClientId == addedClient.Id && g.GroupId == groupId));
+                    var audit = await db.AuditLogs.SingleAsync(a => a.ActionType == "ClientCreated" && a.EntityId == addedClient.Id.ToString());
+                    Assert.Equal(addedClient.Phone, JsonSerializer.Deserialize<JsonElement>(audit.NewValueJson!).GetProperty("phone").GetString());
+                }
+                var summary = await db.AuditLogs.SingleAsync(a => a.ActionType == "ClientImportCompleted" && a.EntityId == operation.ToString());
+                var summaryPayload = JsonSerializer.Deserialize<JsonElement>(summary.NewValueJson!);
+                Assert.Equal(3, summaryPayload.GetProperty("createdCount").GetInt32());
+                Assert.Equal(added.Select(c => c.Id).Order(), summaryPayload.GetProperty("clientIds").EnumerateArray().Select(id => id.GetGuid()).Order());
+                Assert.Equal(auditBefore + 7, await db.AuditLogs.CountAsync());
+            }
+        }
     }
 
     [Theory]
@@ -170,6 +245,11 @@ public class ClientImportPostgreSqlTests
     internal static async Task<HttpResponseMessage> SendImportAsync(HttpClient client, string token, Guid branch, Guid operation, string[][]? rows = null)
     {
         using var file = ClientXlsxReaderTests.Workbook(rows ?? [ClientXlsxReaderTests.ValidRow(), ClientXlsxReaderTests.ValidRow()]);
+        return await SendImportFileAsync(client, token, branch, operation, file);
+    }
+
+    internal static async Task<HttpResponseMessage> SendImportFileAsync(HttpClient client, string token, Guid branch, Guid operation, MemoryStream file)
+    {
         using var request = new HttpRequestMessage(HttpMethod.Post, "/clients/import-xlsx");
         request.Headers.Add("X-CSRF-TOKEN", token);
         request.Content = new MultipartFormDataContent
