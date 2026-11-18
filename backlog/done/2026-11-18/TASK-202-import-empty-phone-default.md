@@ -1,18 +1,24 @@
 # TASK-202: Подставлять номер по умолчанию при пустом телефоне в импорте
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-18 21:04
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-202-import-empty-phone-default.plan.md
+- implementation_plan: /backlog/done/2026-11-18/TASK-202-import-empty-phone-default.plan.md
 - implementation_branch: codex/TASK-202-import-empty-phone-default
 - execution_started: yes
 - На этапе подготовки плана branch/worktree не создавались, код не изменялся.
 - execution_authorization: 2026-11-18 — пользователь «реализуй план task-202».
 - workspace: /Users/muradchaniev/Documents/work/crm-worktrees/TASK-202-import-empty-phone-default
 - execution_base: origin/main e654e25; coordination plan c65d70f included by fast-forward before edits.
+
+## Completion
+- completed_at: 2026-11-18
+- merged_to_main_at: 2026-11-18 21:39 MSK
+- completion_date_evidence: candidate `02aafc0d34c363a3c5d35766cf256b954f395ae1` интегрирован в локальную main fast-forward после всех обязательных проверок; tree `7c6bcebf9dfed4c79606721fdaea545e6b62809e` совпал.
+- verification: [результаты](TASK-202-evidence/verification.md), [полный отчёт](TASK-202-evidence/verification.json).
 
 ## Requirements
 - REQ-CLI-010 — changes
@@ -24,7 +30,7 @@ implementation
 «Телефон» создаётся с номером `+79111111111`, если остальные данные файла корректны.
 
 ## Context
-Импорт реализован в [TASK-196](../done/2026-11-16/TASK-196-xlsx-client-import.md).
+Импорт реализован в [TASK-196](../2026-11-16/TASK-196-xlsx-client-import.md).
 Сейчас `ClientImportMapping.Map` передаёт пустое значение в `NormalizePhone`,
 получает ошибку `phone` / `invalid_value`, и `ClientImportService` отклоняет
 весь файл до записи. Проверка `All_errors_are_returned_with_excel_rows`
@@ -57,36 +63,36 @@ API DTO, интерфейса импорта, схемы БД и ранее со
 
 ## Constraints
 - Правило принадлежит backend; браузер передаёт исходный XLSX и отображает результат.
-- Действует [ADR-0005](../../docs/architecture/adr/0005-settings-xlsx-client-import.md):
+- Действует [ADR-0005](../../../docs/architecture/adr/0005-settings-xlsx-client-import.md):
   авторизация, филиальный scope, транзакция, аудит и восстановление после
   неопределённого результата сохраняются. Нового архитектурного решения не требуется.
-- Перед реализацией нужен готовый план по [docs/HARNESS.md](../../docs/HARNESS.md).
+- Перед реализацией нужен готовый план по [docs/HARNESS.md](../../../docs/HARNESS.md).
 - При завершении обновить состояние REQ-CLI-010 и
-  [CHANGELOG](../../docs/requirements/CHANGELOG.md) по проверенной интеграции.
+  [CHANGELOG](../../../docs/requirements/CHANGELOG.md) по проверенной интеграции.
 
 ## Acceptance criteria
-- [ ] Корректная строка без телефона импортируется с основным номером `+79111111111`.
-- [ ] Отсутствующая ячейка и пробельное значение обрабатываются как пустой телефон;
+- [x] Корректная строка без телефона импортируется с основным номером `+79111111111`.
+- [x] Отсутствующая ячейка и пробельное значение обрабатываются как пустой телефон;
   полностью пустая строка по-прежнему пропускается.
-- [ ] Несколько таких строк дают отдельные карточки, существующие клиенты не изменяются.
-- [ ] Заполненные корректные номера и дополнительные телефоны обрабатываются как раньше.
-- [ ] Непустой некорректный номер или иная ошибка строки отклоняет весь файл
+- [x] Несколько таких строк дают отдельные карточки, существующие клиенты не изменяются.
+- [x] Заполненные корректные номера и дополнительные телефоны обрабатываются как раньше.
+- [x] Непустой некорректный номер или иная ошибка строки отклоняет весь файл
   с корректной причиной и номером строки, без частично созданных клиентов.
-- [ ] Обычное создание клиента по-прежнему требует номер; импорт сохраняет
+- [x] Обычное создание клиента по-прежнему требует номер; импорт сохраняет
   действующие права, назначения, стандартный аудит и итоговое событие операции.
 
 ## Test checklist
-- [ ] Mapping: пустая строка, пробелы/табуляция, корректный номер,
+- [x] Mapping: пустая строка, пробелы/табуляция, корректный номер,
   несколько номеров, непустой некорректный номер, пустой элемент списка.
-- [ ] Reader + mapping: отсутствующая ячейка B в непустой строке,
+- [x] Reader + mapping: отсутствующая ячейка B в непустой строке,
   полностью пустая строка, неподдерживаемая ячейка/формула без обхода ошибки reader.
-- [ ] Изменить существующий тест сбора ошибок так, чтобы он проверял реальные
+- [x] Изменить существующий тест сбора ошибок так, чтобы он проверял реальные
   ошибки по нескольким строкам, а не прежний отказ на пустом телефоне.
-- [ ] API/PostgreSQL: смешанный файл с заполненными и пустыми телефонами,
+- [x] API/PostgreSQL: смешанный файл с заполненными и пустыми телефонами,
   несколько одинаковых номеров по умолчанию, сохранение номера и аудита;
   ошибка другой строки и отказ записи/аудита дают нулевой прирост данных.
-- [ ] Регрессия обычного создания с пустым телефоном: отказ без подстановки.
-- [ ] Сценарий «Настройки → Импорт»: успешная загрузка файла с пустым телефоном
+- [x] Регрессия обычного создания с пустым телефоном: отказ без подстановки.
+- [x] Сценарий «Настройки → Импорт»: успешная загрузка файла с пустым телефоном
   и прежний отказ файла с непустым некорректным номером.
 
 ## AI safety
@@ -98,19 +104,19 @@ API DTO, интерфейса импорта, схемы БД и ранее со
   скрывающая некорректный непустой номер; его ограничивают scope и проверки выше.
 
 ## Evidence
-- [Требования клиентов](../../docs/requirements/01-клиенты.md),
-  [требования аудита](../../docs/requirements/06-аудит.md).
-- [Mapping и нормализация](../../backend/src/GymCrm.Application/Clients/ClientImportMapping.cs).
-- [Текущие тесты mapping](../../backend/tests/GymCrm.Tests/ClientImportMappingTests.cs).
-- [Чтение XLSX](../../backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs).
-- [Импорт и атомарная запись](../../backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs).
-- [Общая валидация клиента](../../backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs).
-- [Неуникальный индекс телефона](../../backend/src/GymCrm.Infrastructure/Persistence/Configurations/ClientConfiguration.cs).
-- [Frontend API consumer](../../frontend/src/lib/api/clientImport.ts),
-  [состояния импорта](../../frontend/src/features/settings/useClientImport.ts).
+- [Требования клиентов](../../../docs/requirements/01-клиенты.md),
+  [требования аудита](../../../docs/requirements/06-аудит.md).
+- [Mapping и нормализация](../../../backend/src/GymCrm.Application/Clients/ClientImportMapping.cs).
+- [Текущие тесты mapping](../../../backend/tests/GymCrm.Tests/ClientImportMappingTests.cs).
+- [Чтение XLSX](../../../backend/src/GymCrm.Infrastructure/Clients/ClientXlsxReader.cs).
+- [Импорт и атомарная запись](../../../backend/src/GymCrm.Infrastructure/Clients/ClientImportService.cs).
+- [Общая валидация клиента](../../../backend/src/GymCrm.Application/Clients/ClientCreationValidation.cs).
+- [Неуникальный индекс телефона](../../../backend/src/GymCrm.Infrastructure/Persistence/Configurations/ClientConfiguration.cs).
+- [Frontend API consumer](../../../frontend/src/lib/api/clientImport.ts),
+  [состояния импорта](../../../frontend/src/features/settings/useClientImport.ts).
 
 ## Source notes
-- Source file: [2026-11-17.md](../processed/2026-11-17.md).
+- Source file: [2026-11-17.md](../../processed/2026-11-17.md).
 - Original note: «при импорте если поле номер телефона пустое то указывать номер +79111111111».
 
 ## Processing notes
@@ -119,7 +125,7 @@ API DTO, интерфейса импорта, схемы БД и ранее со
 - Mode: triage; scope: единственная заметка inbox, без глобальной сверки статусов.
 - Duplicate check: проверены активные карточки, незавершённые планы и весь
   датированный архив. TASK-196 завершена и не включает подстановку;
-  [TASK-183](../needs-clarification/TASK-183-client-phone-presentation.md)
+  [TASK-183](../../needs-clarification/TASK-183-client-phone-presentation.md)
   ограничена отображением телефона и не меняет импортируемые данные.
   Дубликатов нет; следующий свободный ID после TASK-200 — TASK-201.
 - Блокирующих продуктовых вопросов и отдельного обязательного risk review

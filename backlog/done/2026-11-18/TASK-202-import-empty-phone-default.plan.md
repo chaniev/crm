@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-202 Телефон по умолчанию при импорте
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-202-import-empty-phone-default.md
+- source_task: /backlog/done/2026-11-18/TASK-202-import-empty-phone-default.md
 - requirements: REQ-CLI-010 (changes), REQ-CLI-001 (constrains), REQ-AUD-001 (constrains)
 - branch: codex/TASK-202-import-empty-phone-default
 - readiness: yes
@@ -40,7 +40,7 @@
 
 ## Decision evidence
 - product: [Исходная заметка](/backlog/processed/2026-11-17.md) — owner: пользователь, владелец проекта; decision: «при импорте если поле номер телефона пустое то указывать номер +79111111111».
-- identity: [Решение о перенумерации](/backlog/implementation/TASK-202-import-empty-phone-default.md#identity-correction--2026-11-18) — owner: пользователь; decision: дать импорту новый свободный номер; TASK-202 заменяет прежний номер TASK-201 только для задачи импорта.
+- identity: [Решение о перенумерации](/backlog/done/2026-11-18/TASK-202-import-empty-phone-default.md#identity-correction--2026-11-18) — owner: пользователь; decision: дать импорту новый свободный номер; TASK-202 заменяет прежний номер TASK-201 только для задачи импорта.
 - architecture: [Принятый ADR-0005](/docs/architecture/adr/0005-settings-xlsx-client-import.md#approval) — ранее согласованный backend batch и атомарная запись сохраняются; нового материального технического выбора нет.
 
 ## Scope
@@ -177,3 +177,9 @@ suite как runtime smoke. Специальной ручной проверки
   к согласованию; такие изменения не следуют из подстановки.
 - Повторное обнаружение занятого ID/ветки либо другого владельца task-файлов
   требует разрешить конфликт до исполнения, без переиспользования чужой ветки.
+
+## Completion
+- completed_at: 2026-11-18
+- delivered_on_main: `02aafc0d34c363a3c5d35766cf256b954f395ae1`; fast-forward, verified tree unchanged.
+- evidence: [verification](TASK-202-evidence/verification.md), [canonical report](TASK-202-evidence/verification.json).
+- Все implementation slices выполнены; физическое устройство и deployment не входили в исполнение.

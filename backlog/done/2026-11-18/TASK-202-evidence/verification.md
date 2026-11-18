@@ -46,7 +46,28 @@ dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --configuration Relea
 
 ## Final validation
 
-Pending canonical verification on a clean committed candidate. The task contract
-requires backend/frontend baselines and the import spec on Chromium plus both
-existing target-iPhone WebKit projects. A physical iPhone/Simulator and real
-Safari browser chrome/keyboard were not tested; no UI implementation changes.
+- Candidate: `02aafc0d34c363a3c5d35766cf256b954f395ae1`; clean task branch.
+- Command: `python3 scripts/harness/verify_change.py --base origin/main --task-id TASK-202`.
+- All 15 checks passed: knowledge, restore, text guard, formatting, Release build,
+  backend tests, backend dependency audit, frontend install/audit/check,
+  browser installation and import Playwright suite.
+- Backend: 818 passed, 0 failed/skipped. Frontend: 78 files / 770 unit tests passed.
+  Browser: 27 passed across Chromium, iphone-air-webkit and iphone-17-pro-max-webkit.
+- Backend build: 0 warnings/errors; NuGet audit found no vulnerable packages.
+- Existing frontend audit command is `npm audit --audit-level=high`. It passed,
+  with 7 moderate findings in minimatch / typescript-eslint tooling dependencies
+  (GHSA-g3hv-75wg-m249). Dependency manifests/lockfiles and the audit threshold
+  are unchanged. These warnings were retained, not suppressed.
+- [Canonical raw evidence](verification.json) retains the verified SHA/tree,
+  task-contract digest, environment and per-check results.
+
+## Integration and limits
+
+Fast-forward into local main on 2026-11-18 21:39 MSK. Main SHA and tree matched the
+verified candidate exactly (`7c6bcebf9dfed4c79606721fdaea545e6b62809e`), so the
+application suite was not repeated. Closure changes only task/plan/evidence,
+requirement implementation status, links and logs, verified separately.
+
+A physical iPhone/Simulator and real Safari browser chrome/keyboard were not
+tested. The UI implementation was unchanged; its existing browser flow was
+verified on both configured WebKit projects. No deployment or real client import.

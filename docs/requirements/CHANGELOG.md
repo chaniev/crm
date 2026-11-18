@@ -1,8 +1,15 @@
 # Журнал изменения требований
 
+## 2026-11-18 — TASK-202 интегрирована
+
+- REQ-CLI-010 — реализовано в локальной main `02aafc0`: пустой телефон при
+  импорте заменяется на `+79111111111`, заполненные ошибки остаются ошибками.
+  [TASK-202 и evidence](../../backlog/done/2026-11-18/TASK-202-import-empty-phone-default.md):
+  backend 818, frontend unit 770, browser 27 — PASS; миграция не требовалась.
+
 ## 2026-11-18 — TASK-202 implementation candidate
 
-- REQ-CLI-010 — [TASK-202](../../backlog/implementation/TASK-202-import-empty-phone-default.md):
+- REQ-CLI-010 — [TASK-202](../../backlog/done/2026-11-18/TASK-202-import-empty-phone-default.md):
   backend подставляет `+79111111111` только для пустого исходного поля;
   тесты охватывают пустые/отсутствующие ячейки, ошибочные номера, атомарность
   и browser-сценарий. Решение не меняется; до интеграции статус частичный.
@@ -10,17 +17,17 @@
 ## 2026-11-18 — план подстановки телефона и исправление номера задачи
 
 - Ссылка REQ-CLI-010 актуализирована на
-  [TASK-202](../../backlog/implementation/TASK-202-import-empty-phone-default.md):
+  [TASK-202](../../backlog/done/2026-11-18/TASK-202-import-empty-phone-default.md):
   пользователь разрешил перенумерацию задачи импорта из TASK-201 из-за
   независимой задачи с этим ID в другом worktree. Нормативное поведение
   и одобрение от 17.11 сохранены; реализация остаётся частичной.
-  Подготовлен [готовый план](../../backlog/implementation-plans/TASK-202-import-empty-phone-default.plan.md);
+  Подготовлен [готовый план](../../backlog/done/2026-11-18/TASK-202-import-empty-phone-default.plan.md);
   исполнение не начато.
 
 ## 2026-11-17 — пустой телефон при импорте
 
 - REQ-CLI-010 — прямое решение пользователя в
-  [TASK-202](../../backlog/implementation/TASK-202-import-empty-phone-default.md):
+  [TASK-202](../../backlog/done/2026-11-18/TASK-202-import-empty-phone-default.md):
   для пустого телефона при импорте подставлять `+79111111111`.
   Заполненные номера сохраняют действующие правила; непустое некорректное
   значение остаётся ошибкой. Решение принято, реализация новой редакции частичная;

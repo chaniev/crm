@@ -2125,3 +2125,16 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - fixture_isolation: two XLSX scenarios per browser project use separate synthetic surnames to isolate parallel browser assertions
 - evidence: /backlog/implementation/TASK-202-evidence/verification.md
 - final_validation: pending canonical clean-candidate run
+
+# 2026-11-18 21:39 MSK — TASK-202 локальная интеграция
+- delivered: `02aafc0d34c363a3c5d35766cf256b954f395ae1`; merged fast-forward into main; candidate/main tree `7c6bcebf9dfed4c79606721fdaea545e6b62809e` identical
+- final_validation: all 15 canonical/task checks PASS; backend 818/818 (0 skipped), frontend 770/770, browser 27/27
+- audit: NuGet clean; existing npm high-threshold audit passed with 7 moderate minimatch/typescript-eslint findings, dependency files and threshold unchanged
+- status: TASK-202 done; REQ-CLI-010 реализовано; code behavior matches accepted plan
+- archived: task, plan, contract, verification.md and raw report colocated under /backlog/done/2026-11-18/
+- historical_paths: former /backlog/implementation/TASK-202-import-empty-phone-default.md and /backlog/implementation-plans/TASK-202-import-empty-phone-default.plan.md now resolve to same filenames under /backlog/done/2026-11-18/; earlier logs preserved
+- evidence: /backlog/done/2026-11-18/TASK-202-evidence/verification.md
+- limits: no physical iPhone/Simulator, real Safari chrome/keyboard or deployment; existing WebKit projects verified
+- closure_validation: pending knowledge checks and archive links; application tree unchanged
+- closure_validation_result: knowledge 4/4 PASS; 45 local links, done colocation, archived contract digest and unchanged application tree PASS; git diff --check PASS
+- runtime_cleanup: task-local browser port released; disposable import host finished; no Compose stack was created
