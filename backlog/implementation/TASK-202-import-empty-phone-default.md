@@ -1,7 +1,15 @@
-# TASK-201: Подставлять номер по умолчанию при пустом телефоне в импорте
+# TASK-202: Подставлять номер по умолчанию при пустом телефоне в импорте
 
 ## Status
-tasks-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-18 21:04
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-202-import-empty-phone-default.plan.md
+- implementation_branch: codex/TASK-202-import-empty-phone-default
+- execution_started: no
+- Подготовлен готовый план по запросу пользователя; branch/worktree не созданы, код не изменён.
 
 ## Requirements
 - REQ-CLI-010 — changes
@@ -113,3 +121,13 @@ API DTO, интерфейса импорта, схемы БД и ранее со
   Дубликатов нет; следующий свободный ID после TASK-200 — TASK-201.
 - Блокирующих продуктовых вопросов и отдельного обязательного risk review
   в этом ограниченном изменении не выявлено. Код и планы не изменялись.
+
+## Identity correction — 2026-11-18
+- previous_id: TASK-201 (только эта задача импорта).
+- current_id: TASK-202.
+- Поиск в других рабочих каталогах обнаружил отдельную задачу
+  `TASK-201-api-response-boundaries` на ветке `codex/TASK-201-api-response-boundaries`.
+  Проверка triage 17.11 охватывала текущий backlog, но пропустила этот каталог.
+- Пользователь выбрал: «Дать импорту новый свободный номер (рекомендуется)».
+  TASK-202 свободен по активным/архивным карточкам доступных worktrees и Git refs.
+  Содержание и одобрение требования сохранены; другая задача TASK-201 не изменяется.

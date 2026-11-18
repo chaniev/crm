@@ -2095,3 +2095,22 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - scope: planning/ADR/status/link updates; требования продукта и статусы реализации REQ не изменены; production code, исходные XLSX, БД и стенды не менялись, task branch/worktree не создавались, execution_started: no
 - validation: explicit executable preflight до/после переноса PASS; knowledge harness 4/4 PASS; ссылки, уникальность task/plan, status-directory и git diff --check PASS
 - evidence: .artifacts/verification/TASK-196-web-plan-ready.json; application/runtime проверки не запускались для изменений документов
+
+# 2026-11-18 21:04 MSK — TASK-202: план пустого телефона при импорте
+- moved: TASK-202 — tasks-ready → implementation после успешного explicit preflight
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-202-import-empty-phone-default.plan.md
+- identity: прежняя TASK-201 импорта перенумерована в TASK-202 по прямому решению пользователя; другая TASK-201-api-response-boundaries не менялась
+- task: /backlog/implementation/TASK-202-import-empty-phone-default.md
+- branch: codex/TASK-202-import-empty-phone-default только объявлена; creation/execution не начаты
+- decisions: принятое REQ-CLI-010 и существующий ADR-0005 достаточны; новые material technical/UX решения не требуются
+- regression: обнаружено, что synthetic 48/false становится успешным, 66/false сохраняет 4 ошибки ФИО вместо 9 ошибочных строк; plan включает обновление PostgreSQL и browser ожиданий без потери отрицательных проверок
+- readiness: yes; preflight до переноса PASS; после переноса повторяется
+- scope: plan/task/source metadata/текущие requirement links и append-only logs; code/tests/runtime не менялись, deployment не выполнялся
+- validation: результат проверки финальных документов будет добавлен после выполнения
+- validation_result: explicit preflight до/после переноса PASS; `verify_change.py --base HEAD --report .artifacts/verification/TASK-202-plan.json` — все четыре knowledge checks PASS (59 requirements, 40 active tasks, 2 active plans)
+- scope_base: HEAD отделяет текущие Markdown-изменения от ранее интегрированных задач сверх origin/main; application/runtime проверки для подготовки плана не требовались и не запускались
+- artifact_validation: 35 локальных ссылок, единственность TASK-202/plan, status-directory, lifecycle, свободная объявленная branch и дословный source PASS; `git diff --check` PASS
+- review: план 179 строк; decisions не отложены в execution, test-first red указан, contract добавляет только backend/frontend и существующий import browser suite; новым механизмам и manual approval gates оснований нет
+- execution_started: no; готовность плана не является выполнением или авторизацией deployment
