@@ -122,7 +122,7 @@ ADR-0005 принят отдельным последующим ответом �
    и возможностью замены. Длинное имя переносится без скрытия расширения.
 6. Основная кнопка после полей, в обычном потоке без sticky/footer панели.
    Поведение на compact-height, safe-area и клавиатуре следует
-   [mobile acceptance](/.agents/skills/crm-mobile-first-ui/references/mobile-acceptance.md).
+   [mobile acceptance](/.agents/skills/crm-interface-design/references/mobile-acceptance.md).
 
 ### Состояния и переходы
 

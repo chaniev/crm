@@ -12,8 +12,8 @@ document drifts. Update this document together with an intentional visual-system
 change; do not treat an isolated local style as a new convention.
 
 An explicitly requested visual-language or palette redesign may propose
-replacements for current visual values through the selection workflow in
-`crm-mobile-first-ui`. Existing values describe the baseline, not an approved
+replacements for current visual values through the prototype selection workflow in
+`docs/DESIGN_PROCESS.md`. Existing values describe the baseline, not an approved
 answer to that redesign. Keep the workflow, Mantine, Onest, semantic token
 ownership, and business status meanings intact; record the selected direction
 before production changes and update this document with the shared theme.
@@ -26,7 +26,7 @@ Governing sources:
 - `src/theme/semanticVariables.ts`;
 - `src/theme/profiles.ts`;
 - `src/features/shared/**`;
-- `.agents/skills/crm-mobile-first-ui/**`.
+- `.agents/skills/crm-interface-design/**`.
 
 ## Product character
 
@@ -261,10 +261,12 @@ material redesign, acceptance requires:
 - an explicit UX contract and visual brief;
 - concrete content-removal/disclosure decisions and comparable before/after
   task evidence when simplifying an existing workflow;
-- rendered alternatives or an already approved design;
+- a checked prototype; alternatives only for unresolved UX or visual choices,
+  or an already approved design;
 - palette comparison on one composition when color is an unresolved decision;
-- a recorded selected direction;
-- runtime comparison at mobile and desktop widths;
+- a recorded owner selection on the checked prototype, with its state contract;
+- runtime comparison at mobile and desktop widths and a separate
+  `crm-interface-audit` pass within the changed scenario;
 - realistic content and consequential operational states;
 - evidence for hierarchy, scanability, density, rhythm, typography, identity,
   feedback, and responsive integrity.

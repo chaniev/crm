@@ -23,24 +23,27 @@
 
 ## Маршрутизация UI-задач
 
-| Сценарий | Последовательность агентов | Skills |
-|---|---|---|
-| Новый экран или существенная переработка workflow | `ux-researcher` → `ui-designer` → `react-specialist` → `test-automator` | Обязательно `crm-mobile-first-ui`; `design-first-ui-prompting` только для внешнего UI-generation prompt или статической визуальной концепции |
-| Анализ проблем существующего интерфейса без реализации | `ux-researcher` → `ui-designer` | `crm-mobile-first-ui` |
-| Локальная визуальная или interaction-правка | `ui-designer` → `react-specialist` | `crm-mobile-first-ui`; `design-first-ui-prompting` только если результатом является генерируемый визуальный артефакт |
-| Реализация уже утвержденной UI-спецификации | `react-specialist` → `test-automator` | `crm-mobile-first-ui` |
-| Mobile UX-регрессия | `test-automator` | acceptance-раздел `crm-mobile-first-ui` |
+Процесс и артефакты определены в [DESIGN_PROCESS.md](DESIGN_PROCESS.md).
+Навыки доступны независимо от наличия отдельного агента. Предпочтительные
+специализации ниже не требуют делегирования для каждой локальной правки.
 
-Правила:
-- mobile-first применяется на каждом frontend-этапе, а не только на финальном этапе адаптивности;
-- `ux-researcher` определяет задачу и препятствия, но не подменяет `ui-designer`;
-- `ui-designer` не меняет бизнес-правила backend;
-- `react-specialist` не меняет утвержденный workflow молча;
-- `test-automator` проверяет завершение операции, а не только наличие элементов.
-- 390 x 844 используется как узкий stress baseline, а не как замена target-device acceptance;
-- обязательные целевые размеры: iPhone Air 420 x 912 и iPhone 17 Pro Max 440 x 956;
-- для затронутых mobile workflows нужен WebKit mobile run, а 912 x 420 и 956 x 440 используются для compact-height smoke;
-- safe area, Safari chrome и software keyboard входят в UI handoff; непроверенные Simulator и physical-device сценарии указываются явно.
+| Сценарий | Навык | Предпочтительная специализация |
+|---|---|---|
+| Задача пользователя, информация и переходы | `crm-product-ux` | `ux-researcher` |
+| Композиция, адаптивность и проверяемый прототип | `crm-interface-design` | `ui-designer` |
+| Открытый выбор визуального направления или запрос генератору | `crm-visual-direction` | `ui-designer` |
+| Реализация выбранного прототипа и проверок по плану | `crm-react-implementation` | `react-specialist`, `test-automator` |
+| Визуальная приёмка работающего результата | `crm-interface-design` | `ui-designer` с отдельным критическим проходом |
+| Независимый аудит поведения и доступности | `crm-interface-audit` | Независимый проверяющий с навыками UI и тестирования |
+
+Мобильные критерии берутся из
+`../.agents/skills/crm-interface-design/references/mobile-acceptance.md`.
+Не поддерживать здесь отдельную копию размеров и требований устройств.
+UX-специалист не выбирает визуальный стиль вместо владельца; дизайнер
+не изобретает бизнес-правила; исполнитель не меняет выбранный сценарий молча.
+Проверяющий оценивает завершение задачи и восстановление, а не только наличие
+элементов. Отдельный аудит на этапе приёмки соразмерен изменению и не означает
+перепроектирование всей CRM.
 
 ## Выбор агента по этапам плана
 

@@ -27,86 +27,69 @@ and narrow-screen usability.
 
 ---
 
-## Mobile-first UX workflow
+## Процесс дизайна и реализации
 
-For a new screen or materially changed workflow:
+Следовать `docs/DESIGN_PROCESS.md`. Для нового экрана или существенного
+изменения сценария:
 
-1. Read `.agents/skills/crm-mobile-first-ui/SKILL.md` completely.
-2. Read `frontend/DESIGN.md` and inspect the current rendered flow.
-3. Define the UX contract with `.agents/skills/crm-ux-design/SKILL.md` before
-   visual layout decisions; prefer `ux-researcher` when available.
-4. Create a visual brief and three meaningfully different rendered directions;
-   prefer `ui-designer`. Follow the skill's separation of task structure and
-   palette comparisons. An approved user-supplied design replaces this step.
-5. Record the product owner's selected or refined direction before production
-   implementation.
-6. Convert the selected direction into an implementation-ready visual and
-   interaction contract; prefer `ui-designer`.
-7. Resolve product uncertainties that change the workflow before implementation.
-8. Implement the approved interaction and its regression coverage in the
-   plan's test-first order; prefer `react-specialist` and `test-automator`.
-9. After implementation, complete any remaining coverage and independently
-   compare the runtime result with the selected direction, UX contract, and
-   the skill's behavioral and visual acceptance criteria.
+1. Изучить текущий интерфейс, `frontend/DESIGN.md` и возможности сервера.
+2. Через `.agents/skills/crm-product-ux/SKILL.md` подготовить короткий бриф,
+   путь пользователя, состав информации, каркасы и восстановление после ошибок.
+3. Через `.agents/skills/crm-interface-design/SKILL.md` подготовить прототип
+   на Mantine, Onest и общих компонентах CRM. При открытом выборе визуального
+   направления подключить `.agents/skills/crm-visual-direction/SKILL.md`.
+4. Проверить прототип: основную операцию, существенный сбой, применимое
+   ограничение доступа, длинные данные и мобильное/настольное представление.
+5. Зафиксировать выбор владельца на проверенном прототипе и описание состояний.
+   Значимый выбор рабочего процесса согласовать раньше; однозначная локальная
+   правка внутри принятых решений требует сравнения до/после без нового выбора.
+6. После готовности плана реализовать согласованный контракт через
+   `.agents/skills/crm-react-implementation/SKILL.md` с регрессионным покрытием
+   в заданном планом порядке «сначала тесты».
+7. Сравнить работающий интерфейс с прототипом и выполнить отдельный аудит
+   затронутого сценария через `.agents/skills/crm-interface-audit/SKILL.md`.
 
-Design approval precedes production changes, and runtime acceptance follows
-implementation. Test/code ordering follows the plan; do not defer all tests
-until after implementation. These outcomes are mandatory; separate agents
-are not. When a specialist is unavailable or separate delegation is
-disproportionate, the implementing agent owns the same artifacts and review
-boundaries.
+Один прототип достаточен, когда решение следует из существующей системы.
+Несколько вариантов нужны для конкретного открытого вопроса, а не для
+формального количества. Готовый согласованный дизайн переиспользуется.
+Для палитр сохранять одинаковую композицию и данные; выбранные изменения
+вносить в общую тему вместе с `frontend/DESIGN.md`. Это не разрешает менять
+смысл статусов, брендирование, бизнес-правила или стек реализации.
 
-The skill is the single source for target viewport sizes, safe-area,
-compact-height, Safari, software-keyboard, operational-state, and mobile
-acceptance requirements. Do not restate or weaken those requirements here.
+Мобильная матрица, безопасные отступы, малая высота, Safari, экранная клавиатура
+и рабочие состояния определены только в
+`.agents/skills/crm-interface-design/references/mobile-acceptance.md`.
+Каждый видимый элемент поддерживает определённую операцию. Основные действия
+остаются видимыми; горизонтальная прокрутка настольного содержимого не является
+мобильной адаптацией по умолчанию.
 
-Every visible control must support a defined operation. Keep primary operations
-visible and dominant; do not use horizontal scrolling of desktop content as the
-default mobile adaptation. If a technical constraint changes the approved
-interaction, return the conflict to `ui-designer` instead of silently changing
-the workflow.
+Сохранять контекст возврата, идентификацию и безопасное восстановление.
+При упрощении показывать конкретные решения по информации и сопоставимое
+прохождение до/после. Различать дефекты, гипотезы улучшения и предпочтения.
+Существенный конфликт с выбранным взаимодействием возвращает план в подготовку
+по `docs/HARNESS.md`, а не разрешает молча изменить сценарий.
 
-A small local visual correction that does not change the workflow may start
-with `ui-designer`, does not require three variants when the correction is
-deterministic, and still requires a rendered before/after check and proportional
-regression coverage.
+Минимальные артефакты — бриф, согласованный прототип с описанием состояний и
+результаты проверки. Они могут быть частями одного документа задачи.
+Предпочтительны `ux-researcher`, `ui-designer`, `react-specialist` и
+`test-automator` в соответствующих ролях. Отдельные агенты не обязательны;
+при самостоятельном выполнении сохраняются те же результаты и границы ревью.
 
-For an explicitly requested palette or visual-language redesign, use the
-corresponding mode in `crm-mobile-first-ui`. Preserve the approved workflow;
-color-only alternatives are valid for palette selection. Existing colors are
-the default, not a prohibition on proposing replacements within that scope.
-Record the owner's selection before production changes and update shared theme
-values and `frontend/DESIGN.md` together. This does not authorize changing
-business behavior, branding contracts, or the implementation stack.
+## Выбор навыка по узкому запросу
 
-Workflow simplification must show concrete content decisions and comparable
-before/after task evidence in the UX contract. Design review distinguishes
-confirmed defects from improvement hypotheses; a clean compliance audit does
-not by itself establish usability, visual quality, or owner approval.
+- Сценарий и состав информации: `.agents/skills/crm-product-ux/SKILL.md`.
+- Прототип, адаптивность, локальная визуальная правка или визуальная приёмка:
+  `.agents/skills/crm-interface-design/SKILL.md`.
+- Новый визуальный характер, палитра, концепции или запрос внешнему генератору:
+  `.agents/skills/crm-visual-direction/SKILL.md`.
+- React-код, состояние, эффекты, загрузка данных, композиция и производительность:
+  `.agents/skills/crm-react-implementation/SKILL.md`.
+- Самостоятельный аудит готового интерфейса или отдельный проход при приёмке:
+  `.agents/skills/crm-interface-audit/SKILL.md`.
 
-Optional visual-generation guidance:
-
-- Read `.agents/skills/design-first-ui-prompting/SKILL.md` only when the
-  deliverable includes an external UI-generator prompt, static concept, demo,
-  or landing page.
-- It does not override the CRM UX contract, responsive behavior, accessibility,
-  Mantine/Onest patterns, or implementation acceptance criteria.
-
----
-
-## React implementation skill
-
-For React implementation, review, performance optimization, state flow, data
-loading, effects, component boundaries, or frontend refactoring:
-
-- read `.agents/skills/react-best-practices/SKILL.md`;
-- apply only React 19, TypeScript, Vite, and Mantine-compatible guidance;
-- do not introduce Next.js-specific APIs or assumptions;
-- preserve existing API-client, routing, testing, and design-system patterns.
-
-For an explicitly requested independent accessibility, keyboard, focus, or
-interface-compliance audit, read
-`.agents/skills/web-design-guidelines/SKILL.md`.
+Применять только совместимые с React 19, TypeScript, Vite и Mantine рекомендации.
+Сохранять API-клиент, маршруты, модель форм и тестовые подходы. Не добавлять
+механизмы Next.js или параллельную дизайн-систему из внешних примеров.
 
 ---
 
@@ -156,7 +139,7 @@ If a flow or interface changed:
   physical-device checks that remain unverified.
 
 Follow the viewport and compact-height matrix from
-`.agents/skills/crm-mobile-first-ui/SKILL.md` rather than maintaining a second
+`.agents/skills/crm-interface-design/references/mobile-acceptance.md` rather than maintaining a second
 copy here.
 
 ---

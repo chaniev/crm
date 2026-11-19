@@ -143,12 +143,17 @@ same task or an explicitly approved coordinated dependency.
 
 ## Capability and skill routing
 
-- New screens or materially changed workflows follow `frontend/AGENTS.md` and
-  `.agents/skills/crm-mobile-first-ui/SKILL.md`. They must produce UX analysis,
-  an implementation-ready UI specification, React implementation, and
-  regression coverage. Agree the UX/UI contracts before production changes;
-  follow the plan's test-first order during implementation and finish with an
-  independent runtime comparison against the approved design.
+- Новые экраны и существенные изменения сценариев следуют `frontend/AGENTS.md`
+  и `docs/DESIGN_PROCESS.md`: бриф и взаимодействие через
+  `.agents/skills/crm-product-ux/SKILL.md`, проверенный прототип через
+  `.agents/skills/crm-interface-design/SKILL.md`, открытый визуальный выбор через
+  `.agents/skills/crm-visual-direction/SKILL.md`. Число вариантов зависит от
+  неопределённости; основной выбор владельца проходит на проверенном прототипе
+  до рабочих изменений. Реализация следует
+  `.agents/skills/crm-react-implementation/SKILL.md` и порядку тестов в плане;
+  приёмка включает сравнение с прототипом и отдельный проход через
+  `.agents/skills/crm-interface-audit/SKILL.md`. Архив навыков не является
+  источником действующих инструкций.
 - Broad structural refactors require an explicit refactoring review; use
   `refactoring-specialist` when that capability is available.
 - Layer-specific preferred capabilities and skills are defined in every
