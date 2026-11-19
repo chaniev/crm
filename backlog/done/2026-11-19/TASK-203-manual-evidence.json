@@ -6,7 +6,7 @@
       "id": "manual.visual-and-interface-review",
       "note": "Compared rendered implementation with A.2 and completed a separate interaction audit; physical device limitations documented.",
       "artifacts": [
-        "backlog/implementation/TASK-203-evidence/README.md"
+        "backlog/done/2026-11-19/TASK-203-evidence/README.md"
       ],
       "actor": "coding-agent:TASK-203",
       "performed_at": "2026-11-19T23:28:15.558486+03:00"

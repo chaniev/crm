@@ -2253,3 +2253,12 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - dependency review: TASK-201 has only its own clarification card changed; no producer/consumer code ownership collision.
 - initial regression: 5 frontend checks and 6 backend cases failed on the old implementation (missing one-action behavior/guard/options and false slot errors); corrected the API test path to the unprefixed test-host route before green verification.
 - planning prototype source preserved locally in .artifacts/task-203-planning-prototype, outside the frontend linter; independent task dependencies installed.
+
+
+## 2026-11-19 — TASK-203: local integration and closure
+- verified_candidate: 97a70ce8ff321265d1278e5e3cd504b57f808c30
+- integration: fast-forward main, identical tree 6c82b9467e14e543de8490041f99e8ee72e2531d.
+- requirements: REQ-GRP-008 реализовано; решение принято, нормативный смысл сохранён.
+- archived: card, plan, contract, manual provenance, prototype and verification evidence → backlog/done/2026-11-19/.
+- previous_paths: backlog/implementation/TASK-203*, backlog/tasks-ready/TASK-203-group-create-single-action.md, backlog/implementation-plans/TASK-203-group-create-single-action.plan.md and backlog/mockups/TASK-203-group-create-single-action now resolve to that dated archive; historical logs retained.
+- runtime: no shared deployment; ephemeral test runtimes owned and cleaned by the tests/harness.

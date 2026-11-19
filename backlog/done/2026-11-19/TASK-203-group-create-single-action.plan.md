@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-203 Создание группы одним действием
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-203-group-create-single-action.md
+- source_task: /backlog/done/2026-11-19/TASK-203-group-create-single-action.md
 - requirements: REQ-GRP-008 (changes), REQ-GRP-001 (constrains), REQ-GRP-002 (constrains), REQ-GRP-003 (constrains), REQ-GRP-004 (constrains), REQ-USR-001 (constrains), REQ-AUD-001 (constrains), REQ-NFR-001 (constrains)
 - branch: codex/TASK-203-group-create-single-action
 - readiness: yes
@@ -39,19 +39,19 @@
   ниже согласованы владельцем 19.11.2026. Все решения планирования закрыты.
 
 ## Decision evidence
-- technical: [Согласование технического контракта 19.11.2026](/backlog/processed/2026-11-19-group-creation-request.md#согласование-технического-контракта-от-19112026) — owner: пользователь, владелец проекта; decision: принят серверный create-options, последовательный preview→create с неизменным payload/token, исправление ошибок и recovery без повторной записи при неизвестном результате, существующая управляемая навигация, совместимое дополнение API без миграций с описанным порядком выпуска и отката.
-- product: [Согласование прототипа A.2 19.11.2026](/backlog/processed/2026-11-19-group-creation-request.md#согласование-прототипа-a2-от-19112026) — owner: пользователь, владелец проекта; decision: выбран проверенный вариант A.2 без нижней сводки с показанными состояниями и диалогами; технический контракт этим решением не утверждался.
-- product: [Удаление сводки 19.11.2026](/backlog/processed/2026-11-19-group-creation-request.md#удаление-дублирующей-сводки-от-19112026) — owner: пользователь, владелец проекта; decision: убрать нижнюю дублирующую сводку из формы создания; остальные поля и действия сохраняются.
-- product: [Текущий запрос](/backlog/processed/2026-11-19-group-creation-request.md) — owner: пользователь, владелец проекта; decision: сразу пытаться создать группу с проверкой в процессе, затем подготовить план этого изменения.
-- product: [Уточнение владельца 19.11.2026](/backlog/processed/2026-11-19-group-creation-request.md#уточнение-владельца-от-19112026) — owner: пользователь, владелец проекта; decision: предупреждать при уходе; после подтверждения разрешать уход во время создания с потерей ввода и возможным завершением операции; неизвестный результат проверять через список без повторной отправки; неблокирующие предупреждения игнорировать.
-- product: [Исключение кнопок браузера 19.11.2026](/backlog/processed/2026-11-19-group-creation-request.md#исключение-защиты-кнопок-браузера-от-19112026) — owner: пользователь, владелец проекта; decision: кнопки браузера не защищать и не блокировать, при уходе терять ввод без сохранения и восстановления; заменяет прежнее включение Back/Forward в защиту формы, предупреждение через действия приложения сохраняется.
-- current-contract: [GroupEndpoints](/backend/src/GymCrm.Api/Auth/GroupEndpoints.cs), [payload](/backend/src/GymCrm.Api/Auth/UpsertTrainingGroupRequest.cs), [scope](/backend/src/GymCrm.Api/Auth/GroupManagementScope.cs) — сервер определяет филиальный доступ, проверяет токен и атомарно пишет группу/расписание/аудит.
-- current-ui: [экспертный проход](/backlog/processed/2026-11-19-group-creation-request.md), [GroupCreateScreen](/frontend/src/features/groups/GroupCreateScreen.tsx) — воспроизводимые проблемы и границы проверки.
+- technical: [Согласование технического контракта 19.11.2026](../../processed/2026-11-19-group-creation-request.md#согласование-технического-контракта-от-19112026) — owner: пользователь, владелец проекта; decision: принят серверный create-options, последовательный preview→create с неизменным payload/token, исправление ошибок и recovery без повторной записи при неизвестном результате, существующая управляемая навигация, совместимое дополнение API без миграций с описанным порядком выпуска и отката.
+- product: [Согласование прототипа A.2 19.11.2026](../../processed/2026-11-19-group-creation-request.md#согласование-прототипа-a2-от-19112026) — owner: пользователь, владелец проекта; decision: выбран проверенный вариант A.2 без нижней сводки с показанными состояниями и диалогами; технический контракт этим решением не утверждался.
+- product: [Удаление сводки 19.11.2026](../../processed/2026-11-19-group-creation-request.md#удаление-дублирующей-сводки-от-19112026) — owner: пользователь, владелец проекта; decision: убрать нижнюю дублирующую сводку из формы создания; остальные поля и действия сохраняются.
+- product: [Текущий запрос](../../processed/2026-11-19-group-creation-request.md) — owner: пользователь, владелец проекта; decision: сразу пытаться создать группу с проверкой в процессе, затем подготовить план этого изменения.
+- product: [Уточнение владельца 19.11.2026](../../processed/2026-11-19-group-creation-request.md#уточнение-владельца-от-19112026) — owner: пользователь, владелец проекта; decision: предупреждать при уходе; после подтверждения разрешать уход во время создания с потерей ввода и возможным завершением операции; неизвестный результат проверять через список без повторной отправки; неблокирующие предупреждения игнорировать.
+- product: [Исключение кнопок браузера 19.11.2026](../../processed/2026-11-19-group-creation-request.md#исключение-защиты-кнопок-браузера-от-19112026) — owner: пользователь, владелец проекта; decision: кнопки браузера не защищать и не блокировать, при уходе терять ввод без сохранения и восстановления; заменяет прежнее включение Back/Forward в защиту формы, предупреждение через действия приложения сохраняется.
+- current-contract: [GroupEndpoints](../../../backend/src/GymCrm.Api/Auth/GroupEndpoints.cs), [payload](../../../backend/src/GymCrm.Api/Auth/UpsertTrainingGroupRequest.cs), [scope](../../../backend/src/GymCrm.Api/Auth/GroupManagementScope.cs) — сервер определяет филиальный доступ, проверяет токен и атомарно пишет группу/расписание/аудит.
+- current-ui: [экспертный проход](../../processed/2026-11-19-group-creation-request.md), [GroupCreateScreen](../../../frontend/src/features/groups/GroupCreateScreen.tsx) — воспроизводимые проблемы и границы проверки.
 
 ## Scope
 Backend Staff API группы и его тесты; frontend create screen, API mirror,
 локальная форма, подключение управляемой навигации и регрессионные сценарии.
-Границы исключений — в [задаче](/backlog/implementation/TASK-203-group-create-single-action.md#out-of-scope).
+Границы исключений — в [задаче](TASK-203-group-create-single-action.md#out-of-scope).
 
 ## Technical contract — accepted
 1. **Варианты создания.** Добавить `GET /api/groups/options/create`, защищённый
@@ -136,8 +136,7 @@ live-сводку, повторяющую выбор в полях; также �
 
 ## Planning blockers
 Нет. Поведение, прототип A.2 и технический контракт согласованы владельцем;
-защита browser Back/Forward исключена. Задача готова к реализации, выполнение
-рабочих изменений ещё не начато.
+защита browser Back/Forward исключена. Задача готова к реализации, реализация завершена и проверена.
 
 ## Implementation slices
 1. **Регрессионный контракт.** Добавить тесты ниже,
@@ -230,3 +229,6 @@ Browser один click → один preview → один create → именно
 - При пересечении файлов с отдельной TASK-201 API response boundaries согласовать
   владение/базу; её worktree обнаружен, но чужие изменения и статус не изменялись.
 - Согласование прототипа и разрешение реализации нельзя подменить успешным линтером плана.
+
+## Execution result
+Выполнено и интегрировано в локальную main 19.11.2026. Кандидат: `97a70ce`. [Проверки и ограничения](TASK-203-evidence/README.md).

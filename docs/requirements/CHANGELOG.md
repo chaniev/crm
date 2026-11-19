@@ -1,13 +1,15 @@
 # Журнал изменения требований
 
-- 19.11.2026 — REQ-GRP-008: реализация [TASK-203](../../backlog/implementation/TASK-203-group-create-single-action.md) подготовлена в ветке задачи; состояние «частично» до проверок и интеграции.
+- 19.11.2026 — REQ-GRP-008: [TASK-203](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md) проверена и интегрирована в локальную main (`97a70ce`); реализация текущей редакции — «реализовано».
+
+- 19.11.2026 — REQ-GRP-008: реализация [TASK-203](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md) подготовлена в ветке задачи; состояние «частично» до проверок и интеграции.
 
 ## 2026-11-19 — TASK-203: план готов к реализации
 
 - Владелец [согласовал технический контракт](../../backlog/processed/2026-11-19-group-creation-request.md#согласование-технического-контракта-от-19112026);
   ранее принят прототип A.2. Решения планирования закрыты,
-  [задача](../../backlog/implementation/TASK-203-group-create-single-action.md)
-  перенесена в `tasks-ready`, [план](../../backlog/implementation-plans/TASK-203-group-create-single-action.plan.md)
+  [задача](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md)
+  перенесена в `tasks-ready`, [план](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.plan.md)
   имеет `readiness: yes`. Ссылки реестра обновлены на новый путь карточки.
 - Продуктовое поведение и решение REQ-GRP-008 не меняются; рабочая реализация
   остаётся «не начато».
@@ -18,8 +20,8 @@
   с показанными состояниями и диалогами. Поведение ранее принято; реализация
   приложения остаётся «не начато».
 - [Источник согласования](../../backlog/processed/2026-11-19-group-creation-request.md#согласование-прототипа-a2-от-19112026),
-  [прототип](../../backlog/mockups/TASK-203-group-create-single-action/README.md),
-  [план](../../backlog/implementation-plans/TASK-203-group-create-single-action.plan.md).
+  [прототип](../../backlog/done/2026-11-19/TASK-203-mockups/README.md),
+  [план](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.plan.md).
 
 ## 2026-11-19 — TASK-203: удаление дублирующей сводки
 
@@ -27,8 +29,8 @@
   группы отсутствует. Поля и действия сохраняются. Прототип обновлён; рабочая
   реализация не начата.
 - [Источник](../../backlog/processed/2026-11-19-group-creation-request.md#удаление-дублирующей-сводки-от-19112026),
-  [задача](../../backlog/implementation/TASK-203-group-create-single-action.md),
-  [план](../../backlog/implementation-plans/TASK-203-group-create-single-action.plan.md).
+  [задача](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md),
+  [план](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.plan.md).
 
 ## 2026-11-19 — TASK-203: кнопки браузера исключены из защиты формы
 
@@ -40,8 +42,8 @@
   решение о защите browser Back/Forward заменено; механизм history и связанный
   вопрос ADR исключены из плана.
 - [Источник решения](../../backlog/processed/2026-11-19-group-creation-request.md#исключение-защиты-кнопок-браузера-от-19112026),
-  [задача](../../backlog/implementation/TASK-203-group-create-single-action.md),
-  [план](../../backlog/implementation-plans/TASK-203-group-create-single-action.plan.md).
+  [задача](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md),
+  [план](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.plan.md).
   Реализация не начата; остаются проверенный прототип, его выбор и итоговое
   согласование плана. Исторические записи ниже сохранены.
 
@@ -54,8 +56,8 @@
   без повторной отправки из этого состояния. Неблокирующие предупреждения
   игнорируются без дополнительного подтверждения; ошибки сохраняют запрет записи.
 - [Источник решения](../../backlog/processed/2026-11-19-group-creation-request.md#уточнение-владельца-от-19112026),
-  [задача](../../backlog/implementation/TASK-203-group-create-single-action.md),
-  [план](../../backlog/implementation-plans/TASK-203-group-create-single-action.plan.md).
+  [задача](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md),
+  [план](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.plan.md).
   Реализация не начата; остаются проверенный прототип и техническая проработка
   защиты browser Back/Forward.
 
@@ -65,8 +67,8 @@
   без обязательного отдельного предпросмотра; ошибки сохраняют ввод, success
   требует подтверждённой записи. Реализация — «не начато».
 - [Источник решения](../../backlog/processed/2026-11-19-group-creation-request.md),
-  [задача](../../backlog/implementation/TASK-203-group-create-single-action.md),
-  [план](../../backlog/implementation-plans/TASK-203-group-create-single-action.plan.md).
+  [задача](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md),
+  [план](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.plan.md).
   План остаётся неготовым до выбора проверенных UX-состояний и границы ухода.
 
 ## 2026-11-19 — ссылка на новый процесс дизайна

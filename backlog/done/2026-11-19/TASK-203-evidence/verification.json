@@ -1,0 +1,1313 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-19T20:45:50.224507+00:00",
+  "repository": "TASK-203-group-create-single-action",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "frontend.playwright.install",
+    "frontend.e2e.groups-registry",
+    "frontend.e2e.group-schedule-workflow",
+    "frontend.e2e.settings-client-import"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "97a70ce8ff321265d1278e5e3cd504b57f808c30",
+    "head_tree_sha": "6c82b9467e14e543de8490041f99e8ee72e2531d",
+    "base_sha": "b779fcca442b496fb94198ca4101dc9fd9044b21",
+    "merge_base_sha": "b779fcca442b496fb94198ca4101dc9fd9044b21",
+    "branch": "codex/TASK-203-group-create-single-action",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-203-verification-contract.json",
+    "task_id": "TASK-203",
+    "expected_branch": "codex/TASK-203-group-create-single-action",
+    "sha256": "559ad40be5f325b15bbe75d7819f26165814b571ea6891a639a1e06bdfdc9a38",
+    "verified_head_sha": "97a70ce8ff321265d1278e5e3cd504b57f808c30",
+    "verified_head_tree_sha": "6c82b9467e14e543de8490041f99e8ee72e2531d",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-203\",\n  \"expected_branch\": \"codex/TASK-203-group-create-single-action\",\n  \"areas\": [\n    \"backend\",\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.groups-registry\",\n      \"spec\": \"e2e/groups-registry.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.group-schedule-workflow\",\n      \"spec\": \"e2e/group-schedule-workflow.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.settings-client-import\",\n      \"spec\": \"e2e/settings-client-import.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1800\n    }\n  ],\n  \"manual_evidence\": \"backlog/implementation/TASK-203-manual-evidence.json\",\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.visual-and-interface-review\",\n      \"description\": \"Compare A.2 and independently audit group creation, responsive layouts and recovery; document device limitations.\"\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-203",
+      "expected_branch": "codex/TASK-203-group-create-single-action",
+      "areas": [
+        "backend",
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.groups-registry",
+          "spec": "e2e/groups-registry.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.group-schedule-workflow",
+          "spec": "e2e/group-schedule-workflow.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.settings-client-import",
+          "spec": "e2e/settings-client-import.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1800
+        }
+      ],
+      "manual_evidence": "backlog/implementation/TASK-203-manual-evidence.json",
+      "manual_checks": [
+        {
+          "id": "manual.visual-and-interface-review",
+          "description": "Compare A.2 and independently audit group creation, responsive layouts and recovery; document device limitations."
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-203",
+  "source_ref": null,
+  "e2e_port": 51538,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupApiConstants.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/implementation-plans/TASK-203-group-create-single-action.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-leave-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-leave-360.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-leave-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-leave-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-leave-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-leave-768.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-leave-912.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-leave-956.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-ready-1440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-ready-360.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-ready-390.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-ready-420.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-ready-440.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-ready-768.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-ready-912.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/chromium-create-ready-956.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-leave-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-ready-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-leave-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-ready-iphone.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R099",
+      "paths": [
+        "backlog/tasks-ready/TASK-203-group-create-single-action.md",
+        "backlog/implementation/TASK-203-group-create-single-action.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-203-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/implementation-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/processed/2026-11-19-group-creation-request.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/02-группы.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-schedule-workflow.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/groups-registry.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.css"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/app/RouteViewport.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupCreateScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupForm.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupManagement.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/endpoints.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/groups.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/groups.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/types.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-13-groups-core.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+    "backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+    "backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+    "backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs",
+    "backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+    "backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+    "backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+    "backlog/implementation-plans/TASK-203-group-create-single-action.plan.md",
+    "backlog/implementation/TASK-203-evidence/README.md",
+    "backlog/implementation/TASK-203-evidence/chromium-create-leave-1440.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-leave-360.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-leave-390.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-leave-420.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-leave-440.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-leave-768.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-leave-912.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-leave-956.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-ready-1440.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-ready-360.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-ready-390.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-ready-420.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-ready-440.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-ready-768.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-ready-912.png",
+    "backlog/implementation/TASK-203-evidence/chromium-create-ready-956.png",
+    "backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-leave-iphone.png",
+    "backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-ready-iphone.png",
+    "backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-leave-iphone.png",
+    "backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-ready-iphone.png",
+    "backlog/implementation/TASK-203-group-create-single-action.md",
+    "backlog/implementation/TASK-203-manual-evidence.json",
+    "backlog/implementation/TASK-203-verification-contract.json",
+    "backlog/logs/implementation-log.md",
+    "backlog/processed/2026-11-19-group-creation-request.md",
+    "backlog/tasks-ready/TASK-203-group-create-single-action.md",
+    "docs/requirements/02-группы.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/group-schedule-workflow.spec.ts",
+    "frontend/e2e/groups-registry.spec.ts",
+    "frontend/playwright.config.ts",
+    "frontend/src/App.css",
+    "frontend/src/App.tsx",
+    "frontend/src/app/RouteViewport.tsx",
+    "frontend/src/features/groups/GroupCreateScreen.tsx",
+    "frontend/src/features/groups/GroupForm.tsx",
+    "frontend/src/features/groups/GroupManagement.test.tsx",
+    "frontend/src/lib/api.ts",
+    "frontend/src/lib/api/endpoints.ts",
+    "frontend/src/lib/api/groups.test.ts",
+    "frontend/src/lib/api/groups.ts",
+    "frontend/src/lib/api/types.ts",
+    "frontend/src/resources/fe-13-groups-core.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-203-group-create-single-action.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/README.md",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-360.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-768.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-912.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-956.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-1440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-360.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-390.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-420.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-440.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-768.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-912.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-956.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-leave-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-ready-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-leave-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-ready-iphone.png",
+      "documentation or instructions changed: backlog/implementation/TASK-203-group-create-single-action.md",
+      "documentation or instructions changed: backlog/implementation/TASK-203-manual-evidence.json",
+      "documentation or instructions changed: backlog/implementation/TASK-203-verification-contract.json",
+      "documentation or instructions changed: backlog/logs/implementation-log.md",
+      "documentation or instructions changed: backlog/processed/2026-11-19-group-creation-request.md",
+      "documentation or instructions changed: backlog/tasks-ready/TASK-203-group-create-single-action.md",
+      "documentation or instructions changed: docs/requirements/02-группы.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+      "task contract TASK-203 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+      "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+      "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/App.css",
+      "frontend-owned path changed: frontend/src/App.tsx",
+      "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+      "frontend-owned path changed: frontend/src/lib/api.ts",
+      "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+      "frontend-owned path changed: frontend/src/lib/api/groups.test.ts",
+      "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+      "frontend-owned path changed: frontend/src/lib/api/types.ts",
+      "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+      "task contract TASK-203 requires frontend"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.visual-and-interface-review",
+      "description": "Compare A.2 and independently audit group creation, responsive layouts and recovery; document device limitations.",
+      "status": "confirmed",
+      "actor": "coding-agent:TASK-203",
+      "performed_at": "2026-11-19T23:28:15.558486+03:00",
+      "note": "Compared rendered implementation with A.2 and completed a separate interaction audit; physical device limitations documented.",
+      "artifacts": [
+        "backlog/implementation/TASK-203-evidence/README.md"
+      ],
+      "evidence_path": "backlog/implementation/TASK-203-manual-evidence.json",
+      "evidence_sha256": "5dbc04aaab10ac3b7f3998b98c1e9dcf30d685b91ef3d0b23345c02ee735e64d"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-203-group-create-single-action.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/README.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-leave-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-ready-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-leave-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-ready-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-group-create-single-action.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-203-verification-contract.json",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/processed/2026-11-19-group-creation-request.md",
+        "documentation or instructions changed: backlog/tasks-ready/TASK-203-group-create-single-action.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:45:50.360531+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-19T20:45:50.400716+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-203-group-create-single-action.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/README.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-leave-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-ready-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-leave-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-ready-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-group-create-single-action.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-203-verification-contract.json",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/processed/2026-11-19-group-creation-request.md",
+        "documentation or instructions changed: backlog/tasks-ready/TASK-203-group-create-single-action.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:45:50.401790+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-19T20:45:50.442125+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-203-group-create-single-action.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/README.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-leave-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-ready-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-leave-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-ready-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-group-create-single-action.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-203-verification-contract.json",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/processed/2026-11-19-group-creation-request.md",
+        "documentation or instructions changed: backlog/tasks-ready/TASK-203-group-create-single-action.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:45:50.443230+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.071,
+      "completed_at": "2026-11-19T20:45:50.513803+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-203-group-create-single-action.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/README.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-leave-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-1440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-360.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-390.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-420.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-440.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-768.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-912.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/chromium-create-ready-956.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-leave-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-17-pro-max-webkit-create-ready-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-leave-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-evidence/iphone-air-webkit-create-ready-iphone.png",
+        "documentation or instructions changed: backlog/implementation/TASK-203-group-create-single-action.md",
+        "documentation or instructions changed: backlog/implementation/TASK-203-manual-evidence.json",
+        "documentation or instructions changed: backlog/implementation/TASK-203-verification-contract.json",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/processed/2026-11-19-group-creation-request.md",
+        "documentation or instructions changed: backlog/tasks-ready/TASK-203-group-create-single-action.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:45:50.515006+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-11-19T20:45:50.592493+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-203 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:45:50.593567+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.619,
+      "completed_at": "2026-11-19T20:45:51.212537+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-203 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:45:51.213704+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.167,
+      "completed_at": "2026-11-19T20:45:52.380443+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-203 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:45:52.381527+00:00",
+      "exit_code": 0,
+      "duration_seconds": 11.637,
+      "completed_at": "2026-11-19T20:46:04.018617+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-203 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:46:04.019858+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.001,
+      "completed_at": "2026-11-19T20:46:08.020767+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-203 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:46:08.021963+00:00",
+      "exit_code": 0,
+      "duration_seconds": 177.088,
+      "completed_at": "2026-11-19T20:49:05.109887+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupApiConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsEndpoint.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupsApiTests.cs",
+        "task contract TASK-203 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:49:05.111882+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.913,
+      "completed_at": "2026-11-19T20:49:09.024740+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-203 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:49:09.025864+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.561,
+      "completed_at": "2026-11-19T20:49:14.586608+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-203 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:49:14.587979+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.949,
+      "completed_at": "2026-11-19T20:49:15.536602+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-203 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:49:15.537876+00:00",
+      "exit_code": 0,
+      "duration_seconds": 24.399,
+      "completed_at": "2026-11-19T20:49:39.936938+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-203 requires frontend",
+        "task contract TASK-203 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:49:39.938469+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.44,
+      "completed_at": "2026-11-19T20:49:40.378813+00:00"
+    },
+    {
+      "id": "frontend.e2e.groups-registry",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/groups-registry.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-203 requires frontend",
+        "task contract TASK-203 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:49:40.380010+00:00",
+      "exit_code": 0,
+      "duration_seconds": 18.97,
+      "completed_at": "2026-11-19T20:49:59.350071+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-schedule-workflow",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule-workflow.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-203 requires frontend",
+        "task contract TASK-203 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:49:59.352015+00:00",
+      "exit_code": 0,
+      "duration_seconds": 29.313,
+      "completed_at": "2026-11-19T20:50:28.665420+00:00"
+    },
+    {
+      "id": "frontend.e2e.settings-client-import",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/settings-client-import.spec.ts",
+        "--project=chromium"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateBranchOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateHallOptionResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupCreateOptionsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/app/RouteViewport.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupCreateScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupForm.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groups.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-13-groups-core.ts",
+        "task contract TASK-203 requires frontend",
+        "task contract TASK-203 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-19T20:50:28.667166+00:00",
+      "exit_code": 0,
+      "duration_seconds": 23.003,
+      "completed_at": "2026-11-19T20:50:51.670249+00:00"
+    }
+  ],
+  "completed_at": "2026-11-19T20:50:51.671418+00:00"
+}
