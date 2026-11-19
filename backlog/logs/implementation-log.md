@@ -2188,3 +2188,41 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - verification_limits: изменены только документы; код и runtime не менялись
 - validation_result: knowledge harness 4/4 PASS; 155 локальных Markdown-ссылок существуют; одна карточка и один план TASK-203, статус и каталог согласованы; git diff --check PASS
 - evidence_report: .artifacts/verification/TASK-203-browser-navigation.json
+
+# 2026-11-19 — TASK-203: прототип варианта A для согласования
+- moved: none
+- planned_in_place: TASK-203
+- prototype: /backlog/mockups/TASK-203-group-create-single-action/README.md
+- workspace: /Users/muradchaniev/Documents/work/crm-worktrees/TASK-203-group-create-single-action; codex/TASK-203-group-create-single-action; origin/main 53a410b, актуальные документы из main 25951b2
+- scope: временный изолированный прототип на Mantine/Onest и общих компонентах CRM; вымышленные данные; рабочие исходники и API не изменялись
+- evidence: desktop/mobile screenshots, viewport-checks.json; основная операция, ошибки, уход, неизвестный результат, ограничения доступа и загрузка проверены в браузере
+- validation: typecheck и отдельная сборка прототипа PASS; knowledge-проверки записываются после финальных документов
+- readiness: no — вариант A ожидает выбора владельца; итоговое согласование технического контракта ещё не получено
+- execution_started: no
+- limits: нет проверки backend, реального импорта, Safari/iPhone, клавиатуры устройства и экранного диктора; исходники прототипа сохранены в локальном frontend/.artifacts/task-203-prototype
+- validation_result: knowledge harness 4/4 PASS; 31 локальных ссылок task/plan/prototype существуют; git diff --check PASS
+- evidence_report: .artifacts/verification/TASK-203-prototype.json
+
+# 2026-11-19 — TASK-203: удалена сводка по обратной связи владельца
+- moved: none
+- planned_in_place: TASK-203
+- decision: убрать нижнюю сводку, повторяющую выбор в форме создания; источник — /backlog/processed/2026-11-19-group-creation-request.md
+- prototype: /backlog/mockups/TASK-203-group-create-single-action/README.md — редакция A.2, снимки до/после сохранены
+- scope: временный прототип, task/plan/REQ/CHANGELOG; рабочие исходники приложения не изменены
+- readiness: no — удаление сводки принято, весь прототип и технический контракт ещё ожидают согласования
+- execution_started: no
+- validation_result: prototype typecheck/build PASS; визуальная проверка восьми размеров PASS; knowledge harness 4/4 PASS; 37 локальных ссылок существуют; git diff --check PASS
+- evidence_report: .artifacts/verification/TASK-203-prototype-no-summary.json
+
+# 2026-11-19 — TASK-203: владелец согласовал прототип A.2
+- moved: none
+- planned_in_place: TASK-203
+- decision: пользователь, владелец проекта, подтвердил «прототип согласован»; выбран вариант A.2 без нижней сводки
+- evidence: /backlog/processed/2026-11-19-group-creation-request.md; /backlog/mockups/TASK-203-group-create-single-action/README.md
+- product_decisions: accepted
+- technical_decisions: proposed — отдельное согласование технического контракта не получено
+- readiness: no — дизайнерский блокер снят, осталось согласование предложенного технического контракта
+- execution_started: no
+- scope: документы согласования, task/plan/REQ/CHANGELOG; рабочие исходники и прототип не менялись
+- validation_result: knowledge harness 4/4 PASS; 38 локальных ссылок существуют; git diff --check PASS
+- evidence_report: .artifacts/verification/TASK-203-prototype-approved.json
