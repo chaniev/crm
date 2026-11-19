@@ -2173,3 +2173,18 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - validation_result: knowledge harness 4/4 PASS; 149 локальных Markdown-ссылок существуют; TASK-203 имеет одну карточку и один план; git diff --check PASS
 - evidence_report: .artifacts/verification/TASK-203-clarification.json
 - verification_limits: изменены только документы; application/runtime проверки не требуются и не запускались
+
+# 2026-11-19 — TASK-203: исключена защита кнопок браузера
+- moved: none
+- planned_in_place: TASK-203
+- plans: /backlog/implementation-plans/TASK-203-group-create-single-action.plan.md
+- source_task: /backlog/needs-clarification/TASK-203-group-create-single-action.md
+- decision: кнопки браузера, включая Back/Forward, не предупреждают и не блокируют уход; ввод теряется без сохранения и восстановления; защита через действия приложения сохраняется
+- evidence: /backlog/processed/2026-11-19-group-creation-request.md — добавлено дословное уточнение владельца, заменяющее прежнюю границу защиты
+- requirements: REQ-GRP-008 — changes; решение принято, реализация не начата; CHANGELOG обновлён
+- plan_changes: исключены history guard, beforeunload формы создания и связанный вопрос ADR; скорректированы критерии приёмки, UX-состояния и регрессионные сценарии
+- readiness: no — остаются проверенный прототип, выбор владельца и итоговое согласование предложенного контракта
+- execution_started: no
+- verification_limits: изменены только документы; код и runtime не менялись
+- validation_result: knowledge harness 4/4 PASS; 155 локальных Markdown-ссылок существуют; одна карточка и один план TASK-203, статус и каталог согласованы; git diff --check PASS
+- evidence_report: .artifacts/verification/TASK-203-browser-navigation.json
