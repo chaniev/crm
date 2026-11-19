@@ -2157,3 +2157,19 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - evidence_report: .artifacts/verification/TASK-203-planning.json
 - executable_preflight: ожидаемо отклоняет readiness: no; статус черновика не заменён на готовый ради прохождения проверки.
 - verification_limits: application/runtime suites не запускались для Markdown-only planning; сценарии исполнения перечислены в плане.
+
+# 2026-11-19 — TASK-203: уточнение решений владельца
+- moved: none
+- planned_in_place: TASK-203
+- skipped: none — обновление только согласованного плана и связанных требований
+- plans: /backlog/implementation-plans/TASK-203-group-create-single-action.plan.md
+- source_task: /backlog/needs-clarification/TASK-203-group-create-single-action.md
+- decision: предупреждать при уходе, включая browser Back/Forward; разрешать подтверждённый уход во время создания с потерей ввода и возможным завершением операции; неизвестный результат проверять через список; неблокирующие warnings игнорировать без показа и подтверждения
+- evidence: /backlog/processed/2026-11-19-group-creation-request.md — добавлены дословные ответы и контекст четырёх решений
+- requirements: REQ-GRP-008 — changes; уточнённая редакция принята, реализация не начата; CHANGELOG обновлён
+- readiness: no — осталось проверить и выбрать прототип, завершить технический контракт защиты browser Back/Forward и оценку необходимости ADR
+- execution_started: no
+- validation: результат knowledge checks будет добавлен после проверки финальных документов
+- validation_result: knowledge harness 4/4 PASS; 149 локальных Markdown-ссылок существуют; TASK-203 имеет одну карточку и один план; git diff --check PASS
+- evidence_report: .artifacts/verification/TASK-203-clarification.json
+- verification_limits: изменены только документы; application/runtime проверки не требуются и не запускались
