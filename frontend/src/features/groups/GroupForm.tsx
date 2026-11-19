@@ -53,6 +53,7 @@ export type GroupFormProps = {
   submitLabel: string
   submitting: boolean
   disabled?: boolean
+  submitDisabled?: boolean
   trainerOptions: TrainerOption[]
 }
 
@@ -71,6 +72,7 @@ export function GroupForm({
   submitLabel,
   submitting,
   disabled = false,
+  submitDisabled = false,
   trainerOptions,
 }: GroupFormProps) {
   const weekdayId = useId()
@@ -361,7 +363,7 @@ export function GroupForm({
             primaryAction={<Button
               leftSection={showInitialSeriesFields && submitting ? <Loader size={18} /> : <IconDeviceFloppy size={18} />}
               loading={!showInitialSeriesFields && submitting}
-              disabled={disabled || submitting}
+              disabled={disabled || submitDisabled || submitting}
               aria-busy={submitting}
               type="submit"
             >

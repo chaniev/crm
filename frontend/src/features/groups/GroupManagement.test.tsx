@@ -492,6 +492,22 @@ describe('GroupEditScreen', () => {
     expect(onCreated).not.toHaveBeenCalled()
   })
 
+  test('a branch without halls blocks submit but lets the user choose another allowed branch', async () => {
+    setupGroupFormOptions()
+    apiMocks.getGroupCreateOptions.mockResolvedValue({
+      branches: [{ id: 'empty', name: 'Без залов', address: null }, { id: 'branch-1', name: 'Центр', address: null }],
+      halls: [{ id: 'hall-1', branchId: 'branch-1', name: 'Большой' }],
+    })
+    renderWithProviders(<GroupCreateScreen onCancel={vi.fn()} onCreated={vi.fn()} />)
+    const branch = await screen.findByRole('combobox', { name: 'Филиал', exact: true })
+    expect(branch).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Создать группу' })).toBeDisabled()
+    fireEvent.click(branch)
+    fireEvent.click(await screen.findByRole('option', { name: 'Центр', exact: true }))
+    expect(screen.getByRole('combobox', { name: 'Зал', exact: true })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Создать группу' })).toBeEnabled()
+  })
+
   test('edit sends identity-only payload and maps backend errors to current fields', async () => {
     setupGroupFormOptions()
     apiMocks.getGroup.mockResolvedValue({

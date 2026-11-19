@@ -161,7 +161,7 @@ export function GroupCreateScreen({ onCancel, onCreated, onNavigationGuardChange
           <GroupForm form={form} formError={formError} branchOptions={options.branches} hallOptions={options.halls}
             groupTypeOptions={groupTypeOptions} trainerOptions={trainerOptions} showInitialSeriesFields
             cancelAction={{ label: text.groupCreateScreen_label_7c47f729, onClick: () => requestLeave(onCancel) }}
-            onSubmit={submit} submitting={submitting} disabled={!hasOptions || unknown}
+            onSubmit={submit} submitting={submitting} disabled={unknown} submitDisabled={!hasOptions}
             submitLabel={submitting ? text.createPending : text.groupCreateScreen_string_663c5248} />
         </> : null}
       </Stack></PageSection>

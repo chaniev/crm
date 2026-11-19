@@ -4,15 +4,15 @@
 
 ## Визуальное сравнение
 Сопоставлены рабочая форма и согласованный прототип A.2 из
-[описания](../mockups/TASK-203-group-create-single-action/README.md).
+[описания](../../mockups/TASK-203-group-create-single-action/README.md).
 Сохранены порядок полей, Mantine/Onest, разные времена дней и закреплённое
 основное действие. Нижняя сводка и отдельный preview удалены. Необязательные
 окончание/тренеры и диапазон длительности подписаны как в прототипе.
 Оболочка рабочего приложения отличается от демонстрационной оболочки прототипа
-и намеренно сохранена. Снимки: [desktop](TASK-203-evidence/chromium-create-ready-1440.png),
-[390](TASK-203-evidence/chromium-create-ready-390.png),
-[малая высота](TASK-203-evidence/chromium-create-leave-912.png),
-[iPhone Air](TASK-203-evidence/iphone-air-webkit-create-leave-iphone.png).
+и намеренно сохранена. Снимки: [desktop](chromium-create-ready-1440.png),
+[390](chromium-create-ready-390.png),
+[малая высота](chromium-create-leave-912.png),
+[iPhone Air](iphone-air-webkit-create-leave-iphone.png).
 
 Пройдена матрица 360×780, 390×844, 420×912, 440×956, 768×1024,
 1440×1200, 912×420, 956×440; отдельно два целевых профиля WebKit.
