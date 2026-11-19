@@ -499,12 +499,12 @@ describe('GroupEditScreen', () => {
       halls: [{ id: 'hall-1', branchId: 'branch-1', name: 'Большой' }],
     })
     renderWithProviders(<GroupCreateScreen onCancel={vi.fn()} onCreated={vi.fn()} />)
-    const branch = await screen.findByRole('combobox', { name: 'Филиал', exact: true })
+    const branch = await screen.findByRole('combobox', { name: 'Филиал' })
     expect(branch).toBeEnabled()
     expect(screen.getByRole('button', { name: 'Создать группу' })).toBeDisabled()
     fireEvent.click(branch)
-    fireEvent.click(await screen.findByRole('option', { name: 'Центр', exact: true }))
-    expect(screen.getByRole('combobox', { name: 'Зал', exact: true })).toBeEnabled()
+    fireEvent.click(await screen.findByRole('option', { name: 'Центр' }))
+    expect(screen.getByRole('combobox', { name: 'Зал' })).toBeEnabled()
     expect(screen.getByRole('button', { name: 'Создать группу' })).toBeEnabled()
   })
 
