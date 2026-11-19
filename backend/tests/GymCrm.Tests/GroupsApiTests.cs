@@ -24,6 +24,99 @@ namespace GymCrm.Tests;
 
 public class GroupsApiTests
 {
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("SuperAdministrator")]
+    [InlineData("Administrator")]
+    [InlineData("Coach")]
+    [InlineData("UnscopedAdministrator")]
+    public async Task Create_options_respect_management_scope_and_active_settings(string role)
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            (await db.Halls.SingleAsync(h => h.Id == seeded.HallTwoId)).IsArchived = true;
+            if (role == "UnscopedAdministrator")
+                (await db.Users.SingleAsync(u => u.Id == seeded.AdministratorId)).BranchId = null;
+            await db.SaveChangesAsync();
+        }
+        using var client = factory.CreateClient();
+        var login = role switch
+        {
+            "HeadCoach" => seeded.HeadCoachLogin,
+            "SuperAdministrator" => seeded.SuperAdministratorLogin,
+            "Coach" => seeded.CoachLogin,
+            _ => seeded.AdministratorLogin
+        };
+        await LoginAsync(client, login, seeded.SharedPassword);
+        using var response = await client.GetAsync("/groups/options/create");
+        if (role is "Coach" or "UnscopedAdministrator")
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            if (role == "UnscopedAdministrator")
+                Assert.Contains("branch_scope_forbidden", await response.Content.ReadAsStringAsync());
+            return;
+        }
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.Equal(seeded.BranchId, Assert.Single(payload.GetProperty("branches").EnumerateArray()).GetProperty("id").GetGuid());
+        Assert.Equal(seeded.HallOneId, Assert.Single(payload.GetProperty("halls").EnumerateArray()).GetProperty("id").GetGuid());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Create_options_filter_foreign_and_archived_branches_without_changing_general_lookup(bool administrator)
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        var foreign = await CreateForeignGroupAsync(factory, seeded);
+        using var client = factory.CreateClient();
+        await LoginAsync(client, administrator ? seeded.AdministratorLogin : seeded.HeadCoachLogin, seeded.SharedPassword);
+        using var response = await client.GetAsync("/groups/options/create");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        var ids = payload.GetProperty("branches").EnumerateArray().Select(item => item.GetProperty("id").GetGuid()).ToArray();
+        Assert.Contains(seeded.BranchId, ids);
+        Assert.Equal(!administrator, ids.Contains(foreign.BranchId));
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            (await db.Branches.SingleAsync(branch => branch.Id == seeded.BranchId)).IsArchived = true;
+            (await db.Branches.SingleAsync(branch => branch.Id == foreign.BranchId)).IsArchived = true;
+            await db.SaveChangesAsync();
+        }
+        using var archivedResponse = await client.GetAsync("/groups/options/create");
+        var archivedPayload = await ReadJsonElementAsync(archivedResponse);
+        Assert.Empty(archivedPayload.GetProperty("branches").EnumerateArray());
+        Assert.Empty(archivedPayload.GetProperty("halls").EnumerateArray());
+        using var general = await client.GetAsync("/branches?includeArchived=true");
+        Assert.Equal(HttpStatusCode.OK, general.StatusCode);
+        Assert.Contains(foreign.BranchId.ToString(), await general.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task Empty_initial_slots_report_schedule_without_fictitious_slot_errors()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient();
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var request = JsonSerializer.SerializeToNode(CreateCanonicalGroupCreateRequest(
+            "Empty schedule", seeded.BranchId, seeded.HallOneId, seeded.GroupTypeId))!;
+        request["initialLessonSeries"]!["slots"] = new System.Text.Json.Nodes.JsonArray();
+        using var response = await PostJsonAsync(client, "/groups/preview", request, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        var errors = payload.GetProperty("errors");
+        Assert.True(errors.TryGetProperty("initialLessonSeries.slots", out _));
+        Assert.False(errors.TryGetProperty("hallId", out _));
+        Assert.False(errors.TryGetProperty("durationMinutes", out _));
+        Assert.False(errors.TryGetProperty("trainingStartTime", out _));
+    }
+
     [Fact]
     public async Task Groups_list_returns_strict_envelope_with_trimmed_search_filters_count_before_paging_and_stable_order()
     {

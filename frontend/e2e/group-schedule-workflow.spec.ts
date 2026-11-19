@@ -39,6 +39,7 @@ async function mockGroups(page: Page, handler: (route: Route, path: string) => P
       '/api/halls': [{ id: 'hall-1', branchId: 'branch-1', name: 'Большой', isArchived: false }],
       '/api/group-types': [{ id: 'type-1', name: 'Общая', description: null, groupCount: 1 }],
       '/api/groups/options/trainers': [],
+      '/api/groups/options/create': { branches: [{ id: 'branch-1', name: 'Центр', address: '' }], halls: [{ id: 'hall-1', branchId: 'branch-1', name: 'Большой' }] },
       '/api/groups/summary': { totalCount: 1, activeWithoutTrainerCount: 1 },
       '/api/groups': { items: [group], totalCount: 1, skip: 0, take: 10 },
       '/api/groups/group-1': group,
@@ -65,7 +66,7 @@ async function noOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1)
 }
 
-test('weekday creation previews, revalidates changed time, creates and reloads calendar times', async ({ page }) => {
+test('weekday creation uses one preview and create and reloads calendar times', async ({ page }) => {
   let created: UpsertTrainingGroupRequest | undefined
   const previews: UpsertTrainingGroupRequest[] = []
   await mockGroups(page, async (route, path) => {
@@ -99,11 +100,7 @@ test('weekday creation previews, revalidates changed time, creates and reloads c
     return false
   })
   await fillCreate(page)
-  await page.getByRole('button', { name: 'Получить предпросмотр' }).click()
-  await expect(page.getByRole('button', { name: 'Создать группу' })).toBeVisible()
   await page.getByLabel('Время начала: Суббота').fill('11:00')
-  await expect(page.getByRole('button', { name: 'Создать группу' })).toHaveCount(0)
-  await page.getByRole('button', { name: 'Получить предпросмотр' }).click()
   await page.getByRole('button', { name: 'Создать группу' }).click()
   await expect(page).toHaveURL(/\/groups$/)
   expect(created?.initialLessonSeries?.slots.map(({ isoWeekday, startTime }) => [isoWeekday, startTime]))
@@ -119,6 +116,7 @@ test('weekday creation previews, revalidates changed time, creates and reloads c
 test('weekday errors target Saturday and retry preserves every time', async ({ page }, testInfo) => {
   let count = 0
   await mockGroups(page, async (route, path) => {
+    if (path === '/api/groups' && route.request().method() === 'POST') { await json(route, group, 201); return true }
     if (path !== '/api/groups/preview') return false
     count += 1
     await json(route, count === 1 ? { title: 'Проверьте расписание', status: 400,
@@ -127,7 +125,7 @@ test('weekday errors target Saturday and retry preserves every time', async ({ p
     return true
   })
   await fillCreate(page)
-  await page.getByRole('button', { name: 'Получить предпросмотр' }).click()
+  await page.getByRole('button', { name: 'Создать группу' }).click()
   const saturday = page.getByLabel('Время начала: Суббота')
   await expect(saturday).toHaveAttribute('aria-invalid', 'true')
   await expect(saturday).toBeFocused()
@@ -135,8 +133,8 @@ test('weekday errors target Saturday and retry preserves every time', async ({ p
   await noOverflow(page)
   await page.screenshot({ path: testInfo.outputPath('weekday-error.png'), fullPage: true })
   await saturday.fill('11:00')
-  await page.getByRole('button', { name: 'Получить предпросмотр' }).click()
-  await expect(page.getByRole('button', { name: 'Создать группу' })).toBeVisible()
+  await page.getByRole('button', { name: 'Создать группу' }).click()
+  await expect(page).toHaveURL(/\/groups$/)
 })
 
 test('weekday controls wrap with seven accessible targets at required geometries', async ({ page }, testInfo) => {
@@ -379,20 +377,21 @@ test('group schedule long summary, lookup retry and dirty modal fit required geo
 })
 
 
-test('group create and edit retain shared branch and hall lookups without branch settings actions', async ({ page }) => {
+test('group create uses scoped options while edit retains shared lookups without settings actions', async ({ page }) => {
   const hallLookups: string[] = []
   await mockGroups(page, async (route, path) => {
     if (path === '/api/groups/group-1/lesson-series') {
       await json(route, { status: 404, code: 'lesson-series-not-found', title: 'Расписание группы отсутствует' }, 404)
       return true
     }
-    if (path === '/api/halls') hallLookups.push(path)
+    if (path === '/api/halls' || path === '/api/groups/options/create') hallLookups.push(path)
     return false
   })
   for (const route of ['/groups/new', '/groups/group-1/edit']) {
     const previousLookupCount = hallLookups.length
     await page.goto(route)
     await expect.poll(() => hallLookups.length).toBeGreaterThan(previousLookupCount)
+    expect(hallLookups.slice(previousLookupCount)).toContain(route === '/groups/new' ? '/api/groups/options/create' : '/api/halls')
     await expect(page.getByRole('combobox', { name: 'Филиал', exact: true })).toHaveValue('Центр')
     if (route === '/groups/new') {
       const hall = page.getByRole('combobox', { name: 'Зал', exact: true })
@@ -402,5 +401,121 @@ test('group create and edit retain shared branch and hall lookups without branch
       await expect(hall).toHaveValue('Большой')
     }
     await noOverflow(page)
+  }
+})
+
+for (const state of ['dirty', 'pending', 'unknown'] as const) {
+  test(`create ${state}: browser history leaves without a dialog or draft restoration`, async ({ page }) => {
+    let creates = 0
+    let release!: () => void
+    const pending = new Promise<void>(resolve => { release = resolve })
+    await mockGroups(page, async (route, path) => {
+      if (path === '/api/groups/preview') { await json(route, preview); return true }
+      if (path === '/api/groups' && route.request().method() === 'POST') {
+        creates += 1
+        if (state === 'pending') await pending
+        if (state === 'unknown') await route.abort()
+        else await json(route, group, 201)
+        return true
+      }
+      return false
+    })
+    await page.goto('/groups')
+    await page.getByRole('button', { name: 'Новая группа' }).click()
+    await page.getByLabel('Название группы').fill('Потерянный черновик')
+    if (state !== 'dirty') {
+      await page.getByRole('button', { name: 'Создать группу' }).click()
+      await expect.poll(() => creates).toBe(1)
+      if (state === 'unknown') await expect(page.getByText('Результат создания не подтверждён')).toBeVisible()
+    }
+    await page.goBack()
+    await expect(page).toHaveURL(/\/groups$/)
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    release()
+    await page.goForward()
+    await expect(page.getByLabel('Название группы')).toHaveValue('')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    expect(creates).toBe(state === 'dirty' ? 0 : 1)
+  })
+}
+
+test('create guard protects app actions, restores focus, and permits pending departure once', async ({ page }, testInfo) => {
+  let creates = 0
+  let release!: () => void
+  const pending = new Promise<void>(resolve => { release = resolve })
+  await mockGroups(page, async (route, path) => {
+    if (path === '/api/groups/preview') { await json(route, preview); return true }
+    if (path === '/api/groups' && route.request().method() === 'POST') {
+      creates += 1
+      await pending
+      await json(route, group, 201)
+      return true
+    }
+    return false
+  })
+  await fillCreate(page)
+  const back = page.getByRole('button', { name: 'К списку групп' })
+  await back.click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(back).toBeFocused()
+  await expect(page.getByLabel('Название группы')).toHaveValue('Разные времена')
+  for (const menu of ['Смена пароля', 'Выход']) {
+    await page.locator('.app-shell__profile-trigger').click()
+    await page.getByRole('menuitem', { name: menu, exact: true }).click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await page.getByRole('button', { name: 'Остаться', exact: true }).click()
+    await expect(page).toHaveURL(/\/groups\/new$/)
+  }
+  await page.getByRole('button', { name: 'Создать группу' }).click()
+  await expect.poll(() => creates).toBe(1)
+  await back.click()
+  await expect(page.getByRole('dialog')).toContainText('группа может быть создана после вашего ухода')
+  await noOverflow(page)
+  await page.screenshot({ path: testInfo.outputPath('create-pending-leave.png'), fullPage: true })
+  await page.getByRole('button', { name: 'Выйти без сохранения', exact: true }).click()
+  await expect(page).toHaveURL(/\/groups$/)
+  release()
+  expect(creates).toBe(1)
+})
+
+test('create lookup retry, empty and restricted state explain recovery', async ({ page }) => {
+  let retry = false
+  await mockGroups(page, async (route, path) => {
+    if (path !== '/api/groups/options/create') return false
+    await json(route, !retry ? { detail: 'Филиал недоступен', code: 'branch_scope_forbidden' } : { branches: [], halls: [] }, !retry ? 403 : 200)
+    return true
+  })
+  await page.goto('/groups/new')
+  await expect(page.getByText('Филиал недоступен')).toBeVisible()
+  retry = true
+  await page.getByRole('button', { name: 'Повторить', exact: true }).click()
+  await expect(page.getByText(/Для создания группы нужны доступный филиал/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Создать группу' })).toBeDisabled()
+})
+
+
+test('create long draft and leave dialog fit the acceptance viewport matrix', async ({ page }, testInfo) => {
+  await mockGroups(page, async () => false)
+  await fillCreate(page)
+  await page.getByLabel('Название группы').fill('Вечерняя группа для начинающих — бокс и общая физическая подготовка')
+  const sizes = testInfo.project.name === 'chromium'
+    ? [[360, 780], [390, 844], [420, 912], [440, 956], [768, 1024], [1440, 1200], [912, 420], [956, 440]]
+    : [null]
+  for (const size of sizes) {
+    if (size) await page.setViewportSize({ width: size[0], height: size[1] })
+    await expect(page.locator('.hint-card')).toHaveCount(0)
+    await noOverflow(page)
+    await page.screenshot({ path: testInfo.outputPath(`create-ready-${size?.[0] ?? 'iphone'}.png`), fullPage: true, animations: 'disabled' })
+    await page.getByRole('button', { name: 'Отменить', exact: true }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeInViewport({ ratio: 0.9 })
+    await expect(dialog.getByRole('button', { name: 'Остаться', exact: true })).toBeFocused()
+    await expect(dialog.getByRole('button', { name: 'Остаться', exact: true })).toBeInViewport()
+    await expect(dialog.getByRole('button', { name: 'Выйти без сохранения', exact: true })).toBeInViewport()
+    await page.screenshot({ path: testInfo.outputPath(`create-leave-${size?.[0] ?? 'iphone'}.png`), animations: 'disabled' })
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Отменить', exact: true })).toBeFocused()
   }
 })

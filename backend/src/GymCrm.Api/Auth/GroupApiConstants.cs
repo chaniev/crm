@@ -6,6 +6,7 @@ internal static class GroupApiConstants
     public const string ListRoute = "/";
     public const string PreviewRoute = "/preview";
     public const string SummaryRoute = "/summary";
+    public const string CreateOptionsRoute = "/options/create";
     public const string TrainerOptionsRoute = "/trainers";
     public const string LegacyTrainerOptionsRoute = "/options/trainers";
     public const string DetailsRoute = "/{id:guid}";

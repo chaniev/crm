@@ -43,7 +43,7 @@
 владельца. Их нельзя выдавать за согласованный прототип. План ограничивает
 предложение необходимыми состояниями создания и восстановления.
 
-Связанные артефакты: [TASK-203](../tasks-ready/TASK-203-group-create-single-action.md)
+Связанные артефакты: [TASK-203](../implementation/TASK-203-group-create-single-action.md)
 и [план](../implementation-plans/TASK-203-group-create-single-action.plan.md).
 
 ## Уточнение владельца от 19.11.2026

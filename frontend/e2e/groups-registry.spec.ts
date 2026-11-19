@@ -512,7 +512,7 @@ test('Группы: создание выполняется через preview i
 
   await expect(page.getByRole('heading', { name: 'Новая группа' })).toBeVisible()
   const stickyActions = page.locator('.sticky-form-actions--page')
-  const primaryAction = stickyActions.getByRole('button', { name: 'Получить предпросмотр' })
+  const primaryAction = stickyActions.getByRole('button', { name: 'Создать группу' })
   const secondaryAction = stickyActions.getByRole('button', { name: 'Отменить' })
   await expect(primaryAction).toBeInViewport()
   await expect(secondaryAction).toBeInViewport()
@@ -552,9 +552,6 @@ test('Группы: создание выполняется через preview i
       }],
     },
   })
-  await expect(page.getByText('Проверьте расписание перед созданием')).toBeVisible()
-
-  await page.getByRole('button', { name: 'Создать группу' }).click()
 
   await expect.poll(() => counters.lastCreatePayload).toEqual({
     ...(counters.lastPreviewPayload as Record<string, unknown>),
@@ -970,6 +967,11 @@ async function mockApi(
 
     if (context.pathname === '/api/groups/options/trainers' && context.method === 'GET') {
       await fulfillJson(context.route, 200, TRAINER_OPTIONS)
+      return
+    }
+
+    if (context.pathname === '/api/groups/options/create' && context.method === 'GET') {
+      await fulfillJson(context.route, 200, { branches: scopedBranches.filter(branch => !branch.isArchived), halls: scopedHalls.filter(hall => !hall.isArchived) })
       return
     }
 

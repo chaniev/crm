@@ -1,274 +1,188 @@
-import { useEffect, useRef, useState } from 'react'
-import { Alert, Paper, Stack, Text } from '@mantine/core'
-import { IconAlertTriangle, IconArrowLeft } from '@tabler/icons-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Alert, Modal, Stack, Text } from '@mantine/core'
+import { IconArrowLeft } from '@tabler/icons-react'
 import {
-  ApiError,
-  applyFieldErrors,
-  createGroup,
-  getBranches,
-  getGroupTypes,
-  getHalls,
-  getTrainerOptions,
-  previewGroupCreate,
-  type Branch,
-  type GroupPreviewResponse,
-  type GroupType,
-  type Hall,
+  ApiError, applyFieldErrors, createGroup, getGroupCreateOptions, getGroupTypes,
+  getTrainerOptions, previewGroupCreate, type GroupCreateOptions, type GroupType,
   type TrainerOption,
 } from '../../lib/api'
-import {
-  Button,
-  ErrorState,
-  LoadingState,
-  PageLayout,
-  PageSection,
-} from '../shared/ux'
+import { Button, ResponsiveButtonGroup, ErrorState, LoadingState, PageLayout, PageSection } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import { GroupForm } from './GroupForm'
-import {
-  toCreateGroupWithInitialSeriesPayload,
-  useGroupForm,
-  type GroupFormValues,
-} from './groupFormMapping'
+import { toCreateGroupWithInitialSeriesPayload, useGroupForm, type GroupFormValues } from './groupFormMapping'
 import { formatScheduleProblemCode } from '../schedule/scheduleActionReasons'
-import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
-
+import { fe13GroupsCoreText as text } from '../../resources/fe-13-groups-core'
+import type { NavigationGuardRegistration } from '../settings/useClientImport'
 
 export type GroupCreateScreenProps = {
   onCancel: () => void
   onCreated: () => void
+  onNavigationGuardChange?: NavigationGuardRegistration
 }
 
-export function GroupCreateScreen({
-  onCancel,
-  onCreated,
-}: GroupCreateScreenProps) {
+export function GroupCreateScreen({ onCancel, onCreated, onNavigationGuardChange }: GroupCreateScreenProps) {
+  const [options, setOptions] = useState<GroupCreateOptions>({ branches: [], halls: [] })
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
-  const [branchOptions, setBranchOptions] = useState<Branch[]>([])
-  const [hallOptions, setHallOptions] = useState<Hall[]>([])
   const [groupTypeOptions, setGroupTypeOptions] = useState<GroupType[]>([])
   const [loadingOptions, setLoadingOptions] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const [formError, setFormError] = useState<string | null>(null)
-  const [preview, setPreview] = useState<GroupPreviewResponse | null>(null)
-  const previewPayloadKeyRef = useRef<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [unknown, setUnknown] = useState(false)
+  const [leaveOpen, setLeaveOpen] = useState(false)
   const submittingRef = useRef(false)
-  const recoveryRequestedRef = useRef(false)
-  const payloadRevisionRef = useRef(0)
-  const currentPayloadKeyRef = useRef<string | null>(null)
-  const form = useGroupForm({
-    mode: 'create',
-    onValuesChange: (values) => {
-      const key = JSON.stringify(toCreateGroupWithInitialSeriesPayload(values))
-      if (currentPayloadKeyRef.current !== key) {
-        currentPayloadKeyRef.current = key
-        payloadRevisionRef.current += 1
-        previewPayloadKeyRef.current = null
-        setPreview(null)
-      }
-    },
-  })
+  const active = useRef(true)
+  const recoveryRequested = useRef(false)
+  const leaveAction = useRef<(() => void) | null>(null)
+  const form = useGroupForm({ mode: 'create' })
   const formRef = useRef(form)
   formRef.current = form
+  const guardState = useRef({ dirty: false, uncertain: false })
+  guardState.current = { dirty: form.isDirty(), uncertain: submitting || unknown }
 
-  useEffect(() => {
-    const controller = new AbortController()
-
-    async function load() {
-      setLoadingOptions(true)
-      setLoadError(null)
-
-      try {
-        const [branches, halls, groupTypes, options] = await Promise.all([
-          getBranches({ includeArchived: true }, controller.signal),
-          getHalls({ includeArchived: true }, controller.signal),
-          getGroupTypes(controller.signal),
-          getTrainerOptions(controller.signal),
-        ])
-        setBranchOptions(branches)
-        setHallOptions(halls)
-        setGroupTypeOptions(groupTypes)
-        setTrainerOptions(options)
-        const firstActiveBranch = branches.find((branch) => !branch.isArchived)
-        if (firstActiveBranch && !formRef.current.values.branchId) {
-          formRef.current.setFieldValue('branchId', firstActiveBranch.id)
-          const firstActiveHall = halls.find(
-            (hall) => !hall.isArchived && hall.branchId === firstActiveBranch.id,
-          )
-          if (firstActiveHall && !formRef.current.values.hallId) {
-            formRef.current.setFieldValue('hallId', firstActiveHall.id)
-          }
-        }
-        if (groupTypes[0] && !formRef.current.values.groupTypeId) {
-          formRef.current.setFieldValue('groupTypeId', groupTypes[0].id)
-        }
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return
-        }
-
-        setLoadError(
-          error instanceof Error
-            ? error.message
-            : fe13GroupsCoreText.groupCreateScreen_string_c9bed940,
-        )
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoadingOptions(false)
-        }
-      }
-    }
-
-    void load()
-
-    return () => controller.abort()
+  const requestLeave = useCallback((action: () => void) => {
+    if (guardState.current.dirty || guardState.current.uncertain) {
+      leaveAction.current = action
+      setLeaveOpen(true)
+    } else action()
   }, [])
 
   useEffect(() => {
-    if (submitting || !recoveryRequestedRef.current) return
-    recoveryRequestedRef.current = false
-    const target = document.querySelector<HTMLElement>('form [aria-invalid="true"]')
-      ?? document.querySelector<HTMLElement>('.group-edit-form-recovery')
+    active.current = true
+    onNavigationGuardChange?.(requestLeave)
+    return () => { active.current = false; onNavigationGuardChange?.(null) }
+  }, [onNavigationGuardChange, requestLeave])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    async function load() {
+      setLoadingOptions(true)
+      setLoadError(null)
+      try {
+        const [available, types, trainers] = await Promise.all([
+          getGroupCreateOptions(controller.signal), getGroupTypes(controller.signal), getTrainerOptions(controller.signal),
+        ])
+        if (controller.signal.aborted) return
+        setOptions(available)
+        setGroupTypeOptions(types)
+        setTrainerOptions(trainers)
+        const current = formRef.current
+        // Only the untouched initial form receives defaults; responses never replace a draft.
+        if (!current.isDirty()) {
+          const branchId = available.branches[0]?.id ?? ''
+          const initial = { ...current.values, branchId,
+            hallId: available.halls.find(hall => hall.branchId === branchId)?.id ?? '',
+            groupTypeId: types[0]?.id ?? '' }
+          current.setValues(initial)
+          current.resetDirty(initial)
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) setLoadError(error instanceof Error ? error.message : text.groupCreateScreen_string_c9bed940)
+      } finally {
+        if (!controller.signal.aborted) setLoadingOptions(false)
+      }
+    }
+    void load()
+    return () => controller.abort()
+  }, [loadAttempt])
+
+  useEffect(() => {
+    if (submitting || !recoveryRequested.current) return
+    recoveryRequested.current = false
+    const invalid = document.querySelector<HTMLElement>('form [aria-invalid="true"]')
+    const target = invalid?.matches('input,select,textarea,button') ? invalid
+      : invalid?.querySelector<HTMLElement>('input,select,textarea,button')
+        ?? document.querySelector<HTMLElement>('.group-edit-form-recovery, .group-create-unknown')
     target?.focus()
-  }, [submitting, formError, form.errors])
+    target?.scrollIntoView?.({ block: 'center' })
+  }, [submitting, formError, form.errors, unknown])
+
+  const hasOptions = options.branches.length > 0 && options.halls.some(hall => hall.branchId === form.values.branchId) && groupTypeOptions.length > 0
 
   async function submit(values: GroupFormValues) {
-    if (submittingRef.current) return
+    if (submittingRef.current || unknown || !hasOptions || loadingOptions || loadError) return
     submittingRef.current = true
-    const submittedRevision = payloadRevisionRef.current
-    const previewPayload = toCreateGroupWithInitialSeriesPayload(values)
     setSubmitting(true)
     setFormError(null)
     form.clearErrors()
-
+    const payload = toCreateGroupWithInitialSeriesPayload(values)
+    let createSent = false
     try {
-      const previewPayloadKey = JSON.stringify(previewPayload)
-
-      if (!preview || previewPayloadKeyRef.current !== previewPayloadKey) {
-        const response = await previewGroupCreate(previewPayload)
-        if (submittedRevision !== payloadRevisionRef.current) return
-        previewPayloadKeyRef.current = previewPayloadKey
-        setPreview(response)
-        return
-      }
-
-      const createdGroup = await createGroup(
-        toCreateGroupWithInitialSeriesPayload(values, preview.confirmationToken),
-      )
-
-      showAppNotification({
-        id: 'group-create-success',
-        title: fe13GroupsCoreText.groupCreateScreen_title_1f78cfd7,
-        message: fe13GroupsCoreText.groupCreateScreen_message_613f7cb9(createdGroup.name),
-        color: 'teal',
-      })
-
+      const preview = await previewGroupCreate(payload)
+      if (!active.current) return
+      createSent = true
+      const created = await createGroup({ ...payload, confirmationToken: preview.confirmationToken })
+      if (!active.current) return
+      form.resetDirty()
+      guardState.current = { dirty: false, uncertain: false }
+      leaveAction.current = null
+      setLeaveOpen(false)
+      showAppNotification({ id: 'group-create-success', title: text.groupCreateScreen_title_1f78cfd7,
+        message: text.groupCreateScreen_message_613f7cb9(created.name), color: 'teal' })
       onCreated()
     } catch (error) {
-      if (error instanceof ApiError) {
-        const aliases = createFieldAliases(values)
-        const errors = applyFieldErrors(error.fieldErrors, aliases)
-        const current = submittedRevision === payloadRevisionRef.current
-        const visibleFields = new Set([
-          'name', 'branchId', 'hallId', 'groupTypeId', 'durationMinutes', 'weekdays',
-          'initialSeriesStartsOn', 'initialSeriesEndsOn', 'trainerIds', 'isActive',
-          ...values.weekdays.map(day => `weekdayStartTimes.${day}`),
-        ])
-        form.setErrors(current ? Object.fromEntries(
-          Object.entries(errors).filter(([field]) => visibleFields.has(field)),
-        ) : {})
-        const unboundErrors = Object.entries(errors)
-          .filter(([field]) => !current || !visibleFields.has(field))
-          .map(([, message]) => message)
-        const message = formatScheduleProblemCode(error.code) ??
-          fe13GroupsCoreText.groupCreateScreen_string_c6241417
-        setPreview(null)
-        previewPayloadKeyRef.current = null
-        setFormError([message, ...unboundErrors].join(' '))
-        recoveryRequestedRef.current = true
-        return
-      }
-
-      setPreview(null)
-      previewPayloadKeyRef.current = null
-      setFormError(fe13GroupsCoreText.groupCreateScreen_setFormError_ee875cc4)
-      recoveryRequestedRef.current = true
+      if (!active.current) return
+      const knownRejection = error instanceof ApiError && error.status >= 400 && error.status < 500 && error.status !== 408
+      if (createSent && !knownRejection) {
+        setUnknown(true)
+      } else if (error instanceof ApiError) {
+        const errors = applyFieldErrors(error.fieldErrors, createFieldAliases(values))
+        const visibleFields = new Set(['name', 'branchId', 'hallId', 'groupTypeId', 'durationMinutes', 'weekdays',
+          'initialSeriesStartsOn', 'initialSeriesEndsOn', 'trainerIds', 'isActive', ...values.weekdays.map(day => `weekdayStartTimes.${day}`)])
+        form.setErrors(Object.fromEntries(Object.entries(errors).filter(([field]) => visibleFields.has(field))))
+        const unbound = Object.entries(errors).filter(([field]) => !visibleFields.has(field)).map(([, message]) => message)
+        setFormError([formatScheduleProblemCode(error.code) ?? error.message, ...unbound].join(' '))
+      } else setFormError(text.groupCreateScreen_setFormError_ee875cc4)
+      recoveryRequested.current = true
     } finally {
       submittingRef.current = false
-      setSubmitting(false)
+      if (active.current) setSubmitting(false)
     }
   }
 
   return (
-    <PageLayout
-        actions={(
-          <Button
-            leftSection={<IconArrowLeft size={18} />}
-            onClick={onCancel}
-            variant="default"
-          >
-            {fe13GroupsCoreText.groupCreateScreen_jsxText_322693c9}</Button>
-        )}
-      title={fe13GroupsCoreText.groupCreateScreen_title_c9fd9fc0}
-    >
-
-      <PageSection>
+    <PageLayout title={text.groupCreateScreen_title_c9fd9fc0} actions={
+      <Button leftSection={<IconArrowLeft size={18} />} onClick={(event) => { event.currentTarget.focus(); requestLeave(onCancel) }} variant="default">
+        {text.groupCreateScreen_jsxText_322693c9}
+      </Button>
+    }>
+      <PageSection><Stack gap="lg">
+        {loadingOptions ? <LoadingState label={text.groupCreateScreen_label_d8c36ed2} /> : null}
+        {!loadingOptions && loadError ? <ErrorState title={text.groupCreateScreen_title_bb243bf5} message={loadError}
+          action={<Button onClick={() => setLoadAttempt(value => value + 1)}>{text.createRetry}</Button>} /> : null}
+        {!loadingOptions && !loadError ? <>
+          {!hasOptions ? <Alert>{text.createEmpty}</Alert> : null}
+          {unknown ? <Alert className="group-create-unknown" tabIndex={-1} color="yellow" title={text.createUnknown}>
+            <Stack gap="sm">{text.createUnknownDescription}
+              <Button onClick={() => requestLeave(onCancel)}>{text.createCheckList}</Button>
+            </Stack>
+          </Alert> : null}
+          <GroupForm form={form} formError={formError} branchOptions={options.branches} hallOptions={options.halls}
+            groupTypeOptions={groupTypeOptions} trainerOptions={trainerOptions} showInitialSeriesFields
+            cancelAction={{ label: text.groupCreateScreen_label_7c47f729, onClick: () => requestLeave(onCancel) }}
+            onSubmit={submit} submitting={submitting} disabled={!hasOptions || unknown}
+            submitLabel={submitting ? text.createPending : text.groupCreateScreen_string_663c5248} />
+        </> : null}
+      </Stack></PageSection>
+      <Modal opened={leaveOpen} title={submitting ? text.createLeavePendingTitle : text.createLeaveTitle}
+        zIndex={300} centered returnFocus closeOnClickOutside={false}
+        onClose={() => { leaveAction.current = null; setLeaveOpen(false) }}>
         <Stack gap="lg">
-          {loadingOptions ? (
-            <LoadingState label={fe13GroupsCoreText.groupCreateScreen_label_d8c36ed2} />
-          ) : null}
-
-          {!loadingOptions && loadError ? (
-            <ErrorState
-              message={loadError}
-              title={fe13GroupsCoreText.groupCreateScreen_title_bb243bf5}
-            />
-          ) : null}
-
-          {!loadingOptions && !loadError ? (
-            <>
-              <GroupForm
-                form={form}
-                formError={formError}
-                branchOptions={branchOptions}
-                groupTypeOptions={groupTypeOptions}
-                hallOptions={hallOptions}
-              cancelAction={{ label: fe13GroupsCoreText.groupCreateScreen_label_7c47f729, onClick: onCancel }}
-              onSubmit={submit}
-              showInitialSeriesFields
-              submitLabel={preview ? fe13GroupsCoreText.groupCreateScreen_string_663c5248 : fe13GroupsCoreText.groupCreateScreen_string_857a90c1}
-              submitting={submitting}
-              trainerOptions={trainerOptions}
-            />
-              {preview ? (
-                <Paper className="group-create-preview" radius="24px" withBorder>
-                  <Stack gap="sm">
-                    <Text fw={900}>{fe13GroupsCoreText.groupCreateScreen_jsxText_23985cf1}</Text>
-                    <Text c="dimmed" size="sm">
-                      {fe13GroupsCoreText.groupCreateScreen_jsxText_d5ff0d22}{formatExpiresAt(preview.expiresAt)}{fe13GroupsCoreText.groupCreateScreen_jsxText_cdb4ee2a}</Text>
-                    {preview.warnings.length > 0 ? (
-                      <Stack gap="xs">
-                        {preview.warnings.map((warning, index) => (
-                          <Alert
-                            color="yellow"
-                            icon={<IconAlertTriangle size={18} />}
-                            key={`${warning.code}:${index}`}
-                          >
-                            {warning.message || fe13GroupsCoreText.groupCreateScreen_string_52af7b72}
-                          </Alert>
-                        ))}
-                      </Stack>
-                    ) : null}
-                    <Text c="dimmed" size="sm">
-                      {fe13GroupsCoreText.groupCreateScreen_jsxText_1faaa276}</Text>
-                  </Stack>
-                </Paper>
-              ) : null}
-            </>
-          ) : null}
+          <Text>{submitting ? text.createLeavePending : unknown ? text.createLeaveUnknown : text.createLeaveDescription}</Text>
+          <ResponsiveButtonGroup justify="flex-end">
+            <Button data-autofocus variant="secondary" onClick={() => { leaveAction.current = null; setLeaveOpen(false) }}>
+              {text.createStay}
+            </Button>
+            <Button variant="destructive" onClick={() => {
+              const action = leaveAction.current
+              leaveAction.current = null
+              setLeaveOpen(false)
+              if (action) { active.current = false; action() }
+            }}>{text.createLeave}</Button>
+          </ResponsiveButtonGroup>
         </Stack>
-      </PageSection>
+      </Modal>
     </PageLayout>
   )
 }
@@ -287,16 +201,4 @@ function createFieldAliases(values: GroupFormValues): Record<string, string> {
       [`initialLessonSeries.slots.${index}.hallId`, 'hallId'],
     ])),
   }
-}
-
-function formatExpiresAt(value: string) {
-  const expiresAt = new Date(value)
-  if (Number.isNaN(expiresAt.getTime())) {
-    return fe13GroupsCoreText.groupCreateScreen_string_4371fe93
-  }
-
-  return new Intl.DateTimeFormat('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(expiresAt)
 }

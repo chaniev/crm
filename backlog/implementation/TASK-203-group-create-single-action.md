@@ -1,7 +1,7 @@
 # TASK-203: Создание группы одним действием и исправление восстановления формы
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-GRP-008 — changes
@@ -123,7 +123,7 @@ tasks-ready
 - moved_from: /backlog/needs-clarification
 - implementation_plan: /backlog/implementation-plans/TASK-203-group-create-single-action.plan.md
 - implementation_branch: codex/TASK-203-group-create-single-action
-- execution_started: no
+- execution_started: yes
 
 ## Processing notes
 - Created at: 2026-11-19 (Europe/Moscow).

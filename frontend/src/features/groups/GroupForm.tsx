@@ -1,9 +1,10 @@
-import { useRef, type ReactNode } from 'react'
+import { useId, useRef, type ReactNode } from 'react'
 import {
   Alert,
   Checkbox,
   Group,
   MultiSelect,
+  Loader,
   NumberInput,
   Paper,
   Select,
@@ -40,9 +41,9 @@ import { fe13GroupsCoreText } from '../../resources/fe-13-groups-core'
 export type GroupFormProps = {
   form: UseFormReturnType<GroupFormValues>
   formError: string | null
-  branchOptions: Branch[]
+  branchOptions: (Pick<Branch, 'id' | 'name' | 'address'> & { isArchived?: boolean })[]
   groupTypeOptions: GroupType[]
-  hallOptions: Hall[]
+  hallOptions: (Pick<Hall, 'id' | 'branchId' | 'name'> & { isArchived?: boolean })[]
   cancelAction: { label: string; onClick: () => void } | null
   onSubmit: (values: GroupFormValues) => Promise<void>
   showHallField?: boolean
@@ -51,6 +52,7 @@ export type GroupFormProps = {
   showTrainerField?: boolean
   submitLabel: string
   submitting: boolean
+  disabled?: boolean
   trainerOptions: TrainerOption[]
 }
 
@@ -68,8 +70,10 @@ export function GroupForm({
   showTrainerField = true,
   submitLabel,
   submitting,
+  disabled = false,
   trainerOptions,
 }: GroupFormProps) {
+  const weekdayId = useId()
   const formElementRef = useRef<HTMLFormElement>(null)
 
   function focusFirstError() {
@@ -125,6 +129,7 @@ export function GroupForm({
           </Alert>
         ) : null}
 
+        <fieldset disabled={showInitialSeriesFields && (submitting || disabled)} className="group-form-fields">
         <SimpleGrid cols={{ base: 1, md: 2 }}>
           <Select
             allowDeselect={false}
@@ -188,6 +193,7 @@ export function GroupForm({
             <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
               <Stack gap="md">
                 <Checkbox.Group
+                  id={weekdayId}
                   label={fe13GroupsCoreText.groupForm_label_86f463be}
                   onChange={(weekdays) => form.setFieldValue('weekdays', weekdays)}
                   value={form.values.weekdays}
@@ -200,6 +206,8 @@ export function GroupForm({
                         key={option.value}
                         label={option.label}
                         value={option.value}
+                        aria-invalid={form.errors.weekdays ? true : undefined}
+                        aria-describedby={form.errors.weekdays ? `${weekdayId}-error` : undefined}
                       />
                     ))}
                   </Group>
@@ -221,7 +229,7 @@ export function GroupForm({
                 <NumberInput
                   allowDecimal={false}
                   label={fe13GroupsCoreText.groupForm_label_2a326071}
-                  description={fe13GroupsCoreText.sharedDurationDescription}
+                  description={showInitialSeriesFields ? fe13GroupsCoreText.createDurationDescription : fe13GroupsCoreText.sharedDurationDescription}
                   onChange={(value) => form.setFieldValue('durationMinutes', typeof value === 'number' ? value : '')}
                   placeholder={fe13GroupsCoreText.groupForm_placeholder_39fa9ec1}
                   suffix={fe13GroupsCoreText.groupForm_suffix_84d5d93d}
@@ -238,7 +246,8 @@ export function GroupForm({
                       {...form.getInputProps('initialSeriesStartsOn')}
                     />
                     <TextInput
-                      label={fe13GroupsCoreText.groupForm_label_da09e40b}
+                      label={fe13GroupsCoreText.createEndLabel}
+                      description={fe13GroupsCoreText.createEndDescription}
                       max="9999-12-31"
                       min="1900-01-01"
                       type="date"
@@ -258,7 +267,7 @@ export function GroupForm({
               label: fe13GroupsCoreText.groupForm_label_a0ff92dd(trainer.fullName, trainer.login),
             }))}
             description={fe13GroupsCoreText.groupForm_description_28716432}
-            label={fe13GroupsCoreText.groupForm_label_9fb9bbfa}
+            label={showInitialSeriesFields ? fe13GroupsCoreText.createTrainersLabel : fe13GroupsCoreText.groupForm_label_9fb9bbfa}
             placeholder={fe13GroupsCoreText.groupForm_placeholder_06e7e5cc}
             searchable
             {...form.getInputProps('trainerIds')}
@@ -274,7 +283,8 @@ export function GroupForm({
           }
         />
 
-        <Paper className="hint-card" radius="24px" withBorder>
+        </fieldset>
+        {!showInitialSeriesFields ? <Paper className="hint-card" radius="24px" withBorder>
           <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
             <HintStat
               icon={<IconUsersGroup size={18} />}
@@ -333,7 +343,7 @@ export function GroupForm({
               />
             ) : null}
           </SimpleGrid>
-        </Paper>
+        </Paper> : null}
 
         <Group justify="space-between" wrap="wrap">
           <Text c="dimmed" size="sm">
@@ -344,13 +354,15 @@ export function GroupForm({
 
           <StickyFormActions
             secondaryAction={cancelAction ? (
-              <Button onClick={cancelAction.onClick} type="button" variant="subtle">
+              <Button onClick={(event) => { event.currentTarget.focus(); cancelAction.onClick() }} type="button" variant="subtle">
                 {cancelAction.label}
               </Button>
             ) : undefined}
             primaryAction={<Button
-              leftSection={<IconDeviceFloppy size={18} />}
-              loading={submitting}
+              leftSection={showInitialSeriesFields && submitting ? <Loader size={18} /> : <IconDeviceFloppy size={18} />}
+              loading={!showInitialSeriesFields && submitting}
+              disabled={disabled || submitting}
+              aria-busy={submitting}
               type="submit"
             >
               {submitLabel}
@@ -388,7 +400,7 @@ function HintStat({
   )
 }
 
-function formatBranchOptionLabel(branch: Branch) {
+function formatBranchOptionLabel(branch: GroupFormProps['branchOptions'][number]) {
   const parts = [branch.name]
 
   if (branch.address) {
@@ -402,7 +414,7 @@ function formatBranchOptionLabel(branch: Branch) {
   return parts.join(' · ')
 }
 
-function formatHallOptionLabel(hall: Hall) {
+function formatHallOptionLabel(hall: GroupFormProps['hallOptions'][number]) {
   const parts = [hall.name]
 
   if (hall.isArchived) {

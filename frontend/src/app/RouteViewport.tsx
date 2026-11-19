@@ -208,6 +208,7 @@ export function RouteViewport({
   if (route.kind === 'groupCreate') {
     return (
       <GroupCreateScreen
+        onNavigationGuardChange={onSettingsNavigationGuardChange}
         onCancel={onReturnToGroups}
         onCreated={onReturnToGroups}
       />

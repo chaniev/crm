@@ -29,6 +29,7 @@ internal static class GroupEndpoints
 
         group.MapGet(GroupApiConstants.ListRoute, ListGroupsAsync);
         group.MapGet(GroupApiConstants.SummaryRoute, GetGroupSummaryAsync);
+        group.MapGet(GroupApiConstants.CreateOptionsRoute, GroupCreateOptionsEndpoint.HandleAsync);
         group.MapGet(GroupApiConstants.TrainerOptionsRoute, ListTrainerOptionsAsync);
         group.MapGet(GroupApiConstants.LegacyTrainerOptionsRoute, ListTrainerOptionsAsync);
         group.MapGet(GroupApiConstants.DetailsRoute, GetGroupAsync);
@@ -1091,7 +1092,7 @@ internal static class GroupEndpoints
                 .Distinct()
                 .ToArray()
         });
-        foreach (var pair in await GroupRequestValidator.ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken))
+        foreach (var pair in await GroupRequestValidator.ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken, validateSchedule: firstSlot is not null))
         {
             errors.TryAdd(pair.Key, pair.Value);
         }

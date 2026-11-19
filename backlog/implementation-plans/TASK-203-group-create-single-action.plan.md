@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-203 Создание группы одним действием
 
 ## Metadata
-- source_task: /backlog/tasks-ready/TASK-203-group-create-single-action.md
+- source_task: /backlog/implementation/TASK-203-group-create-single-action.md
 - requirements: REQ-GRP-008 (changes), REQ-GRP-001 (constrains), REQ-GRP-002 (constrains), REQ-GRP-003 (constrains), REQ-GRP-004 (constrains), REQ-USR-001 (constrains), REQ-AUD-001 (constrains), REQ-NFR-001 (constrains)
 - branch: codex/TASK-203-group-create-single-action
 - readiness: yes
@@ -51,7 +51,7 @@
 ## Scope
 Backend Staff API группы и его тесты; frontend create screen, API mirror,
 локальная форма, подключение управляемой навигации и регрессионные сценарии.
-Границы исключений — в [задаче](/backlog/tasks-ready/TASK-203-group-create-single-action.md#out-of-scope).
+Границы исключений — в [задаче](/backlog/implementation/TASK-203-group-create-single-action.md#out-of-scope).
 
 ## Technical contract — accepted
 1. **Варианты создания.** Добавить `GET /api/groups/options/create`, защищённый

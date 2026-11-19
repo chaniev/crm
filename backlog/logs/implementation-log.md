@@ -2241,3 +2241,15 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - historical_paths: прежние записи журналов с /backlog/needs-clarification/TASK-203-group-create-single-action.md относятся к карточке, теперь находящейся в /backlog/tasks-ready/TASK-203-group-create-single-action.md; история сохранена
 - validation_result: executable plan preflight PASS; knowledge harness 4/4 PASS; 193 локальных ссылок существуют; одна карточка tasks-ready и один ready plan; git diff --check PASS
 - evidence_report: .artifacts/verification/TASK-203-ready.json
+
+
+## 2026-11-19 — TASK-203: implementation started
+- branch: codex/TASK-203-group-create-single-action
+- base: origin/main b779fcca442b496fb94198ca4101dc9fd9044b21
+- workspace: ../crm-worktrees/TASK-203-group-create-single-action
+- preflight: validate_plan_readiness.py passed; accepted requirements and A.2 prototype reused.
+- existing planning snapshot matched origin/main tree exactly; preserved in 6498659 and merged with origin/main.
+- moved: backlog/tasks-ready/TASK-203-group-create-single-action.md → backlog/implementation/TASK-203-group-create-single-action.md.
+- dependency review: TASK-201 has only its own clarification card changed; no producer/consumer code ownership collision.
+- initial regression: 5 frontend checks and 6 backend cases failed on the old implementation (missing one-action behavior/guard/options and false slot errors); corrected the API test path to the unprefixed test-host route before green verification.
+- planning prototype source preserved locally in .artifacts/task-203-planning-prototype, outside the frontend linter; independent task dependencies installed.

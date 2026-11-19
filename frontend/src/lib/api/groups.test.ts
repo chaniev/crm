@@ -3,6 +3,7 @@ import {
   applyGroupTrainerAssignments,
   applyGroupLessonSeries,
   getGroup,
+  getGroupCreateOptions,
   getGroupLessonSeries,
   getGroupSummary,
   getGroups,
@@ -16,6 +17,15 @@ type GroupSearchParams = Parameters<typeof getGroups>[0]
 afterEach(() => vi.unstubAllGlobals())
 
 describe('groups API', () => {
+  test('loads server-owned create options with cancellation', async () => {
+    const options = { branches: [{ id: 'allowed', name: 'Филиал', address: null }], halls: [] }
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(options), { headers: { 'content-type': 'application/json' } }))
+    vi.stubGlobal('fetch', fetchMock)
+    const controller = new AbortController()
+    expect(await getGroupCreateOptions(controller.signal)).toEqual(options)
+    expect(fetchMock).toHaveBeenCalledWith('/api/groups/options/create', expect.objectContaining({ signal: controller.signal }))
+  })
+
   test('uses canonical group paging query parameters and defaults', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({

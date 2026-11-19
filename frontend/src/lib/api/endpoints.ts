@@ -69,6 +69,7 @@ export const API_ENDPOINTS = {
     summary: '/groups/summary',
     byId: (groupId: string) => `/groups/${groupId}`,
     trainerOptions: '/groups/options/trainers',
+    createOptions: '/groups/options/create',
     clients: (groupId: string) => `/groups/${groupId}/clients`,
     trainerSubstitutions: (groupId: string) =>
       `/groups/${groupId}/trainer-substitutions`,

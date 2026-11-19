@@ -7,6 +7,7 @@ import {
 import { request } from './transport'
 import type {
   GroupClientResponsePayload,
+  GroupCreateOptions,
   GroupClientsResponse,
   GroupLessonSeriesExecuteRequest,
   GroupLessonSeriesExecuteResponse,
@@ -330,4 +331,8 @@ function assertGroupsListEnvelopePayload(
   ) {
     throw new Error(fe17SharedRoutingThemeText.groups_string_62ac1691)
   }
+}
+
+export async function getGroupCreateOptions(signal?: AbortSignal) {
+  return request<GroupCreateOptions>(API_ENDPOINTS.groups.createOptions, { signal })
 }

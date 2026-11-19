@@ -487,7 +487,7 @@ export function App({ appConfig, authBackground }: AppProps) {
       currentSection={currentSection}
       logoutPending={logoutPending}
       onLogout={async () => managedNavigation(() => { void handleLogout() })}
-      onNavigateSection={(section) => section === 'Settings' ? navigate({ kind: 'section', section }) : managedNavigation(() => navigate({ kind: 'section', section }))}
+      onNavigateSection={(section) => section === 'Settings' && route.kind === 'section' && route.section === 'Settings' ? navigate({ kind: 'section', section }) : managedNavigation(() => navigate({ kind: 'section', section }))}
       onOpenPassword={() => managedNavigation(openUtilityPassword)}
       mainLabel={mainLabel}
       user={authenticatedUser}

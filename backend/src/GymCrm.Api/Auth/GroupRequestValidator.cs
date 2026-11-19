@@ -73,7 +73,8 @@ internal static class GroupRequestValidator
         NormalizedGroupRequest request,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken,
-        Guid? existingGroupId = null)
+        Guid? existingGroupId = null,
+        bool validateSchedule = true)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -86,14 +87,14 @@ internal static class GroupRequestValidator
             errors["name"] = [GroupResources.NameTooLong(GroupApiConstants.NameMaxLength)];
         }
 
-        ValidateSchedule(request, errors);
+        if (validateSchedule) ValidateSchedule(request, errors);
 
-        if (ParseTrainingStartTime(request.TrainingStartTime) is null)
+        if (validateSchedule && ParseTrainingStartTime(request.TrainingStartTime) is null)
         {
             errors["trainingStartTime"] = [GroupResources.TrainingStartTimeInvalid(GroupApiConstants.TrainingStartTimeDisplayFormat)];
         }
 
-        await ValidateBranchAndHallAsync(request, existingGroupId, errors, dbContext, cancellationToken);
+        await ValidateBranchAndHallAsync(request, existingGroupId, errors, dbContext, cancellationToken, validateSchedule);
         await ValidateGroupTypeAsync(request, errors, dbContext, cancellationToken);
 
         var trainerErrors = await ValidateTrainerIdsAsync(request.RawTrainerIds, request.TrainerIds, dbContext, cancellationToken);
@@ -110,7 +111,8 @@ internal static class GroupRequestValidator
         Guid? existingGroupId,
         Dictionary<string, string[]> errors,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool validateHall = true)
     {
         if (!request.BranchId.HasValue)
         {
@@ -121,11 +123,11 @@ internal static class GroupRequestValidator
             errors["branchId"] = [GroupResources.InvalidBranchId];
         }
 
-        if (!request.HallId.HasValue)
+        if (validateHall && !request.HallId.HasValue)
         {
             errors["hallId"] = [GroupResources.HallRequired];
         }
-        else if (request.HallId.Value == Guid.Empty)
+        else if (validateHall && request.HallId == Guid.Empty)
         {
             errors["hallId"] = [GroupResources.InvalidHallId];
         }
@@ -172,6 +174,8 @@ internal static class GroupRequestValidator
                 return;
             }
         }
+
+        if (!validateHall) return;
 
         var hallId = request.HallId!.Value;
         var hall = await dbContext.Halls

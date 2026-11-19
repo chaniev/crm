@@ -1564,3 +1564,8 @@ export type ClientResponsePayload = {
 
 export type ClientMembershipPayload = Record<string, unknown>
 export type ClientAttendanceHistoryPayload = Record<string, unknown>
+
+export type GroupCreateOptions = {
+  branches: Pick<Branch, 'id' | 'name' | 'address'>[]
+  halls: Pick<Hall, 'id' | 'branchId' | 'name'>[]
+}

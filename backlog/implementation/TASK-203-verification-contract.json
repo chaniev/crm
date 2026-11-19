@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "task_id": "TASK-203",
+  "expected_branch": "codex/TASK-203-group-create-single-action",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.groups-registry",
+      "spec": "e2e/groups-registry.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.group-schedule-workflow",
+      "spec": "e2e/group-schedule-workflow.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.settings-client-import",
+      "spec": "e2e/settings-client-import.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1800
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-203-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.visual-and-interface-review",
+      "description": "Compare A.2 and independently audit group creation, responsive layouts and recovery; document device limitations."
+    }
+  ]
+}
