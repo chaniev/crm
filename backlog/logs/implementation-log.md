@@ -2226,3 +2226,18 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - scope: документы согласования, task/plan/REQ/CHANGELOG; рабочие исходники и прототип не менялись
 - validation_result: knowledge harness 4/4 PASS; 38 локальных ссылок существуют; git diff --check PASS
 - evidence_report: .artifacts/verification/TASK-203-prototype-approved.json
+
+# 2026-11-19 — TASK-203: технический контракт согласован, план готов
+- moved: /backlog/needs-clarification/TASK-203-group-create-single-action.md -> /backlog/tasks-ready/TASK-203-group-create-single-action.md
+- planned_in_place: TASK-203
+- plans: /backlog/implementation-plans/TASK-203-group-create-single-action.plan.md
+- decision: пользователь, владелец проекта, согласовал предложенный технический контракт после пояснения пяти пунктов
+- evidence: /backlog/processed/2026-11-19-group-creation-request.md
+- product_decisions: accepted
+- technical_decisions: accepted
+- readiness: yes
+- open_questions: none
+- execution_started: no — согласование плана, без начала рабочих изменений или развёртывания
+- historical_paths: прежние записи журналов с /backlog/needs-clarification/TASK-203-group-create-single-action.md относятся к карточке, теперь находящейся в /backlog/tasks-ready/TASK-203-group-create-single-action.md; история сохранена
+- validation_result: executable plan preflight PASS; knowledge harness 4/4 PASS; 193 локальных ссылок существуют; одна карточка tasks-ready и один ready plan; git diff --check PASS
+- evidence_report: .artifacts/verification/TASK-203-ready.json

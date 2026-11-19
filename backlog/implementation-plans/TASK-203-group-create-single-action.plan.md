@@ -1,14 +1,14 @@
 # Implementation Plan: TASK-203 Создание группы одним действием
 
 ## Metadata
-- source_task: /backlog/needs-clarification/TASK-203-group-create-single-action.md
+- source_task: /backlog/tasks-ready/TASK-203-group-create-single-action.md
 - requirements: REQ-GRP-008 (changes), REQ-GRP-001 (constrains), REQ-GRP-002 (constrains), REQ-GRP-003 (constrains), REQ-GRP-004 (constrains), REQ-USR-001 (constrains), REQ-AUD-001 (constrains), REQ-NFR-001 (constrains)
 - branch: codex/TASK-203-group-create-single-action
-- readiness: no — прототип A.2 согласован; предложенный технический контракт ещё не согласован
+- readiness: yes
 - product_decisions: accepted
-- technical_decisions: proposed — локальный lookup, последовательная отправка и переиспользование управляемой навигации описаны; подтвердить контракт при финализации плана
+- technical_decisions: accepted
 - architecture_decisions: none — защита history исключена владельцем; новый общий механизм не вводится, правила/token/транзакция/схема сохраняются
-- open_questions: итоговое согласование предложенного технического контракта; выбор прототипа и вопрос защиты browser Back/Forward закрыты
+- open_questions: none
 - dependencies: none — TASK-188/189 уже интегрированы; TASK-176/177 не блокируют локальную регрессию
 - risk: medium — рассогласование payload/token, неясный результат записи или потеря ввода могут привести к ошибочному повтору операции
 
@@ -35,11 +35,11 @@
 - При неизвестном результате не повторять создание: показать сообщение и
   действие «Проверить список групп». Неблокирующие warnings игнорировать без
   показа и дополнительного подтверждения; блокирующие ошибки сохраняются.
-- Поведение и проверенный прототип A.2 без нижней сводки согласованы владельцем
-  19.11.2026. Предложенный технический контракт требует отдельного согласования
-  до готовности плана.
+- Поведение, проверенный прототип A.2 без нижней сводки и технический контракт
+  ниже согласованы владельцем 19.11.2026. Все решения планирования закрыты.
 
 ## Decision evidence
+- technical: [Согласование технического контракта 19.11.2026](/backlog/processed/2026-11-19-group-creation-request.md#согласование-технического-контракта-от-19112026) — owner: пользователь, владелец проекта; decision: принят серверный create-options, последовательный preview→create с неизменным payload/token, исправление ошибок и recovery без повторной записи при неизвестном результате, существующая управляемая навигация, совместимое дополнение API без миграций с описанным порядком выпуска и отката.
 - product: [Согласование прототипа A.2 19.11.2026](/backlog/processed/2026-11-19-group-creation-request.md#согласование-прототипа-a2-от-19112026) — owner: пользователь, владелец проекта; decision: выбран проверенный вариант A.2 без нижней сводки с показанными состояниями и диалогами; технический контракт этим решением не утверждался.
 - product: [Удаление сводки 19.11.2026](/backlog/processed/2026-11-19-group-creation-request.md#удаление-дублирующей-сводки-от-19112026) — owner: пользователь, владелец проекта; decision: убрать нижнюю дублирующую сводку из формы создания; остальные поля и действия сохраняются.
 - product: [Текущий запрос](/backlog/processed/2026-11-19-group-creation-request.md) — owner: пользователь, владелец проекта; decision: сразу пытаться создать группу с проверкой в процессе, затем подготовить план этого изменения.
@@ -51,9 +51,9 @@
 ## Scope
 Backend Staff API группы и его тесты; frontend create screen, API mirror,
 локальная форма, подключение управляемой навигации и регрессионные сценарии.
-Границы исключений — в [задаче](/backlog/needs-clarification/TASK-203-group-create-single-action.md#out-of-scope).
+Границы исключений — в [задаче](/backlog/tasks-ready/TASK-203-group-create-single-action.md#out-of-scope).
 
-## Proposed technical contract
+## Technical contract — accepted
 1. **Варианты создания.** Добавить `GET /api/groups/options/create`, защищённый
    существующим правом управления группами. Ответ:
    `{ branches: [{ id, name, address }], halls: [{ id, branchId, name }] }`.
@@ -135,16 +135,12 @@ live-сводку, повторяющую выбор в полях; также �
 текущая форма. Проверять длинные ошибки и имена, focus/scroll и малую высоту.
 
 ## Planning blockers
-- Завершить согласование предложенного технического контракта и записать
-  источник решения. Защита browser Back/Forward исключена
-  владельцем; отдельный механизм history и ADR для него не требуются.
-- Поведение warnings/unknown/pending-leave согласовано и отражено в task/REQ;
-  повторного продуктового решения не требуется. [Прототип A.2](/backlog/mockups/TASK-203-group-create-single-action/README.md)
-  выбран владельцем 19.11.2026. Согласование технического контракта остаётся
-  подготовкой плана, не этапом исполнения.
+Нет. Поведение, прототип A.2 и технический контракт согласованы владельцем;
+защита browser Back/Forward исключена. Задача готова к реализации, выполнение
+рабочих изменений ещё не начато.
 
 ## Implementation slices
-1. **Регрессионный контракт.** После готовности плана добавить тесты ниже,
+1. **Регрессионный контракт.** Добавить тесты ниже,
    зафиксировать ожидаемый red; создать task verification contract из указанной матрицы.
 2. **Backend и typed client.** Реализовать scoped create-options и валидацию пустых
    slots; синхронно добавить types/endpoints/facade/client tests. Проверить старые
