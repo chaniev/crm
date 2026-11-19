@@ -4010,3 +4010,12 @@
 - Source metadata актуализирована на TASK-202 с сохранением previous_task_ids
   и дословного текста. Ссылки требования/CHANGELOG ведут на новую карточку.
 - Подготовка плана отражена в implementation-log; новых продуктовых идей не добавлено.
+
+# 2026-11-19 — TASK-203: карточка для явно запрошенного плана
+- Mode: ограниченное оформление текущего запроса, не глобальная сверка статусов и не разбор inbox.
+- Source: /backlog/processed/2026-11-19-group-creation-request.md — дословные запросы и границы согласования.
+- Result: одна новая карточка /backlog/needs-clarification/TASK-203-group-create-single-action.md и один plan; REQ-GRP-008 принято для одного действия.
+- Duplicate check: все активные каталоги и recursive done; TASK-188/189 уже реализованы, TASK-176/177 имеют отдельные более широкие focus/geometry границы. TASK-203/ветка не заняты.
+- Unresolved: выбор проверенного прототипа исключительных состояний и граница navigation guard; предложение не выдано за утверждённый контракт.
+- Validation: будет дополнена после knowledge harness; чужие статусы и исходные заметки не менялись.
+- Validation result TASK-203: knowledge checks 4/4 PASS, локальные ссылки/unique ID/status-directory PASS; executable preflight ожидаемо отклоняет честный draft. Код и runtime не менялись.

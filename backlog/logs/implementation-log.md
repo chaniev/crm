@@ -2138,3 +2138,22 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - closure_validation: pending knowledge checks and archive links; application tree unchanged
 - closure_validation_result: knowledge 4/4 PASS; 45 local links, done colocation, archived contract digest and unchanged application tree PASS; git diff --check PASS
 - runtime_cleanup: task-local browser port released; disposable import host finished; no Compose stack was created
+
+# 2026-11-19 — TASK-203: план создания группы одним действием
+- moved: none
+- planned_in_place: TASK-203
+- skipped: none — scope только текущего запроса создания групп
+- plans: /backlog/implementation-plans/TASK-203-group-create-single-action.plan.md
+- source_task: /backlog/needs-clarification/TASK-203-group-create-single-action.md
+- branch: codex/TASK-203-group-create-single-action только объявлена
+- decision: один submit принят по текущему диалогу; REQ-GRP-008 принято, реализация не начата
+- proposal: server-owned create-options, точная validation, внутренний preview→create, recovery и ограниченный navigation guard; общий lookup и транзакция сохраняются
+- readiness: no — проверенный прототип/его выбор и граница browser Back/Forward ещё не закрыты; не отложены в implementation slices
+- evidence: /backlog/processed/2026-11-19-group-creation-request.md; текущие public contracts, tests и исходники прочитаны; новый runtime-аудит не выполнялся
+- scope: task/plan/source/REQ/CHANGELOG/logs; код, ветки/worktree, реальные данные и runtime не менялись
+- execution_started: no
+- validation: результат knowledge checks будет добавлен после проверки финальных документов
+- validation_result: knowledge harness 4/4 PASS; 60 requirements, 40 active tasks, 2 active plans; 22 локальные ссылки и полные ссылки на файлы PASS; unique task/plan и git diff --check PASS.
+- evidence_report: .artifacts/verification/TASK-203-planning.json
+- executable_preflight: ожидаемо отклоняет readiness: no; статус черновика не заменён на готовый ради прохождения проверки.
+- verification_limits: application/runtime suites не запускались для Markdown-only planning; сценарии исполнения перечислены в плане.
