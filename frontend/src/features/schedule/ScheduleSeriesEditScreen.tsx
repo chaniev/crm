@@ -1,5 +1,6 @@
+import { DurationInput } from '../shared/DurationInput'
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Group, NumberInput, Paper, SegmentedControl, Select, Stack, Text, TextInput } from '@mantine/core'
+import { Alert, Button, Group, Paper, SegmentedControl, Select, Stack, Text, TextInput } from '@mantine/core'
 import { IconAlertTriangle, IconPlus } from '@tabler/icons-react'
 import {
   ApiError,
@@ -420,7 +421,7 @@ export function ScheduleSeriesEditScreen({
                             type="time"
                             value={trimSeconds(slot.startTime)}
                           />
-                          <NumberInput
+                          <DurationInput
                             disabled={pending}
                             label={fe2ScheduleCoreText.groupScheduleScreen_label_86301601}
                             min={1}

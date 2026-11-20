@@ -38,14 +38,23 @@ export async function administratorCoachFlow(page: Page) {
       expect(payload.role).toBe('Coach')
       expect(payload.branchId).toBeNull()
       if (failCreate) {
-        failCreate = false; status = 400; body = { title: 'Проверьте логин', errors: { login: ['Логин уже занят'] } }
+        failCreate = false; status = 400; body = { title: 'Проверьте логин', errors: { Password: ['Пароль нужно изменить'], Login: ['Логин уже занят'] } }
       } else {
         coach = { ...payload, id: 'coach-187', allowedActions: ['Edit', 'Deactivate', 'Reactivate'], roleOptions: ['Coach'] }
         body = coach; status = 201
       }
     } else if (path === '/api/coaches/coach-187') {
-      if (method === 'PUT') { updateCalls += 1; coach = { ...coach!, ...route.request().postDataJSON() } }
       body = coach
+      if (method === 'PUT') {
+        updateCalls += 1
+        if (updateCalls === 1) {
+          status = 400
+          body = { title: 'Проверьте ФИО', errors: { FullName: ['Введите полное ФИО'] } }
+        } else {
+          coach = { ...coach!, ...route.request().postDataJSON() }
+          body = coach
+        }
+      }
     } else if (!['/api/attendance/lessons/today', '/api/attendance/groups', '/api/clients/attention', '/api/clients/expiring-memberships'].includes(path)) {
       throw new Error(`Unexpected TASK-187 request: ${method} ${path}`)
     }
@@ -56,7 +65,11 @@ export async function administratorCoachFlow(page: Page) {
   const desktop = page.locator('.app-shell__side-nav').getByRole('link', { name: 'Тренеры', exact: true })
   if (await desktop.isVisible()) await desktop.click()
   else {
-    await page.getByRole('button', { name: 'Ещё, открыть остальные разделы', exact: true }).click()
+    const more = page.getByRole('button', { name: 'Ещё, открыть остальные разделы', exact: true })
+    await more.click()
+    await page.getByRole('button', { name: 'Закрыть остальные разделы' }).click()
+    await expect(more).toBeFocused()
+    await more.click()
     await page.getByRole('link', { name: 'Тренеры', exact: true }).click()
   }
   await expect(page).toHaveURL(/\/coaches$/)
@@ -70,12 +83,34 @@ export async function administratorCoachFlow(page: Page) {
   await expect(page).toHaveURL(/\/coaches\/new$/)
   await expect(page.getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
   await expect(page.getByLabel('Филиал администратора')).toHaveCount(0)
-  await page.getByLabel('ФИО', { exact: true }).fill('Александра Константинова')
+  const fullName = page.getByLabel('ФИО', { exact: true })
+  await page.getByRole('button', { name: 'Сохранить тренера' }).press('Enter')
+  await expect(fullName).toBeFocused()
+  await expect(fullName).toBeInViewport({ ratio: 1 })
+  await expect(fullName).toHaveCSS('outline-style', 'solid')
+  await expect(fullName).toHaveAccessibleDescription('Введите ФИО тренера.')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ru')
+  await fullName.fill('Александра Константинова')
   await page.getByLabel('Логин', { exact: true }).fill('coach187')
-  await page.getByLabel('Стартовый пароль').fill('initial-password')
+  const password = page.getByLabel('Стартовый пароль', { exact: true })
+  await page.getByRole('button', { name: 'Сохранить тренера' }).press('Enter')
+  await expect(password).toBeFocused()
+  await expect(password).toHaveAccessibleDescription('Введите стартовый пароль.')
+  await password.fill('initial-password')
+  await password.press('Tab')
+  await expect(page.getByRole('button', { name: 'Показать пароль' })).toBeFocused()
+  await page.keyboard.press('Space')
+  await expect(password).toHaveAttribute('type', 'text')
+  await page.getByRole('button', { name: 'Скрыть пароль' }).press('Enter')
+  await expect(password).toHaveAttribute('type', 'password')
   await page.getByRole('button', { name: 'Сохранить тренера' }).click()
   await expect(page.getByText('Логин уже занят', { exact: true })).toBeVisible()
-  await page.getByLabel('Логин', { exact: true }).fill('coach187-new')
+  const login = page.getByLabel('Логин', { exact: true })
+  await expect(login).toBeFocused()
+  await expect(login).toBeInViewport({ ratio: 1 })
+  await expect(login).toHaveAccessibleDescription('Логин уже занят')
+  await login.fill('coach187-new')
+  await password.fill('new-initial-password')
   await page.getByRole('button', { name: 'Сохранить тренера' }).click()
   await expect(page).toHaveURL(/\/coaches$/)
   await page.reload()
@@ -84,13 +119,23 @@ export async function administratorCoachFlow(page: Page) {
   await page.getByTestId('user-card-coach-187').click()
   await expect(page.getByLabel('Логин', { exact: true })).toHaveAttribute('readonly', '')
   await expect(page.getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
-  await page.getByLabel('ФИО', { exact: true }).fill('Александра Константинова Новая')
+  await fullName.fill('')
+  await page.getByRole('button', { name: 'Сохранить изменения' }).press('Enter')
+  await expect(fullName).toBeFocused()
+  await expect(fullName).toHaveAccessibleDescription('Введите ФИО тренера.')
+  await fullName.fill('Александра')
+  await page.getByRole('button', { name: 'Сохранить изменения' }).press('Enter')
+  await expect(fullName).toBeFocused()
+  await expect(fullName).toBeInViewport({ ratio: 1 })
+  await expect(fullName).toHaveAccessibleDescription('Введите полное ФИО')
+  await fullName.fill('Александра Константинова Новая')
   await page.getByRole('switch', { name: 'Тренер активен' }).uncheck()
   await page.getByRole('button', { name: 'Сохранить изменения' }).click()
   await expect(search).toHaveValue('coach187-new')
+  await expect(page.getByTestId('user-card-coach-187')).toBeFocused()
   const savedNotification = page.getByRole('alert').filter({ hasText: 'Карточка тренера обновлена.' })
   await expect(savedNotification).toBeVisible()
-  await savedNotification.getByRole('button').click()
+  await savedNotification.getByRole('button', { name: 'Закрыть уведомление' }).click()
   await expect(savedNotification).toBeHidden()
   await page.getByRole('button', { name: 'Открыть фильтры', exact: true }).click()
   await page.getByRole('combobox', { name: 'Статус' }).click()
@@ -100,7 +145,7 @@ export async function administratorCoachFlow(page: Page) {
   await expect(page.getByTestId('user-card-coach-187')).toContainText('Отключен')
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
   expect(createCalls).toBe(2)
-  expect(updateCalls).toBe(1)
+  expect(updateCalls).toBe(2)
 
   session.user = {
     ...session.user!, role: 'Coach', allowedSections: ['Attendance', 'Schedule', 'Clients'],

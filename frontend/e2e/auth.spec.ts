@@ -96,10 +96,12 @@ test.describe('Аутентификация', () => {
     await expect(page.getByText('Iron Club', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Добро пожаловать!' })).toBeVisible()
     await expect(page.getByLabel('Логин')).toBeVisible()
-    await expect(page.getByLabel('Пароль')).toBeVisible()
+    await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible()
 
     await page.getByLabel('Логин').fill(BOOTSTRAP_LOGIN)
-    await page.getByLabel('Пароль').fill('wrong-password')
+    await page.getByRole('button', { name: 'Показать пароль' }).click()
+    await expect(page.getByRole('button', { name: 'Скрыть пароль' })).toBeVisible()
+    await page.getByLabel('Пароль', { exact: true }).fill('wrong-password')
 
     await page.getByRole('button', { name: 'Войти' }).click()
 
@@ -180,7 +182,7 @@ test.describe('Аутентификация', () => {
     await page.goto('/')
 
     await page.getByLabel('Логин').fill(BOOTSTRAP_LOGIN)
-    await page.getByLabel('Пароль').fill(BOOTSTRAP_PASSWORD)
+    await page.getByLabel('Пароль', { exact: true }).fill(BOOTSTRAP_PASSWORD)
     await page.getByRole('button', { name: 'Войти' }).click()
 
     await expect(
@@ -224,7 +226,7 @@ test.describe('Аутентификация', () => {
     await expect(page.getByText('Gym CRM', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Добро пожаловать!' })).toBeVisible()
     await expect(page.getByLabel('Логин')).toBeInViewport()
-    await expect(page.getByLabel('Пароль')).toBeInViewport()
+    await expect(page.getByLabel('Пароль', { exact: true })).toBeInViewport()
     await expect(page.getByRole('button', { name: 'Войти' })).toBeInViewport()
     await expect(page.getByText('Клиенты и абонементы')).toBeHidden()
   })
@@ -273,7 +275,7 @@ test.describe('Аутентификация', () => {
     await expect(page.getByRole('heading', { name: 'Добро пожаловать!' })).toBeVisible()
     await expect(page.getByText('Клиенты и абонементы')).toBeHidden()
     await expect(page.getByLabel('Логин')).toBeVisible()
-    await expect(page.getByLabel('Пароль')).toBeVisible()
+    await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Войти' })).toBeVisible()
     await expectAuthBackgroundToContainDefaultAsset(page)
   })
@@ -327,7 +329,7 @@ test.describe('Аутентификация', () => {
 
     await expect(page.getByRole('heading', { name: 'Добро пожаловать!' })).toBeVisible()
     await expect(page.getByLabel('Логин')).toBeVisible()
-    await expect(page.getByLabel('Пароль')).toBeVisible()
+    await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Войти' })).toBeVisible()
     await expectAuthBackgroundToContainDefaultAsset(page)
   })

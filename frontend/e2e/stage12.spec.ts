@@ -1991,7 +1991,7 @@ test.describe('Основные e2e сценарии', () => {
     await expect(administratorDialog.getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
     await page.getByLabel('ФИО').fill('Администратор настроек')
     await page.getByLabel('Логин').fill('settings-admin')
-    await page.getByLabel('Пароль').fill('12345Aa!')
+    await page.getByLabel('Стартовый пароль', { exact: true }).fill('12345Aa!')
     await page
       .getByRole('dialog')
       .getByRole('button', { name: 'Сохранить' })

@@ -1,10 +1,10 @@
+import { DurationInput } from '../shared/DurationInput'
 import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Button,
   Drawer,
   Group,
-  NumberInput,
   Paper,
   Select,
   SegmentedControl,
@@ -296,7 +296,7 @@ export function ScheduleLessonChangeForm({
             />
           </Group>
           <Group align="flex-start" grow>
-            <NumberInput
+            <DurationInput
               allowDecimal={false}
               error={fieldErrors.durationMinutes}
               label={fe3ScheduleMutationsText.scheduleLessonChangeDrawer_label_2a326071}

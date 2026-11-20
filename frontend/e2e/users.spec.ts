@@ -606,6 +606,9 @@ test('Редактирование пользователя показывает
   })
   await expect(page.getByLabel('ФИО')).toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByText(fullNameError)).toBeVisible()
+  await expect(page.getByLabel('ФИО')).toBeFocused()
+  await expect(page.getByLabel('ФИО')).toHaveAccessibleDescription(fullNameError)
+  await expect(page.getByLabel('ФИО')).toBeInViewport({ ratio: 1 })
 })
 
 test('Создание тренера скрывает выбор роли и отправляет фиксированную роль Coach', async ({
@@ -663,7 +666,7 @@ test('Создание тренера скрывает выбор роли и о
 
   await page.getByLabel('ФИО').fill('Новый Тренер')
   await page.getByLabel('Логин').fill('new-coach')
-  await page.getByLabel('Пароль').fill('12345Aa!')
+  await page.getByLabel('Стартовый пароль', { exact: true }).fill('12345Aa!')
   await page.getByRole('button', { name: 'Сохранить тренера' }).click()
 
   await expect.poll(() => createUserPayload).toMatchObject({

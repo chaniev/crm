@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "task_id": "TASK-176",
+  "expected_branch": "codex/TASK-176-russian-accessibility-and-validation-focus",
+  "areas": [
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.users",
+      "spec": "e2e/users.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.auth",
+      "spec": "e2e/auth.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.groups-registry",
+      "spec": "e2e/groups-registry.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.iphone-target-devices",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": [
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-176-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.interface-acceptance",
+      "description": "Сравнить интерфейс до и после и проверить клавиатуру и доступность изменённого сценария."
+    }
+  ]
+}

@@ -299,6 +299,7 @@ export function createGymCrmComponentRecipes({
   Notification: Notification.extend({
     defaultProps: {
       'data-crm-recipe': 'notification',
+      closeButtonProps: { 'aria-label': fe17SharedRoutingThemeText.closeNotification },
       color: 'var(--crm-status-neutral-fg)',
       radius: 'md',
     },

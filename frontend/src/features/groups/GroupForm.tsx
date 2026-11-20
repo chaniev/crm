@@ -1,3 +1,4 @@
+import { DurationInput } from '../shared/DurationInput'
 import { useId, useRef, type ReactNode } from 'react'
 import {
   Alert,
@@ -5,7 +6,6 @@ import {
   Group,
   MultiSelect,
   Loader,
-  NumberInput,
   Paper,
   Select,
   SimpleGrid,
@@ -228,7 +228,7 @@ export function GroupForm({
                 ))}
               </Stack>
               <Stack gap="md">
-                <NumberInput
+                <DurationInput
                   allowDecimal={false}
                   label={fe13GroupsCoreText.groupForm_label_2a326071}
                   description={showInitialSeriesFields ? fe13GroupsCoreText.createDurationDescription : fe13GroupsCoreText.sharedDurationDescription}

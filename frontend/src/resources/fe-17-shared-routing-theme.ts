@@ -1,4 +1,9 @@
 export const fe17SharedRoutingThemeText = {
+  showPassword: "Показать пароль",
+  hidePassword: "Скрыть пароль",
+  increaseDuration: "Прибавить минуту",
+  decreaseDuration: "Убавить минуту",
+  closeNotification: "Закрыть уведомление",
   activeFiltersBar_ariaLabel_11c117e1: "Активные фильтры",
   activeFiltersBar_template_24308fe4: (value0: unknown) => "Удалить фильтр «" + String(value0) + "»",
   administrators_string_d8c07c44: "Группа без названия",

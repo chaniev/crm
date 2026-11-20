@@ -1351,6 +1351,11 @@
   background: var(--crm-surface-card);
 }
 
+.trainer-form [aria-invalid="true"]:focus {
+  outline: 2px solid var(--crm-focus-ring);
+  outline-offset: 2px;
+}
+
 .sticky-form-actions-slot {
   min-width: 0;
 }

@@ -164,7 +164,7 @@ test.describe('Мобильный сценарий посещений трене
     await page.goto('/attendance')
 
     await page.getByLabel('Логин').fill(COACH_LOGIN)
-    await page.getByLabel('Пароль').fill(COACH_PASSWORD)
+    await page.getByLabel('Пароль', { exact: true }).fill(COACH_PASSWORD)
     await page.getByRole('button', { name: 'Войти' }).click()
 
     await expect(page).toHaveURL('/attendance')

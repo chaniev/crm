@@ -1,3 +1,4 @@
+import { useUserFormErrorFocus } from './useUserFormErrorFocus'
 import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
@@ -52,6 +53,7 @@ export function UserEditScreen({
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [user, setUser] = useState<UserDetails | null>(null)
+  const { formElement, focusFirstError } = useUserFormErrorFocus()
   const form = useForm<EditUserFormValues>({
     initialValues: {
       fullName: '',
@@ -143,6 +145,7 @@ export function UserEditScreen({
     } catch (error) {
       if (error instanceof ApiError) {
         form.setErrors(applyFieldErrors(error.fieldErrors))
+        focusFirstError()
         setFormError(error.message)
       } else {
         setFormError(resources.users.edit.fallbackError)
@@ -194,7 +197,7 @@ export function UserEditScreen({
                 />
               ) : null}
 
-              <form onSubmit={form.onSubmit((values) => void submit(values))}>
+              <form className="trainer-form" ref={formElement} onSubmit={form.onSubmit((values) => void submit(values), focusFirstError)}>
                 <Stack gap="lg">
                   <UserFormFields
                     credentialsFields={<UserEditCredentialsFields form={form} />}

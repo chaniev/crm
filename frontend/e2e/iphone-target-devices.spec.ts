@@ -479,7 +479,7 @@ test('target portrait keeps the login operation visible and touch-safe', async (
   await page.goto('/')
 
   const login = page.getByLabel('Логин')
-  const password = page.getByLabel('Пароль')
+  const password = page.getByLabel('Пароль', { exact: true })
   const submit = page.getByRole('button', { name: 'Войти' })
 
   await expect(page.getByRole('heading', { name: 'Добро пожаловать!' })).toBeVisible()

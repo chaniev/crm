@@ -1,5 +1,5 @@
+import { LocalizedPasswordInput } from '../shared/LocalizedPasswordInput'
 import {
-  PasswordInput,
   Select,
   SimpleGrid,
   Switch,
@@ -149,7 +149,7 @@ export function UserCreateCredentialsFields({
         placeholder={resources.users.form.placeholders.login}
         {...form.getInputProps('login')}
       />
-      <PasswordInput
+      <LocalizedPasswordInput
         autoComplete="new-password"
         label={resources.users.form.labels.password}
         placeholder={resources.users.form.placeholders.password}
