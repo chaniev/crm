@@ -100,8 +100,7 @@ const periodOptions: Array<{
   { value: 'custom', label: fe15FinanceText.financeReportsScreen_label_e97ca72e },
 ]
 
-const duplicatedBreakdownHint =
-  fe15FinanceText.financeReportsScreen_duplicatedBreakdownHint_17d94038
+const duplicateHintId = 'finance-duplicate-breakdown-hint'
 
 const moneyFormatter = new Intl.NumberFormat('ru-RU', {
   currency: 'RUB',
@@ -658,9 +657,18 @@ function CompactFilterField({
   )
 }
 
+function DuplicateBreakdownHint() {
+  return (
+    <Text c="dimmed" className="finance-breakdown-hint" id={duplicateHintId} size="sm">
+      {fe15FinanceText.financeReportsScreen_duplicatedBreakdownHint_17d94038}
+    </Text>
+  )
+}
+
 function DesktopBreakdowns({ report }: { report: FinancialReportResponse }) {
   return (
     <div className="finance-breakdown-grid">
+      <DuplicateBreakdownHint />
       <BranchBreakdownSection rows={report.branchBreakdown} />
       <TrainerBreakdownSection rows={report.trainerBreakdown} />
       <div className="finance-breakdown-grid__wide">
@@ -684,14 +692,19 @@ function MobileBreakdowns({ report }: { report: FinancialReportResponse }) {
           <BranchBreakdownSection mobile rows={report.branchBreakdown} />
         </Accordion.Panel>
       </Accordion.Item>
+      <DuplicateBreakdownHint />
       <Accordion.Item value="trainers">
-        <Accordion.Control>{fe15FinanceText.financeReportsScreen_jsxText_fffad4a1}</Accordion.Control>
+        <Accordion.Control aria-describedby={duplicateHintId}>
+          {fe15FinanceText.financeReportsScreen_jsxText_fffad4a1}
+        </Accordion.Control>
         <Accordion.Panel>
           <TrainerBreakdownSection mobile rows={report.trainerBreakdown} />
         </Accordion.Panel>
       </Accordion.Item>
       <Accordion.Item value="groups">
-        <Accordion.Control>{fe15FinanceText.financeReportsScreen_jsxText_ece838e8}</Accordion.Control>
+        <Accordion.Control aria-describedby={duplicateHintId}>
+          {fe15FinanceText.financeReportsScreen_jsxText_ece838e8}
+        </Accordion.Control>
         <Accordion.Panel>
           <GroupBreakdownSection mobile rows={report.groupBreakdown} />
         </Accordion.Panel>
@@ -752,7 +765,7 @@ function GroupBreakdownSection({
         },
         ...totalsColumns<FinancialReportGroupBreakdownRow>(),
       ]}
-      duplicateHint={duplicatedBreakdownHint}
+      descriptionId={mobile ? undefined : duplicateHintId}
       emptyText={fe15FinanceText.financeReportsScreen_emptyText_f08244d4}
       getRowId={(row, index) => `finance-group-row-${row.groupId}-${index}`}
       getSubtitle={(row) => row.branchName}
@@ -783,7 +796,7 @@ function TrainerBreakdownSection({
         },
         ...totalsColumns<FinancialReportTrainerBreakdownRow>(),
       ]}
-      duplicateHint={duplicatedBreakdownHint}
+      descriptionId={mobile ? undefined : duplicateHintId}
       emptyText={fe15FinanceText.financeReportsScreen_emptyText_77c767cb}
       getRowId={(row, index) => `finance-trainer-row-${row.trainerId}-${index}`}
       getSubtitle={() => null}
@@ -807,7 +820,7 @@ type BreakdownSectionProps<Row> = {
   getRowId: (row: Row, index: number) => string
   getTitle: (row: Row) => string
   getSubtitle: (row: Row) => string | null
-  duplicateHint?: string
+  descriptionId?: string
   mobile?: boolean
 }
 
@@ -821,26 +834,24 @@ function BreakdownSection<Row>({
   getRowId,
   getTitle,
   getSubtitle,
-  duplicateHint,
+  descriptionId,
   mobile = false,
 }: BreakdownSectionProps<Row>) {
   return (
-    <section className="finance-breakdown-section" data-testid={testId}>
+    <section
+      aria-describedby={descriptionId}
+      aria-label={descriptionId ? title : undefined}
+      className="finance-breakdown-section"
+      data-testid={testId}
+    >
       <Stack gap="sm">
-        <Stack gap={4}>
-          <Group gap="xs" wrap="wrap">
-            <IconChartBar size={18} />
-            <Text fw={800}>{title}</Text>
-            <Badge radius="xl" variant="light">
-              {rows.length}
-            </Badge>
-          </Group>
-          {duplicateHint ? (
-            <Text c="dimmed" size="sm">
-              {duplicateHint}
-            </Text>
-          ) : null}
-        </Stack>
+        <Group gap="xs" wrap="wrap">
+          <IconChartBar size={18} />
+          <Text fw={800}>{title}</Text>
+          <Badge radius="xl" variant="light">
+            {rows.length}
+          </Badge>
+        </Group>
 
         {rows.length === 0 ? (
           <Text c="dimmed" size="sm">

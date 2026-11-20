@@ -1,5 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
 
+import { fe15FinanceText } from '../src/resources/fe-15-finance'
+
+const duplicateHint = fe15FinanceText.financeReportsScreen_duplicatedBreakdownHint_17d94038
+
 const APP_CONFIG = {
   clubName: 'Iron Club',
   themeId: 'default-green-v1',
@@ -221,15 +225,15 @@ const STRESS_REPORT_RESPONSE = {
 
 test.describe('Finance reports', () => {
   test('shows finance navigation and renders backend totals with duplicated breakdown rows', async ({
-    page,
+    page, isMobile,
   }) => {
     await mockFinanceApi(page)
 
     await page.goto('/finance')
 
-    const navigation = page.locator(
-      'nav.app-shell__side-nav[aria-label="Основная навигация"]',
-    )
+    const navigation = page.getByRole('navigation', {
+      name: isMobile ? 'Мобильная навигация' : 'Основная навигация',
+    })
     const financeNavButton = navigation.getByRole('button', { name: 'Финансы' })
 
     await expect(page.getByTestId('finance-screen')).toBeVisible()
@@ -237,9 +241,22 @@ test.describe('Finance reports', () => {
     await expect(financeNavButton).toHaveAttribute('aria-current', 'page')
     await expect(page.getByTestId('finance-totals')).toContainText(/7\s?777\s?₽/)
     await expect(page.getByTestId('finance-totals')).not.toContainText(/20\s?000\s?₽/)
-    await expect(page.getByTestId('finance-group-breakdown')).toContainText(
-      /сумма строк в этих таблицах может быть больше итогов/i,
-    )
+    const hint = page.getByText(duplicateHint, { exact: true })
+    await expect(hint).toHaveCount(1)
+    await expect(hint).toBeVisible()
+    for (const name of ['По тренерам', 'По группам']) {
+      if (isMobile) {
+        const control = page.getByRole('button', { name, exact: true })
+        await expect(control).toHaveAccessibleDescription(duplicateHint)
+        await control.press('Enter')
+        await expect(control).toHaveAttribute('aria-expanded', 'false')
+        await expect(hint).toBeVisible()
+        await control.press('Enter')
+        await expect(control).toHaveAttribute('aria-expanded', 'true')
+      } else {
+        await expect(page.getByRole('region', { name, exact: true })).toHaveAccessibleDescription(duplicateHint)
+      }
+    }
     await expect(page.getByTestId('finance-group-breakdown')).toContainText('Группа A')
     await expect(page.getByTestId('finance-trainer-breakdown')).toContainText(
       'Ирина Тренер',
@@ -256,6 +273,7 @@ test.describe('Finance reports', () => {
   }) => {
     const reportRequests: URLSearchParams[] = []
 
+    await page.setViewportSize({ width: 1440, height: 1200 })
     await mockFinanceApi(page, {
       onReport(searchParams) {
         reportRequests.push(new URLSearchParams(searchParams))
@@ -576,6 +594,7 @@ test.describe('Finance reports', () => {
   test('shows backend ProblemDetails field errors for invalid report filters', async ({
     page,
   }) => {
+    await page.setViewportSize({ width: 1440, height: 1200 })
     await mockFinanceApi(page, {
       onReport(searchParams, route) {
         if (searchParams.get('periodPreset') === 'custom') {
@@ -622,6 +641,7 @@ test.describe('Finance reports', () => {
     await page.getByTestId('finance-filter-panel').getByRole('button', { name: 'Фильтры' }).click()
     await expect(page.getByLabel('Дата в периоде')).toBeVisible()
     await expect(page.getByText('За выбранный период операций нет.')).toBeVisible()
+    await expect(page.getByText(duplicateHint, { exact: true })).toHaveCount(0)
     await expect(page.getByTestId('finance-totals')).toHaveCount(0)
     await expect(page.getByTestId('finance-branch-breakdown')).toHaveCount(0)
     await expect(page.getByTestId('finance-trainer-breakdown')).toHaveCount(0)
