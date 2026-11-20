@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "task_id": "TASK-182",
+  "expected_branch": "codex/TASK-182-schedule-weekday-calendar-date",
+  "areas": [
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.group-schedule",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-182-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.interface-acceptance",
+      "description": "Сравнить интерфейс до и после и проверить клавиатуру и доступность изменённого сценария."
+    }
+  ]
+}
