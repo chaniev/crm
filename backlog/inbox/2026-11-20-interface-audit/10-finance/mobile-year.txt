@@ -1,0 +1,567 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Главный тренер":
+- main "Финансы":
+  - heading "Финансы" [level=1]
+  - 'region "Отчет: 01.01.2026–31.12.2026. Филиал: Все филиалы · Тренер: Все тренеры"':
+    - paragraph: "Отчет: 01.01.2026–31.12.2026"
+    - paragraph: "Филиал: Все филиалы · Тренер: Все тренеры"
+  - button "Фильтры · 1" [active]:
+    - generic: Фильтры · 1
+  - button "Сбросить фильтры финансового отчета":
+    - generic: Сбросить
+  - button "Обновить":
+    - generic: Обновить
+  - paragraph: Продано абонементов
+  - paragraph: "255"
+  - paragraph: Выручка
+  - paragraph: 9 540 000 ₽
+  - paragraph: Возвраты
+  - paragraph: 0 ₽
+  - paragraph: Чистая выручка
+  - paragraph: 9 540 000 ₽
+  - paragraph: Новые клиенты
+  - paragraph: "255"
+  - button "По филиалам" [expanded]:
+    - generic: По филиалам
+  - region "По филиалам":
+    - paragraph: По филиалам
+    - generic: "4"
+    - paragraph: Филиал Запад
+    - paragraph: Продажи
+    - paragraph: "35"
+    - paragraph: Выручка
+    - paragraph: 1 212 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 1 212 000 ₽
+    - paragraph: Новые
+    - paragraph: "35"
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "65"
+    - paragraph: Выручка
+    - paragraph: 2 496 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 2 496 000 ₽
+    - paragraph: Новые
+    - paragraph: "65"
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "102"
+    - paragraph: Выручка
+    - paragraph: 3 810 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 3 810 000 ₽
+    - paragraph: Новые
+    - paragraph: "102"
+    - paragraph: Филиал Юг
+    - paragraph: Продажи
+    - paragraph: "53"
+    - paragraph: Выручка
+    - paragraph: 2 022 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 2 022 000 ₽
+    - paragraph: Новые
+    - paragraph: "53"
+  - button "По тренерам" [expanded]:
+    - generic: По тренерам
+  - region "По тренерам":
+    - paragraph: По тренерам
+    - generic: "10"
+    - paragraph: Итоги сверху считаются без дублей. В разбивке по группам и тренерам одна и та же продажа может попасть в несколько строк, если клиент был связан с несколькими группами или тренерами в выбранный период. Поэтому сумма строк в этих таблицах может быть больше итогов.
+    - paragraph: Тренер 01
+    - paragraph: Продажи
+    - paragraph: "30"
+    - paragraph: Выручка
+    - paragraph: 1 308 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 1 308 000 ₽
+    - paragraph: Новые
+    - paragraph: "30"
+    - paragraph: Тренер 02
+    - paragraph: Продажи
+    - paragraph: "17"
+    - paragraph: Выручка
+    - paragraph: 636 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 636 000 ₽
+    - paragraph: Новые
+    - paragraph: "17"
+    - paragraph: Тренер 03
+    - paragraph: Продажи
+    - paragraph: "33"
+    - paragraph: Выручка
+    - paragraph: 1 320 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 1 320 000 ₽
+    - paragraph: Новые
+    - paragraph: "33"
+    - paragraph: Тренер 04
+    - paragraph: Продажи
+    - paragraph: "16"
+    - paragraph: Выручка
+    - paragraph: 690 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 690 000 ₽
+    - paragraph: Новые
+    - paragraph: "16"
+    - paragraph: Тренер 05
+    - paragraph: Продажи
+    - paragraph: "23"
+    - paragraph: Выручка
+    - paragraph: 828 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 828 000 ₽
+    - paragraph: Новые
+    - paragraph: "23"
+    - paragraph: Тренер 06
+    - paragraph: Продажи
+    - paragraph: "30"
+    - paragraph: Выручка
+    - paragraph: 1 134 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 1 134 000 ₽
+    - paragraph: Новые
+    - paragraph: "30"
+    - paragraph: Тренер 07
+    - paragraph: Продажи
+    - paragraph: "34"
+    - paragraph: Выручка
+    - paragraph: 1 218 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 1 218 000 ₽
+    - paragraph: Новые
+    - paragraph: "34"
+    - paragraph: Тренер 08
+    - paragraph: Продажи
+    - paragraph: "19"
+    - paragraph: Выручка
+    - paragraph: 708 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 708 000 ₽
+    - paragraph: Новые
+    - paragraph: "19"
+    - paragraph: Тренер 09
+    - paragraph: Продажи
+    - paragraph: "22"
+    - paragraph: Выручка
+    - paragraph: 714 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 714 000 ₽
+    - paragraph: Новые
+    - paragraph: "22"
+    - paragraph: Тренер 10
+    - paragraph: Продажи
+    - paragraph: "31"
+    - paragraph: Выручка
+    - paragraph: 984 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 984 000 ₽
+    - paragraph: Новые
+    - paragraph: "31"
+  - button "По группам" [expanded]:
+    - generic: По группам
+  - region "По группам":
+    - paragraph: По группам
+    - generic: "30"
+    - paragraph: Итоги сверху считаются без дублей. В разбивке по группам и тренерам одна и та же продажа может попасть в несколько строк, если клиент был связан с несколькими группами или тренерами в выбранный период. Поэтому сумма строк в этих таблицах может быть больше итогов.
+    - paragraph: Боевое самбо группа 28 - Филиал Запад
+    - paragraph: Филиал Запад
+    - paragraph: Продажи
+    - paragraph: "3"
+    - paragraph: Выручка
+    - paragraph: 126 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 126 000 ₽
+    - paragraph: Новые
+    - paragraph: "3"
+    - paragraph: Вольная борьба группа 30 - Филиал Запад
+    - paragraph: Филиал Запад
+    - paragraph: Продажи
+    - paragraph: "8"
+    - paragraph: Выручка
+    - paragraph: 312 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 312 000 ₽
+    - paragraph: Новые
+    - paragraph: "8"
+    - paragraph: Кикбоксинг группа 27 - Филиал Запад
+    - paragraph: Филиал Запад
+    - paragraph: Продажи
+    - paragraph: "16"
+    - paragraph: Выручка
+    - paragraph: 516 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 516 000 ₽
+    - paragraph: Новые
+    - paragraph: "16"
+    - paragraph: ММА группа 29 - Филиал Запад
+    - paragraph: Филиал Запад
+    - paragraph: Продажи
+    - paragraph: "8"
+    - paragraph: Выручка
+    - paragraph: 258 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 258 000 ₽
+    - paragraph: Новые
+    - paragraph: "8"
+    - paragraph: Боевое самбо группа 16 - Филиал Север
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "7"
+    - paragraph: Выручка
+    - paragraph: 420 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 420 000 ₽
+    - paragraph: Новые
+    - paragraph: "7"
+    - paragraph: Боевое самбо группа 20 - Филиал Север
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "9"
+    - paragraph: Выручка
+    - paragraph: 324 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 324 000 ₽
+    - paragraph: Новые
+    - paragraph: "9"
+    - paragraph: Вольная борьба группа 14 - Филиал Север
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "4"
+    - paragraph: Выручка
+    - paragraph: 132 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 132 000 ₽
+    - paragraph: Новые
+    - paragraph: "4"
+    - paragraph: Вольная борьба группа 18 - Филиал Север
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "9"
+    - paragraph: Выручка
+    - paragraph: 324 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 324 000 ₽
+    - paragraph: Новые
+    - paragraph: "9"
+    - paragraph: Кикбоксинг группа 15 - Филиал Север
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "9"
+    - paragraph: Выручка
+    - paragraph: 324 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 324 000 ₽
+    - paragraph: Новые
+    - paragraph: "9"
+    - paragraph: Кикбоксинг группа 19 - Филиал Север
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "7"
+    - paragraph: Выручка
+    - paragraph: 204 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 204 000 ₽
+    - paragraph: Новые
+    - paragraph: "7"
+    - paragraph: ММА группа 13 - Филиал Север
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "7"
+    - paragraph: Выручка
+    - paragraph: 312 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 312 000 ₽
+    - paragraph: Новые
+    - paragraph: "7"
+    - paragraph: ММА группа 17 - Филиал Север
+    - paragraph: Филиал Север
+    - paragraph: Продажи
+    - paragraph: "13"
+    - paragraph: Выручка
+    - paragraph: 456 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 456 000 ₽
+    - paragraph: Новые
+    - paragraph: "13"
+    - paragraph: Боевое самбо группа 04 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "7"
+    - paragraph: Выручка
+    - paragraph: 312 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 312 000 ₽
+    - paragraph: Новые
+    - paragraph: "7"
+    - paragraph: Боевое самбо группа 08 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "7"
+    - paragraph: Выручка
+    - paragraph: 258 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 258 000 ₽
+    - paragraph: Новые
+    - paragraph: "7"
+    - paragraph: Боевое самбо группа 12 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "3"
+    - paragraph: Выручка
+    - paragraph: 66 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 66 000 ₽
+    - paragraph: Новые
+    - paragraph: "3"
+    - paragraph: Вольная борьба группа 02 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "8"
+    - paragraph: Выручка
+    - paragraph: 372 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 372 000 ₽
+    - paragraph: Новые
+    - paragraph: "8"
+    - paragraph: Вольная борьба группа 06 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "14"
+    - paragraph: Выручка
+    - paragraph: 450 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 450 000 ₽
+    - paragraph: Новые
+    - paragraph: "14"
+    - paragraph: Вольная борьба группа 10 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "14"
+    - paragraph: Выручка
+    - paragraph: 348 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 348 000 ₽
+    - paragraph: Новые
+    - paragraph: "14"
+    - paragraph: Кикбоксинг группа 03 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "12"
+    - paragraph: Выручка
+    - paragraph: 444 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 444 000 ₽
+    - paragraph: Новые
+    - paragraph: "12"
+    - paragraph: Кикбоксинг группа 07 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "5"
+    - paragraph: Выручка
+    - paragraph: 246 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 246 000 ₽
+    - paragraph: Новые
+    - paragraph: "5"
+    - paragraph: Кикбоксинг группа 11 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "15"
+    - paragraph: Выручка
+    - paragraph: 630 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 630 000 ₽
+    - paragraph: Новые
+    - paragraph: "15"
+    - paragraph: ММА воскресенье 10:30
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "5"
+    - paragraph: Выручка
+    - paragraph: 300 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 300 000 ₽
+    - paragraph: Новые
+    - paragraph: "5"
+    - paragraph: ММА группа 05 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "5"
+    - paragraph: Выручка
+    - paragraph: 132 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 132 000 ₽
+    - paragraph: Новые
+    - paragraph: "5"
+    - paragraph: ММА группа 09 - Филиал Центр
+    - paragraph: Филиал Центр
+    - paragraph: Продажи
+    - paragraph: "7"
+    - paragraph: Выручка
+    - paragraph: 252 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 252 000 ₽
+    - paragraph: Новые
+    - paragraph: "7"
+    - paragraph: Боевое самбо группа 24 - Филиал Юг
+    - paragraph: Филиал Юг
+    - paragraph: Продажи
+    - paragraph: "5"
+    - paragraph: Выручка
+    - paragraph: 246 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 246 000 ₽
+    - paragraph: Новые
+    - paragraph: "5"
+    - paragraph: Вольная борьба группа 22 - Филиал Юг
+    - paragraph: Филиал Юг
+    - paragraph: Продажи
+    - paragraph: "6"
+    - paragraph: Выручка
+    - paragraph: 198 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 198 000 ₽
+    - paragraph: Новые
+    - paragraph: "6"
+    - paragraph: Вольная борьба группа 26 - Филиал Юг
+    - paragraph: Филиал Юг
+    - paragraph: Продажи
+    - paragraph: "9"
+    - paragraph: Выручка
+    - paragraph: 264 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 264 000 ₽
+    - paragraph: Новые
+    - paragraph: "9"
+    - paragraph: Кикбоксинг группа 23 - Филиал Юг
+    - paragraph: Филиал Юг
+    - paragraph: Продажи
+    - paragraph: "14"
+    - paragraph: Выручка
+    - paragraph: 564 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 564 000 ₽
+    - paragraph: Новые
+    - paragraph: "14"
+    - paragraph: ММА группа 21 - Филиал Юг
+    - paragraph: Филиал Юг
+    - paragraph: Продажи
+    - paragraph: "10"
+    - paragraph: Выручка
+    - paragraph: 378 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 378 000 ₽
+    - paragraph: Новые
+    - paragraph: "10"
+    - paragraph: ММА группа 25 - Филиал Юг
+    - paragraph: Филиал Юг
+    - paragraph: Продажи
+    - paragraph: "9"
+    - paragraph: Выручка
+    - paragraph: 372 000 ₽
+    - paragraph: Возвраты
+    - paragraph: 0 ₽
+    - paragraph: Чистая
+    - paragraph: 372 000 ₽
+    - paragraph: Новые
+    - paragraph: "9"
+- navigation "Мобильная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Финансы":
+    - generic: Финансы
+  - button "Ещё, открыть остальные разделы":
+    - generic: Ещё
+- generic "Остальные разделы"

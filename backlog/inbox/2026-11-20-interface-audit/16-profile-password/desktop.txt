@@ -1,0 +1,44 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Главный тренер" [active]:
+    - generic: Главный тренер
+- navigation "Основная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Клиенты":
+    - generic: Клиенты
+  - button "Группы":
+    - generic: Группы
+  - button "Тренеры":
+    - generic: Тренеры
+  - button "Журнал":
+    - generic: Журнал
+  - button "Финансы":
+    - generic: Финансы
+  - button "Настройки":
+    - generic: Настройки
+- main "Смена пароля":
+  - heading "Смена пароля из профиля" [level=2]
+  - paragraph: Обновите пароль, который будете использовать при следующих входах.
+  - button "Назад":
+    - generic: Назад
+  - generic: Текущий пароль
+  - textbox "Текущий пароль":
+    - /placeholder: Введите текущий пароль
+  - button "Toggle password visibility":
+  - generic: Новый пароль
+  - textbox "Новый пароль":
+    - /placeholder: Придумайте новый пароль
+  - button "Toggle password visibility":
+  - generic: Повторите новый пароль
+  - textbox "Повторите новый пароль"
+  - button "Toggle password visibility":
+  - button "Сохранить новый пароль":
+    - generic: Сохранить новый пароль
+  - paragraph: Пароль обновится сразу
+  - paragraph: Используйте новый пароль при следующих входах.
+- generic "Остальные разделы"

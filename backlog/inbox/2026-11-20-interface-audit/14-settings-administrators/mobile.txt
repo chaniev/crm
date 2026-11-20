@@ -1,0 +1,81 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Главный тренер":
+- main "Настройки":
+  - heading "Настройки" [level=1]
+  - tablist:
+    - tab "Абонементы":
+      - generic: Абонементы
+    - tab "Типы групп":
+      - generic: Типы групп
+    - tab "Филиалы и залы":
+      - generic: Филиалы и залы
+    - tab "Администраторы" [active] [selected]:
+      - generic: Администраторы
+  - tabpanel "Администраторы":
+    - button "Обновить":
+      - generic: Обновить
+    - button "Добавить администратора":
+      - generic: Добавить администратора
+    - paragraph: Администратор 01
+    - generic: Администратор
+    - generic: Активен
+    - paragraph: "Логин: seed.admin01"
+    - paragraph: "Филиал: не назначен"
+    - paragraph: "Посещения: не назначены"
+    - button "Группы посещений":
+      - generic: Группы посещений
+    - button "Редактировать":
+      - generic: Редактировать
+    - paragraph: Администратор 02
+    - generic: Администратор
+    - generic: Активен
+    - paragraph: "Логин: seed.admin02"
+    - paragraph: "Филиал: не назначен"
+    - paragraph: "Посещения: не назначены"
+    - button "Группы посещений":
+      - generic: Группы посещений
+    - button "Редактировать":
+      - generic: Редактировать
+    - paragraph: Администратор 03
+    - generic: Администратор
+    - generic: Активен
+    - paragraph: "Логин: seed.admin03"
+    - paragraph: "Филиал: не назначен"
+    - paragraph: "Посещения: не назначены"
+    - button "Группы посещений":
+      - generic: Группы посещений
+    - button "Редактировать":
+      - generic: Редактировать
+    - paragraph: Администратор 04
+    - generic: Администратор
+    - generic: Активен
+    - paragraph: "Логин: seed.admin04"
+    - paragraph: "Филиал: не назначен"
+    - paragraph: "Посещения: не назначены"
+    - button "Группы посещений":
+      - generic: Группы посещений
+    - button "Редактировать":
+      - generic: Редактировать
+    - paragraph: Администратор 05
+    - generic: Администратор
+    - generic: Активен
+    - paragraph: "Логин: seed.admin05"
+    - paragraph: "Филиал: не назначен"
+    - paragraph: "Посещения: не назначены"
+    - button "Группы посещений":
+      - generic: Группы посещений
+    - button "Редактировать":
+      - generic: Редактировать
+- navigation "Мобильная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Настройки":
+    - generic: Настройки
+  - button "Ещё, открыть остальные разделы":
+    - generic: Ещё
+- generic "Остальные разделы"

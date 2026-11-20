@@ -1,0 +1,49 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Главный тренер":
+- main "Клиенты":
+  - heading "Краткая карточка" [level=1]
+  - button "Свернуть preview":
+  - generic: АА
+  - paragraph: Алексеев Алексей Дмитриевич
+  - paragraph: "+79000000237"
+  - generic: Активный
+  - paragraph: Нужно сейчас
+  - generic: Продлить абонемент
+  - paragraph: Абонемент просрочен
+  - paragraph: Статус
+  - paragraph: Активный
+  - paragraph: Абонемент
+  - paragraph: На срок
+  - paragraph: Филиал
+  - paragraph: Филиал Север
+  - paragraph: Группа
+  - paragraph: Филиал Север · Кикбоксинг группа 19 - Филиал Север · Зал 1
+  - paragraph: Визит
+  - paragraph: Нет визитов
+  - paragraph: Контакты
+  - paragraph: "0"
+  - separator
+  - paragraph: Последние события
+  - paragraph: Оформлен абонемент
+  - paragraph: 24 авг. 2026 г.
+  - button "Оформить абонемент":
+    - generic: Оформить абонемент
+  - button "Сообщение":
+    - generic: Сообщение
+  - button "Посещение":
+    - generic: Посещение
+  - button "Открыть карточку":
+    - generic: Открыть карточку
+- navigation "Мобильная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Клиенты":
+    - generic: Клиенты
+  - button "Ещё, открыть остальные разделы":
+    - generic: Ещё
+- generic "Остальные разделы"

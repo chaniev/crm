@@ -1,0 +1,2067 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-20T15:33:58.022485+00:00",
+  "repository": "crm",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "c97826fc1f769b85ce6ef79966a7f6a87b8373ad",
+    "head_tree_sha": "da996a9716cc230c408fce7a66cc001f4bf68df9",
+    "base_sha": "c97826fc1f769b85ce6ef79966a7f6a87b8373ad",
+    "merge_base_sha": "c97826fc1f769b85ce6ef79966a7f6a87b8373ad",
+    "branch": "main",
+    "working_tree_dirty": true,
+    "base_error": null
+  },
+  "task_contract": null,
+  "task_id": null,
+  "source_ref": null,
+  "e2e_port": null,
+  "github": {},
+  "tool_versions": {
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/00-navigation/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/01-attendance/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/03-schedule/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/05-client-card/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/06-client-details/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop-full.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/07-groups/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/08-coaches/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/09-audit-log/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-full.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/15-settings-import/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/16-profile-password/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/17-login/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/17-login/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/17-login/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/17-login/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/17-login/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/18-client-form/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile-full.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/19-group-create/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/22-group-edit/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-full.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/23-coach-edit/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/25-audit-details/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.jpg"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.txt"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/BACKLOG-MAP.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/README.md"
+      ],
+      "source": "untracked"
+    },
+    {
+      "status": "??",
+      "paths": [
+        "backlog/inbox/2026-11-20-interface-audit/screenshots-manifest.json"
+      ],
+      "source": "untracked"
+    }
+  ],
+  "changed_paths": [
+    "backlog/inbox/2026-11-20-interface-audit/00-navigation/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.txt",
+    "backlog/inbox/2026-11-20-interface-audit/01-attendance/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.txt",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.txt",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.txt",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/03-schedule/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.txt",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.txt",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/05-client-card/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.txt",
+    "backlog/inbox/2026-11-20-interface-audit/06-client-details/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop-full.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.txt",
+    "backlog/inbox/2026-11-20-interface-audit/07-groups/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/08-coaches/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/09-audit-log/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.txt",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.txt",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.txt",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.txt",
+    "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-full.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.txt",
+    "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt",
+    "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/15-settings-import/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/16-profile-password/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/17-login/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/17-login/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/17-login/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/17-login/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/17-login/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/18-client-form/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile-full.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/19-group-create/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.txt",
+    "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.txt",
+    "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/22-group-edit/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-full.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/23-coach-edit/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.txt",
+    "backlog/inbox/2026-11-20-interface-audit/25-audit-details/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.jpg",
+    "backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.txt",
+    "backlog/inbox/2026-11-20-interface-audit/BACKLOG-MAP.md",
+    "backlog/inbox/2026-11-20-interface-audit/README.md",
+    "backlog/inbox/2026-11-20-interface-audit/screenshots-manifest.json"
+  ],
+  "selected_areas": [
+    "requirements"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop-full.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-full.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile-full.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-full.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.jpg",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.txt",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/BACKLOG-MAP.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/README.md",
+      "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/screenshots-manifest.json"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/BACKLOG-MAP.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/screenshots-manifest.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-20T15:33:58.042364+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.039,
+      "completed_at": "2026-11-20T15:33:58.081824+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/BACKLOG-MAP.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/screenshots-manifest.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-20T15:33:58.082989+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-20T15:33:58.123295+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/BACKLOG-MAP.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/screenshots-manifest.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-20T15:33:58.124762+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-20T15:33:58.165120+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/00-navigation/mobile-menu.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/01-attendance/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-360.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-420.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile-440.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/02-attention/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/03-schedule/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-search.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile-surname.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/04-clients/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/05-client-card/quick-membership-destination.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/06-client-details/mobile-overview.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/07-groups/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/08-coaches/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/09-audit-log/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop-year.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-empty.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-filters.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/10-finance/mobile-year.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/11-settings-catalog/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/12-settings-group-types/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile-selected.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/13-settings-branches/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/14-settings-administrators/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/15-settings-import/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/16-profile-password/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/17-login/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/18-client-form/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/19-group-create/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/20-schedule-lesson-form/mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-440.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-desktop.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/21-attendance-lesson/lesson-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-full.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/22-group-edit/edit-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/23-coach-edit/edit-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/24-membership-renewal/renewal.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.jpg",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/25-audit-details/details-mobile.txt",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/BACKLOG-MAP.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/README.md",
+        "documentation or instructions changed: backlog/inbox/2026-11-20-interface-audit/screenshots-manifest.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-20T15:33:58.166292+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.074,
+      "completed_at": "2026-11-20T15:33:58.240171+00:00"
+    }
+  ],
+  "completed_at": "2026-11-20T15:33:58.241466+00:00"
+}

@@ -1,0 +1,57 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Главный тренер":
+- main "Тренеры":
+  - heading "Тренеры" [level=1]
+  - search:
+    - textbox "Найти тренера":
+      - /placeholder: ФИО или логин
+    - button "Открыть фильтры":
+      - generic: Фильтры
+    - button "Обновить":
+      - generic: Обновить
+    - button "Создать тренера":
+      - generic: Создать тренера
+  - region "Результаты поиска тренеров":
+    - button "Редактировать тренера «Тренер 01»":
+      - generic: Тренер 01
+      - generic: "Логин: seed.coach01"
+    - button "Редактировать тренера «Тренер 02»":
+      - generic: Тренер 02
+      - generic: "Логин: seed.coach02"
+    - button "Редактировать тренера «Тренер 03»":
+      - generic: Тренер 03
+      - generic: "Логин: seed.coach03"
+    - button "Редактировать тренера «Тренер 04»":
+      - generic: Тренер 04
+      - generic: "Логин: seed.coach04"
+    - button "Редактировать тренера «Тренер 05»":
+      - generic: Тренер 05
+      - generic: "Логин: seed.coach05"
+    - button "Редактировать тренера «Тренер 06»":
+      - generic: Тренер 06
+      - generic: "Логин: seed.coach06"
+    - button "Редактировать тренера «Тренер 07»":
+      - generic: Тренер 07
+      - generic: "Логин: seed.coach07"
+    - button "Редактировать тренера «Тренер 08»":
+      - generic: Тренер 08
+      - generic: "Логин: seed.coach08"
+    - button "Редактировать тренера «Тренер 09»":
+      - generic: Тренер 09
+      - generic: "Логин: seed.coach09"
+    - button "Редактировать тренера «Тренер 10»":
+      - generic: Тренер 10
+      - generic: "Логин: seed.coach10"
+- navigation "Мобильная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Тренеры":
+    - generic: Тренеры
+  - button "Ещё, открыть остальные разделы":
+    - generic: Ещё
+- generic "Остальные разделы"

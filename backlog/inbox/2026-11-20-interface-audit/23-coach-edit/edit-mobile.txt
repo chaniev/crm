@@ -1,0 +1,38 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Главный тренер":
+- main "Редактирование тренера":
+  - heading "Тренер 01" [level=1]
+  - button "Назад к списку":
+    - generic: Назад к списку
+  - generic: ФИО
+  - textbox "ФИО":
+    - /placeholder: Иван Петров
+    - text: Тренер 01
+  - generic: Логин
+  - textbox "Логин": seed.coach01
+  - generic: Мессенджер
+  - paragraph: Для MVP доступен только Telegram.
+  - combobox "Мессенджер"
+  - generic: Telegram ID
+  - paragraph: Попросите тренера прислать ID из /start или /id бота. Если очистить поле, тренер потеряет доступ к боту.
+  - textbox "Telegram ID":
+    - /placeholder: Например, 123456789
+  - switch "Тренер активен" [checked]
+  - generic: Тренер активен
+  - switch "Требовать смену пароля при входе"
+  - generic: Требовать смену пароля при входе
+  - button "Сохранить изменения":
+    - generic: Сохранить изменения
+- navigation "Мобильная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Тренеры":
+    - generic: Тренеры
+  - button "Ещё, открыть остальные разделы":
+    - generic: Ещё
+- generic "Остальные разделы"

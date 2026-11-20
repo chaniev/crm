@@ -1,0 +1,16 @@
+- main:
+  - paragraph: K-4PRO
+  - heading "Добро пожаловать!" [level=1]
+  - generic: Логин
+  - textbox "Логин":
+    - /placeholder: Введите логин
+  - generic: Пароль
+  - textbox "Пароль":
+    - /placeholder: Введите пароль
+  - button "Toggle password visibility":
+  - button "Войти":
+    - generic: Войти
+- alert:
+  - generic: Сессия завершена
+  - generic: Вы вышли из K-4PRO.
+  - button:
