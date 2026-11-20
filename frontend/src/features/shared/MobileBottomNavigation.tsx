@@ -6,6 +6,7 @@ import {
   APP_SECTION_LABELS,
   getMobileNavigationSections,
 } from '../../lib/appRoutes'
+import { getSectionLinkProps } from './sectionLinkProps'
 import { getAppSectionIcon } from './navigationIcons'
 import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
 
@@ -57,8 +58,8 @@ export function MobileBottomNavigation({
               className="mobile-bottom-nav__item"
               data-active={section === currentSection ? 'true' : undefined}
               key={section}
-              onClick={() => handleNavigate(section)}
-              type="button"
+              component="a"
+              {...getSectionLinkProps(section, handleNavigate)}
             >
               <span className="mobile-bottom-nav__icon" aria-hidden="true">
                 {getAppSectionIcon(section, 20)}
@@ -123,8 +124,8 @@ export function MobileBottomNavigation({
                 className="mobile-bottom-nav__overflow-item"
                 data-active={section === currentSection ? 'true' : undefined}
                 key={section}
-                onClick={() => handleNavigate(section)}
-                type="button"
+                component="a"
+                {...getSectionLinkProps(section, handleNavigate)}
               >
                 <span className="mobile-bottom-nav__overflow-icon" aria-hidden="true">
                   {getAppSectionIcon(section, 20)}

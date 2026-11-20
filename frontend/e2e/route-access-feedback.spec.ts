@@ -100,7 +100,7 @@ test.describe('route access feedback', () => {
     await expect(page.getByRole('button', { name: 'Открыть Посещения' })).toBeVisible()
     await expect(page.getByTestId('groups-screen')).toHaveCount(0)
     await expect(
-      page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', {
+      page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link', {
         name: 'Группы',
       }),
     ).toHaveCount(0)
@@ -155,7 +155,7 @@ test.describe('route access feedback', () => {
     await expect(page.getByText('У вас нет доступа к разделу «Финансы».')).toBeVisible()
     await expect(page.getByTestId('finance-screen')).toHaveCount(0)
     await expect(
-      page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', {
+      page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link', {
         name: 'Финансы',
       }),
     ).toHaveCount(0)

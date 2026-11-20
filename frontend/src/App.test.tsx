@@ -496,9 +496,9 @@ describe('App route access contract', () => {
     expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveValue('Анна')
     expect(screen.getByTestId('trainer-filter-state')).toHaveTextContent('inactive:mustChange')
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Клиенты' })[0])
+    fireEvent.click(screen.getAllByRole('link', { name: 'Клиенты' })[0])
     expect(await screen.findByTestId('clients-list-screen')).toBeVisible()
-    fireEvent.click(screen.getAllByRole('button', { name: 'Тренеры' })[0])
+    fireEvent.click(screen.getAllByRole('link', { name: 'Тренеры' })[0])
 
     expect(await screen.findByRole('textbox', { name: 'Найти тренера' })).toHaveValue('')
     expect(screen.getByTestId('trainer-filter-state')).toHaveTextContent('all:all')
@@ -665,7 +665,7 @@ describe('App route access contract', () => {
     if (outcome === 'restricted') {
       await waitFor(() => expect(window.location.pathname).toBe('/attendance'))
       expect(showPoliteStatusNotificationMock).toHaveBeenCalledTimes(1)
-      expect(screen.queryByRole('button', { name: 'Журнал' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: 'Журнал' })).not.toBeInTheDocument()
     } else {
       expect(await screen.findByRole('button', { name: 'Войти' })).toBeVisible()
     }

@@ -62,7 +62,7 @@ const cases: readonly VisualCase[] = [
   },
   {
     content: 'long',
-    focus: (page) => page.getByRole('button', { name: 'Клиенты' }).first(),
+    focus: (page) => page.getByRole('link', { name: 'Клиенты' }).first(),
     name: 'shell-green-long-1440',
     project: 'catalog-1440',
     target: (page) => page.getByTestId('catalog-reference-shell'),

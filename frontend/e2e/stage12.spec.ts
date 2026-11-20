@@ -2069,7 +2069,7 @@ test.describe('Основные e2e сценарии', () => {
     await expect(page.getByText('У вас нет доступа к разделу «Группы».')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Открыть Посещения' })).toBeVisible()
     await expect(page.getByTestId('attendance-screen')).toHaveCount(0)
-    await expect(page.getByRole('button', { name: 'Группы' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Группы' })).toHaveCount(0)
   })
 
   test('Просмотр главной страницы', async ({ page }) => {
@@ -2599,15 +2599,15 @@ async function expectActiveMainNavigation(page: Page, width: number, path: strin
     ).toHaveCount(0)
 
     const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
-    const directButton = bottomNavigation.getByRole('button', { name: navLabel })
+    const directLink = bottomNavigation.getByRole('link', { name: navLabel })
 
     await expect(bottomNavigation).toBeVisible()
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Уведомления' }),
+      bottomNavigation.getByRole('link', { name: 'Уведомления' }),
     ).toHaveCount(0)
 
-    if ((await directButton.count()) > 0) {
-      await expect(directButton).toHaveAttribute('aria-current', 'page')
+    if ((await directLink.count()) > 0) {
+      await expect(directLink).toHaveAttribute('aria-current', 'page')
       return
     }
 
@@ -2622,10 +2622,10 @@ async function expectActiveMainNavigation(page: Page, width: number, path: strin
 
     await expect(overflowList).toBeVisible()
     await expect(
-      overflowList.getByRole('button', { name: navLabel }),
+      overflowList.getByRole('link', { name: navLabel }),
     ).toHaveAttribute('aria-current', 'page')
     await expect(
-      overflowList.getByRole('button', { name: 'Уведомления' }),
+      overflowList.getByRole('link', { name: 'Уведомления' }),
     ).toHaveCount(0)
 
     await page.keyboard.press('Escape')
@@ -2641,7 +2641,7 @@ async function expectActiveMainNavigation(page: Page, width: number, path: strin
   await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeHidden()
 
   await expect(
-    sideNavigation.getByRole('button', { name: navLabel }),
+    sideNavigation.getByRole('link', { name: navLabel }),
   ).toHaveAttribute('aria-current', 'page')
 
   const navbarBox = await page.locator('.app-shell__navbar').boundingBox()

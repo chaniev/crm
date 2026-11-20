@@ -533,6 +533,34 @@ test('target portrait keeps the login operation visible and touch-safe', async (
   await expectNoHorizontalScroll(page)
 })
 
+test('TASK-181 mobile primary and overflow links preserve native and in-app navigation', async ({ page }) => {
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.route('**/api/attendance/lessons/today', route =>
+    fulfillJson(route, { today: '2026-07-25', items: [] }))
+  await page.goto('/attention')
+  const nav = page.getByRole('navigation', { name: 'Мобильная навигация' })
+  const more = nav.getByRole('button', { name: 'Ещё, открыть остальные разделы' })
+  const attendance = nav.getByRole('link', { name: 'Посещения' })
+  await expect(attendance).toHaveAttribute('href', '/attendance')
+  await attendance.click()
+  await expect(attendance).toHaveAttribute('aria-current', 'page')
+  await more.click()
+  const dialog = page.getByRole('dialog')
+  const groups = dialog.getByRole('link', { name: 'Группы' })
+  await expect(groups).toHaveAttribute('href', '/groups')
+
+  await page.keyboard.press('Escape')
+  await expect(more).toBeFocused()
+  await more.press('Enter')
+  await groups.press('Enter')
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL('/groups')
+  await expect(nav.getByRole('link', { name: 'Группы' })).toHaveAttribute('aria-current', 'page')
+  await page.goBack()
+  await expect(attendance).toHaveAttribute('aria-current', 'page')
+  await expectNoHorizontalScroll(page)
+})
+
 test('target portrait route restriction keeps recovery focused and touch-safe', async ({
   page,
 }, testInfo) => {
@@ -2708,14 +2736,14 @@ test('target compact-height landscape keeps the authenticated shell usable', asy
 
   const sideNavigation = page.locator(SIDE_NAVIGATION_SELECTOR)
   const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
-  const attentionButton = bottomNavigation.getByRole('button', { name: 'Внимание' })
+  const attentionLink = bottomNavigation.getByRole('link', { name: 'Внимание' })
   const attentionScreen = page.getByTestId('attention-screen')
 
   await expect(attentionScreen).toBeVisible()
   await expect(sideNavigation).toBeHidden()
   await expect(bottomNavigation).toBeVisible()
-  await expect(attentionButton).toBeVisible()
-  await expect(attentionButton).toBeInViewport()
+  await expect(attentionLink).toBeVisible()
+  await expect(attentionLink).toBeInViewport()
 
   const attentionBounds = await attentionScreen.boundingBox()
   const mobileNavBounds = await bottomNavigation.boundingBox()

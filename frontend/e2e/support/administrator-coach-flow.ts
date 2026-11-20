@@ -53,11 +53,11 @@ export async function administratorCoachFlow(page: Page) {
   })
   await page.goto('/attendance')
   await expect(page.getByRole('button', { name: 'Открыть профильное меню пользователя Администратор' })).toBeVisible()
-  const desktop = page.locator('.app-shell__side-nav').getByRole('button', { name: 'Тренеры', exact: true })
+  const desktop = page.locator('.app-shell__side-nav').getByRole('link', { name: 'Тренеры', exact: true })
   if (await desktop.isVisible()) await desktop.click()
   else {
     await page.getByRole('button', { name: 'Ещё, открыть остальные разделы', exact: true }).click()
-    await page.getByRole('button', { name: 'Тренеры', exact: true }).click()
+    await page.getByRole('link', { name: 'Тренеры', exact: true }).click()
   }
   await expect(page).toHaveURL(/\/coaches$/)
   await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()

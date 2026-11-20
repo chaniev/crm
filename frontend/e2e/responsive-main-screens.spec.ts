@@ -1201,10 +1201,10 @@ test.describe('Mobile bottom navigation interactions', () => {
     const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
 
     await expect(bottomNavigation).toBeVisible()
-    await bottomNavigation.getByRole('button', { name: 'Расписание' }).click()
+    await bottomNavigation.getByRole('link', { name: 'Расписание' }).click()
     await expect(page).toHaveURL(/\/schedule$/)
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Расписание' }),
+      bottomNavigation.getByRole('link', { name: 'Расписание' }),
     ).toHaveAttribute('aria-current', 'page')
 
     await bottomNavigation
@@ -1215,12 +1215,12 @@ test.describe('Mobile bottom navigation interactions', () => {
 
     await expect(overflowList).toBeVisible()
     await expect(
-      overflowList.getByRole('button', { name: 'Уведомления' }),
+      overflowList.getByRole('link', { name: 'Уведомления' }),
     ).toHaveCount(0)
-    await overflowList.getByRole('button', { name: 'Финансы' }).click()
+    await overflowList.getByRole('link', { name: 'Финансы' }).click()
     await expect(page).toHaveURL(/\/finance$/)
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Финансы' }),
+      bottomNavigation.getByRole('link', { name: 'Финансы' }),
     ).toHaveAttribute('aria-current', 'page')
     await expect(
       bottomNavigation.getByRole('button', { name: 'Ещё, открыть остальные разделы' }),
@@ -1724,16 +1724,16 @@ async function expectActiveNavigation(page: Page, width: number, navLabel: strin
     ).toHaveCount(0)
 
     const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
-    const directButton = bottomNavigation.getByRole('button', { name: navLabel })
+    const directLink = bottomNavigation.getByRole('link', { name: navLabel })
 
     await expect(bottomNavigation).toBeVisible()
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Уведомления' }),
+      bottomNavigation.getByRole('link', { name: 'Уведомления' }),
     ).toHaveCount(0)
 
-    if ((await directButton.count()) > 0) {
-      await expect(directButton).toHaveAttribute('aria-current', 'page')
-      await expectActiveMenuItemContrast(directButton)
+    if ((await directLink.count()) > 0) {
+      await expect(directLink).toHaveAttribute('aria-current', 'page')
+      await expectActiveMenuItemContrast(directLink)
       return
     }
 
@@ -1747,7 +1747,7 @@ async function expectActiveNavigation(page: Page, width: number, navLabel: strin
   ).toHaveCount(0)
   await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeHidden()
 
-  await expect(sideNavigation.getByRole('button', { name: navLabel })).toHaveAttribute(
+  await expect(sideNavigation.getByRole('link', { name: navLabel })).toHaveAttribute(
     'aria-current',
     'page',
   )
@@ -2607,6 +2607,17 @@ async function mockApi(
 
     if (pathname === '/api/clients/attention' && method === 'GET') {
       await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      await fulfillJson(route, 200, {
+        from: requestUrl.searchParams.get('from'),
+        to: requestUrl.searchParams.get('to'),
+        items: [],
+        capabilities: { createOneOff: { allowed: false, reason: 'NoPermission' } },
+        filterOptions: { branches: [], halls: [], trainers: [], groups: [], groupTypes: [] },
+      })
       return
     }
 

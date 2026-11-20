@@ -120,11 +120,11 @@ export function registerAuditAccessScenarios() {
         const state = await mockAudit(page, role)
         await page.goto('/audit')
         await expect(page.getByRole('heading', { name: 'Нет доступа' })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'Журнал', exact: true })).toHaveCount(0)
-        const more = page.getByRole('button', { name: 'Ещё', exact: true })
+        await expect(page.getByRole('link', { name: 'Журнал', exact: true })).toHaveCount(0)
+        const more = page.getByRole('button', { name: 'Ещё, открыть остальные разделы', exact: true })
         if (await more.isVisible()) {
           await more.click()
-          await expect(page.getByRole('button', { name: 'Журнал', exact: true })).toHaveCount(0)
+          await expect(page.getByRole('link', { name: 'Журнал', exact: true })).toHaveCount(0)
         }
         expect(state.auditRequests).toBe(0)
         await noOverflow(page)
@@ -168,7 +168,7 @@ export function registerAuditAccessScenarios() {
         state.releaseSession()
         if (status === 403) {
           await expect(page).toHaveURL(/\/attendance$/)
-          await expect(page.getByRole('button', { name: 'Журнал', exact: true })).toHaveCount(0)
+          await expect(page.getByRole('link', { name: 'Журнал', exact: true })).toHaveCount(0)
           await page.goBack()
           await expect(page).toHaveURL(/\/clients$/)
           await page.goForward()

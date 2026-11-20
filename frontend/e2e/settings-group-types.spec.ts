@@ -489,7 +489,7 @@ test('Coach не видит /settings и получает явное состо�
   await expect(page.getByRole('button', { name: 'Открыть Посещения' })).toBeVisible()
   await expect(page.getByTestId('settings-screen')).toHaveCount(0)
   await expect(
-    page.getByRole('button', { name: 'Настройки', exact: true }),
+    page.getByRole('link', { name: 'Настройки', exact: true }),
   ).toHaveCount(0)
   await expect(page.getByTestId('attention-screen')).toHaveCount(0)
   expect(settingsApiRequests).toEqual([])

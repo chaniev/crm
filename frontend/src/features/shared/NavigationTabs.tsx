@@ -1,6 +1,7 @@
+import { Button } from '@mantine/core'
 import type { AppSection } from '../../lib/api'
 import { APP_SECTION_LABELS } from '../../lib/appRoutes'
-import { Button } from './Button'
+import { getSectionLinkProps } from './sectionLinkProps'
 import { getAppSectionIcon } from './navigationIcons'
 import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
 
@@ -36,13 +37,14 @@ export function NavigationTabs({
       {sections.map((section) => (
         <Button
           aria-current={section === currentSection ? 'page' : undefined}
-          className="app-shell__nav-button"
+          className="shared-button app-shell__nav-button"
+          component="a"
           key={section}
           leftSection={getAppSectionIcon(section)}
-          onClick={() => onNavigate(section)}
+          radius="xl"
           size="sm"
-          type="button"
-          variant="pill"
+          variant="light"
+          {...getSectionLinkProps(section, onNavigate)}
         >
           {APP_SECTION_LABELS[section]}
         </Button>

@@ -175,7 +175,7 @@ const ROUTE_CASES: RouteWithState[] = [
     controls: [
       {
         label: 'Внимание',
-        locator: (page) => page.getByRole('button', { name: 'Внимание' }).first(),
+        locator: (page) => page.getByRole('link', { name: 'Внимание' }).first(),
         touchOnly: true,
       },
     ],
@@ -656,7 +656,7 @@ for (const roleFixture of ROLE_MATRIX) {
       const allowedLabels = allowedSections
         .map((section) => sectionLabel(section))
         .filter(Boolean)
-      const navigationText = await page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR).locator('button').allTextContents()
+      const navigationText = await page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR).getByRole('link').allTextContents()
       const visibleLabels = navigationText.map((label) => label.trim())
 
       for (const label of allowedLabels) {
@@ -672,7 +672,7 @@ for (const roleFixture of ROLE_MATRIX) {
 
         const overflow = page.locator('.mobile-bottom-nav__overflow-list')
         await expect(overflow).toBeVisible()
-        await expect(overflow.getByRole('button', { name: normalized })).toBeVisible()
+        await expect(overflow.getByRole('link', { name: normalized })).toBeVisible()
         await page.keyboard.press('Escape')
         await expect(overflow).toBeHidden()
         await expect(overflowTrigger).toBeFocused()
@@ -685,7 +685,7 @@ for (const roleFixture of ROLE_MATRIX) {
           await expect(
             page
               .locator('.mobile-bottom-nav__overflow-list')
-              .getByRole('button', { name: 'Финансы' }),
+              .getByRole('link', { name: 'Финансы' }),
           ).toHaveCount(0)
           await page.keyboard.press('Escape')
           await expect(overflowTrigger).toBeFocused()
@@ -1058,6 +1058,11 @@ async function mockApi(
 
     if (pathname === '/api/settings/administrators' && method === 'GET') {
       await fulfillJson(route, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/attendance/lessons/today' && method === 'GET') {
+      await fulfillJson(route, { today: '2026-07-25', items: [] })
       return
     }
 

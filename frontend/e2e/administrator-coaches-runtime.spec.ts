@@ -63,7 +63,7 @@ test('TASK-187 real backend: two administrators, global coaches and branch-owned
     page.setDefaultTimeout(15_000)
     await page.goto('/attendance')
     await page.getByRole('button', { name: 'Ещё, открыть остальные разделы', exact: true }).click()
-    await page.getByRole('button', { name: 'Тренеры', exact: true }).click()
+    await page.getByRole('link', { name: 'Тренеры', exact: true }).click()
     await page.getByRole('button', { name: 'Создать тренера' }).click()
     await expect(page.getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
     await expect(page.getByLabel('Филиал администратора')).toHaveCount(0)

@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Route } from '@playwright/test'
+import { expect, test, type BrowserContext, type Page, type Route } from '@playwright/test'
 
 const APP_CONFIG = {
   clubName: 'Iron Club',
@@ -34,6 +34,39 @@ const HEAD_COACH_SESSION = {
 } as const
 
 test.describe('Attention dashboard', () => {
+  test('TASK-181 section links support native tabs and browser history', async ({ page, context }) => {
+    await mockAttentionApi(context, { attentionItems: [] })
+    await context.route('**/api/attendance/lessons/today', route =>
+      fulfillJson(route, 200, { today: '2026-07-12', items: [] }))
+    await page.goto('/attention')
+
+    const nav = page.getByRole('navigation', { name: 'Основная навигация' })
+    const attendance = nav.getByRole('link', { name: 'Посещения' })
+    await expect(attendance).toHaveAttribute('href', '/attendance')
+    await expect(nav.getByRole('link', { name: 'Тренеры' })).toHaveAttribute('href', '/coaches')
+    const popupEvent = context.waitForEvent('page')
+    await attendance.click({ button: 'middle' })
+    const popup = await popupEvent
+    await expect(popup).toHaveURL('/attendance')
+    await expect(popup.getByTestId('attendance-screen')).toBeVisible()
+    await popup.close()
+    await expect(page).toHaveURL('/attention')
+
+    const documentRequests: string[] = []
+    page.on('request', request => {
+      if (request.isNavigationRequest()) documentRequests.push(request.url())
+    })
+    await attendance.focus()
+    await page.keyboard.press('Enter')
+    await expect(attendance).toHaveAttribute('aria-current', 'page')
+    await expect(page).toHaveURL('/attendance')
+    await page.goBack()
+    await expect(nav.getByRole('link', { name: 'Внимание' })).toHaveAttribute('aria-current', 'page')
+    await page.goForward()
+    await expect(attendance).toHaveAttribute('aria-current', 'page')
+    expect(documentRequests).toEqual([])
+  })
+
   test('renders Attention shell without former dashboard tabs or attendance workbench', async ({ page }) => {
     let attendanceGroupsCalls = 0
     await mockAttentionApi(page, {
@@ -57,11 +90,11 @@ test.describe('Attention dashboard', () => {
     await expect(shellHeader).toBeVisible()
     await expect(shellHeader.getByText('Iron Club')).toBeVisible()
     await expect(shellNavigation).toBeVisible()
-    await expect(shellNavigation.getByRole('button', { name: 'Внимание' })).toHaveAttribute(
+    await expect(shellNavigation.getByRole('link', { name: 'Внимание' })).toHaveAttribute(
       'aria-current',
       'page',
     )
-    await expect(shellNavigation.getByRole('button', { name: 'Посещения' })).toBeVisible()
+    await expect(shellNavigation.getByRole('link', { name: 'Посещения' })).toBeVisible()
     await expect(page.getByRole('main', { name: 'Внимание' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Внимание' })).toHaveClass(/visually-hidden/)
     await expect(page.getByRole('heading', { name: 'Требуют внимания' })).toHaveCount(0)
@@ -87,13 +120,13 @@ test.describe('Attention dashboard', () => {
 
     await expect(sideNavigation).toBeHidden()
     await expect(bottomNavigation).toBeVisible()
-    await expect(bottomNavigation.getByRole('button', { name: 'Посещения' })).toBeVisible()
-    await expect(bottomNavigation.getByRole('button', { name: 'Внимание' })).toHaveAttribute(
+    await expect(bottomNavigation.getByRole('link', { name: 'Посещения' })).toBeVisible()
+    await expect(bottomNavigation.getByRole('link', { name: 'Внимание' })).toHaveAttribute(
       'aria-current',
       'page',
     )
-    await expect(bottomNavigation.getByRole('button', { name: 'Расписание' })).toBeVisible()
-    await expect(bottomNavigation.getByRole('button', { name: 'Клиенты' })).toBeVisible()
+    await expect(bottomNavigation.getByRole('link', { name: 'Расписание' })).toBeVisible()
+    await expect(bottomNavigation.getByRole('link', { name: 'Клиенты' })).toBeVisible()
     await expect(
       bottomNavigation.getByRole('button', { name: 'Ещё, открыть остальные разделы' }),
     ).toBeVisible()
@@ -257,7 +290,7 @@ type MockAttentionApiOptions = {
   onAttendanceGroups?: (route: Route) => Promise<void>
 }
 
-async function mockAttentionApi(page: Page, options: MockAttentionApiOptions) {
+async function mockAttentionApi(page: Page | BrowserContext, options: MockAttentionApiOptions) {
   await page.route('**/*', async (route) => {
     const requestUrl = new URL(route.request().url())
     const { pathname } = requestUrl

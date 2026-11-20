@@ -60,18 +60,18 @@ describe('shared UX components', () => {
     )
 
     expect(screen.getByRole('navigation', { name: 'Основная навигация' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Посещения' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Посещения' })).toHaveAttribute(
       'aria-current',
       'page',
     )
-    expect(screen.getByRole('button', { name: 'Внимание' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Расписание' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Клиенты' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Группы' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Тренеры' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Журнал' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Внимание' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Расписание' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Клиенты' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Группы' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Тренеры' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Журнал' })).toBeVisible()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Клиенты' }))
+    fireEvent.click(screen.getByRole('link', { name: 'Клиенты' }))
 
     expect(onNavigate).toHaveBeenCalledWith('Clients')
   })
@@ -87,12 +87,12 @@ describe('shared UX components', () => {
       />,
     )
 
-    expect(screen.getByRole('button', { name: 'Тренеры' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Тренеры' })).toHaveAttribute(
       'aria-current',
       'page',
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'Тренеры' }))
+    fireEvent.click(screen.getByRole('link', { name: 'Тренеры' }))
 
     expect(onNavigate).toHaveBeenCalledWith('Users')
   })
@@ -140,7 +140,7 @@ describe('shared UX components', () => {
 
     expect(desktopNavigation).toBeVisible()
     expect(desktopNavigation).toHaveAttribute('data-orientation', 'vertical')
-    expect(within(desktopNavigation).getByRole('button', { name: 'Посещения' })).toHaveAttribute(
+    expect(within(desktopNavigation).getByRole('link', { name: 'Посещения' })).toHaveAttribute(
       'aria-current',
       'page',
     )
@@ -287,18 +287,31 @@ describe('shared UX components', () => {
     )
 
     const overflowTrigger = screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })
-    const attendanceButton = screen.getByRole('button', { name: 'Посещения' })
+    const attendanceLink = screen.getByRole('link', { name: 'Посещения' })
 
     expect(screen.getByRole('navigation', { name: 'Мобильная навигация' })).toBeVisible()
     expect(overflowTrigger).toHaveAttribute('aria-haspopup', 'dialog')
     expect(overflowTrigger).toHaveAttribute('aria-expanded', 'false')
-    expect(attendanceButton).toHaveAttribute('aria-current', 'page')
+    expect(attendanceLink).toHaveAttribute('aria-current', 'page')
     expect(overflowTrigger).not.toHaveAttribute('aria-current', 'page')
 
     fireEvent.click(overflowTrigger)
     expect(overflowTrigger).toHaveAttribute('aria-expanded', 'true')
 
-    const overflowItem = await screen.findByRole('button', { name: 'Тренеры' })
+    const overflowItem = await screen.findByRole('link', { name: 'Тренеры' })
+    expect(overflowItem).toHaveAttribute('href', '/coaches')
+    const nativeGestures = [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }]
+    for (const gesture of nativeGestures) {
+      let cancelledByNavigation = true
+      window.addEventListener('click', (event) => {
+        cancelledByNavigation = event.defaultPrevented
+        event.preventDefault() // jsdom cannot perform the browser's native link action.
+      }, { once: true })
+      fireEvent.click(overflowItem, gesture)
+      expect(cancelledByNavigation).toBe(false)
+      expect(onNavigate).not.toHaveBeenCalled()
+      expect(overflowTrigger).toHaveAttribute('aria-expanded', 'true')
+    }
     fireEvent.click(overflowItem)
 
     expect(onNavigate).toHaveBeenCalledWith('Users')
@@ -316,7 +329,7 @@ describe('shared UX components', () => {
     const overflowTrigger = screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })
 
     expect(overflowTrigger).not.toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('button', { name: 'Тренеры' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Тренеры' })).toHaveAttribute(
       'aria-current',
       'page',
     )
@@ -332,9 +345,9 @@ describe('shared UX components', () => {
     )
 
     expect(screen.queryByRole('button', { name: 'Ещё, открыть остальные разделы' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Посещения' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Клиенты' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Группы' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Посещения' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Клиенты' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Группы' })).toBeVisible()
   })
 
   test('MobileBottomNavigation promotes displaced active overflow section into visible fourth slot', () => {
@@ -347,13 +360,10 @@ describe('shared UX components', () => {
     )
 
     const root = screen.getByRole('navigation', { name: 'Мобильная навигация' })
-    const labels = within(root)
-      .getAllByRole('button')
-      .map((button) => button.textContent?.trim())
-      .filter(Boolean)
+    const labels = within(root).getAllByRole('link').map((link) => link.textContent?.trim())
 
-    expect(labels).toEqual(['Посещения', 'Внимание', 'Расписание', 'Тренеры', 'Ещё'])
-    expect(screen.getByRole('button', { name: 'Тренеры' })).toHaveAttribute('aria-current', 'page')
+    expect(labels).toEqual(['Посещения', 'Внимание', 'Расписание', 'Тренеры'])
+    expect(screen.getByRole('link', { name: 'Тренеры' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })).not.toHaveAttribute(
       'aria-current',
     )
@@ -372,15 +382,15 @@ describe('shared UX components', () => {
 
     fireEvent.click(overflowTrigger)
     const overflowList = await screen.findByRole('dialog')
-    const drawerItemGroup = within(overflowList).getByRole('button', { name: 'Группы' })
-    const drawerItemAudit = within(overflowList).getByRole('button', { name: 'Журнал' })
+    const drawerItemGroup = within(overflowList).getByRole('link', { name: 'Группы' })
+    const drawerItemAudit = within(overflowList).getByRole('link', { name: 'Журнал' })
 
     expect(overflowTrigger).toHaveAttribute('aria-expanded', 'true')
     await waitFor(() => {
       expect(drawerItemGroup).toBeVisible()
       expect(drawerItemAudit).toBeVisible()
     })
-    expect(within(overflowList).queryByRole('button', { name: 'Тренеры' })).not.toBeInTheDocument()
+    expect(within(overflowList).queryByRole('link', { name: 'Тренеры' })).not.toBeInTheDocument()
   })
 
   test('MobileBottomNavigation keeps all five Russian labels fully readable without truncation hooks', () => {
@@ -393,8 +403,8 @@ describe('shared UX components', () => {
     )
 
     const root = screen.getByRole('navigation', { name: 'Мобильная навигация' })
-    const labels = within(root).getAllByRole('button').map((button) =>
-      within(button).getByText(/^(Посещения|Внимание|Расписание|Клиенты|Группы|Тренеры|Ещё)$/),
+    const labels = [...within(root).getAllByRole('link'), within(root).getByRole('button')].map((control) =>
+      within(control).getByText(/^(Посещения|Внимание|Расписание|Клиенты|Группы|Тренеры|Ещё)$/),
     )
 
     for (const label of labels) {

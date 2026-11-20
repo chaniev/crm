@@ -82,14 +82,14 @@ test('Навигация открывает раздел Тренеры на м�
   const desktopNavigation = page.locator(
     'nav.app-shell__side-nav[aria-label="Основная навигация"]',
   )
-  const trainersNavButton = desktopNavigation.getByRole('button', { name: 'Тренеры' })
+  const trainersNavLink = desktopNavigation.getByRole('link', { name: 'Тренеры' })
 
   await expect(desktopNavigation).toBeVisible()
-  await trainersNavButton.click()
+  await trainersNavLink.click()
 
   await expect(page).toHaveURL(/\/coaches$/)
   await expect(page.getByTestId('users-screen')).toBeVisible()
-  await expect(trainersNavButton).toHaveAttribute('aria-current', 'page')
+  await expect(trainersNavLink).toHaveAttribute('aria-current', 'page')
   await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
 })
 

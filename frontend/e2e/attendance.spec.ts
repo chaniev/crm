@@ -182,15 +182,15 @@ test.describe('Мобильный сценарий посещений трене
       page.getByRole('button', { name: 'Открыть основное меню' }),
     ).toHaveCount(0)
     await expect(bottomNavigation).toBeVisible()
-    await expect(bottomNavigation.getByRole('button')).toHaveCount(3)
+    await expect(bottomNavigation.getByRole('link')).toHaveCount(3)
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Посещения' }),
+      bottomNavigation.getByRole('link', { name: 'Посещения' }),
     ).toHaveAttribute('aria-current', 'page')
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Расписание' }),
+      bottomNavigation.getByRole('link', { name: 'Расписание' }),
     ).toBeVisible()
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Клиенты' }),
+      bottomNavigation.getByRole('link', { name: 'Клиенты' }),
     ).toBeVisible()
     await expect(
       page.getByRole('button', { name: 'Открыть остальные разделы' }),

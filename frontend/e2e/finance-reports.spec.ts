@@ -230,11 +230,11 @@ test.describe('Finance reports', () => {
     const navigation = page.locator(
       'nav.app-shell__side-nav[aria-label="Основная навигация"]',
     )
-    const financeNavButton = navigation.getByRole('button', { name: 'Финансы' })
+    const financeNavLink = navigation.getByRole('link', { name: 'Финансы' })
 
     await expect(page.getByTestId('finance-screen')).toBeVisible()
-    await expect(financeNavButton).toBeVisible()
-    await expect(financeNavButton).toHaveAttribute('aria-current', 'page')
+    await expect(financeNavLink).toBeVisible()
+    await expect(financeNavLink).toHaveAttribute('aria-current', 'page')
     await expect(page.getByTestId('finance-totals')).toContainText(/7\s?777\s?₽/)
     await expect(page.getByTestId('finance-totals')).not.toContainText(/20\s?000\s?₽/)
     await expect(page.getByTestId('finance-group-breakdown')).toContainText(
@@ -636,24 +636,24 @@ test.describe('Finance reports', () => {
     const overflowButton = bottomNavigation.getByRole('button', {
       name: 'Ещё, открыть остальные разделы',
     })
-    const financeButton = bottomNavigation.getByRole('button', {
+    const financeLink = bottomNavigation.getByRole('link', {
       name: 'Финансы',
     })
 
     await expect(bottomNavigation).toBeVisible()
-    await expect(financeButton).toHaveAttribute('aria-current', 'page')
+    await expect(financeLink).toHaveAttribute('aria-current', 'page')
     await expect(overflowButton).not.toHaveAttribute('aria-current')
     await overflowButton.click()
     await expect(
       page.locator('.mobile-bottom-nav__overflow-list'),
     ).toBeVisible()
     await expect(
-      page.locator('.mobile-bottom-nav__overflow-list').getByRole('button', {
+      page.locator('.mobile-bottom-nav__overflow-list').getByRole('link', {
         name: 'Финансы',
       }),
     ).toHaveCount(0)
     await expect(
-      page.getByRole('button', { name: 'Уведомления' }),
+      page.getByRole('link', { name: 'Уведомления' }),
     ).toHaveCount(0)
     await expectNoHorizontalScroll(page)
   })
