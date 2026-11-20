@@ -141,7 +141,7 @@ describe('FinanceReportsScreen', () => {
     expect(screen.getAllByTestId(/finance-group-row-group-1-/)).toHaveLength(2)
     expect(
       screen.getAllByText(/сумма строк в этих таблицах может быть больше итогов/i),
-    ).toHaveLength(2)
+    ).toHaveLength(1)
   })
 
   test('sends custom range filters', async () => {

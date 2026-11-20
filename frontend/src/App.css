@@ -5147,7 +5147,8 @@
   align-items: start;
 }
 
-.finance-breakdown-grid__wide {
+.finance-breakdown-grid__wide,
+.finance-breakdown-hint {
   grid-column: 1 / -1;
 }
 
@@ -5180,6 +5181,10 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.finance-mobile-breakdowns .finance-breakdown-hint {
+  padding-block: var(--mantine-spacing-sm);
 }
 
 .finance-mobile-breakdowns .mantine-Accordion-item {
