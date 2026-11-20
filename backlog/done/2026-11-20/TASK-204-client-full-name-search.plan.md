@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-204 Поиск клиента по сочетанию фамилии и имени
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-204-client-full-name-search.md
+- source_task: /backlog/done/2026-11-20/TASK-204-client-full-name-search.md
 - requirements: REQ-CLI-008 (implements), REQ-USR-001 (constrains)
 - branch: codex/TASK-204-client-full-name-search
 - readiness: yes
@@ -40,7 +40,7 @@
   Откат локального исправления возвращает прежний код без изменения данных.
 
 ## Decision evidence
-- product: [REQ-CLI-008](/docs/requirements/01-клиенты.md#req-cli-008-поиск-и-фильтрация-клиентов) — owner: владелец продукта, принятые редакции реестра; decision: поиск по ФИО, ролевое ограничение поиска по телефону и серверная область доступных клиентов по [REQ-USR-001](/docs/requirements/05-пользователи-и-роли.md#req-usr-001-роли). [Исходная задача](/backlog/implementation/TASK-204-client-full-name-search.md) ограничивает работу исправлением этого сценария без переделки списка.
+- product: [REQ-CLI-008](/docs/requirements/01-клиенты.md#req-cli-008-поиск-и-фильтрация-клиентов) — owner: владелец продукта, принятые редакции реестра; decision: поиск по ФИО, ролевое ограничение поиска по телефону и серверная область доступных клиентов по [REQ-USR-001](/docs/requirements/05-пользователи-и-роли.md#req-usr-001-роли). [Исходная задача](/backlog/done/2026-11-20/TASK-204-client-full-name-search.md) ограничивает работу исправлением этого сценария без переделки списка.
 - Технический выбор не добавляется: [ClientQueryEndpoints.cs](/backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs) уже содержит `ApplyFullNameSearch`, `ApplyUnifiedSearch` и применение `ClientAccessPolicy.ScopePredicate` до поиска; [useClientsListState.ts](/frontend/src/features/clients/list/useClientsListState.ts) передаёт запрос серверу, использует 250 ms debounce и отмену устаревших загрузок.
 
 ## Current evidence
@@ -110,7 +110,7 @@
 - Новый `frontend/e2e/client-full-name-search.spec.ts`, существующий
   `client-profile-context-navigation.spec.ts` — UI-регрессия;
   `frontend/playwright.config.ts` — включение нового spec в оба iPhone `testMatch`.
-- Новый `backlog/implementation/TASK-204-client-full-name-search-verification-contract.json`
+- Новый `backlog/done/2026-11-20/TASK-204-client-full-name-search-verification-contract.json`
   и `TASK-204-evidence/` — контракт проверок и подтверждения выполнения.
 
 ## Regression specification

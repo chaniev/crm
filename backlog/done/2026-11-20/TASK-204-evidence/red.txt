@@ -5,4 +5,3 @@ GET /clients?query=Алексеев passed (one expected ID).
 GET /clients?query=Алексеев%20Алексей failed: items=[], totalCount=0.
 
    query=Алексеев Алексей: {"items":[],"totalCount":0,"skip":0,"take":1,"page":1,"pageSize":1,"hasNextPage":false,"activeCount":0,"archivedCount":0,"quickFilterCounts":{"withoutMembership":0,"expiringSoon":0,"withoutGroup":0,"trial":0}}
-  
