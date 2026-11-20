@@ -1,7 +1,7 @@
 # TASK-182: Показывать календарную дату рядом с днём недели
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-GRP-007 — changes
@@ -64,3 +64,14 @@ daySummary в GroupScheduleScreen отображает formatLongWeekday(urlStat
 
 - Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
 - Новый источник добавлен без дублирующей карточки. Для расписания сохранён проверенный mobile-снимок; desktop-снимок из исходного аудита был исключён как некорректный.
+
+## Planning review 2026-11-20
+- Актуальность: GroupScheduleScreen daySummary выводит только formatLongWeekday(urlState.date), хотя выбранная дата доступна в том же состоянии.
+- Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
+- readiness: yes
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-20
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-182-schedule-weekday-calendar-date.plan.md
+- implementation_branch: codex/TASK-182-schedule-weekday-calendar-date

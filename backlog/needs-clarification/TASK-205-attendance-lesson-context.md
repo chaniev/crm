@@ -1,7 +1,7 @@
 # TASK-205: Сохранять группу и время в посещаемости занятия
 
 ## Status
-tasks-ready
+needs-clarification
 
 ## Requirements
 - REQ-ATT-001 — implements
@@ -61,3 +61,9 @@ ROS-01: после перехода в состав остаются «Посе�
 - Duplicate check: TASK-103 завершила модель навигации, TASK-168 — список занятий сегодня. Новая задача ограничена шапкой конкретного занятия; их done-статусы не пересматриваются.
 - Проверены активные карточки, незавершённые планы, рекурсивный done; ID выделены после TASK-203, включая проверку refs и worktrees.
 - Runtime повторно не запускался; основание — сохранённый аудит, ограничения которого сохраняются.
+
+## Planning review 2026-11-20
+- Актуальность: AttendanceScreen получает lessonOccurrenceId/lessonDate, отключает общую шапку showHeader=false и открывает AttendanceWorkspace; текущий target не несёт названия и времени. Это согласуется с сохранённым аудитом исчезновения контекста.
+- Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
+- readiness: no — Нет прототипа шапки и подтверждённого read-контракта контекста LessonOccurrence для прямого открытия.
+- implementation_plan: /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md

@@ -1,7 +1,7 @@
 # TASK-018: Уменьшить визуальный шум в client detail/form сценариях
 
 ## Status
-tasks-ready
+needs-clarification
 
 ## Requirements
 - REQ-CLI-001 — changes
@@ -75,3 +75,9 @@ Detail и form сценарии клиента выглядят плотнее �
 
 - Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
 - Новое доказательство существующего scope, отдельный cleanup-дубль не нужен. Ошибки фото и восстановление сохранить. Расширение на краткую карточку ограничено теми же повторными фактами; полноценная структура — TASK-019, доступность действий — TASK-020.
+
+## Planning review 2026-11-20
+- Актуальность: ClientDetailScreen последовательно рендерит обзор, абонементы, Telegram и связанные разделы; ClientForm всегда размещает photoSection в rail. Свежий аудит PRE-02, DET-01/02 и NEW-01/02 подтверждает повторы.
+- Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
+- readiness: no — Не выбран проверенный прототип уплотнения карточки и формы.
+- implementation_plan: /backlog/implementation-plans/TASK-018-client-detail-visual-noise.plan.md

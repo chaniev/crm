@@ -2275,3 +2275,10 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - historical_paths: /backlog/tasks-ready/TASK-204-client-full-name-search.md в прежнем triage-log и TRIAGE-knowledge-checks.json — адрес карточки на момент разбора; актуальный адрес указан выше, историческое evidence сохранено
 - validation_result: explicit plan preflight PASS before/after move; knowledge harness 4/4 PASS; 9 task/plan links valid; one matching task/plan pair; git diff --check PASS
 - evidence_report: .artifacts/verification/TASK-204-planning.json
+
+# 2026-11-20 — планы по запросу владельца
+- moved: TASK-176, TASK-181, TASK-182, TASK-184
+- planned_in_place: none — черновики TASK-018, TASK-021, TASK-205, TASK-207, TASK-208 перенесены в needs-clarification
+- skipped: TASK-019 — владелец отложил отдельный разбор; TASK-174 — нет актуального замера контраста; TASK-177 — текущий CSS уже задаёт 44×44 и расширенный label, нужен runtime замер; TASK-178 — session/title lifecycle уже учитывает logout, дефект не воспроизведён; TASK-206 — расхождение API/маппинга для одной учётной записи не подтверждено
+- plans: /backlog/implementation-plans/TASK-018-client-detail-visual-noise.plan.md, /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md, /backlog/implementation-plans/TASK-176-russian-accessibility-and-validation-focus.plan.md, /backlog/implementation-plans/TASK-181-native-navigation-links.plan.md, /backlog/implementation-plans/TASK-182-schedule-weekday-calendar-date.plan.md, /backlog/implementation-plans/TASK-184-finance-duplicate-warning-once.plan.md, /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md, /backlog/implementation-plans/TASK-207-attention-mobile-client-identity.plan.md, /backlog/implementation-plans/TASK-208-audit-list-technical-metadata.plan.md
+- Решение владельца в текущем чате: прототипов нет; TASK-019 пропустить и разбирать отдельно.

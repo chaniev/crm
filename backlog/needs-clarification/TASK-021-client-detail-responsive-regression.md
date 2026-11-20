@@ -1,7 +1,7 @@
 # TASK-021: Проверить responsive и Playwright-покрытие карточки клиента
 
 ## Status
-tasks-ready
+needs-clarification
 
 ## Requirements
 - REQ-CLI-001 — verifies
@@ -71,3 +71,9 @@ tasks-ready
 
 - Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
 - Это дополнительная база для регрессии после TASK-018/019, а не пройденная приёмка. Поиск CLI-01 выделен в TASK-204; его функциональное исправление не включать повторно.
+
+## Planning review 2026-11-20
+- Актуальность: Есть client-profile-context-navigation.spec.ts и iphone-target-devices.spec.ts, однако они не доказывают регрессионную защиту будущих вкладок TASK-019.
+- Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
+- readiness: no — TASK-019 отложена владельцем; конечная структура карточки и её прототип не определены.
+- implementation_plan: /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md
