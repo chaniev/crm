@@ -54,9 +54,18 @@ AttendanceScreen использует resource-шаблон «Дата …»; в
 > унифицировать формат дат в пользовательском тексте: сейчас вперемешку ISO «2026-09-18» (экран отметки посещаемости, карточка каталога, фразы журнала), «18.09.2026» (финансы, журнал) и «18 сент. 2026 г.» (модал продажи)
 >   (экран отметки интерполирует ISO без форматирования: fe-4-attendance.ts, шаблон attendanceScreen_template_a4d8a706)
 
+### Дополнение из аудита 20.11.2026
+
+- Source file: [11-settings-catalog](../processed/2026-11-20-interface-audit/11-settings-catalog/README.md)
+- Source file: [21-attendance-lesson](../processed/2026-11-20-interface-audit/21-attendance-lesson/README.md)
+- CAT-02 и контекст ROS-01: в каталоге и посещениях показаны ISO-даты; в каталоге неочевиден смысл периода доступности предложения.
+
 ## Processing notes
 - Created at: 2026-10-05 (MSK).
 - Created by skill: codex-backlog-skill.
 - Mode: triage; scope: два файла inbox, без глобальной сверки статусов.
 - Duplicate check: TASK-165 переносила ресурсы без изменения формата. TASK-182 локально добавляет календарную дату рядом с днём недели.
 - Проверены активные карточки, unfinished plans и рекурсивный done; новые ID выделены после TASK-171.
+
+- Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
+- Дополнены конкретные контексты. Формат и подпись периода ещё не выбраны; pending и статус needs-clarification сохранены. TASK-205 возвращает контекст занятия и не утверждает единый новый формат дат.

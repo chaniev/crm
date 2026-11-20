@@ -1,7 +1,7 @@
 # TASK-021: Проверить responsive и Playwright-покрытие карточки клиента
 
 ## Status
-ready
+tasks-ready
 
 ## Requirements
 - REQ-CLI-001 — verifies
@@ -53,10 +53,21 @@ ready
 Не требуется.
 
 ## Source notes
-- Source file: `backlog/inbox/2026-05-05.md`
+- Source file: [2026-05-05.md](../processed/2026-05-05.md) (исторический путь: `backlog/inbox/2026-05-05.md`)
 - Original note: `Responsive: проверить detail/form сценарии на tablet и mobile ... Для заметных UX-изменений добавить или обновить Playwright-тесты ...`
+
+### Дополнение из аудита 20.11.2026
+
+- Source file: [05-client-card](../processed/2026-11-20-interface-audit/05-client-card/README.md)
+- Source file: [06-client-details](../processed/2026-11-20-interface-audit/06-client-details/README.md)
+- Source file: [18-client-form](../processed/2026-11-20-interface-audit/18-client-form/README.md)
+- Source file: [24-membership-renewal](../processed/2026-11-20-interface-audit/24-membership-renewal/README.md)
+- Новые mobile/desktop снимки краткой, полной, новой карточки и оформления абонемента сохраняют исходное состояние для будущего сравнения.
 
 ## Processing notes
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+
+- Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
+- Это дополнительная база для регрессии после TASK-018/019, а не пройденная приёмка. Поиск CLI-01 выделен в TASK-204; его функциональное исправление не включать повторно.

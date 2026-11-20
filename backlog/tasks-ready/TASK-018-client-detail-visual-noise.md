@@ -1,7 +1,7 @@
 # TASK-018: Уменьшить визуальный шум в client detail/form сценариях
 
 ## Status
-ready
+tasks-ready
 
 ## Requirements
 - REQ-CLI-001 — changes
@@ -58,10 +58,20 @@ Detail и form сценарии клиента выглядят плотнее �
 Не требуется.
 
 ## Source notes
-- Source file: `backlog/inbox/2026-05-05.md`
+- Source file: [2026-05-05.md](../processed/2026-05-05.md) (исторический путь: `backlog/inbox/2026-05-05.md`)
 - Original note: `Проверить специализированные карточки client form/detail на лишние пустые блоки. Большой просмотр фото показывать только если фото уже загружено или пользователь явно открыл просмотр. Убрать повторяющиеся статусы и не дублировать одно и то же состояние в нескольких блоках. Сделать данные клиента в карточке более плотными, не теряя читаемость.`
+
+### Дополнение из аудита 20.11.2026
+
+- Source file: [05-client-card](../processed/2026-11-20-interface-audit/05-client-card/README.md)
+- Source file: [06-client-details](../processed/2026-11-20-interface-audit/06-client-details/README.md)
+- Source file: [18-client-form](../processed/2026-11-20-interface-audit/18-client-form/README.md)
+- PRE-02, DET-01/02 и NEW-01/02: повторные ФИО/статус/филиал, нулевые контакты/посещения, два сообщения Telegram и технические сведения фото; в новой карточке крупный блок объясняет невозможность загрузки фото до сохранения.
 
 ## Processing notes
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+
+- Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
+- Новое доказательство существующего scope, отдельный cleanup-дубль не нужен. Ошибки фото и восстановление сохранить. Расширение на краткую карточку ограничено теми же повторными фактами; полноценная структура — TASK-019, доступность действий — TASK-020.

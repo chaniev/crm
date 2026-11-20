@@ -1,7 +1,7 @@
 # TASK-019: Разделить карточку клиента на вкладки
 
 ## Status
-ready
+tasks-ready
 
 ## Requirements
 - REQ-CLI-001 — changes
@@ -56,10 +56,19 @@ ready
 Не требуется.
 
 ## Source notes
-- Source file: `backlog/inbox/2026-05-05.md`
+- Source file: [2026-05-05.md](../processed/2026-05-05.md) (исторический путь: `backlog/inbox/2026-05-05.md`)
 - Original note: `Разделить карточку на вкладки: Обзор; Абонемент и оплата; Посещения; Группы; Контакты; История.`
+
+### Дополнение из аудита 20.11.2026
+
+- Source file: [06-client-details](../processed/2026-11-20-interface-audit/06-client-details/README.md)
+- Source file: [24-membership-renewal](../processed/2026-11-20-interface-audit/24-membership-renewal/README.md)
+- DET-03 и REN-01/02: постоянно открытые перенос группы/история смешаны с оформлением; при единственной группе видны неактивные стрелки порядка.
 
 ## Processing notes
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+
+- Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
+- Снимки служат входом для прототипа существующей структуры. Четыре раздела из нового аудита — гипотеза; они не заменяют шесть вкладок исходной карточки. Скрытие стрелок при одной группе можно оценить в прототипе, не меняя порядок групп и отчётность. Значимое UX-решение выбирается до реализации по docs/DESIGN_PROCESS.md.

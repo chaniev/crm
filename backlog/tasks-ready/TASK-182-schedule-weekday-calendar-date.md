@@ -50,9 +50,17 @@ daySummary в GroupScheduleScreen отображает formatLongWeekday(urlStat
 
 > показывать дату рядом с днём недели в расписании («пятница» без числа теряется при переключении дней)
 
+### Дополнение из аудита 20.11.2026
+
+- Source file: [03-schedule](../processed/2026-11-20-interface-audit/03-schedule/README.md)
+- SCH-03: дата и день недели разнесены, календарный контекст требует отдельного чтения.
+
 ## Processing notes
 - Created at: 2026-10-05 (MSK).
 - Created by skill: codex-backlog-skill.
 - Mode: triage; scope: два файла inbox, без глобальной сверки статусов.
 - Duplicate check: TASK-157 снижала плотность, TASK-167 меняла подпись действия. TASK-175 владеет общей нормализацией дат, здесь независимое соседство даты и weekday.
 - Проверены активные карточки, unfinished plans и рекурсивный done; новые ID выделены после TASK-171.
+
+- Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
+- Новый источник добавлен без дублирующей карточки. Для расписания сохранён проверенный mobile-снимок; desktop-снимок из исходного аудита был исключён как некорректный.

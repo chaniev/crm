@@ -48,9 +48,17 @@ MobileBottomNavigation рендерит переходы через UnstyledButt
 
 > сделать навигацию ссылками вместо кнопок при реальных URL (/attention, /coaches, …) — сейчас не работают открытие в новой вкладке и копирование ссылки, aria-current при этом есть
 
+### Дополнение из аудита 20.11.2026
+
+- Source file: [00-navigation](../processed/2026-11-20-interface-audit/00-navigation/README.md)
+- NAV-02: переходы разделов представлены кнопками, нативное открытие раздела в новой вкладке не предоставляется.
+
 ## Processing notes
 - Created at: 2026-10-05 (MSK).
 - Created by skill: codex-backlog-skill.
 - Mode: triage; scope: два файла inbox, без глобальной сверки статусов.
 - Duplicate check: TASK-024/051/090 создали shell, TASK-126 его разделила; новой задачи на native links нет. TASK-058 про отдельные окна/второй монитор и не является дубликатом.
 - Проверены активные карточки, unfinished plans и рекурсивный done; новые ID выделены после TASK-171.
+
+- Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
+- Прямое подтверждение существующего scope. Выбор четвёртого пункта мобильного меню отделён в TASK-209; он не блокирует семантику уже существующих URL.

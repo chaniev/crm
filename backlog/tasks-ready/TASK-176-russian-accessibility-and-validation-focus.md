@@ -60,9 +60,18 @@ index.html содержит lang="en"; UserCreateScreen отправляет ф�
 
 > локализовать/именовывать доступные имена контролов: «Toggle password visibility» у всех PasswordInput, безымянные кнопки закрытия toast-уведомлений и шита «Остальные разделы», безымянные степперы NumberInput «Длительность»
 
+### Дополнение из аудита 20.11.2026
+
+- Source file: [16-profile-password](../processed/2026-11-20-interface-audit/16-profile-password/README.md)
+- Source file: [17-login](../processed/2026-11-20-interface-audit/17-login/README.md)
+- PWD-02 и LOG-02: в русском интерфейсе доступное имя переключателя пароля — Toggle password visibility.
+
 ## Processing notes
 - Created at: 2026-10-05 (MSK).
 - Created by skill: codex-backlog-skill.
 - Mode: triage; scope: два файла inbox, без глобальной сверки статусов.
 - Duplicate check: TASK-165 владела resource extraction, TASK-161 — геометрией recipes; здесь конкретные a11y пробелы. Shared migration TASK-150 не должна повторять исправленные места.
 - Проверены активные карточки, unfinished plans и рекурсивный done; новые ID выделены после TASK-171.
+
+- Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
+- Одна общая причина на двух экранах, поэтому новая карточка не создаётся. Проверка ошибок отправки и перехода фокуса этим аудитом не подтверждена.

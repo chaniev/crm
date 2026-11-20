@@ -56,10 +56,24 @@ risky
 Не требуется.
 
 ## Source notes
-- Source file: `backlog/inbox/2026-05-05.md`
+- Source file: [2026-05-05.md](../processed/2026-05-05.md) (исторический путь: `backlog/inbox/2026-05-05.md`)
 - Original note: `Довести пустые состояния detail-сценариев до action-first поведения ... Для отключенных кнопок показывать понятную причину ... Заменить общий текст про management-роли на подсказки около конкретных действий.`
+
+### Дополнение из аудита 20.11.2026
+
+- Source file: [05-client-card](../processed/2026-11-20-interface-audit/05-client-card/README.md)
+- Source file: [06-client-details](../processed/2026-11-20-interface-audit/06-client-details/README.md)
+- Source file: [18-client-form](../processed/2026-11-20-interface-audit/18-client-form/README.md)
+- PRE-02, DET-02, NEW-01/02: повтор пустых контактов/визитов, недоступное фото и предложение загрузки только после сохранения. Причину отсутствия действия нужно сохранить при сокращении текста.
 
 ## Processing notes
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+
+- Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
+- Наблюдения подтверждают существующую задачу; не расширяют её на новые permission-сценарии или глобальную чистку настроек.
+
+## Required review and stop conditions
+
+До реализации согласовать с владельцем домена/доступа матрицу действий и причин по ролям на проверенном прототипе; backend остаётся источником разрешений. Остановить зависимый план, если нужное действие требует нового разрешения, изменения денег/данных или вычисления доменного запрета на клиенте. Отсутствующий контракт сначала согласовать отдельно. Рискованный статус и отсутствие разрешения реализации сохранены.

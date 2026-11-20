@@ -4019,3 +4019,37 @@
 - Unresolved: выбор проверенного прототипа исключительных состояний и граница navigation guard; предложение не выдано за утверждённый контракт.
 - Validation: будет дополнена после knowledge harness; чужие статусы и исходные заметки не менялись.
 - Validation result TASK-203: knowledge checks 4/4 PASS, локальные ссылки/unique ID/status-directory PASS; executable preflight ожидаемо отклоняет честный draft. Код и runtime не менялись.
+
+### 2026-11-20 19:43 (Europe/Moscow) — triage inbox: аудит 26 экранов
+
+- Mode: triage; scope: `backlog/inbox/2026-11-20-interface-audit/`, все 29 Markdown-источников и сопутствующие доказательства. Глобальная сверка статусов не выполнялась.
+- Создано 7 карточек: 5 tasks-ready, 2 needs-clarification.
+- Created: [TASK-204-client-full-name-search.md](../tasks-ready/TASK-204-client-full-name-search.md).
+- Created: [TASK-205-attendance-lesson-context.md](../tasks-ready/TASK-205-attendance-lesson-context.md).
+- Created: [TASK-206-administrator-branch-display-consistency.md](../tasks-ready/TASK-206-administrator-branch-display-consistency.md).
+- Created: [TASK-207-attention-mobile-client-identity.md](../tasks-ready/TASK-207-attention-mobile-client-identity.md).
+- Created: [TASK-208-audit-list-technical-metadata.md](../tasks-ready/TASK-208-audit-list-technical-metadata.md).
+- Created: [TASK-209-mobile-navigation-clients-slot.md](../needs-clarification/TASK-209-mobile-navigation-clients-slot.md).
+- Created: [TASK-210-attention-search-information-priority.md](../needs-clarification/TASK-210-attention-search-information-priority.md).
+- Дополнены 12 существующих карточек:
+  - [TASK-016-client-card-quick-actions.md](../risky/TASK-016-client-card-quick-actions.md).
+  - [TASK-018-client-detail-visual-noise.md](../tasks-ready/TASK-018-client-detail-visual-noise.md).
+  - [TASK-019-client-card-tabs.md](../tasks-ready/TASK-019-client-card-tabs.md).
+  - [TASK-020-client-empty-states-action-reasons.md](../risky/TASK-020-client-empty-states-action-reasons.md).
+  - [TASK-021-client-detail-responsive-regression.md](../tasks-ready/TASK-021-client-detail-responsive-regression.md).
+  - [TASK-175-user-visible-date-format.md](../needs-clarification/TASK-175-user-visible-date-format.md).
+  - [TASK-176-russian-accessibility-and-validation-focus.md](../tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md).
+  - [TASK-179-professional-catalog-seed-presentation.md](../needs-clarification/TASK-179-professional-catalog-seed-presentation.md).
+  - [TASK-181-native-navigation-links.md](../tasks-ready/TASK-181-native-navigation-links.md).
+  - [TASK-182-schedule-weekday-calendar-date.md](../tasks-ready/TASK-182-schedule-weekday-calendar-date.md).
+  - [TASK-184-finance-duplicate-warning-once.md](../tasks-ready/TASK-184-finance-duplicate-warning-once.md).
+  - [TASK-185-ui-copy-and-unit-consistency.md](../needs-clarification/TASK-185-ui-copy-and-unit-consistency.md).
+- Дубли и 14 отложенных тем распределены по всем 26 экранам в [TRIAGE.md](../processed/2026-11-20-interface-audit/TRIAGE.md). Новые ID проверены по активным карточкам, планам, рекурсивному done, refs и worktrees; предыдущий максимум TASK-203.
+- TASK-016 синхронизирована с уже принятым REQ-SUB-003 без новой продуктовой семантики; TASK-016/020 получили явные review/stop conditions. ready → tasks-ready в TASK-018/019/021 — нормализация названия, не смена жизненного цикла.
+- Источник перемещён через processing в `backlog/processed/2026-11-20-interface-audit/`; исходный текст сохранён, добавлены метаданные и ссылка на результат. Незавершённых источников этого запуска не осталось.
+- Требуют выбора TASK-209/210 и прежние вопросы TASK-175/179/185. Остальные гипотезы сохранены с основаниями отложения. Код, планы и нормативное поведение не изменены; runtime повторно не проверялся.
+- Итог проверок этой записи добавляется ниже после harness и проверки сохранности.
+
+- Уточнение после проверки метаданных: REQ-CLI-008, REQ-ATT-001, REQ-ATTN-001 и REQ-AUD-002 отмечены «частично» по сохранённым доказательствам пробелов, с источниками и записью в docs/requirements/CHANGELOG.md. Нормативный смысл не изменён. Новые исправления используют implements; pending в TASK-209/210 отделён от контекста ограничивающих требований.
+
+- Проверки завершены: harness PASS (agent-instructions, architecture-decisions, plan-readiness, registry: 60 требований / 46 активных задач / 1 план); git diff --check PASS. Полный текст 29 Markdown сохранён, 120 сопутствующих файлов совпадают по SHA-256; 61 JPEG также сверен с manifest. Все 64 пронумерованные находки распределены, статусы 19 карточек согласованы с каталогами. См. [TRIAGE-VALIDATION.md](../processed/2026-11-20-interface-audit/TRIAGE-VALIDATION.md). Приложения не запускались и повторно не тестировались: изменения только описательные.
