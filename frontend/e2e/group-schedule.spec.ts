@@ -35,6 +35,38 @@ const session = {
 } as const
 
 test.describe('Occurrence schedule calendar', () => {
+  test('day summary follows the selected date across month and year boundaries', async ({ page }) => {
+    await mockApi(page, async ({ pathname, route, searchParams }) => {
+      if (pathname !== '/api/schedule/lessons') return false
+
+      await fulfillJson(route, 200, scheduleResponse({
+        from: searchParams.get('from')!,
+        to: searchParams.get('to')!,
+        items: [],
+      }))
+      return true
+    })
+
+    const summary = page.getByTestId('schedule-day-summary')
+    const next = page.getByRole('button', { name: 'Следующий день' })
+    const previous = page.getByRole('button', { name: 'Предыдущий день' })
+    for (const [date, before, after] of [
+      ['2026-08-31', 'понедельник, 31 августа', 'вторник, 1 сентября'],
+      ['2026-12-31', 'четверг, 31 декабря', 'пятница, 1 января'],
+    ]) {
+      await page.goto(`/schedule?date=${date}&view=day&branchId=branch-1`)
+      await expect(summary.getByText(before, { exact: true })).toBeVisible()
+      await expect(next).toBeEnabled()
+      await next.press('Enter')
+      await expect(summary.getByText(after, { exact: true })).toBeVisible()
+      await expect(page).toHaveURL(/branchId=branch-1/)
+      await expect(previous).toBeEnabled()
+      await previous.press('Enter')
+      await expect(summary.getByText(before, { exact: true })).toBeVisible()
+      expect(await summary.evaluate((row) => row.scrollWidth <= row.clientWidth)).toBe(true)
+    }
+  })
+
   test('opens exact occurrence attendance route and saves via lesson endpoint', async ({ page }) => {
     let savedPayload: unknown = null
     await mockApi(page, async ({ pathname, method, searchParams, route }) => {
@@ -104,7 +136,7 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(page.getByTestId('schedule-lesson-detail-screen')).toBeVisible()
     await expect(page.getByText('occ-evening')).toHaveCount(0)
     await page.goBack()
-    await expect(page.getByTestId('schedule-screen')).toBeVisible()
+    await expect(page.getByTestId('schedule-day-summary')).toContainText('четверг, 20 августа')
 
     await page
       .getByTestId('schedule-card-occ-evening')
@@ -541,7 +573,7 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(page.getByTestId('schedule-lesson-detail-screen')).toContainText('11:15-12:15')
   })
 
-  test('row change stale recovery keeps draft and hides raw confirmation code', async ({ page }) => {
+  test('row change stale recovery keeps draft and hides raw confirmation code', async ({ page, isMobile }) => {
     await mockApi(page, async ({ pathname, method, route }) => {
       if (pathname === '/api/schedule/lessons' && method === 'GET') {
         await fulfillJson(route, 200, scheduleResponse({
@@ -601,10 +633,13 @@ test.describe('Occurrence schedule calendar', () => {
     })
 
     await page.goto('/schedule?date=2026-08-20&view=day')
-    await page
-      .getByTestId('schedule-card-occ-evening')
-      .getByRole('button', { name: /Изменить занятие/ })
-      .click()
+    const card = page.getByTestId('schedule-card-occ-evening')
+    if (isMobile) {
+      await card.getByRole('button', { name: /Ещё действий/ }).click()
+      await page.getByRole('dialog').getByRole('button', { name: /Изменить занятие/ }).click()
+    } else {
+      await card.getByRole('button', { name: /Изменить занятие/ }).click()
+    }
 
     const drawer = page.getByTestId('schedule-lesson-edit-screen')
     await drawer.getByLabel('Время').fill('11:15')

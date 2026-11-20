@@ -208,7 +208,7 @@ export function GroupScheduleScreen({
   const daySummary = (
     <div className="schedule-day-summary" data-testid="schedule-day-summary">
       <Text className="schedule-day-summary__weekday" fw={800}>
-        {formatLongWeekday(urlState.date)}
+        {urlState.view === 'day' ? formatLongDate(urlState.date) : formatLongWeekday(urlState.date)}
       </Text>
       <Badge className="schedule-day-summary__count" variant="light">
         {formatLessonCount(visibleLessons.length)}

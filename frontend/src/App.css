@@ -2264,6 +2264,7 @@
 }
 
 .schedule-day-summary__filter {
+  flex-shrink: 0;
   min-width: 44px;
   min-height: 44px;
   margin-inline-start: auto;
@@ -3483,15 +3484,20 @@
   }
 
   .schedule-day-summary {
-    gap: var(--crm-space-2);
+    gap: var(--crm-space-1);
   }
 
   .schedule-day-summary__weekday {
     font-size: var(--crm-type-body-size);
+    line-height: var(--crm-type-body-compact-line-height);
+  }
+
+  .schedule-day-summary__count {
+    padding-inline: var(--crm-space-1);
   }
 
   .schedule-day-summary__filter {
-    padding-inline: var(--crm-space-3);
+    padding-inline: var(--crm-space-2);
   }
 
   .schedule-time-group__heading {
