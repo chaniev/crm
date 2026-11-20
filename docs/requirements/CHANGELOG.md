@@ -5,7 +5,7 @@
 ## 2026-11-20 — пробелы реализации из локального аудита интерфейса
 
 - REQ-CLI-008, REQ-ATT-001, REQ-ATTN-001 и REQ-AUD-002: состояние реализации уточнено с «реализовано» на «частично» по сохранённым наблюдениям поиска, контекста занятия, читаемости клиента и технических строк журнала. Нормативные тексты и решения «принято» не изменены.
-- Связанные исправления: [TASK-204](../../backlog/implementation/TASK-204-client-full-name-search.md), [TASK-205](../../backlog/tasks-ready/TASK-205-attendance-lesson-context.md), [TASK-207](../../backlog/tasks-ready/TASK-207-attention-mobile-client-identity.md), [TASK-208](../../backlog/tasks-ready/TASK-208-audit-list-technical-metadata.md).
+- Связанные исправления: [TASK-204](../../backlog/implementation/TASK-204-client-full-name-search.md), [TASK-205](../../backlog/needs-clarification/TASK-205-attendance-lesson-context.md), [TASK-207](../../backlog/needs-clarification/TASK-207-attention-mobile-client-identity.md), [TASK-208](../../backlog/needs-clarification/TASK-208-audit-list-technical-metadata.md).
 - [Разбор и ограничения доказательств](../../backlog/processed/2026-11-20-interface-audit/TRIAGE.md): runtime повторно не запускался, причины дефектов устанавливаются до исправлений; регрессия между версиями не заявлена. Исторические done-задачи не переоткрыты. Новая навигация/фильтры TASK-209/210 не приняты.
 
 - 19.11.2026 — REQ-GRP-008: [TASK-203](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md) проверена и интегрирована в локальную main (`97a70ce`); реализация текущей редакции — «реализовано».
@@ -428,16 +428,16 @@
   focus, native links и regression scope контраста, touch targets и auth title;
   реализация остаётся «частично» (задачи
   [TASK-174](../../backlog/tasks-ready/TASK-174-secondary-text-contrast-regression.md),
-  [TASK-176](../../backlog/tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md),
+  [TASK-176](../../backlog/implementation/TASK-176-russian-accessibility-and-validation-focus.md),
   [TASK-177](../../backlog/tasks-ready/TASK-177-group-weekday-touch-targets.md),
   [TASK-178](../../backlog/tasks-ready/TASK-178-logout-document-title-regression.md),
-  [TASK-181](../../backlog/tasks-ready/TASK-181-native-navigation-links.md)).
+  [TASK-181](../../backlog/implementation/TASK-181-native-navigation-links.md)).
 - 05.10.2026 — REQ-GRP-007 — календарная дата рядом с днём недели в дневном
   summary; реализация «частично» (задача
-  [TASK-182](../../backlog/tasks-ready/TASK-182-schedule-weekday-calendar-date.md)).
+  [TASK-182](../../backlog/implementation/TASK-182-schedule-weekday-calendar-date.md)).
 - 05.10.2026 — REQ-SUB-010 — одно общее предупреждение о дублях для обеих
   детализаций; реализация «частично» (задача
-  [TASK-184](../../backlog/tasks-ready/TASK-184-finance-duplicate-warning-once.md)).
+  [TASK-184](../../backlog/implementation/TASK-184-finance-duplicate-warning-once.md)).
 
 ## 2026-09-08
 

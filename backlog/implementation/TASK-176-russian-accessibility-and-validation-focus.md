@@ -1,7 +1,7 @@
 # TASK-176: Исправить язык, доступные имена и фокус ошибок форм
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-NFR-001 — implements
@@ -75,3 +75,14 @@ index.html содержит lang="en"; UserCreateScreen отправляет ф�
 
 - Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
 - Одна общая причина на двух экранах, поэтому новая карточка не создаётся. Проверка ошибок отправки и перехода фокуса этим аудитом не подтверждена.
+
+## Planning review 2026-11-20
+- Актуальность: frontend/index.html содержит lang="en"; обе формы UserCreateScreen/UserEditScreen используют form.onSubmit без invalid callback. Наличие русского close label в MobileBottomNavigation исключает его слепую повторную замену.
+- Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
+- readiness: yes
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-20
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-176-russian-accessibility-and-validation-focus.plan.md
+- implementation_branch: codex/TASK-176-russian-accessibility-and-validation-focus

@@ -1,7 +1,7 @@
 # TASK-184: Убрать повтор предупреждения о дублях в финансовом отчёте
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-SUB-010 — changes
@@ -65,3 +65,14 @@ FinanceReportsScreen передаёт один duplicatedBreakdownHint в два
 
 - Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
 - Локальный повтор уже покрыт этой задачей и REQ-SUB-010. Объединение/сокрытие самих разбивок и новый переключатель периода не включены; они остаются отложенными гипотезами.
+
+## Planning review 2026-11-20
+- Актуальность: FinanceReportsScreen передаёт duplicatedBreakdownHint дважды: duplicateHint для тренеров и для групп (строки 755 и 786 на момент проверки).
+- Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
+- readiness: yes
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-20
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-184-finance-duplicate-warning-once.plan.md
+- implementation_branch: codex/TASK-184-finance-duplicate-warning-once

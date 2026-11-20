@@ -1,7 +1,7 @@
 # TASK-181: Сделать переходы между разделами настоящими ссылками
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-NFR-001 — implements
@@ -62,3 +62,14 @@ MobileBottomNavigation рендерит переходы через UnstyledButt
 
 - Updated at: 2026-11-20 19:43 (Europe/Moscow); mode: triage, аудит интерфейса 20.11.2026.
 - Прямое подтверждение существующего scope. Выбор четвёртого пункта мобильного меню отделён в TASK-209; он не блокирует семантику уже существующих URL.
+
+## Planning review 2026-11-20
+- Актуальность: MobileBottomNavigation использует UnstyledButton type=button и onNavigate для существующих маршрутов; getRoutePath в appRoutes уже определяет URL.
+- Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
+- readiness: yes
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-20
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-181-native-navigation-links.plan.md
+- implementation_branch: codex/TASK-181-native-navigation-links
