@@ -4053,3 +4053,9 @@
 - Уточнение после проверки метаданных: REQ-CLI-008, REQ-ATT-001, REQ-ATTN-001 и REQ-AUD-002 отмечены «частично» по сохранённым доказательствам пробелов, с источниками и записью в docs/requirements/CHANGELOG.md. Нормативный смысл не изменён. Новые исправления используют implements; pending в TASK-209/210 отделён от контекста ограничивающих требований.
 
 - Проверки завершены: harness PASS (agent-instructions, architecture-decisions, plan-readiness, registry: 60 требований / 46 активных задач / 1 план); git diff --check PASS. Полный текст 29 Markdown сохранён, 120 сопутствующих файлов совпадают по SHA-256; 61 JPEG также сверен с manifest. Все 64 пронумерованные находки распределены, статусы 19 карточек согласованы с каталогами. См. [TRIAGE-VALIDATION.md](../processed/2026-11-20-interface-audit/TRIAGE-VALIDATION.md). Приложения не запускались и повторно не тестировались: изменения только описательные.
+
+# 2026-11-20 20:18 — TASK-204: актуальный адрес после планирования
+- Previous path: /backlog/tasks-ready/TASK-204-client-full-name-search.md — исторический адрес на момент triage.
+- Current task: [TASK-204](../implementation/TASK-204-client-full-name-search.md).
+- Plan: [TASK-204](../implementation-plans/TASK-204-client-full-name-search.plan.md).
+- Status: implementation; исполнение не начато, создан готовый план по запросу пользователя. Прежние записи и JSON evidence не переписывались.

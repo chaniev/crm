@@ -2262,3 +2262,16 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - archived: card, plan, contract, manual provenance, prototype and verification evidence → backlog/done/2026-11-19/.
 - previous_paths: backlog/implementation/TASK-203*, backlog/tasks-ready/TASK-203-group-create-single-action.md, backlog/implementation-plans/TASK-203-group-create-single-action.plan.md and backlog/mockups/TASK-203-group-create-single-action now resolve to that dated archive; historical logs retained.
 - runtime: no shared deployment; ephemeral test runtimes owned and cleaned by the tests/harness.
+
+# 2026-11-20 20:18 — TASK-204: план реализации подготовлен
+- moved: TASK-204
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-204-client-full-name-search.plan.md
+- task: /backlog/implementation/TASK-204-client-full-name-search.md
+- readiness: yes — принятые REQ-CLI-008/REQ-USR-001; локальное восстановление поиска без нового UX/API/схемы
+- execution_started: no — только планирование; runtime и тесты приложения не запускались
+- evidence: CLI-01 и текущий код; причина остаётся предметом воспроизведения, новый поисковый механизм не утверждается
+- historical_paths: /backlog/tasks-ready/TASK-204-client-full-name-search.md в прежнем triage-log и TRIAGE-knowledge-checks.json — адрес карточки на момент разбора; актуальный адрес указан выше, историческое evidence сохранено
+- validation_result: explicit plan preflight PASS before/after move; knowledge harness 4/4 PASS; 9 task/plan links valid; one matching task/plan pair; git diff --check PASS
+- evidence_report: .artifacts/verification/TASK-204-planning.json
