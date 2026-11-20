@@ -1,3 +1,4 @@
+import { useUserFormErrorFocus } from './useUserFormErrorFocus'
 import { useState } from 'react'
 import {
   Stack,
@@ -40,6 +41,7 @@ export function UserCreateScreen({
 }: UserCreateScreenProps) {
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const { formElement, focusFirstError } = useUserFormErrorFocus()
   const form = useForm<CreateUserFormValues>({
     initialValues: {
       fullName: '',
@@ -85,6 +87,7 @@ export function UserCreateScreen({
     } catch (error) {
       if (error instanceof ApiError) {
         form.setErrors(applyFieldErrors(error.fieldErrors))
+        focusFirstError()
         setFormError(error.message)
       } else {
         setFormError(resources.users.create.fallbackError)
@@ -126,7 +129,7 @@ export function UserCreateScreen({
             />
           ) : null}
 
-          <form onSubmit={form.onSubmit((values) => void submit(values))}>
+          <form className="trainer-form" ref={formElement} onSubmit={form.onSubmit((values) => void submit(values), focusFirstError)}>
             <Stack gap="lg">
               <UserFormFields
                 credentialsFields={<UserCreateCredentialsFields form={form} />}

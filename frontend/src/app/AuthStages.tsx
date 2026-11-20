@@ -1,3 +1,4 @@
+import { LocalizedPasswordInput } from '../features/shared/LocalizedPasswordInput'
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import {
   Alert,
@@ -6,7 +7,6 @@ import {
   Group,
   Loader,
   Paper,
-  PasswordInput,
   Stack,
   Text,
   TextInput,
@@ -128,7 +128,7 @@ export function LoginScreen({
               placeholder={fe1AppShellAuthText.authStages_placeholder_468937a8}
               {...form.getInputProps('login')}
             />
-            <PasswordInput
+            <LocalizedPasswordInput
               autoComplete="current-password"
               disabled={pending}
               label={fe1AppShellAuthText.authStages_label_cb1a2074}
@@ -277,19 +277,19 @@ export function PasswordScreen({
 
         <form onSubmit={form.onSubmit((values) => void submit(values))}>
           <Stack gap="md">
-            <PasswordInput
+            <LocalizedPasswordInput
               autoComplete="current-password"
               label={fe1AppShellAuthText.authStages_label_d83e5a22}
               placeholder={fe1AppShellAuthText.authStages_placeholder_b45783ad}
               {...form.getInputProps('currentPassword')}
             />
-            <PasswordInput
+            <LocalizedPasswordInput
               autoComplete="new-password"
               label={fe1AppShellAuthText.authStages_label_f104cf99}
               placeholder={fe1AppShellAuthText.authStages_placeholder_63cd6ea9}
               {...form.getInputProps('newPassword')}
             />
-            <PasswordInput
+            <LocalizedPasswordInput
               autoComplete="new-password"
               label={fe1AppShellAuthText.authStages_label_fb22627c}
               placeholder={fe1AppShellAuthText.authStages_label_fb22627c}
