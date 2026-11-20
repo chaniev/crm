@@ -1,0 +1,46 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Администратор 01":
+- main "Настройки":
+  - heading "Настройки" [level=1]
+  - tablist:
+    - tab "Абонементы":
+      - generic: Абонементы
+    - tab "Типы групп":
+      - generic: Типы групп
+    - tab "Импорт" [selected]:
+      - generic: Импорт
+  - tabpanel "Импорт":
+    - paragraph: Филиал
+    - paragraph: Филиал Центр
+    - generic: Название группы
+    - paragraph: Укажите точное название существующей группы.
+    - textbox "Название группы"
+    - generic: Файл XLSX
+    - paragraph: Лист «Клиенты», до 1000 строк и 512 КБ.
+    - button "Файл XLSX": Выберите файл
+    - paragraph: Будут созданы новые карточки. Повторный импорт создаст дубли.
+    - button "Импортировать" [disabled]:
+      - generic: Импортировать
+- navigation "Мобильная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Настройки":
+    - generic: Настройки
+  - button "Ещё, открыть остальные разделы" [expanded]:
+    - generic: Ещё
+- generic "Остальные разделы":
+  - dialog "Остальные разделы":
+    - banner:
+      - heading "Остальные разделы" [level=2]
+      - button "Закрыть остальные разделы" [active]:
+    - button "Клиенты":
+      - generic: Клиенты
+    - button "Группы":
+      - generic: Группы
+    - button "Тренеры":
+      - generic: Тренеры

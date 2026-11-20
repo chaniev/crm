@@ -1,0 +1,555 @@
+{
+  "captured_on": "2026-11-20",
+  "method": "CUA in-app browser screenshot, original JPEG",
+  "screenshots": [
+    {
+      "file": "00-navigation/mobile-menu.jpg",
+      "bytes": 17806,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "758b44fda6bb2c7df8838ea5ac5adb137082e7fd36842ab6d7db7d41ba5b4b73"
+    },
+    {
+      "file": "01-attendance/desktop.jpg",
+      "bytes": 121728,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "0069477dd26442da0cd838c9ad87c58091215ddcc337bf9167b87fda5091d3f8"
+    },
+    {
+      "file": "01-attendance/mobile.jpg",
+      "bytes": 32117,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "858e13d393f25a829639cc4c35422e94bf12853e8c778ba254155c944108314a"
+    },
+    {
+      "file": "02-attention/desktop.jpg",
+      "bytes": 158070,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "d912a0acb984c11bc15f360a1e94697dca950fa7b324916b80ac3793b48708ef"
+    },
+    {
+      "file": "02-attention/mobile-360.jpg",
+      "bytes": 37422,
+      "dimensions": [
+        360,
+        780
+      ],
+      "sha256": "5d8c3e778dadf1ceae2ce74ba8e5513550a7d1a1dfa59861932bd7bef9ab209d"
+    },
+    {
+      "file": "02-attention/mobile-420.jpg",
+      "bytes": 54398,
+      "dimensions": [
+        420,
+        912
+      ],
+      "sha256": "94cc397b256acb7630ac35423cc8819247c21435e97c870d0ea89eba0232bf92"
+    },
+    {
+      "file": "02-attention/mobile-440.jpg",
+      "bytes": 60431,
+      "dimensions": [
+        440,
+        956
+      ],
+      "sha256": "7d2d11a4e83750f5d4072c95bd4f0516430516f91f14a6d9eca5e4a2b9dc5a5d"
+    },
+    {
+      "file": "02-attention/mobile.jpg",
+      "bytes": 45340,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "ffba9b819d22332608516a3231f792a11f35b483c0a8ee2764d542bf9c363850"
+    },
+    {
+      "file": "03-schedule/mobile.jpg",
+      "bytes": 42919,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "0e25a61c6f73d464e121029cc6f5c82fdabac108125a3814ab92d2033a637858"
+    },
+    {
+      "file": "04-clients/desktop.jpg",
+      "bytes": 152731,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "617a241e4484a9eecc5b9552f03102b937773fd97f79bccda10f70ce85e31290"
+    },
+    {
+      "file": "04-clients/mobile-search.jpg",
+      "bytes": 20082,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "87a48a2df548929bd4a3f5bcfa2c53327399b5c81392d4330f8ec9d99a44ab04"
+    },
+    {
+      "file": "04-clients/mobile-surname.jpg",
+      "bytes": 49203,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "70edb53c0aac7be11f286130d2be0eac48f2f93ea00dbda5fe03a66bb8ae743d"
+    },
+    {
+      "file": "04-clients/mobile.jpg",
+      "bytes": 49203,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "70edb53c0aac7be11f286130d2be0eac48f2f93ea00dbda5fe03a66bb8ae743d"
+    },
+    {
+      "file": "05-client-card/desktop.jpg",
+      "bytes": 154756,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "0c90e1fc49aff7ba510fda7a792cefed399326343e8e1d8ab11da5fa1f46743e"
+    },
+    {
+      "file": "05-client-card/mobile.jpg",
+      "bytes": 37693,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "e8dd8fa9dbc310fcf04305ce838f3e69857b21a1f6e271349dc10cd591c77570"
+    },
+    {
+      "file": "05-client-card/quick-membership-destination.jpg",
+      "bytes": 104149,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "e9fd6a663d5b48b765d53d1d5f415131bac04d7b187d83725f214d922f80d39c"
+    },
+    {
+      "file": "06-client-details/desktop-full.jpg",
+      "bytes": 231029,
+      "dimensions": [
+        1440,
+        2521
+      ],
+      "sha256": "280b161daf53e67314982dfdc4e5b9b090474448b08183e8276cc298c2236e83"
+    },
+    {
+      "file": "06-client-details/desktop.jpg",
+      "bytes": 123936,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "aa0586198d5e55cb7d77fffd7828cadeddeb872ccd1baf2cdd82790e7aef9f3f"
+    },
+    {
+      "file": "06-client-details/mobile-overview.jpg",
+      "bytes": 29598,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "bf80947f7e4bf42836bd8d0e8b81aa976c51ab32449978ce7f888c1de030e4a1"
+    },
+    {
+      "file": "07-groups/desktop.jpg",
+      "bytes": 138485,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "9a43d2c494009ffd40ddbeaa14b02e778e03762fae65b3b6c5c1950949ff4717"
+    },
+    {
+      "file": "07-groups/mobile.jpg",
+      "bytes": 47806,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "e1e63672b216c7f0f6da9d3aeb3922b9d74c6a88e8fcae196a3fa4d442202f83"
+    },
+    {
+      "file": "08-coaches/desktop.jpg",
+      "bytes": 79515,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "20af4b80302907e3d65d540d87be495932b9ee59329e300ebde6c5400d844689"
+    },
+    {
+      "file": "08-coaches/mobile.jpg",
+      "bytes": 27831,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "8ba608f74c6b170501b0c30d047b93947bd9db8b9224cc9a97381feac7094ac8"
+    },
+    {
+      "file": "09-audit-log/desktop.jpg",
+      "bytes": 170504,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "353acf53379e4a9c934e35ff03ae061ddf919d551a40f2c4fc25d72725a54907"
+    },
+    {
+      "file": "09-audit-log/mobile.jpg",
+      "bytes": 51227,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "71202b9502e5a051c05657055f7fe60aa3c9bf6fd132d27e068177f8d629cc77"
+    },
+    {
+      "file": "10-finance/desktop-year.jpg",
+      "bytes": 111682,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "6f06551af8e0ec5c50a06d8029644d03b7bbc92285dd92e1f8fece25d27a7458"
+    },
+    {
+      "file": "10-finance/desktop.jpg",
+      "bytes": 48778,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "6b32dfb7e9de5b1f6c9b9c625247a48dd2d9c63583dc53df7ea6724923f62d4b"
+    },
+    {
+      "file": "10-finance/mobile-empty.jpg",
+      "bytes": 22557,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "cfc8d503c267d594445bab7537f3775fb06c0c4f97bc15f1f0a479a52e6d0f5c"
+    },
+    {
+      "file": "10-finance/mobile-filters.jpg",
+      "bytes": 18710,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "8734cef96266685f1fa9376e3710f9b61cbcb231d2cf9bc5915d77523c2a6c46"
+    },
+    {
+      "file": "10-finance/mobile-year.jpg",
+      "bytes": 34242,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "273ff92353fd3eadaee3674f81b7d8063031de72554adb15850a33b3de7bd27b"
+    },
+    {
+      "file": "11-settings-catalog/desktop.jpg",
+      "bytes": 60297,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "7e7bd2f87ebe8cf59ec2b9b580d9f2c0430bac977b6b2fb6837e3cba696d8aee"
+    },
+    {
+      "file": "11-settings-catalog/mobile.jpg",
+      "bytes": 32101,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "293fe251535a6341f1c70eca5f8eca7d0b3fed9b8c3cb998d3cb5af4bdc32ec8"
+    },
+    {
+      "file": "12-settings-group-types/desktop.jpg",
+      "bytes": 64574,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "e0b7db6c3bdf6abd5a4f1ba7c1fa60a5e4fcbed0f9233da32b2d5433e1aadabb"
+    },
+    {
+      "file": "12-settings-group-types/mobile.jpg",
+      "bytes": 28869,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "075006ec0dff6778c89fbd154d8d4608a488c6b3092f843574cfc268d97aa719"
+    },
+    {
+      "file": "13-settings-branches/desktop.jpg",
+      "bytes": 83286,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "0a8f07a95b67d7790a44ae77e9e9a5838501cf26008dc4343680f2da93e7b4a4"
+    },
+    {
+      "file": "13-settings-branches/mobile-full.jpg",
+      "bytes": 66612,
+      "dimensions": [
+        390,
+        1806
+      ],
+      "sha256": "ef9c88ed0620edd1d9b9203652b5ec2bc0dcec2c380bbdac2dccba6680bc9da8"
+    },
+    {
+      "file": "13-settings-branches/mobile-selected.jpg",
+      "bytes": 35146,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "6a8248ab69d989c0546048ef7b50e5de6202ee5d464f62b389f03322542b5bd6"
+    },
+    {
+      "file": "13-settings-branches/mobile.jpg",
+      "bytes": 35303,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "e9c1f291b6e56f6e745adc9582d16d61a04d33cb9bbd3b4ba9c7b9879575956f"
+    },
+    {
+      "file": "14-settings-administrators/attendance-scope.jpg",
+      "bytes": 81344,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "f57401c5542bf1ae15b8978c75e322bef1883bea5c6638a0780f18f3902313e4"
+    },
+    {
+      "file": "14-settings-administrators/desktop.jpg",
+      "bytes": 90302,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "5c716c6cd44a65753d7774543b2fed603e0b444bc9725e081960c3ec8ca34c3e"
+    },
+    {
+      "file": "14-settings-administrators/mobile.jpg",
+      "bytes": 32045,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "8e7e6ca03cf01ab627875ee1ffcc06ff6b33f090ba7939cf8665c9b432c4fa6f"
+    },
+    {
+      "file": "15-settings-import/desktop.jpg",
+      "bytes": 47698,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "ce43f8b2dd124f152532177578aeff0550c88fc7e331ec67ec327fdaabff22c8"
+    },
+    {
+      "file": "15-settings-import/mobile.jpg",
+      "bytes": 27857,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "6c359b22c4a485f5d66a8597eae5c643d182e77169985fe7cd0b8dd591e16047"
+    },
+    {
+      "file": "16-profile-password/desktop.jpg",
+      "bytes": 61137,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "06e3df3bc69942859aaf88b83381a510d4af60c8036c8a1dfc7672bc29089375"
+    },
+    {
+      "file": "17-login/desktop.jpg",
+      "bytes": 95188,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "25789758435040ae60ab5cd36849854aa66a409c99e6e33b3e07d019c0ca6085"
+    },
+    {
+      "file": "17-login/mobile.jpg",
+      "bytes": 22173,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "64dbfc703491b198c5649c38f21650adfd87bcfd7b301a4fe2585183ecdc4cfe"
+    },
+    {
+      "file": "18-client-form/desktop.jpg",
+      "bytes": 74013,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "10aa2b4b29401f431d0812b682df724aca0aab5581a0c26af9f313f74d97addd"
+    },
+    {
+      "file": "18-client-form/mobile-full.jpg",
+      "bytes": 61229,
+      "dimensions": [
+        390,
+        1815
+      ],
+      "sha256": "63aff16c63c071cc325dbea4dddf789d732c5fc498ac0c0b8eea6627e051a408"
+    },
+    {
+      "file": "18-client-form/mobile.jpg",
+      "bytes": 29007,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "f1613260834853f5ac82573d928e0d4a5af40d2f06d3a4b639f983b9ee980bb1"
+    },
+    {
+      "file": "19-group-create/desktop.jpg",
+      "bytes": 76840,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "c8e9adac00c56647b5ac0db5bf6f1adf3db11e26b16ceb235d38ede40bc3d23a"
+    },
+    {
+      "file": "19-group-create/mobile.jpg",
+      "bytes": 31473,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "45d550643acb1fac3b6497dcea728c60305ac7291eb49db649b86e24d6b9d5ac"
+    },
+    {
+      "file": "20-schedule-lesson-form/desktop.jpg",
+      "bytes": 46755,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "9a9adc339d2e1fe34682c55b0c98c214d46f3c5445b6bb89ec95390230a5e88a"
+    },
+    {
+      "file": "20-schedule-lesson-form/mobile.jpg",
+      "bytes": 23760,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "5e36f6e07156b5a83ffe8a246d72e68af7616bc25590a4082d8e1accd09faba0"
+    },
+    {
+      "file": "21-attendance-lesson/lesson-440.jpg",
+      "bytes": 44222,
+      "dimensions": [
+        440,
+        956
+      ],
+      "sha256": "7ea86f328b6fd22301f31540ebeb64d7f9361fca1635e07e4ce8ae1db1ae6299"
+    },
+    {
+      "file": "21-attendance-lesson/lesson-desktop.jpg",
+      "bytes": 93352,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "d1bdfcead3f2dffda85084639360b99832fd22088b9769dfc0f2616723cda8dd"
+    },
+    {
+      "file": "21-attendance-lesson/lesson-mobile.jpg",
+      "bytes": 34077,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "1f7f9fca76b3deb2f52fa2a4e8800a77609943cec7e70511fb92b440c1f96ba0"
+    },
+    {
+      "file": "22-group-edit/edit-full.jpg",
+      "bytes": 224385,
+      "dimensions": [
+        1440,
+        2487
+      ],
+      "sha256": "e3a6cab01f9f9bb26a92df6c8514d1e486e56ac045e154a94d5c4bd6c17434ab"
+    },
+    {
+      "file": "22-group-edit/edit-mobile.jpg",
+      "bytes": 38465,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "3151b86b1d771171dc6e30d4647bff15c60bc5122d939eed43143d711f7489e3"
+    },
+    {
+      "file": "23-coach-edit/edit-mobile.jpg",
+      "bytes": 33175,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "9743ba5ff363c3fd6b32b69320728493d5f1b4f96204ac64e271c812d44de653"
+    },
+    {
+      "file": "24-membership-renewal/renewal.jpg",
+      "bytes": 108706,
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "974a90e7ec5ac238d082bb564c51de3986131e294a5869fe95f16c28198fdbd6"
+    },
+    {
+      "file": "25-audit-details/details-mobile.jpg",
+      "bytes": 33728,
+      "dimensions": [
+        390,
+        844
+      ],
+      "sha256": "7014d474fc9ed6eed2d56b159ff458b0a6366823979c5cf057a91a850b36b259"
+    }
+  ]
+}

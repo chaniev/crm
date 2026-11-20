@@ -1,0 +1,49 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Главный тренер":
+    - generic: Главный тренер
+- navigation "Основная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Клиенты":
+    - generic: Клиенты
+  - button "Группы":
+    - generic: Группы
+  - button "Тренеры":
+    - generic: Тренеры
+  - button "Журнал":
+    - generic: Журнал
+  - button "Финансы" [active]:
+    - generic: Финансы
+  - button "Настройки":
+    - generic: Настройки
+- main "Финансы":
+  - heading "Финансы" [level=1]
+  - 'region "Отчет: 01.11.2026–30.11.2026. Филиал: Все филиалы · Тренер: Все тренеры"':
+    - paragraph: "Отчет: 01.11.2026–30.11.2026"
+    - paragraph: "Филиал: Все филиалы · Тренер: Все тренеры"
+  - paragraph: Быстрый период
+  - radiogroup "Быстрый период":
+    - radio "Месяц" [checked]
+    - generic: Месяц
+    - radio "Квартал"
+    - generic: Квартал
+    - radio "Год"
+    - generic: Год
+    - radio "Период"
+    - generic: Период
+  - generic: Филиал
+  - combobox "Филиал"
+  - generic: Тренер
+  - combobox "Тренер"
+  - button "Ещё фильтры":
+    - generic: Ещё фильтры
+  - button "Обновить":
+    - generic: Обновить
+  - paragraph: За выбранный период операций нет.
+  - paragraph: Измените период или снимите фильтры.
+- generic "Остальные разделы"

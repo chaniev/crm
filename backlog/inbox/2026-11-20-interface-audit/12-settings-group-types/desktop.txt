@@ -1,0 +1,68 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Главный тренер":
+    - generic: Главный тренер
+- navigation "Основная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Клиенты":
+    - generic: Клиенты
+  - button "Группы":
+    - generic: Группы
+  - button "Тренеры":
+    - generic: Тренеры
+  - button "Журнал":
+    - generic: Журнал
+  - button "Финансы":
+    - generic: Финансы
+  - button "Настройки":
+    - generic: Настройки
+- main "Настройки":
+  - heading "Настройки" [level=1]
+  - tablist:
+    - tab "Абонементы":
+      - generic: Абонементы
+    - tab "Типы групп" [active] [selected]:
+      - generic: Типы групп
+    - tab "Филиалы и залы":
+      - generic: Филиалы и залы
+    - tab "Администраторы":
+      - generic: Администраторы
+  - tabpanel "Типы групп":
+    - button "Обновить":
+      - generic: Обновить
+    - button "Добавить тип":
+      - generic: Добавить тип
+    - paragraph: Боевое самбо
+    - generic: "Групп: 8"
+    - paragraph: "Тестовый тип групп: Боевое самбо."
+    - button "Редактировать":
+      - generic: Редактировать
+    - button "Удалить" [disabled]:
+      - generic: Удалить
+    - paragraph: Вольная борьба
+    - generic: "Групп: 8"
+    - paragraph: "Тестовый тип групп: Вольная борьба."
+    - button "Редактировать":
+      - generic: Редактировать
+    - button "Удалить" [disabled]:
+      - generic: Удалить
+    - paragraph: Кикбоксинг
+    - generic: "Групп: 7"
+    - paragraph: "Тестовый тип групп: Кикбоксинг."
+    - button "Редактировать":
+      - generic: Редактировать
+    - button "Удалить" [disabled]:
+      - generic: Удалить
+    - paragraph: ММА
+    - generic: "Групп: 8"
+    - paragraph: "Тестовый тип групп: ММА."
+    - button "Редактировать":
+      - generic: Редактировать
+    - button "Удалить" [disabled]:
+      - generic: Удалить
+- generic "Остальные разделы"

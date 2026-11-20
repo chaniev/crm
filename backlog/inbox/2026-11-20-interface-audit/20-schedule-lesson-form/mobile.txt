@@ -1,0 +1,33 @@
+- banner:
+  - paragraph: K-4PRO
+  - button "Открыть профильное меню пользователя Администратор 01":
+- main "Расписание":
+  - heading "Разовое занятие" [level=1]
+  - generic: Группа
+  - combobox "Группа"
+  - generic: Дата
+  - textbox "Дата": 2026-11-20
+  - generic: Время
+  - textbox "Время": 12:00
+  - generic: Длительность
+  - textbox "Длительность": 60 мин
+  - button:
+  - button:
+  - generic: Зал
+  - combobox "Зал"
+  - button "Отмена":
+    - generic: Отмена
+  - button "Получить предпросмотр":
+    - generic: Получить предпросмотр
+- navigation "Мобильная навигация":
+  - button "Посещения":
+    - generic: Посещения
+  - button "Внимание":
+    - generic: Внимание
+  - button "Расписание":
+    - generic: Расписание
+  - button "Клиенты":
+    - generic: Клиенты
+  - button "Ещё, открыть остальные разделы":
+    - generic: Ещё
+- generic "Остальные разделы"
