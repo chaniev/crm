@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "task_id": "TASK-181",
+  "expected_branch": "codex/TASK-181-native-navigation-links",
+  "areas": [
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.attention-dashboard",
+      "spec": "e2e/attention-dashboard.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.iphone-target-devices",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": [
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-181-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.interface-acceptance",
+      "description": "Сравнить интерфейс до и после и проверить клавиатуру и доступность изменённого сценария."
+    }
+  ]
+}

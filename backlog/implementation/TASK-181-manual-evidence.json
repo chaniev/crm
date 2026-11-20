@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-181",
+  "confirmations": [
+    {
+      "id": "manual.interface-acceptance",
+      "note": "На восьми размерах сопоставлены снимки навигации, проверены клавиатура, открытие ссылки в новой вкладке и возврат фокуса.",
+      "artifacts": [
+        "backlog/implementation/TASK-181-evidence/acceptance.md"
+      ],
+      "actor": "coding-agent:TASK-181",
+      "performed_at": "2026-11-21T00:49:34+03:00"
+    }
+  ]
+}
