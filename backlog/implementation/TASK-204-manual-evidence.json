@@ -1,8 +1,6 @@
 {
   "version": 1,
   "task_id": "TASK-204",
-  "actor": "coding-agent:TASK-204",
-  "performed_at": "2026-11-20T20:48:00+03:00",
   "confirmations": [
     {
       "id": "manual.real-search",
@@ -11,7 +9,9 @@
         "backlog/implementation/TASK-204-evidence/acceptance.md",
         "backlog/implementation/TASK-204-evidence/iphone-air-webkit.png",
         "backlog/implementation/TASK-204-evidence/chromium.png"
-      ]
+      ],
+      "actor": "coding-agent:TASK-204",
+      "performed_at": "2026-11-20T20:48:00+03:00"
     },
     {
       "id": "manual.search-audit",
@@ -20,7 +20,9 @@
         "backlog/implementation/TASK-204-evidence/acceptance.md",
         "backlog/implementation/TASK-204-evidence/iphone-air-webkit.png",
         "backlog/implementation/TASK-204-evidence/chromium.png"
-      ]
+      ],
+      "actor": "coding-agent:TASK-204",
+      "performed_at": "2026-11-20T20:48:00+03:00"
     }
   ]
 }
