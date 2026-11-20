@@ -4,16 +4,16 @@ import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import { useRef, type Ref } from 'react'
 import { fe17SharedRoutingThemeText as text } from '../../resources/fe-17-shared-routing-theme'
 
-export function DurationInput(props: NumberInputProps & { ref?: Ref<HTMLInputElement> }) {
+export function DurationInput({ ref, ...props }: NumberInputProps & { ref?: Ref<HTMLInputElement> }) {
   const input = useRef<HTMLInputElement>(null)
-  const ref = useMergedRef(input, props.ref)
+  const mergedRef = useMergedRef(input, ref)
   const handlers = useRef<NumberInputHandlers>(undefined)
   const { disabled, min, max, value } = props
 
   return (
     <NumberInput
       {...props}
-      ref={ref}
+      ref={mergedRef}
       handlersRef={handlers}
       rightSection={
         <div
