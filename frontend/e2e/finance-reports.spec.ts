@@ -582,10 +582,7 @@ test.describe('Finance reports', () => {
     await expect(page.getByText('У вас нет доступа к разделу «Финансы».')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Открыть Внимание' })).toBeVisible()
     await expect(
-      page.getByRole('navigation', { name: 'Основная навигация' }).getByRole(
-        'button',
-        { name: 'Финансы' },
-      ),
+      page.getByRole('navigation').getByRole('link', { name: 'Финансы', exact: true }),
     ).toHaveCount(0)
     await expect(page.getByTestId('finance-screen')).toHaveCount(0)
     await expect(page.getByTestId('attention-screen')).toHaveCount(0)
