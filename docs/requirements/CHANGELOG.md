@@ -1,5 +1,14 @@
 # Журнал изменения требований
 
+## 2026-11-21 — приёмка четырёх изменений интерфейса
+
+- [TASK-176](../../backlog/done/2026-11-21/TASK-176-russian-accessibility-and-validation-focus.md) (REQ-NFR-001). Русский язык документа, имена действий и перевод фокуса к первому ошибочному полю форм тренера подтверждены браузерными проверками.
+- [TASK-181](../../backlog/done/2026-11-21/TASK-181-native-navigation-links.md) (REQ-NFR-001). Маршруты разделов открываются нативными ссылками. Проверены обычный переход, модификаторы и история браузера.
+- [TASK-182](../../backlog/done/2026-11-21/TASK-182-schedule-weekday-calendar-date.md) (REQ-GRP-007). День недели и календарная дата в дневном расписании обновляются вместе, в том числе при смене года и возврате из занятия.
+- [TASK-184](../../backlog/done/2026-11-21/TASK-184-finance-duplicate-warning-once.md) (REQ-SUB-010). Единое пояснение доступно из разбивок по тренерам и группам. Подтверждены канонический итог и повторяющиеся строки отчёта.
+
+Для REQ-GRP-007 и REQ-SUB-010 закрыты последние зарегистрированные расхождения принятой редакции. REQ-NFR-001 остаётся частичным, включая открытые задачи контраста и сенсорных целей.
+
 - 20.11.2026 — TASK-204: воспроизведён и локально исправлен поиск нескольких слов ФИО; добавлены PostgreSQL и браузерные проверки. Проверки пройдены, исправление интегрировано локально; REQ-CLI-008 и REQ-USR-001 остаются «частично», поскольку одна регрессия не доказывает весь объём широких требований.
 
 ## 2026-11-20 — пробелы реализации из локального аудита интерфейса
@@ -428,16 +437,16 @@
   focus, native links и regression scope контраста, touch targets и auth title;
   реализация остаётся «частично» (задачи
   [TASK-174](../../backlog/tasks-ready/TASK-174-secondary-text-contrast-regression.md),
-  [TASK-176](../../backlog/implementation/TASK-176-russian-accessibility-and-validation-focus.md),
+  [TASK-176](../../backlog/done/2026-11-21/TASK-176-russian-accessibility-and-validation-focus.md),
   [TASK-177](../../backlog/tasks-ready/TASK-177-group-weekday-touch-targets.md),
   [TASK-178](../../backlog/tasks-ready/TASK-178-logout-document-title-regression.md),
-  [TASK-181](../../backlog/implementation/TASK-181-native-navigation-links.md)).
+  [TASK-181](../../backlog/done/2026-11-21/TASK-181-native-navigation-links.md)).
 - 05.10.2026 — REQ-GRP-007 — календарная дата рядом с днём недели в дневном
   summary; реализация «частично» (задача
-  [TASK-182](../../backlog/implementation/TASK-182-schedule-weekday-calendar-date.md)).
+  [TASK-182](../../backlog/done/2026-11-21/TASK-182-schedule-weekday-calendar-date.md)).
 - 05.10.2026 — REQ-SUB-010 — одно общее предупреждение о дублях для обеих
   детализаций; реализация «частично» (задача
-  [TASK-184](../../backlog/implementation/TASK-184-finance-duplicate-warning-once.md)).
+  [TASK-184](../../backlog/done/2026-11-21/TASK-184-finance-duplicate-warning-once.md)).
 
 ## 2026-09-08
 

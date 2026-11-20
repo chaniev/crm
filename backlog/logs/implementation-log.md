@@ -2282,3 +2282,10 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - skipped: TASK-019 — владелец отложил отдельный разбор; TASK-174 — нет актуального замера контраста; TASK-177 — текущий CSS уже задаёт 44×44 и расширенный label, нужен runtime замер; TASK-178 — session/title lifecycle уже учитывает logout, дефект не воспроизведён; TASK-206 — расхождение API/маппинга для одной учётной записи не подтверждено
 - plans: /backlog/implementation-plans/TASK-018-client-detail-visual-noise.plan.md, /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md, /backlog/implementation-plans/TASK-176-russian-accessibility-and-validation-focus.plan.md, /backlog/implementation-plans/TASK-181-native-navigation-links.plan.md, /backlog/implementation-plans/TASK-182-schedule-weekday-calendar-date.plan.md, /backlog/implementation-plans/TASK-184-finance-duplicate-warning-once.plan.md, /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md, /backlog/implementation-plans/TASK-207-attention-mobile-client-identity.plan.md, /backlog/implementation-plans/TASK-208-audit-list-technical-metadata.plan.md
 - Решение владельца в текущем чате: прототипов нет; TASK-019 пропустить и разбирать отдельно.
+
+## 2026-11-21 — локальная интеграция
+
+- [TASK-176](../../backlog/done/2026-11-21/TASK-176-russian-accessibility-and-validation-focus.md) — `3c98df6`, [приёмка](../../backlog/done/2026-11-21/TASK-176-evidence/acceptance.md).
+- [TASK-181](../../backlog/done/2026-11-21/TASK-181-native-navigation-links.md) — `7945a10`, [приёмка](../../backlog/done/2026-11-21/TASK-181-evidence/acceptance.md).
+- [TASK-182](../../backlog/done/2026-11-21/TASK-182-schedule-weekday-calendar-date.md) — `053c5a8`, [приёмка](../../backlog/done/2026-11-21/TASK-182-evidence/acceptance.md).
+- [TASK-184](../../backlog/done/2026-11-21/TASK-184-finance-duplicate-warning-once.md) — `8121918`, [приёмка](../../backlog/done/2026-11-21/TASK-184-evidence/acceptance.md).

@@ -6,7 +6,7 @@
       "id": "manual.interface-acceptance",
       "note": "Сопоставлены заполненный и пустой отчёты, проверены общее доступное описание и раскрытие обеих панелей клавишей Enter.",
       "artifacts": [
-        "backlog/implementation/TASK-184-evidence/acceptance.md"
+        "backlog/done/2026-11-21/TASK-184-evidence/acceptance.md"
       ],
       "actor": "coding-agent:TASK-184",
       "performed_at": "2026-11-21T00:44:28+03:00"

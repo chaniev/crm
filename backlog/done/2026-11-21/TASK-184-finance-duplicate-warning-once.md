@@ -1,7 +1,7 @@
 # TASK-184: Убрать повтор предупреждения о дублях в финансовом отчёте
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-SUB-010 — changes
@@ -9,9 +9,9 @@ implementation
 - REQ-NFR-007 — constrains
 
 ## Requirement links
-- [REQ-SUB-010](../../docs/requirements/03-абонементы-и-оплаты.md) — changes
-- [REQ-NFR-001](../../docs/requirements/08-нефункциональные.md) — constrains
-- [REQ-NFR-007](../../docs/requirements/08-нефункциональные.md) — constrains
+- [REQ-SUB-010](../../../docs/requirements/03-абонементы-и-оплаты.md) — changes
+- [REQ-NFR-001](../../../docs/requirements/08-нефункциональные.md) — constrains
+- [REQ-NFR-007](../../../docs/requirements/08-нефункциональные.md) — constrains
 
 ## Goal
 Смысл возможного дублирования в детализации объясняется один раз и относится к обеим разбивкам.
@@ -29,11 +29,11 @@ FinanceReportsScreen передаёт один duplicatedBreakdownHint в два
 - При завершении обновить состояние связанных требований и docs/requirements/CHANGELOG.md.
 
 ## Acceptance criteria
-- [ ] В одном отчёте нет двух копий полного абзаца; понятно, что он относится к обеим разбивкам.
-- [ ] Не изменены финансовые расчёты, атрибуция и данные.
+- [x] В одном отчёте нет двух копий полного абзаца; понятно, что он относится к обеим разбивкам.
+- [x] Не изменены финансовые расчёты, атрибуция и данные.
 
 ## Test checklist
-- [ ] Обе разбивки, пустой и заполненный отчёт, mobile/desktop rendered before/after; предупреждение не теряется в доступном сценарии.
+- [x] Обе разбивки, пустой и заполненный отчёт, mobile/desktop rendered before/after; предупреждение не теряется в доступном сценарии.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -41,11 +41,11 @@ FinanceReportsScreen передаёт один duplicatedBreakdownHint в два
 - Reason: Устраняется повтор текста, а финансовая семантика и обязательное предупреждение сохраняются.
 
 ## Evidence
-- [frontend/src/features/finance/FinanceReportsScreen.tsx](../../frontend/src/features/finance/FinanceReportsScreen.tsx)
-- [frontend/src/resources/fe-15-finance.ts](../../frontend/src/resources/fe-15-finance.ts)
+- [frontend/src/features/finance/FinanceReportsScreen.tsx](../../../frontend/src/features/finance/FinanceReportsScreen.tsx)
+- [frontend/src/resources/fe-15-finance.ts](../../../frontend/src/resources/fe-15-finance.ts)
 
 ## Source notes
-- Source file: [2026-09-30.md](../processed/2026-09-30.md)
+- Source file: [2026-09-30.md](../../processed/2026-09-30.md)
 - Source items: 15 (порядок самостоятельных пунктов, без строк-продолжений).
 - Источник наблюдений: UI-аудиты 18.09 и 30.09.2026, стенд c2b6cdf; в этом triage новый runtime-аудит не проводился.
 
@@ -53,7 +53,7 @@ FinanceReportsScreen передаёт один duplicatedBreakdownHint в два
 
 ### Дополнение из аудита 20.11.2026
 
-- Source file: [10-finance](../processed/2026-11-20-interface-audit/10-finance/README.md)
+- Source file: [10-finance](../../processed/2026-11-20-interface-audit/10-finance/README.md)
 - FIN-01: один и тот же длинный абзац о дублировании повторён перед детализациями по тренерам и группам.
 
 ## Processing notes
@@ -74,5 +74,10 @@ FinanceReportsScreen передаёт один duplicatedBreakdownHint в два
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-20
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-184-finance-duplicate-warning-once.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-184-finance-duplicate-warning-once.plan.md
 - implementation_branch: codex/TASK-184-finance-duplicate-warning-once
+
+## Completion
+- completed_at: 2026-11-21
+- completion_date_evidence: интеграция проверенной версии `8121918` в локальную main 2026-11-21.
+- [Приёмка и ограничения проверки](TASK-184-evidence/acceptance.md)

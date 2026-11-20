@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "task_id": "TASK-184",
-  "expected_branch": "codex/TASK-184-finance-duplicate-warning-once",
+  "task_id": "TASK-182",
+  "expected_branch": "codex/TASK-182-schedule-weekday-calendar-date",
   "areas": [
     "frontend"
   ],
   "playwright": [
     {
-      "id": "frontend.finance-reports",
-      "spec": "e2e/finance-reports.spec.ts",
+      "id": "frontend.group-schedule",
+      "spec": "e2e/group-schedule.spec.ts",
       "projects": [
         "chromium",
         "iphone-air-webkit",
@@ -17,7 +17,7 @@
       "timeout_seconds": 1200
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-184-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-11-21/TASK-182-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.interface-acceptance",

@@ -1,13 +1,13 @@
 # TASK-181: Сделать переходы между разделами настоящими ссылками
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-NFR-001 — implements
 
 ## Requirement links
-- [REQ-NFR-001](../../docs/requirements/08-нефункциональные.md) — implements
+- [REQ-NFR-001](../../../docs/requirements/08-нефункциональные.md) — implements
 
 ## Goal
 У существующих маршрутов работают открытие в новой вкладке и копирование адреса.
@@ -25,11 +25,11 @@ MobileBottomNavigation рендерит переходы через UnstyledButt
 - При завершении обновить состояние связанных требований и docs/requirements/CHANGELOG.md.
 
 ## Acceptance criteria
-- [ ] Разрешённый маршрут открывается в новой вкладке и доступен через контекстное меню копирования.
-- [ ] Back/forward, активный раздел, focus return и backend-driven доступ не меняются.
+- [x] Разрешённый маршрут открывается в новой вкладке и доступен через контекстное меню копирования.
+- [x] Back/forward, активный раздел, focus return и backend-driven доступ не меняются.
 
 ## Test checklist
-- [ ] Обычный и модифицированный клик, middle click, прямой URL, restricted route, mobile overflow.
+- [x] Обычный и модифицированный клик, middle click, прямой URL, restricted route, mobile overflow.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -37,12 +37,12 @@ MobileBottomNavigation рендерит переходы через UnstyledButt
 - Reason: Замена семантики навигационного элемента при тех же маршрутах и правах.
 
 ## Evidence
-- [frontend/src/features/shared/MobileBottomNavigation.tsx](../../frontend/src/features/shared/MobileBottomNavigation.tsx)
-- [frontend/src/lib/appRoutes.ts](../../frontend/src/lib/appRoutes.ts)
-- [docs/MOBILE_UI_CONTRACT.md](../../docs/MOBILE_UI_CONTRACT.md)
+- [frontend/src/features/shared/MobileBottomNavigation.tsx](../../../frontend/src/features/shared/MobileBottomNavigation.tsx)
+- [frontend/src/lib/appRoutes.ts](../../../frontend/src/lib/appRoutes.ts)
+- [docs/MOBILE_UI_CONTRACT.md](../../../docs/MOBILE_UI_CONTRACT.md)
 
 ## Source notes
-- Source file: [2026-09-30.md](../processed/2026-09-30.md)
+- Source file: [2026-09-30.md](../../processed/2026-09-30.md)
 - Source items: 12 (порядок самостоятельных пунктов, без строк-продолжений).
 - Источник наблюдений: UI-аудиты 18.09 и 30.09.2026, стенд c2b6cdf; в этом triage новый runtime-аудит не проводился.
 
@@ -50,7 +50,7 @@ MobileBottomNavigation рендерит переходы через UnstyledButt
 
 ### Дополнение из аудита 20.11.2026
 
-- Source file: [00-navigation](../processed/2026-11-20-interface-audit/00-navigation/README.md)
+- Source file: [00-navigation](../../processed/2026-11-20-interface-audit/00-navigation/README.md)
 - NAV-02: переходы разделов представлены кнопками, нативное открытие раздела в новой вкладке не предоставляется.
 
 ## Processing notes
@@ -71,5 +71,10 @@ MobileBottomNavigation рендерит переходы через UnstyledButt
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-20
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-181-native-navigation-links.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-181-native-navigation-links.plan.md
 - implementation_branch: codex/TASK-181-native-navigation-links
+
+## Completion
+- completed_at: 2026-11-21
+- completion_date_evidence: интеграция проверенной версии `7945a10` в локальную main 2026-11-21.
+- [Приёмка и ограничения проверки](TASK-181-evidence/acceptance.md)

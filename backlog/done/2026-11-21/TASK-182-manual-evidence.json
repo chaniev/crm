@@ -6,7 +6,7 @@
       "id": "manual.interface-acceptance",
       "note": "Сверены дата, счётчик и фильтры на четырёх ширинах, проверены клавиатура, дерево доступности и навигация через границы месяца и года.",
       "artifacts": [
-        "backlog/implementation/TASK-182-evidence/acceptance.md"
+        "backlog/done/2026-11-21/TASK-182-evidence/acceptance.md"
       ],
       "actor": "coding-agent:TASK-182",
       "performed_at": "2026-11-21T00:46:21+03:00"

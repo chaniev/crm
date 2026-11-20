@@ -1,15 +1,15 @@
 # TASK-176: Исправить язык, доступные имена и фокус ошибок форм
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-NFR-001 — implements
 - REQ-NFR-007 — constrains
 
 ## Requirement links
-- [REQ-NFR-001](../../docs/requirements/08-нефункциональные.md) — implements
-- [REQ-NFR-007](../../docs/requirements/08-нефункциональные.md) — constrains
+- [REQ-NFR-001](../../../docs/requirements/08-нефункциональные.md) — implements
+- [REQ-NFR-007](../../../docs/requirements/08-нефункциональные.md) — constrains
 
 ## Goal
 Русский интерфейс корректно объявляет язык и действия; ошибка отправки переводит фокус на первое невалидное поле.
@@ -28,13 +28,13 @@ index.html содержит lang="en"; UserCreateScreen отправляет ф�
 - При завершении обновить состояние связанных требований и docs/requirements/CHANGELOG.md.
 
 ## Acceptance criteria
-- [ ] Контролы имеют осмысленные русские accessible names, различимые действия степперов и правильный lang.
-- [ ] После неуспешной отправки первое ошибочное поле получает фокус и остаётся видимым; текст ошибки связан с полем.
-- [ ] Расхождение по close sheet подтверждено воспроизведением либо закрыто документированным evidence.
+- [x] Контролы имеют осмысленные русские accessible names, различимые действия степперов и правильный lang.
+- [x] После неуспешной отправки первое ошибочное поле получает фокус и остаётся видимым; текст ошибки связан с полем.
+- [x] Расхождение по close sheet подтверждено воспроизведением либо закрыто документированным evidence.
 
 ## Test checklist
-- [ ] DOM/accessibility tree для auth, trainer form, toast, group duration и overflow sheet.
-- [ ] Client/server error, keyboard и target-iPhone; успешная отправка не крадёт фокус.
+- [x] DOM/accessibility tree для auth, trainer form, toast, group duration и overflow sheet.
+- [x] Client/server error, keyboard и target-iPhone; успешная отправка не крадёт фокус.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -42,15 +42,15 @@ index.html содержит lang="en"; UserCreateScreen отправляет ф�
 - Reason: Исполняет существующий контракт доступности; validation semantics остаются backend-owned.
 
 ## Evidence
-- [frontend/index.html](../../frontend/index.html)
-- [frontend/src/features/users/UserCreateScreen.tsx](../../frontend/src/features/users/UserCreateScreen.tsx)
-- [frontend/src/features/users/UserEditScreen.tsx](../../frontend/src/features/users/UserEditScreen.tsx)
-- [frontend/src/theme/componentRecipes.ts](../../frontend/src/theme/componentRecipes.ts)
-- [frontend/src/features/shared/MobileBottomNavigation.tsx](../../frontend/src/features/shared/MobileBottomNavigation.tsx)
-- [docs/MOBILE_UI_CONTRACT.md](../../docs/MOBILE_UI_CONTRACT.md)
+- [frontend/index.html](../../../frontend/index.html)
+- [frontend/src/features/users/UserCreateScreen.tsx](../../../frontend/src/features/users/UserCreateScreen.tsx)
+- [frontend/src/features/users/UserEditScreen.tsx](../../../frontend/src/features/users/UserEditScreen.tsx)
+- [frontend/src/theme/componentRecipes.ts](../../../frontend/src/theme/componentRecipes.ts)
+- [frontend/src/features/shared/MobileBottomNavigation.tsx](../../../frontend/src/features/shared/MobileBottomNavigation.tsx)
+- [docs/MOBILE_UI_CONTRACT.md](../../../docs/MOBILE_UI_CONTRACT.md)
 
 ## Source notes
-- Source file: [2026-09-30.md](../processed/2026-09-30.md)
+- Source file: [2026-09-30.md](../../processed/2026-09-30.md)
 - Source items: 5, 6, 7 (порядок самостоятельных пунктов, без строк-продолжений).
 - Источник наблюдений: UI-аудиты 18.09 и 30.09.2026, стенд c2b6cdf; в этом triage новый runtime-аудит не проводился.
 
@@ -62,8 +62,8 @@ index.html содержит lang="en"; UserCreateScreen отправляет ф�
 
 ### Дополнение из аудита 20.11.2026
 
-- Source file: [16-profile-password](../processed/2026-11-20-interface-audit/16-profile-password/README.md)
-- Source file: [17-login](../processed/2026-11-20-interface-audit/17-login/README.md)
+- Source file: [16-profile-password](../../processed/2026-11-20-interface-audit/16-profile-password/README.md)
+- Source file: [17-login](../../processed/2026-11-20-interface-audit/17-login/README.md)
 - PWD-02 и LOG-02: в русском интерфейсе доступное имя переключателя пароля — Toggle password visibility.
 
 ## Processing notes
@@ -84,5 +84,10 @@ index.html содержит lang="en"; UserCreateScreen отправляет ф�
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-20
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-176-russian-accessibility-and-validation-focus.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-176-russian-accessibility-and-validation-focus.plan.md
 - implementation_branch: codex/TASK-176-russian-accessibility-and-validation-focus
+
+## Completion
+- completed_at: 2026-11-21
+- completion_date_evidence: интеграция проверенной версии `3c98df6` в локальную main 2026-11-21.
+- [Приёмка и ограничения проверки](TASK-176-evidence/acceptance.md)

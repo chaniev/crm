@@ -6,7 +6,7 @@
       "id": "manual.interface-acceptance",
       "note": "Проверены управление с клавиатуры и фокус на первом ошибочном поле при локальной и серверной проверках, снимки до и после и локализованные имена контролов.",
       "artifacts": [
-        "backlog/implementation/TASK-176-evidence/acceptance.md"
+        "backlog/done/2026-11-21/TASK-176-evidence/acceptance.md"
       ],
       "actor": "coding-agent:TASK-176",
       "performed_at": "2026-11-21T00:48:49+03:00"

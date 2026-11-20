@@ -1,22 +1,22 @@
-# Implementation Plan: TASK-181 Сделать переходы между разделами настоящими ссылками
+# Implementation Plan: TASK-182 Показывать календарную дату рядом с днём недели
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-181-native-navigation-links.md
-- requirements: REQ-NFR-001 (implements)
-- branch: codex/TASK-181-native-navigation-links
+- source_task: /backlog/done/2026-11-21/TASK-182-schedule-weekday-calendar-date.md
+- requirements: REQ-GRP-007 (changes); REQ-NFR-001 (constrains); REQ-NFR-007 (constrains)
+- branch: codex/TASK-182-schedule-weekday-calendar-date
 - readiness: yes
 - product_decisions: accepted
 - technical_decisions: none — локальная доработка существующих компонентов; новый архитектурный механизм не вводится
 - architecture_decisions: none — границы слоёв и API не меняются
 - open_questions: none
-- dependencies: none
+- dependencies: TASK-175 не блокирует: использовать текущий formatter
 - risk: low — регрессия существующего взаимодействия
 
 ## Goal
-У существующих маршрутов работают открытие в новой вкладке и копирование адреса.
+После переключения дня понятно, к какому числу относится список занятий.
 
 ## Relevance evidence
-MobileBottomNavigation использует UnstyledButton type=button и onNavigate для существующих маршрутов; getRoutePath в appRoutes уже определяет URL.
+GroupScheduleScreen daySummary выводит только formatLongWeekday(urlState.date), хотя выбранная дата доступна в том же состоянии.
 Проверены активные карточки и незавершённые планы; выбранные ID не имеют завершённых карточек-дублей. Статическое доказательство не заменяет runtime-приёмку.
 
 ## Decisions and contracts
@@ -25,7 +25,7 @@ MobileBottomNavigation использует UnstyledButton type=button и onNavi
 Новые разрешения, расчёты и CRM-правила не вводятся.
 
 ## Decision evidence
-- product: [Принятое требование](/docs/requirements/08-нефункциональные.md) — owner: владелец продукта, решение зарегистрировано в REQ; decision: REQ-NFR-001: переходы по существующим URL через href с открытием в новой вкладке и копированием адреса.
+- product: [Принятое требование](/docs/requirements/02-группы.md) — owner: владелец продукта, решение зарегистрировано в REQ; decision: REQ-GRP-007, изменение 05.10.2026: соседство календарной даты и дня недели из выбранной даты.
 
 ## Scope
 ### In
@@ -34,20 +34,19 @@ MobileBottomNavigation использует UnstyledButton type=button и onNavi
 - Изменения backend-правил, несвязанные улучшения и перечисленное в исходной задаче Out of scope.
 
 ## Implementation slices
-1. Перевести маршрутные элементы desktop/mobile/overflow на ссылки с href из существующего getRoutePath; «Ещё» оставить кнопкой.
-2. Перехватывать только обычный левый клик без модификаторов; остальные клики сохраняют нативную семантику. Сохранить aria-current, закрытие overflow для обычного перехода и разрешённый состав разделов.
-3. Добавить регрессию history/direct URL и обновить требования/CHANGELOG.
+1. В существующий дневной summary добавить соседнюю календарную дату через текущий локальный formatter из того же urlState.date.
+2. Сохранить day/week, фильтры и контекст возврата; проверить перенос длинной строки и вертикальный бюджет без новой палитры или структуры.
+3. Обновить связанные требования/CHANGELOG и сравнение до/после.
 
 ## Likely files and layers
-- `frontend/src/features/shared/MobileBottomNavigation.tsx` — затронутый компонент/ресурс или его существующие тесты.
-- `frontend/src/lib/appRoutes.ts` — затронутый компонент/ресурс или его существующие тесты.
+- `frontend/src/features/schedule/GroupScheduleScreen.tsx` — затронутый компонент/ресурс или его существующие тесты.
 
 ## Regression specification
 ### Automated tests to add or update
-- href совпадает с маршрутом; обычный клик работает без reload, Ctrl/Meta/Shift и middle click не preventDefault; popup получает нужный URL. Back/Forward, aria-current, restricted route, закрытие overflow и возврат фокуса сохранены.
-- Расширить существующий `frontend/e2e/iphone-target-devices.spec.ts` по сценарию; вспомогательный сценарный модуль не регистрировать как отдельный spec.
+- Соседние weekday/date синхронно меняются при переходах 31 декабря/1 января и границы месяца, возврате из занятия; нет overflow на mobile, week mode сохранён.
+- Расширить существующий `frontend/e2e/group-schedule.spec.ts` по сценарию; вспомогательный сценарный модуль не регистрировать как отдельный spec.
 ### Expected red evidence
-- getByRole(link) для пункта раздела падает на текущем button; тест modified click выявляет отсутствие href.
+- Проверка daySummary на выбранную календарную дату падает: сейчас summary содержит только weekday.
 ### Required validation
 - В task verification contract включить затронутый исполнимый spec и target-iPhone проекты; для сценарного модуля выбрать вызывающий spec.
 ### Manual evidence

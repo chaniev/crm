@@ -1,34 +1,16 @@
 {
   "version": 1,
-  "task_id": "TASK-176",
-  "expected_branch": "codex/TASK-176-russian-accessibility-and-validation-focus",
+  "task_id": "TASK-181",
+  "expected_branch": "codex/TASK-181-native-navigation-links",
   "areas": [
     "frontend"
   ],
   "playwright": [
     {
-      "id": "frontend.users",
-      "spec": "e2e/users.spec.ts",
+      "id": "frontend.attention-dashboard",
+      "spec": "e2e/attention-dashboard.spec.ts",
       "projects": [
         "chromium"
-      ],
-      "timeout_seconds": 1200
-    },
-    {
-      "id": "frontend.auth",
-      "spec": "e2e/auth.spec.ts",
-      "projects": [
-        "chromium"
-      ],
-      "timeout_seconds": 1200
-    },
-    {
-      "id": "frontend.groups-registry",
-      "spec": "e2e/groups-registry.spec.ts",
-      "projects": [
-        "chromium",
-        "iphone-air-webkit",
-        "iphone-17-pro-max-webkit"
       ],
       "timeout_seconds": 1200
     },
@@ -42,7 +24,7 @@
       "timeout_seconds": 1200
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-176-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-11-21/TASK-181-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.interface-acceptance",

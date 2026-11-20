@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-176 Исправить язык, доступные имена и фокус ошибок форм
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-176-russian-accessibility-and-validation-focus.md
+- source_task: /backlog/done/2026-11-21/TASK-176-russian-accessibility-and-validation-focus.md
 - requirements: REQ-NFR-001 (implements); REQ-NFR-007 (constrains)
 - branch: codex/TASK-176-russian-accessibility-and-validation-focus
 - readiness: yes
