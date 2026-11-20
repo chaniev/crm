@@ -1257,7 +1257,7 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     expect(within(toolbar).queryByRole('button', { name: 'Параметры календаря' })).not.toBeInTheDocument()
 
     const daySummary = screen.getByTestId('schedule-day-summary')
-    expect(daySummary).toHaveTextContent('четверг')
+    expect(daySummary).toHaveTextContent('четверг, 20 августа')
     expect(daySummary).toHaveTextContent('2 занятия')
     const toolsTrigger = within(daySummary).getByRole('button', { name: /Параметры календаря, активных фильтров: 1/ })
     expect(toolsTrigger).toHaveAttribute('data-target-size', '44')

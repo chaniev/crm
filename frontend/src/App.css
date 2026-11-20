@@ -2264,6 +2264,7 @@
 }
 
 .schedule-day-summary__filter {
+  flex-shrink: 0;
   min-width: 44px;
   min-height: 44px;
   margin-inline-start: auto;
@@ -3483,15 +3484,20 @@
   }
 
   .schedule-day-summary {
-    gap: var(--crm-space-2);
+    gap: var(--crm-space-1);
   }
 
   .schedule-day-summary__weekday {
     font-size: var(--crm-type-body-size);
+    line-height: var(--crm-type-body-compact-line-height);
+  }
+
+  .schedule-day-summary__count {
+    padding-inline: var(--crm-space-1);
   }
 
   .schedule-day-summary__filter {
-    padding-inline: var(--crm-space-3);
+    padding-inline: var(--crm-space-2);
   }
 
   .schedule-time-group__heading {
@@ -5147,7 +5153,8 @@
   align-items: start;
 }
 
-.finance-breakdown-grid__wide {
+.finance-breakdown-grid__wide,
+.finance-breakdown-hint {
   grid-column: 1 / -1;
 }
 
@@ -5180,6 +5187,10 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.finance-mobile-breakdowns .finance-breakdown-hint {
+  padding-block: var(--mantine-spacing-sm);
 }
 
 .finance-mobile-breakdowns .mantine-Accordion-item {
