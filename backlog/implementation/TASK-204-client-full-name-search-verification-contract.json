@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "task_id": "TASK-204",
+  "expected_branch": "codex/TASK-204-client-full-name-search",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.client-full-name-search",
+      "spec": "e2e/client-full-name-search.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "frontend.client-search-return",
+      "spec": "e2e/client-profile-context-navigation.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 900
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-204-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.real-search",
+      "description": "Compare real UI/API/PostgreSQL name search with original CLI-01."
+    },
+    {
+      "id": "manual.search-audit",
+      "description": "Separate review of search accessibility and desktop/mobile screenshots."
+    }
+  ]
+}

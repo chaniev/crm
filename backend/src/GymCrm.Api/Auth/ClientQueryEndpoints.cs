@@ -963,6 +963,7 @@ internal static class ClientQueryEndpoints
         }
 
         if (!string.IsNullOrWhiteSpace(normalizedPhone) &&
+            normalizedPhone.All(char.IsDigit) &&
             !searchTerms.Contains(normalizedPhone, StringComparer.OrdinalIgnoreCase))
         {
             query = query.Where(client =>

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "task_id": "TASK-204",
+  "actor": "coding-agent:TASK-204",
+  "performed_at": "2026-11-20T20:48:00+03:00",
+  "confirmations": [
+    {
+      "id": "manual.real-search",
+      "note": "Reviewed real backend browser run for all three name queries and synthetic fields.",
+      "artifacts": [
+        "backlog/implementation/TASK-204-evidence/acceptance.md",
+        "backlog/implementation/TASK-204-evidence/iphone-air-webkit.png",
+        "backlog/implementation/TASK-204-evidence/chromium.png"
+      ]
+    },
+    {
+      "id": "manual.search-audit",
+      "note": "Reviewed screenshots independently after functional run; focus, accessible names and retry checked by browser. Physical devices not claimed.",
+      "artifacts": [
+        "backlog/implementation/TASK-204-evidence/acceptance.md",
+        "backlog/implementation/TASK-204-evidence/iphone-air-webkit.png",
+        "backlog/implementation/TASK-204-evidence/chromium.png"
+      ]
+    }
+  ]
+}

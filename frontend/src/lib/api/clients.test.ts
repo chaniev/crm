@@ -492,3 +492,15 @@ describe('getMembershipExpirationSuggestion', () => {
     )
   })
 })
+
+test('preserves every Cyrillic name word in the query URL', async () => {
+  const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ items: [], totalCount: 0 }), { status: 200, headers: { 'content-type': 'application/json' } }))
+  vi.stubGlobal('fetch', fetchMock)
+  try {
+    await getClients({ query: 'Алексеев Алексей Дмитриевич', page: 1 })
+    const url = new URL(fetchMock.mock.calls[0][0] as string, 'http://localhost')
+    expect(url.searchParams.get('query')).toBe('Алексеев Алексей Дмитриевич')
+  } finally {
+    vi.unstubAllGlobals()
+  }
+})

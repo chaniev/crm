@@ -1,0 +1,8 @@
+Base: 0d0fd64fce4d5dacde1b9ea5763c15f28a1684a9
+Synthetic PostgreSQL 17-alpine; HeadCoach; no filters; page=1, pageSize=1.
+Stored LastName=Алексеев FirstName=Алексей MiddleName=Дмитриевич.
+GET /clients?query=Алексеев passed (one expected ID).
+GET /clients?query=Алексеев%20Алексей failed: items=[], totalCount=0.
+
+   query=Алексеев Алексей: {"items":[],"totalCount":0,"skip":0,"take":1,"page":1,"pageSize":1,"hasNextPage":false,"activeCount":0,"archivedCount":0,"quickFilterCounts":{"withoutMembership":0,"expiringSoon":0,"withoutGroup":0,"trial":0}}
+  
