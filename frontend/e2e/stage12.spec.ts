@@ -1437,6 +1437,8 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByTestId('client-card-client-filter-21').click()
     await page.getByRole('button', { name: 'Открыть карточку' }).click()
     await expect(page).toHaveURL('/clients/client-filter-21')
+    await page.getByRole('tab', { name: 'Посещения' }).click()
+    await expect(page).toHaveURL('/clients/client-filter-21#visits')
     const historyLengthBeforeCta = await page.evaluate(() => window.history.length)
 
     await page.getByRole('button', { name: 'К списку клиентов' }).click()

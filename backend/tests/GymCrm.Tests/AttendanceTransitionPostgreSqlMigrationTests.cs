@@ -1,7 +1,6 @@
 using GymCrm.Application.Attendance;
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Branches;
-using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
@@ -232,28 +231,21 @@ public sealed class AttendanceTransitionPostgreSqlMigrationTests
             CreatedAt = now,
             UpdatedAt = now
         };
-        var client = new Client
-        {
-            Id = Guid.NewGuid(),
-            BranchId = branch.Id,
-            LastName = "Transition",
-            FirstName = "Client",
-            Phone = "+79990009999",
-            Status = ClientStatus.Active,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
-
         dbContext.Branches.Add(branch);
         dbContext.Halls.Add(hall);
         dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.Add(group);
-        dbContext.Clients.Add(client);
         await dbContext.SaveChangesAsync();
 
+        // Seed only the client columns present at the attendance transition.
+        var clientId = Guid.NewGuid();
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO "Clients" ("Id", "BranchId", "LastName", "FirstName", "Phone", "Status", "CreatedAt", "UpdatedAt")
+            VALUES ({clientId}, {branch.Id}, 'Transition', 'Client', '+79990009999', 'Active', {now}, {now})
+            """);
         var userId = await InsertHistoricalSchemaUserAsync(dbContext, now);
 
-        return new SeededAttendanceTransitionGraph(client.Id, group.Id, userId, DateOnly.FromDateTime(now.UtcDateTime), now);
+        return new SeededAttendanceTransitionGraph(clientId, group.Id, userId, DateOnly.FromDateTime(now.UtcDateTime), now);
     }
 
     // The historical schema under test predates the Users.LoginNormalized column,
