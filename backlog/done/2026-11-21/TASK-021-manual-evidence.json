@@ -6,7 +6,7 @@
       "id": "manual.client-action-layout",
       "note": "Действия сопоставлены с прототипом на телефоне и планшете. Проверены полный текст и возврат фокуса после Enter и Escape.",
       "artifacts": [
-        "backlog/implementation/TASK-021-evidence/acceptance.md"
+        "backlog/done/2026-11-21/TASK-021-evidence/acceptance.md"
       ],
       "actor": "coding-agent:TASK-021",
       "performed_at": "2026-11-21T23:07:53+03:00"
@@ -15,7 +15,7 @@
       "id": "manual.safari-profile-keyboard",
       "note": "В Safari на симуляторе iPhone Air открыта системная клавиатура, проверены обе кнопки и восстановление фамилии при отмене.",
       "artifacts": [
-        "backlog/implementation/TASK-021-evidence/acceptance.md"
+        "backlog/done/2026-11-21/TASK-021-evidence/acceptance.md"
       ],
       "actor": "coding-agent:TASK-021",
       "performed_at": "2026-11-21T23:07:53+03:00"

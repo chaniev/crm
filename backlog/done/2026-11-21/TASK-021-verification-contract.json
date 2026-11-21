@@ -27,5 +27,5 @@
       "description": "В Safari на iOS Simulator проверить достижимость панели изменённого профиля при открытой экранной клавиатуре."
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-021-manual-evidence.json"
+  "manual_evidence": "backlog/done/2026-11-21/TASK-021-manual-evidence.json"
 }

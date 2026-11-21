@@ -2350,3 +2350,7 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md
 - [Карточка TASK-021](../implementation/TASK-021-client-detail-responsive-regression.md) подготовлена к исполнению. План переиспользует поиск и возврат из TASK-019/204 и уточняет браузерные проверки действий и перекрытий.
+
+## 21.11.2026 — завершение TASK-021
+
+Коммит `d9e5868f` прошёл полный контракт и интегрирован в локальную main. Исправлены подписи действий изменённого профиля. [Задача](../done/2026-11-21/TASK-021-client-detail-responsive-regression.md) · [Приёмка](../done/2026-11-21/TASK-021-evidence/acceptance.md).

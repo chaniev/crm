@@ -1,7 +1,7 @@
 # TASK-021: Проверить responsive и Playwright-покрытие карточки клиента
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-CLI-001 — verifies
@@ -34,15 +34,15 @@ implementation
 - Не делать flaky assertions на пиксельные детали без необходимости.
 
 ## Acceptance criteria
-- [ ] Tablet и mobile viewports не имеют перекрытий действий.
-- [ ] Playwright покрывает поиск, фильтры, открытие карточки и возврат с сохранением состояния.
-- [ ] Playwright покрывает основные quick actions.
-- [ ] Playwright покрывает мобильный режим карточки клиента.
+- [x] Tablet и mobile viewports не имеют перекрытий действий. [Проверка кнопок профиля и создания](/frontend/e2e/client-profile-context-navigation.spec.ts) · [Снимки и геометрия](TASK-021-evidence/acceptance.md).
+- [x] Playwright покрывает поиск, фильтры, открытие карточки и возврат с сохранением состояния. [Поиск и возврат](/frontend/e2e/client-full-name-search.spec.ts) · [Возврат к фильтрам и строке списка](TASK-019-evidence/acceptance.md).
+- [x] Playwright покрывает основные quick actions. [Открытие и отмена архива](/frontend/e2e/client-profile-context-navigation.spec.ts) · [Отмена продления](/frontend/e2e/membership-sale-pricing.spec.ts).
+- [x] Playwright покрывает мобильный режим карточки клиента. [Матрица Chromium, iPhone WebKit и Safari Simulator](TASK-021-evidence/acceptance.md).
 
 ## Test checklist
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить frontend e2e checks по принятому проектному сценарию.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить frontend e2e checks по принятому проектному сценарию.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -53,15 +53,15 @@ implementation
 Продуктовых и архитектурных вопросов нет: TASK-018 и TASK-019 завершены. Сопоставление существующего покрытия с критериями TASK-021 — инженерная подготовка, а не согласование нового поведения.
 
 ## Source notes
-- Source file: [2026-05-05.md](../processed/2026-05-05.md) (исторический путь: `backlog/inbox/2026-05-05.md`)
+- Source file: [2026-05-05.md](../../processed/2026-05-05.md) (исторический путь: `backlog/inbox/2026-05-05.md`)
 - Original note: `Responsive: проверить detail/form сценарии на tablet и mobile ... Для заметных UX-изменений добавить или обновить Playwright-тесты ...`
 
 ### Дополнение из аудита 20.11.2026
 
-- Source file: [05-client-card](../processed/2026-11-20-interface-audit/05-client-card/README.md)
-- Source file: [06-client-details](../processed/2026-11-20-interface-audit/06-client-details/README.md)
-- Source file: [18-client-form](../processed/2026-11-20-interface-audit/18-client-form/README.md)
-- Source file: [24-membership-renewal](../processed/2026-11-20-interface-audit/24-membership-renewal/README.md)
+- Source file: [05-client-card](../../processed/2026-11-20-interface-audit/05-client-card/README.md)
+- Source file: [06-client-details](../../processed/2026-11-20-interface-audit/06-client-details/README.md)
+- Source file: [18-client-form](../../processed/2026-11-20-interface-audit/18-client-form/README.md)
+- Source file: [24-membership-renewal](../../processed/2026-11-20-interface-audit/24-membership-renewal/README.md)
 - Новые mobile/desktop снимки краткой, полной, новой карточки и оформления абонемента сохраняют исходное состояние для будущего сравнения.
 
 ## Processing notes
@@ -76,7 +76,7 @@ implementation
 - Актуальность: Есть client-profile-context-navigation.spec.ts и iphone-target-devices.spec.ts, однако они не доказывают регрессионную защиту будущих вкладок TASK-019.
 - Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
 - readiness: no — TASK-019 отложена владельцем; конечная структура карточки и её прототип не определены.
-- implementation_plan: /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-021-client-detail-responsive-regression.plan.md
 
 ## Status audit 2026-11-21
 - needs-clarification: нужны реализация TASK-018 и согласование отложенной TASK-019; готовый план TASK-018 не означает завершение UI.
@@ -88,9 +88,9 @@ implementation
 
 ### Уточнение зависимости 21.11.2026
 
-Владелец утвердил [макеты TASK-019](../mockups/TASK-019/README.md). Для сквозной приёмки остаётся зависимость от реализации вкладок.
+Владелец утвердил [макеты TASK-019](../../mockups/TASK-019/README.md). Для сквозной приёмки остаётся зависимость от реализации вкладок.
 
-21.11.2026 — зависимость от реализации TASK-019 снята. Остаётся определить дополнительное покрытие по [приёмке вкладок](../done/2026-11-21/TASK-019-evidence/acceptance.md).
+21.11.2026 — зависимость от реализации TASK-019 снята. Остаётся определить дополнительное покрытие по [приёмке вкладок](TASK-019-evidence/acceptance.md).
 
 ### Итоговая сверка статуса 21.11.2026
 - tasks-ready: блокер реализации вкладок TASK-019 снят; вкладки приняты на версии `654eec60`, проверены возврат к фильтрам/странице/строке, мобильная и планшетная геометрия, клавиатура и системная клавиатура Safari в Simulator.
@@ -100,7 +100,7 @@ implementation
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-21 22:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-021-client-detail-responsive-regression.plan.md
 - implementation_branch: codex/TASK-021-client-detail-responsive-regression
 
 План готов к исполнению. Поиск и возврат подтверждены существующими сценариями. Дополнительное покрытие требуется для действий карточки и форм на телефоне и планшете. Приёмка TASK-021 предстоит.
@@ -108,3 +108,8 @@ implementation
 ## Решение владельца по подписям кнопок
 
 21.11.2026 при визуальной приёмке профиля на 390 px обнаружено обрезание подписей сохранения и отмены. Владелец подтвердил в чате «Исправить в TASK-021 и повторить приёмку». Полный текст обеих кнопок должен быть виден при редактировании, в том числе с экранной клавиатурой. Правка ограничена вёрсткой панели профиля.
+
+## Завершение
+
+- completed_at: 2026-11-21
+- completion_date_evidence: полный контракт TASK-021 прошёл на `d9e5868f`, коммит интегрирован в локальную main. [Результаты по четырём критериям](TASK-021-evidence/acceptance.md).

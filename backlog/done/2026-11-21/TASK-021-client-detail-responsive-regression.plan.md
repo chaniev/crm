@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-021 — адаптивность карточки клиента и её действий
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-021-client-detail-responsive-regression.md
+- source_task: /backlog/done/2026-11-21/TASK-021-client-detail-responsive-regression.md
 - requirements: REQ-CLI-001 (verifies); REQ-NFR-001 (implements)
 - branch: codex/TASK-021-client-detail-responsive-regression
 - readiness: yes
@@ -21,8 +21,8 @@
 При согласованном исправлении панель изменённого профиля показывает обе подписи целиком. Добавить проверку обрезания, подтвердить её падение на исходной версии и повторить браузерную и визуальную приёмку после локальной CSS-правки.
 
 ## Decision evidence
-- product: [Решение по подписям](/backlog/implementation/TASK-021-client-detail-responsive-regression.md#решение-владельца-по-подписям-кнопок) — owner: владелец продукта; decision: исправить обрезание подписей сохранения и отмены в TASK-021 и повторить приёмку.
-- [Исходная задача](/backlog/implementation/TASK-021-client-detail-responsive-regression.md) задаёт объём проверки. Требования к карточке и адаптивности приняты в [REQ-CLI-001](/docs/requirements/01-клиенты.md) и [REQ-NFR-001](/docs/requirements/08-нефункциональные.md).
+- product: [Решение по подписям](/backlog/done/2026-11-21/TASK-021-client-detail-responsive-regression.md#решение-владельца-по-подписям-кнопок) — owner: владелец продукта; decision: исправить обрезание подписей сохранения и отмены в TASK-021 и повторить приёмку.
+- [Исходная задача](/backlog/done/2026-11-21/TASK-021-client-detail-responsive-regression.md) задаёт объём проверки. Требования к карточке и адаптивности приняты в [REQ-CLI-001](/docs/requirements/01-клиенты.md) и [REQ-NFR-001](/docs/requirements/08-нефункциональные.md).
 - Владелец согласовал пять вкладок, редактирование доступных полей и компоновку телефона и планшета в [TASK-019](/backlog/done/2026-11-21/TASK-019-client-card-tabs.md). Для визуальной сверки использовать [утверждённый прототип](/backlog/mockups/TASK-019/README.md). Открытые решения о быстрых действиях записаны в [TASK-016](/backlog/needs-clarification/TASK-016-client-card-quick-actions.md).
 
 ## Scope
@@ -48,7 +48,7 @@
 ## Likely files and layers
 - `frontend/e2e/client-profile-context-navigation.spec.ts` — основное дополнение. Переиспользовать настройку API карточки, клиента с длинным именем и существующий сценарий ограниченного доступа.
 - `frontend/e2e/membership-sale-pricing.spec.ts` — дополнить существующий сценарий открытия продления с предыдущей продажей.
-- `backlog/implementation/TASK-021-verification-contract.json` — при реализации зарегистрировать исполнимые спецификации и ручную проверку.
+- `backlog/done/2026-11-21/TASK-021-verification-contract.json` — при реализации зарегистрировать исполнимые спецификации и ручную проверку.
 
 ## Regression specification
 ### Automated tests to add or update
