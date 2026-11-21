@@ -2289,3 +2289,10 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - [TASK-181](../../backlog/done/2026-11-21/TASK-181-native-navigation-links.md) — `7945a10`, [приёмка](../../backlog/done/2026-11-21/TASK-181-evidence/acceptance.md).
 - [TASK-182](../../backlog/done/2026-11-21/TASK-182-schedule-weekday-calendar-date.md) — `053c5a8`, [приёмка](../../backlog/done/2026-11-21/TASK-182-evidence/acceptance.md).
 - [TASK-184](../../backlog/done/2026-11-21/TASK-184-finance-duplicate-warning-once.md) — `8121918`, [приёмка](../../backlog/done/2026-11-21/TASK-184-evidence/acceptance.md).
+
+# 2026-11-21 15:57 — TASK-206, подготовка плана
+- moved: TASK-206 → /backlog/implementation/TASK-206-administrator-branch-display-consistency.md
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-206-administrator-branch-display-consistency.plan.md
+- Обновление к записи от 20.11: проверка на bf14d61 подтвердила расхождение трёх ответов API одной учётной записи. План прошёл preflight до переноса. Выполнено только планирование.
