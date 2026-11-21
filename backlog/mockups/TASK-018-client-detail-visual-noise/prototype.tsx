@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Alert, Badge, Group, MantineProvider, Modal, NativeSelect } from '@mantine/core'
-import { IconArrowLeft, IconArrowRight, IconCalendar, IconChevronRight, IconCircleCheck, IconCreditCard,
+import { IconArrowLeft, IconColumns2, IconCalendar, IconChevronRight, IconCircleCheck, IconCreditCard,
   IconEdit, IconFileDescription, IconId, IconInfoCircle, IconLayoutSidebar, IconMapPin,
-  IconMessageCircle, IconNotes, IconPhone, IconUserPlus, IconUsersGroup } from '@tabler/icons-react'
+  IconMessageCircle, IconPhone, IconUserPlus, IconUsersGroup } from '@tabler/icons-react'
 import { Button } from '../../../frontend/src/features/shared/Button'
 import { ClientAvatar } from '../../../frontend/src/features/shared/ux'
 import { createGymCrmTheme } from '../../../frontend/src/theme/createGymCrmTheme'
@@ -20,6 +20,8 @@ import '@fontsource/onest/latin-600.css'
 import '@fontsource/onest/latin-700.css'
 import { branches, demoPhoto, examples, fixture, groups, type Example } from './fixtures'
 import { Photo, type PhotoValue } from './Photo'
+import { PreviewCard, type PreviewProps } from './PreviewCard'
+import { PreviewComparison } from './PreviewComparison'
 import { PrototypeForm } from './PrototypeForm'
 import './style.css'
 
@@ -29,12 +31,13 @@ for (const [key, value] of Object.entries(createSemanticVariables(defaultGreenPr
 }
 const screens = {
   preview: { label: 'Краткая карточка', icon: IconLayoutSidebar },
+  compare: { label: 'Сравнение карточек', icon: IconColumns2 },
   detail: { label: 'Полная карточка', icon: IconId },
   edit: { label: 'Редактирование', icon: IconEdit },
   create: { label: 'Новый клиент', icon: IconUserPlus },
 }
 type Screen = keyof typeof screens
-const mobileLabels: Record<Screen, string> = { detail: 'Подробности', preview: 'Краткая', edit: 'Правка', create: 'Создание' }
+const mobileLabels: Record<Screen, string> = { detail: 'Подробности', preview: 'Краткая', compare: 'Сравнение', edit: 'Правка', create: 'Создание' }
 function startScreen(): Screen {
   const key = location.hash.slice(1)
   return Object.hasOwn(screens, key) ? key as Screen : 'detail'
@@ -48,7 +51,13 @@ function Section({ title, icon, children }: { title: string; icon: ReactNode; ch
 
 function ExampleView({ example, changeExample }: { example: Example; changeExample: (example: Example) => void }) {
   const manage = example !== 'coach'
-  const [screen, setScreen] = useState<Screen>(() => manage ? startScreen() : 'detail')
+  const [screen, setScreen] = useState<Screen>(() => {
+    const target = startScreen()
+    return !manage && (target === 'create' || target === 'edit') ? 'detail' : target
+  })
+  const lastPreview = useRef<'preview' | 'compare'>('preview')
+  const compareVersion = useRef<'first' | 'new'>('new')
+  const [compareBaseline, setCompareBaseline] = useState<'crm' | 'first'>(() => new URLSearchParams(location.search).get('against') === 'crm' ? 'crm' : 'first')
   const [client, setClient] = useState(() => fixture(example))
   const [hasHistory, setHasHistory] = useState(true)
   const [photo, setPhoto] = useState<PhotoValue>(() => ({
@@ -67,8 +76,9 @@ function ExampleView({ example, changeExample }: { example: Example; changeExamp
   const assigned = groups.filter(item => client.groupIds.includes(item.id))
   function go(to: Screen) {
     if (!manage && (to === 'edit' || to === 'create')) return
+    if (to === 'detail' && (screen === 'compare' || screen === 'preview')) lastPreview.current = screen
     nextFocus.current = screen === 'edit' && to === 'detail' ? 'edit' :
-      screen === 'detail' && to === 'preview' ? 'open' : 'title'
+      screen === 'detail' && (to === 'preview' || to === 'compare') ? 'open' : 'title'
     setNotice('')
     location.hash = to
     setScreen(to)
@@ -89,11 +99,18 @@ function ExampleView({ example, changeExample }: { example: Example; changeExamp
     window.scrollTo(0, 0)
   }, [screen])
   const form = screen === 'edit' || screen === 'create'
-  const nav = Object.entries(screens).filter(([key]) => manage || key === 'detail' || key === 'preview')
+  const nav = Object.entries(screens).filter(([key]) => manage || key === 'detail' || key === 'preview' || key === 'compare')
   const photoActions = <Photo value={photo} onChange={setPhoto} name={name} manage={manage} failNextUpload={failNextUpload}/>
   const status = manage && <Badge color="teal" variant="light" tt="none">Активный</Badge>
   const warning = 'Абонемент просрочен'
-  const quick = screen === 'preview'
+  const previewData: PreviewProps = {
+    name, src: photo.broken ? null : photo.src, phone: client.phone, branch,
+    groupNames: assigned.map(group => group.name + ' · ' + group.hallName),
+    contacts: client.contacts.length, manage, professional: example === 'professional', hasHistory,
+    onOpen: () => go('detail'),
+  }
+  const auditAvailable = example === 'empty' && !photo.src && !photo.broken && hasHistory
+    && JSON.stringify(client) === JSON.stringify(fixture('empty'))
   function save(values: ClientFormValues) {
     if (screen === 'create') {
       setHasHistory(false)
@@ -117,10 +134,17 @@ function ExampleView({ example, changeExample }: { example: Example; changeExamp
         <NativeSelect className="example" label="Пример данных" value={example} onChange={e => changeExample(e.target.value as Example)}
           data={Object.entries(examples).map(([value,label]) => ({value,label}))}/>
       </aside>
-      <main>
-        {!form && <div className="crumb">Клиенты <IconChevronRight size={14}/>{screens[screen].label}</div>}
-        {!form && <article className={'sheet identity' + (quick ? ' preview' : '')}>
-          <header className="identity-header"><ClientAvatar aria-hidden name={name} src={quick && !photo.broken ? photo.src : null} radius="xl" size={60} color="brand"/>
+      <main className={screen === 'compare' ? 'comparison-page' : undefined}>
+        {!form && screen !== 'compare' && <div className="crumb">Клиенты <IconChevronRight size={14}/>{screens[screen].label}</div>}
+        {screen === 'compare' && <PreviewComparison data={previewData} auditAvailable={auditAvailable} titleRef={heading}
+          returnVariant={compareVersion.current} openRef={focusOpen} left={compareBaseline} setLeft={setCompareBaseline}
+          onOpen={variant => { compareVersion.current = variant; go('detail') }}/>}
+        {screen === 'preview' && <>
+          <button className="compare-link" onClick={() => go('compare')}><IconColumns2 size={18}/>Сравнить варианты</button>
+          <PreviewCard {...previewData} variant="first" titleRef={heading} openRef={focusOpen}/>
+        </>}
+        {screen === 'detail' && <article className="sheet identity">
+          <header className="identity-header"><ClientAvatar aria-hidden name={name}  radius="xl" size={60} color="brand"/>
             <div>
             <h1 ref={heading} tabIndex={-1}>{name}</h1></div>{status}</header>
           {notice && <p role="status" className="success"><IconCircleCheck size={16}/>{notice}</p>}
@@ -128,24 +152,15 @@ function ExampleView({ example, changeExample }: { example: Example; changeExamp
           <dl className="facts">
             {manage && <Fact label="Телефон" icon={<IconPhone/>}>{client.phone}</Fact>}
             {manage && <Fact label="Филиал" icon={<IconMapPin/>}>{branch}</Fact>}
-            {!quick && client.birthDate && <Fact label="Дата рождения" icon={<IconCalendar/>}>
+            {client.birthDate && <Fact label="Дата рождения" icon={<IconCalendar/>}>
               {formatClientBirthDate(client.birthDate)} · {getClientAgeDisplayValue(client.birthDate,'2026-11-21')}</Fact>}
-            {quick && assigned.length > 0 && <Fact label="Группы" icon={<IconUsersGroup/>}>{assigned.map(g => g.name + ' · ' + g.hallName).join(', ')}</Fact>}
-            {quick && manage && client.contacts.length > 0 && <Fact label="Контакты" icon={<IconId/>}>{client.contacts.length}</Fact>}
           </dl>
-          {!quick && photoActions}
+          {photoActions}
           {example === 'professional' && hasHistory && <Alert title="Профессионал" icon={<IconInfoCircle size={18}/>}>Индивидуальный график подготовки к соревнованиям.</Alert>}
-          {quick && manage && hasHistory && example !== 'professional' && <Alert color="yellow" title={warning} icon={<IconInfoCircle size={18}/>}>Нужно продлить абонемент.</Alert>}
-          {quick && hasHistory && manage && <Section title="Последние события" icon={<IconNotes/>}>24 августа · Оформлен абонемент</Section>}
           <Group className="actions" gap="xs">
-            {quick ? <>
-              {manage && ['Оформить абонемент','Сообщение','Посещение'].map(label => <Button key={label} variant="secondary" onClick={() => go('detail')}>{label}</Button>)}
-              <button ref={focusOpen} className="primary-button" onClick={() => go('detail')}>Открыть карточку <IconArrowRight size={16}/></button>
-            </> : <>
               {manage && <button className="primary-button" ref={focusEdit} onClick={() => go('edit')}><IconEdit size={16}/>Редактировать</button>}
               {manage && ['Перевести','В архив'].map(label => <Button variant="secondary" key={label} onClick={() => setBoundary(label)}>{label}</Button>)}
-              <Button variant="ghost" leftSection={<IconArrowLeft size={16}/>} onClick={() => go('preview')}>К краткой карточке</Button>
-            </>}
+              <Button variant="ghost" leftSection={<IconArrowLeft size={16}/>} onClick={() => go(lastPreview.current)}>{lastPreview.current === 'compare' ? 'К сравнению' : 'К краткой карточке'}</Button>
           </Group>
         </article>}
         {screen === 'detail' && <div className="sheet records">
