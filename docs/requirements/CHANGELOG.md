@@ -560,7 +560,7 @@ REQ-USR-002 уточняет отображение сохранённого ф�
   semantic color roles дизайн-системы; customer-specific background и
   primary action остаются в scope runtime branding (уточнение
   [TASK-169](../../backlog/done/2026-08-30/TASK-169-start-screen-colors.md), implementation owner
-  [TASK-155](../../backlog/risky/TASK-155-runtime-customer-branding.md)).
+  [TASK-155](../../backlog/needs-clarification/TASK-155-runtime-customer-branding.md)).
 - 30.08.2026 — REQ-NFR-007 — новая принятая карточка обязательного
   layer-owned resource contract для всех user-facing статических текстов;
   реализация отмечена «частично» (задача

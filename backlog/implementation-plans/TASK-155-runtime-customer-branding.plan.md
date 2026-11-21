@@ -1,10 +1,10 @@
 # Implementation Plan: TASK-155 Runtime customer branding и управление после деплоя
 
 ## Metadata
-- source_task: /backlog/risky/TASK-155-runtime-customer-branding.md
+- source_task: /backlog/needs-clarification/TASK-155-runtime-customer-branding.md
 - requirements: REQ-NFR-005 (implements), REQ-BRN-002 (constrains), REQ-AUD-001 (constrains)
 - branch: feature/TASK-155-runtime-customer-branding
-- readiness: no — до functional code нужны runtime/data/security review описанного precedence и rollback contract, а до production UI — выбранное владельцем продукта rendered-направление settings surface
+- readiness: no — согласовать с владельцем возврат к встроенной теме при заданной теме установки, выбрать проверенный прототип редактора и пройти ревью доступа, хранения и отката. Следующие разделы описывают проект решений для ревью.
 - dependencies: completed TASK-147 is the bundled profile/contrast foundation; TASK-156 logo/favicon stays outside this task and must reuse, not duplicate, the resulting settings/config path
 - risk: high — anonymous auth bootstrap, retained-database migration, global settings authorization, audit atomicity and deploy/runtime recovery change together
 

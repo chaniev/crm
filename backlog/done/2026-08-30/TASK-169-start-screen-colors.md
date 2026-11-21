@@ -8,7 +8,7 @@ done
 
 ## Completion
 - clarified_at: 2026-08-30
-- resolution: merged into `/backlog/risky/TASK-155-runtime-customer-branding.md`
+- resolution: merged into `/backlog/needs-clarification/TASK-155-runtime-customer-branding.md`
 - implementation: not performed by this clarification task
 
 ## Goal

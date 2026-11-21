@@ -11,7 +11,7 @@ Global foundations, shell, shared components and feature styles have explicit
 ownership without changing current computed styles or responsive behavior.
 
 ## Context
-`frontend/src/App.css` has grown to approximately 5,673 lines and hundreds of
+At the August 2026 baseline, `frontend/src/App.css` had approximately 5,673 lines and hundreds of
 selectors. It mixes auth, shell, shared primitives, feature screens and
 responsive overrides, increasing cascade and regression risk.
 
@@ -72,3 +72,9 @@ unrelated screens or theme states without an obvious ownership boundary.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-121 covers oversized cross-layer source files but does not include global CSS ownership; no active stylesheet-decomposition task exists.
 - Classification: risky because cascade-wide changes require explicit refactoring and visual review gates.
+
+## Сверка 21.11.2026
+
+В [App.css](../../frontend/src/App.css) 6 461 строка и 57 директив `@media` в начале строки. В нём по-прежнему соседствуют стили рабочих экранов и адаптивные переопределения. [Визуальные проверки TASK-153](../../frontend/e2e/catalog/design-system-visual.spec.ts) дают эталоны каталога. Для первого переноса ещё нужны карта порядка правил и исходные вычисленные стили затронутого рабочего экрана.
+
+Оставить `risky` как отдельную техническую задачу. Для определения приоритета нужен конкретный участок, где общий каскад мешает сопровождению. Перемещение одного блока может изменить, какое правило применяется на малой высоте или другой ширине. До переноса зафиксировать зависимости и результат в обеих темах, после сравнить вычисленные стили на тех же элементах и размерах. Расхождение требует остановить перенос блока. Продуктовый выбор для такого переноса не требуется. [Основание для приоритизации](../../docs/PRODUCT_OWNER_ANALYSIS_2026-09-05.md)

@@ -1,7 +1,7 @@
 # TASK-155: Реализовать runtime customer branding и управление после деплоя
 
 ## Status
-risky
+needs-clarification
 
 ## Requirements
 - REQ-NFR-005 — implements
@@ -99,9 +99,7 @@ action не следует customer primary color, neutral foundation неизм
   settings authorization, audit и auth bootstrap fallback.
 
 ## Clarification questions
-Не требуется на уровне продукта. Implementation plan должен остановиться при
-неоднозначности deploy/stored precedence, reset/rollback sequencing или
-ownership существующих active theme tasks.
+Как сотрудник возвращает стандартное оформление CRM, если при установке клуб задал другую валидную тему? В критериях есть возврат к встроенной теме и к предыдущей версии. В черновике сброс восстанавливает тему установки, а откат выбирает сохранённую ревизию. Для установки со своей палитрой эти результаты различаются. Нужен согласованный сценарий восстановления для этого случая.
 
 ## Source notes
 - Source: explicit product-owner decisions in direct conversation on 2026-08-29.
@@ -123,3 +121,9 @@ ownership существующих active theme tasks.
   auth availability require a coordinated reviewed implementation plan.
 - Clarification merge at: 2026-08-30; TASK-169 was resolved into this existing
   implementation owner rather than creating a parallel auth-theme task.
+
+## Сверка 21.11.2026
+
+[REQ-NFR-005](../../docs/requirements/08-нефункциональные.md#req-nfr-005-брендирование-клуба) принято и реализовано частично. Обе Compose-конфигурации передают имя клуба и идентификаторы темы и фона. Публичный ответ конфигурации и контрактные тесты подтверждают эти поля. В настройках CRM редактор палитры отсутствует. Логотип и favicon ведутся в TASK-156. [Ответ конфигурации](../../backend/src/GymCrm.Api/Startup/AppConfigEndpoints.cs) · [Тесты](../../backend/tests/GymCrm.Tests/AppConfigApiTests.cs) · [Настройки CRM](../../frontend/src/features/settings/SettingsScreen.tsx) · [TASK-156](TASK-156-customer-logo-favicon.md)
+
+Перенесена в `needs-clarification` до согласования сценария восстановления. [План](../implementation-plans/TASK-155-runtime-customer-branding.plan.md) остаётся черновиком. Для готовности также нужны выбор прототипа редактора и ревью прав на глобальную настройку, атомарности записи с аудитом, обновления существующей базы и доступности входа при сбое. Автоматический возврат к встроенной теме при повреждённой конфигурации уже принят. Для определения срочности нужен клуб, которому недостаточно встроенных профилей. В исследованных материалах такое подключение и его срок не указаны. [Основание для приоритизации](../../docs/PRODUCT_OWNER_ANALYSIS_2026-09-05.md)

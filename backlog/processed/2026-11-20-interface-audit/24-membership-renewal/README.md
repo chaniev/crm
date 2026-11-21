@@ -46,7 +46,7 @@ updated_existing_tasks:
 none — этот отчёт фиксирует наблюдения и предложения; поведение продукта, принятые требования и статусы задач не изменяются. Ограничивающие источники для последующей доработки:
 
 - [03-абонементы-и-оплаты.md](../../../../docs/requirements/03-абонементы-и-оплаты.md)
-- [TASK-016-client-card-quick-actions.md](../../../risky/TASK-016-client-card-quick-actions.md)
+- [TASK-016-client-card-quick-actions.md](../../../needs-clarification/TASK-016-client-card-quick-actions.md)
 
 ## Доказательства
 

@@ -83,3 +83,9 @@ feature components may continue bypassing them.
 - Classification: risky due global visual surface and required multi-slice coordination, not because CRM domain semantics may change.
 - Updated at: 2026-08-29 17:15 MSK; accepted production functional-color
   call-site migration from TASK-143 and made ownership explicit.
+
+## Сверка 21.11.2026
+
+[Рецепты компонентов](../../frontend/src/theme/componentRecipes.ts) и семантические цвета доступны. Функция `findSemanticToneBypassesByLine` нашла 122 прямых указания функциональных цветов в 50 файлах под `frontend/src/app` и `frontend/src/features` без тестов. Это кандидаты для разбора. Необходимость замены зависит от назначения каждого цвета. Штатный `scanRawColors` использует другой набор правил. Например, в краткой карточке клиента цвет ошибки задан напрямую. [Сканер](../../frontend/scripts/raw-color-scanner.mjs) · [Краткая карточка](../../frontend/src/features/clients/list/ClientPreviewPanel.tsx)
+
+Оставить `risky` как техническую задачу. Для выбора первого экрана нужен пример, где дублирование уже удорожает правку. До переноса определить допустимые исключения. При проверке первого участка сравнить смысл статусов, порядок действий и работу с клавиатуры и на мобильном. Изменения компонентов и перенос CSS по TASK-154 стоит проверять раздельно, чтобы можно было установить причину визуальной регрессии. [Основание для приоритизации](../../docs/PRODUCT_OWNER_ANALYSIS_2026-09-05.md)

@@ -12,7 +12,7 @@ frontend и bot-файлах, выделив небольшие проверяе
 CRM-поведения и публичных контрактов.
 
 ## Context
-Исходные structural hotspots и состояние на актуальном `origin/main` `e3eff91`:
+Исторический срез на 24.08.2026 по `origin/main` `e3eff91`:
 
 | Hotspot | Baseline 2026-08-22 | Current 2026-08-24 | State |
 |---|---:|---:|---|
@@ -136,3 +136,9 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
   `e3eff91`: TASK-010 architecture resolved and moved to done; TASK-132 created
   as the only remaining executable slice. Umbrella remains `risky` until
   TASK-132 is implemented and validated.
+
+## Сверка 21.11.2026
+
+Оставить `risky` как родительскую карточку. TASK-122–130 интегрированы, архитектурный выбор зафиксирован в [TASK-010](../done/2026-08-24/TASK-010-bot-read-model-architecture.md). Единственная оставшаяся работа принадлежит [TASK-132](TASK-132-bot-client-read-model-decomposition.md). В [BotApiService](../../backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs) 1 477 строк. Поиск клиентов, карточка и список истекающих абонементов по-прежнему выполняют запросы и проверяют доступ внутри этого класса.
+
+Самостоятельный план работ по TASK-121 не нужен. При переносе в TASK-132 сохранить повторную проверку прав внутри транзакции чтения, ограничения данных тренера и область доступа администратора. Иначе бот может показать чужого клиента. Закрытие родительской карточки привязано к интеграции TASK-132 с проверкой [контракта внутреннего API](../../backend/tests/GymCrm.Tests/InternalBotApiTests.cs) и его потребителя в боте. Продуктовых вопросов нет.

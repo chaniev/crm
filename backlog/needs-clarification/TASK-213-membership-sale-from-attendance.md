@@ -39,4 +39,4 @@ needs-clarification
 ## Processing notes
 - Created at: 2026-11-21 14:50 (Europe/Moscow).
 - Created by skill: codex-backlog-skill.
-- Duplicate check: [TASK-016](../risky/TASK-016-client-card-quick-actions.md) описывает быстрые действия внутри карточки клиента. [TASK-116](../done/2026-08-16/TASK-116-client-profile-context-navigation.md) реализовала контекстный переход в профиль. Здесь точка входа — строка занятия, результат — оформленная продажа с возвратом к этой строке.
+- Duplicate check: [TASK-016](../needs-clarification/TASK-016-client-card-quick-actions.md) описывает быстрые действия внутри карточки клиента. [TASK-116](../done/2026-08-16/TASK-116-client-profile-context-navigation.md) реализовала контекстный переход в профиль. Здесь точка входа — строка занятия, результат — оформленная продажа с возвратом к этой строке.

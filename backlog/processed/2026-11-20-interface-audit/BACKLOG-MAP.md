@@ -29,7 +29,7 @@ updated_existing_tasks:
 
 | Карточка | Расположение | Тема | Как использовать результат |
 |---|---|---|---|
-| [TASK-016](../../risky/TASK-016-client-card-quick-actions.md) | risky | Быстрые действия карточки | PRE-01: наблюдение для существующей рискованной задачи; не создавать дубль. |
+| [TASK-016](../../needs-clarification/TASK-016-client-card-quick-actions.md) | risky | Быстрые действия карточки | PRE-01: наблюдение для существующей рискованной задачи; не создавать дубль. |
 | [TASK-018](../../done/2026-11-21/TASK-018-client-detail-visual-noise.md) | tasks-ready | Шум полной карточки и формы | DET-01/02, NEW-01/02 напрямую пересекаются с действующим scope. |
 | [TASK-019](../../tasks-ready/TASK-019-client-card-tabs.md) | tasks-ready | Вкладки карточки клиента | Выбор структуры полной/краткой карточки; ещё не принято решение этим аудитом. |
 | [TASK-020](../../risky/TASK-020-client-empty-states-action-reasons.md) | risky | Пустые состояния и причины действий | Пустые контакты, Telegram, фото; важные причины не прятать. |

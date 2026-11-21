@@ -47,7 +47,7 @@ updated_existing_tasks:
 none — этот отчёт фиксирует наблюдения и предложения; поведение продукта, принятые требования и статусы задач не изменяются. Ограничивающие источники для последующей доработки:
 
 - [ClientPreviewPanel.tsx](../../../../frontend/src/features/clients/list/ClientPreviewPanel.tsx)
-- [TASK-016-client-card-quick-actions.md](../../../risky/TASK-016-client-card-quick-actions.md)
+- [TASK-016-client-card-quick-actions.md](../../../needs-clarification/TASK-016-client-card-quick-actions.md)
 - [TASK-019-client-card-tabs.md](../../../tasks-ready/TASK-019-client-card-tabs.md)
 
 ## Доказательства
