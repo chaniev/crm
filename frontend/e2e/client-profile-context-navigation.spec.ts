@@ -249,7 +249,7 @@ function createGroupPersistState(): GroupPersistState {
   }
 }
 
-function buildRosterPayload(trainingDate: string) {
+function buildRosterPayload(trainingDate: string, markedClientId = 'client-2') {
   return {
     groupId: GROUP_ID,
     lessonOccurrenceId: LESSON_ID,
@@ -263,7 +263,7 @@ function buildRosterPayload(trainingDate: string) {
       {
         id: CLIENT_ID,
         fullName: CLIENT_FULL_NAME,
-        state: 'Unmarked',
+        state: markedClientId === CLIENT_ID ? 'Present' : 'Unmarked',
         isProfessional: false,
         professionalComment: null,
         hasActiveMembership: false,
@@ -275,7 +275,7 @@ function buildRosterPayload(trainingDate: string) {
       {
         id: 'client-2',
         fullName: CLIENT_GROUPED_NAME,
-        state: 'Absent',
+        state: markedClientId === 'client-2' ? 'Absent' : 'Unmarked',
         isProfessional: false,
         professionalComment: null,
         hasActiveMembership: true,
@@ -294,6 +294,7 @@ async function mockTask116Api(
     attendanceSaveState: AttendanceSaveState
     groupPersistState: GroupPersistState
     lessonDate?: string
+    markedClientId?: string
     clientDetailsStatus?: 200 | 403 | 404
   },
 ) {
@@ -361,7 +362,7 @@ async function mockTask116Api(
       await fulfillJson(
         context.route,
         200,
-        buildRosterPayload(requestedTrainingDate),
+        buildRosterPayload(requestedTrainingDate, state.markedClientId),
       )
       return
     }
@@ -532,8 +533,8 @@ async function fulfillJson(route: RouteMockContext['route'], status: number, pay
 }
 
 test.describe('TASK-116: контекст возврата в карточку клиента', () => {
-  test('Карточка клиента из посещений открывается и возвращает точный контекст', async ({
-    page,
+  test('Возврат из карточки отмеченного клиента восстанавливает режим «Все» и фокус в его строке', async ({
+    page, browserName,
   }) => {
     const attendanceSaveState = createAttendanceSaveState()
     const groupPersistState = createGroupPersistState()
@@ -541,11 +542,12 @@ test.describe('TASK-116: контекст возврата в карточку �
     await mockTask116Api(page, {
       session: ATTENDANCE_SESSION,
       lessonDate: ATTENDANCE_TODAY,
+      markedClientId: CLIENT_ID,
       attendanceSaveState,
       groupPersistState,
     })
 
-    await page.setViewportSize({ width: 390, height: 844 })
+    if (browserName === 'chromium') await page.setViewportSize({ width: 390, height: 844 })
     const todayLessonPath = `/attendance/${LESSON_ID}?lessonDate=${ATTENDANCE_TODAY}`
     await page.goto('/attendance')
     const source = page.getByTestId(`attendance-today-row-${LESSON_ID}`)
@@ -554,9 +556,17 @@ test.describe('TASK-116: контекст возврата в карточку �
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page).toHaveURL(todayLessonPath)
 
-    const clientAction = page
-      .getByTestId(`attendance-client-card-${CLIENT_ID}`)
-      .getByRole('button', { name: `Открыть карточку клиента ${CLIENT_FULL_NAME}` })
+    const markedCard = page.getByTestId(`attendance-client-card-${CLIENT_ID}`)
+    const rosterView = page.getByRole('group', { name: 'Показывать клиентов' })
+    await expect(page.getByTestId('attendance-client-card-client-2')).toBeVisible()
+    await expect(markedCard).toHaveCount(0)
+    await expect(rosterView.getByRole('radio', { name: 'Не отмечено', exact: true })).toBeChecked()
+    await rosterView.getByText('Все', { exact: true }).click()
+    const all = rosterView.getByRole('radio', { name: 'Все', exact: true })
+    await expect(all).toBeChecked()
+    await expect(markedCard.getByRole('radio', { name: 'Был', exact: true })).toBeChecked()
+
+    const clientAction = markedCard.getByRole('button', { name: `Открыть карточку клиента ${CLIENT_FULL_NAME}` })
 
     await expect(clientAction).toBeVisible()
     await clientAction.focus()
@@ -572,6 +582,7 @@ test.describe('TASK-116: контекст возврата в карточку �
 
     await expect(page).toHaveURL(todayLessonPath)
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
+    await expect(all).toBeChecked()
     await expect(clientAction).toBeFocused()
     await expect(page.getByRole('heading', { name: ATTENDANCE_GROUP.name })).toBeVisible()
     await page.getByRole('button', { name: 'К занятиям на сегодня' }).press('Enter')

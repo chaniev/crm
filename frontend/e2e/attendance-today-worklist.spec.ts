@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
+import { checkMixedRosterFilter } from './support/attendance-roster'
 import { lesson } from './support/schedule-lesson'
 
 const TODAY = '2026-04-18'
@@ -116,7 +117,10 @@ test('two occurrences of one group keep independent marks and restore the refres
   await morningRow.getByRole('button', { name: /Открыть:/ }).click()
   await expect(page).toHaveURL(`/attendance/${morning.lessonOccurrenceId}?lessonDate=${TODAY}`)
   await expect(page.getByText('08:00–09:00', { exact: true })).toBeVisible()
-  await expect(page.getByRole('radio', { name: 'Не отмечено', exact: true })).toBeChecked()
+  const morningCard = page.getByTestId(`attendance-client-card-${CLIENT_ID}`)
+  await expect(morningCard.getByRole('radio', { name: 'Не отмечено', exact: true })).toBeChecked()
+  const rosterView = page.getByRole('group', { name: 'Показывать клиентов' })
+  await expect(rosterView.getByRole('radio', { name: 'Не отмечено', exact: true })).toBeChecked()
 })
 
 test('a copied link retries from the keyboard and returns locally in its own tab', async ({ page, context, browserName }) => {
@@ -158,6 +162,8 @@ test('a copied link retries from the keyboard and returns locally in its own tab
     }).toPass({ timeout: 5000 })
     await expect(direct.getByRole('radio', { name: 'Был', exact: true })).toBeInViewport()
   }
+  await checkMixedRosterFilter(direct, CLIENT_ID, 'client-2')
+  await expect(direct).toHaveURL(`/attendance/${OCCURRENCE_ID}?lessonDate=${TODAY}`)
   const depth = await direct.evaluate(() => window.history.length)
   await back.press('Enter')
   await expect(direct).toHaveURL('/attendance')
@@ -194,6 +200,7 @@ async function mockToday(page: Page, state: { eveningMarked: boolean; detailsUna
       if (pathname === `/api/attendance/lessons/${item.lessonOccurrenceId}/clients` && method === 'GET') {
         expect(searchParams.get('lessonDate')).toBe(TODAY)
         const roster = attendanceRoster()
+        roster.clients.push({ ...roster.clients[0], id: 'client-2', fullName: 'Анна Петрова', state: 'Present' })
         if (item === evening && state.eveningMarked) roster.clients[0].state = 'Present'
         return fulfillJson(route, { ...roster, lessonOccurrenceId: item.lessonOccurrenceId })
       }
