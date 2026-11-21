@@ -1,0 +1,17 @@
+.review { max-width: 890px; margin: 0 auto; padding: 16px clamp(12px, 2.5vw, 32px) 48px; }
+.profile { min-width: 0; }
+.identity { padding: 12px 0 18px; }
+.identity h1 { overflow-wrap: anywhere; line-height: 1.15; margin-bottom: 4px; }
+.profile-tabs { flex-wrap: nowrap; gap: 8px; }
+.profile-tabs [role=tab] { min-height: 48px; padding: 6px clamp(5px, 2vw, 20px); min-width: 0; }
+.profile-tabs [role=tab] span { white-space: normal; line-height: 1.2; }
+.profile [role=tabpanel] { padding-top: 12px; }
+.profile [role=tabpanel] > * + * { margin-top: 12px; }
+.review-options { margin-top: 24px; }
+.review-options summary { cursor: pointer; padding: 12px 0; }
+@media (max-width: 480px) {
+  .profile-tabs [role=tab] { flex: 1; }
+  .profile-tabs [role=tab]:first-child { flex: 1.25; }
+}
+body.app-shell { background: var(--crm-surface-page); }
+.profile .client-overview-facts { padding-top: 0; border-top: 0; }
