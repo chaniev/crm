@@ -442,9 +442,9 @@ function AttendanceRosterWorkspace({
   const progressControl = selectedGroup ? (
     <AttendanceProgress compact marked={markedCount} total={allRows.length} />
   ) : undefined
-  const rosterViewControl = selectedGroup ? (
+  const rosterViewControl = (
     <AttendanceRosterViewControl compact onChange={setRosterView} value={rosterView} />
-  ) : undefined
+  )
   const refreshAction = selectedGroup ? (
     <TaskToolbarActions
       className="attendance-roster-refresh"
@@ -565,7 +565,7 @@ function AttendanceRosterWorkspace({
           }}
           progress={progressControl}
           refreshAction={refreshAction}
-          rosterViewControl={rosterViewControl}
+          rosterViewControl={selectedGroup ? rosterViewControl : undefined}
           selectedGroupId={selectedGroupId}
           trainingDate={trainingDate}
           today={today}
@@ -588,6 +588,7 @@ function AttendanceRosterWorkspace({
             ) : null}
             {rosterError ? <ErrorState message={rosterError} title={fe4AttendanceText.attendanceScreen_title_d81f487a} /> : null}
             {rosterLoading && !rosterLoaded ? <LoadingState label={fe4AttendanceText.attendanceScreen_label_f63b7eb9} /> : null}
+            {lessonContext.status === 'ready' && rosterLoaded && allRows.length > 0 ? rosterViewControl : null}
             {!rosterLoading && !rosterError && rosterLoaded && allRows.length === 0 ? (
               <EmptyState description={fe4AttendanceText.attendanceScreen_description_acbeac4d} icon={<IconUsers size={24} />} title={fe4AttendanceText.attendanceScreen_title_59fc779f} />
             ) : null}

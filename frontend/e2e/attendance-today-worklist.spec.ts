@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
+import { checkMixedRosterFilter } from './support/attendance-roster'
 import { lesson } from './support/schedule-lesson'
 
 const TODAY = '2026-04-18'
@@ -161,6 +162,8 @@ test('a copied link retries from the keyboard and returns locally in its own tab
     }).toPass({ timeout: 5000 })
     await expect(direct.getByRole('radio', { name: 'Был', exact: true })).toBeInViewport()
   }
+  await checkMixedRosterFilter(direct, CLIENT_ID, 'client-2')
+  await expect(direct).toHaveURL(`/attendance/${OCCURRENCE_ID}?lessonDate=${TODAY}`)
   const depth = await direct.evaluate(() => window.history.length)
   await back.press('Enter')
   await expect(direct).toHaveURL('/attendance')
@@ -197,6 +200,7 @@ async function mockToday(page: Page, state: { eveningMarked: boolean; detailsUna
       if (pathname === `/api/attendance/lessons/${item.lessonOccurrenceId}/clients` && method === 'GET') {
         expect(searchParams.get('lessonDate')).toBe(TODAY)
         const roster = attendanceRoster()
+        roster.clients.push({ ...roster.clients[0], id: 'client-2', fullName: 'Анна Петрова', state: 'Present' })
         if (item === evening && state.eveningMarked) roster.clients[0].state = 'Present'
         return fulfillJson(route, { ...roster, lessonOccurrenceId: item.lessonOccurrenceId })
       }

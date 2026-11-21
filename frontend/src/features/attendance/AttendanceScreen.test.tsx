@@ -371,27 +371,36 @@ describe('AttendanceWorkspace', () => {
     )
   })
 
-  test('occurrence read-only roster disables row controls from backend canEditAttendance', async () => {
+  test.each([true, false])('filters a mixed occurrence roster without reads or writes (canEdit=%s)', async (canEdit) => {
     getLessonRoster.mockResolvedValueOnce({
       ...lessonRoster,
-      today: '2026-07-11',
-      maxTrainingDate: '2026-07-11',
-      canEditAttendance: { allowed: false, reason: 'future-lesson' },
+      clients: [...lessonRoster.clients, buildClient('client-2', 'Анна Петрова', 'Present')],
+      today: canEdit ? lessonTarget.lessonDate : '2026-07-11',
+      maxTrainingDate: canEdit ? lessonTarget.lessonDate : '2026-07-11',
+      canEditAttendance: canEdit ? allowed : { allowed: false, reason: 'future-lesson' },
     })
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
 
-    renderWithProviders(
-      <AttendanceWorkspace
-        lessonTarget={{
-          lessonOccurrenceId: 'lesson-1',
-          lessonDate: '2026-07-12',
-        }}
-        user={user}
-      />,
-    )
+    const unmarkedCard = await screen.findByTestId('attendance-client-card-client-1')
+    const filter = within(screen.getByRole('group', { name: 'Показывать клиентов' }))
+    expect(filter.getByRole('radio', { name: 'Не отмечено' })).toBeChecked()
+    expect(screen.queryByTestId('attendance-client-card-client-2')).not.toBeInTheDocument()
 
-    const card = await screen.findByTestId('attendance-client-card-client-1')
-    expect(card).toHaveTextContent('Будущее занятие доступно только для просмотра.')
-    expect(within(card).getByRole('radio', { name: 'Был' })).toBeDisabled()
+    fireEvent.click(filter.getByRole('radio', { name: 'Все' }))
+    const markedCard = screen.getByTestId('attendance-client-card-client-2')
+    expect(within(unmarkedCard).getByRole('radio', { name: 'Не отмечено' })).toBeChecked()
+    expect(within(markedCard).getByRole('radio', { name: 'Был' })).toBeChecked()
+    if (!canEdit) {
+      expect(unmarkedCard).toHaveTextContent('Будущее занятие доступно только для просмотра.')
+      for (const row of [unmarkedCard, markedCard]) {
+        for (const mark of within(row).getAllByRole('radio')) expect(mark).toBeDisabled()
+      }
+    }
+    fireEvent.click(filter.getByRole('radio', { name: 'Не отмечено' }))
+    expect(screen.queryByTestId('attendance-client-card-client-2')).not.toBeInTheDocument()
+    expect(unmarkedCard).toBeVisible()
+    expect(getLessonRoster).toHaveBeenCalledTimes(1)
+    expect(saveLessonMarks).not.toHaveBeenCalled()
   })
 
   test.each(['roster first', 'details first'])('withholds both pieces until both reads succeed (%s)', async (order) => {

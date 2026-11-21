@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
+import { checkMixedRosterFilter } from './support/attendance-roster'
 import { buildAllowedActions, lesson } from './support/schedule-lesson'
 
 const APP_CONFIG = {
@@ -84,7 +85,9 @@ test.describe('Occurrence schedule calendar', () => {
         method === 'GET'
       ) {
         expect(searchParams.get('lessonDate')).toBe('2026-08-20')
-        await fulfillJson(route, 200, rosterResponse('occ-evening'))
+        const roster = rosterResponse('occ-evening')
+        roster.clients.push({ ...roster.clients[0], clientId: 'client-2', fullName: 'Анна Петрова', state: 'Present' })
+        await fulfillJson(route, 200, roster)
         return true
       }
 
@@ -153,6 +156,8 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(back).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Утренняя база' })).toBeVisible()
     await expect(page.getByText('18:00–18:50', { exact: true })).toBeVisible()
+    await checkMixedRosterFilter(page, 'client-1', 'client-2')
+    await expect(page).toHaveURL('/attendance/occ-evening?lessonDate=2026-08-20')
     await page.getByRole('radio', { name: 'Был', exact: true }).click()
     await expect.poll(() => savedPayload).toEqual({
       LessonDate: '2026-08-20',
