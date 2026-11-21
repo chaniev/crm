@@ -1,7 +1,7 @@
 # TASK-018: Уменьшить визуальный шум в client detail/form сценариях
 
 ## Status
-needs-clarification
+tasks-ready
 
 ## Requirements
 - REQ-CLI-001 — changes
@@ -55,7 +55,7 @@ Detail и form сценарии клиента выглядят плотнее �
 - Reason: локальная frontend cleanup задача без изменения бизнес-логики.
 
 ## Clarification questions
-Не требуется.
+Открытых вопросов по компоновке экранов нет.
 
 ## Source notes
 - Source file: [2026-05-05.md](../processed/2026-05-05.md) (исторический путь: `backlog/inbox/2026-05-05.md`)
@@ -81,3 +81,13 @@ Detail и form сценарии клиента выглядят плотнее �
 - Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
 - readiness: no — Не выбран проверенный прототип уплотнения карточки и формы.
 - implementation_plan: /backlog/implementation-plans/TASK-018-client-detail-visual-noise.plan.md
+
+## Решение по прототипу · 21.11.2026
+
+[Прототип и результаты проверки](../mockups/TASK-018-client-detail-visual-noise/README.md). Здесь зафиксированы решения владельца по четырём экранам.
+
+Для краткой карточки доступно [сравнение первого и нового вариантов](../mockups/TASK-018-client-detail-visual-noise/prototype.html#compare) и снимок текущей CRM. Владелец продукта выбрал [второй вариант «С типом абонемента»](../mockups/TASK-018-client-detail-visual-noise/renders/phone-new-390.jpg) после просмотра мобильного сравнения. В нём телефон находится под ФИО, тип и предупреждение об абонементе объединены перед филиалом и группами.
+
+21.11.2026 владелец запросил показ фото в окне редактирования. В [обновлённой форме с фото](../mockups/TASK-018-client-detail-visual-noise/prototype.html?sample=photo#edit) сохранённый снимок виден перед полями ФИО, открывается по нажатию и доступен для замены. После обновления владелец согласовал эту форму в чате TASK-018 — «предложенный вариант устраивает».
+
+21.11.2026 владелец продукта ответил «согласовано» на предложение утвердить [полную карточку](../mockups/TASK-018-client-detail-visual-noise/prototype.html#detail) и [форму создания клиента](../mockups/TASK-018-client-detail-visual-noise/prototype.html#create). Вместе с ранее выбранной краткой карточкой и формой редактирования это завершает согласование прототипа TASK-018.
