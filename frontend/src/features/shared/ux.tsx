@@ -772,7 +772,7 @@ export function EmptyState({
             {title}
           </Text>
           {description ? (
-            <Text c="dimmed" className="empty-state__description" size="sm" ta="center">
+            <Text c="var(--crm-text-secondary)" className="empty-state__description" size="sm" ta="center">
               {description}
             </Text>
           ) : null}
