@@ -34,7 +34,7 @@
       "timeout_seconds": 600
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-207-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-11-21/TASK-207-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.attention-mobile",

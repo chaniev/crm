@@ -2307,3 +2307,7 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 # 2026-11-21 — завершение TASK-206
 
 - [TASK-206](../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md) интегрирована в локальную main. Проверены HTTP-контракты чтения и сохранения, состояния списка и диалога в Chromium и двух профилях iPhone WebKit. [Доказательства](../done/2026-11-21/TASK-206-evidence/acceptance.md).
+
+## 21.11.2026 — завершение TASK-207
+
+Мобильный вариант А интегрирован в локальную main на `9f51ff8`. Карточка из `tasks-ready` через `implementation`, план из `implementation-plans`, макеты и доказательства перенесены в [архив TASK-207](../done/2026-11-21/TASK-207-attention-mobile-client-identity.md). Полный контракт проверил Chromium, оба профиля iPhone WebKit и frontend.
