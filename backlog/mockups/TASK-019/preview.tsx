@@ -4,10 +4,9 @@ import { Button, MantineProvider, NativeSelect, Title } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import { useMediaQuery } from '@mantine/hooks'
 import { ClientDetailScreen } from '../../../frontend/src/features/clients/ClientDetailScreen'
-import { ClientEditScreen } from '../../../frontend/src/features/clients/ClientEditScreen'
 import { defaultGreenProfile } from '../../../frontend/src/theme/profiles'
 import { createGymCrmTheme, createSemanticVariables } from '../../../frontend/src/theme'
-import { examples, installFixtures, makeClient, type Example } from './fixtures'
+import { examples, installFixtures, type Example } from './fixtures'
 import '@fontsource/onest/cyrillic-400.css'
 import '@fontsource/onest/cyrillic-600.css'
 import '@fontsource/onest/cyrillic-700.css'
@@ -23,10 +22,10 @@ for (const [key, value] of Object.entries(createSemanticVariables(defaultGreenPr
 }
 const requested = new URLSearchParams(location.search).get('example') ?? ''
 const example: Example = Object.hasOwn(examples, requested) ? requested as Example : 'standard'
-installFixtures(example)
+const demoClient = installFixtures(example)
 function Preview() {
   const mobile = useMediaQuery('(max-width: 48em)')
-  const [screen, go] = useState<'list'|'card'|'edit'>('card')
+  const [screen, go] = useState<'list'|'card'>('card')
   function openCard() {
     history.replaceState(null, '', '#info')
     go('card')
@@ -35,10 +34,8 @@ function Preview() {
     <Notifications/>
     <main className="review">
       {screen === 'card' && <ClientDetailScreen clientId="preview-client" canManage={example !== 'coach'}
-        onBack={() => go('list')} onEdit={() => go('edit')}/>}
-      {screen === 'edit' && <ClientEditScreen clientId="preview-client" backLabel="К карточке клиента"
-        onBack={() => go('card')} onUpdated={() => go('card')}/>}
-      {screen === 'list' && <><Title order={1}>Клиенты</Title><Button mt="md" onClick={openCard}>{makeClient(example).fullName}</Button></>}
+        onBack={() => go('list')} onEdit={() => go('card')}/>}
+      {screen === 'list' && <><Title order={1}>Клиенты</Title><Button mt="md" onClick={openCard}>{demoClient.fullName}</Button></>}
       <details className="review-options"><summary>Примеры для проверки</summary>
         <NativeSelect label="Сценарий" value={example} data={Object.entries(examples).map(([value,label]) => ({value,label}))}
           onChange={event => {const url = new URL(location.href); url.searchParams.set('example', event.target.value); url.hash = ''; location.assign(url.href)}}/>

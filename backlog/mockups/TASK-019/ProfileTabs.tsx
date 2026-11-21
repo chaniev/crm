@@ -1,9 +1,11 @@
-import { useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Badge, Button, Group, Tabs, Title } from '@mantine/core'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { ClientAvatar } from '../../../frontend/src/features/shared/ux'
 import { statusLabelMap } from '../../../frontend/src/features/clients/ClientManagement.formatting'
 import type { ClientDetails } from '../../../frontend/src/lib/api'
+
+import { DraftState, type DraftArea } from './DraftState'
 
 type Props = {
   client: ClientDetails
@@ -17,18 +19,32 @@ type Props = {
 }
 
 export function ProfileTabs({ client, canManage, memberships, attendance, groups, children, onBack, backLabel }: Props) {
-  const [tab, setTab] = useState(() => {
+  const readTab = useCallback(() => {
     const requested = location.hash.slice(1)
     if (requested === 'groups' || requested === 'visits' || (canManage && requested === 'memberships')) return requested
     return 'info'
-  })
+  }, [canManage])
+  const [tab, setTab] = useState(readTab)
+  useEffect(() => {
+    const sync = () => setTab(readTab())
+    window.addEventListener('hashchange', sync)
+    return () => window.removeEventListener('hashchange', sync)
+  }, [readTab])
+  const drafts = useRef(new Set<DraftArea>())
+  const register = useCallback((area: DraftArea, dirty: boolean) => {
+    if (dirty) drafts.current.add(area)
+    else drafts.current.delete(area)
+  }, [])
+  function back() {
+    if (!drafts.current.size || window.confirm('Выйти из карточки и отменить несохранённые изменения?')) onBack()
+  }
   function select(value: string | null) {
     if (!value) return
     setTab(value)
     history.replaceState(null, '', '#' + value)
   }
-  return <article className="profile">
-    <Button variant="subtle" onClick={onBack} leftSection={<IconArrowLeft size={17}/>}>{backLabel}</Button>
+  return <DraftState.Provider value={register}><article className="profile">
+    <Button variant="subtle" onClick={back} leftSection={<IconArrowLeft size={17}/>}>{backLabel}</Button>
     <Group className="identity" wrap="nowrap">
       <ClientAvatar aria-hidden name={client.fullName} size={48} radius="xl" color="brand" />
       <div><Title order={1}>{client.fullName}</Title>
@@ -47,5 +63,5 @@ export function ProfileTabs({ client, canManage, memberships, attendance, groups
       <Tabs.Panel value="visits">{attendance}</Tabs.Panel>
       <Tabs.Panel value="groups">{groups}</Tabs.Panel>
     </Tabs>
-  </article>
+  </article></DraftState.Provider>
 }

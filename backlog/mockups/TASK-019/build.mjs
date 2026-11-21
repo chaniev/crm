@@ -14,7 +14,7 @@ function sliceAt(source, from, to) {
 }
 const [bundle] = await build({
   configFile: false, root: frontend, publicDir: false, logLevel: 'error',
-  resolve: { dedupe: ['react','react-dom','@mantine/core','@mantine/hooks','@mantine/notifications','@tabler/icons-react','@fontsource/onest'] },
+  resolve: { dedupe: ['react','react-dom','@mantine/core','@mantine/form','@mantine/hooks','@mantine/notifications','@tabler/icons-react','@fontsource/onest'] },
   define: { 'process.env.NODE_ENV': JSON.stringify('production') },
   plugins: [{
     name: 'offline-profile-layout', enforce: 'pre',
@@ -22,27 +22,39 @@ const [bundle] = await build({
       if (id === resolve(clients, 'ClientOverviewSection.tsx')) {
         return source.replace(sliceAt(source, '<Group gap="sm" wrap="nowrap"', '{!canManage'), '')
       }
-      if (id === resolve(clients, 'ClientDetailSections.tsx')) {
-        // The tab already names the list. Retain the existing edit control and group rows.
-        const section = source.slice(source.indexOf('function ClientGroupsSection('))
-        const header = sliceAt(section, '<Group justify="space-between"', '{client.groups.length')
-        const action = sliceAt(header, '<Button', '</Button>') + '</Button>'
-        return source.replace(header, '{canManage && <Group justify="flex-end">' + action + '</Group>}\n') +
-          '\nexport { ClientContactsSection, ClientGroupsSection }'
+      if (id === resolve(clients, 'ClientForm.tsx')) {
+        const groupPicker = sliceAt(source, '<MultiSelect', '            <TextInput')
+        return source.replace(groupPicker, '').replace('loading={submitting}', 'disabled={!form.isDirty()} loading={submitting}')
+          .replace('type="date"', `type="date" description={form.values.birthDate && getClientAgeDisplayValue(form.values.birthDate, '2026-11-21')}`)
+          .replace("import type { ReactNode }", "import { getClientAgeDisplayValue } from './clientBirthDate'\nimport type { ReactNode }")
+      }
+      const panel = ['MembershipCorrectionPanel', 'MembershipPurchasePanel', 'MembershipRenewPanel']
+        .find(name => id === resolve(clients, 'membership', name + '.tsx'))
+      if (panel) {
+        const marker = panel === 'MembershipCorrectionPanel' ? '  const formRef' : '  const selected ='
+        if (!source.includes(marker)) throw Error('Проверьте форму ' + panel)
+        const withDirty = source.replace(marker, "  useDraftState('memberships', form.isDirty())\n" + marker)
+        const module = 'import { useDraftState } from ' + JSON.stringify(resolve(here, 'DraftState.tsx')) + '\n'
+        if (panel !== 'MembershipCorrectionPanel') return module + withDirty
+        const title = sliceAt(withDirty, '<Group justify="space-between" wrap="wrap">', '          <SimpleGrid')
+        const saleFacts = sliceAt(withDirty, '<InfoItem', '            <PaymentDateInput')
+        return module + withDirty.replace(title,
+          '<div><Text fw={700}>{currentMembership.membershipName}</Text><Text c="dimmed" size="sm">{formatCurrencyValue(currentMembership.grossAmount)} · Куплен {formatDateValue(currentMembership.purchaseDate)}</Text></div>\n')
+          .replace(saleFacts, '').replace('<Button loading={pending} type="submit">', '<Button disabled={!form.isDirty()} loading={pending} type="submit">')
       }
       if (id !== resolve(clients, 'ClientDetailScreen.tsx')) return
-      const profile = sliceAt(source, '<ClientOverviewSection', '          {canManage ? (')
-      const membership = sliceAt(source, '<ClientMembershipSection', '          ) : null}')
-      const visits = sliceAt(source, '<ClientAttendanceHistorySection', '          <ClientNotesSection')
-      const other = sliceAt(source, '<ClientNotesSection', '          <ClientRelatedSections')
+      // The inline editor supplies its own success and error feedback next to the form.
+      const feedback = sliceAt(source, '      const feedback =', '    } catch')
+      const actionFailure = sliceAt(source.slice(source.indexOf(feedback) + feedback.length), '      setActionError(', '      throw error')
       const all = sliceAt(source, '<ClientOverviewSection', '        </>')
+      const edit = sliceAt(source, '      {canManage && client ? (\n        <Button\n          leftSection={<IconEdit', '      {canManage && client ? (\n        <Button\n          leftSection={<IconGitBranch')
       const backButton = sliceAt(source, '<Button\n        leftSection={<IconArrowLeft', '    </Group>')
-      return 'import { ProfileTabs } from ' + JSON.stringify(resolve(here, 'ProfileTabs.tsx')) + '\n' +
-        source.replace('  ClientRelatedSections,', '  ClientContactsSection, ClientGroupsSection,')
-          .replace(backButton, '{!client && (' + backButton.trim() + ')}\n')
-          .replace(all, '<ProfileTabs client={client} canManage={canManage} onBack={onBack} backLabel={backLabel} memberships={' +
-            membership + '} attendance={' + visits + '} groups={<ClientGroupsSection canManage={canManage} client={client} onEdit={onEdit} />}>\n' +
-            profile + other + '{canManage && <ClientContactsSection client={client} />}</ProfileTabs>\n')
+      return 'import { DetailPrototype } from ' + JSON.stringify(resolve(here, 'DetailPrototype.tsx')) + '\n' +
+        source.replace(feedback, '').replace(actionFailure, '').replace(edit, '').replace(backButton, '{!client && (' + backButton.trim() + ')}\n')
+          .replace(all, `<DetailPrototype client={client} canManage={canManage} onBack={onBack} backLabel={backLabel}
+            actions={profileActions} onPhotoUpload={handlePhotoUpload} photoVersion={photoVersion}
+            pending={actionPending} onClientChange={setClient} onSubmit={handleMembershipAction}
+            onMembershipCommentChange={handleMembershipCommentChange} />\n`)
     },
   }],
   build: { write: false, license: {fileName: 'licenses.txt'},
