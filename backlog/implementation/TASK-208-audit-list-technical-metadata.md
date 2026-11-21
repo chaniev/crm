@@ -1,7 +1,7 @@
 # TASK-208: Упростить строки журнала и окно «Детали»
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-AUD-002 — changes

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "task_id": "TASK-208",
+  "expected_branch": "codex/TASK-208-audit-list-technical-metadata",
+  "areas": ["frontend"],
+  "playwright": [{
+    "id": "frontend.audit-access",
+    "spec": "e2e/route-access-feedback.spec.ts",
+    "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"],
+    "timeout_seconds": 900
+  }],
+  "runtime_smoke": [
+    {
+      "id": "frontend.audit-responsive",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": ["npm", "run", "test:e2e", "--", "e2e/responsive-main-screens.spec.ts", "--project=chromium", "--grep", "TASK-107 audit|TASK-111 audit"],
+      "timeout_seconds": 600
+    },
+    {
+      "id": "frontend.audit-iphone",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": ["npm", "run", "test:e2e", "--", "e2e/iphone-target-devices.spec.ts", "--project=iphone-air-webkit", "--project=iphone-17-pro-max-webkit", "--grep", "журнал сохраняет четыре поля|мобильный pager не придумывает total"],
+      "timeout_seconds": 600
+    },
+    {
+      "id": "frontend.audit-filters",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": ["npm", "run", "test:e2e", "--", "e2e/stage12.spec.ts", "--project=chromium", "--grep", "Просмотр журнала действий|Журнал сохраняет фильтр|Фильтры аудита"],
+      "timeout_seconds": 600
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-208-manual-evidence.json",
+  "manual_checks": [{
+    "id": "manual.audit-presentation",
+    "description": "Сверить строку и детали с прототипом на 390, 768 и 1440 px. Проверить клавиатуру, видимость и возврат фокуса."
+  }]
+}

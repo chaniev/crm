@@ -4924,27 +4924,26 @@
 .audit-log-header,
 .audit-log-row {
   display: grid;
-  grid-template-columns:
-    6rem
-    minmax(14rem, 1fr)
-    minmax(9rem, 0.45fr)
-    minmax(4.75rem, auto);
-  gap: 0.7rem;
-  align-items: start;
+  grid-template-columns: 7rem minmax(0, 2.2fr) minmax(0, 1fr) 5rem;
+  align-items: center;
+  column-gap: var(--crm-space-5);
+  padding-inline: var(--crm-space-4);
 }
 
 .audit-log-header {
-  padding: 0 0.75rem 0.2rem;
   color: var(--crm-text-secondary);
-  font-size: 0.73rem;
+  font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
 }
 
+.audit-log-header > :last-child {
+  text-align: right;
+}
+
 .audit-log-row {
   min-width: 0;
-  min-height: 4rem;
-  padding: 0.625rem 0.75rem;
+  padding-block: var(--crm-space-3);
   border: 1px solid var(--crm-surface-list-row-border);
   border-radius: var(--crm-radius-list-row);
   background: var(--crm-surface-list-row);
@@ -4956,76 +4955,54 @@
   overflow-wrap: anywhere;
 }
 
-.audit-log-cell__label {
-  display: none;
-  margin-bottom: 0.2rem;
-  color: var(--crm-text-secondary);
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.audit-log-cell--date,
-.audit-log-cell--details {
-  overflow-wrap: normal;
-}
-
-.audit-log-cell--date {
-  grid-column: 1;
-  grid-row: 1 / span 2;
-}
-
-.audit-log-cell--description {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-.audit-log-context {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-.audit-log-cell--actor {
-  grid-column: 3;
-  grid-row: 1 / span 2;
-}
-
-.audit-log-cell--details {
-  grid-column: 4;
-  grid-row: 1 / span 2;
-  justify-self: end;
-}
-
-.audit-log-time,
-.audit-log-actor {
+.audit-log-time {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem 0.35rem;
-  line-height: 1.25;
-}
-
-.audit-log-context {
-  min-width: 0;
+  flex-direction: column;
+  gap: calc(var(--crm-space-1) / 2);
   color: var(--crm-text-secondary);
-  font-size: 0.84rem;
-  font-weight: 650;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
 }
 
-.audit-log-details-action {
-  min-width: 44px;
-  min-height: 44px;
+.audit-log-time strong {
+  color: var(--crm-text-primary);
 }
 
 .audit-log-description {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
   font-size: 1rem;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.audit-log-cell--actor {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.audit-log-author-prefix,
+.audit-log-channel {
+  color: var(--crm-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.audit-log-author-prefix {
+  display: none;
+}
+
+.audit-log-channel {
+  margin-top: var(--crm-space-1);
+}
+
+.audit-log-cell--details {
+  justify-self: end;
+}
+
+.audit-log-details-action {
+  min-width: 4.75rem;
+  min-height: 44px;
 }
 
 .audit-pagination-shell {
@@ -5061,7 +5038,7 @@
     monospace;
 }
 
-@media (max-width: 74.99em) {
+@media (max-width: 48em) {
   .audit-log-header {
     display: none;
   }
@@ -5069,104 +5046,52 @@
   .audit-log-row {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      "time details"
-      "description details"
-      "context context"
-      "actor actor";
-    gap: 0.25rem 0.625rem;
+      "time time"
+      "description description"
+      "actor details";
+    gap: var(--crm-space-1) var(--crm-space-3);
+    padding: var(--crm-space-3);
     align-items: start;
   }
 
   .audit-log-cell--date {
     grid-area: time;
-    align-self: center;
+  }
+
+  .audit-log-time {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--crm-space-2);
   }
 
   .audit-log-cell--description {
     grid-area: description;
   }
 
-  .audit-log-context {
-    grid-area: context;
-    margin-top: 0.125rem;
-  }
-
   .audit-log-cell--actor {
     grid-area: actor;
-    margin-top: 0.125rem;
+    align-self: center;
+    padding-top: var(--crm-space-1);
+  }
+
+  .audit-log-author-prefix {
+    display: inline;
   }
 
   .audit-log-cell--details {
     grid-area: details;
-    align-self: start;
-  }
-}
-
-@media (max-width: 48em) {
-  .audit-log-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "time details"
-      "description details"
-      "context context"
-      "actor actor";
-    padding: 10px 12px;
-    column-gap: 10px;
-    row-gap: 4px;
-  }
-
-  .audit-log-description {
-    line-height: 1.25;
-  }
-
-  .audit-log-context,
-  .audit-log-actor {
-    font-size: 0.8125rem;
-    line-height: 1.25;
-  }
-
-  .audit-log-details-action {
-    width: 44px;
-    padding-inline: 0;
-  }
-
-  .audit-log-details-action .mantine-Button-label {
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    white-space: nowrap;
-    clip-path: inset(50%);
+    align-self: end;
   }
 
   .audit-pagination-shell {
     justify-content: center;
-    gap: 0.5rem;
+    gap: var(--crm-space-2);
   }
 
   .audit-pagination-shell .mantine-Group-root {
     gap: 8px;
   }
 
-}
-
-@media (max-width: 30em) {
-  .audit-log-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "time details"
-      "description details"
-      "context context"
-      "actor actor";
-  }
-}
-
-@media (max-width: 20em) {
-  .audit-log-context {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-  }
 }
 
 .finance-filter-card {

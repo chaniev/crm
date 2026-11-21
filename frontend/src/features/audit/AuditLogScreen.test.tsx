@@ -150,7 +150,7 @@ describe('AuditLogScreen', () => {
     renderWithProviders(<AuditLogScreen onRefreshSession={refreshSession} user={auditUser} />)
     await screen.findByTestId('audit-log-grid')
     fireEvent.click(screen.getByRole('combobox', { name: 'Пользователь' }))
-    fireEvent.click(await screen.findByRole('option', { name: /Мария Иванова/ }))
+    fireEvent.click(await screen.findByRole('option', { name: 'Мария Иванова' }))
     await waitFor(() => expect(getAuditLogEntriesMock).toHaveBeenLastCalledWith(expect.objectContaining({ userId: 'user-1' }), expect.any(AbortSignal)))
     await screen.findByTestId('audit-log-grid')
     getAuditLogEntriesMock.mockRejectedValueOnce(new ApiError('Denied', 403))
@@ -202,11 +202,11 @@ describe('AuditLogScreen', () => {
     ).not.toBeInTheDocument()
     expect(within(grid).getByRole('columnheader', { name: 'Дата' })).toBeVisible()
     expect(within(grid).getByRole('columnheader', { name: 'Описание' })).toBeVisible()
-    expect(within(grid).getByRole('columnheader', { name: 'Пользователь' })).toBeVisible()
+    expect(within(grid).getByRole('columnheader', { name: 'Автор' })).toBeVisible()
     expect(within(grid).getByRole('columnheader', { name: 'Детали' })).toBeVisible()
     expect(within(grid).getByText('Создан новый клиент')).toBeVisible()
     expect(actorCell).toHaveTextContent('Мария Иванова')
-    expect(actorCell).toHaveTextContent('m.ivanova')
+    expect(actorCell).toHaveAccessibleName('Автор: Мария Иванова')
     expect(
       within(grid).getByRole('button', {
         name: 'Показать подробности записи: Создан новый клиент',
@@ -227,9 +227,10 @@ describe('AuditLogScreen', () => {
     expect(modal).toHaveTextContent('Создание клиента')
     expect(within(modal).getByText('Старые значения')).toBeInTheDocument()
     expect(within(modal).getByText('Новые значения')).toBeInTheDocument()
-    expect(modal).toHaveTextContent('Клиент')
+    expect(within(modal).queryByText('Клиент')).not.toBeInTheDocument()
     expect(modal).toHaveTextContent('Web')
-    expect(modal).toHaveTextContent('ID объекта: client-1')
+    expect(modal).not.toHaveTextContent(/client-1|ClientCreated|m\.ivanova|Telegram/)
+    expect(modal).toHaveTextContent('Мария Иванова')
     expect(modal).toHaveTextContent('"status": "Draft"')
     expect(modal).toHaveTextContent('"status": "Active"')
 
@@ -241,7 +242,7 @@ describe('AuditLogScreen', () => {
     await waitFor(() => expect(detailsTrigger).toHaveFocus())
   })
 
-  test('exposes the compact four-cell decision data and context exactly once', async () => {
+  test('shows time, description and full name without embedded metadata', async () => {
     const entry = buildAuditEntry()
     const originalEntry = structuredClone(entry)
     getAuditLogEntriesMock.mockResolvedValueOnce(buildAuditResponse({ items: [entry] }))
@@ -252,7 +253,6 @@ describe('AuditLogScreen', () => {
     const dataRow = within(grid).getAllByRole('row')[1]
     const cells = within(dataRow).getAllByRole('cell')
     const descriptionCell = cells[1]
-    const visualContext = dataRow.querySelector('.audit-log-context')
     const expectedDate = new Intl.DateTimeFormat('ru-RU', {
       day: '2-digit',
       month: '2-digit',
@@ -267,28 +267,13 @@ describe('AuditLogScreen', () => {
     expect(dataRow).toHaveTextContent(expectedDate)
     expect(dataRow).toHaveTextContent(expectedTime)
     expect(dataRow).toHaveTextContent(entry.description)
-    expect(dataRow).toHaveTextContent('Создание клиента')
-    expect(dataRow).toHaveTextContent('Клиент')
-    expect(dataRow).toHaveTextContent('client-1')
-    expect(dataRow).toHaveTextContent('Web')
-    expect(dataRow).toHaveTextContent('Telegram')
-    expect(dataRow).toHaveTextContent('Мария Иванова')
-    expect(dataRow).toHaveTextContent('m.ivanova')
-    expect(visualContext).toHaveAttribute('aria-hidden', 'true')
-    expect(descriptionCell).toHaveAccessibleName(/Описание: Создан новый клиент/)
-    expect(descriptionCell).toHaveAccessibleName(/Действие: Создание клиента/)
-    expect(descriptionCell).toHaveAccessibleName(/Объект: Клиент/)
-    expect(descriptionCell).toHaveAccessibleName(/ID объекта: client-1/)
-    expect(descriptionCell).toHaveAccessibleName(/Источник: Web/)
-    expect(descriptionCell).toHaveAccessibleName(/Мессенджер: Telegram/)
-    expect(descriptionCell.getAttribute('aria-label')?.match(/Создание клиента/g)).toHaveLength(1)
-    expect(within(dataRow).queryByText('Дата', { selector: '.audit-log-cell__label' })).not.toBeInTheDocument()
-    expect(within(dataRow).queryByText('Описание', { selector: '.audit-log-cell__label' })).not.toBeInTheDocument()
-    expect(within(dataRow).queryByText('Пользователь', { selector: '.audit-log-cell__label' })).not.toBeInTheDocument()
+    expect(dataRow).not.toHaveTextContent(/Создание клиента|Клиент|client-1|Web|Telegram|m\.ivanova/)
+    expect(descriptionCell).toHaveAccessibleName(entry.description)
+    expect(cells[2]).toHaveAccessibleName('Автор: Мария Иванова')
     expect(entry).toEqual(originalEntry)
   })
 
-  test('keeps exact long descriptions and exposes neutral/raw technical fallback', async () => {
+  test('keeps long descriptions and uses the empty description label for unknown actions', async () => {
     const longDescription =
       'Membership sync completed for the client while preserving every backend-provided diagnostic token without rewriting the description'
     const entries = [
@@ -312,14 +297,8 @@ describe('AuditLogScreen', () => {
     const fallbackRow = rows[1]
 
     expect(fallbackRow).toHaveTextContent('Описание не передано')
-    expect(fallbackRow).toHaveTextContent('ClientMerged')
-    expect(fallbackRow).toHaveTextContent('ExternalProspect')
-    expect(within(fallbackRow).getAllByRole('cell')[1]).toHaveAccessibleName(
-      /Тип действия из API: ClientMerged/,
-    )
-    expect(within(fallbackRow).getAllByRole('cell')[1]).toHaveAccessibleName(
-      /Тип объекта из API: ExternalProspect/,
-    )
+    expect(fallbackRow).not.toHaveTextContent(/ClientMerged|ExternalProspect|external-42/)
+    expect(within(fallbackRow).getAllByRole('cell')[1]).toHaveAccessibleName('Описание не передано')
     expect(
       within(fallbackRow).getByRole('button', {
         name: 'Показать подробности записи: Описание не передано',

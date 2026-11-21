@@ -383,20 +383,6 @@ export function mapUserRole(role?: string): UserRole | undefined {
   return undefined
 }
 
-export function buildFallbackAuditDescription(
-  actionType: string,
-  entityType: string,
-  entityId?: string,
-) {
-  const parts = [`${actionType} ${entityType}`]
-
-  if (entityId) {
-    parts.push(`(${entityId})`)
-  }
-
-  return parts.join(' ')
-}
-
 export function deriveHasActiveMembership(
   membership: ClientMembership | null,
   trainingDate: string,

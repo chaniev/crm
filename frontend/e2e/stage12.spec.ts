@@ -2222,9 +2222,7 @@ test.describe('Основные e2e сценарии', () => {
       await expect(auditGrid.getByRole('columnheader')).toHaveCount(4)
       await expect(auditGrid.getByRole('row').nth(1).getByRole('cell')).toHaveCount(4)
       await expect(auditGrid.getByText('Объект', { exact: true })).toHaveCount(0)
-      await expect(auditGrid.locator('.audit-log-context')).toContainText(
-        'Создание клиента',
-      )
+      await expect(auditGrid).not.toContainText(/Создание клиента|client-1|Web|Telegram/)
       await expect(auditGrid.getByTestId('audit-log-actor-cell')).toContainText(
         'Главный тренер',
       )
@@ -2237,7 +2235,7 @@ test.describe('Основные e2e сценарии', () => {
       await expect(detailsModal).toContainText('Создание клиента')
       await expect(detailsModal).toContainText('Web')
       await expect(detailsModal.getByText('Старые значения')).toBeVisible()
-      await expect(detailsModal.getByText('ID объекта: client-1')).toBeVisible()
+      await expect(detailsModal).not.toContainText('client-1')
       await expect(detailsModal.getByText('"status": "Active"')).toBeVisible()
       await page.keyboard.press('Escape')
       await expect(detailsModal).toBeHidden()

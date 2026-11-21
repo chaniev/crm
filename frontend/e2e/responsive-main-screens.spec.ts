@@ -2009,7 +2009,6 @@ async function expectAuditListContract(page: Page) {
   const rows = grid.locator('.audit-log-row')
   const details = row.getByTestId('audit-log-details-action')
   const descriptionCell = row.getByRole('cell').nth(1)
-  const context = row.locator('.audit-log-context')
   const viewport = page.viewportSize()
 
   await expect(
@@ -2020,17 +2019,9 @@ async function expectAuditListContract(page: Page) {
     grid.getByRole('columnheader', { includeHidden: true, name: 'Действие' }),
   ).toHaveCount(0)
   await expect(row).toContainText('Создан новый клиент')
-  await expect(row).toContainText('Создание клиента')
-  await expect(row).toContainText('Клиент')
-  await expect(row).toContainText('client-1')
-  await expect(row).toContainText('Главный тренер')
-  await expect(row).toContainText('headcoach')
-  await expect(context).toHaveAttribute('aria-hidden', 'true')
-  await expect(descriptionCell).toHaveAttribute(
-    'aria-label',
-    /Описание: Создан новый клиент.*Действие: Создание клиента.*Объект: Клиент.*ID объекта: client-1/,
-  )
-  await expect(row.locator('.audit-log-cell__label:visible')).toHaveCount(0)
+  await expect(row).not.toContainText(/Создание клиента|Клиент|client-1|headcoach|Web|Telegram/)
+  await expect(descriptionCell).toHaveAccessibleName('Создан новый клиент')
+  await expect(row.getByTestId('audit-log-actor-cell')).toHaveAccessibleName('Автор: Главный тренер')
   await expect(details).toHaveAttribute('aria-haspopup', 'dialog')
   await expect(details).toHaveAccessibleName(
     'Показать подробности записи: Создан новый клиент',
@@ -2064,15 +2055,15 @@ async function expectAuditListContract(page: Page) {
     }
   })
 
-  expect(geometry.columns).toBe((viewport?.width ?? 0) >= 1200 ? 4 : 2)
+  expect(geometry.columns).toBe((viewport?.width ?? 0) > 768 ? 4 : 2)
   expect(geometry.areas).not.toContain('action')
   expect(geometry.areas).not.toContain('source')
-  if ((viewport?.width ?? 0) < 1200) {
+  if ((viewport?.width ?? 0) <= 768) {
     expect(geometry.areas.replaceAll('"', '').trim()).toBe(
-      'time details description details context context actor actor',
+      'time time description description actor details',
     )
   }
-  expect(geometry.descriptionClamp).toBe('2')
+  expect(geometry.descriptionClamp).toBe('none')
   expect(geometry.detailsWidth).toBeGreaterThanOrEqual(44)
   expect(geometry.detailsHeight).toBeGreaterThanOrEqual(44)
   expect(geometry.radius).toBe('8px')
@@ -2165,8 +2156,8 @@ async function expectAuditListContract(page: Page) {
 
   await expect(details).toBeVisible()
   await expect(grid.getByText('Attendance import completed')).toBeVisible()
-  await expect(grid.getByText('AttendanceImported')).toBeVisible()
-  await expect(grid.getByText('ExternalAttendance')).toBeVisible()
+  await expect(grid.getByText('AttendanceImported')).toHaveCount(0)
+  await expect(grid.getByText('ExternalAttendance')).toHaveCount(0)
 }
 
 async function expectTrainerListSurfaceContract(page: Page) {

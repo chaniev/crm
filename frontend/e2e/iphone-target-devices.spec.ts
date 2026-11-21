@@ -3396,15 +3396,8 @@ test('в целевых iPhone-профилях журнал сохраняет 
   await expect(
     grid.getByRole('columnheader', { includeHidden: true, name: 'Действие' }),
   ).toHaveCount(0)
-  await expect(row.locator('.audit-log-context')).toContainText('Создание клиента')
-  await expect(row.locator('.audit-log-context')).toContainText('Клиент')
-  await expect(row.locator('.audit-log-context')).toContainText('client-1')
-  await expect(row.locator('.audit-log-context')).toHaveAttribute('aria-hidden', 'true')
-  await expect(row.locator('.audit-log-cell__label:visible')).toHaveCount(0)
-  await expect(row.getByRole('cell').nth(1)).toHaveAttribute(
-    'aria-label',
-    /Описание: Создан новый клиент.*Действие: Создание клиента.*Объект: Клиент.*ID объекта: client-1/,
-  )
+  await expect(row).not.toContainText(/Создание клиента|Клиент|client-1|Web|Telegram/)
+  await expect(row.getByRole('cell').nth(1)).toHaveAccessibleName('Создан новый клиент')
   await expect(detailsTrigger).toHaveAccessibleName(
     'Показать подробности записи: Создан новый клиент',
   )
@@ -3437,9 +3430,9 @@ test('в целевых iPhone-профилях журнал сохраняет 
 
   expect(geometry.columns).toBe(2)
   expect(geometry.areas.replaceAll('"', '').trim()).toBe(
-    'time details description details context context actor actor',
+    'time time description description actor details',
   )
-  expect(geometry.descriptionClamp).toBe('2')
+  expect(geometry.descriptionClamp).toBe('none')
   expect(geometry.rowHeight).toBeLessThanOrEqual(128)
   expect(geometry.actorWithinRow).toBe(true)
   expect(geometry.detailsWidth).toBeGreaterThanOrEqual(44)
@@ -3519,18 +3512,18 @@ test('в целевых iPhone-профилях журнал сохраняет 
     const actorRect = element
       .querySelector<HTMLElement>('.audit-log-cell--actor')
       ?.getBoundingClientRect()
-    const contextRect = element
-      .querySelector<HTMLElement>('.audit-log-context')
+    const descriptionRect = element
+      .querySelector<HTMLElement>('.audit-log-description')
       ?.getBoundingClientRect()
     return {
       actorBottom: actorRect?.bottom ?? Number.POSITIVE_INFINITY,
-      contextRight: contextRect?.right ?? Number.POSITIVE_INFINITY,
+      descriptionRight: descriptionRect?.right ?? Number.POSITIVE_INFINITY,
       rowBottom: rowRect.bottom,
       rowRight: rowRect.right,
     }
   })
   expect(longContainment.actorBottom).toBeLessThanOrEqual(longContainment.rowBottom + 1)
-  expect(longContainment.contextRight).toBeLessThanOrEqual(longContainment.rowRight + 1)
+  expect(longContainment.descriptionRight).toBeLessThanOrEqual(longContainment.rowRight + 1)
 
   for (const closePath of ['button', 'overlay', 'escape'] as const) {
     await detailsTrigger.click()

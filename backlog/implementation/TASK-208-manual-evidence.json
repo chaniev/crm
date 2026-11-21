@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-208",
+  "confirmations": [
+    {
+      "id": "manual.audit-presentation",
+      "actor": "coding-agent:TASK-208",
+      "performed_at": "2026-11-21T19:45:05+03:00",
+      "note": "Сверены три размера с прототипом и перенос длинной записи. Проверены Tab, Enter, удержание фокуса и возврат по Escape.",
+      "artifacts": [
+        "backlog/implementation/TASK-208-evidence/acceptance.md"
+      ]
+    }
+  ]
+}

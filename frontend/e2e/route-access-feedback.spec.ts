@@ -1,4 +1,4 @@
-import { registerAuditAccessScenarios } from './audit-access-scenarios'
+import { registerAuditAccessScenarios, registerAuditPresentationScenarios } from './audit-access-scenarios'
 import { expect, test, type Page, type Route } from '@playwright/test'
 
 const APP_CONFIG = {
@@ -316,3 +316,4 @@ async function expectNoHorizontalScroll(page: Page) {
 }
 
 registerAuditAccessScenarios()
+registerAuditPresentationScenarios()

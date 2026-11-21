@@ -4,7 +4,6 @@ import {
   AUDIT_QUERY_KEYS,
 } from './endpoints'
 import {
-  buildFallbackAuditDescription,
   mapUserRole,
   normalizeAuditJsonValue,
 } from './mappers'
@@ -191,14 +190,12 @@ function mapAuditLogEntry(payload: AuditLogEntryPayload): AuditLogEntry | null {
           'FullName',
           'userName',
           'UserName',
-          'login',
-          'Login',
         ])
       : undefined) ??
-    fe17SharedRoutingThemeText.audit_string_6da215b1
-  const description =
-    readString(payload, ['description', 'Description']) ??
-    buildFallbackAuditDescription(actionType, entityType, entityId)
+    (userId || userLogin
+      ? fe17SharedRoutingThemeText.mappers_string_0106f3ae
+      : fe17SharedRoutingThemeText.audit_string_6da215b1)
+  const description = readString(payload, ['description', 'Description']) ?? ''
 
   return {
     id,
@@ -240,8 +237,7 @@ function mapAuditLogFilterUser(payload: Record<string, unknown>): AuditLogFilter
   const id = readString(payload, ['id', 'Id']) ?? ''
   const fullName =
     readString(payload, ['fullName', 'FullName']) ??
-    readString(payload, ['login', 'Login']) ??
-    ''
+    fe17SharedRoutingThemeText.mappers_string_0106f3ae
   const login = readString(payload, ['login', 'Login']) ?? ''
   const role = mapUserRole(readString(payload, ['role', 'Role']))
 

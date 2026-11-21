@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-208 Упростить строки журнала и окно «Детали»
 
 ## Metadata
-- source_task: /backlog/tasks-ready/TASK-208-audit-list-technical-metadata.md
+- source_task: /backlog/implementation/TASK-208-audit-list-technical-metadata.md
 - requirements: REQ-AUD-002 (changes); REQ-NFR-001 (constrains)
 - branch: codex/TASK-208-audit-list-technical-metadata
 - readiness: yes
@@ -23,7 +23,7 @@ buildAuditEntryPresentation формирует contextParts из action/entity �
 Критерии приёмки заданы в карточке. Вёрстка строки на мобильном и настольном экранах, перенос описания и ФИО, состав и порядок полей диалога следуют утверждённому прототипу. Историческое описание и старые/новые значения выводятся из записи аудита. Фильтры используют исходные значения API. Изменения локальны для интерфейса.
 
 ## Decision evidence
-- product: [Согласование от 21.11.2026](/backlog/tasks-ready/TASK-208-audit-list-technical-metadata.md#согласование-прототипа-2026-11-21) — owner: владелец продукта; decision: утверждены строка и окно «Детали» на телефоне и компьютере с ФИО автора, скрытыми техническими полями и метками «Бот» и «Telegram», с меткой Web только в деталях.
+- product: [Согласование от 21.11.2026](/backlog/implementation/TASK-208-audit-list-technical-metadata.md#согласование-прототипа-2026-11-21) — owner: владелец продукта; decision: утверждены строка и окно «Детали» на телефоне и компьютере с ФИО автора, скрытыми техническими полями и без отдельных меток «Бот» и «Telegram», с меткой Web только в деталях.
 - [Эталон для визуальной приёмки](/backlog/mockups/TASK-208/preview.html) · [Снимки и результаты проверок](/backlog/mockups/TASK-208/README.md).
 
 ## Scope
