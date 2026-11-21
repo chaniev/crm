@@ -120,7 +120,7 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
             {fe9AttentionText.attentionPanel_jsxText_b625bade}{expiredCount}
           </Text>
           {lastSuccessfulCheck ? (
-            <Text c="dimmed" component="span" data-testid="memberships-last-check">
+            <Text c="var(--crm-text-secondary)" component="span" data-testid="memberships-last-check">
               {fe9AttentionText.attentionPanel_jsxText_6fad7653}{lastSuccessfulCheck.toLocaleTimeString('ru-RU', {
                 hour: '2-digit',
                 minute: '2-digit',

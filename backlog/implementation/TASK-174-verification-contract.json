@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "task_id": "TASK-174",
+  "expected_branch": "fix/TASK-174-secondary-text-contrast",
+  "areas": [
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.attention-secondary-contrast",
+      "spec": "e2e/attention-secondary-contrast.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.attention-dashboard",
+      "spec": "e2e/attention-dashboard.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1200
+    }
+  ]
+}
