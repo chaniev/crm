@@ -19,7 +19,6 @@ import {
   IconBrandTelegram,
   IconCopy,
   IconExternalLink,
-  IconMessageCircle,
   IconQrcode,
   IconRefresh,
   IconSend,
@@ -187,7 +186,6 @@ export function ClientMessengerChatSection({
   const canReply = summary?.capabilities.canReply ?? false
   const canCreateLink = summary?.capabilities.canCreateLink ?? false
   const connected = summary?.connection.status === 'Connected'
-  const pendingLink = summary?.connection.status === 'PendingLink'
   const hasMessages = messages.length > 0
   const hasOlderMessages = messageSkip > 0
   const canUseNativeShare = typeof navigator.share === 'function'
@@ -494,59 +492,15 @@ export function ClientMessengerChatSection({
 
         {!loading && !loadError ? (
           <>
-            {!connected ? (
-              <Alert
-                color={pendingLink ? 'blue' : 'gray'}
-                icon={<IconMessageCircle size={18} />}
-                title={
-                  pendingLink
-                    ? fe8ClientMessengerMediaText.clientMessengerChatSection_string_c917e434
-                    : fe8ClientMessengerMediaText.clientMessengerChatSection_string_d33ec712
-                }
-                variant="light"
-              >
-                <Stack gap="sm">
-                  <Text size="sm">
-                    {canCreateLink
-                      ? fe8ClientMessengerMediaText.clientMessengerChatSection_string_4b14a61e
-                      : fe8ClientMessengerMediaText.clientMessengerChatSection_string_9372e5cf}
-                  </Text>
-                  {linkError ? (
-                    <Text c="red" size="sm">
-                      {linkError}
-                    </Text>
-                  ) : null}
-                  {canCreateLink ? (
-                    <Group>
-                      <Button
-                        leftSection={<IconQrcode size={18} />}
-                        loading={linkCreating}
-                        onClick={() => void createLinkToken()}
-                      >
-                        {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_0465921b}</Button>
-                    </Group>
-                  ) : null}
-                </Stack>
-              </Alert>
-            ) : null}
-
+            {!connected && linkError && <Alert color="red">{linkError}</Alert>}
             {connected ? (
               <Stack gap="md">
-                <Group gap="xs" wrap="wrap">
-                  <Badge color="teal" radius="xl" variant="light">
-                    {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_a9a7ca66}</Badge>
-                  {summary?.connection.telegramDisplayName ? (
-                    <Text c="dimmed" size="sm">
-                      {summary.connection.telegramDisplayName}
-                    </Text>
-                  ) : null}
-                  {summary?.connection.telegramUsername ? (
-                    <Text c="dimmed" size="sm">
-                      {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_c3641f85}{summary.connection.telegramUsername}
-                    </Text>
-                  ) : null}
-                </Group>
-
+                {(summary?.connection.telegramDisplayName || summary?.connection.telegramUsername) && (
+                  <Group gap="xs" wrap="wrap">
+                    <Text size="sm">{summary.connection.telegramDisplayName}</Text>
+                    {summary.connection.telegramUsername && <Text c="dimmed" size="sm">@{summary.connection.telegramUsername}</Text>}
+                  </Group>
+                )}
                 <Paper className="client-messenger-history" radius="8px" withBorder>
                   <ScrollArea.Autosize
                     mah={440}

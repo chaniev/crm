@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Stack } from '@mantine/core'
+import { Alert, Button, Stack, Text } from '@mantine/core'
 import { IconAlertCircle, IconArrowLeft } from '@tabler/icons-react'
 import {
   ApiError,
@@ -14,7 +14,6 @@ import {
 import { LoadingState, PageLayout, PageSection } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import {
-  buildDraftClientName,
   clientFieldErrorAliases,
   toUpsertClientPayload,
   type ClientFormValues,
@@ -22,7 +21,6 @@ import {
   validateClientForm,
 } from './ClientManagement.form'
 import { ClientForm } from './ClientForm'
-import { ClientPhotoSection } from './ClientPhotoSection'
 import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
 
 
@@ -163,11 +161,7 @@ export function ClientCreateScreen({
               lockBranch={false}
               cancelAction={{ label: fe6ClientProfileText.clientCreateScreen_label_7c47f729, onClick: onCancel }}
               photoSection={
-                <ClientPhotoSection
-                  canUpload={false}
-                  clientName={buildDraftClientName(form.values)}
-                  photo={null}
-                />
+                <Text c="dimmed" size="sm">{fe6ClientProfileText.photoAfterSave}</Text>
               }
               onSubmit={submit}
               submitLabel={fe6ClientProfileText.clientCreateScreen_submitLabel_40ba6630}

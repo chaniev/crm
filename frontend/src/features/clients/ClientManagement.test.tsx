@@ -678,7 +678,7 @@ describe('ClientDetailScreen birth date', () => {
 
     expect(await screen.findByText('Дата рождения')).toBeInTheDocument()
     expect(screen.getByText('29 февраля 2004 г.')).toBeInTheDocument()
-    expect(screen.getByText('Возраст')).toBeInTheDocument()
+    expect(screen.getByText('Дата рождения').nextElementSibling).toHaveTextContent('29 февраля 2004 г. · 22 года')
     expect(screen.getByText('22 года')).toBeInTheDocument()
   })
 

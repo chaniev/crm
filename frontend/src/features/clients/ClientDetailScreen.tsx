@@ -30,7 +30,7 @@ import {
   type ClientStatus,
   type TrainingGroupListItem,
 } from '../../lib/api'
-import { ConfirmActionModal, PageLayout, PageSection, ResponsiveButtonGroup } from '../shared/ux'
+import { ConfirmActionModal, PageLayout, PageSection } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import { ClientMessengerChatSection } from './ClientMessengerChatSection'
 import {
@@ -401,57 +401,61 @@ export function ClientDetailScreen({
     setSelectedMembershipId(null)
   }
 
+  const profileActions = (
+    <Group gap="xs" className="client-profile-actions">
+      {canManage && client ? (
+        <Button
+          leftSection={<IconEdit size={18} />}
+          onClick={() => onEdit(client.id)}
+          variant="filled"
+        >
+          {fe6ClientProfileText.clientDetailScreen_jsxText_59792556}</Button>
+      ) : null}
+      {canManage && client ? (
+        <Button
+          leftSection={<IconGitBranch size={18} />}
+          loading={transferOptionsLoading || transferSubmitting}
+          onClick={() => void openTransferModal()}
+          variant="light"
+        >
+          {fe6ClientProfileText.clientDetailScreen_jsxText_4ac45591}</Button>
+      ) : null}
+      {canManage && client ? (
+        <Button
+          color={client.status === 'Active' ? 'gray' : 'teal'}
+          leftSection={
+            client.status === 'Active' ? (
+              <IconArchive size={18} />
+            ) : (
+              <IconRefresh size={18} />
+            )
+          }
+          loading={actionPending}
+          onClick={() => setArchiveConfirmOpened(true)}
+          variant="light"
+        >
+          {client.status === 'Active'
+            ? fe6ClientProfileText.clientDetailScreen_string_1ca66519
+            : fe6ClientProfileText.clientDetailScreen_string_b2b51d6b}
+        </Button>
+      ) : null}
+      <Button
+        leftSection={<IconArrowLeft size={18} />}
+        onClick={onBack}
+        ref={backRef}
+        variant="default"
+      >
+        {backLabel}
+      </Button>
+    </Group>
+  )
+
   return (
     <ClientAccessErrorContext value={reportError}>
     <PageLayout
-      actions={
-        <ResponsiveButtonGroup>
-          <Button
-            leftSection={<IconArrowLeft size={18} />}
-            onClick={onBack}
-            ref={backRef}
-            variant="default"
-          >
-            {backLabel}
-          </Button>
-          {canManage && client ? (
-            <Button
-              leftSection={<IconEdit size={18} />}
-              onClick={() => onEdit(client.id)}
-              variant="light"
-            >
-              {fe6ClientProfileText.clientDetailScreen_jsxText_59792556}</Button>
-          ) : null}
-          {canManage && client ? (
-            <Button
-              leftSection={<IconGitBranch size={18} />}
-              loading={transferOptionsLoading || transferSubmitting}
-              onClick={() => void openTransferModal()}
-              variant="light"
-            >
-              {fe6ClientProfileText.clientDetailScreen_jsxText_4ac45591}</Button>
-          ) : null}
-          {canManage && client ? (
-            <Button
-              color={client.status === 'Active' ? 'gray' : 'teal'}
-              leftSection={
-                client.status === 'Active' ? (
-                  <IconArchive size={18} />
-                ) : (
-                  <IconRefresh size={18} />
-                )
-              }
-              loading={actionPending}
-              onClick={() => setArchiveConfirmOpened(true)}
-              variant="light"
-            >
-              {client.status === 'Active'
-                ? fe6ClientProfileText.clientDetailScreen_string_1ca66519
-                : fe6ClientProfileText.clientDetailScreen_string_b2b51d6b}
-            </Button>
-          ) : null}
-        </ResponsiveButtonGroup>
-      }
+      showHeader={!client}
+      renderHiddenHeading={false}
+      actions={profileActions}
       title={client ? client.fullName : fe6ClientProfileText.clientDetailScreen_string_48186f7a}
     >
       {canManage && client ? (
@@ -529,6 +533,7 @@ export function ClientDetailScreen({
           ) : null}
 
           <ClientOverviewSection
+            actions={profileActions}
             canManage={canManage}
             client={client}
             onPhotoUpload={canManage ? handlePhotoUpload : undefined}

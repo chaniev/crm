@@ -101,94 +101,85 @@ export function ClientForm({
           </Alert>
         ) : null}
 
-        <div className="client-edit-grid">
-          <Stack gap="md">
-            <SimpleGrid cols={{ base: 1, md: 3 }}>
-              <TextInput
-                label={fe6ClientProfileText.clientForm_label_353eafa3}
-                placeholder={fe6ClientProfileText.clientForm_placeholder_37f3ddd4}
-                {...form.getInputProps('lastName')}
-              />
-              <TextInput
-                label={fe6ClientProfileText.clientForm_label_1da7e937}
-                placeholder={fe6ClientProfileText.clientForm_placeholder_cc078195}
-                {...form.getInputProps('firstName')}
-              />
-              <TextInput
-                label={fe6ClientProfileText.clientForm_label_e1739d0a}
-                placeholder={fe6ClientProfileText.clientForm_placeholder_52028dbd}
-                {...form.getInputProps('middleName')}
-              />
-            </SimpleGrid>
-
-            <SimpleGrid cols={{ base: 1, md: 2 }}>
-              <TextInput
-                label={fe6ClientProfileText.clientForm_label_822f9fd9}
-                placeholder={fe6ClientProfileText.clientForm_placeholder_29def5ac}
-                {...form.getInputProps('phone')}
-              />
-
-              <Select
-                allowDeselect={false}
-                data={branchOptions.map((branch) => ({
-                  value: branch.id,
-                  label: formatBranchOptionLabel(branch),
-                  disabled: branch.isArchived,
-                }))}
-                disabled={lockBranch}
-                label={fe6ClientProfileText.clientForm_label_2f17c4d2}
-                onChange={updateBranch}
-                placeholder={fe6ClientProfileText.clientForm_placeholder_4c5ee5d8}
-                searchable
-                value={selectedBranchId || null}
-                error={form.errors.branchId}
-              />
-            </SimpleGrid>
-
-            <SimpleGrid cols={{ base: 1, md: 2 }}>
-              <MultiSelect
-                data={filteredGroupOptions.map((group) => ({
-                  value: group.id,
-                  label: formatGroupOptionLabel(group),
-                }))}
-                disabled={!selectedBranchId}
-                label={fe6ClientProfileText.clientForm_label_ab308eef}
-                placeholder={
-                  selectedBranchId
-                    ? fe6ClientProfileText.clientForm_string_3d8d006f
-                    : fe6ClientProfileText.clientForm_string_74f8ad03
-                }
-                searchable
-                {...form.getInputProps('groupIds')}
-              />
-              <TextInput
-                label={fe6ClientProfileText.clientForm_label_1ae72066}
-                type="date"
-                {...form.getInputProps('birthDate')}
-              />
-            </SimpleGrid>
-
-            <Textarea
-              autosize
-              label={fe6ClientProfileText.clientForm_label_6d7987c1}
-              minRows={4}
-              placeholder={fe6ClientProfileText.clientForm_placeholder_0e86ea4c}
-              {...form.getInputProps('notes')}
+        <Stack gap="md">
+          <SimpleGrid cols={{ base: 1, md: 3 }}>
+            <TextInput
+              label={fe6ClientProfileText.clientForm_label_353eafa3}
+              placeholder={fe6ClientProfileText.clientForm_placeholder_37f3ddd4}
+              {...form.getInputProps('lastName')}
             />
-          </Stack>
+            <TextInput
+              label={fe6ClientProfileText.clientForm_label_1da7e937}
+              placeholder={fe6ClientProfileText.clientForm_placeholder_cc078195}
+              {...form.getInputProps('firstName')}
+            />
+            <TextInput
+              label={fe6ClientProfileText.clientForm_label_e1739d0a}
+              placeholder={fe6ClientProfileText.clientForm_placeholder_52028dbd}
+              {...form.getInputProps('middleName')}
+            />
+          </SimpleGrid>
 
-          <aside className="client-edit-rail">{photoSection}</aside>
-        </div>
+          <SimpleGrid cols={{ base: 1, md: 2 }}>
+            <TextInput
+              label={fe6ClientProfileText.clientForm_label_822f9fd9}
+              placeholder={fe6ClientProfileText.clientForm_placeholder_29def5ac}
+              {...form.getInputProps('phone')}
+            />
 
-        <Paper className="hint-card" radius="8px" withBorder>
+            <Select
+              allowDeselect={false}
+              data={branchOptions.map((branch) => ({
+                value: branch.id,
+                label: formatBranchOptionLabel(branch),
+                disabled: branch.isArchived,
+              }))}
+              disabled={lockBranch}
+              label={fe6ClientProfileText.clientForm_label_2f17c4d2}
+              onChange={updateBranch}
+              placeholder={fe6ClientProfileText.clientForm_placeholder_4c5ee5d8}
+              searchable
+              value={selectedBranchId || null}
+              error={form.errors.branchId}
+            />
+          </SimpleGrid>
+
+          <SimpleGrid cols={{ base: 1, md: 2 }}>
+            <MultiSelect
+              data={filteredGroupOptions.map((group) => ({
+                value: group.id,
+                label: formatGroupOptionLabel(group),
+              }))}
+              disabled={!selectedBranchId}
+              label={fe6ClientProfileText.clientForm_label_ab308eef}
+              placeholder={
+                selectedBranchId
+                  ? fe6ClientProfileText.clientForm_string_3d8d006f
+                  : fe6ClientProfileText.clientForm_string_74f8ad03
+              }
+              searchable
+              {...form.getInputProps('groupIds')}
+            />
+            <TextInput
+              label={fe6ClientProfileText.clientForm_label_1ae72066}
+              type="date"
+              {...form.getInputProps('birthDate')}
+            />
+          </SimpleGrid>
+
+          <Textarea
+            autosize
+            label={fe6ClientProfileText.clientForm_label_6d7987c1}
+            minRows={4}
+            placeholder={fe6ClientProfileText.clientForm_placeholder_0e86ea4c}
+            {...form.getInputProps('notes')}
+          />
+          {photoSection}
+        </Stack>
+
+        <section className="client-form-contacts">
           <Stack gap="md">
             <Group justify="space-between" wrap="wrap">
-              <div>
-                <Text fw={700}>{fe6ClientProfileText.clientForm_jsxText_c50d9f78}</Text>
-                <Text c="dimmed" size="sm">
-                  {fe6ClientProfileText.clientForm_jsxText_a00f32e0}</Text>
-              </div>
-
               <Button
                 disabled={form.values.contacts.length >= maxContacts}
                 leftSection={<IconPlus size={18} />}
@@ -199,10 +190,7 @@ export function ClientForm({
                 {fe6ClientProfileText.clientForm_jsxText_63492f28}</Button>
             </Group>
 
-            {form.values.contacts.length === 0 ? (
-              <Text c="dimmed" size="sm">
-                {fe6ClientProfileText.clientForm_jsxText_14efba42}</Text>
-            ) : (
+            {form.values.contacts.length > 0 && (
               <Stack gap="sm">
                 {form.values.contacts.map((_, index) => (
                   <Paper className="list-row-card" key={index} radius="8px" withBorder>
@@ -243,7 +231,7 @@ export function ClientForm({
               </Stack>
             )}
           </Stack>
-        </Paper>
+        </section>
 
         <StickyFormActions
           secondaryAction={cancelAction ? (
