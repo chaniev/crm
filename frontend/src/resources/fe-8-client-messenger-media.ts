@@ -1,4 +1,7 @@
 export const fe8ClientMessengerMediaText = {
+  photoReadError: "Не удалось показать сохранённое фото",
+  retryPhoto: "Повторить просмотр",
+  closePhoto: "Закрыть фотографию",
   clientMessengerChatSection_failed_bf22dfee: "Ошибка",
   clientMessengerChatSection_getApiErrorMessage_850ac5ad: "Не удалось создать ссылку подключения.",
   clientMessengerChatSection_jsxText_010ff624: "Загрузить еще ",
@@ -55,7 +58,7 @@ export const fe8ClientMessengerMediaText = {
   clientPhotoSection_string_6c6732f0: "Фото можно добавить сразу после первичного сохранения карточки клиента.",
   clientPhotoSection_string_75f5b4ed: "Фотография клиента",
   clientPhotoSection_string_b96af1f1: "Фотография еще не загружена или недоступна для просмотра.",
-  clientPhotoSection_string_bee0c752: "Загрузить фото",
+  clientPhotoSection_string_bee0c752: "Добавить фото",
   clientPhotoSection_string_f1163738: "Просмотр",
   clientPhotoSection_string_f61eb235: "Заменить фото",
   clientPhotoSection_string_f71f0281: "Можно заменить фото клиента.",

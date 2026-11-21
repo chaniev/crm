@@ -702,6 +702,7 @@ test.describe('TASK-116: контекст возврата в карточку �
     await page.getByRole('button', { name: 'К группе' }).click()
     await expect(nameInput).toHaveValue(ATTENDANCE_GROUP.name)
 
+    await expect(clientAction).toBeFocused()
     groupPersistState.failNextUpdate = true
     await nameInput.fill('Черновик после ошибки')
     await clientAction.click()
@@ -814,5 +815,124 @@ test.describe('TASK-116: контекст возврата в карточку �
 
       expect(viewport.name).toBeTruthy()
     }
+  })
+})
+
+test.describe('TASK-018 · карточка и формы клиента', () => {
+  const lastName = 'Александрова-Воскресенская'
+  const fullName = lastName + ' Маргарита Константиновна'
+  const profile = '/clients/' + CLIENT_ID
+  const portrait = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=', 'base64')
+
+  test.beforeEach(async ({ page }) => {
+    await mockTask116Api(page, {
+      session: ATTENDANCE_SESSION,
+      attendanceSaveState: createAttendanceSaveState(),
+      groupPersistState: createGroupPersistState(),
+    })
+    const client = {
+      ...CLIENT_DETAILS_RESPONSE, lastName, firstName: 'Маргарита', middleName: 'Константиновна', fullName,
+      photo: { path: 'portrait.png', contentType: 'image/png' }, hasCurrentMembership: true,
+      currentMemberships: [{
+        id: 'member', saleId: 'sale', membershipName: 'Месяц', behaviorKind: 'Term',
+        purchaseDate: '2026-03-01', paymentDate: '2026-03-01', expirationDate: '2026-04-01',
+        grossAmount: 1500, pricingMode: 'Catalog', coverageKind: 'TargetGroups', entitlementState: 'Expired',
+      }],
+      actionHints: [{ title: 'Продлить абонемент', description: 'Абонемент просрочен', tone: 'orange', iconKey: 'membership' }],
+    }
+    await page.route(url => url.pathname === '/api' + profile, route => route.fulfill({ json: client }))
+    await page.route(url => url.pathname === '/api/clients', route => route.fulfill({
+      json: { items: [client], totalCount: 1, activeCount: 1, archivedCount: 0 },
+    }))
+    await page.route(url => url.pathname === '/api' + profile + '/photo', route => route.fulfill({
+      contentType: 'image/png',
+      body: portrait,
+    }))
+    await page.route(url => url.pathname.endsWith('/messenger/telegram'), route => route.fulfill({
+      json: { capabilities: { visible: true, canCreateLink: true }, connection: { status: 'NotConnected' } },
+    }))
+  })
+
+  test('краткая карточка объединяет тип и предупреждение перед филиалом', async ({ page }) => {
+    await page.goto(profile + '/preview')
+    const panel = page.getByTestId('client-preview-panel')
+    await expect(panel.getByText(fullName)).toBeVisible()
+    await expect(panel.getByText('Активный', { exact: true })).toHaveCount(1)
+    const membership = panel.getByRole('note', { name: 'Состояние абонемента' })
+    await expect(membership.getByText('На срок')).toBeVisible()
+    await expect(membership.getByText('Абонемент просрочен')).toBeVisible()
+    await expect(panel.getByText('Контакты', { exact: true })).toHaveCount(0)
+    const warning = await membership.boundingBox()
+    const branch = await panel.getByText('Филиал', { exact: true }).boundingBox()
+    expect(warning!.y + warning!.height).toBeLessThanOrEqual(branch!.y + 1)
+    await expectNoHorizontalOverflow(page)
+  })
+
+  test('полная карточка один раз показывает имя и состояние Telegram', async ({ page }) => {
+    await page.goto(profile)
+    await expect(page.getByRole('heading', { level: 1, name: fullName })).toBeVisible()
+    await expect(page.getByRole('heading', { name: fullName })).toHaveCount(1)
+    await expect(page.getByRole('button', { name: 'Ссылка и QR' })).toHaveCount(1)
+    await expect(page.getByText('Клиент еще не подключил Telegram')).toBeVisible()
+    await expect(page.getByText('Telegram не подключен.', { exact: true })).toHaveCount(0)
+    await expectNoHorizontalOverflow(page)
+  })
+
+  test('сохранённое фото перед полями открывается с клавиатуры', async ({ page }) => {
+    await page.goto(profile + '/edit')
+    const photo = page.getByRole('button', { name: /Открыть фотографию/ })
+    await expect(photo).toBeEnabled()
+    const surname = await page.getByLabel('Фамилия', { exact: true }).boundingBox()
+    const image = await photo.boundingBox()
+    expect(image!.y + image!.height).toBeLessThanOrEqual(surname!.y)
+    await photo.focus()
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('dialog').getByRole('img', { name: 'Фотография клиента ' + fullName })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(photo).toBeFocused()
+    await expectNoHorizontalOverflow(page)
+  })
+
+  test('создание оставляет подсказку о фото и добавляет поля контакта по запросу', async ({ page }) => {
+    await page.goto('/clients/new')
+    await expect(page.getByLabel('Фамилия', { exact: true })).toBeVisible()
+    await expect(page.getByText('Фотографию можно добавить после сохранения клиента.')).toBeVisible()
+    await expect(page.getByText('Фото пока не показано')).toHaveCount(0)
+    await expect(page.getByText('Контактные лица пока не добавлены.')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Добавить контакт' }).click()
+    await expect(page.getByLabel('ФИО контактного лица')).toBeVisible()
+    await expectNoHorizontalOverflow(page)
+  })
+
+  test('ошибка замены сохраняет снимок и допускает повтор с тем же файлом', async ({ page }) => {
+    let uploads = 0
+    await page.route(url => url.pathname.endsWith('/photo'), route => {
+      if (route.request().method() !== 'POST') return route.fallback()
+      uploads++
+      return route.fulfill(uploads === 1
+        ? { status: 503, json: { title: 'Файл не сохранён' } }
+        : { status: 204 })
+    })
+    await page.goto(profile + '/edit')
+    const photo = page.getByRole('button', { name: /Открыть фотографию/ })
+    await expect(photo).toBeEnabled()
+    const file = { name: 'portrait.png', mimeType: 'image/png', buffer: portrait }
+    await page.locator('input[type=file]').setInputFiles(file)
+    await expect(page.getByText('Фото не загружено')).toBeVisible()
+    await expect(photo).toBeEnabled()
+    await page.locator('input[type=file]').setInputFiles(file)
+    await expect(page.getByText('Фотография обновлена')).toBeVisible()
+    await expect(photo).toBeEnabled()
+    expect(uploads).toBe(2)
+  })
+
+  test('ошибка чтения фотографии позволяет повторить просмотр с сохранением ввода', async ({ page }) => {
+    await page.route(url => url.pathname.endsWith('/photo'), route => route.fulfill({ status: 503 }), { times: 1 })
+    await page.goto(profile + '/edit')
+    const surname = page.getByLabel('Фамилия', { exact: true })
+    await surname.fill('Черновик')
+    await page.getByRole('button', { name: 'Повторить просмотр' }).click()
+    await expect(page.getByRole('button', { name: /Открыть фотографию/ })).toBeEnabled()
+    await expect(surname).toHaveValue('Черновик')
   })
 })

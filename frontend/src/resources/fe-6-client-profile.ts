@@ -1,4 +1,5 @@
 export const fe6ClientProfileText = {
+  photoAfterSave: "Фотографию можно добавить после сохранения клиента.",
   clientUnavailable: "Клиент недоступен.",
   clientAttendanceHistorySection_jsxText_001835f0: "По этому клиенту пока нет отмеченных посещений. ",
   clientAttendanceHistorySection_jsxText_511e94e0: "Показана текущая порция истории: ",
@@ -95,7 +96,7 @@ export const fe6ClientProfileText = {
   clientEditScreen_setFormError_97732402: "Проверьте обязательные поля клиента и контактов.",
   clientEditScreen_setFormError_e238fab9: "Не удалось сохранить изменения клиента.",
   clientEditScreen_string_63fa9b9e: "Не удалось загрузить карточку клиента.",
-  clientEditScreen_string_a912ec86: "Карточка клиента",
+  clientEditScreen_string_a912ec86: "Редактирование клиента",
   clientEditScreen_submitLabel_744cf2b2: "Сохранить изменения",
   clientEditScreen_title_6c247ce7: "Карточка клиента не загрузилась",
   clientEditScreen_title_f436b337: "Изменения сохранены",

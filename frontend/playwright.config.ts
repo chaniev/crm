@@ -36,12 +36,12 @@ export default defineConfig({
     },
     {
       name: 'iphone-air-webkit',
-      testMatch: /(?:group-schedule|finance-reports|client-full-name-search|settings-client-import|settings-group-types|route-access-feedback|administrator-attendance-scope|administrator-role-flow|administrator-client-branch-access|iphone-target-devices|reduced-motion|attendance-today-worklist|group-schedule-workflow|groups-registry|branch-hall-creation)\.spec\.ts/,
+      testMatch: /(?:client-profile-context-navigation|group-schedule|finance-reports|client-full-name-search|settings-client-import|settings-group-types|route-access-feedback|administrator-attendance-scope|administrator-role-flow|administrator-client-branch-access|iphone-target-devices|reduced-motion|attendance-today-worklist|group-schedule-workflow|groups-registry|branch-hall-creation)\.spec\.ts/,
       use: targetIphoneProfile(420, 912),
     },
     {
       name: 'iphone-17-pro-max-webkit',
-      testMatch: /(?:group-schedule|finance-reports|client-full-name-search|settings-client-import|settings-group-types|route-access-feedback|administrator-attendance-scope|administrator-role-flow|administrator-client-branch-access|iphone-target-devices|reduced-motion|attendance-today-worklist|group-schedule-workflow|groups-registry|branch-hall-creation)\.spec\.ts/,
+      testMatch: /(?:client-profile-context-navigation|group-schedule|finance-reports|client-full-name-search|settings-client-import|settings-group-types|route-access-feedback|administrator-attendance-scope|administrator-role-flow|administrator-client-branch-access|iphone-target-devices|reduced-motion|attendance-today-worklist|group-schedule-workflow|groups-registry|branch-hall-creation)\.spec\.ts/,
       use: targetIphoneProfile(440, 956),
     },
   ],

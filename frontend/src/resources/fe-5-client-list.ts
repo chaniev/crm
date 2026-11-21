@@ -1,4 +1,5 @@
 export const fe5ClientListText = {
+  previewMembershipStatus: "Состояние абонемента",
   clientListFilters_label_0852baeb: "20 на странице",
   clientListFilters_label_5ea95729: "50 на странице",
   clientListFilters_label_ccbbc3d6: "100 на странице",

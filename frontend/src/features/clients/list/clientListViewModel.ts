@@ -1,6 +1,5 @@
 import {
   buildClientPhotoUrl,
-  type ClientAttendanceHistoryEntry,
   type ClientDetails,
   type ClientListItem,
   type ClientMembership,
@@ -36,7 +35,8 @@ export type ClientPreviewViewModel = {
   phoneLabel: string | null
   photoUrl: string | null
   statusLabel: string
-  nextAction: ClientNextActionViewModel
+  membershipLabel: string | null
+  hint: ClientDetails['actionHints'][number] | null
   facts: Array<{ label: string; value: string }>
   events: Array<{ label: string; value: string }>
 }
@@ -89,27 +89,33 @@ export function buildClientPreviewViewModel(
   canManage: boolean,
 ): ClientPreviewViewModel {
   const membership = getSingleCurrentMembershipForLabel(client)
-  const lastVisit = getLatestAttendanceDate(client.attendanceHistory)
-
+  const [hint] = client.actionHints
+  const facts = []
+  if (canManage && client.branchName) {
+    facts.push({ label: fe5ClientListText.clientListViewModel_label_2f17c4d2, value: client.branchName })
+  }
+  if (client.groups.length) {
+    facts.push({
+      label: fe5ClientListText.clientListViewModel_label_907efbd4,
+      value: client.groups.map(group => [group.name, group.hallName].filter(Boolean).join(' · ')).join(', '),
+    })
+  }
+  if (client.lastVisitDate && !client.attendanceHistory.some(entry => entry.isPresent && entry.trainingDate === client.lastVisitDate)) {
+    facts.push({ label: fe5ClientListText.clientListViewModel_label_87a3edde, value: formatDateValue(client.lastVisitDate) })
+  }
+  if (canManage && client.contactCount > 0) {
+    facts.push({ label: fe5ClientListText.clientListViewModel_label_fca8d5aa, value: String(client.contactCount) })
+  }
   return {
     fullName: client.fullName,
     phoneLabel: canManage ? client.phone || fe5ClientListText.clientListViewModel_string_0d836c15 : null,
     photoUrl: buildClientListPhotoUrl(client),
     statusLabel: statusLabelMap[client.status],
-    nextAction: resolveNextAction(client),
-    facts: [
-      { label: fe5ClientListText.clientListViewModel_label_225077c6, value: statusLabelMap[client.status] },
-      {
-        label: fe5ClientListText.clientListViewModel_label_1139430b,
-        value: client.isProfessional
-          ? fe5ClientListText.clientListViewModel_string_76fc7876
-          : resolveMembershipLabel(membership, client.hasCurrentMembership),
-      },
-      { label: fe5ClientListText.clientListViewModel_label_2f17c4d2, value: client.branchName || fe5ClientListText.clientListViewModel_string_0d836c15 },
-      { label: fe5ClientListText.clientListViewModel_label_907efbd4, value: resolveGroupLabel(client) },
-      { label: fe5ClientListText.clientListViewModel_label_87a3edde, value: resolveLastVisitLabel(lastVisit ?? client.lastVisitDate) },
-      { label: fe5ClientListText.clientListViewModel_label_fca8d5aa, value: canManage ? String(client.contactCount) : fe5ClientListText.clientListViewModel_string_19fc4b0c },
-    ],
+    membershipLabel: !canManage ? null : client.isProfessional
+      ? fe5ClientListText.clientListViewModel_string_76fc7876
+      : resolveMembershipLabel(membership, client.hasCurrentMembership),
+    hint: hint && hint.iconKey !== 'check' ? hint : null,
+    facts,
     events: buildPreviewEvents(client),
   }
 }
@@ -387,13 +393,6 @@ function buildPreviewEvents(client: ClientDetails) {
   }))
 
   return [...attendanceEvents, ...membershipEvents].slice(0, 3)
-}
-
-function getLatestAttendanceDate(entries: ClientAttendanceHistoryEntry[]) {
-  return entries
-    .filter((entry) => entry.isPresent)
-    .map((entry) => entry.trainingDate)
-    .sort((left, right) => right.localeCompare(left))[0]
 }
 
 function formatMembershipChangeReason(reason?: string) {

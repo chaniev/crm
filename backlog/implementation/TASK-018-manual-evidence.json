@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-018",
+  "confirmations": [
+    {
+      "id": "manual.client-profile-design",
+      "actor": "coding-agent:TASK-018",
+      "performed_at": "2026-11-21T16:54:59+03:00",
+      "note": "Сопоставлены четыре экрана и согласованный прототип. Отдельно проверены клавиатура, возврат фокуса, восстановление и роль тренера.",
+      "artifacts": [
+        "backlog/implementation/TASK-018-evidence/acceptance.md"
+      ]
+    }
+  ]
+}

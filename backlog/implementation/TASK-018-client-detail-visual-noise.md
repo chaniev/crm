@@ -1,7 +1,7 @@
 # TASK-018: Уменьшить визуальный шум в client detail/form сценариях
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-CLI-001 — changes

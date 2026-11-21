@@ -180,7 +180,7 @@ export function ClientEditScreen({
         >
           {unavailable ? backLabel : fe6ClientProfileText.clientEditScreen_jsxText_14a4b327}</Button>
       }
-      title={client ? client.fullName : unavailable ? fe6ClientProfileText.clientDetailScreen_string_48186f7a : fe6ClientProfileText.clientEditScreen_string_a912ec86}
+      title={unavailable ? fe6ClientProfileText.clientDetailScreen_string_48186f7a : fe6ClientProfileText.clientEditScreen_string_a912ec86}
     >
 
       {loading ? (
@@ -208,6 +208,17 @@ export function ClientEditScreen({
       {!loading && !loadError ? (
         <>
           <PageSection className="client-edit-card">
+            {client && (
+              <ClientPhotoSection
+                canUpload
+                clientId={client.id}
+                clientName={client.fullName}
+                onUpload={handlePhotoUpload}
+                photo={client.photo}
+                previewVersion={photoVersion ?? client.photo?.uploadedAt ?? client.updatedAt}
+                variant="edit"
+              />
+            )}
             <ClientForm
               form={form}
               formError={formError}
@@ -215,18 +226,6 @@ export function ClientEditScreen({
               groupOptions={groupOptions}
               lockBranch
               cancelAction={null}
-              photoSection={
-                client ? (
-                  <ClientPhotoSection
-                    canUpload
-                    clientId={client.id}
-                    clientName={client.fullName}
-                    onUpload={handlePhotoUpload}
-                    photo={client.photo}
-                    previewVersion={photoVersion ?? client.photo?.uploadedAt ?? client.updatedAt}
-                  />
-                ) : null
-              }
               onSubmit={submit}
               submitLabel={fe6ClientProfileText.clientEditScreen_submitLabel_744cf2b2}
               submitting={submitting}
