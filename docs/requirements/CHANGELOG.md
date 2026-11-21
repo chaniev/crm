@@ -1,5 +1,13 @@
 # Журнал изменения требований
 
+## 2026-11-21 — проверка контраста, дней недели и заголовка после выхода
+
+Для REQ-NFR-001 подтверждён заголовок экрана входа при выходе из двух разделов. Открыты недостаточный контраст двух подписей и пропуск касания у края флажка в Chromium. Реализация требования остаётся частичной. [TASK-174](../../backlog/tasks-ready/TASK-174-secondary-text-contrast-regression.md) · [TASK-177](../../backlog/tasks-ready/TASK-177-group-weekday-touch-targets.md) · [TASK-178](../../backlog/done/2026-11-21/TASK-178-logout-document-title-regression.md).
+
+## 2026-11-21 — источник Web в журнале действий
+
+В REQ-AUD-002 закреплено решение владельца показывать метку `Web` только в деталях записи. Реализация требования остаётся частичной. [TASK-208](../../backlog/needs-clarification/TASK-208-audit-list-technical-metadata.md).
+
 ## 2026-11-21 — контекст занятия перед отметкой посещения
 
 Для REQ-ATT-001 реализованы идентификация занятия по двум ответам Staff API, показ группы и интервала, возврат к занятиям на сегодня или к отфильтрованному расписанию. Проверены восстановление после ошибки и переход через карточку клиента. Общий статус требования остаётся «частично». [Приёмка TASK-205](../../backlog/done/2026-11-21/TASK-205-evidence/acceptance.md).
@@ -463,7 +471,7 @@ REQ-USR-002 уточняет отображение сохранённого ф�
   [TASK-174](../../backlog/tasks-ready/TASK-174-secondary-text-contrast-regression.md),
   [TASK-176](../../backlog/done/2026-11-21/TASK-176-russian-accessibility-and-validation-focus.md),
   [TASK-177](../../backlog/tasks-ready/TASK-177-group-weekday-touch-targets.md),
-  [TASK-178](../../backlog/tasks-ready/TASK-178-logout-document-title-regression.md),
+  [TASK-178](../../backlog/done/2026-11-21/TASK-178-logout-document-title-regression.md),
   [TASK-181](../../backlog/done/2026-11-21/TASK-181-native-navigation-links.md)).
 - 05.10.2026 — REQ-GRP-007 — календарная дата рядом с днём недели в дневном
   summary; реализация «частично» (задача
