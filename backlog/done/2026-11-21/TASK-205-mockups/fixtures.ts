@@ -1,7 +1,7 @@
 import type {
   AttendanceClient, AttendanceTodayLesson, AuthenticatedUser, SaveAttendanceMarksRequest,
-} from '../../../frontend/src/lib/api/types'
-export { ApiError } from '../../../frontend/src/lib/api/errors'
+} from '../../../../frontend/src/lib/api/types'
+export { ApiError } from '../../../../frontend/src/lib/api/errors'
 
 export const today = '2026-11-20'
 

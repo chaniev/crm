@@ -2,10 +2,10 @@
 import { writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { build } from '../../../frontend/node_modules/vite/dist/node/index.js'
+import { build } from '../../../../frontend/node_modules/vite/dist/node/index.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const frontend = resolve(here, '../../../frontend')
+const frontend = resolve(here, '../../../../frontend')
 const [bundle] = await build({
   configFile: false, root: frontend, publicDir: false,
   resolve: { dedupe: ['react', 'react-dom', '@mantine/core', '@mantine/hooks', '@tabler/icons-react', '@fontsource/onest'] },

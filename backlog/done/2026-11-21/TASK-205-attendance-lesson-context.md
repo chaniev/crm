@@ -1,7 +1,7 @@
 # TASK-205: Сохранять группу и время в посещаемости занятия
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-ATT-001 — implements
@@ -35,13 +35,13 @@ ROS-01: после перехода в состав остаются «Посе�
 До изменения кода нужен готовый план по docs/HARNESS.md. Визуальные решения проходят применимые этапы docs/DESIGN_PROCESS.md и выбор на проверенном прототипе. Этот разбор не утверждает прототип и не разрешает реализацию. При реализации актуализировать затронутые REQ и docs/requirements/CHANGELOG.md.
 
 ## Acceptance criteria
-- [ ] Шапка различает два занятия одной группы в один день и две группы с одинаковым временем.
-- [ ] Название, дата и время доступны на 390/768/1440 px без перекрытия отметок.
-- [ ] Явный возврат работает с клавиатуры и на телефоне; существующее восстановление списка сохранено.
+- [x] Шапка различает два занятия одной группы в один день и две группы с одинаковым временем.
+- [x] Название, дата и время доступны на 390/768/1440 px без перекрытия отметок.
+- [x] Явный возврат работает с клавиатуры и на телефоне; существующее восстановление списка сохранено.
 
 ## Test checklist
-- [ ] Проверить несколько занятий за день, разовое/перенесённое занятие, длинное название, прямое открытие и ошибку загрузки контекста.
-- [ ] Подтвердить, что три состояния, запрет будущей даты и серверная запись посещений не изменились.
+- [x] Проверить несколько занятий за день, разовое/перенесённое занятие, длинное название, прямое открытие и ошибку загрузки контекста.
+- [x] Подтвердить, что три состояния, запрет будущей даты и серверная запись посещений не изменились.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -49,10 +49,10 @@ ROS-01: после перехода в состав остаются «Посе�
 - Reason: Меняется отображение контекста существующего занятия; сохранение посещений остаётся прежним.
 
 ## Evidence
-- [frontend/src/features/attendance/AttendanceScreen.tsx](../../frontend/src/features/attendance/AttendanceScreen.tsx)
+- [frontend/src/features/attendance/AttendanceScreen.tsx](../../../frontend/src/features/attendance/AttendanceScreen.tsx)
 
 ## Source notes
-- Source file: [21-attendance-lesson](../processed/2026-11-20-interface-audit/21-attendance-lesson/README.md)
+- Source file: [21-attendance-lesson](../../processed/2026-11-20-interface-audit/21-attendance-lesson/README.md)
 - Original note: «Название группы и время исчезают после перехода.».
 
 ## Processing notes
@@ -67,18 +67,23 @@ ROS-01: после перехода в состав остаются «Посе�
 - Актуальность: AttendanceScreen получает lessonOccurrenceId/lessonDate, отключает общую шапку showHeader=false и открывает AttendanceWorkspace; текущий target не несёт названия и времени. Это согласуется с сохранённым аудитом исчезновения контекста.
 - Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
 - readiness: no — Нет прототипа шапки и подтверждённого read-контракта контекста LessonOccurrence для прямого открытия.
-- implementation_plan: /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-205-attendance-lesson-context.plan.md
 
 ## Прототип от 21.11.2026
-Подготовлен [интерактивный прототип шапки](../mockups/TASK-205-attendance-lesson-context/preview.html). [Описание, снимки и результаты проверки](../mockups/TASK-205-attendance-lesson-context/README.md) включают возврат в оба списка, прямой вход и восстановление после ошибки. Владелец продукта принял этот вариант 21.11.2026. Источник группы и интервала подтверждён действующим API деталей расписания, доступ к составу проверяет API посещений.
+Подготовлен [интерактивный прототип шапки](TASK-205-mockups/preview.html). [Описание, снимки и результаты проверки](TASK-205-mockups/README.md) включают возврат в оба списка, прямой вход и восстановление после ошибки. Владелец продукта принял этот вариант 21.11.2026. Источник группы и интервала подтверждён действующим API деталей расписания, доступ к составу проверяет API посещений.
 
 ## Implementation lifecycle
 - readiness: yes
 - moved_to_implementation_at: 2026-11-21 16:05 (Europe/Moscow)
 - moved_from: /backlog/needs-clarification
-- implementation_plan: /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-205-attendance-lesson-context.plan.md
 - implementation_branch: codex/TASK-205-attendance-lesson-context
 
 ## Status audit 2026-11-21
 - implementation: согласованы прототип и ready plan с read-контрактом; завершение реализации не доказано.
 - Основание: локальная main, связанные планы и записи согласования; нового runtime-аудита не было.
+
+## Completion
+- completed_at: 2026-11-21
+- completion_date_evidence: проверенная версия `c2d0175` интегрирована в локальную main 21 ноября 2026 года.
+- [Снимки рабочего экрана и результат проверок](TASK-205-evidence/acceptance.md)
