@@ -20,7 +20,7 @@ export function makeClient(example: Example) {
   ]
   const sales = example === 'coach' || example === 'empty' ? [] : [sale]
   return { ...form, id: 'preview-client', fullName: [form.lastName,form.firstName,form.middleName].join(' '),
-    groups: example === 'empty' ? [] : [group], branchName: group.branchName, status: 'Active', businessDate: '2026-11-21',
+    groupIds: example === 'empty' ? [] : [group.id], groups: example === 'empty' ? [] : [group], branchName: group.branchName, status: 'Active', businessDate: '2026-11-21',
     contacts: example === 'empty' || example === 'coach' ? [] : [{ id: 'contact', type: 'Мама', fullName: 'Марина Алексеева', phone: '+7 900 000-03-18' }],
     isProfessional: false, photo: null, currentMemberships: sales, membershipHistory: sales,
     hasCurrentMembership: sales.length > 0, hasActiveMembership: sales.length > 0,
@@ -32,7 +32,7 @@ export function makeClient(example: Example) {
 export function installFixtures(example: Example) {
   const client = makeClient(example)
   let failEdit = example === 'error'
-  // This offline review only handles the endpoints needed to inspect the card and edit a note.
+  // This offline review only handles the endpoints needed to inspect and edit the example client.
   window.fetch = async (input, init) => {
     const path = new URL(String(input), 'https://preview.invalid').pathname.replace(/^\/api/, '')
     const method = init?.method ?? 'GET'
@@ -43,6 +43,7 @@ export function installFixtures(example: Example) {
         return Response.json({ detail: 'Не удалось сохранить изменения. Повторите сохранение.' }, { status: 503 })
       }
       Object.assign(client, JSON.parse(String(init?.body)))
+      client.groups = groups.filter(group => client.groupIds.includes(group.id))
       client.fullName = [client.lastName, client.firstName, client.middleName].filter(Boolean).join(' ')
       return Response.json(client)
     }

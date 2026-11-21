@@ -22,17 +22,27 @@ const [bundle] = await build({
       if (id === resolve(clients, 'ClientOverviewSection.tsx')) {
         return source.replace(sliceAt(source, '<Group gap="sm" wrap="nowrap"', '{!canManage'), '')
       }
+      if (id === resolve(clients, 'ClientDetailSections.tsx')) {
+        // The tab already names the list. Retain the existing edit control and group rows.
+        const section = source.slice(source.indexOf('function ClientGroupsSection('))
+        const header = sliceAt(section, '<Group justify="space-between"', '{client.groups.length')
+        const action = sliceAt(header, '<Button', '</Button>') + '</Button>'
+        return source.replace(header, '{canManage && <Group justify="flex-end">' + action + '</Group>}\n') +
+          '\nexport { ClientContactsSection, ClientGroupsSection }'
+      }
       if (id !== resolve(clients, 'ClientDetailScreen.tsx')) return
       const profile = sliceAt(source, '<ClientOverviewSection', '          {canManage ? (')
       const membership = sliceAt(source, '<ClientMembershipSection', '          ) : null}')
       const visits = sliceAt(source, '<ClientAttendanceHistorySection', '          <ClientNotesSection')
-      const other = sliceAt(source, '<ClientNotesSection', '        </>')
+      const other = sliceAt(source, '<ClientNotesSection', '          <ClientRelatedSections')
       const all = sliceAt(source, '<ClientOverviewSection', '        </>')
       const backButton = sliceAt(source, '<Button\n        leftSection={<IconArrowLeft', '    </Group>')
       return 'import { ProfileTabs } from ' + JSON.stringify(resolve(here, 'ProfileTabs.tsx')) + '\n' +
-        source.replace(backButton, '{!client && (' + backButton.trim() + ')}\n')
+        source.replace('  ClientRelatedSections,', '  ClientContactsSection, ClientGroupsSection,')
+          .replace(backButton, '{!client && (' + backButton.trim() + ')}\n')
           .replace(all, '<ProfileTabs client={client} canManage={canManage} onBack={onBack} backLabel={backLabel} memberships={' +
-            membership + '} attendance={' + visits + '}>\n' + profile + other + '</ProfileTabs>\n')
+            membership + '} attendance={' + visits + '} groups={<ClientGroupsSection canManage={canManage} client={client} onEdit={onEdit} />}>\n' +
+            profile + other + '{canManage && <ClientContactsSection client={client} />}</ProfileTabs>\n')
     },
   }],
   build: { write: false, license: {fileName: 'licenses.txt'},

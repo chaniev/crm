@@ -9,16 +9,17 @@ type Props = {
   client: ClientDetails
   canManage: boolean
   memberships: ReactNode
+  groups: ReactNode
   attendance: ReactNode
   children: ReactNode
   onBack: () => void
   backLabel: string
 }
 
-export function ProfileTabs({ client, canManage, memberships, attendance, children, onBack, backLabel }: Props) {
+export function ProfileTabs({ client, canManage, memberships, attendance, groups, children, onBack, backLabel }: Props) {
   const [tab, setTab] = useState(() => {
     const requested = location.hash.slice(1)
-    if (requested === 'visits' || (canManage && requested === 'memberships')) return requested
+    if (requested === 'groups' || requested === 'visits' || (canManage && requested === 'memberships')) return requested
     return 'info'
   })
   function select(value: string | null) {
@@ -39,10 +40,12 @@ export function ProfileTabs({ client, canManage, memberships, attendance, childr
         <Tabs.Tab value="info">Основная информация</Tabs.Tab>
         {canManage && <Tabs.Tab value="memberships">Абонементы</Tabs.Tab>}
         <Tabs.Tab value="visits">Посещения</Tabs.Tab>
+        <Tabs.Tab value="groups">Группы</Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel value="info">{children}</Tabs.Panel>
       {canManage && <Tabs.Panel value="memberships">{memberships}</Tabs.Panel>}
       <Tabs.Panel value="visits">{attendance}</Tabs.Panel>
+      <Tabs.Panel value="groups">{groups}</Tabs.Panel>
     </Tabs>
   </article>
 }
