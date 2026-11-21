@@ -13,6 +13,7 @@ import {
   getClientAttentionItems,
   markMissedTrainingContacted,
   type ClientAttentionItem,
+  type ClientAttentionMembershipReason,
   type ClientAttentionReason,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
@@ -38,7 +39,8 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
-  const [pendingClientId, setPendingClientId] = useState<string | null>(null)
+  const [pendingClientIds, setPendingClientIds] = useState<string[]>([])
+  const activeRead = useRef<AbortController | null>(null)
   const [actionErrors, setActionErrors] = useState<Record<string, string>>({})
   const [lastSuccessfulCheck, setLastSuccessfulCheck] = useState<Date | null>(null)
   const loaded = useRef(false)
@@ -46,6 +48,7 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
 
   useEffect(() => {
     const controller = new AbortController()
+    activeRead.current = controller
     setLoading(true)
     setError(null)
     void getClientAttentionItems(controller.signal).then((items) => {
@@ -58,7 +61,10 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
         setError(reason instanceof Error ? reason.message : resources.attention.loadingErrorMessage)
       }
     }).finally(() => {
-      if (!controller.signal.aborted) setLoading(false)
+      if (!controller.signal.aborted) {
+        activeRead.current = null
+        setLoading(false)
+      }
     })
     return () => controller.abort()
   }, [reloadKey])
@@ -68,10 +74,14 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
   }, [focusOnReturn, loading])
 
   async function contacted(client: ClientAttentionItem) {
-    setPendingClientId(client.clientId)
+    setPendingClientIds((current) => [...current, client.clientId])
     setActionErrors((current) => ({ ...current, [client.clientId]: '' }))
     try {
       const updated = await markMissedTrainingContacted(client.clientId)
+      if (updated || activeRead.current) {
+        activeRead.current?.abort()
+        setReloadKey((value) => value + 1)
+      }
       setClients((current) => updated
         ? current.map((item) => item.clientId === client.clientId ? updated : item)
         : current.filter((item) => item.clientId !== client.clientId))
@@ -84,12 +94,12 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
           : resources.attention.actionError,
       }))
     } finally {
-      setPendingClientId(null)
+      setPendingClientIds((current) => current.filter((id) => id !== client.clientId))
     }
   }
 
-  const expiredCount = clients.filter((client) =>
-    client.reasons.some((reason) => reason.type === 'expiredMembership')).length
+  const expiredCount = clients.reduce((count, client) =>
+    count + client.reasons.filter((reason) => reason.type === 'expiredMembership').length, 0)
 
   return (
     <PageSection className="attention-panel" variant="plain">
@@ -159,10 +169,10 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
                 actionError={actionErrors[client.clientId]}
                 client={client}
                 mobile={mobile}
-                key={attentionItemKey(client)}
+                key={client.clientId}
                 onContacted={() => void contacted(client)}
                 onOpenClient={onOpenClient}
-                pending={pendingClientId === client.clientId}
+                pending={pendingClientIds.includes(client.clientId)}
               />
             ))}
           </Stack>
@@ -190,6 +200,9 @@ function AttentionClientRow({
   pending,
 }: AttentionClientRowProps) {
   const hasMissedTraining = client.reasons.some((reason) => reason.type === 'missedTraining')
+  const memberships = client.reasons.filter((reason) => reason.type !== 'missedTraining')
+  const multipleSales = memberships.length > 1
+  const membership = memberships[0]
   const primaryKind: AttentionPrimaryKind = hasMissedTraining
     ? 'contacted'
     : client.phone
@@ -204,7 +217,7 @@ function AttentionClientRow({
     <Paper
       className="attention-client-row-card crm-list-row-surface"
       data-mobile={mobile || undefined}
-      data-testid={`attention-client-card-${attentionItemKey(client)}`}
+      data-testid={`attention-client-card-${client.clientId}`}
       role="listitem"
       tabIndex={0}
       withBorder
@@ -213,25 +226,39 @@ function AttentionClientRow({
         <Text className="attention-client-row__name" fw={800} title={client.fullName}>
           {client.fullName}
         </Text>
-        <div aria-label={fe9AttentionText.attentionPanel_ariaLabel_93096e67} className="attention-client-row__reasons">
+        <div
+          aria-label={fe9AttentionText.attentionPanel_ariaLabel_93096e67}
+          className="attention-client-row__reasons"
+          data-multiple-sales={multipleSales || undefined}
+        >
           {client.reasons.length > 0
-            ? client.reasons.map((reason, index) => (
-                <ReasonSummary key={`${reason.type}-${index}`} reason={reason} mobile={mobile} />
+            ? client.reasons.map((reason) => (
+                <ReasonSummary
+                  key={reason.type === 'missedTraining' ? reason.type : `${reason.membershipId}:${reason.saleId}`}
+                  reason={reason}
+                  mobile={mobile}
+                  showSale={multipleSales}
+                />
               ))
             : <Text component="span">{fe9AttentionText.attentionPanel_jsxText_bffdeff3}</Text>}
         </div>
         {mobile ? (
           <div className="attention-client-row__details">
-            {mobileClientDetails(client)}
+            {[
+              multipleSales ? null : membershipLabel(membership),
+              multipleSales ? null : targetLabel(membership, true),
+              client.notes || fe9AttentionText.attentionPanel_string_20df618a,
+              client.phone ? null : fe9AttentionText.noPhone,
+            ].filter(Boolean).join(' · ')}
           </div>
         ) : (
           <div className="attention-client-row__metadata">
-            <Text component="span" title={formatAttentionMembershipLabel(client)}>
-              {formatAttentionMembershipLabel(client)}
-            </Text>
-            <Text component="span" title={client.membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55}>
-              {client.membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55}
-            </Text>
+            {!multipleSales ? (
+              <>
+                <Text component="span" title={membershipLabel(membership)}>{membershipLabel(membership)}</Text>
+                <Text component="span" title={targetLabel(membership, false)}>{targetLabel(membership, false)}</Text>
+              </>
+            ) : null}
             <Text component="span" title={client.phone ?? fe9AttentionText.attentionPanel_string_1fc40e1a}>
               {client.phone ?? fe9AttentionText.attentionPanel_string_1fc40e1a}
             </Text>
@@ -391,18 +418,18 @@ function AttentionActionsMenu({
   )
 }
 
-function mobileClientDetails(client: ClientAttentionItem) {
-  const membership = client.membership
-  const onlyGroup = membership?.targetGroups.length === 1 ? membership.targetGroups[0] : undefined
-  const groupLabel = onlyGroup
-    ? [onlyGroup.groupName || onlyGroup.groupId, onlyGroup.branchName].filter(Boolean).join(' · ')
-    : membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55
-  return [
-    formatAttentionMembershipLabel(client),
-    groupLabel,
-    client.notes || fe9AttentionText.attentionPanel_string_20df618a,
-    client.phone ? null : fe9AttentionText.noPhone,
-  ].filter(Boolean).join(' · ')
+function membershipLabel(membership?: ClientAttentionMembershipReason) {
+  return membership
+    ? membership.membershipName || resources.common.membership.typeLabels[membership.behaviorKind]
+    : fe9AttentionText.attentionPanel_string_76848548
+}
+
+function targetLabel(membership: ClientAttentionMembershipReason | undefined, mobile: boolean) {
+  if (mobile && membership?.targetGroups.length === 1) {
+    const group = membership.targetGroups[0]
+    return [group.groupName || group.groupId, group.branchName].filter(Boolean).join(' · ')
+  }
+  return membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55
 }
 
 function mobileReasonLabel(reason: ClientAttentionReason) {
@@ -418,8 +445,18 @@ function mobileReasonLabel(reason: ClientAttentionReason) {
     : fe9AttentionText.expiresInDays(days, dayWord(days))
 }
 
-function ReasonSummary({ reason, mobile }: { reason: ClientAttentionReason; mobile: boolean }) {
-  if (mobile) return <span>{mobileReasonLabel(reason)}</span>
+function ReasonSummary({ reason, mobile, showSale }: {
+  reason: ClientAttentionReason
+  mobile: boolean
+  showSale: boolean
+}) {
+  if (mobile) {
+    const label = mobileReasonLabel(reason)
+    const text = showSale && reason.type !== 'missedTraining'
+      ? [label, membershipLabel(reason), targetLabel(reason, true)].join(' · ')
+      : label
+    return <span>{text}</span>
+  }
 
   if (reason.type === 'missedTraining') {
     const label = fe9AttentionText.attentionPanel_label_4cd3b5b4(reason.missedCount)
@@ -442,12 +479,18 @@ function ReasonSummary({ reason, mobile }: { reason: ClientAttentionReason; mobi
 
   return (
     <span
-      aria-label={fe9AttentionText.attentionPanel_template_f3d8e459(expired ? fe9AttentionText.attentionPanel_string_53217635 : fe9AttentionText.attentionPanel_string_92e9102e, detail)}
+      aria-label={showSale ? undefined : fe9AttentionText.attentionPanel_template_f3d8e459(expired ? fe9AttentionText.attentionPanel_string_53217635 : fe9AttentionText.attentionPanel_string_92e9102e, detail)}
       className="attention-client-row__reason"
       title={detail}
     >
       <Badge variant="light">{expired ? fe9AttentionText.attentionPanel_string_53217635 : fe9AttentionText.attentionPanel_string_92e9102e}</Badge>
       <Text component="span">{detail}</Text>
+      {showSale ? (
+        <>
+          <Text component="span">{membershipLabel(reason)}</Text>
+          <Text component="span">{targetLabel(reason, false)}</Text>
+        </>
+      ) : null}
     </span>
   )
 }
@@ -459,17 +502,4 @@ function dayWord(value: number) {
   if (d === 1) return fe9AttentionText.attentionPanel_string_8eae90e5
   if (d >= 2 && d <= 4) return fe9AttentionText.attentionPanel_string_748dc44e
   return fe9AttentionText.attentionPanel_string_c27d559b
-}
-
-function attentionItemKey(client: ClientAttentionItem) {
-  return client.membership
-    ? `${client.clientId}:${client.membership.membershipId}:${client.membership.saleId}`
-    : client.clientId
-}
-
-function formatAttentionMembershipLabel(client: ClientAttentionItem) {
-  return client.membership
-    ? (client.membership.membershipName
-      || resources.common.membership.typeLabels[client.membership.behaviorKind])
-    : fe9AttentionText.attentionPanel_string_76848548
 }

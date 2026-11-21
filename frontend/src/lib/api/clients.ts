@@ -228,7 +228,6 @@ export function mapClientAttentionItem(payload: Record<string, unknown>): Client
     fullName,
     phone: readString(payload, ['phone', 'Phone']) ?? null,
     notes: readString(payload, ['notes', 'Notes']) ?? null,
-    membership: mapClientAttentionMembership(payload),
     telegramLink: readString(payload, ['telegramLink', 'TelegramLink']) ?? null,
     reasons,
   }
@@ -243,16 +242,15 @@ function mapClientAttentionReason(payload: Record<string, unknown>): ClientAtten
   if (type === 'expiredMembership' || type === 'ExpiredMembership' || type === 'expiringMembership' || type === 'ExpiringMembership') {
     const membershipId = readString(payload, ['membershipId', 'MembershipId'])
     const saleId = readString(payload, ['saleId', 'SaleId'])
+    const behaviorKind = mapMembershipBehaviorKind(readString(payload, ['behaviorKind', 'BehaviorKind']))
+    if (!membershipId || !saleId || !behaviorKind) return null
     const targetGroups = mapAttentionTargetGroups(payload)
-
-    if (!membershipId || !saleId) {
-      return null
-    }
-
     return {
-      type: type.toLowerCase().startsWith('expired') ? 'expiredMembership' : 'expiringMembership',
+      type: type === 'expiredMembership' || type === 'ExpiredMembership' ? 'expiredMembership' : 'expiringMembership',
       membershipId,
       saleId,
+      behaviorKind,
+      membershipName: readString(payload, ['membershipName', 'MembershipName']) ?? '',
       expirationDate: normalizeIsoDateValue(readString(payload, ['expirationDate', 'ExpirationDate'])),
       daysUntilExpiration: readNumber(payload, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? null,
       targetGroups,
@@ -260,26 +258,6 @@ function mapClientAttentionReason(payload: Record<string, unknown>): ClientAtten
     }
   }
   return null
-}
-
-function mapClientAttentionMembership(payload: Record<string, unknown>) {
-  const value = payload.membership ?? payload.Membership
-  if (!isRecord(value)) return null
-  const membershipId = readString(value, ['membershipId', 'MembershipId'])
-  const saleId = readString(value, ['saleId', 'SaleId'])
-  const behaviorKind = mapMembershipBehaviorKind(readString(value, ['behaviorKind', 'BehaviorKind']))
-  if (!membershipId || !saleId || !behaviorKind) return null
-  const targetGroups = mapAttentionTargetGroups(value)
-  return {
-    membershipId,
-    saleId,
-    behaviorKind,
-    membershipName: readString(value, ['membershipName', 'MembershipName']) ?? '',
-    expirationDate: normalizeIsoDateValue(readString(value, ['expirationDate', 'ExpirationDate'])),
-    daysUntilExpiration: readNumber(value, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? null,
-    targetGroups,
-    targetSummary: buildAttentionTargetSummary(targetGroups),
-  }
 }
 
 export async function getExpiringClientMemberships(signal?: AbortSignal) {

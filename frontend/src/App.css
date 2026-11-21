@@ -4843,6 +4843,21 @@
   line-height: 1.25;
 }
 
+.attention-client-row__reasons[data-multiple-sales] {
+  display: grid;
+  overflow: visible;
+}
+
+.attention-client-row__reasons[data-multiple-sales] .attention-client-row__reason {
+  flex-wrap: wrap;
+}
+
+.attention-client-row__reasons[data-multiple-sales] .attention-client-row__reason > * {
+  overflow: visible;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
 .attention-client-row__details {
   color: var(--crm-text-secondary);
   font-size: var(--crm-type-body-compact-size);

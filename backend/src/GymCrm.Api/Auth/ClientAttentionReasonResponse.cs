@@ -7,4 +7,6 @@ internal sealed record ClientAttentionReasonResponse(
     int? DaysUntilExpiration = null,
     Guid? MembershipId = null,
     Guid? SaleId = null,
+    string? MembershipName = null,
+    string? BehaviorKind = null,
     IReadOnlyList<ClientMembershipTargetGroupResponse>? TargetGroups = null);

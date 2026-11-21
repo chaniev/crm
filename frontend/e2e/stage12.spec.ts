@@ -2097,13 +2097,17 @@ test.describe('Основные e2e сценарии', () => {
               fullName: `${expiringClient.lastName} ${expiringClient.firstName} ${expiringClient.middleName}`,
               phone: expiringClient.phone,
               notes: expiringClient.notes,
-              membership: {
+              telegramLink: null,
+              reasons: [{
+                type: 'expiringMembership',
+                membershipId: 'membership-1',
+                saleId: 'sale-1',
                 membershipName: 'Месяц',
                 behaviorKind: 'Term',
                 expirationDate: expiringClient.expirationDate,
-              },
-              telegramLink: null,
-              reasons: [{ type: 'expiringMembership', daysUntilExpiration: 3 }],
+                daysUntilExpiration: 3,
+                targetGroups: [],
+              }],
             },
           ],
         })

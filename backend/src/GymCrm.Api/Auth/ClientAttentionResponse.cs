@@ -5,6 +5,5 @@ internal sealed record ClientAttentionResponse(
     string FullName,
     string Phone,
     string? Notes,
-    ClientAttentionMembershipResponse? Membership,
     string? TelegramLink,
     IReadOnlyList<ClientAttentionReasonResponse> Reasons);

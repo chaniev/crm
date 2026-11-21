@@ -522,6 +522,8 @@ export type ClientAttentionMembershipReason = {
   type: 'expiredMembership' | 'expiringMembership'
   membershipId: string
   saleId: string
+  behaviorKind: MembershipBehaviorKind
+  membershipName: string
   expirationDate: string | null
   daysUntilExpiration: number | null
   targetGroups: ClientMembershipTargetGroup[]
@@ -537,23 +539,11 @@ export type ClientAttentionReason =
   | ClientAttentionMembershipReason
   | ClientAttentionMissedTrainingReason
 
-export type ClientAttentionMembershipSummary = {
-  membershipId: string
-  saleId: string
-  behaviorKind: MembershipBehaviorKind
-  membershipName: string
-  expirationDate: string | null
-  daysUntilExpiration: number | null
-  targetGroups: ClientMembershipTargetGroup[]
-  targetSummary: string
-}
-
 export type ClientAttentionItem = {
   clientId: string
   fullName: string
   phone: string | null
   notes: string | null
-  membership: ClientAttentionMembershipSummary | null
   telegramLink: string | null
   reasons: ClientAttentionReason[]
 }

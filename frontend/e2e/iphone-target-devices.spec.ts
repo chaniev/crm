@@ -1,3 +1,4 @@
+import { attentionCard, membershipReason, mockAttentionApi } from './support/attention'
 import { administratorCoachFlow } from './support/administrator-coach-flow'
 import { registerAuditAccessScenarios } from './audit-access-scenarios'
 import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
@@ -1036,23 +1037,12 @@ test('target iPhone attention keeps long records readable and every client opera
       phone: `+7999111223${number}`,
       notes: number === 1 ? 'Позвонить после вечерней тренировки' : `Комментарий ${number}`,
       telegramLink: `https://t.me/attention${number}`,
-      membership: {
-        membershipId: `attention-membership-${number}`,
-        saleId: `attention-sale-${number}`,
-        behaviorKind: 'Term',
-        membershipName: 'Профессиональный абонемент',
-        expirationDate: '2026-08-29',
-        daysUntilExpiration: -1,
-        targetGroups: [{
-          id: 'group-1',
-          name: 'Утренняя группа',
-          groupTypeName: 'Отчётность',
-        }],
-      },
       reasons: [
         { type: 'missedTraining', missedCount: 4 },
         {
           type: 'expiredMembership',
+          behaviorKind: 'Term',
+          membershipName: 'Профессиональный абонемент',
           membershipId: `attention-membership-${number}`,
           saleId: `attention-sale-${number}`,
           expirationDate: '2026-08-29',
@@ -1119,6 +1109,33 @@ test('target iPhone attention keeps long records readable and every client opera
   await expect(firstCard.getByText('4 пропуска подряд')).toHaveCount(0)
   await expect(firstCard).toContainText('Абонемент истёк 1 день назад')
   await expectTouchTargetAtLeast(firstCard.getByRole('link', { name: /Позвонить/ }), 44)
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone keeps both sales on the same client after contact', async ({ page }) => {
+  const second = {
+    ...membershipReason(2),
+    membershipName: 'Вечерний курс дзюдо',
+    targetGroups: [{ groupId: 'group-2', groupName: 'Дзюдо', branchName: 'Север' }],
+  }
+  const client = attentionCard()
+  client.reasons.push(second)
+  await mockAttentionApi(page, { attentionItems: [client] })
+  await page.route('**/clients/client-1/attention/missed-training/contacted', async route => {
+    client.reasons = client.reasons.filter(reason => reason.type !== 'missedTraining')
+    await fulfillJson(route, client)
+  })
+  await page.goto('/attention')
+  const row = page.getByRole('list', { name: 'Список клиентов' }).getByRole('listitem')
+  await expect(row).toHaveCount(1)
+  await expect(row).toContainText('Месяц')
+  await expect(row).toContainText('Вечерний курс дзюдо')
+  await expect(row).toContainText('Север')
+  await expect(row.getByRole('link', { name: /Позвонить/ })).toHaveAttribute('href', 'tel:+79990000001')
+  await row.getByRole('button', { name: /Связались/ }).tap()
+  await expect(row).not.toContainText('4 пропуска подряд')
+  await expect(row).toContainText('Месяц')
+  await expect(row).toContainText('Вечерний курс дзюдо')
   await expectNoHorizontalScroll(page)
 })
 

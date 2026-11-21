@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { attentionCard, fulfillJson, HEAD_COACH_SESSION, mockAttentionApi } from './support/attention'
+import { attentionCard, fulfillJson, HEAD_COACH_SESSION, membershipReason, mockAttentionApi } from './support/attention'
 
 test.describe('Attention dashboard', () => {
   test('TASK-181 section links support native tabs and browser history', async ({ page, context }) => {
@@ -135,7 +135,7 @@ test.describe('Attention dashboard', () => {
     continueInitialLoad?.()
 
     await expect(page.getByTestId('attention-list')).toBeVisible()
-    await expect(page.getByTestId('attention-client-card-client-1:membership-1:sale-1')).toBeVisible()
+    await expect(page.getByTestId('attention-client-card-client-1')).toBeVisible()
     await expect(page.getByText('Иван Иванов')).toBeVisible()
     await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
     await expect(page.getByText('Осталось 1 день')).toBeVisible()
@@ -143,9 +143,17 @@ test.describe('Attention dashboard', () => {
   })
 
   test('preserves attention action recovery on a narrow screen', async ({ page }) => {
-    const card = attentionCard()
+    const second = {
+      ...membershipReason(2),
+      membershipName: 'Вечерний курс дзюдо',
+      targetGroups: [{ groupId: 'group-2', groupName: 'Дзюдо', branchName: 'Север' }],
+      expirationDate: '2026-07-22',
+      daysUntilExpiration: 2,
+    }
+    let card = attentionCard()
+    card.reasons.push(second)
     let calls = 0
-    await mockAttentionApi(page, { attentionItems: [card] })
+    await mockAttentionApi(page, { onAttentionItems: route => fulfillJson(route, 200, [card]) })
     await page.route('**/clients/client-1/attention/missed-training/contacted', async (route) => {
       calls += 1
       if (calls === 1) {
@@ -153,16 +161,8 @@ test.describe('Attention dashboard', () => {
         return
       }
 
-      await fulfillJson(route, 200, {
-        ...card,
-        reasons: [{
-          type: 'expiringMembership',
-          membershipId: 'membership-1',
-          saleId: 'sale-1',
-          expirationDate: '2026-07-21',
-          daysUntilExpiration: 1,
-        }],
-      })
+      card = { ...card, reasons: card.reasons.filter(reason => reason.type !== 'missedTraining') }
+      await fulfillJson(route, 200, card)
     })
 
     await page.setViewportSize({ width: 390, height: 844 })
@@ -175,6 +175,13 @@ test.describe('Attention dashboard', () => {
       'aria-labelledby',
       'attention-list-title',
     )
+    const row = page.getByRole('list', { name: 'Список клиентов' }).getByRole('listitem')
+    await expect(row).toHaveCount(1)
+    await expect(row).toContainText('Месяц')
+    await expect(row).toContainText('Вечерний курс дзюдо')
+    await expect(row).toContainText('Дзюдо')
+    await expect(row).toContainText('Север')
+    await expectTextInsideCard(row)
     await expect(page.getByText('4 пропуска подряд')).toBeVisible()
     await expect(page.getByRole('link', { name: /Позвонить/ })).toHaveAttribute('href', 'tel:+79990000001')
     const actionMenu = page.getByRole('button', { name: 'Другие действия для Иван Иванов' })
@@ -193,7 +200,11 @@ test.describe('Attention dashboard', () => {
 
     await action.click()
     await expect(page.getByText('4 пропуска подряд')).toBeHidden()
-    await expect(page.getByText('Абонемент истекает через 1 день')).toBeVisible()
+    await expect(row).toContainText('Абонемент истекает через 1 день')
+    await expect(row).toContainText('Абонемент истекает через 2 дня')
+    await expect(row).toContainText('Месяц')
+    await expect(row).toContainText('Вечерний курс дзюдо')
+    expect(calls).toBe(2)
     await expectNoHorizontalScroll(page)
   })
 
@@ -219,7 +230,7 @@ test.describe('Attention dashboard', () => {
 
   test('long records reflow at 200% text size and keep keyboard actions reachable', async ({ page }) => {
     const items = prototypeClients(true)
-    items[0].membership.targetGroups.push({ id: 'group-2', name: 'Дзюдо', branchName: 'Север' })
+    items[0].reasons[0].targetGroups.push({ groupId: 'group-2', groupName: 'Дзюдо', branchName: 'Север' })
     items[0].notes += ' ' + 'ДлинныйКомментарий'.repeat(12)
     await mockAttentionApi(page, { attentionItems: items })
     await page.setViewportSize({ width: 360, height: 780 })
@@ -275,8 +286,8 @@ test.describe('Attention dashboard', () => {
         await expect(cards.nth(2).locator('a[href^="tel:"]')).toHaveCount(0)
         for (const [i, card] of (await cards.all()).entries()) {
           await expect(card).toContainText(items[i].notes)
-          await expect(card).toContainText(items[i].membership.targetGroups[0].name)
-          await expect(card).toContainText(items[i].membership.targetGroups[0].branchName)
+          await expect(card).toContainText(items[i].reasons[0].targetGroups[0].groupName)
+          await expect(card).toContainText(items[i].reasons[0].targetGroups[0].branchName)
           await expectTextInsideCard(card)
           await expectSpacedActions(card)
         }
@@ -310,20 +321,18 @@ function prototypeClients(long: boolean) {
     const days = [-58, -8, -3, -1, 1, 2, 3][index]
     const groupName = [2, 4].includes(index) ? 'Бокс' : 'Самбо'
     const branchName = [1, 4].includes(index) ? 'Север' : 'Центр'
-    const membership = { ...item.membership, daysUntilExpiration: days, targetGroups: [{ id: 'group-1', name: groupName, branchName }] }
     const term = {
+      ...membershipReason(index + 1),
       type: days < 0 ? 'expiredMembership' : 'expiringMembership',
-      membershipId: membership.membershipId,
-      saleId: membership.saleId,
       daysUntilExpiration: days,
+      targetGroups: [{ groupId: 'group-1', groupName, branchName }],
     }
     return {
       ...item,
       fullName,
-      membership,
       notes: notes[index],
       phone: index === 2 ? null : `+7 900 000-00-0${index + 1}`,
-      reasons: index === 0 ? [term, { type: 'missedTraining', missedCount: 3 }] : [term],
+      reasons: [term, ...(index === 0 ? [{ type: 'missedTraining', missedCount: 3 }] : [])] as const,
     }
   })
 }

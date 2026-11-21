@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   getAttendanceGroupClients,
@@ -7,6 +7,7 @@ import {
   markMissedTrainingContacted,
   saveAttendanceMarks,
   type ClientAttentionItem,
+  type ClientAttentionMembershipReason,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { AttentionDashboard } from './AttentionDashboard'
@@ -59,34 +60,17 @@ describe('AttentionDashboard', () => {
   })
 
   test('loads status-free reasons and contacts, then keeps membership expiration after contacted', async () => {
-    const attention = {
-      clientId: 'client-1',
-      fullName: 'Иван Иванов',
+    const term = buildReason({ daysUntilExpiration: 0 })
+    const attention: ClientAttentionItem = {
+      ...buildMembership(),
       phone: '+79990000000',
       notes: 'Позвонить вечером',
       telegramLink: 'https://t.me/ivan',
-      membership: {
-        membershipId: 'membership-1',
-        saleId: 'sale-1',
-        behaviorKind: 'Term',
-        membershipName: 'Месяц',
-        expirationDate: '2026-07-20',
-        daysUntilExpiration: 0,
-        targetGroups: [buildTargetGroup()],
-        targetSummary: '1. Утренняя группа · отчётность',
-      },
-      reasons: [
-        { type: 'missedTraining', missedCount: 4 },
-        { type: 'expiringMembership', membershipId: 'membership-1', saleId: 'sale-1', expirationDate: '2026-07-20', daysUntilExpiration: 0, targetGroups: [buildTargetGroup()], targetSummary: '1. Утренняя группа · отчётность' },
-      ],
-    } as unknown as ClientAttentionItem
-    getAttentionMock.mockResolvedValueOnce([attention])
-    contactedMock.mockResolvedValueOnce({
-      ...attention,
-      reasons: [
-        { type: 'expiringMembership', membershipId: 'membership-1', saleId: 'sale-1', expirationDate: '2026-07-20', daysUntilExpiration: 0, targetGroups: [buildTargetGroup()], targetSummary: '1. Утренняя группа · отчётность' },
-      ],
-    })
+      reasons: [{ type: 'missedTraining', missedCount: 4 }, term],
+    }
+    const updated = { ...attention, reasons: [term] }
+    getAttentionMock.mockResolvedValueOnce([attention]).mockResolvedValueOnce([updated])
+    contactedMock.mockResolvedValueOnce(updated)
 
     renderWithProviders(<AttentionDashboard />)
 
@@ -113,34 +97,63 @@ describe('AttentionDashboard', () => {
     expect(screen.getByTestId('attention-list')).toBeVisible()
   })
 
-  test('distinguishes multiple memberships for one client by membership identity and targets', async () => {
-    getAttentionMock.mockResolvedValueOnce([
-      buildMembership({
-        clientId: 'client-same',
-        fullName: 'Иван Иванов',
-        membershipId: 'membership-term',
-        saleId: 'sale-term',
-        membershipName: 'Месяц',
-        targetSummary: '1. Утренняя группа · отчётность · 2. Вечерняя группа',
-      }),
-      buildMembership({
-        clientId: 'client-same',
-        fullName: 'Иван Иванов',
-        membershipId: 'membership-single',
-        saleId: 'sale-single',
-        membershipName: 'Разовое',
-        targetSummary: '1. Детская группа · отчётность',
-      }),
-    ])
+  test('keeps both sales and one set of actions after a failed command, then reorders after retry', async () => {
+    const first = buildReason({ type: 'expiredMembership', membershipName: 'Месяц', daysUntilExpiration: -2 })
+    const second = buildReason({
+      type: 'expiredMembership', membershipId: 'membership-2', saleId: 'sale-2', membershipName: 'Разовое',
+      daysUntilExpiration: -1, targetSummary: '1. Детская группа · отчётность',
+    })
+    const updated = { ...buildMembership(), phone: '+79990000000', reasons: [first, second] }
+    const attention: ClientAttentionItem = { ...updated, reasons: [...updated.reasons, { type: 'missedTraining', missedCount: 3 }] }
+    const reordered = createDeferred<ClientAttentionItem[]>()
+    getAttentionMock.mockResolvedValueOnce([attention]).mockReturnValueOnce(reordered.promise)
+    contactedMock.mockRejectedValueOnce(new Error('Сбой связи')).mockResolvedValueOnce(updated)
+    renderWithProviders(<AttentionDashboard onOpenClient={vi.fn()} />)
 
+    const row = await screen.findByRole('listitem')
+    expect(screen.getByLabelText('Всего клиентов: 1')).toBeVisible()
+    expect(screen.getByLabelText('Просроченных абонементов: 2')).toBeVisible()
+    expect(screen.getByText('Месяц').parentElement).toHaveTextContent('Истек 2 дня назад')
+    expect(screen.getByText('Месяц').parentElement).toHaveTextContent(first.targetSummary)
+    expect(screen.getByText('Разовое').parentElement).toHaveTextContent('Истек 1 день назад')
+    expect(screen.getByText('Разовое').parentElement).toHaveTextContent(second.targetSummary)
+    const action = screen.getByRole('button', { name: 'Связались с Иван Иванов' })
+    expect(screen.getByRole('button', { name: 'Другие действия для Иван Иванов' })).toBeVisible()
+    fireEvent.click(action)
+    expect(await screen.findByText(/Сбой связи/)).toBeVisible()
+    expect(row).toHaveTextContent('Пропущено подряд: 3')
+    expect(row).toHaveTextContent('Месяц')
+    expect(row).toHaveTextContent('Разовое')
+    fireEvent.click(action)
+    await waitFor(() => expect(getAttentionMock).toHaveBeenCalledTimes(2))
+    expect(row).not.toHaveTextContent('Пропущено')
+    expect(row).toHaveTextContent('Месяц')
+    expect(row).toHaveTextContent('Разовое')
+    const other = buildMembership({ clientId: 'c2', fullName: 'Анна' })
+    reordered.resolve([other, updated])
+    await screen.findByText('Анна')
+    expect(screen.getAllByRole('listitem')[1]).toBe(row)
+  })
+
+  test('ignores a stale refresh after contact and keeps the confirmed result on reload failure', async () => {
+    const updated = buildMembership()
+    const old = { ...updated, reasons: [...updated.reasons, { type: 'missedTraining' as const, missedCount: 3 }] }
+    const stale = createDeferred<ClientAttentionItem[]>()
+    getAttentionMock.mockResolvedValueOnce([old]).mockReturnValueOnce(stale.promise)
+      .mockRejectedValueOnce(new Error('Обновление недоступно')).mockResolvedValueOnce([updated])
+    contactedMock.mockResolvedValueOnce(updated)
     renderWithProviders(<AttentionDashboard />)
-
-    expect(await screen.findByTestId('attention-client-card-client-same:membership-term:sale-term')).toBeVisible()
-    expect(screen.getByTestId('attention-client-card-client-same:membership-single:sale-single')).toBeVisible()
-    expect(screen.getByText('Месяц')).toBeVisible()
-    expect(screen.getByText('Разовое')).toBeVisible()
-    expect(screen.getByText('1. Утренняя группа · отчётность · 2. Вечерняя группа')).toBeVisible()
-    expect(screen.getByText('1. Детская группа · отчётность')).toBeVisible()
+    const action = await screen.findByRole('button', { name: 'Связались с Иван Иванов' })
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+    await waitFor(() => expect(getAttentionMock).toHaveBeenCalledTimes(2))
+    fireEvent.click(action)
+    expect(await screen.findByText('Обновление недоступно')).toBeVisible()
+    await act(() => stale.resolve([old]))
+    expect(screen.queryByText('Пропущено подряд: 3')).not.toBeInTheDocument()
+    expect(screen.getByRole('listitem')).toHaveTextContent('Месяц')
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+    await waitFor(() => expect(screen.queryByText('Обновление недоступно')).not.toBeInTheDocument())
+    expect(getAttentionMock).toHaveBeenCalledTimes(4)
   })
 
   test('keeps missed reason after action error and allows retry that removes the card', async () => {
@@ -149,7 +162,6 @@ describe('AttentionDashboard', () => {
       fullName: 'Иван Иванов',
       phone: null,
       notes: null,
-      membership: null,
       telegramLink: null,
       reasons: [{ type: 'missedTraining', missedCount: 3 }],
     }
@@ -270,34 +282,16 @@ describe('AttentionDashboard', () => {
       phone: '+79991234567',
       notes: 'Позвонить после вечерней тренировки и уточнить решение по продлению',
       telegramLink: 'https://t.me/alexandra',
-      membership: {
-        membershipId: 'membership-density',
-        saleId: 'sale-density',
-        behaviorKind: 'Term',
-        membershipName: 'Профессиональный абонемент',
-        expirationDate: '2026-07-20',
-        daysUntilExpiration: -2,
-        targetGroups: [buildTargetGroup()],
-        targetSummary: '1. Утренняя группа · отчётность',
-      },
       reasons: [
         { type: 'missedTraining', missedCount: 4 },
-        {
-          type: 'expiredMembership',
-          membershipId: 'membership-density',
-          saleId: 'sale-density',
-          expirationDate: '2026-07-20',
-          daysUntilExpiration: -2,
-          targetGroups: [buildTargetGroup()],
-          targetSummary: '1. Утренняя группа · отчётность',
-        },
+        buildReason({ type: 'expiredMembership', membershipName: 'Профессиональный абонемент', daysUntilExpiration: -2 }),
       ],
-    } as unknown as ClientAttentionItem])
+    }])
 
     renderWithProviders(<AttentionDashboard onOpenClient={onOpenClient} />)
 
     const card = await screen.findByTestId(
-      'attention-client-card-client-density:membership-density:sale-density',
+      'attention-client-card-client-density',
     )
     expect(card).toHaveClass('crm-list-row-surface')
     expect(card).toHaveAttribute('tabindex', '0')
@@ -339,55 +333,37 @@ describe('AttentionDashboard', () => {
   })
 })
 
-function buildMembership(
-  overrides: Partial<{
-    clientId: string
-    fullName: string
-    membershipId: string
-    saleId: string
-    membershipName: string
-    behaviorKind: 'SingleVisit' | 'Term' | 'Professional'
-    expirationDate: string | null
-    daysUntilExpiration: number | null
-    state: 'Expired' | 'ExpiringSoon' | 'Unknown'
-    targetSummary: string
-  }> = {},
-): ClientAttentionItem {
-  const state = overrides.state ?? 'ExpiringSoon'
-  const membershipId = overrides.membershipId ?? 'membership-1'
-  const saleId = overrides.saleId ?? 'sale-1'
-  const targetSummary = overrides.targetSummary ?? '1. Утренняя группа · отчётность'
-  const reasons: ClientAttentionItem['reasons'] = state === 'Unknown'
-    ? []
-    : [{
-      type: state === 'Expired' ? 'expiredMembership' : 'expiringMembership',
-      membershipId,
-      saleId,
-      expirationDate: overrides.expirationDate ?? '2026-05-06',
-      daysUntilExpiration: overrides.daysUntilExpiration ?? 3,
-      targetGroups: [buildTargetGroup()],
-      targetSummary,
-    }]
-
+function buildReason(overrides: Partial<ClientAttentionMembershipReason> = {}): ClientAttentionMembershipReason {
   return {
-    clientId: overrides.clientId ?? 'client-1',
-    fullName: overrides.fullName ?? 'Иван Иванов',
+    type: 'expiringMembership',
+    membershipId: 'membership-1',
+    saleId: 'sale-1',
+    behaviorKind: 'Term',
+    membershipName: 'Месяц',
+    expirationDate: '2026-05-06',
+    daysUntilExpiration: 3,
+    targetGroups: [buildTargetGroup()],
+    targetSummary: '1. Утренняя группа · отчётность',
+    ...overrides,
+  }
+}
+
+function buildMembership({
+  clientId = 'client-1', fullName = 'Иван Иванов', state = 'ExpiringSoon', ...reason
+}: Partial<ClientAttentionMembershipReason> & {
+  clientId?: string
+  fullName?: string
+  state?: 'Expired' | 'ExpiringSoon' | 'Unknown'
+} = {}): ClientAttentionItem {
+  return {
+    clientId,
+    fullName,
     phone: null,
     notes: null,
     telegramLink: null,
-    membership: state === 'Unknown'
-      ? null
-      : {
-        membershipId,
-        saleId,
-        behaviorKind: overrides.behaviorKind ?? 'Term',
-        membershipName: overrides.membershipName ?? '',
-        expirationDate: overrides.expirationDate ?? '2026-05-06',
-        daysUntilExpiration: overrides.daysUntilExpiration ?? 3,
-        targetGroups: [buildTargetGroup()],
-        targetSummary,
-      } as unknown as ClientAttentionItem['membership'],
-    reasons,
+    reasons: state === 'Unknown' ? [] : [buildReason({
+      type: state === 'Expired' ? 'expiredMembership' : 'expiringMembership', ...reason,
+    })],
   }
 }
 

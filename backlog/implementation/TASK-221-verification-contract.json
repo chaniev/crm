@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "task_id": "TASK-221",
+  "expected_branch": "fix/TASK-221-attention-one-row-per-client",
+  "areas": ["backend", "frontend"],
+  "playwright": [
+    {
+      "id": "frontend.attention-dashboard",
+      "spec": "e2e/attention-dashboard.spec.ts",
+      "projects": ["chromium"]
+    },
+    {
+      "id": "frontend.attention-iphone",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": ["iphone-air-webkit", "iphone-17-pro-max-webkit"]
+    }
+  ]
+}

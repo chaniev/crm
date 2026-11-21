@@ -93,6 +93,19 @@ export async function mockAttentionApi(page: Page | BrowserContext, options: Moc
   })
 }
 
+export function membershipReason(index = 1) {
+  return {
+    type: 'expiringMembership',
+    membershipId: `membership-${index}`,
+    saleId: `sale-${index}`,
+    behaviorKind: 'Term',
+    membershipName: 'Месяц',
+    expirationDate: '2026-07-21',
+    daysUntilExpiration: 1,
+    targetGroups: [{ groupId: 'group-1', groupName: 'Самбо', branchName: 'Центр' }],
+  }
+}
+
 export function attentionCard(index = 1) {
   return {
     clientId: `client-${index}`,
@@ -100,23 +113,9 @@ export function attentionCard(index = 1) {
     phone: `+7999000000${index}`,
     notes: index === 1 ? 'Позвонить вечером' : `Комментарий клиента ${index}`,
     telegramLink: `https://t.me/client${index}`,
-    membership: {
-      membershipId: `membership-${index}`,
-      saleId: `sale-${index}`,
-      behaviorKind: 'Term',
-      membershipName: 'Месяц',
-      expirationDate: '2026-07-21',
-      daysUntilExpiration: 1,
-    },
     reasons: [
       { type: 'missedTraining', missedCount: 4 },
-      {
-        type: 'expiringMembership',
-        membershipId: `membership-${index}`,
-        saleId: `sale-${index}`,
-        expirationDate: '2026-07-21',
-        daysUntilExpiration: 1,
-      },
+      membershipReason(index),
     ],
   }
 }

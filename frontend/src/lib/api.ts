@@ -30,7 +30,6 @@ export type {
   ClientAttentionMembershipReason,
   ClientAttentionMissedTrainingReason,
   ClientAttentionReason,
-  ClientAttentionMembershipSummary,
   ClientAttendanceHistoryEntry,
   ClientContact,
   ClientContactInput,

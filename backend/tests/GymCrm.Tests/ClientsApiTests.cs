@@ -4419,143 +4419,97 @@ public class ClientsApiTests
         }
     }
 
-    [Fact]
-    public async Task Attention_unifies_reasons_and_contacted_is_idempotent_and_audited()
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Attention_returns_all_sales_and_one_missed_reason_in_one_client_card(int secondExpiryDays)
     {
-        await using var factory = new ClientsAppFactory();
+        var today = new DateOnly(2026, 11, 20);
+        await using var factory = new ClientsAppFactory(businessDate: today);
         var seeded = await SeedClientsDataAsync(factory);
-        var clientId = Guid.NewGuid();
-        var today = GetBusinessToday();
-        using (var scope = factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-            db.Clients.Add(new Client
-            {
-                Id = clientId,
-                BranchId = seeded.BranchId,
-                LastName = "Внимание",
-                FirstName = "Клиент",
-                Phone = "+79991234567",
-                Notes = "Позвонить после обеда",
-                Status = ClientStatus.Active,
-                CreatedAt = DateTimeOffset.UtcNow,
-                UpdatedAt = DateTimeOffset.UtcNow
-            });
-            db.ClientMemberships.Add(CreateMembershipWithSale(
-                clientId,
-                MembershipBehaviorKind.Term,
-                today.AddMonths(-1),
-                today.AddDays(3),
-                1200m,
-                paymentDate: GetBusinessToday(),
-                seeded.HeadCoachId,
-                DateTimeOffset.UtcNow));
-            for (var offset = 3; offset >= 1; offset--)
-            {
-                SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(-offset), false);
-            }
+        var (first, second) = await SeedAttentionSalesAndAbsencesAsync(factory, seeded, today, secondExpiryDays);
 
-            await db.SaveChangesAsync();
-        }
-
-        using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
-        var session = await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
-        using (var response = await http.GetAsync("/clients/attention"))
-        {
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var payload = await ReadJsonElementAsync(response);
-            var card = Assert.Single(payload.EnumerateArray(), item => item.GetProperty("clientId").GetGuid() == clientId);
-            var reasonTypes = card.GetProperty("reasons").EnumerateArray()
-                .Select(reason => reason.GetProperty("type").GetString())
-                .ToArray();
-            Assert.Contains("missedTraining", reasonTypes);
-            Assert.Contains("expiringMembership", reasonTypes);
-            Assert.Equal(3, card.GetProperty("reasons").EnumerateArray()
-                .Single(reason => reason.GetProperty("type").GetString() == "missedTraining")
-                .GetProperty("missedCount").GetInt32());
-        }
-
-        for (var attempt = 0; attempt < 2; attempt++)
-        {
-            using var response = await PostJsonAsync(
-                http,
-                $"/clients/{clientId}/attention/missed-training/contacted",
-                new { },
-                session.CsrfToken);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var card = await ReadJsonElementAsync(response);
-            Assert.DoesNotContain(
-                card.GetProperty("reasons").EnumerateArray(),
-                reason => reason.GetProperty("type").GetString() == "missedTraining");
-        }
-
-        using var verifyScope = factory.Services.CreateScope();
-        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-        Assert.Equal(1, await verifyDb.ClientMissedTrainingAcknowledgements.CountAsync(item => item.ClientId == clientId));
-        Assert.Equal(1, await verifyDb.AuditLogs.CountAsync(item => item.ActionType == "ClientMissedTrainingContacted"));
+        using var http = factory.CreateClient();
+        await LoginAsync(http, seeded.AdministratorLogin, seeded.SharedPassword);
+        using var response = await http.GetAsync("/clients/attention");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var card = Assert.Single((await ReadJsonElementAsync(response)).EnumerateArray());
+        Assert.Equal(first.ClientId, card.GetProperty("clientId").GetGuid());
+        Assert.False(card.TryGetProperty("membership", out _));
+        var reasons = card.GetProperty("reasons").EnumerateArray().ToArray();
+        var missed = Assert.Single(reasons, reason => reason.GetProperty("type").GetString() == "missedTraining");
+        Assert.Equal(3, missed.GetProperty("missedCount").GetInt32());
+        Assert.Collection(reasons.Where(reason => reason.GetProperty("type").GetString() != "missedTraining"),
+            reason => AssertSaleReason(reason, first, "Тестовый срочный", seeded.GroupOneId, today),
+            reason => AssertSaleReason(reason, second, "Вечерний тариф", seeded.GroupTwoId, today));
     }
 
     [Fact]
-    public async Task Attention_returns_one_stable_target_aware_item_per_membership()
+    public async Task Contacted_returns_both_sales_on_each_attempt_and_records_the_boundary_once()
     {
-        await using var factory = new ClientsAppFactory();
+        var today = new DateOnly(2026, 11, 20);
+        await using var factory = new ClientsAppFactory(businessDate: today);
         var seeded = await SeedClientsDataAsync(factory);
-        var clientId = Guid.NewGuid();
-        var today = GetBusinessToday();
-        ClientMembership firstMembership;
-        ClientMembership secondMembership;
-        using (var scope = factory.Services.CreateScope())
+        var (first, second) = await SeedAttentionSalesAndAbsencesAsync(factory, seeded, today, 2);
+
+        using var http = factory.CreateClient();
+        var session = await LoginAsync(http, seeded.AdministratorLogin, seeded.SharedPassword);
+        for (var attempt = 0; attempt < 2; attempt++)
         {
-            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-            db.Clients.Add(NewAttentionClient(clientId, seeded.BranchId, "Два абонемента"));
-            firstMembership = CreateMembershipWithSale(
-                clientId,
-                MembershipBehaviorKind.Term,
-                today,
-                today.AddDays(1),
-                1000m,
-                today,
-                seeded.HeadCoachId,
-                DateTimeOffset.UtcNow,
-                targetGroupId: seeded.GroupOneId,
-                targetBranchId: seeded.BranchId);
-            secondMembership = CreateMembershipWithSale(
-                clientId,
-                MembershipBehaviorKind.Term,
-                today,
-                today.AddDays(2),
-                1200m,
-                today,
-                seeded.HeadCoachId,
-                DateTimeOffset.UtcNow.AddMinutes(1),
-                targetGroupId: seeded.GroupTwoId,
-                targetBranchId: seeded.BranchId);
-            db.ClientMemberships.AddRange(firstMembership, secondMembership);
-            await db.SaveChangesAsync();
+            using var response = await PostJsonAsync(
+                http, $"/clients/{first.ClientId}/attention/missed-training/contacted", new { }, session.CsrfToken);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var card = await ReadJsonElementAsync(response);
+            Assert.Equal(first.ClientId, card.GetProperty("clientId").GetGuid());
+            Assert.False(card.TryGetProperty("membership", out _));
+            Assert.Collection(card.GetProperty("reasons").EnumerateArray(),
+                reason => AssertSaleReason(reason, first, "Тестовый срочный", seeded.GroupOneId, today),
+                reason => AssertSaleReason(reason, second, "Вечерний тариф", seeded.GroupTwoId, today));
         }
 
-        using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
-        await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
-        using var response = await http.GetAsync("/clients/attention");
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var cards = (await ReadJsonElementAsync(response))
-            .EnumerateArray()
-            .Where(card => card.GetProperty("clientId").GetGuid() == clientId)
-            .ToArray();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(1, await db.ClientMissedTrainingAcknowledgements.CountAsync(item => item.ClientId == first.ClientId));
+        Assert.Equal(1, await db.AuditLogs.CountAsync(item => item.ActionType == "ClientMissedTrainingContacted"));
+    }
 
-        Assert.Equal(2, cards.Length);
-        Assert.Equal(
-            [firstMembership.Id, secondMembership.Id],
-            cards.Select(card => card.GetProperty("membership").GetProperty("membershipId").GetGuid()));
-        Assert.Equal(
-            [firstMembership.SaleId, secondMembership.SaleId],
-            cards.Select(card => card.GetProperty("membership").GetProperty("saleId").GetGuid()));
-        Assert.Equal(
-            [seeded.GroupOneId, seeded.GroupTwoId],
-            cards.Select(card => card.GetProperty("membership").GetProperty("targetGroups")[0].GetProperty("groupId").GetGuid()));
-        Assert.All(cards, card => Assert.Equal(
-            card.GetProperty("membership").GetProperty("membershipId").GetGuid(),
-            card.GetProperty("reasons")[0].GetProperty("membershipId").GetGuid()));
+    private static async Task<(ClientMembership First, ClientMembership Second)> SeedAttentionSalesAndAbsencesAsync(
+        ClientsAppFactory factory, SeededClientsData seeded, DateOnly today, int secondExpiryDays)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var clientId = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+        db.Clients.Add(NewAttentionClient(clientId, seeded.BranchId, "Два абонемента"));
+        var eveningTariff = MembershipCatalogItem.CreateBranchOwned(
+            seeded.BranchId, "Вечерний тариф", 1500m, MembershipBehaviorKind.Term, today.AddMonths(-1), null, now);
+        db.MembershipCatalogItems.Add(eveningTariff);
+        var first = CreateMembershipWithSale(
+            clientId, MembershipBehaviorKind.Term, today.AddDays(-2), today.AddDays(1), 1200m, today,
+            seeded.HeadCoachId, now, targetGroupId: seeded.GroupOneId, targetBranchId: seeded.BranchId);
+        var second = CreateMembershipWithSale(
+            clientId, MembershipBehaviorKind.Term, today.AddDays(-1), today.AddDays(secondExpiryDays), 1500m, today,
+            seeded.HeadCoachId, now, targetGroupId: seeded.GroupTwoId, targetBranchId: seeded.BranchId);
+        second.Sale.MembershipCatalogItemId = eveningTariff.Id;
+        db.ClientMemberships.AddRange(second, first);
+        for (var offset = 3; offset >= 1; offset--)
+            SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(-offset), false);
+        await db.SaveChangesAsync();
+        return (first, second);
+    }
+
+    private static void AssertSaleReason(JsonElement reason, ClientMembership membership, string name, Guid groupId, DateOnly today)
+    {
+        var expiry = membership.IndividualValidTo!.Value;
+        Assert.Equal("expiringMembership", reason.GetProperty("type").GetString());
+        Assert.Equal(membership.Id, reason.GetProperty("membershipId").GetGuid());
+        Assert.Equal(membership.SaleId, reason.GetProperty("saleId").GetGuid());
+        Assert.Equal(name, reason.GetProperty("membershipName").GetString());
+        Assert.Equal("Term", reason.GetProperty("behaviorKind").GetString());
+        Assert.Equal(expiry.ToString("yyyy-MM-dd"), reason.GetProperty("expirationDate").GetString());
+        Assert.Equal(expiry.DayNumber - today.DayNumber, reason.GetProperty("daysUntilExpiration").GetInt32());
+        var target = Assert.Single(reason.GetProperty("targetGroups").EnumerateArray());
+        Assert.Equal(groupId, target.GetProperty("groupId").GetGuid());
     }
 
     [Fact]
@@ -4564,11 +4518,14 @@ public class ClientsApiTests
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
         using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
-        await LoginAsync(http, seeded.CoachLogin, seeded.SharedPassword);
+        var coach = await LoginAsync(http, seeded.CoachLogin, seeded.SharedPassword);
         using (var forbidden = await http.GetAsync("/clients/attention"))
         {
             Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
         }
+
+        using var forbiddenContact = await PostJsonAsync(http, $"/clients/{seeded.ArchivedClientId}/attention/missed-training/contacted", new { }, coach.CsrfToken);
+        Assert.Equal(HttpStatusCode.Forbidden, forbiddenContact.StatusCode);
 
         await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
         using var legacy = await http.GetAsync("/clients/expiring-memberships");
@@ -4596,6 +4553,8 @@ public class ClientsApiTests
         var seeded = await SeedClientsDataAsync(factory);
         var today = GetBusinessToday();
         var visibleMissedId = Guid.NewGuid();
+        var firstExpiredId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        var secondExpiredId = Guid.Parse("00000000-0000-0000-0000-000000000002");
         var visibleMembershipId = Guid.NewGuid();
         var outsideId = Guid.NewGuid();
         using (var scope = factory.Services.CreateScope())
@@ -4612,10 +4571,14 @@ public class ClientsApiTests
             };
             db.Branches.Add(outsideBranch);
             db.Clients.AddRange(
+                NewAttentionClient(secondExpiredId, seeded.BranchId, "Яковлев"),
+                NewAttentionClient(firstExpiredId, seeded.BranchId, "Яковлев"),
                 NewAttentionClient(visibleMissedId, seeded.BranchId, "Альфа"),
                 NewAttentionClient(visibleMembershipId, seeded.BranchId, "Бета"),
                 NewAttentionClient(outsideId, outsideBranch.Id, "Чужой"));
             db.ClientMemberships.AddRange(
+                CreateMembershipWithSale(secondExpiredId, MembershipBehaviorKind.Term, today.AddMonths(-1), today.AddDays(-1), 1000m, today, seeded.HeadCoachId, DateTimeOffset.UtcNow),
+                CreateMembershipWithSale(firstExpiredId, MembershipBehaviorKind.Term, today.AddMonths(-1), today.AddDays(-1), 1000m, today, seeded.HeadCoachId, DateTimeOffset.UtcNow),
                 CreateMembershipWithSale(visibleMembershipId, MembershipBehaviorKind.Term, today, today.AddDays(1), 1000m, paymentDate: GetBusinessToday(), seeded.HeadCoachId, DateTimeOffset.UtcNow),
                 CreateMembershipWithSale(outsideId, MembershipBehaviorKind.Term, today, today.AddDays(1), 1000m, paymentDate: GetBusinessToday(), seeded.HeadCoachId, DateTimeOffset.UtcNow));
             for (var offset = 3; offset >= 1; offset--)
@@ -4633,9 +4596,9 @@ public class ClientsApiTests
         using (var response = await http.GetAsync("/clients/attention"))
         {
             var cards = (await ReadJsonElementAsync(response)).EnumerateArray().ToArray();
-            Assert.Equal([visibleMissedId, visibleMembershipId], cards.Select(card => card.GetProperty("clientId").GetGuid()));
-            Assert.Equal("https://t.me/valid_user", cards[0].GetProperty("telegramLink").GetString());
-            Assert.Equal(JsonValueKind.Null, cards[1].GetProperty("telegramLink").ValueKind);
+            Assert.Equal([firstExpiredId, secondExpiredId, visibleMissedId, visibleMembershipId], cards.Select(card => card.GetProperty("clientId").GetGuid()));
+            Assert.Equal("https://t.me/valid_user", cards[2].GetProperty("telegramLink").GetString());
+            Assert.Equal(JsonValueKind.Null, cards[3].GetProperty("telegramLink").ValueKind);
             Assert.DoesNotContain(cards, card => card.GetProperty("clientId").GetGuid() == outsideId);
         }
         using var outsideAction = await PostJsonAsync(http, $"/clients/{outsideId}/attention/missed-training/contacted", new { }, admin.CsrfToken);
@@ -4661,6 +4624,12 @@ public class ClientsApiTests
         var session = await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
         using (var contacted = await PostJsonAsync(http, $"/clients/{clientId}/attention/missed-training/contacted", new { }, session.CsrfToken))
             Assert.Equal(HttpStatusCode.NoContent, contacted.StatusCode);
+        using (var cleared = await http.GetAsync("/clients/attention"))
+        {
+            Assert.Equal(HttpStatusCode.OK, cleared.StatusCode);
+            Assert.DoesNotContain((await ReadJsonElementAsync(cleared)).EnumerateArray(),
+                item => item.GetProperty("clientId").GetGuid() == clientId);
+        }
 
         using (var scope = factory.Services.CreateScope())
         {

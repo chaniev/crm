@@ -3,6 +3,7 @@ import {
   correctClientMembership,
   getClient,
   getClientAttentionItems,
+  markMissedTrainingContacted,
   getClients,
   getMembershipAttentionItems,
   getMembershipExpirationSuggestion,
@@ -371,12 +372,37 @@ describe('status-free membership read contract', () => {
 describe('getClientAttentionItems', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  test('maps status-free backend reasons and nullable contacts without deriving payment semantics', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { membershipId: 'membership-1', saleId: 'sale-1', behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2, targetGroups: [{ groupId: 'group-2', groupName: 'Вечерняя', branchId: 'branch-1', branchName: 'Основной', position: 2, isActive: true }, { groupId: 'group-1', groupName: 'Утренняя', branchId: 'branch-1', branchName: 'Основной', position: 1, isActive: true }] }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }] }]), { status: 200, headers: { 'content-type': 'application/json' } }))
+  test('keeps both sales and their ordered targets on list and contacted responses', async () => {
+    const morning = { groupId: 'g1', groupName: 'Утренняя', branchId: 'b1', branchName: 'Центр', position: 1, isActive: true }
+    const evening = { ...morning, groupId: 'g2', groupName: 'Вечерняя', position: 2 }
+    const junior = { ...morning, groupId: 'g3', groupName: 'Детская' }
+    const first = {
+      type: 'expiredMembership', membershipId: 'm1', saleId: 's1', behaviorKind: 'Term',
+      membershipName: 'Месяц', expirationDate: '2026-07-20', daysUntilExpiration: -1,
+      targetGroups: [evening, morning],
+    }
+    const second = {
+      type: 'expiringMembership', membershipId: 'm2', saleId: 's2', behaviorKind: 'SingleVisit',
+      membershipName: 'Разовое', expirationDate: '2026-07-22', daysUntilExpiration: 1,
+      targetGroups: [junior],
+    }
+    const missed = { type: 'missedTraining', missedCount: 4 }
+    const client = { clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, telegramLink: 'https://t.me/ivan' }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(Response.json([{ ...client, reasons: [missed, first, second] }]))
+      .mockResolvedValueOnce(Response.json({ ...client, reasons: [first, second] }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
     vi.stubGlobal('fetch', fetchMock)
+    const sales = [
+      { ...first, targetGroups: [morning, evening], targetSummary: '1. Утренняя · отчётность · 2. Вечерняя' },
+      { ...second, targetSummary: '1. Детская · отчётность' },
+    ]
 
-    await expect(getClientAttentionItems()).resolves.toEqual([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { membershipId: 'membership-1', saleId: 'sale-1', behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2, targetGroups: [{ groupId: 'group-1', groupName: 'Утренняя', branchId: 'branch-1', branchName: 'Основной', position: 1, isActive: true }, { groupId: 'group-2', groupName: 'Вечерняя', branchId: 'branch-1', branchName: 'Основной', position: 2, isActive: true }], targetSummary: '1. Утренняя · отчётность · 2. Вечерняя' }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }] }])
-    expect(fetchMock).toHaveBeenCalledWith('/api/clients/attention', expect.any(Object))
+    await expect(getClientAttentionItems()).resolves.toEqual([{ ...client, reasons: [missed, ...sales] }])
+    await expect(markMissedTrainingContacted('c-1')).resolves.toEqual({ ...client, reasons: sales })
+    await expect(markMissedTrainingContacted('c-1')).resolves.toBeNull()
+    expect(fetchMock).toHaveBeenCalledWith('/api/clients/c-1/attention/missed-training/contacted',
+      expect.objectContaining({ method: 'POST' }))
   })
 })
 
