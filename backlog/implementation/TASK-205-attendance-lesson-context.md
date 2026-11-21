@@ -78,3 +78,7 @@ ROS-01: после перехода в состав остаются «Посе�
 - moved_from: /backlog/needs-clarification
 - implementation_plan: /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md
 - implementation_branch: codex/TASK-205-attendance-lesson-context
+
+## Status audit 2026-11-21
+- implementation: согласованы прототип и ready plan с read-контрактом; завершение реализации не доказано.
+- Основание: локальная main, связанные планы и записи согласования; нового runtime-аудита не было.

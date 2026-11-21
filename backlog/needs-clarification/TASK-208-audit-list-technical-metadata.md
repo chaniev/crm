@@ -63,3 +63,7 @@ AUD-01: в строке рядом с описанием выводятся те
 - Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
 - readiness: no — Не выбран прототип строки и не решено постоянное отображение источника Web.
 - implementation_plan: /backlog/implementation-plans/TASK-208-audit-list-technical-metadata.plan.md
+
+## Status audit 2026-11-21
+- needs-clarification: нет выбранного прототипа и решения о постоянном источнике Web, readiness=no.
+- Основание: локальная main, связанные планы и записи согласования; нового runtime-аудита не было.
