@@ -8,7 +8,7 @@
 
 1. [TASK-204](../../implementation/TASK-204-client-full-name-search.md) — поиск фамилии и имени: сначала воспроизводимый пример и установленная причина.
 2. [TASK-016](../../risky/TASK-016-client-card-quick-actions.md) — быстрые действия открывают обещанный сценарий; рискованная карточка требует проверки прав и операций.
-3. [TASK-205](../../implementation/TASK-205-attendance-lesson-context.md), [TASK-206](../../implementation/TASK-206-administrator-branch-display-consistency.md), [TASK-207](../../tasks-ready/TASK-207-attention-mobile-client-identity.md) — контекст занятия, достоверный филиал, различимость клиента.
+3. [TASK-205](../../implementation/TASK-205-attendance-lesson-context.md), [TASK-206](../../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md), [TASK-207](../../tasks-ready/TASK-207-attention-mobile-client-identity.md) — контекст занятия, достоверный филиал, различимость клиента.
 4. [TASK-018](../../tasks-ready/TASK-018-client-detail-visual-noise.md) / [TASK-019](../../tasks-ready/TASK-019-client-card-tabs.md) / [TASK-020](../../risky/TASK-020-client-empty-states-action-reasons.md) — убрать повторы и развести задачи в карточке; не начинать с глобальной смены оформления.
 5. [TASK-208](../../tasks-ready/TASK-208-audit-list-technical-metadata.md) и [TASK-184](../../tasks-ready/TASK-184-finance-duplicate-warning-once.md) — убрать технические строки журнала и повтор финансового предупреждения.
 
@@ -20,7 +20,7 @@
 |---|---|---|
 | [TASK-204](../../implementation/TASK-204-client-full-name-search.md): Находить клиента по сочетанию фамилии и имени | tasks-ready | 04-clients |
 | [TASK-205](../../implementation/TASK-205-attendance-lesson-context.md): Сохранять группу и время в посещаемости занятия | tasks-ready | 21-attendance-lesson |
-| [TASK-206](../../implementation/TASK-206-administrator-branch-display-consistency.md): Согласовать отображение филиала администратора в списке и диалоге | tasks-ready | 14-settings-administrators |
+| [TASK-206](../../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md): Согласовать отображение филиала администратора в списке и диалоге | done | 14-settings-administrators |
 | [TASK-207](../../tasks-ready/TASK-207-attention-mobile-client-identity.md): Сохранять различимость клиента и причины во «Внимании» | tasks-ready | 02-attention |
 | [TASK-208](../../tasks-ready/TASK-208-audit-list-technical-metadata.md): Убрать технические метаданные из рабочих строк журнала | tasks-ready | 09-audit-log |
 | [TASK-209](../../needs-clarification/TASK-209-mobile-navigation-clients-slot.md): Выбрать поведение четвёртого пункта мобильного меню | needs-clarification | 00-navigation |
@@ -65,7 +65,7 @@ TASK-016 приведена к уже принятому REQ-SUB-003: отдел
 | [11-settings-catalog](11-settings-catalog/README.md) | CAT-02 → [TASK-175](../../needs-clarification/TASK-175-user-visible-date-format.md)/185; Professional и нулевая цена → [TASK-179](../../needs-clarification/TASK-179-professional-catalog-seed-presentation.md), не доказанный дефект. CAT-01 → D06: плотность списка каталога отложена. |
 | [12-settings-group-types](12-settings-group-types/README.md) | TYP-01 → D06: демонстрационный текст не доказательство бесполезности реальных описаний. TYP-02 → D09: проверить причину запрета удаления в доступном состоянии перед созданием дефекта. Число связанных групп оставить. |
 | [13-settings-branches](13-settings-branches/README.md) | BRN-01/02/03 → D10: мобильный переход к деталям филиала, приоритет архивирования/удаления и постоянная инструкция требуют отдельного выбора; не менять сохранение/защиту операций. |
-| [14-settings-administrators](14-settings-administrators/README.md) | ADM-01 → [TASK-206](../../implementation/TASK-206-administrator-branch-display-consistency.md). ADM-02 → D06: компактность списка вторична; филиал и область посещений обязательны, смешанные роли различимы. |
+| [14-settings-administrators](14-settings-administrators/README.md) | ADM-01 → [TASK-206](../../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md). ADM-02 → D06: компактность списка вторична; филиал и область посещений обязательны, смешанные роли различимы. |
 | [15-settings-import](15-settings-import/README.md) | IMP-01/02 → D11: выбор группы/автодополнение и образец файла — новые улучшения, не дефект завершённой TASK-196. Согласовать точное соответствие имени группы REQ-CLI-010; не вводить дедупликацию/создание группы. Отсутствие вкладки у Главного тренера соответствует принятому доступу. |
 | [16-profile-password](16-profile-password/README.md) | PWD-01 → [TASK-185](../../needs-clarification/TASK-185-ui-copy-and-unit-consistency.md); PWD-02 → [TASK-176](../../tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md). Требование сложности пароля остаётся отдельным открытым вопросом TASK-172; аудит его не решает. |
 | [17-login](17-login/README.md) | LOG-02 → [TASK-176](../../tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md). LOG-01 → D12: смена приветствия на «Вход» отложена, не сокращает рабочий сценарий и не является ошибкой. |

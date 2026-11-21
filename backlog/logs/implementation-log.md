@@ -2303,3 +2303,7 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md
 - Основание: решение владельца «прототип принимаю» и проверка существующих Staff API расписания и состава. Подготовлен план и контракт проверок. Рабочая реализация предстоит.
+
+# 2026-11-21 — завершение TASK-206
+
+- [TASK-206](../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md) интегрирована в локальную main. Проверены HTTP-контракты чтения и сохранения, состояния списка и диалога в Chromium и двух профилях iPhone WebKit. [Доказательства](../done/2026-11-21/TASK-206-evidence/acceptance.md).

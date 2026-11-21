@@ -1,7 +1,7 @@
 # TASK-206: Согласовать отображение филиала администратора в списке и диалоге
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-USR-002 — implements
@@ -33,13 +33,13 @@ Backend остаётся владельцем филиала и прав. Не �
 До изменения кода нужен готовый план по docs/HARNESS.md. Визуальные решения проходят применимые этапы docs/DESIGN_PROCESS.md и выбор на проверенном прототипе. Этот разбор не утверждает прототип и не разрешает реализацию. При реализации актуализировать затронутые REQ и docs/requirements/CHANGELOG.md.
 
 ## Acceptance criteria
-- [ ] При успешной загрузке список и диалог одной учётной записи показывают согласованный филиал из серверных данных.
-- [ ] Сбой или неполный ответ не отображается как достоверное «не назначен».
-- [ ] Супер-администратор без обязательного филиала отображается корректно; доступные действия и права прежние.
+- [x] При успешной загрузке список и диалог одной учётной записи показывают согласованный филиал из серверных данных.
+- [x] Сбой или неполный ответ не отображается как достоверное «не назначен».
+- [x] Супер-администратор без обязательного филиала отображается корректно; доступные действия и права прежние.
 
 ## Test checklist
-- [ ] Проверить назначенный филиал, отсутствие применимого назначения, задержку и ошибку загрузки, обновление списка после существующего разрешённого изменения.
-- [ ] Проверить потребителей затронутого read-контракта; не подтверждать отсутствие авторизационных проблем одним визуальным снимком.
+- [x] Проверить назначенный филиал, отсутствие применимого назначения, задержку и ошибку загрузки, обновление списка после существующего разрешённого изменения.
+- [x] Проверить потребителей затронутого read-контракта; не подтверждать отсутствие авторизационных проблем одним визуальным снимком.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -47,10 +47,10 @@ Backend остаётся владельцем филиала и прав. Не �
 - Reason: Scope ограничен достоверностью чтения; изменение полномочий и данных исключено и требует отдельного решения.
 
 ## Evidence
-- [frontend/src/features/settings/AdministratorsSettingsPanel.tsx](../../frontend/src/features/settings/AdministratorsSettingsPanel.tsx)
+- [frontend/src/features/settings/AdministratorsSettingsPanel.tsx](../../../frontend/src/features/settings/AdministratorsSettingsPanel.tsx)
 
 ## Source notes
-- Source file: [14-settings-administrators](../processed/2026-11-20-interface-audit/14-settings-administrators/README.md)
+- Source file: [14-settings-administrators](../../processed/2026-11-20-interface-audit/14-settings-administrators/README.md)
 - Original note: «Список показывает «Филиал: не назначен», а загруженный диалог — «Филиал: Филиал Центр».».
 
 ## Processing notes
@@ -64,5 +64,10 @@ Backend остаётся владельцем филиала и прав. Не �
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-21 15:57 (Europe/Moscow)
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-206-administrator-branch-display-consistency.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-206-administrator-branch-display-consistency.plan.md
 - implementation_branch: codex/TASK-206-administrator-branch-display-consistency
+
+## Completion
+- completed_at: 2026-11-21
+- completion_date_evidence: версия `967bd2f` прошла полный проверочный контракт TASK-206 и интегрирована в локальную main 21 ноября 2026 года.
+- [Сравнение интерфейса и проверка клавиатурой](TASK-206-evidence/acceptance.md)

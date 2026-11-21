@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-206 Достоверный филиал администратора
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-206-administrator-branch-display-consistency.md
+- source_task: /backlog/done/2026-11-21/TASK-206-administrator-branch-display-consistency.md
 - requirements: REQ-USR-002 (implements), REQ-USR-001 (constrains)
 - branch: codex/TASK-206-administrator-branch-display-consistency
 - readiness: yes
@@ -26,7 +26,7 @@
 ## Decision evidence
 
 - product: [Реестр пользователей и ролей](/docs/requirements/05-пользователи-и-роли.md) — owner: владелец продукта; decision: REQ-USR-002 закрепляет обязательный филиал при создании администратора, REQ-USR-001 закрепляет глобальный охват супер-администратора.
-- [Критерии приёмки TASK-206](/backlog/implementation/TASK-206-administrator-branch-display-consistency.md) задают согласованность списка и диалога и различение ошибок. [Снимок исходного интерфейса](/backlog/processed/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt) фиксирует оба представления одной записи. Для локальной правки применяется отрисованное сравнение до/после по [процессу дизайна](/docs/DESIGN_PROCESS.md).
+- [Критерии приёмки TASK-206](/backlog/done/2026-11-21/TASK-206-administrator-branch-display-consistency.md) задают согласованность списка и диалога и различение ошибок. [Снимок исходного интерфейса](/backlog/processed/2026-11-20-interface-audit/14-settings-administrators/attendance-scope.txt) фиксирует оба представления одной записи. Для локальной правки применяется отрисованное сравнение до/после по [процессу дизайна](/docs/DESIGN_PROCESS.md).
 
 ## Implementation slices
 

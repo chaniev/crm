@@ -28,7 +28,7 @@
       "timeout_seconds": 1200
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-206-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-11-21/TASK-206-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.branch-display",
