@@ -1,254 +1,115 @@
-import { Badge, Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core'
-
+import './ClientMembershipSection.css'
+import { useCallback, useRef, useState } from 'react'
+import { Alert, Button, Group, NativeSelect, Paper, Stack, Text } from '@mantine/core'
 import type { ClientDetails, ClientMembership } from '../../../lib/api'
-import { PageSection } from '../../shared/ux'
-import {
-  formatCurrencyValue,
-  formatDateValue,
-  formatExpirationValue,
-  formatMembershipPricingProvenance,
-} from '../ClientManagement.formatting'
-import type {
-  MembershipActionMode,
-  MembershipActionSubmission,
-} from '../ClientManagement.types'
-import { MembershipHistory } from './MembershipHistory'
+import { fe7ClientMembershipText as text } from '../../../resources/fe-7-client-membership'
+import type { MembershipActionMode, MembershipActionSubmission } from '../ClientManagement.types'
+import { formatDateValue } from '../ClientManagement.formatting'
 import { MembershipCorrectionPanel } from './MembershipCorrectionPanel'
 import { MembershipGroupTransferSurface } from './MembershipGroupTransferSurface'
+import { MembershipHistory } from './MembershipHistory'
 import { MembershipPurchasePanel } from './MembershipPurchasePanel'
 import { MembershipRenewPanel } from './MembershipRenewPanel'
-import { fe7ClientMembershipText } from '../../../resources/fe-7-client-membership'
-
+import { MembershipDraftContext } from './membershipDrafts'
 
 type ClientMembershipSectionProps = {
-  actionMode: MembershipActionMode | null
   client: ClientDetails
   pending: boolean
-  selectedMembershipId: string | null
-  onCancelAction: () => void
-  onActionModeChange: (mode: MembershipActionMode, membershipId?: string) => void
   onClientChange: (client: ClientDetails) => void
   onSubmit: (submission: MembershipActionSubmission) => Promise<void>
   onMembershipCommentChange: (membership: ClientMembership) => void
+  onDirtyChange: (dirty: boolean) => void
 }
 
 export function ClientMembershipSection({
-  actionMode,
-  client,
-  pending,
-  selectedMembershipId,
-  onCancelAction,
-  onActionModeChange,
-  onClientChange,
-  onSubmit,
-  onMembershipCommentChange,
+  client, pending, onClientChange, onSubmit, onMembershipCommentChange, onDirtyChange,
 }: ClientMembershipSectionProps) {
-  const canPurchaseMembership = !client.isProfessional
-  const canCorrectMembership = true
-  const currentMemberships = client.currentMemberships
-  const selectedMembership =
-    selectedMembershipId
-      ? currentMemberships.find((membership) => membership.id === selectedMembershipId) ?? null
-      : null
+  const [saleId, setSaleId] = useState<string>()
+  const [action, setAction] = useState<MembershipActionMode | null>(null)
+  const [revision, setRevision] = useState(0)
+  const [transferVisited, setTransferVisited] = useState(false)
+  const [historyVisited, setHistoryVisited] = useState(false)
+  const dirtyForms = useRef(new Set<string>())
+  const selected = client.currentMemberships.find(sale => sale.saleId === saleId) ?? client.currentMemberships[0]
+  const mode = action ?? (selected ? 'correct' : 'purchase')
+  const canRenew = selected && selected.behaviorKind !== 'SingleVisit' && selected.entitlementState !== 'LegacyTargetMissing'
+  const reportDirty = useCallback((form: string, dirty: boolean) => {
+    if (dirty) dirtyForms.current.add(form)
+    else dirtyForms.current.delete(form)
+    onDirtyChange(dirtyForms.current.size > 0)
+  }, [onDirtyChange])
+
+  function switchMode(next: MembershipActionMode, nextSaleId = selected?.saleId) {
+    if (dirtyForms.current.has('editor') && !window.confirm(text.discardEditor)) return
+    setAction(next)
+    setSaleId(nextSaleId)
+    setRevision(previous => previous + 1)
+  }
+
+  function resetEditor() {
+    setAction(null)
+    setRevision(previous => previous + 1)
+  }
+
+  async function save(submission: MembershipActionSubmission) {
+    await onSubmit(submission)
+    if (submission.kind !== 'correct') setSaleId(undefined)
+    resetEditor()
+  }
+
+  const panelProps = { businessDate: client.businessDate, pending, onCancel: resetEditor, onSubmit: save }
 
   return (
-    <PageSection className="client-detail-card client-membership-card">
-      <Stack gap="lg">
-        <Group justify="space-between" wrap="wrap">
-          <div>
-            <Text fw={700}>{fe7ClientMembershipText.clientMembershipSection_jsxText_bf6f178a}</Text>
-            <Text c="dimmed" size="sm">
-              {fe7ClientMembershipText.clientMembershipSection_jsxText_55ab75c7}</Text>
-          </div>
-
-          <Badge color="sand" radius="sm" variant="light">
-            {fe7ClientMembershipText.clientMembershipSection_jsxText_2239797e}{client.membershipHistory.length}
-          </Badge>
-          {canPurchaseMembership ? (
-            <Button
-              disabled={pending}
-              onClick={() => onActionModeChange('purchase')}
-              variant={actionMode === 'purchase' ? 'filled' : 'light'}
-            >
-              {fe7ClientMembershipText.clientMembershipSection_jsxText_a946d490}</Button>
-          ) : null}
-        </Group>
-
-        {canPurchaseMembership && actionMode === 'purchase' ? (
-          <MembershipPurchasePanel
-            key="purchase"
-            branchId={client.branchId}
-            businessDate={client.businessDate}
-            pending={pending}
-            onCancel={onCancelAction}
-            onSubmit={onSubmit}
+    <MembershipDraftContext value={reportDirty}>
+      <Stack className="membership-editor" gap="md">
+        {client.currentMemberships.length > 1 && (
+          <NativeSelect
+            label={text.membershipCorrectionPanel_label_1139430b}
+            disabled={pending}
+            value={selected?.saleId}
+            data={client.currentMemberships.map(sale => ({
+              value: sale.saleId,
+              label: `${sale.membershipName} · ${formatDateValue(sale.purchaseDate)}`,
+            }))}
+            onChange={event => switchMode('correct', event.currentTarget.value)}
           />
-        ) : null}
-
-        {actionMode === 'renew' && selectedMembership ? (
-          <MembershipRenewPanel
-            key={`renew-${selectedMembership.id}`}
-            branchId={client.branchId}
-            businessDate={client.businessDate}
-            currentMembership={selectedMembership}
-            pending={pending}
-            onCancel={onCancelAction}
-            onSubmit={onSubmit}
-          />
-        ) : null}
-
-        {canCorrectMembership && actionMode === 'correct' && selectedMembership ? (
-          <MembershipCorrectionPanel
-            key={`correct-${selectedMembership.id}`}
-            businessDate={client.businessDate}
-            currentMembership={selectedMembership}
-            pending={pending}
-            onCancel={onCancelAction}
-            onSubmit={onSubmit}
-          />
-        ) : null}
-
-        <Stack gap="sm">
-          {currentMemberships.length === 0 ? (
-            <Text c="dimmed" size="sm">
-              {fe7ClientMembershipText.clientMembershipSection_jsxText_10110ccf}</Text>
-          ) : (
-            currentMemberships.map((membership) => (
-              <CurrentMembershipCard
-                actionMode={actionMode}
-                key={membership.id}
-                membership={membership}
-                pending={pending}
-                selectedMembershipId={selectedMembershipId}
-                canCorrect={canCorrectMembership}
-                onActionModeChange={onActionModeChange}
-              />
-            ))
+        )}
+        {selected?.entitlementState === 'LegacyTargetMissing' && (
+          <Alert color="yellow">{text.clientMembershipSection_jsxText_71606622}</Alert>
+        )}
+        {mode === 'correct' && selected && (
+          <MembershipCorrectionPanel key={`${selected.id}-${revision}`} {...panelProps} currentMembership={selected} />
+        )}
+        {mode === 'renew' && canRenew && (
+          <MembershipRenewPanel key={`${selected.id}-${revision}`} {...panelProps} branchId={client.branchId} currentMembership={selected} />
+        )}
+        {mode === 'purchase' && !client.isProfessional && (
+          <MembershipPurchasePanel key={revision} {...panelProps} branchId={client.branchId} />
+        )}
+        {!selected && client.isProfessional && <Text c="dimmed">{text.clientMembershipSection_jsxText_10110ccf}</Text>}
+        <Group gap="xs">
+          {mode !== 'renew' && canRenew && (
+            <Button disabled={pending} variant="light" onClick={() => switchMode('renew')}>{text.clientMembershipSection_jsxText_659ad690}</Button>
           )}
-        </Stack>
-
-        {currentMemberships.length > 0 ? (
-          <MembershipGroupTransferSurface
-            client={client}
-            pending={pending}
-            onTransferred={onClientChange}
-          />
-        ) : null}
-
-        <MembershipHistory
-          clientId={client.id}
-          history={client.membershipHistory}
-          onMembershipCommentChange={onMembershipCommentChange}
-        />
-      </Stack>
-    </PageSection>
-  )
-}
-
-type CurrentMembershipCardProps = {
-  actionMode: MembershipActionMode | null
-  canCorrect: boolean
-  membership: ClientMembership
-  pending: boolean
-  selectedMembershipId: string | null
-  onActionModeChange: (mode: MembershipActionMode, membershipId?: string) => void
-}
-
-function CurrentMembershipCard({
-  actionMode,
-  canCorrect,
-  membership,
-  pending,
-  selectedMembershipId,
-  onActionModeChange,
-}: CurrentMembershipCardProps) {
-  const canRenew =
-    membership.behaviorKind !== 'SingleVisit' &&
-    membership.entitlementState !== 'LegacyTargetMissing'
-  const isSelected = selectedMembershipId === membership.id
-
-  return (
-    <Paper className="current-membership-card" radius="8px" withBorder>
-      <Stack gap="sm">
-        <Group justify="space-between" wrap="wrap">
-          <div>
-            <Text fw={700}>{membership.membershipName}</Text>
-            <Text c="dimmed" size="sm">
-              {formatExpirationValue(membership.behaviorKind, membership.expirationDate)}
-            </Text>
-          </div>
-          <Group gap="xs" wrap="wrap">
-            <Badge radius="sm" variant="light">
-              {entitlementStateLabels[membership.entitlementState]}
-            </Badge>
-            {membership.coverageKind === 'AllGroups' ? (
-              <Badge color="blue" radius="sm" variant="light">
-                {fe7ClientMembershipText.clientMembershipSection_jsxText_d71b0c68}</Badge>
-            ) : null}
-          </Group>
-        </Group>
-        {membership.entitlementState === 'LegacyTargetMissing' ? (
-          <Text c="var(--crm-status-warning)" size="sm">
-            {fe7ClientMembershipText.clientMembershipSection_jsxText_71606622}</Text>
-        ) : null}
-        <div className="membership-target-chip-list">
-          {membership.targetGroups.length === 0 ? (
-            <Badge color="yellow" radius="sm" variant="light">
-              {fe7ClientMembershipText.clientMembershipSection_jsxText_9a0b1924}</Badge>
-          ) : (
-            membership.targetGroups.map((target) => (
-              <Badge key={`${membership.id}-${target.groupId}`} radius="sm" variant="light">
-                {target.position + 1} {target.position === 0 ? fe7ClientMembershipText.clientMembershipSection_string_68f7b035 : ''}{target.groupName}
-              </Badge>
-            ))
+          {mode !== 'purchase' && !client.isProfessional && (
+            <Button disabled={pending} variant="light" onClick={() => switchMode('purchase')}>{text.clientMembershipSection_jsxText_a946d490}</Button>
           )}
-        </div>
-        <SimpleGrid cols={{ base: 1, sm: 3 }}>
-          <Info label={fe7ClientMembershipText.clientMembershipSection_label_46a0edbb} value={formatCurrencyValue(membership.grossAmount)} />
-          <Info label={fe7ClientMembershipText.clientMembershipSection_label_b3ae4c00} value={formatMembershipPricingProvenance(membership)} />
-          <Info label={fe7ClientMembershipText.clientMembershipSection_label_6611d56d} value={formatDateValue(membership.paymentDate)} />
-        </SimpleGrid>
-        <Group gap="sm" wrap="wrap">
-          {canRenew ? (
-            <Button
-              disabled={pending}
-              onClick={() => onActionModeChange('renew', membership.id)}
-              variant={actionMode === 'renew' && isSelected ? 'filled' : 'light'}
-            >
-              {fe7ClientMembershipText.clientMembershipSection_jsxText_659ad690}</Button>
-          ) : null}
-          {canCorrect ? (
-            <Button
-              disabled={pending}
-              onClick={() => onActionModeChange('correct', membership.id)}
-              variant={actionMode === 'correct' && isSelected ? 'filled' : 'light'}
-            >
-              {membership.entitlementState === 'LegacyTargetMissing' ? fe7ClientMembershipText.clientMembershipSection_string_de3830e7 : fe7ClientMembershipText.clientMembershipSection_string_8d0e3e8b}
-            </Button>
-          ) : null}
         </Group>
+        {selected && (
+          <Paper component="details" withBorder p="sm" onToggle={event => {
+            if (event.currentTarget.open) setTransferVisited(true)
+          }}>
+            <summary>{text.membershipGroupTransferSurface_jsxText_01c7a7e5}</summary>
+            {transferVisited && <MembershipGroupTransferSurface client={client} pending={pending} onTransferred={onClientChange} />}
+          </Paper>
+        )}
+        <Paper component="details" withBorder p="sm" onToggle={event => {
+          if (event.currentTarget.open) setHistoryVisited(true)
+        }}>
+          <summary>{text.historyDisclosure}</summary>
+          {historyVisited && <MembershipHistory clientId={client.id} history={client.membershipHistory} onMembershipCommentChange={onMembershipCommentChange} />}
+        </Paper>
       </Stack>
-    </Paper>
-  )
-}
-
-const entitlementStateLabels: Record<ClientMembership['entitlementState'], string> = {
-  Active: fe7ClientMembershipText.clientMembershipSection_active_a87a4b39,
-  Future: fe7ClientMembershipText.clientMembershipSection_future_a01345ca,
-  Expired: fe7ClientMembershipText.clientMembershipSection_expired_85d3fd5f,
-  UsedSingleVisit: fe7ClientMembershipText.clientMembershipSection_usedSingleVisit_a091d291,
-  LegacyTargetMissing: fe7ClientMembershipText.clientMembershipSection_legacyTargetMissing_214235ce,
-}
-
-function Info({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="compact-info-item">
-      <Text c="dimmed" fw={600} size="xs">
-        {label}
-      </Text>
-      <Text fw={700} size="sm">
-        {value}
-      </Text>
-    </div>
+    </MembershipDraftContext>
   )
 }

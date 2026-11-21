@@ -1,0 +1,49 @@
+.membership-editor > .hint-card {
+  border-color: var(--crm-border-muted);
+  border-radius: var(--crm-radius-inner-mobile);
+  background: var(--crm-surface-card);
+  padding: var(--page-card-padding-compact);
+}
+
+.membership-editor summary {
+  cursor: pointer;
+  padding-block: var(--crm-space-2);
+}
+
+.membership-editor details[open] summary {
+  margin-block-end: var(--crm-space-2);
+}
+
+.membership-editor .membership-target-group-row:only-child {
+  grid-template-columns: 2rem minmax(0, 1fr) 44px;
+}
+
+.membership-editor .membership-target-group-row:only-child .membership-target-group-row__actions {
+  display: none;
+}
+
+@media (max-width: 48em) {
+  .membership-editor .membership-target-group-row {
+    grid-template-columns: 2rem minmax(0, 1fr) 44px;
+  }
+
+  .membership-editor .membership-target-group-row__position {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .membership-editor .membership-target-group-row__main {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .membership-editor .membership-target-group-row > button {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .membership-editor .membership-target-group-row__actions {
+    grid-column: 2;
+    display: flex;
+  }
+}

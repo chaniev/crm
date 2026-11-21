@@ -1,7 +1,7 @@
 # TASK-019: Разделить карточку клиента на вкладки
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-CLI-001 — changes
@@ -58,7 +58,7 @@ tasks-ready
 - [ ] Вручную проверить desktop, tablet и mobile.
 
 ## AI safety
-- Safe for autonomous implementation: yes — план подготовлен, исполнение отложено по указанию владельца.
+- Safe for autonomous implementation: yes — исполнение согласованного плана начато по запросу владельца.
 - Risk level: medium
 - Reason: изоляция записей профиля и назначений, ролевой срез контактов и совместимость существующих данных проверяются по плану.
 

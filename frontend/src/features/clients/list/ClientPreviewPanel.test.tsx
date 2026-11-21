@@ -97,6 +97,7 @@ function buildClientDetails(): ClientDetails {
     lastVisitDate: null,
     membershipState: 'None',
     currentMemberships: [],    birthDate: null,
+    telegramContactUsername: null,
     businessDate: '2026-01-01',
     contacts: [],
     groupIds: [],

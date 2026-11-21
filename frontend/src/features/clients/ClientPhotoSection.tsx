@@ -23,7 +23,7 @@ type ClientPhotoSectionProps = {
   onUpload?: (file: File) => Promise<void>
   photo: ClientPhoto | null
   previewVersion?: string | number | null
-  variant?: 'edit' | 'compact'
+  variant?: 'edit' | 'compact' | 'profile'
 }
 
 export function ClientPhotoSection({
@@ -86,29 +86,55 @@ export function ClientPhotoSection({
 
   if (!previewUrl && !canUpload) return null
 
+  const preview = previewUrl && <SavedPhoto key={previewUrl} clientName={clientName} url={previewUrl} />
+  const upload = canUpload && (
+    <FileButton accept={clientPhotoAcceptValue} onChange={handleFileChange} resetRef={resetFile}>
+      {props => (
+        <Button
+          {...props}
+          type="button"
+          className={variant === 'profile' ? 'client-portrait-upload' : undefined}
+          leftSection={<IconCamera size={16} />}
+          loading={uploading}
+          variant={variant === 'profile' && !previewUrl ? 'subtle' : 'default'}
+          title={fe8ClientMessengerMediaText.clientPhotoSection_jsxText_5f0835c4}
+        >
+          {photo ? fe8ClientMessengerMediaText.clientPhotoSection_string_f61eb235 : fe8ClientMessengerMediaText.clientPhotoSection_string_bee0c752}
+        </Button>
+      )}
+    </FileButton>
+  )
+  const error = uploadError && (
+    <Alert role="alert" color="red" icon={<IconAlertCircle size={18} />} title={fe8ClientMessengerMediaText.clientPhotoSection_title_0f50b2a8}>
+      {uploadError}
+    </Alert>
+  )
+
+  if (variant === 'profile') {
+    return (
+      <>
+        <div className="client-editor-portrait">{preview || upload}</div>
+        {((preview && canUpload) || error) && <Stack className="client-editor-photo-action" gap="xs">
+          {preview && upload}
+          {error}
+        </Stack>}
+      </>
+    )
+  }
+
   return (
     <Stack className={`client-photo-section client-photo-section--${variant}`} gap="xs">
       <Group gap="sm">
-        {previewUrl && <SavedPhoto key={previewUrl} clientName={clientName} url={previewUrl} />}
+        {preview}
         {canUpload && (
           <Stack gap={4}>
             {variant === 'edit' && photo && <Text fw={700}>{fe8ClientMessengerMediaText.clientPhotoSection_string_75f5b4ed}</Text>}
-            <FileButton accept={clientPhotoAcceptValue} onChange={handleFileChange} resetRef={resetFile}>
-              {props => (
-                <Button {...props} type="button" w="fit-content" leftSection={<IconCamera size={16} />} loading={uploading} variant="default">
-                  {photo ? fe8ClientMessengerMediaText.clientPhotoSection_string_f61eb235 : fe8ClientMessengerMediaText.clientPhotoSection_string_bee0c752}
-                </Button>
-              )}
-            </FileButton>
+            {upload}
             <Text c="dimmed" size="xs">{fe8ClientMessengerMediaText.clientPhotoSection_jsxText_5f0835c4}</Text>
           </Stack>
         )}
       </Group>
-      {uploadError && (
-        <Alert color="red" icon={<IconAlertCircle size={18} />} title={fe8ClientMessengerMediaText.clientPhotoSection_title_0f50b2a8}>
-          {uploadError}
-        </Alert>
-      )}
+      {error}
     </Stack>
   )
 }

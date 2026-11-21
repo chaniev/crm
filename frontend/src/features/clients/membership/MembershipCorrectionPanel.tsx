@@ -1,5 +1,6 @@
+import { useMembershipDraft } from './membershipDrafts'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Badge, Button, Group, Paper, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
+import { Alert, Button, Group, Paper, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 
 import {
@@ -19,7 +20,7 @@ import type {
   MembershipActionSubmission,
   MembershipCorrectionFormValues,
 } from '../ClientManagement.types'
-import { InfoItem, PaymentDateInput } from '../ClientSharedInfo'
+import { PaymentDateInput } from '../ClientSharedInfo'
 import {
   createMembershipCorrectionInitialValues,
   validateMembershipCorrectionForm,
@@ -49,8 +50,10 @@ export function MembershipCorrectionPanel({
   onCancel,
   onSubmit,
 }: MembershipCorrectionPanelProps) {
+  const [formError, setFormError] = useState<string | null>(null)
   const initialValues = createMembershipCorrectionInitialValues(currentMembership)
   const form = useForm<MembershipCorrectionFormValues>({ initialValues })
+  useMembershipDraft('editor', form.isDirty())
   const formRef = useRef(form)
   formRef.current = form
   const getSubmissionKey = useClientActionSubmissionKey()
@@ -140,6 +143,7 @@ export function MembershipCorrectionPanel({
   }
 
   async function submit(values: MembershipCorrectionFormValues) {
+    setFormError(null)
     const validationErrors = validateMembershipCorrectionForm(
       values,
       currentMembership.behaviorKind,
@@ -165,6 +169,7 @@ export function MembershipCorrectionPanel({
         idempotencyKey: getSubmissionKey('correct', payload),
       })
     } catch (error) {
+      setFormError(error instanceof Error ? error.message : fe7ClientMembershipText.saveFailed)
       if (error instanceof ApiError) {
         form.setErrors(applyFieldErrors(error.fieldErrors))
       }
@@ -175,30 +180,15 @@ export function MembershipCorrectionPanel({
     <Paper className="hint-card" radius="8px" withBorder>
       <form noValidate onSubmit={form.onSubmit((values) => void submit(values))}>
         <Stack gap="md">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>{fe7ClientMembershipText.membershipCorrectionPanel_jsxText_7d3a232e}</Text>
-              <Text c="dimmed" size="sm">
-                {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_529702bf}</Text>
-            </div>
-
-            <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
-              {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_b3977315}</Badge>
-          </Group>
-
+          <div>
+            <Text fw={700}>{currentMembership.membershipName}</Text>
+            <Text c="dimmed" size="sm">{fe7ClientMembershipText.saleFacts(
+              formatCurrencyValue(currentMembership.grossAmount),
+              formatDateValue(currentMembership.purchaseDate),
+            )}</Text>
+          </div>
+          {formError && <Alert color="red">{formError}</Alert>}
           <SimpleGrid cols={{ base: 1, md: 2 }}>
-            <InfoItem
-              label={fe7ClientMembershipText.membershipCorrectionPanel_label_1139430b}
-              value={currentMembership.membershipName}
-            />
-            <InfoItem
-              label={fe7ClientMembershipText.membershipCorrectionPanel_label_c94a6d0e}
-              value={formatCurrencyValue(currentMembership.grossAmount)}
-            />
-            <InfoItem
-              label={fe7ClientMembershipText.membershipCorrectionPanel_label_65ce6ae7}
-              value={formatDateValue(currentMembership.purchaseDate)}
-            />
             <PaymentDateInput
               error={form.errors.paymentDate}
               max={businessDate}
@@ -266,9 +256,9 @@ export function MembershipCorrectionPanel({
           </Group>
 
           <ResponsiveButtonGroup justify="space-between">
-            <Button onClick={onCancel} type="button" variant="subtle">
+            <Button disabled={pending} onClick={onCancel} type="button" variant="subtle">
               {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_7c47f729}</Button>
-            <Button loading={pending} type="submit">
+            <Button disabled={!form.isDirty()} loading={pending} type="submit">
               {fe7ClientMembershipText.membershipCorrectionPanel_jsxText_375934ac}</Button>
           </ResponsiveButtonGroup>
         </Stack>

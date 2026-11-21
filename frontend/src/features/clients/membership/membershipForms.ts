@@ -51,7 +51,7 @@ export function createMembershipCorrectionInitialValues(
   currentMembership: ClientMembership,
 ): MembershipCorrectionFormValues {
   return {
-    validFrom: currentMembership.validFrom ?? currentMembership.purchaseDate,
+    validFrom: currentMembership.individualValidFrom ?? currentMembership.purchaseDate,
     validTo: currentMembership.expirationDate ?? '',
     paymentDate: currentMembership.paymentDate,
     targetGroupIds: mapMembershipTargetsToGroupIds(currentMembership.targetGroups),

@@ -1,10 +1,13 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
   createClientMessengerTelegramLinkToken,
   getClientMessengerMessages,
   getClientMessengerSummary,
+  markClientMessengerRead,
+  sendClientMessengerMessage,
+  type ClientMessengerMessagePage,
   type ClientMessengerLinkToken,
   type ClientMessengerSummary,
 } from '../../lib/api'
@@ -20,6 +23,7 @@ vi.mock('../../lib/api', async (importOriginal) => {
     getClientMessengerMessages: vi.fn(),
     getClientMessengerSummary: vi.fn(),
     markClientMessengerRead: vi.fn(),
+    sendClientMessengerMessage: vi.fn(),
   }
 })
 
@@ -32,6 +36,7 @@ const getMessagesMock = vi.mocked(getClientMessengerMessages)
 const getSummaryMock = vi.mocked(getClientMessengerSummary)
 
 beforeEach(() => {
+  vi.mocked(markClientMessengerRead).mockReset()
   createLinkTokenMock.mockReset()
   getMessagesMock.mockReset()
   getSummaryMock.mockReset()
@@ -48,6 +53,53 @@ afterEach(() => {
 })
 
 describe('ClientMessengerChatSection', () => {
+  test.each([false, true])('leaving before history resolves prevents a read receipt (refresh=%s)', async (refresh) => {
+    const readable = buildSummary()
+    readable.capabilities.canRead = true
+    getSummaryMock.mockResolvedValue(readable)
+    const page: ClientMessengerMessagePage = { platform: 'Telegram', items: [], skip: 0, take: 50, totalCount: 0, hasMore: false }
+    if (refresh) getMessagesMock.mockResolvedValueOnce(page)
+    let finish!: (value: ClientMessengerMessagePage) => void
+    getMessagesMock.mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
+    const view = renderWithProviders(<ClientMessengerChatSection clientId="client-1" />)
+    if (refresh) {
+      await waitFor(() => expect(markClientMessengerRead).toHaveBeenCalledTimes(1))
+      fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+    }
+    await waitFor(() => expect(getMessagesMock).toHaveBeenCalledTimes(refresh ? 2 : 1))
+    view.rerender(<ClientMessengerChatSection clientId="client-1" active={false} />)
+    await act(async () => finish(page))
+    expect(markClientMessengerRead).toHaveBeenCalledTimes(refresh ? 1 : 0)
+  })
+
+  test('retains the reply between tabs and retries it after a failed send', async () => {
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', { configurable: true, value: vi.fn() })
+    Object.defineProperty(document, 'fonts', { configurable: true, value: new EventTarget() })
+    const summary = buildSummary()
+    summary.capabilities.canRead = true
+    summary.capabilities.canReply = true
+    summary.connection.status = 'Connected'
+    getSummaryMock.mockResolvedValue(summary)
+    getMessagesMock.mockResolvedValue({ platform: 'Telegram', items: [], skip: 0, take: 50, totalCount: 0, hasMore: false })
+    vi.mocked(sendClientMessengerMessage).mockRejectedValueOnce(new Error('Сбой отправки')).mockResolvedValueOnce({
+      id: 'new', direction: 'Outbound', status: 'Queued', text: 'Ответ', createdAt: '2026-11-21T10:00:00Z',
+      updatedAt: '', sentAt: null, failedAt: null, failureReason: null, createdByUserName: null,
+      telegramUsername: null, telegramDisplayName: null,
+    })
+    const view = renderWithProviders(<ClientMessengerChatSection clientId="client-1" />)
+    fireEvent.change(await screen.findByRole('textbox'), { target: { value: 'Ответ' } })
+    view.rerender(<ClientMessengerChatSection clientId="client-1" active={false} />)
+    expect(screen.queryByRole('textbox')).toBeNull()
+    view.rerender(<ClientMessengerChatSection clientId="client-1" />)
+    expect(await screen.findByRole('textbox')).toHaveValue('Ответ')
+    fireEvent.click(screen.getByRole('button', { name: 'Отправить' }))
+    expect(await screen.findByText('Сбой отправки')).toBeVisible()
+    expect(screen.getByRole('textbox')).toHaveValue('Ответ')
+    fireEvent.click(screen.getByRole('button', { name: 'Отправить' }))
+    await waitFor(() => expect(screen.getByRole('textbox')).toHaveValue(''))
+    expect(screen.getByText('Ответ')).toBeVisible()
+  })
+
   test('copies the Telegram deep link with the legacy fallback when Clipboard API is unavailable', async () => {
     const execCommand = vi.fn().mockReturnValue(true)
 

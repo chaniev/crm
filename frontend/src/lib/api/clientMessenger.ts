@@ -106,10 +106,10 @@ export async function sendClientMessengerMessage(
   return mapClientMessengerMessage(payload)
 }
 
-export async function markClientMessengerRead(clientId: string) {
+export async function markClientMessengerRead(clientId: string, signal?: AbortSignal) {
   const payload = await request<unknown>(
     API_ENDPOINTS.clients.messenger.telegram.read(clientId),
-    { method: 'POST' },
+    { method: 'POST', signal },
   )
 
   return mapClientMessengerReadState(payload)

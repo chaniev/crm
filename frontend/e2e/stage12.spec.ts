@@ -341,7 +341,7 @@ test.describe('Основные e2e сценарии', () => {
     await page.setViewportSize({ width: 390, height: 900 })
     await page.goto('/clients/client-1')
 
-    await expect(page.getByText(attributedClient.notes)).toBeVisible()
+    await expect(page.getByLabel('Рабочая заметка')).toHaveValue(attributedClient.notes)
     await expect(page.getByText(new RegExp(`^${attributedClient.notesLastChangedByName} · \\d{2}\\.\\d{2}\\.\\d{4}, \\d{2}:\\d{2}$`))).toBeVisible()
     await expectNoHorizontalScroll(page)
   })
@@ -370,7 +370,7 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.goto('/clients/client-1')
 
-    await expect(page.getByText(legacyClient.notes)).toBeVisible()
+    await expect(page.getByLabel('Рабочая заметка')).toHaveValue(legacyClient.notes)
     await expect(page.getByText(/· \d{2}\.\d{2}\.\d{4}/)).toHaveCount(0)
   })
 
@@ -441,6 +441,10 @@ test.describe('Основные e2e сценарии', () => {
     }
 
     await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/groups' && method === 'GET') {
+        await fulfillJson(route, 200, buildGroupsListPayload(baseGroups))
+        return true
+      }
       if (pathname === '/api/auth/session' && method === 'GET') {
         await fulfillJson(route, 200, headCoachSession)
         return true
@@ -473,7 +477,8 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.setViewportSize({ width: 1440, height: 1200 })
-    await page.goto('/clients/client-1')
+    await page.goto('/clients/client-1#memberships')
+    await page.getByText('История абонементов').click()
     await expect(page.getByText('Комментарий к покупке')).toHaveCount(2)
     const targetSale = page.getByTestId('membership-sale-comment-sale-1')
     const untouchedSale = page.getByTestId('membership-sale-comment-sale-2')
@@ -502,6 +507,7 @@ test.describe('Основные e2e сценарии', () => {
       '/api/clients/client-1/membership/sales/sale-1/comment',
     ])
     await page.reload()
+    await page.getByText('История абонементов').click()
     await expect(page.getByTestId('membership-sale-comment-sale-1').getByText('Обновленный комментарий')).toBeVisible()
     await expect(page.getByTestId('membership-sale-comment-sale-2').getByText(commentB)).toBeVisible()
     await expect(page.getByText('Комментарий к покупке')).toHaveCount(2)
@@ -553,6 +559,10 @@ test.describe('Основные e2e сценарии', () => {
     }
 
     await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/groups' && method === 'GET') {
+        await fulfillJson(route, 200, buildGroupsListPayload(baseGroups))
+        return true
+      }
       if (pathname === '/api/auth/session' && method === 'GET') {
         await fulfillJson(route, 200, administratorSession)
         return true
@@ -570,7 +580,8 @@ test.describe('Основные e2e сценарии', () => {
       return false
     })
 
-    await page.goto('/clients/client-1')
+    await page.goto('/clients/client-1#memberships')
+    await page.getByText('История абонементов').click()
     const saleA = page.getByTestId('membership-sale-comment-sale-a')
     const saleB = page.getByTestId('membership-sale-comment-sale-b')
     await expect(saleA.getByText('Комментарий A')).toBeVisible()
@@ -582,6 +593,7 @@ test.describe('Основные e2e сценарии', () => {
     await expect(saleA.getByText('Комментарий A')).toBeVisible()
     expect(updateBody).toEqual({ comment: 'Комментарий B обновлён' })
     await page.reload()
+    await page.getByText('История абонементов').click()
     await expect(page.getByTestId('membership-sale-comment-sale-b').getByText('Комментарий B обновлён')).toBeVisible()
     await expect(page.getByTestId('membership-sale-comment-sale-a').getByText('Комментарий A')).toBeVisible()
   })
@@ -671,6 +683,7 @@ test.describe('Основные e2e сценарии', () => {
           middleName: 'Петрович',
           phone: '+79990005555',
           birthDate: '2000-02-29',
+          telegramContactUsername: null,
           branchId: baseBranch.id,
           notes: 'Нужен звонок за день до первого занятия.',
           groupIds: ['group-1'],
@@ -758,6 +771,7 @@ test.describe('Основные e2e сценарии', () => {
         middleName: 'Петрович',
         phone: '+79990005555',
         birthDate: '2000-02-29',
+        telegramContactUsername: null,
         branchId: baseBranch.id,
         notes: 'Нужен звонок за день до первого занятия.',
         groupIds: ['group-1'],
@@ -779,14 +793,13 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Петров Пётр Петрович' }),
     ).toBeVisible()
-    await expect(page.getByText('Анна Петрова', { exact: true })).toBeVisible()
-    await expect(page.getByText('Олег Петров', { exact: true })).toBeVisible()
-    await expect(
-      page.getByText('Нужен звонок за день до первого занятия.'),
-    ).toBeVisible()
-    await expect(page.getByText('29 февраля 2000 г.')).toBeVisible()
+    await expect(page.getByLabel('ФИО контактного лица').nth(0)).toHaveValue('Анна Петрова')
+    await expect(page.getByLabel('ФИО контактного лица').nth(1)).toHaveValue('Олег Петров')
+    await expect(page.getByLabel('Рабочая заметка')).toHaveValue('Нужен звонок за день до первого занятия.')
+    await expect(page.getByLabel('Дата рождения')).toHaveValue('2000-02-29')
     await expect(page.getByText('26 лет')).toBeVisible()
-    await expect(page.getByText('Абонемент не оформлен')).toBeVisible()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
+    await expect(page.getByRole('button', { name: 'Оформить абонемент' })).toBeVisible()
 
     await page.getByRole('button', { name: 'К списку клиентов' }).click()
     await expect(page).toHaveURL('/clients')
@@ -832,7 +845,7 @@ test.describe('Основные e2e сценарии', () => {
         return true
       }
 
-      if (pathname === '/api/clients/client-1' && method === 'PUT') {
+      if (pathname === '/api/clients/client-1/profile' && method === 'PUT') {
         const payload = route.request().postDataJSON()
         updateClientPayload = payload
 
@@ -841,9 +854,8 @@ test.describe('Основные e2e сценарии', () => {
           firstName: 'Иван',
           middleName: 'Иванович',
           phone: '+79990001111',
-          branchId: baseBranch.id,
+          telegramContactUsername: null,
           notes: 'Позвонить маме после 18:00 перед продлением.',
-          groupIds: ['group-1'],
           contacts: [],
         })
         expect(['2001-03-15', null]).toContain(payload.birthDate)
@@ -866,8 +878,8 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Иванов Иван Иванович' }),
     ).toBeVisible()
-    await expect(page.getByRole('button', { name: 'К карточке клиента' })).toHaveCount(1)
-    await expect(page.getByRole('button', { name: 'Отменить' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'К списку клиентов' })).toHaveCount(1)
+    await expect(page.getByRole('tab', { name: 'Основная информация' })).toHaveAttribute('aria-selected', 'true')
     await page.getByLabel('Дата рождения').fill('2001-03-15')
     await page
       .getByLabel('Рабочая заметка')
@@ -882,39 +894,32 @@ test.describe('Основные e2e сценарии', () => {
         middleName: 'Иванович',
         phone: '+79990001111',
         birthDate: '2001-03-15',
-        branchId: baseBranch.id,
+        telegramContactUsername: null,
         notes: 'Позвонить маме после 18:00 перед продлением.',
-        groupIds: ['group-1'],
         contacts: [],
       })
 
     await expect(page).toHaveURL('/clients/client-1')
-    await expect(
-      page.getByText('Позвонить маме после 18:00 перед продлением.'),
-    ).toBeVisible()
-    await expect(page.getByText('15 марта 2001 г.')).toBeVisible()
+    await expect(page.getByLabel('Рабочая заметка')).toHaveValue('Позвонить маме после 18:00 перед продлением.')
+    await expect(page.getByLabel('Дата рождения')).toHaveValue('2001-03-15')
 
     await page.reload()
-    await expect(
-      page.getByText('Позвонить маме после 18:00 перед продлением.'),
-    ).toBeVisible()
-    await expect(page.getByText('15 марта 2001 г.')).toBeVisible()
+    await expect(page.getByLabel('Рабочая заметка')).toHaveValue('Позвонить маме после 18:00 перед продлением.')
+    await expect(page.getByLabel('Дата рождения')).toHaveValue('2001-03-15')
 
-    await page.getByRole('button', { name: 'Редактировать', exact: true }).click()
     await expect(page.getByLabel('Дата рождения')).toHaveValue('2001-03-15')
     await page.getByLabel('Дата рождения').fill('')
     await page.getByRole('button', { name: 'Сохранить изменения' }).click()
 
     await expect.poll(() => updateClientPayload?.birthDate).toBeNull()
-    await expect(page.getByText('Не указана')).toBeVisible()
+    await expect(page.getByLabel('Дата рождения')).toHaveValue('')
     await expect(page.getByText('Возраст')).toHaveCount(0)
 
     await page.reload()
-    await expect(page.getByText('Не указана')).toBeVisible()
+    await expect(page.getByLabel('Дата рождения')).toHaveValue('')
     await expect(page.getByText('Возраст')).toHaveCount(0)
 
     await page.setViewportSize({ width: 390, height: 900 })
-    await page.getByRole('button', { name: 'Редактировать', exact: true }).click()
     await expect(page.getByLabel('Дата рождения')).toBeVisible()
     await page.keyboard.press('Tab')
     const overflow = await page.evaluate(
@@ -995,11 +1000,6 @@ test.describe('Основные e2e сценарии', () => {
         expect(transferPayload).toEqual({
           targetBranchId: secondaryBranch.id,
           targetGroupIds: [],
-          membershipCatalogItemId: null,
-          manualSaleAmount: 6200,
-          validFrom: '2026-07-22',
-          validTo: '2026-08-20',
-          paymentDate: '2026-07-23',
         })
 
         client = {
@@ -1021,31 +1021,15 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByRole('combobox', { name: 'Целевой филиал' }).click()
     await page.getByRole('option', { name: /Север/ }).click()
     const transferDialog = page.getByRole('dialog', { name: 'Перевод клиента' })
-    await transferDialog
-      .getByRole('radio', { name: 'Без варианта каталога' })
-      .check()
-    await transferDialog
-      .getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
-      .fill('6200')
-    await transferDialog.getByLabel('Действует с').fill('2026-07-22')
-    await transferDialog.getByLabel('Действует по').fill('2026-08-20')
-    await page.getByRole('button', { name: 'Перевести клиента' }).click()
-    await page
-      .getByRole('dialog', { name: 'Подтвердить новую продажу?' })
-      .getByRole('button', { name: 'Подтвердить продажу' })
-      .click()
+    await transferDialog.getByRole('button', { name: 'Перевести клиента' }).click()
 
     await expect.poll(() => transferPayload).toEqual({
       targetBranchId: secondaryBranch.id,
       targetGroupIds: [],
-      membershipCatalogItemId: null,
-      manualSaleAmount: 6200,
-      validFrom: '2026-07-22',
-      validTo: '2026-08-20',
-      paymentDate: '2026-07-23',
     })
-    await expect(page.getByText('Север', { exact: true }).first()).toBeVisible()
-    await expect(page.getByText('Клиент пока не включен ни в одну группу.')).toBeVisible()
+    await expect(page.getByLabel('Филиал', { exact: true })).toHaveValue('Север')
+    await page.getByRole('tab', { name: 'Группы' }).click()
+    await expect(page.getByRole('checkbox', { checked: true })).toHaveCount(0)
   })
 
   test('Создание клиента отображает backend errors.fullName под полем Фамилия', async ({

@@ -40,6 +40,14 @@ describe('auth API', () => {
     expect(result.user?.allowedSections.includes('Audit')).toBe(allowed)
   })
 
+  test.each([[true, true], [false, false], [undefined, false]])('maps server messenger capability %s', async (value, allowed) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      isAuthenticated: true, user: { role: 'Administrator', landingScreen: 'Clients', allowedSections: ['Clients'],
+        permissions: { canViewClientMessenger: value } },
+    })))
+    expect((await loadSession()).user?.permissions.canViewClientMessenger).toBe(allowed)
+  })
+
   test('maps SuperAdministrator session with explicit nullable branch and backend role options', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
       isAuthenticated: true,

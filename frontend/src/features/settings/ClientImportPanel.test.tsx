@@ -11,7 +11,7 @@ const branchId = '20000000-0000-4000-8000-000000000002'
 const user: AuthenticatedUser = {
   id: 'user', fullName: 'User', login: 'user', role: 'HeadCoach', isActive: true, mustChangePassword: false,
   landingScreen: 'Settings', allowedSections: ['Settings'], branchId: null, assignedGroupIds: [], attendanceScope: { kind: 'Global', groupIds: [] },
-  permissions: { canManageUsers: false, canManageClients: true, canManageGroups: false, canManageSettings: true, canMarkAttendance: false, canViewAuditLog: true, canViewFinancialReports: false },
+  permissions: { canViewClientMessenger: true, canManageUsers: false, canManageClients: true, canManageGroups: false, canManageSettings: true, canMarkAttendance: false, canViewAuditLog: true, canViewFinancialReports: false },
   clientImportScope: { kind: 'OwnBranch', branchId },
 }
 beforeEach(() => {

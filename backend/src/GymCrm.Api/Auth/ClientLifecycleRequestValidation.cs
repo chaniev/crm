@@ -24,13 +24,27 @@ internal static class ClientLifecycleRequestValidation
         NormalizedClientRequest request,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken,
-        Guid? currentBranchId = null)
+        Guid? currentBranchId = null,
+        ClientUpdateSection section = ClientUpdateSection.Full)
+    {
+        var errors = section == ClientUpdateSection.Groups ? [] : ValidateProfile(request);
+        if (section == ClientUpdateSection.Profile && !request.HasTelegramContactUsername)
+        {
+            errors["telegramContactUsername"] = [ClientResources.TelegramContactFieldRequired];
+        }
+
+        await ValidateClientBranchAsync(request.BranchId, currentBranchId, errors, dbContext, cancellationToken);
+        if (section != ClientUpdateSection.Profile)
+        {
+            await ValidateGroupsAsync(request, errors, dbContext, cancellationToken);
+        }
+        return errors;
+    }
+
+    private static Dictionary<string, string[]> ValidateProfile(NormalizedClientRequest request)
     {
         var errors = GymCrm.Application.Clients.ClientCreationValidation.Validate(
             request.LastName, request.FirstName, request.MiddleName, request.Phone, request.Notes);
-
-        await ValidateClientBranchAsync(request.BranchId, currentBranchId, errors, dbContext, cancellationToken);
-
         if (request.RawContacts?.Count > 2)
         {
             errors["contacts"] = [ClientResources.ContactsLimitExceeded];
@@ -66,11 +80,19 @@ internal static class ClientLifecycleRequestValidation
                 errors[$"contacts[{index}].phone"] = [ClientResources.ContactPhoneTooLong];
             }
         }
+        return errors;
+    }
 
+    private static async Task ValidateGroupsAsync(
+        NormalizedClientRequest request,
+        Dictionary<string, string[]> errors,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
         if (request.RawGroupIds?.Any(groupId => groupId == Guid.Empty) == true)
         {
             errors["groupIds"] = [ClientResources.InvalidGroupId];
-            return errors;
+            return;
         }
 
         if (request.GroupIds.Count == 0)
@@ -80,7 +102,7 @@ internal static class ClientLifecycleRequestValidation
 
         if (request.GroupIds.Count == 0 || errors.ContainsKey("branchId"))
         {
-            return errors;
+            return;
         }
 
         var existingGroupCount = await dbContext.TrainingGroups
@@ -91,7 +113,7 @@ internal static class ClientLifecycleRequestValidation
         if (existingGroupCount != request.GroupIds.Count)
         {
             errors["groupIds"] = [ClientResources.GroupsMustExist];
-            return errors;
+            return;
         }
 
         var sameBranchGroupCount = await dbContext.TrainingGroups
@@ -103,8 +125,6 @@ internal static class ClientLifecycleRequestValidation
         {
             errors["groupIds"] = [ClientResources.GroupsMustBelongToClientBranch];
         }
-
-        return errors;
     }
 
     private static async Task ValidateClientBranchAsync(
@@ -197,18 +217,25 @@ internal static class ClientLifecycleRequestValidation
         return errors;
     }
 
-    internal static async Task<(UpsertClientRequest? Request, ProblemHttpResult? Problem)> ReadUpsertClientRequestAsync(
+    internal static async Task<(NormalizedClientRequest? Request, ProblemHttpResult? Problem)> ReadClientWriteRequestAsync(
         HttpRequest httpRequest,
+        ClientUpdateSection section,
         CancellationToken cancellationToken)
     {
         try
         {
-            var request = await httpRequest.ReadFromJsonAsync<UpsertClientRequest>(
-                cancellationToken);
-
-            return request is null
-                ? (null, CreateInvalidUpsertJsonProblem())
-                : (request, null);
+            if (section == ClientUpdateSection.Groups)
+            {
+                var groups = await httpRequest.ReadFromJsonAsync<ClientGroupsRequest>(cancellationToken);
+                return groups is null ? (null, CreateInvalidUpsertJsonProblem()) : (NormalizeRequest(null, null, groups.GroupIds), null);
+            }
+            if (section == ClientUpdateSection.Profile)
+            {
+                var profile = await httpRequest.ReadFromJsonAsync<ClientProfileRequest>(cancellationToken);
+                return profile is null ? (null, CreateInvalidUpsertJsonProblem()) : (NormalizeRequest(profile, null, null), null);
+            }
+            var full = await httpRequest.ReadFromJsonAsync<UpsertClientRequest>(cancellationToken);
+            return full is null ? (null, CreateInvalidUpsertJsonProblem()) : (NormalizeRequest(full, full.BranchId, full.GroupIds), null);
         }
         catch (JsonException)
         {
@@ -222,20 +249,24 @@ internal static class ClientLifecycleRequestValidation
             type: "https://tools.ietf.org/html/rfc9110#section-15.5.1",
             statusCode: StatusCodes.Status400BadRequest);
 
-    internal static NormalizedClientRequest NormalizeRequest(UpsertClientRequest request)
+    private static NormalizedClientRequest NormalizeRequest(
+        ClientProfileRequest? profile, Guid? branchId, IReadOnlyList<Guid>? groupIds)
     {
+        var username = profile?.TelegramContactUsername?.Trim().TrimStart('@').Trim();
         return new NormalizedClientRequest(
-            NormalizeOptionalText(request.LastName),
-            NormalizeOptionalText(request.FirstName),
-            NormalizeOptionalText(request.MiddleName),
-            request.Phone?.Trim() ?? string.Empty,
-            request.BranchId,
-            request.BirthDate,
-            NormalizeOptionalText(request.Notes),
-            request.Contacts,
-            NormalizeContacts(request.Contacts),
-            request.GroupIds,
-            NormalizeGroupIds(request.GroupIds));
+            NormalizeOptionalText(profile?.LastName),
+            NormalizeOptionalText(profile?.FirstName),
+            NormalizeOptionalText(profile?.MiddleName),
+            profile?.Phone?.Trim() ?? string.Empty,
+            string.IsNullOrEmpty(username) ? null : "@" + username,
+            profile?.HasTelegramContactUsername == true,
+            branchId,
+            profile?.BirthDate,
+            NormalizeOptionalText(profile?.Notes),
+            profile?.Contacts,
+            NormalizeContacts(profile?.Contacts),
+            groupIds,
+            NormalizeGroupIds(groupIds));
     }
 
     private static IReadOnlyList<NormalizedClientContactRequest> NormalizeContacts(
@@ -248,9 +279,9 @@ internal static class ClientLifecycleRequestValidation
 
         return contacts
             .Select(contact => new NormalizedClientContactRequest(
-                contact.Type?.Trim() ?? string.Empty,
-                contact.FullName?.Trim() ?? string.Empty,
-                contact.Phone?.Trim() ?? string.Empty))
+                contact?.Type?.Trim() ?? string.Empty,
+                contact?.FullName?.Trim() ?? string.Empty,
+                contact?.Phone?.Trim() ?? string.Empty))
             .ToArray();
     }
 

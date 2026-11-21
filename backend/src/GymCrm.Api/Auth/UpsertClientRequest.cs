@@ -1,12 +1,7 @@
 namespace GymCrm.Api.Auth;
 
-internal sealed record UpsertClientRequest(
-    string? LastName,
-    string? FirstName,
-    string? MiddleName,
-    string? Phone,
-    Guid? BranchId,
-    DateOnly? BirthDate,
-    string? Notes,
-    IReadOnlyList<UpsertClientContactRequest>? Contacts,
-    IReadOnlyList<Guid>? GroupIds);
+internal sealed record UpsertClientRequest : ClientProfileRequest
+{
+    public Guid? BranchId { get; init; }
+    public IReadOnlyList<Guid>? GroupIds { get; init; }
+}

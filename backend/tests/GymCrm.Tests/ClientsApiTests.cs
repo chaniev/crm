@@ -43,6 +43,88 @@ public class ClientsApiTests
     };
 
     [Fact]
+    public async Task Profile_contact_requires_explicit_replacement_and_survives_legacy_updates()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seed = await SeedClientsDataAsync(factory);
+        using var http = factory.CreateClient();
+        var actor = await LoginAsync(http, seed.HeadCoachLogin, seed.SharedPassword);
+        var legacy = new { firstName = "Test", phone = "111", branchId = seed.BranchId, groupIds = new[] { seed.GroupOneId } };
+        var create = JsonSerializer.SerializeToNode(legacy)!.AsObject();
+        create["telegramContactUsername"] = "  account  ";
+        using var created = await PostJsonAsync(http, "/clients", create, actor.CsrfToken);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var path = $"/clients/{(await ReadJsonElementAsync(created)).GetProperty("id").GetGuid()}";
+        async Task<string?> ContactAsync() =>
+            (await http.GetFromJsonAsync<JsonElement>(path)).GetProperty("telegramContactUsername").GetString();
+        Assert.Equal("@account", await ContactAsync());
+
+        var profile = new JsonObject { ["firstName"] = "Test", ["phone"] = "222", ["telegramContactUsername"] = " @@replacement " };
+        using var updated = await PutJsonAsync(http, path + "/profile", profile, actor.CsrfToken);
+        updated.EnsureSuccessStatusCode();
+        using var full = await PutJsonAsync(http, path, legacy, actor.CsrfToken);
+        full.EnsureSuccessStatusCode();
+        Assert.Equal("@replacement", await ContactAsync());
+
+        profile.Remove("telegramContactUsername");
+        using var missing = await PutJsonAsync(http, path + "/profile", profile, actor.CsrfToken);
+        await AssertValidationProblemFieldsAsync(missing, ["telegramContactUsername"]);
+        Assert.Equal("@replacement", await ContactAsync());
+        var unchanged = await http.GetFromJsonAsync<JsonElement>(path);
+        Assert.Equal("111", unchanged.GetProperty("phone").GetString());
+
+        profile["telegramContactUsername"] = null;
+        using var cleared = await PutJsonAsync(http, path + "/profile", profile, actor.CsrfToken);
+        cleared.EnsureSuccessStatusCode();
+        Assert.Null(await ContactAsync());
+    }
+
+    [Fact]
+    public async Task Profile_and_group_writes_from_different_sessions_preserve_neighboring_changes()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seed = await SeedClientsDataAsync(factory);
+        using var admin = factory.CreateClient();
+        using var head = factory.CreateClient();
+        var sessionA = await LoginAsync(admin, seed.AdministratorLogin, seed.SharedPassword);
+        var sessionB = await LoginAsync(head, seed.HeadCoachLogin, seed.SharedPassword);
+        var id = await CreateClientForMembershipTestsAsync(admin, sessionA.CsrfToken, seed.GroupOneId);
+        var path = $"/clients/{id}";
+        var profile = new
+        {
+            firstName = "New",
+            phone = "333",
+            telegramContactUsername = "user",
+            notes = "New note",
+            contacts = new[] { new { type = "family", fullName = "Relative", phone = "444" } }
+        };
+        using var groups = await PutJsonAsync(head, path + "/groups", new { groupIds = new[] { seed.GroupTwoId } }, sessionB.CsrfToken);
+        groups.EnsureSuccessStatusCode();
+        using var saved = await PutJsonAsync(admin, path + "/profile", profile, sessionA.CsrfToken);
+        saved.EnsureSuccessStatusCode();
+        var card = await admin.GetFromJsonAsync<JsonElement>(path);
+        Assert.Equal(seed.GroupTwoId, Assert.Single(card.GetProperty("groupIds").EnumerateArray()).GetGuid());
+
+        async Task<Guid> ContactIdAsync()
+        {
+            using var scope = factory.Services.CreateScope();
+            return await scope.ServiceProvider.GetRequiredService<GymCrmDbContext>().ClientContacts
+                .Where(c => c.ClientId == id).Select(c => c.Id).SingleAsync();
+        }
+        var contact = await ContactIdAsync();
+        using var nextGroups = await PutJsonAsync(head, path + "/groups", new { groupIds = new[] { seed.GroupOneId } }, sessionB.CsrfToken);
+        nextGroups.EnsureSuccessStatusCode();
+        using var empty = await PutJsonAsync(head, path + "/groups", new { groupIds = Array.Empty<Guid>() }, sessionB.CsrfToken);
+        await AssertValidationProblemFieldsAsync(empty, ["groupIds"]);
+        card = await admin.GetFromJsonAsync<JsonElement>(path);
+        Assert.Equal("333", card.GetProperty("phone").GetString());
+        Assert.Equal("New note", card.GetProperty("notes").GetString());
+        Assert.Equal("@user", card.GetProperty("telegramContactUsername").GetString());
+        Assert.Equal(seed.GroupOneId, Assert.Single(card.GetProperty("groupIds").EnumerateArray()).GetGuid());
+        Assert.Equal(contact, await ContactIdAsync());
+    }
+
+    [Fact]
     public async Task Client_query_endpoint_manifest_keeps_four_get_routes_without_duplicates()
     {
         await using var factory = new ClientsAppFactory();
@@ -1204,6 +1286,16 @@ public class ClientsApiTests
             Assert.Equal(targetBranchId, payload.GetProperty("branchId").GetGuid());
         }
 
+        using (var edited = await PutJsonAsync(client, $"/clients/{ungroupedTransferClientId}/profile",
+                   new { firstName = "Transferred", phone = "555", telegramContactUsername = "@new" }, session.CsrfToken))
+        {
+            edited.EnsureSuccessStatusCode();
+            var details = await ReadJsonElementAsync(edited);
+            Assert.Empty(details.GetProperty("groupIds").EnumerateArray());
+            Assert.Equal(targetBranchId, details.GetProperty("branchId").GetGuid());
+            Assert.Equal("@new", details.GetProperty("telegramContactUsername").GetString());
+        }
+
         using (var transferWithGroupResponse = await PostMembershipJsonAsync(
                    client,
                    $"/clients/{clientId}/transfer",
@@ -1880,6 +1972,7 @@ public class ClientsApiTests
 
             var restrictedClient = await dbContext.Clients
                 .SingleAsync(client => client.Id == restrictedClientId);
+            restrictedClient.TelegramContactUsername = "@private";
             restrictedClient.Phone = "+79990001155";
 
             await dbContext.SaveChangesAsync();
@@ -1916,12 +2009,23 @@ public class ClientsApiTests
 
         var coachSession = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
         Assert.Equal("Coach", coachSession.User?.Role);
+        Assert.False(coachSession.User!.Permissions.CanViewClientMessenger);
+        Assert.True(managerSession.User!.Permissions.CanViewClientMessenger);
+
+        foreach (var section in new[] { "profile", "groups" })
+        {
+            using var denied = await PutJsonAsync(coachClient, $"/clients/{restrictedClientId}/{section}", new { }, coachSession.CsrfToken);
+            Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
+            Assert.DoesNotContain("@private", await denied.Content.ReadAsStringAsync());
+        }
 
         using var clientResponse = await coachClient.GetAsync($"/clients/{restrictedClientId}");
         Assert.Equal(HttpStatusCode.OK, clientResponse.StatusCode);
 
         var clientPayload = await ReadJsonElementAsync(clientResponse);
         Assert.Equal(string.Empty, GetStringFromProperty(clientPayload, "phone"));
+
+        Assert.Null(clientPayload.GetProperty("telegramContactUsername").GetString());
 
         var contactsPayload = GetPropertyOrNull(clientPayload, "contacts", "Contacts");
         Assert.Equal(0, contactsPayload.ValueKind == JsonValueKind.Array ? contactsPayload.GetArrayLength() : 0);
@@ -5917,7 +6021,8 @@ public class ClientsApiTests
         bool CanManageClients,
         bool CanManageGroups,
         bool CanMarkAttendance,
-        bool CanViewAuditLog);
+        bool CanViewAuditLog,
+        bool CanViewClientMessenger);
 
     private sealed record LoginRequest(string Login, string Password);
 

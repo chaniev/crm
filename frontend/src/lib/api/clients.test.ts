@@ -9,7 +9,32 @@ import {
   purchaseClientMembership,
   renewClientMembership,
   updateClientMembershipComment,
+  updateClientProfile,
+  updateClientGroups,
 } from './clients'
+
+describe('independent client editors', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  test('reads the saved Telegram contact from details', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({
+      id: 'client-1', telegramContactUsername: '@saved',
+    })))
+    expect((await getClient('client-1')).telegramContactUsername).toBe('@saved')
+  })
+
+  test('writes profile and assignments to their own resources', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(Response.json({ id: 'client-1' })))
+    vi.stubGlobal('fetch', fetchMock)
+    const profile = { phone: '123', birthDate: null, telegramContactUsername: null, contacts: [] }
+    await updateClientProfile('client-1', profile)
+    await updateClientGroups('client-1', { groupIds: ['group-2'] })
+    expect(fetchMock).toHaveBeenCalledWith('/api/clients/client-1/profile',
+      expect.objectContaining({ method: 'PUT', body: JSON.stringify(profile) }))
+    expect(fetchMock).toHaveBeenCalledWith('/api/clients/client-1/groups',
+      expect.objectContaining({ method: 'PUT', body: JSON.stringify({ groupIds: ['group-2'] }) }))
+  })
+})
 
 describe('correctClientMembership', () => {
   afterEach(() => vi.unstubAllGlobals())
@@ -240,6 +265,8 @@ describe('status-free membership read contract', () => {
       paymentRecordedByUserName: 'Анна Петрова',
       paymentRecordedAt: '2026-07-23T09:30:00Z',
       expirationDate: '2026-08-22',
+      individualValidFrom: '2026-07-24',
+      validFrom: '2026-07-23T09:30:00Z',
       pricingMode: 'Catalog',
       grossAmount: 3000,
       catalogPrice: 3000,
@@ -308,6 +335,8 @@ describe('status-free membership read contract', () => {
     expect(client).not.toHaveProperty('hasActivePaidMembership')
     expect(client).not.toHaveProperty('hasUnpaidCurrentMembership')
     expect(currentMembership).toMatchObject({
+      individualValidFrom: '2026-07-24',
+      validFrom: '2026-07-23T09:30:00Z',
       paymentDate: '2026-07-10',
       paymentRecordedByUserId: 'user-1',
       paymentRecordedByUserName: 'Анна Петрова',

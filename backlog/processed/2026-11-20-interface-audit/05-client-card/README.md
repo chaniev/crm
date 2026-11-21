@@ -48,7 +48,7 @@ none — этот отчёт фиксирует наблюдения и пред
 
 - [ClientPreviewPanel.tsx](../../../../frontend/src/features/clients/list/ClientPreviewPanel.tsx)
 - [TASK-016-client-card-quick-actions.md](../../../needs-clarification/TASK-016-client-card-quick-actions.md)
-- [TASK-019-client-card-tabs.md](../../../tasks-ready/TASK-019-client-card-tabs.md)
+- [TASK-019-client-card-tabs.md](../../../implementation/TASK-019-client-card-tabs.md)
 
 ## Доказательства
 

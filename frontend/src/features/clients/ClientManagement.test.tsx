@@ -11,7 +11,8 @@ import {
   purchaseClientMembership,
   renewClientMembership,
   transferClientBranch,
-  updateClient,
+  updateClientProfile,
+  updateClientGroups,
   updateClientMembershipComment,
   type ClientDetails,
 } from '../../lib/api'
@@ -19,7 +20,6 @@ import { renderWithProviders } from '../../test/render'
 import {
   ClientCreateScreen,
   ClientDetailScreen,
-  ClientEditScreen,
 } from './ClientManagement'
 import { formatNoteAttributionDate } from './noteAttribution'
 
@@ -37,7 +37,8 @@ vi.mock('../../lib/api', async (importOriginal) => {
     purchaseClientMembership: vi.fn(),
     renewClientMembership: vi.fn(),
     transferClientBranch: vi.fn(),
-    updateClient: vi.fn(),
+    updateClientProfile: vi.fn(),
+    updateClientGroups: vi.fn(),
     updateClientMembershipComment: vi.fn(),
   }
 })
@@ -51,7 +52,8 @@ const getGroupsMock = vi.mocked(getGroups)
 const purchaseMembershipMock = vi.mocked(purchaseClientMembership)
 const renewMembershipMock = vi.mocked(renewClientMembership)
 const transferClientMock = vi.mocked(transferClientBranch)
-const updateClientMock = vi.mocked(updateClient)
+const updateClientMock = vi.mocked(updateClientProfile)
+const updateGroupsMock = vi.mocked(updateClientGroups)
 const updateCommentMock = vi.mocked(updateClientMembershipComment)
 
 beforeAll(() => {
@@ -75,25 +77,27 @@ beforeEach(() => {
   renewMembershipMock.mockReset()
   transferClientMock.mockReset()
   updateClientMock.mockReset()
+  updateGroupsMock.mockReset()
   updateCommentMock.mockReset()
+  window.history.replaceState(null, '', '/')
+  getEligibleItemsMock.mockResolvedValue([])
   getGroupsMock.mockResolvedValue(buildGroupsPage())
 })
 
 describe('Client route forms', () => {
-  test('keeps one header return and only submit in edit while create keeps cancel', async () => {
+  test('keeps one return from the profile and cancel on creation', async () => {
     setupClientFormOptions()
     getClientMock.mockResolvedValue(buildClientDetails())
 
     const editView = renderWithProviders(
-      <ClientEditScreen
+      <ClientDetailScreen canManage
         clientId="client-1"
         onBack={vi.fn()}
-        onUpdated={vi.fn()}
       />,
     )
 
     expect(await screen.findByRole('button', { name: 'Сохранить изменения' })).toBeVisible()
-    expect(screen.getAllByRole('button', { name: 'К карточке клиента' })).toHaveLength(1)
+    expect(screen.getAllByRole('button', { name: 'К списку клиентов' })).toHaveLength(1)
     expect(screen.queryByRole('button', { name: 'Отменить' })).not.toBeInTheDocument()
 
     editView.unmount()
@@ -112,16 +116,15 @@ describe('Client route forms', () => {
     getGroupsMock.mockResolvedValue({ items: [], totalCount: 0, skip: 0, take: 100 })
 
     renderWithProviders(
-      <ClientEditScreen
+      <ClientDetailScreen canManage
         clientId="client-1"
         onBack={vi.fn()}
-        onUpdated={vi.fn()}
       />,
     )
 
-    expect(screen.getAllByRole('button', { name: 'К карточке клиента' })).toHaveLength(1)
+    expect(screen.getAllByRole('button', { name: 'К списку клиентов' })).toHaveLength(1)
     expect(await screen.findByText('Карточка клиента не загрузилась')).toBeVisible()
-    expect(screen.getAllByRole('button', { name: 'К карточке клиента' })).toHaveLength(1)
+    expect(screen.getAllByRole('button', { name: 'К списку клиентов' })).toHaveLength(1)
     expect(screen.queryByRole('form')).not.toBeInTheDocument()
   })
 
@@ -143,6 +146,7 @@ describe('Client route forms', () => {
       target: { value: ' +7 999 000-00-00 ' },
     })
 
+    fireEvent.change(screen.getByLabelText('Telegram'), { target: { value: '@ivan' } })
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить клиента' }))
 
     await waitFor(() => expect(createClientMock).toHaveBeenCalledTimes(1))
@@ -151,6 +155,7 @@ describe('Client route forms', () => {
       firstName: undefined,
       middleName: undefined,
       phone: '+7 999 000-00-00',
+      telegramContactUsername: '@ivan',
       birthDate: null,
       branchId: 'branch-1',
       notes: '',
@@ -210,13 +215,11 @@ describe('Client route forms', () => {
         Notes: ['Заметка содержит недопустимое значение.'],
       }),
     )
-    const onUpdated = vi.fn()
 
     renderWithProviders(
-      <ClientEditScreen
+      <ClientDetailScreen canManage
         clientId="client-1"
         onBack={vi.fn()}
-        onUpdated={onUpdated}
       />,
     )
 
@@ -245,10 +248,9 @@ describe('Client route forms', () => {
       middleName: undefined,
       phone: '+7 999 222-33-44',
       birthDate: '2001-02-03',
-      branchId: 'branch-1',
+      telegramContactUsername: null,
       notes: 'Черновик изменения',
       contacts: [],
-      groupIds: [],
     })
     expect(await screen.findByText('Изменения не сохранены.')).toBeVisible()
     expect(screen.getByText('Уточните ФИО клиента.')).toBeVisible()
@@ -259,7 +261,34 @@ describe('Client route forms', () => {
     expect(screen.getByLabelText('Рабочая заметка')).toHaveValue(
       '  Черновик изменения  ',
     )
-    expect(onUpdated).not.toHaveBeenCalled()
+  })
+
+  test('preserves an unsaved phone when saving groups and confirming return', async () => {
+    const client = buildClientDetails()
+    getClientMock.mockResolvedValue(client)
+    updateGroupsMock.mockResolvedValue({ ...client, groupIds: ['group-1'] })
+    const onBack = vi.fn()
+    renderWithProviders(<ClientDetailScreen canManage clientId={client.id} onBack={onBack} />)
+
+    const phone = await screen.findByLabelText('Телефон')
+    fireEvent.change(phone, { target: { value: '+7 999 123-45-67' } })
+    fireEvent.click(screen.getByRole('tab', { name: 'Группы' }))
+    fireEvent.click(await screen.findByRole('checkbox', { name: /Утренняя группа/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить группы' }))
+    await waitFor(() => expect(updateGroupsMock).toHaveBeenCalledWith(client.id, { groupIds: ['group-1'] }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Основная информация' }))
+    expect(screen.getByLabelText('Телефон')).toHaveValue('+7 999 123-45-67')
+    expect(updateClientMock).not.toHaveBeenCalled()
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true)
+    try {
+      fireEvent.click(screen.getByRole('button', { name: 'К списку клиентов' }))
+      expect(confirm).toHaveBeenCalledTimes(1)
+      expect(onBack).not.toHaveBeenCalled()
+      fireEvent.click(screen.getByRole('button', { name: 'К списку клиентов' }))
+      expect(onBack).toHaveBeenCalledOnce()
+    } finally {
+      confirm.mockRestore()
+    }
   })
 
   test('ignores a stale edit load after the client route changes', async () => {
@@ -283,10 +312,9 @@ describe('Client route forms', () => {
     )
 
     const view = renderWithProviders(
-      <ClientEditScreen
+      <ClientDetailScreen canManage
         clientId="client-1"
         onBack={vi.fn()}
-        onUpdated={vi.fn()}
       />,
     )
 
@@ -297,10 +325,9 @@ describe('Client route forms', () => {
       ),
     )
     view.rerender(
-      <ClientEditScreen
+      <ClientDetailScreen canManage
         clientId="client-2"
         onBack={vi.fn()}
-        onUpdated={vi.fn()}
       />,
     )
 
@@ -337,7 +364,6 @@ describe('Client route forms', () => {
         canManage
         clientId="client-1"
         onBack={vi.fn()}
-        onEdit={vi.fn()}
       />,
     )
 
@@ -352,7 +378,6 @@ describe('Client route forms', () => {
         canManage
         clientId="client-2"
         onBack={vi.fn()}
-        onEdit={vi.fn()}
       />,
     )
 
@@ -383,7 +408,6 @@ describe('Client route forms', () => {
         canManage
         clientId="missing-client"
         onBack={vi.fn()}
-        onEdit={vi.fn()}
       />,
     )
 
@@ -405,7 +429,6 @@ describe('Client route forms', () => {
         canManage={false}
         clientId="client-1"
         onBack={vi.fn()}
-        onEdit={vi.fn()}
       />,
     )
 
@@ -419,14 +442,18 @@ describe('Client route forms', () => {
     expect(screen.queryByRole('button', { name: 'Продлить' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Исправить' })).not.toBeInTheDocument()
     expect(screen.queryByText('История абонемента')).not.toBeInTheDocument()
-    expect(screen.getByText('Режим тренера')).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Основная информация' })).toBeVisible()
+    expect(screen.queryByRole('tab', { name: 'Абонементы' })).toBeNull()
+    expect(screen.queryByRole('tab', { name: 'Сообщения' })).toBeNull()
+    expect(screen.queryByLabelText('Telegram')).toBeNull()
   })
 })
 
 describe('ClientDetailScreen membership sale comments', () => {
   test('groups technical versions by sale and keeps separate purchases independent', async () => {
     getClientMock.mockResolvedValue(buildClientWithMemberships())
-    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} />)
+    await openHistory()
 
     expect(await screen.findByText('Комментарий первой покупки')).toBeInTheDocument()
     expect(screen.getAllByText('Комментарий к покупке')).toHaveLength(2)
@@ -455,6 +482,7 @@ describe('ClientDetailScreen membership sale comments', () => {
       membershipHistory: orderedHistory,
     })
     const firstView = renderClientDetails()
+    await openHistory()
 
     expect(
       (await screen.findAllByRole('button', {
@@ -481,6 +509,7 @@ describe('ClientDetailScreen membership sale comments', () => {
       membershipHistory: [...orderedHistory].reverse(),
     })
     renderClientDetails()
+    await openHistory()
 
     expect(
       (await screen.findAllByRole('button', {
@@ -504,7 +533,7 @@ describe('ClientDetailScreen membership sale comments', () => {
 
   test('does not expose comments or their empty state to coach', async () => {
     getClientMock.mockResolvedValue(buildClientWithMemberships())
-    renderWithProviders(<ClientDetailScreen canManage={false} clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+    renderWithProviders(<ClientDetailScreen canManage={false} clientId="client-1" onBack={() => undefined} />)
     await screen.findAllByText('Иван Иванов')
     expect(screen.queryByText('Комментарий к покупке')).not.toBeInTheDocument()
     expect(screen.queryByText('Комментарий пока не добавлен.')).not.toBeInTheDocument()
@@ -533,7 +562,8 @@ describe('ClientDetailScreen membership sale comments', () => {
     }
     getClientMock.mockResolvedValue(initial)
     updateCommentMock.mockResolvedValue(updated)
-    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} />)
+    await openHistory()
 
     const saleA = await screen.findByTestId('membership-sale-comment-sale-1')
     const saleB = screen.getByTestId('membership-sale-comment-sale-2')
@@ -587,6 +617,7 @@ describe('ClientDetailScreen membership sale comments', () => {
       saleId === 'sale-1' ? saleARequest.promise : saleBRequest.promise,
     )
     renderClientDetails()
+    await openHistory()
 
     const saleA = await screen.findByTestId('membership-sale-comment-sale-1')
     const saleB = screen.getByTestId('membership-sale-comment-sale-2')
@@ -641,7 +672,8 @@ describe('ClientDetailScreen membership sale comments', () => {
     updateCommentMock
       .mockRejectedValueOnce(new Error('Недостаточно прав.'))
       .mockResolvedValueOnce(updated)
-    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} />)
+    await openHistory()
     const saleA = await screen.findByTestId('membership-sale-comment-sale-1')
     const saleB = screen.getByTestId('membership-sale-comment-sale-2')
 
@@ -677,8 +709,7 @@ describe('ClientDetailScreen birth date', () => {
     renderClientDetails()
 
     expect(await screen.findByText('Дата рождения')).toBeInTheDocument()
-    expect(screen.getByText('29 февраля 2004 г.')).toBeInTheDocument()
-    expect(screen.getByText('Дата рождения').nextElementSibling).toHaveTextContent('29 февраля 2004 г. · 22 года')
+    expect(screen.getByLabelText('Дата рождения')).toHaveValue('2004-02-29')
     expect(screen.getByText('22 года')).toBeInTheDocument()
   })
 
@@ -692,7 +723,6 @@ describe('ClientDetailScreen birth date', () => {
         canManage={false}
         clientId="client-1"
         onBack={() => undefined}
-        onEdit={() => undefined}
       />,
     )
 
@@ -708,7 +738,7 @@ describe('ClientDetailScreen birth date', () => {
 
     renderClientDetails()
 
-    expect(await screen.findByText('1 января 2030 г.')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Дата рождения')).toHaveValue('2030-01-01')
     expect(screen.getByText('Не вычисляется')).toBeInTheDocument()
   })
 })
@@ -723,11 +753,10 @@ describe('ClientDetailScreen membership purchase form', () => {
         canManage
         clientId="client-1"
         onBack={() => undefined}
-        onEdit={() => undefined}
       />,
     )
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
     fireEvent.click(await screen.findByRole('radio', { name: 'По каталожной цене' }))
 
     expect(await screen.findByRole('combobox', { name: 'Вариант абонемента' })).toBeInTheDocument()
@@ -739,7 +768,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
 
     expect(await screen.findByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
     expect(screen.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
@@ -751,7 +780,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
 
     const paymentDate = await screen.findByLabelText('Дата оплаты')
     expect(paymentDate).toBeRequired()
@@ -767,7 +796,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
     fireEvent.click(await screen.findByRole('radio', { name: 'Индивидуальная сумма' }))
     await selectCatalogOption('Вариант абонемента')
 
@@ -785,7 +814,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     purchaseMembershipMock.mockResolvedValue(client)
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
     fireEvent.click(await screen.findByRole('radio', { name: 'Индивидуальная сумма' }))
     await selectCatalogOption('Вариант абонемента')
     fireEvent.change(screen.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }), {
@@ -831,7 +860,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     )
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
     fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
     const amount = screen.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
     fireEvent.change(amount, { target: { value: '100' } })
@@ -863,7 +892,7 @@ describe('ClientDetailScreen membership purchase form', () => {
       .mockResolvedValueOnce(client)
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
     fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
     const amount = screen.getByRole('spinbutton', {
       name: 'Фактическая сумма продажи, ₽',
@@ -928,7 +957,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     purchaseMembershipMock.mockReturnValue(pendingPurchase.promise)
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
     fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
     fireEvent.change(screen.getByRole('spinbutton', {
       name: 'Фактическая сумма продажи, ₽',
@@ -964,7 +993,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
     fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
     const amount = screen.getByRole('spinbutton', {
       name: 'Фактическая сумма продажи, ₽',
@@ -1000,7 +1029,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    await openMemberships()
     fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
     const amount = screen.getByRole('spinbutton', {
       name: 'Фактическая сумма продажи, ₽',
@@ -1045,6 +1074,7 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     renewMembershipMock.mockResolvedValue(buildClientDetails())
 
     renderClientDetails()
+    await openMemberships()
     fireEvent.click(await screen.findByRole('button', { name: 'Продлить' }))
 
     expect(await screen.findByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
@@ -1085,6 +1115,7 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     ])
 
     renderClientDetails()
+    await openMemberships()
     fireEvent.click(await screen.findByRole('button', { name: 'Продлить' }))
 
     expect(
@@ -1115,6 +1146,7 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     renewMembershipMock.mockResolvedValue(client)
 
     renderClientDetails()
+    await openMemberships()
     fireEvent.click(await screen.findByRole('button', { name: 'Продлить' }))
     const paymentDate = await screen.findByLabelText('Дата оплаты')
     expect(paymentDate).toHaveAttribute('max', '2026-07-23')
@@ -1154,6 +1186,7 @@ describe('ClientDetailScreen membership renewal pricing', () => {
       .mockResolvedValueOnce(client)
 
     renderClientDetails()
+    await openMemberships()
     fireEvent.click(await screen.findByRole('button', { name: 'Продлить' }))
     fireEvent.click(await screen.findByRole('radio', { name: 'По каталожной цене' }))
     await selectCatalogOption('Вариант абонемента')
@@ -1211,7 +1244,8 @@ describe('ClientDetailScreen immutable sale actions', () => {
 
     renderClientDetails()
 
-    expect(await screen.findByText('История абонемента')).toBeInTheDocument()
+    await openMemberships()
+    expect(screen.getByText('История абонементов')).toBeVisible()
     expect(screen.queryByRole('button', { name: 'Отметить оплату' })).not.toBeInTheDocument()
     expect(screen.queryByText('Не оплачен')).not.toBeInTheDocument()
     expect(screen.queryByText('Оплачен')).not.toBeInTheDocument()
@@ -1224,6 +1258,7 @@ describe('Client scope invalidation', () => {
     getClientMock.mockResolvedValue(client)
     updateCommentMock.mockRejectedValue(new ApiError('Продажа не найдена.', 404))
     renderClientDetails()
+    await openHistory()
     const sale = await screen.findByTestId('membership-sale-comment-sale-1')
     fireEvent.click(within(sale).getByRole('button', { name: /Редактировать комментарий/ }))
     fireEvent.change(within(sale).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Черновик' } })
@@ -1243,6 +1278,7 @@ describe('Client scope invalidation', () => {
     const first = new Promise<ClientDetails>((_resolve, reject) => { rejectFirst = reject })
     updateCommentMock.mockReturnValueOnce(first).mockReturnValueOnce(late)
     renderClientDetails()
+    await openHistory()
     for (const saleId of ['sale-1', 'sale-2']) {
       const sale = await screen.findByTestId(`membership-sale-comment-${saleId}`)
       fireEvent.click(within(sale).getByRole('button', { name: /Редактировать комментарий/ }))
@@ -1264,7 +1300,7 @@ describe('ClientDetailScreen branch/group assignment transfer', () => {
     setupTransferOptions()
     transferClientMock.mockResolvedValue(null)
     const onBack = vi.fn()
-    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={onBack} onEdit={() => undefined} />)
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={onBack} />)
     fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
     const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Перевести клиента' }))
@@ -1410,16 +1446,51 @@ describe('ClientDetailScreen membership history pricing provenance', () => {
 
     renderClientDetails()
 
-    expect(await screen.findByText('Каталожная цена')).toBeInTheDocument()
-    expect(screen.getByText('Индивидуальная сумма')).toBeInTheDocument()
-    expect(screen.getAllByText('Без варианта каталога')).not.toHaveLength(0)
-    expect(screen.getAllByText('3 000 ₽').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('4 100 ₽').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('4 200 ₽').length).toBeGreaterThan(0)
+    const history = within(await openHistory())
+    expect(await history.findByText('Каталожная цена')).toBeInTheDocument()
+    expect(history.getByText('Индивидуальная сумма')).toBeInTheDocument()
+    expect(history.getAllByText('Без варианта каталога')).not.toHaveLength(0)
+    expect(history.getAllByText('3 000 ₽').length).toBeGreaterThan(0)
+    expect(history.getAllByText('4 100 ₽').length).toBeGreaterThan(0)
+    expect(history.getAllByText('4 200 ₽').length).toBeGreaterThan(0)
   })
 })
 
 describe('ClientDetailScreen membership correction form', () => {
+  test('opens the selected sale with its payment date and corrects only that sale', async () => {
+    const first = buildMembership()
+    const second = {
+      ...first,
+      saleId: 'sale-second',
+      id: 'version-second',
+      paymentDate: '2026-07-09',
+      membershipName: 'Второй абонемент',
+      validFrom: '2026-07-21T14:35:00+00:00',
+      individualValidFrom: '2026-07-12',
+    }
+    const client = buildClientDetails({
+      currentMemberships: [first, second],
+      membershipHistory: [first, second],
+      hasCurrentMembership: true,
+    })
+    getClientMock.mockResolvedValue(client)
+    correctMembershipMock.mockResolvedValue(client)
+    renderClientDetails()
+    await openMemberships()
+
+    const paymentDate = () => screen.getByLabelText('Дата оплаты')
+    expect(paymentDate()).toHaveValue(first.paymentDate)
+    fireEvent.change(screen.getByRole('combobox', { name: 'Абонемент' }), { target: { value: second.saleId } })
+    expect(paymentDate()).toHaveValue(second.paymentDate)
+    expect(screen.getByLabelText('Действует с')).toHaveValue(second.individualValidFrom)
+    fireEvent.change(paymentDate(), { target: { value: '2026-07-10' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить исправление' }))
+    await waitFor(() => expect(correctMembershipMock).toHaveBeenCalledWith(client.id,
+      expect.objectContaining({ saleId: second.saleId, expectedMembershipId: second.id, paymentDate: '2026-07-10', validFrom: second.individualValidFrom }),
+      { idempotencyKey: expect.any(String) },
+    ))
+  })
+
   test('keeps catalog type and sale amount read-only', async () => {
     const currentMembership = buildMembership()
     getClientMock.mockResolvedValue({
@@ -1434,21 +1505,15 @@ describe('ClientDetailScreen membership correction form', () => {
         canManage
         clientId="client-1"
         onBack={() => undefined}
-        onEdit={() => undefined}
       />,
     )
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Исправить' }))
+    await openMemberships()
 
-    expect(
-      await screen.findByText(
-        'Тип и цена зафиксированы в продаже и не меняются при исправлении.',
-      ),
-    ).toBeInTheDocument()
     expect(screen.queryByRole('combobox', { name: 'Тип абонемента' })).not.toBeInTheDocument()
     expect(screen.queryByRole('spinbutton', { name: 'Сумма оплаты' })).not.toBeInTheDocument()
     expect(screen.getAllByText('Месяц')).not.toHaveLength(0)
-    expect(screen.getAllByText('3 000 ₽')).not.toHaveLength(0)
+    expect(screen.getByText(/3 000 ₽ · Куплен/)).toBeVisible()
   })
 
   test('sends addressed correction with payment date and preserves draft ProblemDetails errors', async () => {
@@ -1456,7 +1521,7 @@ describe('ClientDetailScreen membership correction form', () => {
       ...buildMembership(),
       purchaseDate: '2026-07-01',
       paymentDate: '2026-07-01',
-      validFrom: '2026-07-01',
+      individualValidFrom: '2026-07-01',
       expirationDate: '2026-07-31',
     }
     getClientMock.mockResolvedValue({
@@ -1473,9 +1538,9 @@ describe('ClientDetailScreen membership correction form', () => {
     )
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Исправить' }))
+    await openMemberships()
 
-    expect(screen.getByText('Дата покупки')).toBeInTheDocument()
+    expect(screen.getByText(/· Куплен/)).toBeInTheDocument()
     expect(screen.getAllByText(/июл.*2026|01\.07\.2026/)).not.toHaveLength(0)
     expect(screen.queryByRole('switch', { name: 'Оплачен' })).not.toBeInTheDocument()
     expect(screen.queryByText('Не оплачен')).not.toBeInTheDocument()
@@ -1517,7 +1582,7 @@ describe('ClientDetailScreen membership correction form', () => {
       ...buildMembership(),
       purchaseDate: '2026-07-01',
       paymentDate: '2026-07-01',
-      validFrom: '2026-07-01',
+      individualValidFrom: '2026-07-01',
       expirationDate: '2026-07-31',
     }
     const client = {
@@ -1536,7 +1601,7 @@ describe('ClientDetailScreen membership correction form', () => {
       .mockResolvedValueOnce(client)
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Исправить' }))
+    await openMemberships()
     const validFrom = await screen.findByLabelText('Действует с')
     fireEvent.change(validFrom, { target: { value: '2026-07-05' } })
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить исправление' }))
@@ -1567,7 +1632,7 @@ describe('ClientDetailScreen membership correction form', () => {
   test('reloads after payment-date correction without exposing mark-payment', async () => {
     const initialMembership = {
       ...buildMembership(),
-      validFrom: '2026-07-01',
+      individualValidFrom: '2026-07-01',
       expirationDate: '2026-07-31',
       paymentDate: '2026-07-01',
     }
@@ -1593,7 +1658,7 @@ describe('ClientDetailScreen membership correction form', () => {
     correctMembershipMock.mockResolvedValue(initialClient)
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Исправить' }))
+    await openMemberships()
     fireEvent.change(await screen.findByLabelText('Дата оплаты'), {
       target: { value: '2026-07-05' },
     })
@@ -1621,7 +1686,7 @@ describe('ClientDetailScreen note attribution', () => {
       notesLastChangedAt: '2026-07-21T12:34:56Z',
     })
 
-    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} />)
 
     expect(await screen.findByText('Позвонить вечером')).toBeInTheDocument()
     expect(screen.getByText(new RegExp(`^Анна Петрова · ${formatNoteAttributionDate('2026-07-21T12:34:56Z')}$`))).toBeInTheDocument()
@@ -1629,14 +1694,14 @@ describe('ClientDetailScreen note attribution', () => {
 
   test('keeps legacy notes unattributed and preserves the existing empty state', async () => {
     getClientMock.mockResolvedValue({ ...buildClientDetails(), notes: 'Старая заметка' })
-    const view = renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+    const view = renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} />)
     expect(await screen.findByText('Старая заметка')).toBeInTheDocument()
     expect(screen.queryByText(/· \d{2}\.\d{2}\.\d{4}/)).not.toBeInTheDocument()
 
     view.unmount()
     getClientMock.mockResolvedValue(buildClientDetails())
-    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
-    expect(await screen.findByText('Рабочая заметка пока не добавлена.')).toBeInTheDocument()
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} />)
+    expect(await screen.findByLabelText('Рабочая заметка')).toHaveValue('')
   })
 
   test('formats UTC in a fixed local timezone without seconds', () => {
@@ -1653,6 +1718,7 @@ function buildClientDetails(overrides: Partial<ClientDetails> = {}): ClientDetai
     firstName: 'Иван',
     middleName: '',
     phone: '+79990001122',
+    telegramContactUsername: null,
     branchId: 'branch-1',
     branchName: 'Основной',
     status: 'Active',
@@ -1722,13 +1788,23 @@ function buildMembership() {
   }
 }
 
+async function openMemberships() {
+  fireEvent.click(await screen.findByRole('tab', { name: 'Абонементы' }))
+}
+
+async function openHistory() {
+  await openMemberships()
+  const summary = screen.getByText('История абонементов')
+  fireEvent.click(summary)
+  return summary.closest('details')!
+}
+
 function renderClientDetails() {
   return renderWithProviders(
     <ClientDetailScreen
       canManage
       clientId="client-1"
       onBack={() => undefined}
-      onEdit={() => undefined}
     />,
   )
 }

@@ -12,6 +12,7 @@ export type AppSection =
 export type AccessPermissions = {
   canManageUsers: boolean
   canManageClients: boolean
+  canViewClientMessenger: boolean
   canManageGroups: boolean
   canManageSettings: boolean
   canMarkAttendance: boolean
@@ -454,6 +455,7 @@ export type ClientMembership = {
   behaviorKind: MembershipBehaviorKind
   purchaseDate: string
   paymentDate: string
+  individualValidFrom?: string | null
   expirationDate: string | null
   pricingMode: MembershipSalePricingMode
   grossAmount: number
@@ -606,6 +608,7 @@ export type SaveAttendanceMarksResponse = {
 }
 
 export type ClientDetails = ClientListItem & {
+  telegramContactUsername: string | null
   createdAt?: string
   birthDate: string | null
   businessDate: string
@@ -639,6 +642,14 @@ export type UpsertClientRequest = {
   contacts: ClientContactInput[]
   groupIds: string[]
 }
+
+export type CreateClientRequest = UpsertClientRequest & { telegramContactUsername?: string | null }
+
+export type UpdateClientProfileRequest = Omit<UpsertClientRequest, 'branchId' | 'groupIds'> & {
+  telegramContactUsername: string | null
+}
+
+export type UpdateClientGroupsRequest = Pick<UpsertClientRequest, 'groupIds'>
 
 export type TransferClientBranchRequest = {
   targetBranchId: string
@@ -1525,6 +1536,7 @@ export type ClientGroupPayload = {
 }
 
 export type ClientResponsePayload = {
+  telegramContactUsername?: string | null
   id: string
   lastName?: string | null
   firstName?: string | null

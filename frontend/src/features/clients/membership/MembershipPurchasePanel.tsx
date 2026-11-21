@@ -1,3 +1,4 @@
+import { useMembershipDraft } from './membershipDrafts'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Paper, SimpleGrid, Stack, Text, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -60,6 +61,7 @@ export function MembershipPurchasePanel({
   const form = useForm<MembershipPurchaseFormValues>({
     initialValues: createMembershipPurchaseInitialValues(businessDate),
   })
+  useMembershipDraft('editor', form.isDirty())
   const selected = items.find(
     (item) => item.id === form.values.membershipCatalogItemId,
   )
@@ -166,8 +168,8 @@ export function MembershipPurchasePanel({
     } catch (error) {
       if (error instanceof ApiError) {
         form.setErrors(applyFieldErrors(error.fieldErrors))
-        setFormError(error.message)
       }
+      setFormError(error instanceof Error ? error.message : fe7ClientMembershipText.saveFailed)
     }
   }
 
@@ -245,7 +247,7 @@ export function MembershipPurchasePanel({
             value={form.values.paymentDate}
           />
           <ResponsiveButtonGroup justify="space-between">
-            <Button onClick={onCancel} type="button" variant="subtle">
+            <Button disabled={pending} onClick={onCancel} type="button" variant="subtle">
               {fe7ClientMembershipText.membershipPurchasePanel_jsxText_7c47f729}</Button>
             <Button loading={pending} type="submit">
               {fe7ClientMembershipText.membershipPurchasePanel_jsxText_63e29a54}</Button>

@@ -1,26 +1,8 @@
-import { getGroups, type ClientMembershipTargetGroup, type TrainingGroupListItem } from '../../../lib/api'
+import { type ClientMembershipTargetGroup } from '../../../lib/api'
+import { loadClientGroupOptions } from '../loadClientGroupOptions'
 
-export async function loadAllActiveMembershipTargetGroups(signal: AbortSignal) {
-  const take = 100
-  const groups: TrainingGroupListItem[] = []
-  let skip = 0
-  let totalCount = Number.POSITIVE_INFINITY
-
-  while (groups.length < totalCount) {
-    const page = await getGroups({ skip, take, isActive: true }, signal)
-    if (!page) {
-      break
-    }
-    groups.push(...page.items)
-    totalCount = page.totalCount
-    skip += page.items.length
-
-    if (page.items.length === 0) {
-      break
-    }
-  }
-
-  return groups
+export function loadAllActiveMembershipTargetGroups(signal: AbortSignal) {
+  return loadClientGroupOptions(signal, true)
 }
 
 export function isMembershipTargetLoadAbort(error: unknown) {

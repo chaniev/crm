@@ -6,6 +6,7 @@ internal sealed record ClientAuditState(
     string? FirstName,
     string? MiddleName,
     string Phone,
+    string? TelegramContactUsername,
     Guid BranchId,
     DateOnly? BirthDate,
     string? Notes,

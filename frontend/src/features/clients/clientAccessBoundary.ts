@@ -35,5 +35,5 @@ export function useClientAccessBoundary(clientId: string) {
   return { isCurrent, close, reportError, unavailable: deniedGeneration === generation }
 }
 
-export const ClientAccessErrorContext = createContext<(error: unknown) => Promise<boolean>>(async () => false)
+export const ClientAccessErrorContext = createContext<(error: unknown, nested?: boolean) => Promise<boolean>>(async () => false)
 export const useClientAccessError = () => useContext(ClientAccessErrorContext)

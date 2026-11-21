@@ -22,6 +22,7 @@ const baseUser: AuthenticatedUser = {
   mustChangePassword: false,
   fullName: 'Главный тренер',
   permissions: {
+    canViewClientMessenger: true,
     canManageClients: true,
     canManageGroups: true,
     canManageSettings: false,
@@ -39,6 +40,7 @@ const coachUser: AuthenticatedUser = {
   id: 'coach-id',
   permissions: {
     ...baseUser.permissions,
+    canViewClientMessenger: false,
     canManageClients: false,
     canManageGroups: false,
     canManageUsers: false,

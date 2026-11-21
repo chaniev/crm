@@ -63,6 +63,9 @@ import type {
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
   TransferClientBranchRequest,
+  CreateClientRequest,
+  UpdateClientProfileRequest,
+  UpdateClientGroupsRequest,
   UpsertClientRequest,
 } from './types'
 import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
@@ -173,9 +176,10 @@ export async function getClients(
   } satisfies ClientListResponse
 }
 
-export async function getClient(clientId: string, signal?: AbortSignal) {
+export async function getClient(clientId: string, signal?: AbortSignal, attendanceSkip?: number) {
+  const url = API_ENDPOINTS.clients.byId(clientId)
   const payload = await request<ClientResponsePayload>(
-    API_ENDPOINTS.clients.byId(clientId),
+    attendanceSkip === undefined ? url : `${url}?attendanceSkip=${attendanceSkip}`,
     { signal },
   )
 
@@ -299,7 +303,7 @@ export async function getMembershipExpirationSuggestion(
   return mapMembershipExpirationSuggestion(payload)
 }
 
-export async function createClient(payload: UpsertClientRequest) {
+export async function createClient(payload: CreateClientRequest) {
   const response = await request<ClientResponsePayload | null>(
     API_ENDPOINTS.clients.collection,
     {
@@ -311,12 +315,24 @@ export async function createClient(payload: UpsertClientRequest) {
   return response ? mapClientDetails(response) : null
 }
 
-export async function updateClient(
+export function updateClientProfile(clientId: string, payload: UpdateClientProfileRequest) {
+  return putClient(API_ENDPOINTS.clients.profile(clientId), payload)
+}
+
+export function updateClientGroups(clientId: string, payload: UpdateClientGroupsRequest) {
+  return putClient(API_ENDPOINTS.clients.groups(clientId), payload)
+}
+
+export function updateClient(
   clientId: string,
   payload: UpsertClientRequest,
 ) {
+  return putClient(API_ENDPOINTS.clients.byId(clientId), payload)
+}
+
+async function putClient(url: string, payload: UpdateClientProfileRequest | UpdateClientGroupsRequest | UpsertClientRequest) {
   const response = await request<ClientResponsePayload | null>(
-    API_ENDPOINTS.clients.byId(clientId),
+    url,
     {
       method: 'PUT',
       body: JSON.stringify(payload),
@@ -894,6 +910,7 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
 
   return {
     ...listItem,
+    telegramContactUsername: readString(payload, ['telegramContactUsername', 'TelegramContactUsername']) ?? null,
     birthDate,
     businessDate:
       readString(payload, ['businessDate', 'BusinessDate']) ?? '',

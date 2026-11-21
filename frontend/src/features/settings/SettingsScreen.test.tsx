@@ -50,6 +50,7 @@ const baseUser: AuthenticatedUser = {
   allowedSections: ['Settings'],
   permissions: {
     canManageUsers: true,
+    canViewClientMessenger: true,
     canManageClients: true,
     canManageGroups: true,
     canManageSettings: true,

@@ -1,3 +1,4 @@
+import { useMembershipDraft } from './membershipDrafts'
 import { useClientAccessError } from '../clientAccessBoundary'
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Group, Paper, Select, Stack, Text } from '@mantine/core'
@@ -40,6 +41,7 @@ export function MembershipGroupTransferSurface({
   const [previewLoading, setPreviewLoading] = useState(false)
   const [submitLoading, setSubmitLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  useMembershipDraft('transfer', Boolean(sourceGroupId || targetGroupId))
   const getSubmissionKey = useClientActionSubmissionKey()
   const expectedMembershipIds = client.currentMemberships.map((membership) => membership.id)
   const sourceOptions = useMemo(() => {
@@ -121,6 +123,8 @@ export function MembershipGroupTransferSurface({
       )
       if (updatedClient) {
         onTransferred(updatedClient)
+        setSourceGroupId(null)
+        setTargetGroupId(null)
       }
       setPreview(null)
     } catch (submitError) {
@@ -137,7 +141,6 @@ export function MembershipGroupTransferSurface({
     <Paper className="membership-group-transfer-surface" radius="8px" withBorder>
       <Stack gap="md">
         <div>
-          <Text fw={700}>{fe7ClientMembershipText.membershipGroupTransferSurface_jsxText_01c7a7e5}</Text>
           <Text c="dimmed" size="sm">
             {fe7ClientMembershipText.membershipGroupTransferSurface_jsxText_0d3bdb14}</Text>
         </div>

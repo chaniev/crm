@@ -11,7 +11,6 @@ import type { GroupListReturnSnapshot } from '../features/groups/groupListReturn
 import {
   ClientCreateScreen,
   ClientDetailScreen,
-  ClientEditScreen,
   ClientsListScreen,
 } from '../features/clients/ClientManagement'
 import { AttendanceScreen } from '../features/attendance/AttendanceScreen'
@@ -68,7 +67,6 @@ type RouteViewportProps = {
     returnSnapshot?: GroupListReturnSnapshot | null,
   ) => void
   onCreateClient: () => void
-  onEditClient: (clientId: string) => void
   clientListReturnSnapshot: ClientListReturnSnapshot | null
   clientProfileReturnContext: ClientProfileReturnContext | null
   clientProfileReturnLabel: string
@@ -105,7 +103,6 @@ export function RouteViewport({
   clientProfileReturnLabel,
   groupListReturnSnapshot,
   onCreateClient,
-  onEditClient,
   onOpenClient,
   onOpenAttendanceLesson,
   onOpenAttendanceTodayLesson,
@@ -169,12 +166,13 @@ export function RouteViewport({
   if (route.kind === 'clientDetails') {
     return (
       <ClientDetailScreen
-        key={route.clientId}
+        key={[currentUserId, route.clientId, user.branchId, user.permissions.canManageClients, user.permissions.canViewClientMessenger].join(':')}
         canManage={user.permissions.canManageClients}
+        canViewClientMessenger={user.permissions.canViewClientMessenger}
+        onNavigationGuardChange={onSettingsNavigationGuardChange}
         backLabel={clientProfileReturnLabel}
         clientId={route.clientId}
         onBack={onReturnToClients}
-        onEdit={onEditClient}
       />
     )
   }
@@ -196,18 +194,7 @@ export function RouteViewport({
     )
   }
 
-  if (route.kind === 'clientEdit') {
-    return (
-      <ClientEditScreen
-        key={route.clientId}
-        onUnavailableBack={onReturnToClients}
-        backLabel={clientProfileReturnLabel}
-        clientId={route.clientId}
-        onBack={() => onOpenClient(route.clientId)}
-        onUpdated={onOpenClient}
-      />
-    )
-  }
+  if (route.kind === 'clientEdit') return null
 
   if (route.kind === 'groupCreate') {
     return (

@@ -20,8 +20,9 @@ internal static class ClientLifecycleEndpoints
     {
         group.MapPost("/", CreateClientAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
-        group.MapPut("/{id:guid}", UpdateClientAsync)
-            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        MapUpdate(group, "/{id:guid}", ClientUpdateSection.Full);
+        MapUpdate(group, "/{id:guid}/profile", ClientUpdateSection.Profile);
+        MapUpdate(group, "/{id:guid}/groups", ClientUpdateSection.Groups);
         group.MapPost("/{id:guid}/transfer", TransferClientBranchAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPut("/{id:guid}/archive", ArchiveClientAsync)
@@ -32,6 +33,16 @@ internal static class ClientLifecycleEndpoints
         return group;
     }
 
+    private static void MapUpdate(RouteGroupBuilder group, string pattern, ClientUpdateSection section)
+    {
+        group.MapPut(pattern, (Guid id, HttpContext httpContext, GymCrmDbContext dbContext,
+                IBusinessDateProvider businessDateProvider, IAuditLogService auditLogService,
+                ILoggerFactory loggerFactory, IAntiforgery antiforgery, CancellationToken cancellationToken) =>
+                UpdateClientAsync(id, section, httpContext, dbContext, businessDateProvider,
+                    auditLogService, loggerFactory, antiforgery, cancellationToken))
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+    }
+
     private static async Task<Results<Created<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateClientAsync(
         HttpContext httpContext,
         GymCrmDbContext dbContext,
@@ -40,8 +51,8 @@ internal static class ClientLifecycleEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        var (request, bindingProblem) = await ReadUpsertClientRequestAsync(
-            httpContext.Request,
+        var (request, bindingProblem) = await ReadClientWriteRequestAsync(
+            httpContext.Request, ClientUpdateSection.Full,
             cancellationToken);
         if (bindingProblem is not null)
         {
@@ -60,7 +71,7 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var normalizedRequest = NormalizeRequest(request!);
+        var normalizedRequest = request!;
         if (!ClientAccessPolicy.CanAccessBranch(currentUser, normalizedRequest.BranchId))
         {
             return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
@@ -88,7 +99,8 @@ internal static class ClientLifecycleEndpoints
             normalizedRequest.Phone, normalizedRequest.BranchId!.Value, normalizedRequest.BirthDate,
             normalizedRequest.Notes, normalizedRequest.GroupIds,
             normalizedRequest.Contacts.Select(contact => new ClientContact
-            { Type = contact.Type, FullName = contact.FullName, Phone = contact.Phone }).ToArray()), currentUser, cancellationToken);
+            { Type = contact.Type, FullName = contact.FullName, Phone = contact.Phone }).ToArray(),
+            normalizedRequest.TelegramContactUsername), currentUser, cancellationToken);
 
         if (transaction is not null)
         {
@@ -101,6 +113,7 @@ internal static class ClientLifecycleEndpoints
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NoContent, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateClientAsync(
         Guid id,
+        ClientUpdateSection section,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IBusinessDateProvider businessDateProvider,
@@ -109,8 +122,8 @@ internal static class ClientLifecycleEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        var (request, bindingProblem) = await ReadUpsertClientRequestAsync(
-            httpContext.Request,
+        var (request, bindingProblem) = await ReadClientWriteRequestAsync(
+            httpContext.Request, section,
             cancellationToken);
         if (bindingProblem is not null)
         {
@@ -134,7 +147,7 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.NotFound();
         }
 
-        var normalizedRequest = NormalizeRequest(request!);
+        var normalizedRequest = request!;
         await using var transaction = await ClientAccessTransaction.BeginMutationAsync(
             dbContext, currentUser.Id, id, normalizedRequest.GroupIds,
             normalizedRequest.BranchId is Guid branchId ? [branchId] : [], cancellationToken);
@@ -154,11 +167,17 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.NotFound();
         }
 
+        if (section != ClientUpdateSection.Full)
+        {
+            normalizedRequest = normalizedRequest with { BranchId = client.BranchId };
+        }
+
         var validationErrors = await ValidateUpsertRequestAsync(
             normalizedRequest,
             dbContext,
             cancellationToken,
-            client.BranchId);
+            client.BranchId,
+            section);
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
@@ -167,27 +186,29 @@ internal static class ClientLifecycleEndpoints
         var oldStateSnapshot = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
         var oldState = SerializeAuditState(oldStateSnapshot ?? client);
 
-        client.LastName = normalizedRequest.LastName;
-        client.FirstName = normalizedRequest.FirstName;
-        client.MiddleName = normalizedRequest.MiddleName;
-        client.Phone = normalizedRequest.Phone;
-        client.BranchId = normalizedRequest.BranchId!.Value;
-        client.BirthDate = normalizedRequest.BirthDate;
         var now = DateTimeOffset.UtcNow;
-        var noteTransition = ClientNotesMetadataPolicy.Apply(client, normalizedRequest.Notes, currentUser.Id, now);
+        string? noteTransition = null;
+        if (section != ClientUpdateSection.Groups)
+        {
+            client.LastName = normalizedRequest.LastName;
+            client.FirstName = normalizedRequest.FirstName;
+            client.MiddleName = normalizedRequest.MiddleName;
+            client.Phone = normalizedRequest.Phone;
+            client.BirthDate = normalizedRequest.BirthDate;
+            if (section == ClientUpdateSection.Profile)
+            {
+                client.TelegramContactUsername = normalizedRequest.TelegramContactUsername;
+            }
+            noteTransition = ClientNotesMetadataPolicy.Apply(client, normalizedRequest.Notes, currentUser.Id, now);
+            await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
+        }
+        if (section != ClientUpdateSection.Profile)
+        {
+            await ReplaceGroupAssignmentsAsync(
+                client.Id, client.BranchId, normalizedRequest.GroupIds, currentUser.Id, now,
+                businessDateProvider.Today, dbContext, cancellationToken);
+        }
         client.UpdatedAt = now;
-
-        await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
-        await ReplaceGroupAssignmentsAsync(
-            client.Id,
-            normalizedRequest.BranchId!.Value,
-            normalizedRequest.GroupIds,
-            currentUser.Id,
-            now,
-            businessDateProvider.Today,
-            dbContext,
-            cancellationToken);
-
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var updatedClient = await ClientResponseMapper.LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)

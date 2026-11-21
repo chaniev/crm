@@ -42,6 +42,7 @@ const financeUser: AuthenticatedUser = {
   ],
   permissions: {
     canManageUsers: true,
+    canViewClientMessenger: true,
     canManageClients: true,
     canManageGroups: true,
     canManageSettings: true,

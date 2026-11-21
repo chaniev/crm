@@ -261,4 +261,7 @@
   <data name="PhotoPayloadTooLargeDetail" xml:space="preserve">
     <value>Максимальный размер файла: {0} байт.</value>
   </data>
+  <data name="TelegramContactFieldRequired" xml:space="preserve">
+    <value>Передайте контакт Telegram или пустое значение для очистки.</value>
+  </data>
 </root>

@@ -335,7 +335,8 @@ internal static class AuthEndpoints
                 accessScope.Permissions.CanManageSettings,
                 accessScope.Permissions.CanMarkAttendance,
                 accessScope.Permissions.CanViewAuditLog,
-                accessScope.Permissions.CanViewFinancialReports),
+                accessScope.Permissions.CanViewFinancialReports,
+                UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.ViewClientMessenger)),
             new AttendanceScopeResponse(
                 accessScope.AttendanceScope.Kind.ToString(),
                 accessScope.AttendanceScope.GroupIds),
@@ -383,5 +384,6 @@ internal static class AuthEndpoints
         bool CanManageSettings,
         bool CanMarkAttendance,
         bool CanViewAuditLog,
-        bool CanViewFinancialReports);
+        bool CanViewFinancialReports,
+        bool CanViewClientMessenger);
 }

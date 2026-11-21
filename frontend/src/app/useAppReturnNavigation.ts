@@ -477,22 +477,6 @@ export function useAppReturnNavigation({
     )
   }
 
-  function editClient(clientId: string) {
-    if (
-      activeClientProfileReturnContext &&
-      isAppRoute(route) &&
-      isClientProfileScopedRoute(route, activeClientProfileReturnContext)
-    ) {
-      navigateWithClientProfileReturnContext(
-        { kind: 'clientEdit', clientId },
-        activeClientProfileReturnContext,
-      )
-      return
-    }
-
-    navigate({ kind: 'clientEdit', clientId })
-  }
-
   function returnToClients() {
     if (
       (route.kind === 'clientDetails' || route.kind === 'clientEdit') &&
@@ -583,7 +567,6 @@ export function useAppReturnNavigation({
     activeClientProfileReturnContext,
     activeGroupListReturnSnapshot,
     activeScheduleReturnSnapshot,
-    editClient,
     openClientDetails,
     returnToClients,
     returnToGroups,

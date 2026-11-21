@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import type { ClientDetails } from '../../lib/api'
-import { toClientFormValues, toUpsertClientPayload } from './ClientManagement.form'
+import { toClientFormValues, toClientProfilePayload, toUpsertClientPayload } from './ClientManagement.form'
 
 function buildClient(overrides: Partial<ClientDetails> = {}): ClientDetails {
   return {
@@ -23,6 +23,7 @@ function buildClient(overrides: Partial<ClientDetails> = {}): ClientDetails {
     notesLastChangedAt: null,
     photo: null,
     birthDate: null,
+    telegramContactUsername: null,
     businessDate: '2026-07-23',
     isProfessional: false,
     professionalComment: null,
@@ -63,4 +64,13 @@ describe('ClientManagement form birth date mapping', () => {
       }),
     ).toMatchObject({ birthDate: null })
   })
+})
+
+test('keeps Telegram in the profile and group assignments out of profile writes', () => {
+  const values = toClientFormValues(buildClient({ telegramContactUsername: '@member' }))
+  expect(values.telegramContactUsername).toBe('@member')
+  expect(toClientProfilePayload(values)).not.toHaveProperty('groupIds')
+  expect(toClientProfilePayload(values)).not.toHaveProperty('branchId')
+  expect(toClientProfilePayload({ ...values, telegramContactUsername: ' ' }).telegramContactUsername).toBeNull()
+  expect(toUpsertClientPayload(values).telegramContactUsername).toBe('@member')
 })

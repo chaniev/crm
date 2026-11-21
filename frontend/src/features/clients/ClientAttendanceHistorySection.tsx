@@ -1,7 +1,10 @@
 
-import { Alert, Badge, Group, Paper, Stack, Text } from '@mantine/core'
+import { useEffect, useRef, useState } from 'react'
+import { Alert, Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
 import { IconCheck } from '@tabler/icons-react'
-import type { ClientDetails } from '../../lib/api'
+import { getClient, type ClientAttendanceHistoryEntry, type ClientDetails } from '../../lib/api'
+import { clientDetailText } from '../../resources/client-detail-tabs'
+import { useClientAccessError } from './clientAccessBoundary'
 import { PageSection } from '../shared/ux'
 import {
   compareAttendanceHistory,
@@ -19,12 +22,39 @@ export function ClientAttendanceHistorySection({
   canManage,
   client,
 }: ClientAttendanceHistorySectionProps) {
-  const history = [...client.attendanceHistory].sort(compareAttendanceHistory)
-  const totalHistoryCount = client.attendanceHistoryTotalCount ?? history.length
-  const hasPartialHistory =
-    client.attendanceHistoryLoaded &&
-    client.attendanceHistoryTotalCount !== null &&
-    client.attendanceHistoryTotalCount > history.length
+  const [additional, setAdditional] = useState<ClientAttendanceHistoryEntry[]>([])
+  const [total, setTotal] = useState<number | null>(null)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState('')
+  const request = useRef<AbortController | null>(null)
+  const reportError = useClientAccessError()
+  useEffect(() => () => request.current?.abort(), [])
+
+  const rows = [...client.attendanceHistory, ...additional]
+  const history = [...new Map(rows.map(row => [row.id, row])).values()].sort(compareAttendanceHistory)
+  const totalHistoryCount = total ?? client.attendanceHistoryTotalCount ?? history.length
+  const hasPartialHistory = client.attendanceHistoryLoaded && rows.length < totalHistoryCount
+
+  async function loadMore() {
+    if (request.current) return
+    const controller = new AbortController()
+    request.current = controller
+    setPending(true)
+    setError('')
+    try {
+      const page = await getClient(client.id, controller.signal, rows.length)
+      if (controller.signal.aborted) return
+      setAdditional(current => [...current, ...page.attendanceHistory])
+      setTotal(page.attendanceHistory.length ? page.attendanceHistoryTotalCount : rows.length)
+    } catch (cause) {
+      if (!controller.signal.aborted && !await reportError(cause, false)) {
+        setError(cause instanceof Error ? cause.message : clientDetailText.visitsError)
+      }
+    } finally {
+      request.current = null
+      if (!controller.signal.aborted) setPending(false)
+    }
+  }
 
   return (
     <PageSection className="client-detail-card">
@@ -87,9 +117,12 @@ export function ClientAttendanceHistorySection({
           </Stack>
         )}
 
+        {error && <Alert color="red" role="alert">{error}</Alert>}
         {hasPartialHistory ? (
-          <Text c="dimmed" size="sm">
+          <Stack align="start" gap="xs"><Text c="dimmed" size="sm">
             {fe6ClientProfileText.clientAttendanceHistorySection_jsxText_511e94e0}{history.length} {fe6ClientProfileText.clientAttendanceHistorySection_jsxText_7f4adf31}{totalHistoryCount}{fe6ClientProfileText.clientAttendanceHistorySection_jsxText_cdb4ee2a}</Text>
+            <Button variant="light" loading={pending} onClick={loadMore}>{clientDetailText.moreVisits}</Button>
+          </Stack>
         ) : null}
       </Stack>
     </PageSection>

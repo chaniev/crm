@@ -113,6 +113,7 @@ function mapAccessPermissions(payload: unknown): AccessPermissions {
 
   return {
     canManageUsers: readBoolean(source, ['canManageUsers', 'CanManageUsers']) ?? false,
+    canViewClientMessenger: readBoolean(source, ['canViewClientMessenger', 'CanViewClientMessenger']) ?? false,
     canManageClients: readBoolean(source, ['canManageClients', 'CanManageClients']) ?? false,
     canManageGroups: readBoolean(source, ['canManageGroups', 'CanManageGroups']) ?? false,
     canManageSettings: readBoolean(source, ['canManageSettings', 'CanManageSettings']) ?? false,

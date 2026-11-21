@@ -1,4 +1,12 @@
 export const fe6ClientProfileText = {
+  telegramContact: "Telegram",
+  cancelChanges: "Отменить изменения",
+  saveGroups: "Сохранить группы",
+  profileProfessional: "Профессионал",
+  groupsLoadError: "Не удалось загрузить группы.",
+  retryGroups: "Повторить загрузку",
+  loadingGroups: "Загружаем группы…",
+  noGroupSelection: "Группы не выбраны.",
   photoAfterSave: "Фотографию можно добавить после сохранения клиента.",
   clientUnavailable: "Клиент недоступен.",
   clientAttendanceHistorySection_jsxText_001835f0: "По этому клиенту пока нет отмеченных посещений. ",

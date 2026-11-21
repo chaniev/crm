@@ -164,6 +164,7 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
     membershipName,
     purchaseDate,
     paymentDate,
+    individualValidFrom: readString(payload, ['individualValidFrom', 'IndividualValidFrom']) ?? null,
     expirationDate:
       readString(payload, ['expirationDate', 'ExpirationDate']) ?? null,
     pricingMode,

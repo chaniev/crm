@@ -32,6 +32,7 @@ const financeUser: AuthenticatedUser = {
   ],
   permissions: {
     canManageUsers: true,
+    canViewClientMessenger: true,
     canManageClients: true,
     canManageGroups: true,
     canManageSettings: true,
@@ -53,6 +54,7 @@ const coachUser: AuthenticatedUser = {
   allowedSections: ['Attendance', 'Schedule', 'Clients'],
   permissions: {
     canManageUsers: false,
+    canViewClientMessenger: false,
     canManageClients: false,
     canManageGroups: false,
     canManageSettings: false,
@@ -500,6 +502,7 @@ describe('mobile navigation sections', () => {
       allowedSections: ['Attendance', 'Schedule', 'Clients'],
       permissions: {
         canManageUsers: false,
+        canViewClientMessenger: false,
         canManageClients: false,
         canManageGroups: false,
         canManageSettings: false,

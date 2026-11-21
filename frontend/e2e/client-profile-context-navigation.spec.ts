@@ -23,6 +23,7 @@ const ATTENDANCE_SESSION = {
     permissions: {
       canManageUsers: false,
       canManageClients: true,
+      canViewClientMessenger: true,
       canManageGroups: true,
       canManageSettings: false,
       canMarkAttendance: true,
@@ -574,6 +575,9 @@ test.describe('TASK-116: контекст возврата в карточку �
     await expect(page).toHaveURL(new RegExp(`/clients/${CLIENT_ID}(?:/|$)`))
     await expect(page.getByRole('button', { name: 'К посещениям' })).toBeVisible()
 
+    const returnState = await page.evaluate(() => history.state)
+    await page.getByRole('tab', { name: 'Посещения' }).click()
+    expect(await page.evaluate(() => history.state)).toEqual(returnState)
     await page.getByRole('button', { name: 'К посещениям' }).click()
 
     await expect(page).toHaveURL(todayLessonPath)
@@ -899,13 +903,64 @@ test.describe('TASK-018 · карточка и формы клиента', () =>
   })
 
   test('полная карточка один раз показывает имя и состояние Telegram', async ({ page }) => {
+    const messengerRequests: string[] = []
+    page.on('request', request => {
+      if (request.url().includes('/messenger/telegram')) messengerRequests.push(request.url())
+    })
     await page.goto(profile)
     await expect(page.getByRole('heading', { level: 1, name: fullName })).toBeVisible()
     await expect(page.getByRole('heading', { name: fullName })).toHaveCount(1)
+    const info = page.getByRole('tab', { name: 'Основная информация' })
+    await expect(info).toHaveAttribute('aria-selected', 'true')
+    await expect(page.getByRole('tab')).toHaveCount(5)
+    expect(messengerRequests).toEqual([])
+    await info.focus()
+    await page.keyboard.press('End')
+    const messages = page.getByRole('tab', { name: 'Сообщения' })
+    await expect(messages).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(messages).toHaveAttribute('aria-selected', 'true')
+    await expect(page).toHaveURL(/#messages$/)
+    await page.reload()
+    await expect(messages).toHaveAttribute('aria-selected', 'true')
     await expect(page.getByRole('button', { name: 'Ссылка и QR' })).toHaveCount(1)
     await expect(page.getByText('Клиент еще не подключил Telegram')).toBeVisible()
     await expect(page.getByText('Telegram не подключен.', { exact: true })).toHaveCount(0)
     await expectNoHorizontalOverflow(page)
+  })
+
+  test('посещения догружаются со следующей позиции', async ({ page }) => {
+    await page.route(url => url.pathname === '/api' + profile, route => {
+      const skip = new URL(route.request().url()).searchParams.get('attendanceSkip')
+      return route.fulfill({ json: { ...CLIENT_DETAILS_RESPONSE, attendanceHistoryTotalCount: 2,
+        attendanceHistory: [{ id: skip === '1' ? 'older' : 'recent', isPresent: true, trainingDate: '2026-04-17',
+          groupName: skip === '1' ? 'Вторая группа' : 'Первая группа' }] } })
+    })
+    await page.goto(profile + '#visits')
+    await expect(page.getByText('Первая группа')).toBeVisible()
+    await page.getByRole('button', { name: 'Показать ещё посещения' }).click()
+    await expect(page.getByText('Вторая группа')).toBeVisible()
+    await expect(page.getByText('Первая группа')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Показать ещё посещения' })).toHaveCount(0)
+  })
+
+  test('тренеру прямой фрагмент переписки открывает доступный профиль', async ({ page }) => {
+    const requests: string[] = []
+    page.on('request', request => {
+      if (request.url().includes('/messenger/telegram')) requests.push(request.url())
+    })
+    await page.route(url => url.pathname === '/api/auth/session', route => route.fulfill({ json: {
+      ...ATTENDANCE_SESSION, user: { ...ATTENDANCE_SESSION.user, permissions: {
+        ...ATTENDANCE_SESSION.user.permissions, canManageClients: false, canViewClientMessenger: false,
+      } },
+    } }))
+    await page.goto(profile + '#messages')
+    await expect(page.getByRole('tab', { name: 'Основная информация' })).toHaveAttribute('aria-selected', 'true')
+    await expect(page.getByRole('tab')).toHaveCount(3)
+    await expect(page.getByRole('tab', { name: 'Сообщения' })).toHaveCount(0)
+    await expect(page.getByLabel('Telegram', { exact: true })).toHaveCount(0)
+    await expect(page.getByRole('tab', { name: 'Абонементы' })).toHaveCount(0)
+    expect(requests).toEqual([])
   })
 
   test('сохранённое фото перед полями открывается с клавиатуры', async ({ page }) => {
@@ -914,7 +969,11 @@ test.describe('TASK-018 · карточка и формы клиента', () =>
     await expect(photo).toBeEnabled()
     const surname = await page.getByLabel('Фамилия', { exact: true }).boundingBox()
     const image = await photo.boundingBox()
-    expect(image!.y + image!.height).toBeLessThanOrEqual(surname!.y)
+    if ((page.viewportSize()?.width ?? 0) < 600) {
+      expect(image!.y + image!.height).toBeLessThanOrEqual(surname!.y)
+    } else {
+      expect(image!.x).toBeGreaterThanOrEqual(surname!.x + surname!.width)
+    }
     await photo.focus()
     await page.keyboard.press('Enter')
     await expect(page.getByRole('dialog').getByRole('img', { name: 'Фотография клиента ' + fullName })).toBeVisible()
@@ -946,9 +1005,12 @@ test.describe('TASK-018 · карточка и формы клиента', () =>
     await page.goto(profile + '/edit')
     const photo = page.getByRole('button', { name: /Открыть фотографию/ })
     await expect(photo).toBeEnabled()
+    const surname = page.getByLabel('Фамилия', { exact: true })
+    await surname.fill('Черновик')
     const file = { name: 'portrait.png', mimeType: 'image/png', buffer: portrait }
     await page.locator('input[type=file]').setInputFiles(file)
     await expect(page.getByText('Фото не загружено')).toBeVisible()
+    await expect(surname).toHaveValue('Черновик')
     await expect(photo).toBeEnabled()
     await page.locator('input[type=file]').setInputFiles(file)
     await expect(page.getByText('Фотография обновлена')).toBeVisible()

@@ -14,6 +14,7 @@ import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
 
 
 type ClientOverviewSectionProps = {
+  showIdentity?: boolean
   actions: ReactNode
   canManage: boolean
   client: ClientDetails
@@ -22,6 +23,7 @@ type ClientOverviewSectionProps = {
 }
 
 export function ClientOverviewSection({
+  showIdentity = true,
   actions,
   canManage,
   client,
@@ -36,7 +38,7 @@ export function ClientOverviewSection({
   return (
     <PageSection className="client-overview-card">
       <Stack gap="md">
-        <Group gap="sm" wrap="nowrap" className="client-profile-identity">
+        {showIdentity && <Group gap="sm" wrap="nowrap" className="client-profile-identity">
           <ClientAvatar aria-hidden name={client.fullName} size={54} radius="xl" color="brand" />
           <div>
             <Title order={1}>{client.fullName}</Title>
@@ -46,7 +48,7 @@ export function ClientOverviewSection({
               </Badge>
             )}
           </div>
-        </Group>
+        </Group>}
 
         {!canManage ? (
           <Alert

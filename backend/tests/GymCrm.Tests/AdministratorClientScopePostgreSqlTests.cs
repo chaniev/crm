@@ -83,6 +83,10 @@ public sealed class AdministratorClientScopePostgreSqlTests
                 var result = await bot.GetFromJsonAsync<JsonElement>($"/internal/bot/clients?platform=Telegram&platformUserId={identity}&take=10");
                 Assert.Equal(expected, Assert.Single(result.GetProperty("items").EnumerateArray()).GetProperty("id").GetGuid());
             }
+            var profile = new { firstName = "Scoped", phone = "555", telegramContactUsername = "@private" };
+            using var edited = await BranchSettingsAppFactory.SendAsync(admin, HttpMethod.Put, $"/clients/{clientId}/profile", profile, csrf);
+            edited.EnsureSuccessStatusCode();
+
             using var transferred = await TransferAsync(admin, csrf, clientId, factory.ForeignBranchId, "runtime-transfer");
             Assert.Equal(HttpStatusCode.NoContent, transferred.StatusCode);
             Assert.Empty(await transferred.Content.ReadAsStringAsync());
@@ -90,16 +94,27 @@ public sealed class AdministratorClientScopePostgreSqlTests
             Assert.Equal(HttpStatusCode.NoContent, replay.StatusCode);
             using var newKey = await TransferAsync(admin, csrf, clientId, factory.ForeignBranchId, "runtime-new-key");
             Assert.Equal(HttpStatusCode.NotFound, newKey.StatusCode);
+            using var forbiddenProfile = await BranchSettingsAppFactory.SendAsync(admin, HttpMethod.Put,
+                $"/clients/{clientId}/profile", new { firstName = "Denied", phone = "666", telegramContactUsername = "@denied" }, csrf);
+            using var forbiddenGroups = await BranchSettingsAppFactory.SendAsync(admin, HttpMethod.Put,
+                $"/clients/{clientId}/groups", new { groupIds = Array.Empty<Guid>() }, csrf);
+            Assert.Equal(HttpStatusCode.NotFound, forbiddenProfile.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, forbiddenGroups.StatusCode);
+            Assert.Empty(await forbiddenProfile.Content.ReadAsStringAsync());
+            Assert.Empty(await forbiddenGroups.Content.ReadAsStringAsync());
             using var oldBotCard = await bot.GetAsync($"/internal/bot/clients/{clientId}?platform=Telegram&platformUserId=runtime-admin-a");
             Assert.Equal(HttpStatusCode.NotFound, oldBotCard.StatusCode);
             using var newCard = await adminB.GetAsync($"/clients/{clientId}");
             Assert.Equal(HttpStatusCode.OK, newCard.StatusCode);
+            Assert.Equal("@private", (await newCard.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("telegramContactUsername").GetString());
         }
         using var verification = factory.Services.CreateScope();
         var context = verification.ServiceProvider.GetRequiredService<GymCrmDbContext>();
         Assert.Empty(await context.ClientMembershipSales.ToArrayAsync());
         Assert.Empty(await context.ClientMembershipRefunds.ToArrayAsync());
         Assert.Equal(1, await context.AuditLogs.CountAsync(log => log.ActionType == "ClientTransferred"));
+        var updated = await context.AuditLogs.SingleAsync(log => log.ActionType == "ClientUpdated");
+        Assert.Equal("@private", JsonSerializer.Deserialize<JsonElement>(updated.NewValueJson!).GetProperty("telegramContactUsername").GetString());
     }
 
     [Fact]

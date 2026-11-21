@@ -1,0 +1,79 @@
+.client-editor-fieldset, .client-assignment-list {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.client-editor-identity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 185px);
+  grid-template-areas: "names portrait" "birth action";
+  column-gap: var(--mantine-spacing-lg);
+  row-gap: var(--mantine-spacing-md);
+}
+
+.client-editor-names { grid-area: names; min-width: 0; }
+.client-editor-birth { grid-area: birth; min-width: 0; }
+.client-editor-photo-action { grid-area: action; align-self: start; }
+.client-editor-portrait {
+  grid-area: portrait;
+  position: relative;
+  min-width: 0;
+  border-radius: var(--mantine-radius-md);
+  background: var(--crm-surface-subtle);
+}
+
+.client-editor-portrait .client-photo-preview__button,
+.client-editor-portrait .client-portrait-upload {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.client-editor-portrait .client-portrait-upload {
+  border: 1px dashed var(--crm-border-default);
+  border-radius: inherit;
+}
+
+.client-editor-photo-action .client-portrait-upload { min-height: 44px; width: 100%; }
+.client-editor-identity--phone {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "portrait" "action" "names" "birth";
+  grid-template-rows: 1fr auto 1fr auto;
+  row-gap: var(--mantine-spacing-xs);
+}
+
+.client-editor-identity--phone .client-editor-portrait,
+.client-editor-identity--phone .client-portrait-upload { width: min(100%, 185px); justify-self: center; }
+.client-editor-identity--phone .client-editor-photo-action { align-items: center; }
+.client-assignment-list { display: grid; gap: var(--mantine-spacing-xs); }
+.client-assignment-list legend { font-weight: 650; margin-bottom: var(--mantine-spacing-sm); }
+.client-assignment {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md);
+  border: 1px solid var(--crm-border-muted);
+  border-radius: var(--mantine-radius-md);
+  cursor: pointer;
+}
+.client-assignment:has(input:checked) {
+  border-color: var(--crm-action-primary);
+  background: var(--crm-brand-primary-soft);
+}
+.client-assignment:focus-within { outline: 2px solid var(--crm-action-primary); outline-offset: 2px; }
+.client-assignment-copy { display: grid; min-width: 0; overflow-wrap: anywhere; gap: var(--mantine-spacing-xs); }
+.client-assignment-copy span { color: var(--crm-text-secondary); font-size: var(--mantine-font-size-sm); }
+
+@media (max-width: 48rem), (max-height: 30rem) {
+  .client-editor-fieldset--profile .sticky-form-actions--page:not(:has(.sticky-form-actions__secondary)) {
+    position: static;
+    box-shadow: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+}

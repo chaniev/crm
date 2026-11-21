@@ -69,7 +69,7 @@ test.describe('TASK-077 membership sale pricing', () => {
     ]) {
       await page.setViewportSize(viewport)
       await page.goto('/clients/client-1')
-      await page.getByRole('button', { name: 'Новый абонемент' }).click()
+      await page.getByRole('tab', { name: 'Абонементы' }).click()
 
       await expect(page.getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
       await expect(page.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
@@ -93,7 +93,8 @@ test.describe('TASK-077 membership sale pricing', () => {
     )
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Продлить' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
+    await page.getByRole('button', { name: 'Продлить', exact: true }).click()
 
     await expect(page.getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
     await expect(page.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
@@ -170,7 +171,7 @@ test.describe('TASK-077 membership sale pricing', () => {
     })
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Новый абонемент' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
     await page.getByRole('radio', { name: 'По каталожной цене' }).check()
     await selectOption(page, 'Вариант абонемента', /Месяц/)
     await addMembershipTarget(page)
@@ -214,7 +215,8 @@ test.describe('TASK-077 membership sale pricing', () => {
     })
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Продлить' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
+    await page.getByRole('button', { name: 'Продлить', exact: true }).click()
     await expect(page.locator('input[value="4100"]')).toHaveCount(0)
     await page.getByRole('radio', { name: 'Индивидуальная сумма' }).check()
     await selectOption(page, 'Вариант абонемента', /Месяц/)
@@ -260,7 +262,7 @@ test.describe('TASK-077 membership sale pricing', () => {
     })
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Новый абонемент' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
     await page.getByRole('radio', { name: 'Без варианта каталога' }).check()
     await addMembershipTarget(page)
     const amount = page.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
@@ -293,7 +295,7 @@ test.describe('TASK-077 membership sale pricing', () => {
     })
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Новый абонемент' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
     await page.getByRole('radio', { name: 'Без варианта каталога' }).check()
     await addMembershipTarget(page)
     await page.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }).fill('4200')
@@ -343,8 +345,8 @@ test.describe('TASK-078 membership write regressions', () => {
     )
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Исправить' }).click()
-    await expect(page.getByText('Дата покупки', { exact: true })).toBeVisible()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
+    await expect(page.getByText(/· Куплен/)).toBeVisible()
     await expect(page.getByText(/22.*июн.*2026|22\.06\.2026/).first()).toBeVisible()
     await expect(page.getByRole('switch', { name: 'Оплачен' })).toHaveCount(0)
     await expect(page.getByText('Не оплачен')).toHaveCount(0)
@@ -410,6 +412,7 @@ test.describe('TASK-078 membership write regressions', () => {
 
       await page.setViewportSize(viewport)
       await page.goto('/clients/client-1')
+      await page.getByRole('tab', { name: 'Абонементы' }).click()
       await page.getByRole('button', { name: 'Новый абонемент' }).click()
       await page.getByRole('radio', { name: 'Без варианта каталога' }).check()
       await addMembershipTarget(page)
@@ -459,7 +462,8 @@ test.describe('TASK-078 membership write regressions', () => {
     })
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Продлить' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
+    await page.getByRole('button', { name: 'Продлить', exact: true }).click()
     await page.getByRole('radio', { name: 'По каталожной цене' }).check()
     await selectOption(page, 'Вариант абонемента', /Месяц/)
     await page.getByRole('button', { name: 'Продлить абонемент' }).click()
@@ -477,7 +481,7 @@ test.describe('TASK-078 membership write regressions', () => {
     await expect(page.getByText('Ожидает оплаты')).toHaveCount(0)
     await expect(page.getByText('Оплачен')).toHaveCount(0)
     await expect(page.getByText('Не оплачен')).toHaveCount(0)
-    await expect(page.getByText(/20.*авг.*2026|20\.08\.2026/).first()).toBeVisible()
+    await expect(page.getByLabel('Действует по')).toHaveValue('2026-08-20')
   })
 
   test('payment-date correction reloads a fresh version and keeps mark-payment removed', async ({ page }) => {
@@ -510,7 +514,7 @@ test.describe('TASK-078 membership write regressions', () => {
     })
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Исправить' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
     await page.getByLabel('Действует с').fill('2026-07-05')
     await page.getByLabel('Действует по').fill('2026-08-04')
     await page.getByLabel('Дата оплаты').fill('2026-07-05')
@@ -557,7 +561,7 @@ test.describe('TASK-078 membership write regressions', () => {
     )
 
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Исправить' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
     await page.getByLabel('Действует с').fill('2026-07-05')
     await page.getByLabel('Действует по').fill('2026-08-04')
     await page.getByRole('button', { name: 'Сохранить исправление' }).click()
@@ -578,6 +582,7 @@ test.describe('TASK-078 membership write regressions', () => {
 
     await page.setViewportSize({ width: 320, height: 844 })
     await page.goto('/clients/client-1')
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
     await expect(page.getByRole('button', { name: 'Отметить оплату' })).toHaveCount(0)
     await expect(page.getByText('Оплачен')).toHaveCount(0)
     await expect(page.getByText('Не оплачен')).toHaveCount(0)
@@ -600,7 +605,7 @@ test.describe('TASK-115 ordered membership targets', () => {
 
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Новый абонемент' }).click()
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
     await page.getByRole('radio', { name: 'По каталожной цене' }).check()
     await selectOption(page, 'Вариант абонемента', /Месяц/)
 
@@ -687,7 +692,10 @@ test.describe('TASK-115 ordered membership targets', () => {
 
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/clients/client-1')
-    await expect(page.getByRole('button', { name: 'Продлить' })).toHaveCount(2)
+    await page.getByRole('tab', { name: 'Абонементы' }).click()
+    await expect(page.getByRole('combobox', { name: 'Абонемент', exact: true }).locator('option')).toHaveCount(2)
+    await expect(page.locator('.membership-group-transfer-surface')).toHaveCount(0)
+    await page.getByText('Перенести группу в абонементах', { exact: true }).click()
     const transferSurface = page.locator('.membership-group-transfer-surface')
     await expect(transferSurface.getByText('Операция не создаёт продажу и не меняет цену или оплату.')).toBeVisible()
     await expect(transferSurface.getByRole('spinbutton')).toHaveCount(0)
@@ -742,7 +750,8 @@ function buildClient(membership?: MembershipOverrides) {
         paymentRecordedByUserId: 'head-coach-1',
         paymentRecordedByUserName: 'Главный тренер',
         paymentRecordedAt: '2026-07-23T09:30:00Z',
-        validFrom: membership.validFrom ?? membership.purchaseDate ?? '2026-06-22',
+        individualValidFrom: membership.validFrom ?? membership.purchaseDate ?? '2026-06-22',
+        validFrom: '2026-07-23T09:30:00Z',
         expirationDate:
           membership.expirationDate === undefined
             ? '2026-07-21'

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-019",
+  "confirmations": [
+    {
+      "id": "manual.client-profile-design",
+      "actor": "coding-agent:TASK-019",
+      "performed_at": "2026-11-21T22:21:55+03:00",
+      "note": "Проверены реальные операции профиля и абонемента, ограничения тренера, ошибки, клавиатура и адаптивная компоновка.",
+      "artifacts": [
+        "backlog/implementation/TASK-019-evidence/acceptance.md"
+      ]
+    }
+  ]
+}

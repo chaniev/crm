@@ -1,4 +1,8 @@
 export const fe7ClientMembershipText = {
+  discardEditor: "Отменить несохранённые изменения абонемента?",
+  historyDisclosure: "История абонементов",
+  saleFacts: (amount: string, purchaseDate: string) => `${amount} · Куплен ${purchaseDate}`,
+  saveFailed: "Не удалось сохранить изменения.",
   clientMembershipSection_active_a87a4b39: "Активен",
   clientMembershipSection_expired_85d3fd5f: "Истёк",
   clientMembershipSection_future_a01345ca: "Будущий",

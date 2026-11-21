@@ -15,6 +15,7 @@ internal static class ClientResources
     public static string InvalidStatus => GetString(nameof(InvalidStatus));
     public static string InvalidPaymentStatus => GetString(nameof(InvalidPaymentStatus));
     public static string MembershipExpirationRangeInvalid => GetString(nameof(MembershipExpirationRangeInvalid));
+    public static string TelegramContactFieldRequired => GetString(nameof(TelegramContactFieldRequired));
     public static string PhoneRequired => GetString(nameof(PhoneRequired));
     public static string PhoneTooLong => GetString(nameof(PhoneTooLong));
     public static string BranchRequired => GetString(nameof(BranchRequired));

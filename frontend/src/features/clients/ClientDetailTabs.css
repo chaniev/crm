@@ -1,0 +1,41 @@
+.client-detail-page {
+  max-width: 890px;
+}
+.client-detail-tabs .mantine-Tabs-list {
+  gap: var(--mantine-spacing-xs);
+  flex-wrap: nowrap;
+}
+.client-detail-tabs [role=tab] {
+  min-height: 48px;
+  min-width: 0;
+  padding-inline: clamp(var(--mantine-spacing-xs), 1vw, var(--mantine-spacing-lg));
+}
+.client-detail-tabs .mantine-Tabs-tabLabel {
+  white-space: normal;
+  line-height: 1.2;
+}
+.client-detail-tabs [role=tabpanel] {
+  padding-top: var(--mantine-spacing-sm);
+}
+.client-detail-tabs [role=tabpanel] > * + * {
+  margin-top: var(--mantine-spacing-sm);
+}
+@media (max-width: 38rem) {
+  .client-detail-tabs .mantine-Tabs-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--mantine-spacing-xs);
+  }
+  .client-detail-tabs .mantine-Tabs-list[data-count="5"] {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .client-detail-tabs [data-count="5"] [role=tab] {
+    grid-column: span 2;
+  }
+  .client-detail-tabs [data-count="5"] [role=tab]:nth-child(-n+2) {
+    grid-column: span 3;
+  }
+  .client-detail-tabs [role=tab] {
+    padding-inline: var(--mantine-spacing-xs);
+  }
+}

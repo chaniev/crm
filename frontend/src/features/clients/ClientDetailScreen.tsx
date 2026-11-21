@@ -1,13 +1,12 @@
 import { ClientAccessErrorContext, isClientAccessError, useClientAccessBoundary } from './clientAccessBoundary'
 
-import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Group, Loader } from '@mantine/core'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Alert, Badge, Button, Group, Loader, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import {
   IconAlertCircle,
   IconArchive,
   IconArrowLeft,
-  IconEdit,
   IconGitBranch,
   IconRefresh,
 } from '@tabler/icons-react'
@@ -30,8 +29,15 @@ import {
   type ClientStatus,
   type TrainingGroupListItem,
 } from '../../lib/api'
-import { ConfirmActionModal, PageLayout, PageSection } from '../shared/ux'
+import { ClientAvatar, ConfirmActionModal, PageLayout, PageSection } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
+import type { NavigationGuardRegistration } from '../settings/useClientImport'
+import { ClientDetailTabs } from './ClientDetailTabs'
+import { ClientProfileEditor } from './ClientProfileEditor'
+import { ClientGroupsEditor } from './ClientGroupsEditor'
+import { ClientPhotoSection } from './ClientPhotoSection'
+import { statusLabelMap } from './ClientManagement.formatting'
+import { clientDetailText } from '../../resources/client-detail-tabs'
 import { ClientMessengerChatSection } from './ClientMessengerChatSection'
 import {
   ClientNotesSection,
@@ -39,7 +45,6 @@ import {
 } from './ClientDetailSections'
 import {
   type ClientTransferFormValues,
-  type MembershipActionMode,
   type MembershipActionSubmission,
 } from './ClientManagement.types'
 import { ClientTransferModal } from './ClientTransferModal'
@@ -49,13 +54,23 @@ import { ClientAttendanceHistorySection } from './ClientAttendanceHistorySection
 import { useClientActionSubmissionKey } from './useClientActionSubmissionKey'
 import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
 
+const profileFields = [
+  'lastName', 'firstName', 'middleName', 'fullName', 'birthDate', 'phone', 'telegramContactUsername',
+  'notes', 'notesLastChangedAt', 'notesLastChangedByName', 'contacts', 'contactCount',
+] as const
+const groupFields = ['groups', 'groupIds', 'groupCount'] as const
+const membershipFields = [
+  'currentMemberships', 'membershipHistory', 'membershipState', 'hasActiveMembership', 'hasCurrentMembership',
+  'membershipWarning', 'membershipWarningMessage', 'isProfessional', 'professionalComment', 'actionHints',
+] as const
 
 type ClientDetailScreenProps = {
   backLabel?: string
   clientId: string
   canManage: boolean
   onBack: () => void
-  onEdit: (clientId: string) => void
+  onNavigationGuardChange?: NavigationGuardRegistration
+  canViewClientMessenger?: boolean
 }
 
 export function ClientDetailScreen({
@@ -63,7 +78,8 @@ export function ClientDetailScreen({
   clientId,
   canManage,
   onBack,
-  onEdit,
+  canViewClientMessenger = false,
+  onNavigationGuardChange,
 }: ClientDetailScreenProps) {
   const [loadedClient, setClient] = useState<ClientDetails | null>(null)
   const { isCurrent, close, reportError, unavailable } = useClientAccessBoundary(clientId)
@@ -81,9 +97,19 @@ export function ClientDetailScreen({
   const [transferFormError, setTransferFormError] = useState<string | null>(null)
   const [transferSubmitting, setTransferSubmitting] = useState(false)
   const [photoVersion, setPhotoVersion] = useState<number | null>(null)
-  const [membershipActionMode, setMembershipActionMode] =
-    useState<MembershipActionMode | null>(null)
-  const [selectedMembershipId, setSelectedMembershipId] = useState<string | null>(null)
+  const dirty = useRef({ profile: false, groups: false, memberships: false, messages: false })
+  const draftChanges = useMemo(() => ({
+    profile: (value: boolean) => { dirty.current.profile = value },
+    groups: (value: boolean) => { dirty.current.groups = value },
+    memberships: (value: boolean) => { dirty.current.memberships = value },
+    messages: (value: boolean) => { dirty.current.messages = value },
+  }), [])
+  useEffect(() => {
+    onNavigationGuardChange?.(action => {
+      if (!Object.values(dirty.current).some(Boolean) || window.confirm(clientDetailText.discard)) action()
+    })
+    return () => onNavigationGuardChange?.(null)
+  }, [onNavigationGuardChange])
   const getTransferSubmissionKey = useClientActionSubmissionKey()
   const actionPendingRef = useRef(false)
   const transferForm = useForm<ClientTransferFormValues>({
@@ -101,8 +127,7 @@ export function ClientDetailScreen({
     setActionError(null)
     setArchiveConfirmOpened(false)
     setTransferModalOpened(false)
-    setMembershipActionMode(null)
-    setSelectedMembershipId(null)
+
     setPhotoVersion(null)
     setBranchOptions([])
     setGroupOptions([])
@@ -286,8 +311,7 @@ export function ClientDetailScreen({
       })
       if (updatedClient === null) {
         transferForm.reset()
-        setMembershipActionMode(null)
-        setSelectedMembershipId(null)
+
         onBack()
       }
     } catch (error) {
@@ -334,9 +358,7 @@ export function ClientDetailScreen({
 
       const updatedClient = await getClient(client.id)
       if (!isCurrent()) return
-      setClient(updatedClient)
-      setMembershipActionMode(null)
-      setSelectedMembershipId(null)
+      applySavedFields(updatedClient, membershipFields)
 
       const feedback =
         submission.kind === 'purchase'
@@ -361,12 +383,7 @@ export function ClientDetailScreen({
         color: 'teal',
       })
     } catch (error) {
-      if (!isCurrent() || await reportError(error)) throw error
-      setActionError(
-        error instanceof Error
-          ? error.message
-          : fe6ClientProfileText.clientDetailScreen_string_07dec05f,
-      )
+      if (isCurrent()) await reportError(error)
       throw error
     } finally {
       actionPendingRef.current = false
@@ -382,35 +399,24 @@ export function ClientDetailScreen({
     await uploadClientPhoto(client.id, file)
     const updatedClient = await getClient(client.id)
     if (!isCurrent()) return
-    setClient(updatedClient)
+    applySavedFields(updatedClient, ['photo'])
     setPhotoVersion(Date.now())
   }
 
-  function toggleMembershipActionMode(mode: MembershipActionMode, membershipId?: string) {
-    setActionError(null)
-    setMembershipActionMode((currentMode) => {
-      const nextMode = currentMode === mode && selectedMembershipId === (membershipId ?? null) ? null : mode
-      setSelectedMembershipId(nextMode === null ? null : membershipId ?? null)
-      return nextMode
-    })
+  function applySavedFields(updated: ClientDetails, fields: readonly (keyof ClientDetails)[]) {
+    if (!isCurrent()) return
+    // Each response is a complete snapshot. Only the operation's own fields may
+    // replace local state if two responses arrive in the opposite order.
+    const patch = Object.fromEntries(fields.map(key => [key, updated[key]]))
+    setClient(previous => previous ? { ...previous, ...patch } : null)
   }
 
-  function cancelMembershipAction() {
-    setActionError(null)
-    setMembershipActionMode(null)
-    setSelectedMembershipId(null)
+  function back() {
+    if (!client || !Object.values(dirty.current).some(Boolean) || window.confirm(clientDetailText.discard)) onBack()
   }
 
   const profileActions = (
     <Group gap="xs" className="client-profile-actions">
-      {canManage && client ? (
-        <Button
-          leftSection={<IconEdit size={18} />}
-          onClick={() => onEdit(client.id)}
-          variant="filled"
-        >
-          {fe6ClientProfileText.clientDetailScreen_jsxText_59792556}</Button>
-      ) : null}
       {canManage && client ? (
         <Button
           leftSection={<IconGitBranch size={18} />}
@@ -439,23 +445,21 @@ export function ClientDetailScreen({
             : fe6ClientProfileText.clientDetailScreen_string_b2b51d6b}
         </Button>
       ) : null}
-      <Button
-        leftSection={<IconArrowLeft size={18} />}
-        onClick={onBack}
-        ref={backRef}
-        variant="default"
-      >
-        {backLabel}
-      </Button>
     </Group>
+  )
+  const backButton = (
+    <Button leftSection={<IconArrowLeft size={18} />} onClick={back} ref={backRef} variant="subtle">
+      {backLabel}
+    </Button>
   )
 
   return (
     <ClientAccessErrorContext value={reportError}>
     <PageLayout
+      className="client-detail-page"
       showHeader={!client}
       renderHiddenHeading={false}
-      actions={profileActions}
+      actions={backButton}
       title={client ? client.fullName : fe6ClientProfileText.clientDetailScreen_string_48186f7a}
     >
       {canManage && client ? (
@@ -532,38 +536,35 @@ export function ClientDetailScreen({
             </Alert>
           ) : null}
 
-          <ClientOverviewSection
-            actions={profileActions}
-            canManage={canManage}
-            client={client}
-            onPhotoUpload={canManage ? handlePhotoUpload : undefined}
-            photoVersion={photoVersion}
-          />
-
-          {canManage ? (
-            <ClientMembershipSection
-              actionMode={membershipActionMode}
-              client={client}
-              pending={actionPending}
-              selectedMembershipId={selectedMembershipId}
-              onCancelAction={cancelMembershipAction}
-              onActionModeChange={toggleMembershipActionMode}
-              onClientChange={(updatedClient) => { if (isCurrent()) setClient(updatedClient) }}
-              onSubmit={handleMembershipAction}
+          <div>{backButton}</div>
+          <Group gap="sm" wrap="nowrap" className="client-profile-identity">
+            <ClientAvatar aria-hidden name={client.fullName} size={48} radius="xl" color="brand" />
+            <div>
+              <Title order={1}>{client.fullName}</Title>
+              {canManage && <Badge color={client.status === 'Active' ? 'teal' : 'gray'} variant="light">{statusLabelMap[client.status]}</Badge>}
+            </div>
+          </Group>
+          <ClientDetailTabs
+            info={canManage ? (
+              <ClientProfileEditor client={client} onSaved={updated => applySavedFields(updated, profileFields)} onDirtyChange={draftChanges.profile} actions={profileActions}
+                photo={<ClientPhotoSection clientId={client.id} clientName={client.fullName} photo={client.photo}
+                  canUpload onUpload={handlePhotoUpload} previewVersion={photoVersion ?? client.photo?.uploadedAt} variant="profile" />} />
+            ) : (
+              <><ClientOverviewSection showIdentity={false} client={client} canManage={false} photoVersion={photoVersion} actions={null} />
+                <ClientNotesSection client={client} /></>
+            )}
+            memberships={canManage && <ClientMembershipSection
+              client={client} pending={actionPending} onClientChange={updated => applySavedFields(updated, [...membershipFields, ...groupFields])}
+              onDirtyChange={draftChanges.memberships} onSubmit={handleMembershipAction}
               onMembershipCommentChange={handleMembershipCommentChange}
-            />
-          ) : null}
-
-          <ClientAttendanceHistorySection canManage={canManage} client={client} />
-
-          <ClientNotesSection client={client} />
-
-          <ClientMessengerChatSection clientId={client.id} />
-
-          <ClientRelatedSections
-            canManage={canManage}
-            client={client}
-            onEdit={onEdit}
+            />}
+            visits={<ClientAttendanceHistorySection key={client.branchId} canManage={canManage} client={client} />}
+            groups={canManage
+              ? <ClientGroupsEditor key={client.branchId} client={client} onSaved={updated => applySavedFields(updated, groupFields)} onDirtyChange={draftChanges.groups} />
+              : <ClientRelatedSections canManage={false} client={client} onEdit={() => {}} />}
+            messages={canViewClientMessenger ? active => (
+              <ClientMessengerChatSection active={active} clientId={client.id} onDirtyChange={draftChanges.messages} />
+            ) : undefined}
           />
         </>
       ) : null}

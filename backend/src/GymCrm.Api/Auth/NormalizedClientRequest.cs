@@ -5,6 +5,8 @@ internal sealed record NormalizedClientRequest(
     string? FirstName,
     string? MiddleName,
     string Phone,
+    string? TelegramContactUsername,
+    bool HasTelegramContactUsername,
     Guid? BranchId,
     DateOnly? BirthDate,
     string? Notes,

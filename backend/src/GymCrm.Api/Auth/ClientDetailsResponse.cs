@@ -7,6 +7,7 @@ internal sealed record ClientDetailsResponse(
     string? MiddleName,
     string FullName,
     string Phone,
+    string? TelegramContactUsername,
     Guid BranchId,
     string BranchName,
     DateOnly? BirthDate,

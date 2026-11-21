@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "task_id": "TASK-019",
+  "expected_branch": "codex/TASK-019-client-card-tabs",
+  "areas": [
+    "frontend",
+    "backend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.client-profile-context",
+      "spec": "e2e/client-profile-context-navigation.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.client-membership-pricing",
+      "spec": "e2e/membership-sale-pricing.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.client-branch-access",
+      "spec": "e2e/administrator-client-branch-access.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.client-profile-design",
+      "description": "Сравнить вкладки с прототипом на телефоне, планшете и компьютере. Проверить сохранение и возврат с работающим backend, клавиатуру, ошибки и ограничения тренера."
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-019-manual-evidence.json"
+}

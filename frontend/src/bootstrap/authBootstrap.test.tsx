@@ -89,6 +89,7 @@ const authenticatedSession = {
     allowedSections: ['Attendance', 'Attention', 'Clients', 'Users'],
     permissions: {
       canManageUsers: true,
+      canViewClientMessenger: true,
       canManageClients: true,
       canManageGroups: false,
       canManageSettings: false,

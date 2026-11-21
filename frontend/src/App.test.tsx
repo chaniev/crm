@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import type { AppConfigResponse, AuthenticatedUser } from './lib/api/types'
@@ -32,23 +32,14 @@ vi.mock('./features/clients/ClientManagement', () => ({
     backLabel,
     clientId,
     onBack,
-    onEdit,
   }: {
     backLabel?: string
     clientId: string
     onBack: () => void
-    onEdit: (clientId: string) => void
   }) => (
     <div data-testid="client-detail-screen">
       Client detail {clientId}
       <button type="button" onClick={onBack}>{backLabel ?? 'К списку клиентов'}</button>
-      <button type="button" onClick={() => onEdit(clientId)}>Редактировать клиента</button>
-    </div>
-  ),
-  ClientEditScreen: ({ onBack }: { onBack: () => void }) => (
-    <div data-testid="client-edit-screen">
-      Client edit
-      <button type="button" onClick={onBack}>К карточке клиента</button>
     </div>
   ),
   ClientsListScreen: () => <div data-testid="clients-list-screen">Clients list</div>,
@@ -251,6 +242,7 @@ const baseSession: AuthenticatedUser = {
   mustChangePassword: false,
   fullName: 'Главный тренер',
   permissions: {
+    canViewClientMessenger: true,
     canManageClients: true,
     canManageGroups: true,
     canManageSettings: true,
@@ -266,6 +258,7 @@ const clientRestrictedSession: AuthenticatedUser = {
   ...baseSession,
   permissions: {
     ...baseSession.permissions,
+    canViewClientMessenger: false,
     canManageClients: false,
   },
   allowedSections: ['Attendance', 'Clients', 'Schedule'],
@@ -452,8 +445,6 @@ describe('App route access contract', () => {
 
   test('keeps the existing destination matrix for all three edit routes', async () => {
     const clientView = renderAppAt('/clients/client-1/edit', baseSession)
-    expect(await screen.findByTestId('client-edit-screen')).toBeVisible()
-    fireEvent.click(screen.getByRole('button', { name: 'К карточке клиента' }))
     await waitFor(() => expect(window.location.pathname).toBe('/clients/client-1'))
     expect(await screen.findByTestId('client-detail-screen')).toBeVisible()
     clientView.unmount()
@@ -824,14 +815,12 @@ describe('App route access contract', () => {
       },
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Редактировать клиента' }))
-    await waitFor(() => expect(window.location.pathname).toBe('/clients/client-group/edit'))
-    expect(window.history.state.crmClientProfileReturnContext.returnDepth).toBe(2)
-
-    fireEvent.click(screen.getByRole('button', { name: 'К карточке клиента' }))
+    const context = window.history.state
+    window.history.replaceState(context, '', '/clients/client-group/edit')
+    act(() => window.dispatchEvent(new PopStateEvent('popstate')))
     await waitFor(() => expect(window.location.pathname).toBe('/clients/client-group'))
     expect(screen.getByRole('button', { name: 'К группе' })).toBeVisible()
-    expect(window.history.state.crmClientProfileReturnContext.returnDepth).toBe(3)
+    expect(window.history.state.crmClientProfileReturnContext).toEqual(context.crmClientProfileReturnContext)
   })
 
   test.each(['Отмена серии', 'Сохранить серию'])('group-origin series %s returns to the matching history entry, including reload', async action => {

@@ -1,3 +1,4 @@
+import { useMembershipDraft } from './membershipDrafts'
 import { useEffect, useState } from 'react'
 import { Alert, Badge, Button, Group, Paper, SimpleGrid, Stack, Text, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -58,6 +59,7 @@ export function MembershipRenewPanel({
   const form = useForm<MembershipRenewFormValues>({
     initialValues: createMembershipRenewInitialValues(businessDate, currentMembership),
   })
+  useMembershipDraft('editor', form.isDirty())
   const [catalogItems, setCatalogItems] = useState<MembershipCatalogItem[]>([])
   const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -150,8 +152,8 @@ export function MembershipRenewPanel({
     } catch (error) {
       if (error instanceof ApiError) {
         form.setErrors(applyFieldErrors(error.fieldErrors))
-        setFormError(error.message)
       }
+      setFormError(error instanceof Error ? error.message : fe7ClientMembershipText.saveFailed)
     }
   }
 
@@ -239,7 +241,7 @@ export function MembershipRenewPanel({
           />
 
           <ResponsiveButtonGroup justify="space-between">
-            <Button onClick={onCancel} type="button" variant="subtle">
+            <Button disabled={pending} onClick={onCancel} type="button" variant="subtle">
               {fe7ClientMembershipText.membershipRenewPanel_jsxText_7c47f729}</Button>
             <Button loading={pending} type="submit">
               {fe7ClientMembershipText.membershipRenewPanel_jsxText_b62f978a}</Button>

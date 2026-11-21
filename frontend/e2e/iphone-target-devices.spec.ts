@@ -783,7 +783,8 @@ test('TASK-114 target iPhone keeps membership sale comments isolated through rel
     throw new Error(`Unexpected TASK-114 iPhone API request: ${method} ${pathname}`)
   })
 
-  await page.goto('/clients/client-1')
+  await page.goto('/clients/client-1#memberships')
+  await page.getByText('История абонементов').click()
   expect(testInfo.project.use.screen).toEqual(target)
   expect(testInfo.project.use.hasTouch).toBe(true)
   await expect(page.getByText('Комментарий к покупке')).toHaveCount(2)
@@ -807,6 +808,7 @@ test('TASK-114 target iPhone keeps membership sale comments isolated through rel
     pathname: '/api/clients/client-1/membership/sales/sale-a/comment',
   }])
   await page.reload()
+  await page.getByText('История абонементов').click()
   await expect(page.getByTestId('membership-sale-comment-sale-a').getByText('Комментарий A обновлён')).toBeVisible()
   await expect(page.getByTestId('membership-sale-comment-sale-b').getByText(commentB)).toBeVisible()
   await expectNoHorizontalScroll(page)

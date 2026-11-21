@@ -1,3 +1,4 @@
+import { useMembershipDraft } from './membershipDrafts'
 import { useClientAccessError } from '../clientAccessBoundary'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Group, Stack, Text, Textarea } from '@mantine/core'
@@ -24,6 +25,7 @@ export function MembershipSaleComment({
   const [comment, setComment] = useState(membership.comment ?? '')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  useMembershipDraft(membership.saleId, editing && comment !== (membership.comment ?? ''))
   const attribution =
     membership.commentLastChangedByName && membership.commentLastChangedAt
       ? formatNoteAttributionDate(membership.commentLastChangedAt)

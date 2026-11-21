@@ -1,5 +1,5 @@
 import { useForm } from '@mantine/form'
-import type { ClientDetails, UpsertClientRequest } from '../../lib/api'
+import type { ClientDetails, CreateClientRequest, UpdateClientProfileRequest } from '../../lib/api'
 import { fe6ClientProfileText } from '../../resources/fe-6-client-profile'
 
 
@@ -17,6 +17,7 @@ export type ClientFormContact = {
 }
 
 export type ClientFormValues = {
+  telegramContactUsername: string
   lastName: string
   firstName: string
   middleName: string
@@ -28,9 +29,10 @@ export type ClientFormValues = {
   contacts: ClientFormContact[]
 }
 
-export function useClientForm() {
+export function useClientForm(client?: ClientDetails) {
   return useForm<ClientFormValues>({
-    initialValues: {
+    initialValues: client ? toClientFormValues(client) : {
+      telegramContactUsername: '',
       lastName: '',
       firstName: '',
       middleName: '',
@@ -105,6 +107,7 @@ export function toClientFormValues(client: ClientDetails): ClientFormValues {
     firstName: client.firstName,
     middleName: client.middleName,
     phone: client.phone,
+    telegramContactUsername: client.telegramContactUsername ?? '',
     birthDate: client.birthDate ?? '',
     branchId: client.branchId,
     notes: client.notes,
@@ -122,17 +125,24 @@ export function toClientFormValues(client: ClientDetails): ClientFormValues {
 
 export function toUpsertClientPayload(
   values: ClientFormValues,
-): UpsertClientRequest {
+): CreateClientRequest {
+  return {
+    ...toClientProfilePayload(values),
+    branchId: values.branchId || undefined,
+    groupIds: [...values.groupIds].sort(),
+  }
+}
+
+export function toClientProfilePayload(values: ClientFormValues): UpdateClientProfileRequest {
   return {
     lastName: values.lastName.trim() || undefined,
     firstName: values.firstName.trim() || undefined,
     middleName: values.middleName.trim() || undefined,
     phone: values.phone.trim(),
+    telegramContactUsername: values.telegramContactUsername.trim() || null,
     birthDate: values.birthDate || null,
-    branchId: values.branchId || undefined,
     notes: values.notes.trim(),
     contacts: normalizeContacts(values.contacts),
-    groupIds: [...values.groupIds].sort(),
   }
 }
 

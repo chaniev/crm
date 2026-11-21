@@ -69,6 +69,7 @@ internal static class ClientEndpointSharedHelpers
                 client.FirstName,
                 client.MiddleName,
                 client.Phone,
+                client.TelegramContactUsername,
                 client.BranchId,
                 client.BirthDate,
                 client.Notes,

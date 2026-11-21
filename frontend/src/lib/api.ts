@@ -156,6 +156,9 @@ export type {
   UpdateTrainingGroupIdentityRequest,
   UpdateUserRequest,
   UpsertBranchRequest,
+  CreateClientRequest,
+  UpdateClientProfileRequest,
+  UpdateClientGroupsRequest,
   UpsertClientRequest,
   UpsertGroupTypeRequest,
   UpsertHallRequest,
@@ -216,6 +219,8 @@ export {
   transferClientMembershipTargets,
   transferClientBranch,
   updateClient,
+  updateClientGroups,
+  updateClientProfile,
   uploadClientPhoto,
   updateClientMembershipComment,
 } from './api/clients'

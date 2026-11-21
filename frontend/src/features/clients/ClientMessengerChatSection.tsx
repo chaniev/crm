@@ -43,6 +43,8 @@ import { fe8ClientMessengerMediaText } from '../../resources/fe-8-client-messeng
 
 type ClientMessengerChatSectionProps = {
   clientId: string
+  active?: boolean
+  onDirtyChange?: (dirty: boolean) => void
 }
 
 const messagesTake = 50
@@ -68,6 +70,8 @@ const telegramShareText =
 
 export function ClientMessengerChatSection({
   clientId,
+  active = true,
+  onDirtyChange,
 }: ClientMessengerChatSectionProps) {
   const reportClientError = useClientAccessError()
   const [hidden, setHidden] = useState(false)
@@ -92,14 +96,29 @@ export function ClientMessengerChatSection({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const linkCopiedTimeoutRef = useRef<number | null>(null)
 
+  const [refreshVersion, setRefreshVersion] = useState(0)
+  const activeRequest = useRef<AbortController | null>(null)
+
   useEffect(() => {
+    onDirtyChange?.(draft.length > 0)
+    return () => onDirtyChange?.(false)
+  }, [draft, onDirtyChange])
+
+  useEffect(() => {
+    if (!active) return
     const controller = new AbortController()
+
+    activeRequest.current = controller
 
     async function load() {
       setLoading(true)
       setLoadError(null)
       setHidden(false)
       setLinkToken(null)
+      setMessages([])
+      setMessageSkip(0)
+      setSummary(null)
+      setLinkModalOpened(false)
 
       try {
         const nextSummary = await getClientMessengerSummary(
@@ -107,6 +126,7 @@ export function ClientMessengerChatSection({
           controller.signal,
         )
 
+        if (controller.signal.aborted) return
         if (!nextSummary.capabilities.visible) {
           setHidden(true)
           return
@@ -124,21 +144,23 @@ export function ClientMessengerChatSection({
             { skip: initialSkip, take: messagesTake },
             controller.signal,
           )
+          if (controller.signal.aborted) return
           setMessages(nextMessages.items)
           setMessageSkip(initialSkip)
 
-          await markClientMessengerRead(clientId)
+          await markClientMessengerRead(clientId, controller.signal)
+          if (controller.signal.aborted) return
           setSummary({
             ...nextSummary,
             unreadCount: 0,
           })
         }
       } catch (error) {
-      void reportClientError(error)
         if (controller.signal.aborted) {
           return
         }
 
+        void reportClientError(error)
         if (error instanceof ApiError && error.status === 403) {
           setHidden(true)
           return
@@ -159,7 +181,7 @@ export function ClientMessengerChatSection({
     void load()
 
     return () => controller.abort()
-  }, [clientId, reportClientError])
+  }, [active, clientId, refreshVersion, reportClientError])
 
   useEffect(() => {
     if (!scrollRef.current) {
@@ -179,55 +201,25 @@ export function ClientMessengerChatSection({
     [],
   )
 
-  if (hidden) {
+  if (!active || hidden) {
     return null
   }
 
   const canReply = summary?.capabilities.canReply ?? false
+  const canShowQr = summary?.capabilities.canShowQr ?? false
   const canCreateLink = summary?.capabilities.canCreateLink ?? false
   const connected = summary?.connection.status === 'Connected'
   const hasMessages = messages.length > 0
   const hasOlderMessages = messageSkip > 0
   const canUseNativeShare = typeof navigator.share === 'function'
 
-  async function refresh() {
-    setLoading(true)
-    setLoadError(null)
-
-    try {
-      const nextSummary = await getClientMessengerSummary(clientId)
-      setSummary(nextSummary)
-
-      if (nextSummary.capabilities.canRead) {
-        const initialSkip = Math.max(
-          nextSummary.totalMessageCount - messagesTake,
-          0,
-        )
-        const nextMessages = await getClientMessengerMessages(clientId, {
-          skip: initialSkip,
-          take: messagesTake,
-        })
-        setMessages(nextMessages.items)
-        setMessageSkip(initialSkip)
-        await markClientMessengerRead(clientId)
-        setSummary({
-          ...nextSummary,
-          unreadCount: 0,
-        })
-      }
-    } catch (error) {
-      void reportClientError(error)
-      setLoadError(
-        error instanceof Error
-          ? error.message
-          : fe8ClientMessengerMediaText.clientMessengerChatSection_string_33c27632,
-      )
-    } finally {
-      setLoading(false)
-    }
+  function refresh() {
+    setRefreshVersion(version => version + 1)
   }
 
   async function loadOlderMessages() {
+    const signal = activeRequest.current?.signal
+    if (!signal || signal.aborted) return
     setLoadingMore(true)
 
     try {
@@ -236,10 +228,12 @@ export function ClientMessengerChatSection({
       const page = await getClientMessengerMessages(clientId, {
         skip: nextSkip,
         take: nextTake,
-      })
+      }, signal)
+      if (signal.aborted) return
       setMessages((currentMessages) => [...page.items, ...currentMessages])
       setMessageSkip(nextSkip)
     } catch (error) {
+      if (signal.aborted) return
       void reportClientError(error)
       showAppNotification({
         id: `client-messenger-load-more-${clientId}`,
@@ -256,12 +250,14 @@ export function ClientMessengerChatSection({
   }
 
   async function createLinkToken() {
+    const signal = activeRequest.current?.signal
     setLinkCreating(true)
     setLinkError(null)
     resetLinkCopyState()
 
     try {
       const nextLinkToken = await createClientMessengerTelegramLinkToken(clientId)
+      if (signal?.aborted) return
       setLinkToken(nextLinkToken)
       setLinkModalOpened(true)
       setSummary((currentSummary) =>
@@ -535,6 +531,7 @@ export function ClientMessengerChatSection({
                 {canReply ? (
                   <Stack gap="xs">
                     <Textarea
+                      aria-label={fe8ClientMessengerMediaText.clientMessengerChatSection_placeholder_aac0c410}
                       autosize
                       disabled={sending}
                       maxRows={6}
@@ -583,10 +580,10 @@ export function ClientMessengerChatSection({
             <Text c="dimmed" size="sm">
               {fe8ClientMessengerMediaText.clientMessengerChatSection_jsxText_af9f52ba}</Text>
             <Group align="flex-start" gap="lg" wrap="wrap">
-              <div
+              {canShowQr && <div
                 className="client-messenger-qr"
                 dangerouslySetInnerHTML={{ __html: linkToken.qrCodeSvg }}
-              />
+              />}
               <Stack className="client-messenger-link-stack" gap="sm">
                 <Text className="client-messenger-link" size="sm">
                   {linkToken.deepLinkUrl}

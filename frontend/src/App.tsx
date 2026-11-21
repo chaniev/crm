@@ -116,7 +116,6 @@ export function App({ appConfig, authBackground }: AppProps) {
     returnFromAttendanceLesson,
     activeScheduleReturnSnapshot,
     returnFromSeriesEditor,
-    editClient,
     openClientDetails,
     returnToClients,
     returnToGroups,
@@ -225,6 +224,12 @@ export function App({ appConfig, authBackground }: AppProps) {
 
     routeAccessBoundaryRef.current = routeAccess
   }, [navigate, pathname, routeAccess, session])
+
+  useEffect(() => {
+    if (route.kind === 'clientEdit' && routeAccess?.kind === 'allowed') {
+      navigate({ kind: 'clientDetails', clientId: route.clientId }, { replace: true, state: history.state })
+    }
+  }, [navigate, route, routeAccess])
 
   async function retrySessionLoad() {
     setLoadingSession(true)
@@ -516,7 +521,6 @@ export function App({ appConfig, authBackground }: AppProps) {
         <RouteViewport
           onSettingsNavigationGuardChange={registerSettingsNavigationGuard}
           onCreateClient={() => navigate({ kind: 'clientCreate' })}
-          onEditClient={editClient}
           onOpenClient={openClientDetails}
           onPreviewClient={(clientId, returnSnapshot) =>
             navigateWithClientListReturnState(
