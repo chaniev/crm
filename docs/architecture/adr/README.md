@@ -53,3 +53,4 @@ ADR.
 - [ADR-0007: Граница выполнения операций абонемента](0007-membership-execution-boundary.md) — Accepted (project owner, 2026-11-16)
 
 - [ADR-0008: Shared actual schedule projection](0008-shared-schedule-projection.md) - Accepted (project owner, 2026-11-17)
+- [ADR-0009: Одна запись клиента в Staff API раздела «Внимание»](0009-client-attention-response.md) — Accepted (пользователь, владелец проекта, 2026-11-21)

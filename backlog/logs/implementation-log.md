@@ -2354,3 +2354,9 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 ## 21.11.2026 — завершение TASK-021
 
 Коммит `d9e5868f` прошёл полный контракт и интегрирован в локальную main. Исправлены подписи действий изменённого профиля. [Задача](../done/2026-11-21/TASK-021-client-detail-responsive-regression.md) · [Приёмка](../done/2026-11-21/TASK-021-evidence/acceptance.md).
+
+# 2026-11-21 23:53
+- moved: TASK-219, TASK-221
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-219-lesson-mixed-roster.plan.md, /backlog/implementation-plans/TASK-221-attention-one-row-per-client.plan.md

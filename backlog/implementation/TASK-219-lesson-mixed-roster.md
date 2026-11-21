@@ -1,7 +1,7 @@
 # TASK-219: Открывать полный состав конкретного занятия при частично заполненных отметках
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-ATT-001 — implements
@@ -18,3 +18,9 @@ tasks-ready
 
 ## Source notes
 [Сверка main 3e729130 и решения владельца от 21.11.2026](../done/2026-11-21/TASK-216-requirements-audit.md).
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-21 23:53
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-219-lesson-mixed-roster.plan.md
+- implementation_branch: fix/TASK-219-lesson-mixed-roster
