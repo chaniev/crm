@@ -36,9 +36,10 @@ export function PrototypeForm({ initial, photo, onSave, onCancel, failNextSave }
     onSave({ ...values, contacts: normalizeContacts(values.contacts) })
   }
   return <div className="sheet form-sheet" data-contacts={form.values.contacts.length}>
+    {initial && <div className="edit-photo">{photo}</div>}
     <ClientForm form={form} formError={error} branchOptions={branches} groupOptions={groups} lockBranch={!!initial}
       cancelAction={{ label: 'Отмена', onClick: onCancel }}
-      photoSection={initial ? photo : <small>Фотографию можно добавить после сохранения клиента.</small>}
+      photoSection={initial ? undefined : <small>Фотографию можно добавить после сохранения клиента.</small>}
       onSubmit={save} submitLabel={initial ? 'Сохранить изменения' : 'Создать клиента'} submitting={busy}/>
   </div>
 }

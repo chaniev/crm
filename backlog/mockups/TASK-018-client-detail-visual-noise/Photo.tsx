@@ -6,9 +6,9 @@ import { clientPhotoAcceptValue, validateClientPhotoFile } from '../../../fronte
 import { demoPhoto } from './fixtures'
 
 export type PhotoValue = { src: string | null; broken: boolean }
-export function Photo({ value, onChange, name, manage, failNextUpload }: {
+export function Photo({ value, onChange, name, manage, failNextUpload, editing = false }: {
   value: PhotoValue; onChange: (value: PhotoValue) => void; name: string; manage: boolean
-  failNextUpload: { current: boolean }
+  failNextUpload: { current: boolean }; editing?: boolean
 }) {
   const [opened, setOpened] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -49,17 +49,20 @@ export function Photo({ value, onChange, name, manage, failNextUpload }: {
   return <section className="photo" aria-label="Фото клиента">
     <Group gap="sm">
       {value.src && !value.broken && <button ref={opener} className="thumbnail" aria-label="Открыть фотографию" onClick={() => setOpened(true)} type="button">
-        <img alt="" src={value.src} onError={() => onChange({ ...value, broken: true })}/><IconZoomIn size={14}/>
+        <img alt={'Фотография клиента ' + name} src={value.src} onError={() => onChange({ ...value, broken: true })}/><IconZoomIn size={14}/>
       </button>}
-      {manage && <FileButton accept={clientPhotoAcceptValue} onChange={upload} resetRef={resetFile}>
-        {props => <Button {...props} type="button" variant="secondary" loading={busy} leftSection={<IconCamera size={16}/>}>
-          {exists ? 'Заменить фото' : 'Добавить фото'}
-        </Button>}
-      </FileButton>}
-      {manage && <small>JPEG, PNG, WebP, HEIC, HEIF · до 10 МБ</small>}
+      <div className="photo-controls">
+        {editing && exists && <strong>Фотография клиента</strong>}
+        {manage && <FileButton accept={clientPhotoAcceptValue} onChange={upload} resetRef={resetFile}>
+          {props => <Button {...props} type="button" variant="secondary" loading={busy} leftSection={<IconCamera size={16}/>}>
+            {exists ? 'Заменить фото' : 'Добавить фото'}
+          </Button>}
+        </FileButton>}
+        {manage && <small>JPEG, PNG, WebP, HEIC, HEIF · до 10 МБ</small>}
+      </div>
     </Group>
     {value.broken && <Alert color="yellow" icon={<IconAlertCircle size={18}/>} title="Не удалось показать сохранённое фото">
-      <Button type="button" variant="secondary" onClick={() => onChange({ src: value.src || demoPhoto(), broken: false })}>Повторить просмотр</Button>
+      <Button type="button" variant="secondary" onClick={() => onChange({ src: value.src || demoPhoto, broken: false })}>Повторить просмотр</Button>
     </Alert>}
     {error && <Alert color="red" title="Фотография не обновлена" icon={<IconAlertCircle size={18}/>}>{error}</Alert>}
     {message && <small role="status">{message}</small>}

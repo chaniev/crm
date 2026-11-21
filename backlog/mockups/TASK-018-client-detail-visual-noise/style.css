@@ -39,6 +39,17 @@ main { width: 100%; min-width: 0; max-width: 1100px; margin-inline: auto; paddin
 .fact dt svg { width: 15px; height: 15px; }
 .fact dd { margin: 3px 0 0; color: var(--crm-text-primary); font-size: .97rem; font-weight: 600; }
 .photo { display: grid; gap: 9px; }
+.photo-controls { display: contents; }
+.edit-photo { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--crm-border-muted); }
+.edit-photo .thumbnail { width: 120px; height: 120px; flex-shrink: 0; border-radius: 16px; }
+.edit-photo .thumbnail svg { width: 22px; height: 22px; padding: 3px; right: 4px; bottom: 4px; border-radius: 6px; }
+.edit-photo .photo-controls { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.edit-photo .photo-controls strong { width: 100%; font-size: 1rem; }
+.form-sheet:has(.edit-photo) .client-edit-rail:empty { display: none; }
+@media (max-width: 48rem) {
+  .edit-photo .thumbnail { width: 92px; height: 92px; }
+  .edit-photo .photo-controls { min-width: 0; }
+}
 .photo small { line-height: 1.4; }
 .thumbnail { position: relative; padding: 0; overflow: hidden; border-radius: 12px; width: 54px; height: 54px; border: 1px solid var(--crm-border-default); }
 .thumbnail img { width: 100%; height: 100%; object-fit: cover; }

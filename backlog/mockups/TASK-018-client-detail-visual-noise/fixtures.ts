@@ -1,3 +1,4 @@
+export { default as demoPhoto } from './assets/demo-client.jpg'
 import type { ClientFormValues } from '../../../frontend/src/features/clients/ClientManagement.form'
 import type { Branch, TrainingGroupListItem } from '../../../frontend/src/lib/api'
 
@@ -34,25 +35,4 @@ export function fixture(example: Example): ClientFormValues {
     groupIds: ['kick'], notes: 'Предпочитает вечерние тренировки.',
     contacts: example === 'long' ? [{ type: 'Родитель', fullName: 'Александрова Ирина', phone: '+7 900 000-04-18' }] : [],
   }
-}
-// Same synthetic PNG pattern as the CRM seed fixture for client 237.
-export function demoPhoto() {
-  const canvas = document.createElement('canvas')
-  canvas.width = canvas.height = 96
-  const context = canvas.getContext('2d')!
-  const image = context.createImageData(96, 96)
-  const seed = (237 * 2654435761) >>> 0
-  for (let y = 0; y < 96; y++) {
-    for (let x = 0; x < 96; x++) {
-      const offset = 4 * (96 * y + x)
-      const diagonal = (x + y + 237) % 48
-      image.data.set([
-        (40 + seed % 160 + x + diagonal) % 256,
-        (40 + (seed >>> 8) % 160 + y + diagonal) % 256,
-        (40 + (seed >>> 16) % 160 + (x >> 1) + (y >> 1)) % 256, 255,
-      ], offset)
-    }
-  }
-  context.putImageData(image, 0, 0)
-  return canvas.toDataURL()
 }

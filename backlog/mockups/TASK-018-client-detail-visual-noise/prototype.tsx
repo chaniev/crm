@@ -70,7 +70,7 @@ function ExampleView({ example, changeExample, phoneVariant, changeVariant }: {
   const [client, setClient] = useState(() => fixture(example))
   const [hasHistory, setHasHistory] = useState(true)
   const [photo, setPhoto] = useState<PhotoValue>(() => ({
-    src: ['photo','coach','upload'].includes(example) ? demoPhoto() : null, broken: example === 'broken',
+    src: ['photo','coach','upload'].includes(example) ? demoPhoto : null, broken: example === 'broken',
   }))
   const [notice, setNotice] = useState('')
   const [boundary, setBoundary] = useState('')
@@ -109,7 +109,7 @@ function ExampleView({ example, changeExample, phoneVariant, changeVariant }: {
   }, [screen])
   const form = screen === 'edit' || screen === 'create'
   const nav = Object.entries(screens).filter(([key]) => manage || key === 'detail' || key === 'preview' || key === 'compare')
-  const photoActions = <Photo value={photo} onChange={setPhoto} name={name} manage={manage} failNextUpload={failNextUpload}/>
+  const photoActions = <Photo editing={screen === 'edit'} value={photo} onChange={setPhoto} name={name} manage={manage} failNextUpload={failNextUpload}/>
   const status = manage && <Badge color="teal" variant="light" tt="none">Активный</Badge>
   const warning = 'Абонемент просрочен'
   const previewData: PreviewProps = {
@@ -212,7 +212,8 @@ function ExampleView({ example, changeExample, phoneVariant, changeVariant }: {
 function App() {
   const [example, setExample] = useState<Example>(() => {
     const sample = search.get('sample')
-    return phoneMode && sample && Object.hasOwn(examples, sample) ? sample as Example : 'empty'
+    if (sample && Object.hasOwn(examples, sample)) return sample as Example
+    return startScreen() === 'edit' ? 'photo' : 'empty'
   })
   const [variant, setVariant] = useState<PhoneVariant>(() => search.get('phone') === 'first' ? 'first' : 'new')
   const wide = useMediaQuery('(min-width: 960px) and (min-height: 540px)', undefined, { getInitialValueInEffect: false })
