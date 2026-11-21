@@ -245,6 +245,48 @@ describe('AttendanceWorkspace', () => {
     expect(getLessonRoster.mock.calls[1].slice(0, 2)).toEqual(['lesson-1', lessonTarget.lessonDate])
   })
 
+  test('switches lesson roster views while a mark is pending and filters it only after confirmation', async () => {
+    const markedClient = buildClient('client-2', 'Анна Петрова', 'Present')
+    const roster = { ...lessonRoster, clients: [...lessonRoster.clients, markedClient] }
+    getLessonRoster.mockResolvedValueOnce(roster).mockResolvedValue({
+      ...roster, clients: [buildClient('client-1', 'Иван Иванов', 'Present'), markedClient],
+    })
+    const pendingSave = createDeferred<Awaited<ReturnType<typeof saveAttendanceLessonMarks>>>()
+    saveLessonMarks.mockReturnValueOnce(pendingSave.promise)
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
+
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    expect(screen.queryByTestId('attendance-client-card-client-2')).not.toBeInTheDocument()
+    fireEvent.click(within(card).getByRole('radio', { name: 'Был' }))
+
+    const view = within(screen.getByRole('group', { name: 'Показывать клиентов' }))
+    for (const mode of ['Все', 'Не отмечено']) {
+      const option = view.getByRole('radio', { name: mode })
+      fireEvent.click(option)
+      expect(option).toBeChecked()
+      const pendingCard = screen.getByTestId('attendance-client-card-client-1')
+      expect(pendingCard).toBeVisible()
+      const pendingMark = within(pendingCard).getByRole('radio', { name: 'Был' })
+      expect(pendingMark).toBeChecked()
+      expect(pendingMark).toBeDisabled()
+      if (mode === 'Все') {
+        const markedCard = screen.getByTestId('attendance-client-card-client-2')
+        expect(within(markedCard).getByRole('radio', { name: 'Был' })).toBeChecked()
+      } else {
+        expect(screen.queryByTestId('attendance-client-card-client-2')).not.toBeInTheDocument()
+      }
+    }
+    expect(saveLessonMarks).toHaveBeenCalledTimes(1)
+    expect(getLessonRoster).toHaveBeenCalledTimes(1)
+
+    await act(() => pendingSave.resolve({
+      ...lessonRoster, attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
+    }))
+    expect(screen.queryByTestId('attendance-client-card-client-1')).not.toBeInTheDocument()
+    expect(getLessonRoster).toHaveBeenCalledTimes(2)
+    expect(saveLessonMarks).toHaveBeenCalledTimes(1)
+  })
+
   test.each([
     { failFirstRetry: false, postFirst: false },
     { failFirstRetry: true, postFirst: false },

@@ -116,7 +116,10 @@ test('two occurrences of one group keep independent marks and restore the refres
   await morningRow.getByRole('button', { name: /Открыть:/ }).click()
   await expect(page).toHaveURL(`/attendance/${morning.lessonOccurrenceId}?lessonDate=${TODAY}`)
   await expect(page.getByText('08:00–09:00', { exact: true })).toBeVisible()
-  await expect(page.getByRole('radio', { name: 'Не отмечено', exact: true })).toBeChecked()
+  const morningCard = page.getByTestId(`attendance-client-card-${CLIENT_ID}`)
+  await expect(morningCard.getByRole('radio', { name: 'Не отмечено', exact: true })).toBeChecked()
+  const rosterView = page.getByRole('group', { name: 'Показывать клиентов' })
+  await expect(rosterView.getByRole('radio', { name: 'Не отмечено', exact: true })).toBeChecked()
 })
 
 test('a copied link retries from the keyboard and returns locally in its own tab', async ({ page, context, browserName }) => {

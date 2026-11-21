@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "task_id": "TASK-219",
+  "expected_branch": "fix/TASK-219-lesson-mixed-roster",
+  "areas": ["frontend"],
+  "playwright": [
+    {
+      "id": "frontend.attendance-today-context",
+      "spec": "e2e/attendance-today-worklist.spec.ts",
+      "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"]
+    },
+    {
+      "id": "frontend.schedule-attendance-context",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"]
+    },
+    {
+      "id": "frontend.client-profile-context",
+      "spec": "e2e/client-profile-context-navigation.spec.ts",
+      "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"]
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.attendance-roster-filter",
+      "description": "Сверить переключатель с макетом и проверить управление фильтром и отметками с клавиатуры, включая видимый фокус."
+    }
+  ]
+}
