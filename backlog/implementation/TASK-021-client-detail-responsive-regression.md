@@ -1,7 +1,7 @@
 # TASK-021: Проверить responsive и Playwright-покрытие карточки клиента
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-CLI-001 — verifies
@@ -96,3 +96,11 @@ tasks-ready
 - tasks-ready: блокер реализации вкладок TASK-019 снят; вкладки приняты на версии `654eec60`, проверены возврат к фильтрам/странице/строке, мобильная и планшетная геометрия, клавиатура и системная клавиатура Safari в Simulator.
 - Остаток: сопоставить все критерии TASK-021 с тестами и результатами TASK-018/019/204, определить только недостающее покрытие. Проверки уже реализованных сценариев не дублировать.
 - Полное выполнение TASK-021 пока не доказано; не закрыта и не переведена в реализацию. Её план остаётся черновиком до конкретизации остаточного покрытия.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-21 22:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md
+- implementation_branch: codex/TASK-021-client-detail-responsive-regression
+
+План готов к исполнению. Поиск и возврат подтверждены существующими сценариями. Дополнительное покрытие требуется для действий карточки и форм на телефоне и планшете. Приёмка TASK-021 предстоит.

@@ -2343,3 +2343,10 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 ## 21.11.2026 — план TASK-019
 
 [План](../implementation-plans/TASK-019-client-card-tabs.plan.md) подготовлен. Владелец подтвердил сохранение минимум одной группы при изменении назначений и независимую запись профиля клиента без групп. По просьбе владельца [карточка](../tasks-ready/TASK-019-client-card-tabs.md) остаётся в tasks-ready до начала реализации.
+
+# 2026-11-21 22:56
+- moved: TASK-021
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md
+- [Карточка TASK-021](../implementation/TASK-021-client-detail-responsive-regression.md) подготовлена к исполнению. План переиспользует поиск и возврат из TASK-019/204 и уточняет браузерные проверки действий и перекрытий.

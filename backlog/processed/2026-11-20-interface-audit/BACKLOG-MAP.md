@@ -33,7 +33,7 @@ updated_existing_tasks:
 | [TASK-018](../../done/2026-11-21/TASK-018-client-detail-visual-noise.md) | tasks-ready | Шум полной карточки и формы | DET-01/02, NEW-01/02 напрямую пересекаются с действующим scope. |
 | [TASK-019](../../done/2026-11-21/TASK-019-client-card-tabs.md) | tasks-ready | Вкладки карточки клиента | Выбор структуры полной/краткой карточки; ещё не принято решение этим аудитом. |
 | [TASK-020](../../risky/TASK-020-client-empty-states-action-reasons.md) | risky | Пустые состояния и причины действий | Пустые контакты, Telegram, фото; важные причины не прятать. |
-| [TASK-021](../../tasks-ready/TASK-021-client-detail-responsive-regression.md) | tasks-ready | Адаптивность карточки | Использовать новые снимки как входящие доказательства, не как пройденную приёмку. |
+| [TASK-021](../../implementation/TASK-021-client-detail-responsive-regression.md) | implementation | Адаптивность карточки | Использовать новые снимки как входящие доказательства, не как пройденную приёмку. |
 | [TASK-174](../../done/2026-11-21/TASK-174-secondary-text-contrast-regression.md) | tasks-ready | Контраст вторичных текстов | Визуально слабые подписи отмечать для измерения; этот аудит контраст не измерял. |
 | [TASK-175](../../needs-clarification/TASK-175-user-visible-date-format.md) | needs-clarification | Формат дат | ISO в посещениях и каталоге; вопрос не решён здесь. |
 | [TASK-176](../../tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md) | tasks-ready | Локализованные доступные имена | Toggle password visibility воспроизведён; ошибки и перевод фокуса форм отдельно. |
