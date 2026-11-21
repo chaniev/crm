@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const requireFrontend = createRequire(new URL('../../../frontend/package.json', import.meta.url))
+const requireFrontend = createRequire(new URL('../../../../frontend/package.json', import.meta.url))
 const { chromium, webkit, devices } = requireFrontend('playwright')
 const file = pathToFileURL(resolve(process.argv[2]))
 file.searchParams.set('phone', 'both')

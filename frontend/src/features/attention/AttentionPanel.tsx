@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useMediaQuery } from '@mantine/hooks'
 import { Badge, Button as MantineButton, Menu, Paper, Stack, Text } from '@mantine/core'
 import {
   IconBrandTelegram,
@@ -32,6 +33,7 @@ import { fe9AttentionText } from '../../resources/fe-9-attention'
 type AttentionPanelProps = { focusOnReturn?: boolean; onOpenClient?: (clientId: string) => void }
 
 export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelProps) {
+  const mobile = useMediaQuery('(max-width: 47.99em)')
   const [clients, setClients] = useState<ClientAttentionItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -149,13 +151,14 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
             aria-labelledby="attention-list-title"
             className="attention-list"
             data-testid="attention-list"
-            gap="xs"
+            gap={mobile ? 6 : 'xs'}
             role="list"
           >
             {clients.map((client) => (
               <AttentionClientRow
                 actionError={actionErrors[client.clientId]}
                 client={client}
+                mobile={mobile}
                 key={attentionItemKey(client)}
                 onContacted={() => void contacted(client)}
                 onOpenClient={onOpenClient}
@@ -170,6 +173,7 @@ export function AttentionPanel({ onOpenClient, focusOnReturn }: AttentionPanelPr
 }
 
 type AttentionClientRowProps = {
+  mobile: boolean
   actionError?: string
   client: ClientAttentionItem
   onContacted: () => void
@@ -180,6 +184,7 @@ type AttentionClientRowProps = {
 function AttentionClientRow({
   actionError,
   client,
+  mobile,
   onContacted,
   onOpenClient,
   pending,
@@ -198,6 +203,7 @@ function AttentionClientRow({
   return (
     <Paper
       className="attention-client-row-card crm-list-row-surface"
+      data-mobile={mobile || undefined}
       data-testid={`attention-client-card-${attentionItemKey(client)}`}
       role="listitem"
       tabIndex={0}
@@ -210,33 +216,49 @@ function AttentionClientRow({
         <div aria-label={fe9AttentionText.attentionPanel_ariaLabel_93096e67} className="attention-client-row__reasons">
           {client.reasons.length > 0
             ? client.reasons.map((reason, index) => (
-                <ReasonSummary key={`${reason.type}-${index}`} reason={reason} />
+                <ReasonSummary key={`${reason.type}-${index}`} reason={reason} mobile={mobile} />
               ))
             : <Text component="span">{fe9AttentionText.attentionPanel_jsxText_bffdeff3}</Text>}
         </div>
-        <div className="attention-client-row__metadata">
-          <Text component="span" title={formatAttentionMembershipLabel(client)}>
-            {formatAttentionMembershipLabel(client)}
-          </Text>
-          <Text component="span" title={client.membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55}>
-            {client.membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55}
-          </Text>
-          <Text component="span" title={client.phone ?? fe9AttentionText.attentionPanel_string_1fc40e1a}>
-            {client.phone ?? fe9AttentionText.attentionPanel_string_1fc40e1a}
-          </Text>
-          <Text component="span" title={client.notes || fe9AttentionText.attentionPanel_string_20df618a}>
-            {client.notes || fe9AttentionText.attentionPanel_string_20df618a}
-          </Text>
-        </div>
+        {mobile ? (
+          <div className="attention-client-row__details">
+            {mobileClientDetails(client)}
+          </div>
+        ) : (
+          <div className="attention-client-row__metadata">
+            <Text component="span" title={formatAttentionMembershipLabel(client)}>
+              {formatAttentionMembershipLabel(client)}
+            </Text>
+            <Text component="span" title={client.membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55}>
+              {client.membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55}
+            </Text>
+            <Text component="span" title={client.phone ?? fe9AttentionText.attentionPanel_string_1fc40e1a}>
+              {client.phone ?? fe9AttentionText.attentionPanel_string_1fc40e1a}
+            </Text>
+            <Text component="span" title={client.notes || fe9AttentionText.attentionPanel_string_20df618a}>
+              {client.notes || fe9AttentionText.attentionPanel_string_20df618a}
+            </Text>
+          </div>
+        )}
       </div>
       <div className="attention-client-row__actions">
+        {mobile && primaryKind === 'contacted' && client.phone ? (
+          <a
+            aria-label={fe9AttentionText.callNumber(client.fullName, client.phone)}
+            className="attention-client-row__call"
+            href={`tel:${client.phone}`}
+          >
+            <IconPhone aria-hidden size={16} />
+            {client.phone}
+          </a>
+        ) : null}
         {primaryKind === 'contacted' ? (
           <Button
             aria-label={pending
               ? fe9AttentionText.attentionPanel_template_a35598f8(client.fullName)
               : fe9AttentionText.attentionPanel_template_0ad31512(client.fullName)}
             className="attention-client-row__primary"
-            leftSection={<IconCheck size={18} />}
+            leftSection={mobile ? undefined : <IconCheck size={18} />}
             loading={pending}
             onClick={onContacted}
           >
@@ -245,7 +267,9 @@ function AttentionClientRow({
         ) : null}
         {primaryKind === 'phone' ? (
           <MantineButton
-            aria-label={fe9AttentionText.attentionPanel_template_e50e96fc(client.fullName)}
+            aria-label={mobile && client.phone
+              ? fe9AttentionText.callNumber(client.fullName, client.phone)
+              : fe9AttentionText.attentionPanel_template_e50e96fc(client.fullName)}
             className="attention-client-row__primary"
             color="var(--crm-action-primary)"
             component="a"
@@ -255,7 +279,8 @@ function AttentionClientRow({
             leftSection={<IconPhone size={18} />}
             radius="xl"
           >
-            {fe9AttentionText.attentionPanel_jsxText_0701381c}</MantineButton>
+            {mobile ? client.phone : fe9AttentionText.attentionPanel_jsxText_0701381c}
+          </MantineButton>
         ) : null}
         {primaryKind === 'telegram' ? (
           <MantineButton
@@ -287,6 +312,7 @@ function AttentionClientRow({
           client={client}
           onOpenClient={onOpenClient}
           primaryKind={primaryKind}
+          showPhone={!mobile && primaryKind !== 'phone'}
         />
       </div>
       {actionError ? (
@@ -303,36 +329,26 @@ function AttentionActionsMenu({
   client,
   onOpenClient,
   primaryKind,
+  showPhone,
 }: {
   client: ClientAttentionItem
   onOpenClient?: (clientId: string) => void
   primaryKind: AttentionPrimaryKind
+  showPhone: boolean
 }) {
-  const hasPhoneAction = Boolean(client.phone && primaryKind !== 'phone')
+  const hasPhoneAction = Boolean(client.phone && showPhone)
   const hasTelegramAction = Boolean(client.telegramLink && primaryKind !== 'telegram')
   const hasProfileAction = Boolean(onOpenClient && primaryKind !== 'profile')
-  const triggerKey = attentionItemKey(client)
 
   if (!hasPhoneAction && !hasTelegramAction && !hasProfileAction) return null
 
   return (
-    <Menu
-      onClose={() => window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => {
-          const trigger = Array.from(
-            document.querySelectorAll<HTMLButtonElement>('[data-attention-menu-trigger]'),
-          ).find((element) => element.dataset.attentionMenuTrigger === triggerKey)
-          trigger?.focus({ preventScroll: true })
-        })
-      })}
-      position="bottom-end"
-      shadow="md"
-      withinPortal
-    >
+    <Menu position="bottom-end" shadow="md" withinPortal>
       <Menu.Target>
         <IconButton
           icon={<IconDotsVertical size={20} />}
-          data-attention-menu-trigger={triggerKey}
+          className="attention-client-row__more"
+          onClick={event => event.currentTarget.focus({ preventScroll: true })}
           label={fe9AttentionText.attentionPanel_template_c6ca6019(client.fullName)}
           variant="secondary"
         />
@@ -375,7 +391,36 @@ function AttentionActionsMenu({
   )
 }
 
-function ReasonSummary({ reason }: { reason: ClientAttentionReason }) {
+function mobileClientDetails(client: ClientAttentionItem) {
+  const membership = client.membership
+  const onlyGroup = membership?.targetGroups.length === 1 ? membership.targetGroups[0] : undefined
+  const groupLabel = onlyGroup
+    ? [onlyGroup.groupName || onlyGroup.groupId, onlyGroup.branchName].filter(Boolean).join(' · ')
+    : membership?.targetSummary ?? fe9AttentionText.attentionPanel_string_5047bc55
+  return [
+    formatAttentionMembershipLabel(client),
+    groupLabel,
+    client.notes || fe9AttentionText.attentionPanel_string_20df618a,
+    client.phone ? null : fe9AttentionText.noPhone,
+  ].filter(Boolean).join(' · ')
+}
+
+function mobileReasonLabel(reason: ClientAttentionReason) {
+  if (reason.type === 'missedTraining') return fe9AttentionText.missedInARow(reason.missedCount)
+  const expired = reason.type === 'expiredMembership'
+  if (reason.daysUntilExpiration === null) {
+    return expired ? fe9AttentionText.expired : fe9AttentionText.expiring
+  }
+  const days = Math.abs(reason.daysUntilExpiration)
+  if (days === 0) return expired ? fe9AttentionText.expiredToday : fe9AttentionText.expiresToday
+  return expired
+    ? fe9AttentionText.expiredDaysAgo(days, dayWord(days))
+    : fe9AttentionText.expiresInDays(days, dayWord(days))
+}
+
+function ReasonSummary({ reason, mobile }: { reason: ClientAttentionReason; mobile: boolean }) {
+  if (mobile) return <span>{mobileReasonLabel(reason)}</span>
+
   if (reason.type === 'missedTraining') {
     const label = fe9AttentionText.attentionPanel_label_4cd3b5b4(reason.missedCount)
     return <Badge title={label} variant="light">{label}</Badge>

@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { readFile, writeFile } from 'node:fs/promises'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const frontend = resolve(here, '../../../frontend')
+const frontend = resolve(here, '../../../../frontend')
 const requireFrontend = createRequire(resolve(frontend, 'package.json'))
 const { build } = await import(pathToFileURL(requireFrontend.resolve('vite')).href)
 const result = await build({

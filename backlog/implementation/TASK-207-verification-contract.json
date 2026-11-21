@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "task_id": "TASK-207",
+  "expected_branch": "codex/TASK-207-attention-mobile-client-identity",
+  "areas": [
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.attention-dashboard",
+      "spec": "e2e/attention-dashboard.spec.ts",
+      "projects": [
+        "chromium"
+      ],
+      "timeout_seconds": 600
+    }
+  ],
+  "runtime_smoke": [
+    {
+      "id": "frontend.attention-iphone",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/iphone-target-devices.spec.ts",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit",
+        "--grep",
+        "target iPhone attention"
+      ],
+      "timeout_seconds": 600
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-207-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.attention-mobile",
+      "description": "Сверить рабочие строки с вариантом А на обычных и длинных данных и провести отдельный проход по доступности."
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 import { Alert, Badge, Group } from '@mantine/core'
 import { IconArrowRight, IconCreditCard, IconId, IconInfoCircle, IconMapPin, IconNotes, IconPhone, IconUsersGroup } from '@tabler/icons-react'
 import type { Ref } from 'react'
-import { Button } from '../../../frontend/src/features/shared/Button'
-import { ClientAvatar } from '../../../frontend/src/features/shared/ux'
+import { Button } from '../../../../frontend/src/features/shared/Button'
+import { ClientAvatar } from '../../../../frontend/src/features/shared/ux'
 
 export type PreviewProps = {
   name: string

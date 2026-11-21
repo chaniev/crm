@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-018 Уменьшить визуальный шум в client detail/form сценариях
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-018-client-detail-visual-noise.md
+- source_task: /backlog/done/2026-11-21/TASK-018-client-detail-visual-noise.md
 - requirements: REQ-CLI-001 (changes); REQ-CLI-004 (constrains); REQ-NFR-001 (constrains)
 - branch: codex/TASK-018-client-detail-visual-noise
 - readiness: yes
@@ -25,9 +25,9 @@ ClientDetailScreen последовательно рендерит обзор, �
 Новые разрешения, расчёты и CRM-правила не вводятся.
 
 ## Decision evidence
-- product: [Решения по четырём экранам](/backlog/implementation/TASK-018-client-detail-visual-noise.md) — owner: владелец продукта; decision: утверждены краткая карточка «С типом абонемента», форма редактирования с фото над ФИО, полная карточка и форма создания клиента.
+- product: [Решения по четырём экранам](/backlog/done/2026-11-21/TASK-018-client-detail-visual-noise.md) — owner: владелец продукта; decision: утверждены краткая карточка «С типом абонемента», форма редактирования с фото над ФИО, полная карточка и форма создания клиента.
 
-21.11.2026 владелец подтвердил последние два экрана ответом «согласовано». [Экраны и состояния согласованного прототипа](/backlog/mockups/TASK-018-client-detail-visual-noise/README.md) служат визуальным эталоном для приёмки.
+21.11.2026 владелец подтвердил последние два экрана ответом «согласовано». [Экраны и состояния согласованного прототипа](/backlog/done/2026-11-21/TASK-018-mockups/README.md) служат визуальным эталоном для приёмки.
 
 ## Scope
 ### In
@@ -61,3 +61,7 @@ ClientDetailScreen последовательно рендерит обзор, �
 ## Risks and stop conditions
 - При обнаружении расхождения с согласованным поведением или серверным контрактом вернуть затронутое решение на планирование.
 - При завершении актуализировать состояние связанных требований и `docs/requirements/CHANGELOG.md`, сохранив не относящиеся к задаче незавершённые части.
+
+## Результат
+
+Выполнен 21.11.2026. [Результаты приёмки](TASK-018-evidence/acceptance.md).

@@ -1,4 +1,4 @@
-import { expect, test, type BrowserContext, type Page, type Route } from '@playwright/test'
+import { expect, test, type BrowserContext, type Locator, type Page, type Route } from '@playwright/test'
 
 const APP_CONFIG = {
   clubName: 'Iron Club',
@@ -207,7 +207,8 @@ test.describe('Attention dashboard', () => {
       'aria-labelledby',
       'attention-list-title',
     )
-    await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
+    await expect(page.getByText('4 пропуска подряд')).toBeVisible()
+    await expect(page.getByRole('link', { name: /Позвонить/ })).toHaveAttribute('href', 'tel:+79990000001')
     const actionMenu = page.getByRole('button', { name: 'Другие действия для Иван Иванов' })
     await actionMenu.click()
     await expect(page.getByRole('menuitem', { name: /Открыть Telegram/ })).toHaveAttribute(
@@ -215,73 +216,116 @@ test.describe('Attention dashboard', () => {
       '_blank',
     )
     await page.keyboard.press('Escape')
+    await expect(actionMenu).toBeFocused()
 
     const action = page.getByRole('button', { name: 'Связались с Иван Иванов' })
     await action.click()
     await expect(page.getByText(/Временная ошибка/)).toBeVisible()
-    await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
+    await expect(page.getByText('4 пропуска подряд')).toBeVisible()
 
     await action.click()
-    await expect(page.getByText('Пропущено подряд: 4')).toBeHidden()
-    await expect(page.getByText('Осталось 1 день')).toBeVisible()
+    await expect(page.getByText('4 пропуска подряд')).toBeHidden()
+    await expect(page.getByText('Абонемент истекает через 1 день')).toBeVisible()
     await expectNoHorizontalScroll(page)
   })
 
-  test('keeps dense rows, two control lines and one-tap secondary actions at mobile widths', async ({ page }) => {
-    const attentionItems = Array.from({ length: 6 }, (_, index) => attentionCard(index + 1))
-    await mockAttentionApi(page, { attentionItems })
-
-    for (const viewport of [
-      { width: 360, height: 780, minimumVisible: 4 },
-      { width: 390, height: 844, minimumVisible: 4 },
-      { width: 420, height: 912, minimumVisible: 5 },
-      { width: 440, height: 956, minimumVisible: 5 },
-    ]) {
-      await page.setViewportSize(viewport)
-      await page.goto('/attention')
-
-      const cards = page.locator('[data-testid^="attention-client-card-"]')
-      await expect(cards).toHaveCount(6)
-      const firstCard = cards.first()
-      const mobileNavigation = page.getByRole('navigation', { name: 'Мобильная навигация' })
-      const controls = page.locator('.attention-controls-row, .attention-list-status')
-
-      await expect(controls).toHaveCount(2)
-      await expect(firstCard).toHaveClass(/crm-list-row-surface/)
-      await expect(page.getByLabel('Всего клиентов: 6')).toBeVisible()
-      await expect(page.getByLabel('Просроченных абонементов: 0')).toBeVisible()
-
-      const navigationBox = await mobileNavigation.boundingBox()
-      expect(navigationBox).not.toBeNull()
-      const fullyVisibleCards = await cards.evaluateAll((elements, viewportBottom) =>
-        elements.filter((element) => {
-          const bounds = element.getBoundingClientRect()
-          return bounds.top >= 0 && bounds.bottom <= viewportBottom
-        }).length,
-      navigationBox!.y)
-      expect(fullyVisibleCards).toBeGreaterThanOrEqual(viewport.minimumVisible)
-
-      const cardBox = await firstCard.boundingBox()
-      expect(cardBox).not.toBeNull()
-      expect(cardBox!.height).toBeLessThanOrEqual(110)
-
-      const primaryActions = firstCard.locator('[data-crm-variant="primary"]')
-      await expect(primaryActions).toHaveCount(1)
-      const menuTrigger = firstCard.getByRole('button', { name: /Другие действия/ })
-      const triggerBox = await menuTrigger.boundingBox()
-      expect(triggerBox).not.toBeNull()
-      expect(triggerBox!.width).toBeGreaterThanOrEqual(44)
-      expect(triggerBox!.height).toBeGreaterThanOrEqual(44)
-
-      await menuTrigger.click()
-      await expect(page.getByRole('menuitem', { name: /Позвонить/ })).toBeVisible()
-      await expect(page.getByRole('menuitem', { name: /Открыть Telegram/ })).toBeVisible()
-      await expect(page.getByRole('menuitem', { name: /Открыть карточку/ })).toBeVisible()
-      await page.keyboard.press('Escape')
-      await expect(menuTrigger).toBeFocused()
-      await expectNoHorizontalScroll(page)
-    }
+  test('denies the attention list when the session excludes the section', async ({ page }) => {
+    let listRequests = 0
+    await mockAttentionApi(page, {
+      async onAttentionItems(route) {
+        listRequests++
+        await fulfillJson(route, 200, [])
+      },
+    })
+    await page.route('**/auth/session', route => fulfillJson(route, 200, {
+      ...HEAD_COACH_SESSION, user: {
+        ...HEAD_COACH_SESSION.user, role: 'Coach', allowedSections: ['Attendance'], landingScreen: 'Attendance',
+      },
+    }))
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/attention')
+    await expect(page.getByRole('heading', { name: 'Нет доступа' })).toBeFocused()
+    await expect(page.getByTestId('attention-list')).toHaveCount(0)
+    expect(listRequests).toBe(0)
   })
+
+  test('long records reflow at 200% text size and keep keyboard actions reachable', async ({ page }) => {
+    const items = prototypeClients(true)
+    items[0].membership.targetGroups.push({ id: 'group-2', name: 'Дзюдо', branchName: 'Север' })
+    items[0].notes += ' ' + 'ДлинныйКомментарий'.repeat(12)
+    await mockAttentionApi(page, { attentionItems: items })
+    await page.setViewportSize({ width: 360, height: 780 })
+    await page.goto('/attention')
+    await page.addStyleTag({ content: 'html { font-size: 200% !important; }' })
+    const row = page.getByRole('listitem').first()
+    await expect(row).toContainText(items[0].notes)
+    await expect(row).toContainText('1. Самбо · отчётность · 2. Дзюдо')
+    await expectTextInsideCard(row)
+    await expectSpacedActions(row)
+    const phone = row.getByRole('link', { name: /Позвонить/ })
+    await phone.focus()
+    await page.keyboard.press('Tab')
+    await expect(row.getByRole('button', { name: /Связались/ })).toBeFocused()
+    await page.keyboard.press('Tab')
+    const more = row.getByRole('button', { name: /Другие действия/ })
+    await expect(more).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('menuitem', { name: /Открыть карточку/ })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(more).toBeFocused()
+    await expectNoHorizontalScroll(page)
+  })
+
+  for (const long of [false, true]) {
+    for (const [width, height, ordinaryRows, longRows] of [
+      [360, 780, 4, 3], [390, 844, 4, 3], [420, 912, 5, 4], [440, 956, 5, 5],
+    ]) {
+      test(`variant A at ${width}px with ${long ? 'long' : 'ordinary'} records`, async ({ page }, testInfo) => {
+        const items = prototypeClients(long)
+        await mockAttentionApi(page, { attentionItems: items })
+        await page.setViewportSize({ width, height })
+        await page.goto('/attention')
+        const cards = page.getByRole('list', { name: 'Список клиентов' }).getByRole('listitem')
+        await expect(cards).toHaveCount(7)
+        await page.evaluate(() => document.fonts.ready)
+        await expect(page.locator('.attention-controls-row, .attention-list-status')).toHaveCount(2)
+        await expect(page.getByLabel('Всего клиентов: 7')).toBeVisible()
+        await expect(page.getByLabel('Просроченных абонементов: 4')).toBeVisible()
+
+        const first = cards.first()
+        for (const i of [0, 1]) {
+          const name = cards.nth(i).getByText(items[i].fullName, { exact: true })
+          await expect(name).toBeVisible()
+          expect(await name.evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1)
+        }
+        const call = first.getByRole('link', { name: /Позвонить/ })
+        await expect(call).toHaveText(items[0].phone!)
+        await expect(call).toHaveAttribute('href', `tel:${items[0].phone}`)
+        await expect(first.locator('.attention-client-row__reasons').locator(':scope > *'))
+          .toHaveText(['Абонемент истёк 58 дней назад', '3 пропуска подряд'])
+        await expect(cards.nth(2).getByRole('link', { name: /Telegram/ })).toBeVisible()
+        await expect(cards.nth(2).locator('a[href^="tel:"]')).toHaveCount(0)
+        for (const [i, card] of (await cards.all()).entries()) {
+          await expect(card).toContainText(items[i].notes)
+          await expect(card).toContainText(items[i].membership.targetGroups[0].name)
+          await expect(card).toContainText(items[i].membership.targetGroups[0].branchName)
+          await expectTextInsideCard(card)
+          await expectSpacedActions(card)
+        }
+
+        const nav = page.getByRole('navigation', { name: 'Мобильная навигация' })
+        const bottom = (await nav.boundingBox())!.y
+        const count = await cards.evaluateAll((rows, limit) => rows.filter(row => {
+          const box = row.getBoundingClientRect()
+          return box.top >= 0 && box.bottom <= limit
+        }).length, bottom)
+        expect(count).toBeGreaterThanOrEqual(long ? longRows : ordinaryRows)
+        await expectNoHorizontalScroll(page)
+        await page.screenshot({ path: testInfo.outputPath(`list-${width}-${long ? 'long' : 'ordinary'}.png`) })
+      })
+    }
+  }
+
 })
 
 type MockAttentionApiOptions = {
@@ -368,6 +412,73 @@ function attentionCard(index = 1) {
         daysUntilExpiration: 1,
       },
     ],
+  }
+}
+
+function prototypeClients(long: boolean) {
+  const names = [
+    long ? 'Алексеев-Константинов Александр Константинович' : 'Алексеев Александр Сергеевич',
+    long ? 'Алексеев-Константинов Алексей Константинович' : 'Алексеев Алексей Сергеевич',
+    'Васильева Марина Игоревна', 'Иванов Павел Андреевич', 'Кузнецова Анна Олеговна',
+    'Мельникова-Соколова Александра Константиновна', 'Петров Дмитрий Иванович',
+  ]
+  const notes = [long ? 'На этой неделе удобно разговаривать только после вечерней тренировки.' : 'Звонить после 18:00',
+    'Уточнить продление', 'Удобнее в Telegram', 'Звонить утром', 'Звонить днём', 'Уточнить продление', 'Позвонить вечером']
+  return names.map((fullName, index) => {
+    const item = attentionCard(index + 1)
+    const days = [-58, -8, -3, -1, 1, 2, 3][index]
+    const groupName = [2, 4].includes(index) ? 'Бокс' : 'Самбо'
+    const branchName = [1, 4].includes(index) ? 'Север' : 'Центр'
+    const membership = { ...item.membership, daysUntilExpiration: days, targetGroups: [{ id: 'group-1', name: groupName, branchName }] }
+    const term = {
+      type: days < 0 ? 'expiredMembership' : 'expiringMembership',
+      membershipId: membership.membershipId,
+      saleId: membership.saleId,
+      daysUntilExpiration: days,
+    }
+    return {
+      ...item,
+      fullName,
+      membership,
+      notes: notes[index],
+      phone: index === 2 ? null : `+7 900 000-00-0${index + 1}`,
+      reasons: index === 0 ? [term, { type: 'missedTraining', missedCount: 3 }] : [term],
+    }
+  })
+}
+
+async function expectTextInsideCard(card: Locator) {
+  const clipped = await card.evaluate(row => {
+    const bounds = row.getBoundingClientRect()
+    const content = row.querySelector('.attention-client-row__content')!
+    for (const el of content.querySelectorAll('*')) {
+      if (el.clientWidth && el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflowX !== 'visible') {
+        return el.textContent
+      }
+    }
+    const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT)
+    while (walker.nextNode()) {
+      const range = document.createRange()
+      range.selectNodeContents(walker.currentNode)
+      for (const rect of range.getClientRects()) {
+        if (rect.left < bounds.left || rect.right > bounds.right) return walker.currentNode.textContent
+      }
+    }
+    return null
+  })
+  expect(clipped).toBeNull()
+}
+
+async function expectSpacedActions(card: Locator) {
+  const bounds = await card.locator('button:visible, a:visible').evaluateAll(actions =>
+    actions.map(action => action.getBoundingClientRect().toJSON()))
+  for (const [i, box] of bounds.entries()) {
+    expect(box.width).toBeGreaterThanOrEqual(44)
+    expect(box.height).toBeGreaterThanOrEqual(44)
+    for (const next of bounds.slice(i + 1)) {
+      expect(Math.max(next.left - box.right, box.left - next.right, next.top - box.bottom, box.top - next.bottom))
+        .toBeGreaterThanOrEqual(8)
+    }
   }
 }
 

@@ -3,7 +3,7 @@ import { NativeSelect } from '@mantine/core'
 import { PreviewCard, type PreviewProps } from './PreviewCard'
 import type { Example } from './fixtures'
 import { phoneUrl } from './PhoneReview'
-import auditImage from '../../processed/2026-11-20-interface-audit/05-client-card/mobile.jpg'
+import auditImage from '../../../processed/2026-11-20-interface-audit/05-client-card/mobile.jpg'
 
 type Version = 'crm' | 'first' | 'new'
 const names = { crm: 'Текущая CRM', first: 'Первый прототип', new: 'Новый вариант' } as const
