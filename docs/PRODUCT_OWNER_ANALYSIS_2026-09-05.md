@@ -230,7 +230,7 @@
 [s18]: /Users/muradchaniev/Documents/work/crm/backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs
 [s19]: /Users/muradchaniev/Documents/work/crm/backend/src/GymCrm.Application/Clients/ClientMembershipQueryConstants.cs
 [s20]: /Users/muradchaniev/Documents/work/crm/docs/requirements/README.md
-[s21]: /Users/muradchaniev/Documents/work/crm/backlog/needs-clarification/TASK-019-client-card-tabs.md
+[s21]: ../backlog/tasks-ready/TASK-019-client-card-tabs.md
 [s22]: /Users/muradchaniev/Documents/work/crm/backlog/tasks-ready/TASK-004-bot-attendance-roster-pagination.md
 [s23]: /Users/muradchaniev/Documents/work/crm/bot/src/gym_crm_bot/resources/keyboards.py
 [s24]: /Users/muradchaniev/Documents/work/crm/backlog/AGENTS.md

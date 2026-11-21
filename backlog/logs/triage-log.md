@@ -4116,3 +4116,7 @@
 - `backlog/risky/TASK-155-runtime-customer-branding.md` → [needs-clarification](../needs-clarification/TASK-155-runtime-customer-branding.md). Уточнить восстановление встроенной темы при действующей палитре установки. Ссылка и условие готовности в [черновике](../implementation-plans/TASK-155-runtime-customer-branding.plan.md) обновлены. Конкретное подключение клуба влияет на приоритет.
 - Итого по выборке — два переноса, четыре карточки остались в risky, закрытых нет. Обновлены ссылки на перемещённые карточки. Нормативное поведение требований сохранено.
 - Проверки прошли: четыре проверки документов через `verify_change.py --base 375daf51`, уникальность выбранных карточек, соответствие статусов каталогам, ссылки карточек и черновика, `git diff --check`.
+
+## 2026-11-21 — согласование макетов TASK-019
+
+По решению владельца карточка перенесена из `needs-clarification/TASK-019-client-card-tabs.md` в [tasks-ready/TASK-019-client-card-tabs.md](../tasks-ready/TASK-019-client-card-tabs.md). Утверждённый [прототип](../mockups/TASK-019/README.md) принят за основу для планирования.
