@@ -19,12 +19,12 @@ export function DetailPrototype({ client, canManage, backLabel, onBack, actions,
     <ClientRelatedSections client={client} canManage={false} onEdit={() => {}}/>
   return <ProfileTabs client={client} canManage={canManage} backLabel={backLabel} onBack={onBack}
     groups={groups} attendance={<ClientAttendanceHistorySection canManage={canManage} client={client}/>}
+    messages={<ClientMessengerChatSection clientId={client.id}/>}
     memberships={canManage && <MembershipEditor client={client} {...membership}/>}>
     {canManage ? <InfoEditor {...editorProps} actions={actions}
       photo={<ClientPhotoSection canUpload clientId={client.id} clientName={client.fullName} photo={client.photo}
         previewVersion={photoVersion ?? client.updatedAt} onUpload={onPhotoUpload} variant="edit"/>}/> :
       <><ClientOverviewSection client={client} canManage={false} actions={null} photoVersion={photoVersion}/>
         <ClientNotesSection client={client}/></>}
-    <ClientMessengerChatSection clientId={client.id}/>
   </ProfileTabs>
 }

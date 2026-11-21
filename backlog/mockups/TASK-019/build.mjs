@@ -23,6 +23,20 @@ const [bundle] = await build({
         return source.replace(sliceAt(source, '<Group gap="sm" wrap="nowrap"', '{!canManage'), '')
       }
       const identityModule = JSON.stringify(resolve(here, 'IdentityFields.tsx'))
+      if (id === resolve(clients, 'ClientMessengerChatSection.tsx')) {
+        return 'import { useDraftState } from ' + JSON.stringify(resolve(here, 'DraftState.tsx')) + '\n' +
+          source.replace('  if (hidden) {', "  useDraftState('messages', Boolean(draft.trim()))\n\n  if (hidden) {")
+            .replace('<Textarea\n', '<Textarea aria-label="Сообщение клиенту"\n')
+      }
+      // Carry the contact username through the offline form independently of the bot connection.
+      if (id === resolve(frontend, 'src/lib/api/clients.ts')) {
+        return source.replace('...listItem,\n    birthDate,',
+          '...listItem,\n    telegramContactUsername: payload.telegramContactUsername ?? null,\n    birthDate,')
+      }
+      if (id === resolve(clients, 'ClientManagement.form.ts')) {
+        return source.replace('phone: client.phone,', "phone: client.phone,\n    telegramContactUsername: client.telegramContactUsername ?? '',")
+          .replace('phone: values.phone.trim(),', 'phone: values.phone.trim(),\n    telegramContactUsername: values.telegramContactUsername.trim() || null,')
+      }
       if (id === resolve(clients, 'ClientPhotoSection.tsx')) {
         const beforeRender = '  if (!previewUrl && !canUpload) return null'
         const portrait = `  if (variant === 'edit' && canUpload) return <EditPortrait
@@ -38,6 +52,12 @@ const [bundle] = await build({
         const groupAndDate = sliceAt(source, '<SimpleGrid cols={{ base: 1, md: 2 }}>\n            <MultiSelect', '          <Textarea')
         return 'import { IdentitySlot } from ' + identityModule + '\n' +
           source.replace(names, '<IdentitySlot/>\n').replace(groupAndDate, '')
+            .replace('<SimpleGrid cols={{ base: 1, md: 2 }}>', '<SimpleGrid cols={{ base: 1, md: 3 }}>')
+            .replace('            <Select\n', `            <TextInput
+              label="Telegram" placeholder="@username" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+              {...form.getInputProps('telegramContactUsername')}
+            />
+            <Select\n`)
             .replace('loading={submitting}', 'disabled={!form.isDirty()} loading={submitting}')
       }
       const panel = ['MembershipCorrectionPanel', 'MembershipPurchasePanel', 'MembershipRenewPanel']

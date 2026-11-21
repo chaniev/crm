@@ -12,6 +12,11 @@
 @media (max-width: 480px) {
   .profile-tabs [role=tab] { flex: 1 0 min-content; padding-inline: 2px; }
 }
+@media (max-width: 38rem) {
+  .profile-tabs--with-chat { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px 8px; }
+  .profile-tabs--with-chat [role=tab] { grid-column: span 2; }
+  .profile-tabs--with-chat [role=tab]:nth-child(-n+2) { grid-column: span 3; }
+}
 body.app-shell { background: var(--crm-surface-page); }
 .profile .client-overview-facts { padding-top: 0; border-top: 0; }
 .assignment-list { display: grid; gap: 8px; padding: 0; border: 0; min-width: 0; margin: 0; }

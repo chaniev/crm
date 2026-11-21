@@ -7,6 +7,7 @@ import { ClientDetailScreen } from '../../../frontend/src/features/clients/Clien
 import { defaultGreenProfile } from '../../../frontend/src/theme/profiles'
 import { createGymCrmTheme, createSemanticVariables } from '../../../frontend/src/theme'
 import { examples, installFixtures, type Example } from './fixtures'
+import { ChatTabAccess } from './ProfileTabs'
 import '@fontsource/onest/cyrillic-400.css'
 import '@fontsource/onest/cyrillic-600.css'
 import '@fontsource/onest/cyrillic-700.css'
@@ -33,8 +34,10 @@ function Preview() {
   return <MantineProvider theme={createGymCrmTheme(defaultGreenProfile, {mobile})} forceColorScheme="light">
     <Notifications/>
     <main className="review">
-      {screen === 'card' && <ClientDetailScreen clientId="preview-client" canManage={example !== 'coach'}
-        onBack={() => go('list')} onEdit={() => go('card')}/>}
+      {screen === 'card' && <ChatTabAccess.Provider value={demoClient.messengerCapabilities.visible}>
+        <ClientDetailScreen clientId="preview-client" canManage={example !== 'coach'}
+          onBack={() => go('list')} onEdit={() => go('card')}/>
+      </ChatTabAccess.Provider>}
       {screen === 'list' && <><Title order={1}>Клиенты</Title><Button mt="md" onClick={openCard}>{demoClient.fullName}</Button></>}
       <details className="review-options"><summary>Примеры для проверки</summary>
         <NativeSelect label="Сценарий" value={example} data={Object.entries(examples).map(([value,label]) => ({value,label}))}
