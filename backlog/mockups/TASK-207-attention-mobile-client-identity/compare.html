@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Внимание · Сравнение плотности</title>
+<style>
+*{box-sizing:border-box}html{color:#172820;background:#f5f4ef;font-family:system-ui,sans-serif}body{max-width:1060px;margin:0 auto;padding:32px clamp(14px,4vw,48px) 40px}
+h1{font-size:clamp(24px,4vw,36px);letter-spacing:-.045em;margin:0 0 6px}p{margin:0;line-height:1.45}.intro{color:#4c5e55}.controls{display:flex;gap:20px;flex-wrap:wrap;align-items:end;margin:22px 0 24px;padding-bottom:18px;border-bottom:1px solid #cdd7d0}label{display:grid;gap:5px;font-size:13px;color:#43544b;font-weight:600}select{font:inherit;font-size:16px;min-height:44px;color:#172820;background:white;border:1px solid #abbcb1;border-radius:8px;padding:6px 12px}main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}figure{margin:0;min-width:0}h2{font-size:20px;letter-spacing:-.035em;margin:0 0 6px}figcaption{padding-bottom:12px}figcaption p{font-size:14px;color:#52645a}img{display:block;width:100%;height:auto;border:1px solid #c5d2c9;border-radius:10px}a:focus-visible,select:focus-visible{outline:3px solid #247357;outline-offset:3px}footer{color:#52645a;margin-top:16px;font-size:14px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:640px){main{grid-template-columns:1fr}.controls{gap:10px}body{padding-top:18px}}
+</style><header><h1>Плотность списка «Внимание»</h1><p class="intro">Полное ФИО и все причины видны в обоих вариантах. Считаются целые строки выше нижней навигации.</p></header>
+<div class="controls"><label>Размер экрана<select id="width"><option value="360">360 × 780</option><option value="390">390 × 844</option><option value="420" selected>420 × 912</option><option value="440">440 × 956</option></select></label>
+<label>Данные в начале списка<select id="scenario"><option value="normal">Два однофамильца</option><option value="stress">Два длинных ФИО и длинный комментарий</option></select></label></div>
+<main><figure id="a"><figcaption><h2>А · Звонок по номеру</h2><p></p></figcaption><a><img alt="Компактная строка с номером для звонка"></a></figure><figure id="b"><figcaption><h2>Б · Кнопка «Позвонить»</h2><p></p></figcaption><a><img alt="Строка с отдельной кнопкой звонка и комментарием под номером"></a></figure></main>
+<p role="status" class="sr" id="status"></p><footer>Снимки экрана CRM на демонстрационных данных. Нажатие на снимок откроет его в полном размере.</footer>
+<script>
+const counts={"360": {"a": {"normal": 4, "stress": 3}, "b": {"normal": 3, "stress": 2}}, "390": {"a": {"normal": 4, "stress": 3}, "b": {"normal": 3, "stress": 3}}, "420": {"a": {"normal": 5, "stress": 4}, "b": {"normal": 3, "stress": 3}}, "440": {"a": {"normal": 5, "stress": 5}, "b": {"normal": 4, "stress": 3}}};
+const size=document.querySelector('#width');
+const scenario=document.querySelector('#scenario');
+function display(){
+ const w=size.value, s=scenario.value;
+ const target=w==='360'||w==='390'?4:5;
+ const text=[];
+ for(const mode of ['a','b']){
+  const figure=document.getElementById(mode);
+  const file=mode+'-'+(s==='stress'?'long-':'')+w+'.png';
+  const count=counts[w][mode][s];
+  const caption='Целиком видно '+count+' из '+target+' требуемых';
+  figure.querySelector('p').textContent=caption;
+  figure.querySelector('a').href=file;
+  figure.querySelector('img').src=file;
+  text.push(figure.querySelector('h2').textContent+'. '+caption);
+ }
+ document.querySelector('#status').textContent=text.join('. ');
+}
+size.addEventListener('change',display); scenario.addEventListener('change',display); display();
+</script></html>

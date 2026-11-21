@@ -39,4 +39,4 @@ needs-clarification
 ## Processing notes
 - Created at: 2026-11-21 14:50 (Europe/Moscow).
 - Created by skill: codex-backlog-skill.
-- Duplicate check: [TASK-067](../done/2026-07-21/TASK-067-missed-training-follow-up.md) покрывает обработку пропусков. [TASK-207](TASK-207-attention-mobile-client-identity.md) сохраняет читаемость строки, [TASK-210](TASK-210-attention-search-information-priority.md) касается поиска и состава информации. Назначение следующего контакта имеет отдельный результат.
+- Duplicate check: [TASK-067](../done/2026-07-21/TASK-067-missed-training-follow-up.md) покрывает обработку пропусков. [TASK-207](../tasks-ready/TASK-207-attention-mobile-client-identity.md) сохраняет читаемость строки, [TASK-210](TASK-210-attention-search-information-priority.md) касается поиска и состава информации. Назначение следующего контакта имеет отдельный результат.
