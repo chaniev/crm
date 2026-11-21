@@ -139,10 +139,7 @@ export async function getAttendanceLessonClients(
     { signal },
   )
 
-  return mapAttendanceRosterResponse(payload, {
-    lessonOccurrenceId,
-    lessonDate,
-  })
+  return mapAttendanceLessonRoster(payload, lessonOccurrenceId)
 }
 
 export async function saveAttendanceMarks(
@@ -191,41 +188,26 @@ export async function saveAttendanceLessonMarks(
   })
 }
 
-function mapAttendanceRosterResponse(
+function mapAttendanceLessonRoster(
   payload: unknown,
-  fallback: {
-    groupId?: string
-    lessonOccurrenceId?: string
-    lessonDate?: string
-    trainingDate?: string
-  },
+  requestedLessonId: string,
 ): AttendanceRosterResponse {
   const envelope = requireRecord(payload, fe17SharedRoutingThemeText.attendance_requireRecord_8f549520)
-  const groupId = readString(envelope, ['groupId', 'GroupId']) ?? fallback.groupId ?? ''
-  const trainingDate =
-    normalizeIsoDateValue(
-      readString(envelope, ['trainingDate', 'TrainingDate']) ??
-      readString(envelope, ['lessonDate', 'LessonDate']) ??
-      fallback.trainingDate ??
-      fallback.lessonDate,
-    ) ?? ''
-
+  const groupId = readString(envelope, ['groupId', 'GroupId'])
   if (!groupId) {
     throw new Error(fe17SharedRoutingThemeText.attendance_string_14d60c4c)
   }
 
-  if (!trainingDate) {
-    throw new Error(fe17SharedRoutingThemeText.attendance_string_e0bd096d)
+  const trainingDate = requireIsoDate(envelope, ['trainingDate', 'TrainingDate'])
+  const lessonDate = 'lessonDate' in envelope || 'LessonDate' in envelope
+    ? requireIsoDate(envelope, ['lessonDate', 'LessonDate'])
+    : trainingDate
+  const lessonOccurrenceId = 'lessonOccurrenceId' in envelope || 'LessonOccurrenceId' in envelope
+    ? readString(envelope, ['lessonOccurrenceId', 'LessonOccurrenceId'])
+    : requestedLessonId
+  if (!lessonOccurrenceId) {
+    throw new Error(fe17SharedRoutingThemeText.attendanceLessonInvalidId)
   }
-
-  const lessonDate = normalizeIsoDateValue(
-    readString(envelope, ['lessonDate', 'LessonDate']) ??
-    fallback.lessonDate ??
-    trainingDate,
-  ) ?? trainingDate
-  const lessonOccurrenceId =
-    readString(envelope, ['lessonOccurrenceId', 'LessonOccurrenceId']) ??
-    fallback.lessonOccurrenceId
   const canEditAttendance = readScheduleAction(envelope, [
     'canEditAttendance',
     'CanEditAttendance',

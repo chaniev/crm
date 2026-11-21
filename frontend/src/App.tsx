@@ -112,6 +112,9 @@ export function App({ appConfig, authBackground }: AppProps) {
     activeGroupListReturnSnapshot,
     activeGroupScheduleReturnContext,
     openGroupSchedule,
+    openAttendanceTodayLesson,
+    returnFromAttendanceLesson,
+    activeScheduleReturnSnapshot,
     returnFromSeriesEditor,
     editClient,
     openClientDetails,
@@ -560,9 +563,9 @@ export function App({ appConfig, authBackground }: AppProps) {
               lessonOccurrenceId,
             )
           }
-          onOpenAttendanceTodayLesson={(lessonOccurrenceId, lessonDate) =>
-            navigate({ kind: 'attendanceLesson', lessonOccurrenceId, lessonDate })
-          }
+          onOpenAttendanceTodayLesson={openAttendanceTodayLesson}
+          onReturnFromAttendanceLesson={returnFromAttendanceLesson}
+          lessonReturnToSchedule={Boolean(activeScheduleReturnSnapshot)}
           onOpenScheduleLesson={(lessonOccurrenceId, lessonDate) =>
             navigateWithScheduleReturnState(
               { kind: 'scheduleLessonDetail', lessonOccurrenceId, lessonDate },

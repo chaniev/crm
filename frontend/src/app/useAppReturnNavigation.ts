@@ -1,4 +1,8 @@
 import {
+  isAttendanceTodayLessonOrigin,
+  withAttendanceTodayLessonOrigin,
+} from '../features/attendance/attendanceTodayReturnState'
+import {
   createGroupScheduleReturnContext, mergeGroupScheduleReturnContext,
   readGroupScheduleReturnContext, resolveSeriesEditorOrigin,
   type GroupScheduleReturnContext,
@@ -207,6 +211,27 @@ export function useAppReturnNavigation({
       ...options,
       state: nextState,
     })
+  }
+
+  function openAttendanceTodayLesson(lessonOccurrenceId: string, lessonDate: string) {
+    const lesson = { kind: 'attendanceLesson', lessonOccurrenceId, lessonDate } as const
+    navigate(lesson, {
+      state: withAttendanceTodayLessonOrigin(
+        stripAppReturnSnapshotsFromHistoryState(window.history.state),
+        getRoutePath(lesson),
+      ),
+    })
+  }
+
+  function returnFromAttendanceLesson() {
+    if (activeScheduleReturnSnapshot) {
+      returnToSchedule()
+    } else if (route.kind === 'attendanceLesson' &&
+      isAttendanceTodayLessonOrigin(window.history.state, getRoutePath(route))) {
+      window.history.back()
+    } else {
+      navigate({ kind: 'section', section: 'Attendance' }, { replace: true })
+    }
   }
 
   function returnToSchedule() {
@@ -551,6 +576,8 @@ export function useAppReturnNavigation({
   return {
     activeGroupScheduleReturnContext,
     openGroupSchedule,
+    openAttendanceTodayLesson,
+    returnFromAttendanceLesson,
     returnFromSeriesEditor,
     activeClientListReturnSnapshot,
     activeClientProfileReturnContext,

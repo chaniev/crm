@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-205",
+  "confirmations": [
+    {
+      "id": "manual.attendance-context-review",
+      "note": "Сопоставлены снимки на трёх ширинах. Проверены клавиатурный путь через повтор и карточку клиента, видимый фокус, объявление загрузки и отказа, возврат к исходной строке.",
+      "artifacts": [
+        "backlog/implementation/TASK-205-evidence/acceptance.md"
+      ],
+      "actor": "coding-agent:TASK-205",
+      "performed_at": "2026-11-21T16:53:56+03:00"
+    }
+  ]
+}

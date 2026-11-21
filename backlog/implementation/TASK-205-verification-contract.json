@@ -23,6 +23,7 @@
       "timeout_seconds": 1200
     }
   ],
+  "manual_evidence": "backlog/implementation/TASK-205-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.attendance-context-review",

@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
@@ -6,6 +6,7 @@ import {
   getAttendanceGroups,
   getAttendanceLessonClients,
   getAttendanceTodayLessons,
+  getScheduleLesson,
   saveAttendanceMarks,
   saveAttendanceLessonMarks,
   type AuthenticatedUser,
@@ -20,6 +21,7 @@ vi.mock('../../lib/api', async (importOriginal) => ({
   getAttendanceGroups: vi.fn(),
   getAttendanceLessonClients: vi.fn(),
   getAttendanceTodayLessons: vi.fn(),
+  getScheduleLesson: vi.fn(),
   saveAttendanceMarks: vi.fn(),
   saveAttendanceLessonMarks: vi.fn(),
 }))
@@ -35,9 +37,50 @@ const administratorUser = {
 const getGroups = vi.mocked(getAttendanceGroups)
 const getRoster = vi.mocked(getAttendanceGroupClients)
 const getLessonRoster = vi.mocked(getAttendanceLessonClients)
+const getLesson = vi.mocked(getScheduleLesson)
 const getTodayLessons = vi.mocked(getAttendanceTodayLessons)
 const saveMarks = vi.mocked(saveAttendanceMarks)
 const saveLessonMarks = vi.mocked(saveAttendanceLessonMarks)
+
+const lessonTarget = { lessonOccurrenceId: 'lesson-1', lessonDate: '2026-07-12' }
+const allowed = { allowed: true, reason: null }
+const denied = { allowed: false, reason: 'forbidden' }
+const lesson = {
+  ...lessonTarget,
+  sourceKind: 'Recurring',
+  isMaterialized: true,
+  lessonSeriesId: 'series-1',
+  startTime: '18:30',
+  durationMinutes: 90,
+  endTime: '20:00',
+  groupId: 'group-1',
+  groupName: 'Вечерняя',
+  groupTypeId: 'type-1',
+  groupTypeName: 'Самбо',
+  branchId: 'branch-1',
+  branchName: 'Центр',
+  hallId: 'hall-1',
+  hallName: 'Большой зал',
+  effectiveTrainers: [],
+  status: 'Scheduled',
+  hasAttendanceMarks: false,
+  allowedActions: {
+    viewAttendance: allowed, editAttendance: allowed,
+    edit: denied, move: denied, cancel: denied, restore: denied,
+    assignTrainerSubstitution: denied, cancelTrainerSubstitution: denied,
+  },
+  revision: 'revision-1',
+} satisfies Awaited<ReturnType<typeof getScheduleLesson>>
+
+const lessonRoster = {
+  ...lessonTarget,
+  groupId: lesson.groupId,
+  trainingDate: lesson.lessonDate,
+  today: '2026-07-12',
+  minTrainingDate: '2026-07-10',
+  maxTrainingDate: '2026-07-12',
+  clients: [buildClient('client-1', 'Иван Иванов', 'Unmarked')],
+} satisfies Awaited<ReturnType<typeof getAttendanceLessonClients>>
 
 beforeEach(() => {
   window.history.replaceState(null, '', '/attendance')
@@ -45,6 +88,8 @@ beforeEach(() => {
   getGroups.mockReset()
   getRoster.mockReset()
   getLessonRoster.mockReset()
+  getLesson.mockReset()
+  getLesson.mockResolvedValue(lesson)
   getTodayLessons.mockReset()
   saveMarks.mockReset()
   saveLessonMarks.mockReset()
@@ -73,28 +118,7 @@ beforeEach(() => {
       currentMemberships: [],
     }],
   })
-  getLessonRoster.mockResolvedValue({
-    groupId: 'group-1',
-    trainingDate: '2026-07-12',
-    lessonOccurrenceId: 'lesson-1',
-    lessonDate: '2026-07-12',
-    canEditAttendance: { allowed: true, reason: null },
-    today: '2026-07-12',
-    minTrainingDate: '2026-07-10',
-    maxTrainingDate: '2026-07-12',
-    clients: [{
-      id: 'client-1',
-      fullName: 'Иван Иванов',
-      state: 'Unmarked',
-      groups: [],
-      photo: null,
-      isProfessional: false,
-      professionalComment: null,
-      hasActiveMembership: true,
-      membershipWarning: false,
-      currentMemberships: [],
-    }],
-  })
+  getLessonRoster.mockResolvedValue(lessonRoster)
   saveLessonMarks.mockResolvedValue({
     groupId: 'group-1',
     trainingDate: '2026-07-12',
@@ -182,34 +206,88 @@ describe('AttendanceWorkspace', () => {
     expect(getTodayLessons).toHaveBeenCalledTimes(2)
   })
 
-  test('occurrence route loads and saves by lessonOccurrenceId plus lessonDate', async () => {
-    renderWithProviders(
-      <AttendanceScreen
-        lessonTarget={{
-          lessonOccurrenceId: 'lesson-1',
-          lessonDate: '2026-07-12',
-        }}
-        user={user}
-      />,
-    )
+  test('direct lesson entry identifies the selected group, date and interval above its roster', async () => {
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
 
+    await screen.findByTestId('attendance-client-card-client-1')
+    expect(screen.getByRole('heading', { name: 'Вечерняя' })).toBeVisible()
+    expect(screen.getByText('12 июля 2026')).toBeVisible()
+    expect(screen.getByText('18:30–20:00')).toBeVisible()
+    expect(getLesson).toHaveBeenCalledWith('lesson-1', '2026-07-12', expect.any(AbortSignal))
+  })
+
+  test.each([
+    { name: 'Был', state: 'Present', previous: 'Unmarked' },
+    { name: 'Не был', state: 'Absent', previous: 'Unmarked' },
+    { name: 'Не отмечено', state: 'Unmarked', previous: 'Present' },
+  ] as const)('saves "$name" for the exact occurrence and date, then refreshes its roster', async ({ name, state, previous }) => {
+    getLessonRoster.mockResolvedValue({
+      ...lessonRoster, clients: [buildClient('client-1', 'Иван Иванов', previous)],
+    })
+    saveLessonMarks.mockResolvedValueOnce({
+      ...lessonRoster,
+      attendanceMarks: [{ clientId: 'client-1', state }],
+    })
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
+
+    if (previous === 'Present') fireEvent.click(await screen.findByRole('button', { name: 'Показать всех' }))
     const card = await screen.findByTestId('attendance-client-card-client-1')
-    expect(getLessonRoster).toHaveBeenCalledWith(
-      'lesson-1',
-      '2026-07-12',
-      expect.any(AbortSignal),
-    )
+    expect(getLessonRoster).toHaveBeenCalledWith('lesson-1', lessonTarget.lessonDate, expect.any(AbortSignal))
     expect(screen.queryByText('lesson-1')).not.toBeInTheDocument()
+    fireEvent.click(within(card).getByRole('radio', { name }))
 
-    fireEvent.click(within(card).getByText('Был'))
+    await waitFor(() => expect(saveLessonMarks).toHaveBeenCalledWith('lesson-1', {
+      lessonDate: lessonTarget.lessonDate,
+      trainingDate: lessonTarget.lessonDate,
+      attendanceMarks: [{ clientId: 'client-1', state }],
+    }))
+    await waitFor(() => expect(getLessonRoster).toHaveBeenCalledTimes(2))
+    expect(getLessonRoster.mock.calls[1].slice(0, 2)).toEqual(['lesson-1', lessonTarget.lessonDate])
+  })
 
-    await waitFor(() =>
-      expect(saveLessonMarks).toHaveBeenCalledWith('lesson-1', {
-        lessonDate: '2026-07-12',
-        trainingDate: '2026-07-12',
-        attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
-      }),
-    )
+  test.each([
+    { failFirstRetry: false, postFirst: false },
+    { failFirstRetry: true, postFirst: false },
+    { failFirstRetry: false, postFirst: true },
+  ])('completes a pending mark across a roster retry %j', async ({ failFirstRetry, postFirst }) => {
+    const second = buildClient('client-2', 'Анна Петрова', 'Unmarked')
+    const roster = { ...lessonRoster, clients: [...lessonRoster.clients, second] }
+    const pendingSave = createDeferred<Awaited<ReturnType<typeof saveAttendanceLessonMarks>>>()
+    getLessonRoster.mockResolvedValue(roster).mockResolvedValueOnce(roster)
+      .mockRejectedValueOnce(new ApiError('Offline', 503))
+    if (failFirstRetry) getLessonRoster.mockRejectedValueOnce(new ApiError('Offline', 503))
+    const retryRead = createDeferred<typeof roster>()
+    getLessonRoster.mockReturnValueOnce(retryRead.promise)
+
+    const firstMark = { ...lessonRoster, attendanceMarks: [{ clientId: 'client-1', state: 'Present' as const }] }
+    saveLessonMarks.mockResolvedValueOnce(firstMark).mockReturnValueOnce(pendingSave.promise)
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
+    const firstCard = await screen.findByTestId('attendance-client-card-client-1')
+    fireEvent.click(within(firstCard).getByRole('radio', { name: 'Был' }))
+    const retry = await screen.findByRole('button', { name: 'Повторить обновление списка' })
+    fireEvent.click(within(screen.getByTestId('attendance-client-card-client-2')).getByRole('radio', { name: 'Был' }))
+    fireEvent.click(retry)
+    if (failFirstRetry) {
+      const retryAgain = await screen.findByRole('button', { name: 'Повторить' })
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+      fireEvent.click(retryAgain)
+    }
+
+    await waitFor(() => expect(getLesson).toHaveBeenCalledTimes(failFirstRetry ? 3 : 2))
+    const completeSave = () => pendingSave.resolve({
+      ...lessonRoster, attendanceMarks: [{ clientId: 'client-2', state: 'Present' }],
+    })
+    if (postFirst) {
+      await act(completeSave)
+      await act(() => retryRead.resolve(roster))
+      await screen.findByRole('heading', { name: lesson.groupName })
+    } else {
+      await act(() => retryRead.resolve(roster))
+      const pendingCard = await screen.findByTestId('attendance-client-card-client-2')
+      expect(within(pendingCard).getByRole('radio', { name: 'Был' })).toBeDisabled()
+      await act(completeSave)
+    }
+    await waitFor(() => expect(screen.queryByTestId('attendance-client-card-client-2')).not.toBeInTheDocument())
   })
 
   test('occurrence route captures backend roster group for client return navigation', async () => {
@@ -253,26 +331,10 @@ describe('AttendanceWorkspace', () => {
 
   test('occurrence read-only roster disables row controls from backend canEditAttendance', async () => {
     getLessonRoster.mockResolvedValueOnce({
-      groupId: 'group-1',
-      trainingDate: '2026-07-12',
-      lessonOccurrenceId: 'lesson-1',
-      lessonDate: '2026-07-12',
+      ...lessonRoster,
+      today: '2026-07-11',
+      maxTrainingDate: '2026-07-11',
       canEditAttendance: { allowed: false, reason: 'future-lesson' },
-      today: '2026-07-12',
-      minTrainingDate: '2026-07-10',
-      maxTrainingDate: '2026-07-12',
-      clients: [{
-        id: 'client-1',
-        fullName: 'Иван Иванов',
-        state: 'Unmarked',
-        groups: [],
-        photo: null,
-        isProfessional: false,
-        professionalComment: null,
-        hasActiveMembership: true,
-        membershipWarning: false,
-        currentMemberships: [],
-      }],
     })
 
     renderWithProviders(
@@ -288,6 +350,173 @@ describe('AttendanceWorkspace', () => {
     const card = await screen.findByTestId('attendance-client-card-client-1')
     expect(card).toHaveTextContent('Будущее занятие доступно только для просмотра.')
     expect(within(card).getByRole('radio', { name: 'Был' })).toBeDisabled()
+  })
+
+  test.each(['roster first', 'details first'])('withholds both pieces until both reads succeed (%s)', async (order) => {
+    const details = createDeferred<typeof lesson>()
+    const roster = createDeferred<typeof lessonRoster>()
+    getLesson.mockReturnValueOnce(details.promise)
+    getLessonRoster.mockReturnValueOnce(roster.promise)
+    const onReturn = vi.fn()
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} lessonReturnToSchedule onReturnFromLesson={onReturn} user={user} />)
+
+    await waitFor(() => {
+      expect(getLesson).toHaveBeenCalledTimes(1)
+      expect(getLessonRoster).toHaveBeenCalledTimes(1)
+    })
+    if (order === 'roster first') await act(() => roster.resolve(lessonRoster))
+    else await act(() => details.resolve(lesson))
+    expect(screen.queryByRole('heading', { name: lesson.groupName })).not.toBeInTheDocument()
+    expect(screen.queryByText('Иван Иванов')).not.toBeInTheDocument()
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'К расписанию' }))
+    expect(onReturn).toHaveBeenCalledOnce()
+
+    if (order === 'roster first') await act(() => details.resolve(lesson))
+    else await act(() => roster.resolve(lessonRoster))
+    expect(await screen.findByRole('heading', { name: lesson.groupName })).toBeVisible()
+    expect(screen.getByText('Иван Иванов')).toBeVisible()
+  })
+
+  test('uses the selected interval after a move and distinguishes another group at the same time', async () => {
+    const moved = { ...lesson, lessonOccurrenceId: 'moved', startTime: '20:15', endTime: '21:45' }
+    const oneOff = { ...moved, sourceKind: 'OneOff', lessonSeriesId: null, lessonOccurrenceId: 'one-off',
+      groupId: 'group-2', groupName: 'Юниоры — группа вечерней подготовки к региональному первенству по самбо' } as const
+    getLesson.mockResolvedValueOnce(lesson).mockResolvedValueOnce(moved).mockResolvedValueOnce(oneOff)
+    getLessonRoster.mockResolvedValueOnce(lessonRoster)
+      .mockResolvedValueOnce({ ...lessonRoster, lessonOccurrenceId: moved.lessonOccurrenceId })
+      .mockResolvedValueOnce({ ...lessonRoster, lessonOccurrenceId: oneOff.lessonOccurrenceId, groupId: oneOff.groupId, clients: [] })
+    const { rerender } = renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
+    expect(await screen.findByText('18:30–20:00')).toBeVisible()
+    rerender(<AttendanceScreen lessonTarget={{ ...lessonTarget, lessonOccurrenceId: moved.lessonOccurrenceId }} user={user} />)
+    expect(await screen.findByText('20:15–21:45')).toBeVisible()
+    expect(screen.getByRole('heading', { name: lesson.groupName })).toBeVisible()
+    expect(screen.queryByText('18:30–20:00')).not.toBeInTheDocument()
+    rerender(<AttendanceScreen lessonTarget={{ ...lessonTarget, lessonOccurrenceId: oneOff.lessonOccurrenceId }} user={user} />)
+    expect(await screen.findByRole('heading', { name: oneOff.groupName })).toBeVisible()
+    expect(screen.getByText('20:15–21:45')).toBeVisible()
+    expect(screen.getByText('В выбранной группе пока нет клиентов')).toBeVisible()
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+  })
+
+  test('discards late reads when the route changes date or occurrence and disables stale rows', async () => {
+    const stale = createDeferred<typeof lesson>()
+    const staleTarget = { ...lessonTarget, lessonDate: '2026-07-11' }
+    const latest = { ...lesson, lessonOccurrenceId: 'other', groupName: 'Утренняя', startTime: '08:00', endTime: '09:30' }
+    const latestRoster = createDeferred<typeof lessonRoster>()
+    const refreshedRoster = { ...lessonRoster, lessonOccurrenceId: latest.lessonOccurrenceId }
+    saveLessonMarks.mockResolvedValueOnce({
+      ...refreshedRoster, attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
+    })
+    getLesson.mockResolvedValueOnce(lesson).mockReturnValueOnce(stale.promise).mockResolvedValueOnce(latest)
+    getLessonRoster.mockResolvedValueOnce(lessonRoster)
+      .mockResolvedValueOnce({ ...lessonRoster, ...staleTarget, trainingDate: staleTarget.lessonDate })
+      .mockReturnValueOnce(latestRoster.promise).mockResolvedValueOnce(refreshedRoster)
+    const { rerender } = renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
+    await screen.findByRole('radio', { name: 'Был' })
+    rerender(<AttendanceScreen lessonTarget={staleTarget} user={user} />)
+    expect(screen.queryByRole('heading', { name: lesson.groupName })).not.toBeInTheDocument()
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+    await waitFor(() => expect(getLesson).toHaveBeenLastCalledWith('lesson-1', staleTarget.lessonDate, expect.any(AbortSignal)))
+    rerender(<AttendanceScreen lessonTarget={{ ...lessonTarget, lessonOccurrenceId: latest.lessonOccurrenceId }} user={user} />)
+    await act(() => latestRoster.resolve(refreshedRoster))
+    await screen.findByRole('heading', { name: latest.groupName })
+    await act(() => stale.resolve({ ...lesson, ...staleTarget }))
+    expect(screen.getByRole('heading', { name: latest.groupName })).toBeVisible()
+    expect(screen.getByText('08:00–09:30')).toBeVisible()
+    fireEvent.click(screen.getByRole('radio', { name: 'Был' }))
+    await waitFor(() => expect(saveLessonMarks).toHaveBeenCalledWith('other', {
+      lessonDate: latest.lessonDate, trainingDate: latest.lessonDate, attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
+    }))
+  })
+
+  test('retries a partial failure for the same pair and restores focus to the group name', async () => {
+    getLesson.mockRejectedValueOnce(new ApiError('Ошибка чтения', 503))
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} onReturnFromLesson={vi.fn()} user={user} />)
+    const retry = await screen.findByRole('button', { name: 'Повторить' })
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+    expect(screen.queryByText('Иван Иванов')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'К занятиям на сегодня' })).toBeVisible()
+    fireEvent.click(retry)
+    const heading = await screen.findByRole('heading', { name: lesson.groupName })
+    await waitFor(() => expect(heading).toHaveFocus())
+    for (const read of [getLesson, getLessonRoster]) {
+      expect(read).toHaveBeenCalledTimes(2)
+      expect(read).toHaveBeenLastCalledWith('lesson-1', lessonTarget.lessonDate, expect.any(AbortSignal))
+    }
+  })
+
+  test.each([
+    ['details', 403], ['details', 404], ['roster', 403], ['roster', 404],
+  ] as const)('hides details and roster when %s rejects with %s', async (endpoint, status) => {
+    const read = endpoint === 'details' ? getLesson : getLessonRoster
+    read.mockRejectedValueOnce(new ApiError('Занятие не найдено', status))
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} onReturnFromLesson={vi.fn()} user={user} />)
+    expect(await screen.findByText('Занятие недоступно')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'К занятиям на сегодня' })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: lesson.groupName })).not.toBeInTheDocument()
+    expect(screen.queryByText('Иван Иванов')).not.toBeInTheDocument()
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+    expect(saveLessonMarks).not.toHaveBeenCalled()
+  })
+
+  test('withholds details and clients when the server disallows viewing attendance', async () => {
+    getLesson.mockResolvedValueOnce({ ...lesson, allowedActions: { ...lesson.allowedActions, viewAttendance: denied } })
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
+    expect(await screen.findByText('Занятие недоступно')).toBeVisible()
+    expect(screen.queryByRole('heading', { name: lesson.groupName })).not.toBeInTheDocument()
+    expect(screen.queryByText('Иван Иванов')).not.toBeInTheDocument()
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+    expect(saveLessonMarks).not.toHaveBeenCalled()
+  })
+
+  test.each([
+    [{ lessonOccurrenceId: 'another' }, {}], [{ lessonDate: '2026-07-11' }, {}],
+    [{ groupName: '' }, {}], [{ endTime: '' }, {}],
+    [{}, { groupId: 'another' }], [{}, { lessonDate: '2026-07-11' }],
+    [{}, { lessonOccurrenceId: 'another' }], [{}, { trainingDate: '2026-07-11' }],
+  ])('rejects missing or mismatched identity and context %j %j', async (detailOverrides, rosterOverrides) => {
+    getLesson.mockResolvedValueOnce({ ...lesson, ...detailOverrides })
+    getLessonRoster.mockResolvedValueOnce({ ...lessonRoster, ...rosterOverrides })
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
+    expect(await screen.findByRole('button', { name: 'Повторить' })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: lesson.groupName })).not.toBeInTheDocument()
+    expect(screen.queryByText('Иван Иванов')).not.toBeInTheDocument()
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+    expect(saveLessonMarks).not.toHaveBeenCalled()
+  })
+
+  test.each([
+    ['2026-07-11', /будущее занятие доступно только для просмотра/i],
+    ['2026-07-12', /^Занятие доступно только для просмотра\.?$/],
+  ] as const)('applies the schedule read-only decision using server today %s without a roster edit flag', async (today, reason) => {
+    getLesson.mockResolvedValueOnce({ ...lesson, allowedActions: {
+      ...lesson.allowedActions, editAttendance: { allowed: false, reason: 'attendance-date-unavailable' },
+    } })
+    getLessonRoster.mockResolvedValueOnce({ ...lessonRoster, today })
+    renderWithProviders(<AttendanceScreen lessonTarget={lessonTarget} user={user} />)
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    expect(within(card).getByText(reason)).toBeVisible()
+    for (const control of within(card).getAllByRole('radio')) expect(control).toBeDisabled()
+    fireEvent.click(within(card).getByRole('radio', { name: 'Был' }))
+    expect(saveLessonMarks).not.toHaveBeenCalled()
+  })
+
+  test('keeps the group roster read-only after an explicit edit denial', async () => {
+    getRoster.mockResolvedValue({
+      groupId: 'group-1',
+      trainingDate: lessonRoster.trainingDate,
+      today: lessonRoster.today,
+      minTrainingDate: lessonRoster.minTrainingDate,
+      maxTrainingDate: lessonRoster.maxTrainingDate,
+      clients: lessonRoster.clients,
+      canEditAttendance: { allowed: false, reason: 'attendance-forbidden' },
+    })
+    renderWithProviders(<AttendanceWorkspace user={user} />)
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    expect(within(card).getByText('Сервер не разрешил изменять посещаемость этого занятия.')).toBeVisible()
+    expect(within(card).getByRole('radio', { name: 'Был' })).toBeDisabled()
+    expect(saveMarks).not.toHaveBeenCalled()
   })
 
   test('captures the selected attendance group, date, view and exact client', async () => {

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { lesson } from './support/schedule-lesson'
 
 const APP_CONFIG = {
   clubName: 'Iron Club',
@@ -290,9 +291,16 @@ async function mockTask116Api(
     session: typeof ATTENDANCE_SESSION
     attendanceSaveState: AttendanceSaveState
     groupPersistState: GroupPersistState
+    lessonDate?: string
     clientDetailsStatus?: 200 | 403 | 404
   },
 ) {
+  const occurrence = lesson({
+    lessonOccurrenceId: LESSON_ID,
+    lessonDate: state.lessonDate ?? LESSON_DATE,
+    groupName: ATTENDANCE_GROUP.name,
+    startTime: '19:00', endTime: '20:00', durationMinutes: 60,
+  })
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
     if (!requestUrl.pathname.startsWith('/api/')) {
@@ -322,6 +330,20 @@ async function mockTask116Api(
       return
     }
 
+    if (context.pathname === '/api/attendance/lessons/today' && context.method === 'GET') {
+      await fulfillJson(context.route, 200, {
+        today: ATTENDANCE_TODAY,
+        items: [{ ...occurrence, openAttendance: occurrence.allowedActions.viewAttendance, unmarkedClientCount: 1 }],
+      })
+      return
+    }
+
+    if (context.pathname === `/api/schedule/lessons/${LESSON_ID}` && context.method === 'GET') {
+      expect(context.searchParams.get('lessonDate')).toBe(occurrence.lessonDate)
+      await fulfillJson(context.route, 200, occurrence)
+      return
+    }
+
     if (context.pathname === '/api/attendance/groups' && context.method === 'GET') {
       await fulfillJson(context.route, 200, ATTENDANCE_GROUPS_RESPONSE)
       return
@@ -333,7 +355,7 @@ async function mockTask116Api(
       context.method === 'GET'
     ) {
       const requestedTrainingDate = context.searchParams.get('lessonDate') ?? context.searchParams.get('trainingDate') ?? ATTENDANCE_TODAY
-      if (context.pathname.includes('/lessons/')) expect(requestedTrainingDate).toBe(LESSON_DATE)
+      if (context.pathname.includes('/lessons/')) expect(requestedTrainingDate).toBe(occurrence.lessonDate)
       await fulfillJson(
         context.route,
         200,
@@ -527,15 +549,19 @@ test.describe('TASK-116: контекст возврата в карточку �
 
     await mockTask116Api(page, {
       session: ATTENDANCE_SESSION,
+      lessonDate: ATTENDANCE_TODAY,
       attendanceSaveState,
       groupPersistState,
     })
 
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto(ATTENDANCE_PATH)
+    const todayLessonPath = `/attendance/${LESSON_ID}?lessonDate=${ATTENDANCE_TODAY}`
+    await page.goto('/attendance')
+    const source = page.getByTestId(`attendance-today-row-${LESSON_ID}`)
+    await source.getByRole('button', { name: /Открыть:/ }).press('Enter')
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
-    await expect(page).toHaveURL(ATTENDANCE_PATH)
+    await expect(page).toHaveURL(todayLessonPath)
 
     const clientAction = page
       .getByTestId(`attendance-client-card-${CLIENT_ID}`)
@@ -550,9 +576,13 @@ test.describe('TASK-116: контекст возврата в карточку �
 
     await page.getByRole('button', { name: 'К посещениям' }).click()
 
-    await expect(page).toHaveURL(ATTENDANCE_PATH)
+    await expect(page).toHaveURL(todayLessonPath)
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(clientAction).toBeFocused()
+    await expect(page.getByRole('heading', { name: ATTENDANCE_GROUP.name })).toBeVisible()
+    await page.getByRole('button', { name: 'К занятиям на сегодня' }).press('Enter')
+    await expect(page).toHaveURL('/attendance')
+    await expect(source).toBeFocused()
   })
 
   test('Во время ожидающейся отправке посещения карточка клиента блокируется и разблокируется после ответа', async ({

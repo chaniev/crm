@@ -1165,6 +1165,12 @@ test('target iPhone opens exact attendance from schedule occurrence and stays st
       return
     }
 
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      expect(searchParams.get('lessonDate')).toBe('2026-08-20')
+      await fulfillJson(route, SCHEDULE_IOS_LESSON_CARD)
+      return
+    }
+
     if (
       pathname === '/api/attendance/lessons/occ-evening/clients' &&
       method === 'GET'
@@ -2555,6 +2561,11 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
       return
     }
 
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      await fulfillJson(route, { ...SCHEDULE_IOS_LESSON_CARD, lessonDate: '2026-04-18', groupName: ATTENDANCE_GROUPS_RESPONSE.groups[0].name })
+      return
+    }
+
     if (
       pathname === '/api/attendance/lessons/occ-evening/clients' &&
       method === 'GET'
@@ -2602,7 +2613,7 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
 
   await page.goto('/attendance/occ-evening?lessonDate=2026-04-18')
   const attendanceScreen = page.getByTestId('attendance-screen')
-  const lessonContext = attendanceScreen.getByText('Посещаемость занятия')
+  const lessonContext = attendanceScreen.getByRole('heading', { name: 'Группа 7: вечер' })
   const firstAction = page.getByTestId('attendance-client-card-client-1').getByRole('radio', {
     name: 'Был',
     exact: true,
@@ -2646,9 +2657,7 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
   }
 
   await expectNoHorizontalScroll(page)
-  await expect(
-    page.getByRole('heading', { name: ATTENDANCE_GROUPS_RESPONSE.groups[0].name }),
-  ).toHaveCount(0)
+  await expect(lessonContext).toHaveCount(1)
 
   const environment = await page.evaluate(() => ({
     devicePixelRatio: window.devicePixelRatio,

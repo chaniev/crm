@@ -13,7 +13,7 @@ const [bundle] = await build({
     name: 'attendance-prototype-fixtures',
     enforce: 'pre',
     resolveId(id, importer) {
-      if (id === '../../lib/api' && /\/attendance\/(AttendanceScreen|AttendanceTodayWorklist)\.tsx$/.test(importer ?? '')) {
+      if (id === '../../lib/api' && /\/attendance\/(AttendanceScreen\.tsx|AttendanceTodayWorklist\.tsx|attendanceLessonContext\.ts)$/.test(importer ?? '')) {
         return resolve(here, 'fixtures.ts')
       }
     },

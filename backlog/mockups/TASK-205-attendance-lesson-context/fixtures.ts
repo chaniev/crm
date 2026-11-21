@@ -51,6 +51,18 @@ export async function getAttendanceTodayLessons() {
   return { today, items, partial: false }
 }
 
+export async function getScheduleLesson(id: string, date: string) {
+  const lesson = findLesson(id, date)
+  if (!lesson) throw new Error('Занятие недоступно.')
+  return {
+    ...lesson,
+    allowedActions: {
+      viewAttendance: { allowed: true, reason: null },
+      editAttendance: { allowed: !lesson.readOnlyReason, reason: lesson.readOnlyReason ?? null },
+    },
+  }
+}
+
 export async function getAttendanceLessonClients(id: string, date: string) {
   const lesson = findLesson(id, date)
   if (!lesson) throw new Error('Занятие недоступно.')

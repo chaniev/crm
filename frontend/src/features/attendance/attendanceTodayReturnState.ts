@@ -7,6 +7,15 @@ export type AttendanceTodayReturnSnapshot = {
 
 const ATTENDANCE_TODAY_RETURN_KEY = 'attendanceTodayReturn'
 
+// Bind the return action to the selected lesson. The list entry keeps its own scroll position.
+export function withAttendanceTodayLessonOrigin(state: Record<string, unknown>, lessonPath: string) {
+  return { ...state, attendanceTodayLessonPath: lessonPath }
+}
+
+export function isAttendanceTodayLessonOrigin(state: unknown, lessonPath: string) {
+  return isRecord(state) && state.attendanceTodayLessonPath === lessonPath
+}
+
 export function readAttendanceTodayReturnSnapshot(
   state: unknown = window.history.state,
 ): AttendanceTodayReturnSnapshot | null {
@@ -51,6 +60,7 @@ export function withoutAttendanceTodayReturnSnapshot(
 
   const nextState = { ...state }
   delete nextState[ATTENDANCE_TODAY_RETURN_KEY]
+  delete nextState.attendanceTodayLessonPath
   return Object.keys(nextState).length > 0 ? nextState : null
 }
 

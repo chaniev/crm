@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
+import { buildAllowedActions, lesson } from './support/schedule-lesson'
 
 const APP_CONFIG = {
   clubName: 'Iron Club',
@@ -67,7 +68,8 @@ test.describe('Occurrence schedule calendar', () => {
     }
   })
 
-  test('opens exact occurrence attendance route and saves via lesson endpoint', async ({ page }) => {
+  test('opens exact occurrence attendance route and saves via lesson endpoint', async ({ page, hasTouch }) => {
+    const schedulePath = '/schedule?date=2026-08-20&view=day&branchId=branch-1'
     let savedPayload: unknown = null
     await mockApi(page, async ({ pathname, method, searchParams, route }) => {
       if (pathname === '/api/schedule/lessons' && method === 'GET') {
@@ -82,7 +84,7 @@ test.describe('Occurrence schedule calendar', () => {
         method === 'GET'
       ) {
         expect(searchParams.get('lessonDate')).toBe('2026-08-20')
-        await fulfillJson(route, 200, rosterResponse({ canEdit: true }))
+        await fulfillJson(route, 200, rosterResponse('occ-evening'))
         return true
       }
 
@@ -122,7 +124,7 @@ test.describe('Occurrence schedule calendar', () => {
       return false
     })
 
-    await page.goto('/schedule?date=2026-08-20&view=day')
+    await page.goto(schedulePath)
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
     await expect(page.getByTestId('schedule-time-group-2026-08-20-08:00-08:50')).toContainText('08:00-08:50')
@@ -147,11 +149,19 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(page.getByTestId('attendance-client-card-client-1')).toBeVisible()
     await expect(page.getByText('occ-evening')).toHaveCount(0)
 
+    const back = page.getByRole('button', { name: 'К расписанию' })
+    await expect(back).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Утренняя база' })).toBeVisible()
+    await expect(page.getByText('18:00–18:50', { exact: true })).toBeVisible()
     await page.getByRole('radio', { name: 'Был', exact: true }).click()
     await expect.poll(() => savedPayload).toEqual({
       LessonDate: '2026-08-20',
       AttendanceMarks: [{ ClientId: 'client-1', State: 'Present' }],
     })
+    if (hasTouch) await back.tap()
+    else await back.press('Enter')
+    await expect(page).toHaveURL(schedulePath)
+    await expect(page.getByTestId('schedule-card-occ-evening')).toBeFocused()
   })
 
   test('week mode renders seven vertical sections and tools drawer preserves filters in URL', async ({ page }) => {
@@ -1178,7 +1188,12 @@ test.describe('Occurrence schedule calendar', () => {
       }
 
       if (pathname === '/api/attendance/lessons/dense-parallel-a/clients' && method === 'GET') {
-        await fulfillJson(route, 200, rosterResponse({ canEdit: true }))
+        await fulfillJson(route, 200, rosterResponse('dense-parallel-a'))
+        return true
+      }
+
+      if (pathname === '/api/schedule/lessons/dense-parallel-a' && method === 'GET') {
+        await fulfillJson(route, 200, denseDayLessons().find(item => item.lessonOccurrenceId === 'dense-parallel-a'))
         return true
       }
 
@@ -1242,7 +1257,9 @@ test.describe('Occurrence schedule calendar', () => {
     // Primary flow: attendance opens from the dense card and back restores the exact list URL and card.
     await primaryCard.getByRole('button', { name: 'Посещение' }).click()
     await expect(page).toHaveURL(/\/attendance\/dense-parallel-a\?lessonDate=2026-08-20$/)
-    await page.goBack()
+    await expect(page.getByRole('heading', { name: 'Плавание для дошкольников средней группы с инструктором' })).toBeVisible()
+    await expect(page.getByText('10:00–10:50', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'К расписанию' }).click()
     await expect(page).toHaveURL('/schedule?date=2026-08-20&view=day')
     await expect(page.getByTestId('schedule-card-dense-parallel-a')).toBeVisible()
 
@@ -1448,39 +1465,6 @@ function typeFilterLesson(
   })
 }
 
-function lesson(overrides: Record<string, unknown>) {
-  return {
-    lessonOccurrenceId: 'occ-morning',
-    sourceKind: 'Recurring',
-    isMaterialized: false,
-    lessonSeriesId: 'series-1',
-    lessonDate: '2026-08-20',
-    startTime: '08:00',
-    durationMinutes: 50,
-    endTime: '08:50',
-    groupId: 'group-1',
-    groupName: 'Утренняя база',
-    groupTypeId: 'type-1',
-    groupTypeName: 'Кардио',
-    branchId: 'branch-1',
-    branchName: 'Центр',
-    hallId: 'hall-1',
-    hallName: 'Основной зал',
-    effectiveTrainers: [{
-      trainerId: 'trainer-1',
-      fullName: 'Алиса',
-      kind: 'Permanent',
-      replacedTrainerId: null,
-      substitutionId: null,
-    }],
-    status: 'Scheduled',
-    hasAttendanceMarks: false,
-    allowedActions: buildAllowedActions(),
-    revision: 'revision-1',
-    ...overrides,
-  }
-}
-
 function denseDayLessons() {
   const filler = (index: number, startTime: string, endTime: string) => lesson({
     lessonOccurrenceId: `dense-filler-${index}`,
@@ -1635,35 +1619,13 @@ function seriesPreviewResponse() {
   }
 }
 
-function buildAllowedActions(overrides: Partial<{
-  viewAttendance: { allowed: boolean; reason: string | null }
-  editAttendance: { allowed: boolean; reason: string | null }
-  edit: { allowed: boolean; reason: string | null }
-  move: { allowed: boolean; reason: string | null }
-  cancel: { allowed: boolean; reason: string | null }
-  restore: { allowed: boolean; reason: string | null }
-  assignTrainerSubstitution: { allowed: boolean; reason: string | null }
-  cancelTrainerSubstitution: { allowed: boolean; reason: string | null }
-}> = {}) {
-  return {
-    viewAttendance: overrides.viewAttendance ?? { allowed: true, reason: null },
-    editAttendance: overrides.editAttendance ?? { allowed: true, reason: null },
-    edit: overrides.edit ?? { allowed: false, reason: 'not-wired' },
-    move: overrides.move ?? { allowed: false, reason: 'not-wired' },
-    cancel: overrides.cancel ?? { allowed: false, reason: 'not-wired' },
-    restore: overrides.restore ?? { allowed: false, reason: 'not-cancelled' },
-    assignTrainerSubstitution: overrides.assignTrainerSubstitution ?? { allowed: false, reason: 'not-wired' },
-    cancelTrainerSubstitution: overrides.cancelTrainerSubstitution ?? { allowed: false, reason: 'no-substitution' },
-  }
-}
-
-function rosterResponse({ canEdit }: { canEdit: boolean }) {
+function rosterResponse(lessonOccurrenceId: string) {
   return {
     groupId: 'group-1',
     trainingDate: '2026-08-20',
-    lessonOccurrenceId: 'occ-evening',
+    lessonOccurrenceId,
     lessonDate: '2026-08-20',
-    canEditAttendance: { allowed: canEdit, reason: canEdit ? null : 'future-lesson' },
+    canEditAttendance: { allowed: true, reason: null },
     today: '2026-08-20',
     maxTrainingDate: '2026-08-20',
     clients: [{

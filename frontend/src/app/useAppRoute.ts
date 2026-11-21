@@ -1,3 +1,4 @@
+import { withoutAttendanceTodayReturnSnapshot } from '../features/attendance/attendanceTodayReturnState'
 import { stripGroupScheduleReturnContext } from '../features/groups/groupScheduleReturnState'
 import {
   useCallback,
@@ -258,7 +259,7 @@ export function stripAppReturnSnapshotsFromHistoryState(historyState: unknown) {
   return stripGroupScheduleReturnContext(stripScheduleReturnSnapshotFromHistoryState(
     stripClientProfileReturnContextFromHistoryState(
       stripGroupListReturnSnapshotFromHistoryState(
-        stripClientListReturnSnapshotFromHistoryState(historyState),
+        stripClientListReturnSnapshotFromHistoryState(withoutAttendanceTodayReturnSnapshot(historyState)),
       ),
     ),
   ))

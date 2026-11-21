@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
   getAttendanceGroupClients,
   getAttendanceGroups,
+  getAttendanceLessonClients,
   getAttendanceTodayLessons,
   saveAttendanceMarks,
 } from './attendance'
@@ -69,6 +70,23 @@ describe('attendance API', () => {
       }],
     })
   })
+  test.each([
+    {},
+    { lessonDate: '2026-07-11' },
+    { trainingDate: '2026-07-11', lessonDate: 'invalid' },
+    { trainingDate: '2026-07-11', lessonOccurrenceId: 123 },
+  ])('rejects a lesson roster with incomplete identity %j', async (identity) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      groupId: 'group-1',
+      today: '2026-07-12',
+      maxTrainingDate: '2026-07-12',
+      clients: [],
+      ...identity,
+    })))
+
+    await expect(getAttendanceLessonClients('lesson-1', '2026-07-11')).rejects.toThrow()
+  })
+
   test('maps authoritative dates and tri-state roster without boolean coercion', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
       groupId: 'group-1',

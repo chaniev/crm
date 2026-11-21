@@ -28,6 +28,7 @@ export const fe17SharedRoutingThemeText = {
   attendance_requireRecord_8f549520: "Некорректный ответ сохранения посещения.",
   attendance_requireRecord_91d6e39a: "Некорректный ответ состава группы.",
   attendance_string_0106f3ae: "Без имени",
+  attendanceLessonInvalidId: "Ответ состава группы не содержит идентификатор занятия.",
   attendance_string_14d60c4c: "Ответ состава группы не содержит группу.",
   attendance_string_1592e0bf: "Ответ состава группы содержит некорректное состояние посещения.",
   attendance_string_4b13cbe8: "Ответ посещений не содержит календарную дату клуба.",
