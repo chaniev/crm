@@ -1,15 +1,15 @@
 # TASK-177: Довести цели выбора дней недели до 44×44
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-NFR-001 — implements
 - REQ-GRP-001 — constrains
 
 ## Requirement links
-- [REQ-NFR-001](../../docs/requirements/08-нефункциональные.md) — implements
-- [REQ-GRP-001](../../docs/requirements/02-группы.md) — constrains
+- [REQ-NFR-001](../../../docs/requirements/08-нефункциональные.md) — implements
+- [REQ-GRP-001](../../../docs/requirements/02-группы.md) — constrains
 
 ## Goal
 Дни недели в форме группы удобно выбирать на touch-экране.
@@ -27,11 +27,11 @@ implementation
 - При завершении обновить состояние связанных требований и docs/requirements/CHANGELOG.md.
 
 ## Acceptance criteria
-- [ ] Все дни имеют hit area ≥44×44 на mobile/coarse pointer.
-- [ ] Семь дней, длинные ошибки, selected/disabled и компактная высота не ломают форму.
+- [x] Все дни имеют hit area ≥44×44 на mobile/coarse pointer.
+- [x] Семь дней, длинные ошибки, selected/disabled и компактная высота не ломают форму.
 
 ## Test checklist
-- [ ] Rendered before/after, bounding boxes и выбор/снятие дней на target-iPhone и desktop.
+- [x] Rendered before/after, bounding boxes и выбор/снятие дней на target-iPhone и desktop.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -39,11 +39,11 @@ implementation
 - Reason: Локальная геометрия существующего контрола без смены workflow.
 
 ## Evidence
-- [frontend/src/features/groups/GroupForm.tsx](../../frontend/src/features/groups/GroupForm.tsx)
-- [docs/MOBILE_UI_CONTRACT.md](../../docs/MOBILE_UI_CONTRACT.md)
+- [frontend/src/features/groups/GroupForm.tsx](../../../frontend/src/features/groups/GroupForm.tsx)
+- [docs/MOBILE_UI_CONTRACT.md](../../../docs/MOBILE_UI_CONTRACT.md)
 
 ## Source notes
-- Source file: [2026-09-30.md](../processed/2026-09-30.md)
+- Source file: [2026-09-30.md](../../processed/2026-09-30.md)
 - Source items: 8 (порядок самостоятельных пунктов, без строк-продолжений).
 - Источник наблюдений: UI-аудиты 18.09 и 30.09.2026, стенд c2b6cdf; в этом triage новый runtime-аудит не проводился.
 
@@ -70,13 +70,18 @@ implementation
 
 Остаётся воспроизводимый пропуск касания в Chromium с сенсорным профилем Pixel 7 (412×839). Открыть создание группы, прокрутить «Пн» к центру экрана и коснуться точки (28, 32) CSS px от верхнего левого угла `.group-weekday-choice .mantine-Checkbox-body`. Событие click получает `.mantine-Checkbox-inner`, флажок остаётся снятым. При касании (42, 23) срабатывает связанная подпись и «Пн» выбирается. Щелчок мышью в Desktop Chromium дал те же результаты. Пропуски около границы флажка обнаружены у всех семи дней в сенсорном Chromium.
 
-На трёх основных профилях прошли существующие браузерные сценарии для семи выбранных дней, малой высоты, длинной ошибки субботы и перехода из редактирования группы в редактор серии. При ожидании ответа на создание все семь флажков блокируются. В форме редактирования те же семь флажков больше не показываются. См. [приёмку TASK-188](../done/2026-10-23/TASK-188-evidence/validation.md) и [приёмку TASK-189](../done/2026-10-23/TASK-189-evidence/validation.md).
+На трёх основных профилях прошли существующие браузерные сценарии для семи выбранных дней, малой высоты, длинной ошибки субботы и перехода из редактирования группы в редактор серии. При ожидании ответа на создание все семь флажков блокируются. В форме редактирования те же семь флажков больше не показываются. См. [приёмку TASK-188](../2026-10-23/TASK-188-evidence/validation.md) и [приёмку TASK-189](../2026-10-23/TASK-189-evidence/validation.md).
 
 Статус `tasks-ready`. Оставшаяся работа касается попадания по флажку внутри уже увеличенной цели. При проверке исправления нужно коснуться подтверждённой проблемной точки и проверить состояние соответствующего дня.
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-21 19:05
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-177-group-weekday-touch-targets.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-177-group-weekday-touch-targets.plan.md
 - implementation_branch: fix/TASK-177-group-weekday-hit-area
-- execution_started: no — подготовлен [план реализации](../implementation-plans/TASK-177-group-weekday-touch-targets.plan.md).
+- execution_started: yes — выполнен [план реализации](TASK-177-group-weekday-touch-targets.plan.md).
+
+## Completion
+
+- completed_at: 2026-11-21
+- completion_date_evidence: коммит `ace8c018` вошёл в локальную `main` 21.11.2026. Обе задачи проверены вместе на `db3f22e6`. [Браузерная приёмка и проверки](TASK-177-evidence/acceptance.md).

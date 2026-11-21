@@ -1,0 +1,420 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-21T16:20:50.899075+00:00",
+  "repository": "TASK-174-secondary-text-contrast",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "frontend.playwright.install",
+    "frontend.attention-secondary-contrast",
+    "frontend.attention-dashboard"
+  ],
+  "base": "57ccda2b",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "6db97d0a6c97304bf9e6d06cbc73121bae786c96",
+    "head_tree_sha": "6757b63091063ed1bc8501ccd4d044389ee65a90",
+    "base_sha": "57ccda2b1f0e939b0b5fc38f44137da100e397f8",
+    "merge_base_sha": "57ccda2b1f0e939b0b5fc38f44137da100e397f8",
+    "branch": "fix/TASK-174-secondary-text-contrast",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-174-verification-contract.json",
+    "task_id": "TASK-174",
+    "expected_branch": "fix/TASK-174-secondary-text-contrast",
+    "sha256": "110632b57f628ab776ec1e6234632cfbf249d4b2bdbbfe14588a963d3059ab26",
+    "verified_head_sha": "6db97d0a6c97304bf9e6d06cbc73121bae786c96",
+    "verified_head_tree_sha": "6757b63091063ed1bc8501ccd4d044389ee65a90",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-174\",\n  \"expected_branch\": \"fix/TASK-174-secondary-text-contrast\",\n  \"areas\": [\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.attention-secondary-contrast\",\n      \"spec\": \"e2e/attention-secondary-contrast.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1200\n    },\n    {\n      \"id\": \"frontend.attention-dashboard\",\n      \"spec\": \"e2e/attention-dashboard.spec.ts\",\n      \"projects\": [\n        \"chromium\"\n      ],\n      \"timeout_seconds\": 1200\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-174",
+      "expected_branch": "fix/TASK-174-secondary-text-contrast",
+      "areas": [
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.attention-secondary-contrast",
+          "spec": "e2e/attention-secondary-contrast.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1200
+        },
+        {
+          "id": "frontend.attention-dashboard",
+          "spec": "e2e/attention-dashboard.spec.ts",
+          "projects": [
+            "chromium"
+          ],
+          "timeout_seconds": 1200
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-174",
+  "source_ref": null,
+  "e2e_port": 43874,
+  "github": {},
+  "tool_versions": {
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-174-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/attention-dashboard.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/attention-secondary-contrast.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/support/attention.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/attention/AttentionPanel.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/shared/ux.tsx"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backlog/implementation/TASK-174-verification-contract.json",
+    "frontend/e2e/attention-dashboard.spec.ts",
+    "frontend/e2e/attention-secondary-contrast.spec.ts",
+    "frontend/e2e/support/attention.ts",
+    "frontend/playwright.config.ts",
+    "frontend/src/features/attention/AttentionPanel.tsx",
+    "frontend/src/features/shared/ux.tsx"
+  ],
+  "selected_areas": [
+    "requirements",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json"
+    ],
+    "frontend": [
+      "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+      "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+      "frontend-owned path changed: frontend/e2e/support/attention.ts",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+      "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+      "task contract TASK-174 requires frontend"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:50.996612+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-21T16:20:51.036956+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:51.037808+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-21T16:20:51.078129+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:51.078948+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-21T16:20:51.119295+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "57ccda2b"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:51.120121+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-11-21T16:20:51.197487+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-174 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:51.198334+00:00",
+      "exit_code": 0,
+      "duration_seconds": 9.323,
+      "completed_at": "2026-11-21T16:21:00.521118+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-174 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:21:00.522311+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.997,
+      "completed_at": "2026-11-21T16:21:01.518894+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-174 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:21:01.519802+00:00",
+      "exit_code": 0,
+      "duration_seconds": 38.076,
+      "completed_at": "2026-11-21T16:21:39.595811+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-174 requires frontend",
+        "task contract TASK-174 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:21:39.597913+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.46,
+      "completed_at": "2026-11-21T16:21:40.058201+00:00"
+    },
+    {
+      "id": "frontend.attention-secondary-contrast",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/attention-secondary-contrast.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-174 requires frontend",
+        "task contract TASK-174 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:21:40.059110+00:00",
+      "exit_code": 0,
+      "duration_seconds": 10.337,
+      "completed_at": "2026-11-21T16:21:50.396652+00:00"
+    },
+    {
+      "id": "frontend.attention-dashboard",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/attention-dashboard.spec.ts",
+        "--project=chromium"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-174 requires frontend",
+        "task contract TASK-174 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:21:50.400674+00:00",
+      "exit_code": 0,
+      "duration_seconds": 17.619,
+      "completed_at": "2026-11-21T16:22:08.019956+00:00"
+    }
+  ],
+  "completed_at": "2026-11-21T16:22:08.021586+00:00"
+}

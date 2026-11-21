@@ -1,8 +1,12 @@
 # Журнал изменения требований
 
+## 2026-11-21 — контраст подписей и выбор дней недели
+
+Для REQ-NFR-001 подтверждены контраст вторичного текста на фактическом фоне и выбор дней касанием внутри всей требуемой области. Для REQ-GRP-001 проверено поведение расписания при создании группы. [Приёмка TASK-174](../../backlog/done/2026-11-21/TASK-174-evidence/acceptance.md) и [приёмка TASK-177](../../backlog/done/2026-11-21/TASK-177-evidence/acceptance.md).
+
 ## 2026-11-21 — проверка контраста, дней недели и заголовка после выхода
 
-Для REQ-NFR-001 подтверждён заголовок экрана входа при выходе из двух разделов. Открыты недостаточный контраст двух подписей и пропуск касания у края флажка в Chromium. Реализация требования остаётся частичной. [TASK-174](../../backlog/implementation/TASK-174-secondary-text-contrast-regression.md) · [TASK-177](../../backlog/implementation/TASK-177-group-weekday-touch-targets.md) · [TASK-178](../../backlog/done/2026-11-21/TASK-178-logout-document-title-regression.md).
+Для REQ-NFR-001 подтверждён заголовок экрана входа при выходе из двух разделов. Открыты недостаточный контраст двух подписей и пропуск касания у края флажка в Chromium. Реализация требования остаётся частичной. [TASK-174](../../backlog/done/2026-11-21/TASK-174-secondary-text-contrast-regression.md) · [TASK-177](../../backlog/done/2026-11-21/TASK-177-group-weekday-touch-targets.md) · [TASK-178](../../backlog/done/2026-11-21/TASK-178-logout-document-title-regression.md).
 
 ## 2026-11-21 — источник Web в журнале действий
 
@@ -468,9 +472,9 @@ REQ-USR-002 уточняет отображение сохранённого ф�
 - 05.10.2026 — REQ-NFR-001 — конкретизированы язык, accessible names, invalid
   focus, native links и regression scope контраста, touch targets и auth title;
   реализация остаётся «частично» (задачи
-  [TASK-174](../../backlog/implementation/TASK-174-secondary-text-contrast-regression.md),
+  [TASK-174](../../backlog/done/2026-11-21/TASK-174-secondary-text-contrast-regression.md),
   [TASK-176](../../backlog/done/2026-11-21/TASK-176-russian-accessibility-and-validation-focus.md),
-  [TASK-177](../../backlog/implementation/TASK-177-group-weekday-touch-targets.md),
+  [TASK-177](../../backlog/done/2026-11-21/TASK-177-group-weekday-touch-targets.md),
   [TASK-178](../../backlog/done/2026-11-21/TASK-178-logout-document-title-regression.md),
   [TASK-181](../../backlog/done/2026-11-21/TASK-181-native-navigation-links.md)).
 - 05.10.2026 — REQ-GRP-007 — календарная дата рядом с днём недели в дневном

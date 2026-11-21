@@ -1,0 +1,323 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-21T16:20:50.893392+00:00",
+  "repository": "TASK-177-group-weekday-hit-area",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "frontend.playwright.install",
+    "frontend.group-schedule-workflow"
+  ],
+  "base": "57ccda2b",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "ace8c0186bd04d23ebd5dd16f98d32e996780ce7",
+    "head_tree_sha": "2f4db00457dd9b7153a24d7c17d5cc59c64f0fef",
+    "base_sha": "57ccda2b1f0e939b0b5fc38f44137da100e397f8",
+    "merge_base_sha": "57ccda2b1f0e939b0b5fc38f44137da100e397f8",
+    "branch": "fix/TASK-177-group-weekday-hit-area",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-177-verification-contract.json",
+    "task_id": "TASK-177",
+    "expected_branch": "fix/TASK-177-group-weekday-hit-area",
+    "sha256": "2215c32e87fb9bc0e3538f4686580ee5cbc16f21143b8b72ae6cc25053f72057",
+    "verified_head_sha": "ace8c0186bd04d23ebd5dd16f98d32e996780ce7",
+    "verified_head_tree_sha": "2f4db00457dd9b7153a24d7c17d5cc59c64f0fef",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-177\",\n  \"expected_branch\": \"fix/TASK-177-group-weekday-hit-area\",\n  \"areas\": [\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.group-schedule-workflow\",\n      \"spec\": \"e2e/group-schedule-workflow.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1200\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-177",
+      "expected_branch": "fix/TASK-177-group-weekday-hit-area",
+      "areas": [
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.group-schedule-workflow",
+          "spec": "e2e/group-schedule-workflow.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1200
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-177",
+  "source_ref": null,
+  "e2e_port": 43877,
+  "github": {},
+  "tool_versions": {
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-schedule-workflow.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.css"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backlog/implementation/TASK-177-verification-contract.json",
+    "frontend/e2e/group-schedule-workflow.spec.ts",
+    "frontend/src/App.css"
+  ],
+  "selected_areas": [
+    "requirements",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+    ],
+    "frontend": [
+      "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+      "frontend-owned path changed: frontend/src/App.css",
+      "task contract TASK-177 requires frontend"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:50.996077+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.041,
+      "completed_at": "2026-11-21T16:20:51.036961+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:51.037796+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-21T16:20:51.078149+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:51.078940+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-21T16:20:51.119304+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "57ccda2b"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:51.120103+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-11-21T16:20:51.197498+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "task contract TASK-177 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:51.198354+00:00",
+      "exit_code": 0,
+      "duration_seconds": 7.797,
+      "completed_at": "2026-11-21T16:20:58.995861+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "task contract TASK-177 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:20:58.997027+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.093,
+      "completed_at": "2026-11-21T16:21:00.089662+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "task contract TASK-177 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:21:00.090542+00:00",
+      "exit_code": 0,
+      "duration_seconds": 39.18,
+      "completed_at": "2026-11-21T16:21:39.271719+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "task contract TASK-177 requires frontend",
+        "task contract TASK-177 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:21:39.275065+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.407,
+      "completed_at": "2026-11-21T16:21:39.682154+00:00"
+    },
+    {
+      "id": "frontend.group-schedule-workflow",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule-workflow.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "task contract TASK-177 requires frontend",
+        "task contract TASK-177 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:21:39.682934+00:00",
+      "exit_code": 0,
+      "duration_seconds": 38.309,
+      "completed_at": "2026-11-21T16:22:17.992233+00:00"
+    }
+  ],
+  "completed_at": "2026-11-21T16:22:17.993467+00:00"
+}

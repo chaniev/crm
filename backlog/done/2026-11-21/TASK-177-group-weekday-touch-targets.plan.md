@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-177 Касание внутри флажка дня недели
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-177-group-weekday-touch-targets.md
+- source_task: /backlog/done/2026-11-21/TASK-177-group-weekday-touch-targets.md
 - requirements: REQ-NFR-001 (implements), REQ-GRP-001 (constrains)
 - branch: fix/TASK-177-group-weekday-hit-area
 - readiness: yes
@@ -24,7 +24,7 @@
 
 ## Decision evidence
 - product: [Принятое REQ-NFR-001](/docs/requirements/08-нефункциональные.md) — owner: владелец продукта CRM; decision: размер активной области каждого дня на мобильном устройстве составляет не менее 44×44 CSS px.
-- [Выбранный владельцем вариант А для создания и редактирования группы](/backlog/mockups/TASK-188-189-group-schedule/brief.md) определяет выбор дней, строки времени и переход из карточки в редактор серии. Пропуски при касании описаны в [карточке задачи](/backlog/implementation/TASK-177-group-weekday-touch-targets.md).
+- [Выбранный владельцем вариант А для создания и редактирования группы](/backlog/mockups/TASK-188-189-group-schedule/brief.md) определяет выбор дней, строки времени и переход из карточки в редактор серии. Пропуски при касании описаны в [карточке задачи](/backlog/done/2026-11-21/TASK-177-group-weekday-touch-targets.md).
 
 ## Implementation slices
 

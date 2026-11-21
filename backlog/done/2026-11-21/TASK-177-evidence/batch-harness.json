@@ -1,0 +1,420 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-21T16:23:11.348864+00:00",
+  "repository": "TASK-177-group-weekday-hit-area",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "frontend.playwright.install",
+    "frontend.group-schedule-workflow"
+  ],
+  "base": "57ccda2b",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "db3f22e6088c88f37b691944d10f27978ed3a6d4",
+    "head_tree_sha": "73ab57fb694b90e1c4fd6baa7c7517b525c467ad",
+    "base_sha": "57ccda2b1f0e939b0b5fc38f44137da100e397f8",
+    "merge_base_sha": "57ccda2b1f0e939b0b5fc38f44137da100e397f8",
+    "branch": "fix/TASK-177-group-weekday-hit-area",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-177-verification-contract.json",
+    "task_id": "TASK-177",
+    "expected_branch": "fix/TASK-177-group-weekday-hit-area",
+    "sha256": "2215c32e87fb9bc0e3538f4686580ee5cbc16f21143b8b72ae6cc25053f72057",
+    "verified_head_sha": "db3f22e6088c88f37b691944d10f27978ed3a6d4",
+    "verified_head_tree_sha": "73ab57fb694b90e1c4fd6baa7c7517b525c467ad",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-177\",\n  \"expected_branch\": \"fix/TASK-177-group-weekday-hit-area\",\n  \"areas\": [\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.group-schedule-workflow\",\n      \"spec\": \"e2e/group-schedule-workflow.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1200\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-177",
+      "expected_branch": "fix/TASK-177-group-weekday-hit-area",
+      "areas": [
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.group-schedule-workflow",
+          "spec": "e2e/group-schedule-workflow.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1200
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-177",
+  "source_ref": null,
+  "e2e_port": 43877,
+  "github": {},
+  "tool_versions": {
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-174-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/attention-dashboard.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/attention-secondary-contrast.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-schedule-workflow.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/support/attention.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.css"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/attention/AttentionPanel.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/shared/ux.tsx"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backlog/implementation/TASK-174-verification-contract.json",
+    "backlog/implementation/TASK-177-verification-contract.json",
+    "frontend/e2e/attention-dashboard.spec.ts",
+    "frontend/e2e/attention-secondary-contrast.spec.ts",
+    "frontend/e2e/group-schedule-workflow.spec.ts",
+    "frontend/e2e/support/attention.ts",
+    "frontend/playwright.config.ts",
+    "frontend/src/App.css",
+    "frontend/src/features/attention/AttentionPanel.tsx",
+    "frontend/src/features/shared/ux.tsx"
+  ],
+  "selected_areas": [
+    "requirements",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+    ],
+    "frontend": [
+      "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+      "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+      "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+      "frontend-owned path changed: frontend/e2e/support/attention.ts",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/App.css",
+      "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+      "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+      "task contract TASK-177 requires frontend"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:11.439454+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-21T16:23:11.479150+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:11.479888+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-21T16:23:11.520379+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:11.521143+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.075,
+      "completed_at": "2026-11-21T16:23:11.596511+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "57ccda2b"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-174-verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-177-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:11.597282+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.078,
+      "completed_at": "2026-11-21T16:23:11.674960+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-177 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:11.675748+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.692,
+      "completed_at": "2026-11-21T16:23:17.367841+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-177 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:17.368697+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.939,
+      "completed_at": "2026-11-21T16:23:18.307564+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-177 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:18.308372+00:00",
+      "exit_code": 0,
+      "duration_seconds": 24.005,
+      "completed_at": "2026-11-21T16:23:42.313454+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-177 requires frontend",
+        "task contract TASK-177 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:42.314673+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.454,
+      "completed_at": "2026-11-21T16:23:42.768433+00:00"
+    },
+    {
+      "id": "frontend.group-schedule-workflow",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule-workflow.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "frontend-owned path changed: frontend/e2e/attention-dashboard.spec.ts",
+        "frontend-owned path changed: frontend/e2e/attention-secondary-contrast.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/support/attention.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/attention/AttentionPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/ux.tsx",
+        "task contract TASK-177 requires frontend",
+        "task contract TASK-177 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-21T16:23:42.769269+00:00",
+      "exit_code": 0,
+      "duration_seconds": 33.89,
+      "completed_at": "2026-11-21T16:24:16.659451+00:00"
+    }
+  ],
+  "completed_at": "2026-11-21T16:24:16.660823+00:00"
+}

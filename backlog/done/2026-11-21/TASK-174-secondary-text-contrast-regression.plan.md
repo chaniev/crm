@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-174 Контраст вторичного текста
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-174-secondary-text-contrast-regression.md
+- source_task: /backlog/done/2026-11-21/TASK-174-secondary-text-contrast-regression.md
 - requirements: REQ-NFR-001 (implements)
 - branch: fix/TASK-174-secondary-text-contrast
 - readiness: yes
@@ -25,11 +25,11 @@
 | «Проверено», список пуст или заполнен | `#868e96` на `#f6f4ee` · 3,020:1 | `#64736d` на том же фоне · 4,530:1 |
 | Описание пустого списка | `#868e96` на `#f6faf7` · 3,153:1 | `#64736d` на том же фоне · 4,730:1 |
 
-21.11.2026 временный стиль проверен на production-сборке в Desktop Chromium, iPhone Air и iPhone 17 Pro Max WebKit с темами `default-green-v1` и `test-blue-coral-v1`. Эти числа относятся к текущим фонам. Критерий приёмки — неокруглённый коэффициент ≥ 4,5. Снимки предварительной проверки на iPhone 17 Pro Max: [«Проверено»](../implementation/TASK-174-evidence/preview-checked-empty.png), [пустой список](../implementation/TASK-174-evidence/preview-empty-description.png).
+21.11.2026 временный стиль проверен на production-сборке в Desktop Chromium, iPhone Air и iPhone 17 Pro Max WebKit с темами `default-green-v1` и `test-blue-coral-v1`. Эти числа относятся к текущим фонам. Критерий приёмки — неокруглённый коэффициент ≥ 4,5. Снимки предварительной проверки на iPhone 17 Pro Max: [«Проверено»](TASK-174-evidence/preview-checked-empty.png), [пустой список](TASK-174-evidence/preview-empty-description.png).
 
 ## Decision evidence
 - product: [Принятое REQ-NFR-001](/docs/requirements/08-нефункциональные.md) — owner: владелец продукта CRM; decision: обычный вторичный текст на фактическом фоне проходит контраст 4,5:1.
-- Исходные измерения и снимки приведены в [карточке задачи](/backlog/implementation/TASK-174-secondary-text-contrast-regression.md). Для локального применения существующего токена действует [сравнение до и после](/docs/DESIGN_PROCESS.md).
+- Исходные измерения и снимки приведены в [карточке задачи](/backlog/done/2026-11-21/TASK-174-secondary-text-contrast-regression.md). Для локального применения существующего токена действует [сравнение до и после](/docs/DESIGN_PROCESS.md).
 
 ## Implementation slices
 

@@ -1,0 +1,194 @@
+[
+  {
+    "project": "chromium",
+    "input": "mouse",
+    "days": [
+      {
+        "name": "Пн",
+        "width": 66.78125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Вт",
+        "width": 63.921875,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Ср",
+        "width": 66.96875,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Чт",
+        "width": 64.03125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Пт",
+        "width": 65.125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Сб",
+        "width": 66.75,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Вс",
+        "width": 65.328125,
+        "height": 46,
+        "missed": null
+      }
+    ]
+  },
+  {
+    "project": "chromium",
+    "input": "touch (Pixel 7)",
+    "days": [
+      {
+        "name": "Пн",
+        "width": 66.78125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Вт",
+        "width": 63.921875,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Ср",
+        "width": 66.96875,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Чт",
+        "width": 64.03125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Пт",
+        "width": 65.125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Сб",
+        "width": 66.75,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Вс",
+        "width": 65.328125,
+        "height": 46,
+        "missed": null
+      }
+    ]
+  },
+  {
+    "project": "iphone-air-webkit",
+    "input": "touch",
+    "days": [
+      {
+        "name": "Пн",
+        "width": 66.78125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Вт",
+        "width": 63.921875,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Ср",
+        "width": 66.96875,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Чт",
+        "width": 64.03125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Пт",
+        "width": 65.125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Сб",
+        "width": 66.75,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Вс",
+        "width": 65.328125,
+        "height": 46,
+        "missed": null
+      }
+    ]
+  },
+  {
+    "project": "iphone-17-pro-max-webkit",
+    "input": "touch",
+    "days": [
+      {
+        "name": "Пн",
+        "width": 66.78125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Вт",
+        "width": 63.921875,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Ср",
+        "width": 66.96875,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Чт",
+        "width": 64.03125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Пт",
+        "width": 65.125,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Сб",
+        "width": 66.75,
+        "height": 46,
+        "missed": null
+      },
+      {
+        "name": "Вс",
+        "width": 65.328125,
+        "height": 46,
+        "missed": null
+      }
+    ]
+  }
+]

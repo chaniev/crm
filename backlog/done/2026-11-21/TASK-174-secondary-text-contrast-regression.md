@@ -1,13 +1,13 @@
 # TASK-174: Восстановить контраст вторичного текста в рабочих экранах
 
 ## Status
-implementation
+done
 
 ## Requirements
 - REQ-NFR-001 — implements
 
 ## Requirement links
-- [REQ-NFR-001](../../docs/requirements/08-нефункциональные.md) — implements
+- [REQ-NFR-001](../../../docs/requirements/08-нефункциональные.md) — implements
 
 ## Goal
 Вторичный обычный текст на фактическом фоне карточек имеет контраст не ниже 4.5:1.
@@ -25,11 +25,11 @@ implementation
 - При завершении обновить состояние связанных требований и docs/requirements/CHANGELOG.md.
 
 ## Acceptance criteria
-- [ ] Обе указанные поверхности проходят 4.5:1; изменение не вводит локальную палитру.
-- [ ] Есть rendered before/after и проверка поддерживаемых тем на desktop/mobile.
+- [x] Обе указанные поверхности проходят 4.5:1; изменение не вводит локальную палитру.
+- [x] Есть rendered before/after и проверка поддерживаемых тем на desktop/mobile.
 
 ## Test checklist
-- [ ] Контраст rendered-пар; затронутые empty/populated состояния и target-iPhone.
+- [x] Контраст rendered-пар; затронутые empty/populated состояния и target-iPhone.
 
 ## AI safety
 - Safe for autonomous implementation: yes
@@ -37,12 +37,12 @@ implementation
 - Reason: Локальная коррекция существующего контракта контраста без изменения CRM-правил.
 
 ## Evidence
-- [frontend/src/features/attention/AttentionPanel.tsx](../../frontend/src/features/attention/AttentionPanel.tsx)
-- [frontend/src/theme/contrastMatrix.ts](../../frontend/src/theme/contrastMatrix.ts)
-- [docs/MOBILE_UI_CONTRACT.md](../../docs/MOBILE_UI_CONTRACT.md)
+- [frontend/src/features/attention/AttentionPanel.tsx](../../../frontend/src/features/attention/AttentionPanel.tsx)
+- [frontend/src/theme/contrastMatrix.ts](../../../frontend/src/theme/contrastMatrix.ts)
+- [docs/MOBILE_UI_CONTRACT.md](../../../docs/MOBILE_UI_CONTRACT.md)
 
 ## Source notes
-- Source file: [2026-09-30.md](../processed/2026-09-30.md)
+- Source file: [2026-09-30.md](../../processed/2026-09-30.md)
 - Source items: 3 (порядок самостоятельных пунктов, без строк-продолжений).
 - Источник наблюдений: UI-аудиты 18.09 и 30.09.2026, стенд c2b6cdf; в этом triage новый runtime-аудит не проводился.
 
@@ -79,6 +79,11 @@ implementation
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-11-21 19:05
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-174-secondary-text-contrast-regression.plan.md
+- implementation_plan: /backlog/done/2026-11-21/TASK-174-secondary-text-contrast-regression.plan.md
 - implementation_branch: fix/TASK-174-secondary-text-contrast
-- execution_started: no — подготовлен [план реализации](../implementation-plans/TASK-174-secondary-text-contrast-regression.plan.md).
+- execution_started: yes — выполнен [план реализации](TASK-174-secondary-text-contrast-regression.plan.md).
+
+## Completion
+
+- completed_at: 2026-11-21
+- completion_date_evidence: коммит `6db97d0a` вошёл в локальную `main` 21.11.2026. Обе задачи проверены вместе на `db3f22e6`. [Браузерная приёмка и проверки](TASK-174-evidence/acceptance.md).

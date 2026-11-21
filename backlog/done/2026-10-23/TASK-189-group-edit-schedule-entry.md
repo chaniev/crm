@@ -89,7 +89,7 @@ identity-поля через `toUpdateGroupIdentityPayload`. При этом
 - Created by skill: codex-backlog-skill; mode: triage одного файла inbox.
 - Duplicate check: активного дубля нет. [TASK-119](../2026-08-24/TASK-119-full-lesson-calendar.md)
   создала редактор серии из календаря, но карточка группы не содержит входа в него.
-  [TASK-177](../../implementation/TASK-177-group-weekday-touch-targets.md) касается только touch targets.
+  [TASK-177](../../done/2026-11-21/TASK-177-group-weekday-touch-targets.md) касается только touch targets.
 - Продуктовый выбор точки входа разрешён ответом пользователя; это ещё не
   утверждение visual specification или executable implementation plan.
 - Evidence: статический анализ main `7154cee`; runtime в этом triage не запускался.
