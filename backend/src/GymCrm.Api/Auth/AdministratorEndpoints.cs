@@ -47,6 +47,7 @@ internal static class AdministratorEndpoints
 
         var administratorUsers = await dbContext.Users
             .AsNoTracking()
+            .Include(user => user.Branch)
             .Where(user => user.Role == UserRole.Administrator || user.Role == UserRole.SuperAdministrator)
             .OrderBy(user => user.FullName)
             .ThenBy(user => user.Login)
@@ -83,6 +84,7 @@ internal static class AdministratorEndpoints
 
         var user = await dbContext.Users
             .AsNoTracking()
+            .Include(user => user.Branch)
             .SingleOrDefaultAsync(
                 candidate =>
                     candidate.Id == id &&
@@ -154,6 +156,7 @@ internal static class AdministratorEndpoints
         }
 
         var user = mutationResult.User!;
+        await dbContext.Entry(user).Reference(entity => entity.Branch).LoadAsync(cancellationToken);
         return TypedResults.Created(
             $"/settings/administrators/{user.Id}",
             ToResponse(user, currentUser, user.Role == UserRole.Administrator ? 0 : null));
@@ -217,6 +220,7 @@ internal static class AdministratorEndpoints
         }
 
         var user = mutationResult.User!;
+        await dbContext.Entry(user).Reference(entity => entity.Branch).LoadAsync(cancellationToken);
         if (currentUser.Id == user.Id)
         {
             await AuthSessionSync.SyncCurrentSessionAsync(httpContext, user);

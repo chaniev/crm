@@ -156,6 +156,79 @@ for (const viewport of [
   })
 }
 
+test('branch data during loading and failed attendance request', async ({ page }) => {
+  await mockSettingsApi(page)
+  await page.route('**/api/settings/administrators', route => fulfillJson(route, 200, {
+    items: [{ ...administrator, branchName: null }],
+  }))
+  let release!: () => void
+  const pending = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/attendance-groups', async route => {
+    await pending
+    await fulfillJson(route, 500, { title: 'Ошибка загрузки' })
+  })
+  await page.goto('/settings')
+  await page.getByRole('tab', { name: 'Администраторы' }).click()
+  const card = page.getByTestId(`administrator-card-${ADMINISTRATOR_ID}`)
+  const opener = card.getByRole('button', { name: 'Группы посещений' })
+  await opener.click()
+  const dialog = page.getByRole('dialog')
+  try {
+    await expect(dialog.getByText('Загружаем группы посещений...')).toBeVisible()
+    await expect.soft(dialog.getByText(/Филиал:/)).toHaveCount(0)
+  } finally {
+    release()
+  }
+  await expect(dialog.getByText('Группы не загрузились')).toBeVisible()
+  await expect.soft(dialog.getByText(/Филиал:/)).toHaveCount(0)
+  await page.keyboard.press('Escape')
+  await expect(opener).toBeFocused()
+  await expect(card).toContainText('Филиал: данные недоступны')
+})
+
+test('list and scope distinguish confirmed, absent and incomplete branch data', async ({ page }) => {
+  await mockSettingsApi(page)
+  const longName = 'Центральный филиал на набережной спортивного комплекса'
+  const cases = [
+    {
+      row: { ...administrator, branchName: longName },
+      branch: { id: 'branch-1', name: longName },
+      listText: longName, scopeText: longName,
+    },
+    {
+      row: { ...administrator, id: 'absent', branchId: null, branchName: null },
+      branch: null, listText: 'не назначен', scopeText: 'не назначен',
+    },
+    {
+      row: { ...administrator, id: 'partial', branchId: null, branchName: longName },
+      branch: { id: 'branch-1' }, listText: 'данные недоступны', scopeText: 'данные недоступны',
+    },
+    {
+      row: { ...administrator, id: 'updated' },
+      branch: null, listText: administrator.branchName, scopeText: 'не назначен',
+    },
+  ]
+  await page.route('**/api/settings/administrators', route => fulfillJson(route, 200, {
+    items: cases.map(({ row }) => row),
+  }))
+  for (const { row, branch } of cases) {
+    await page.route(`**/administrators/${row.id}/attendance-groups`, route => fulfillJson(route, 200, {
+      ...initialScope, administrator: { ...initialScope.administrator, id: row.id }, branch,
+    }))
+  }
+  await page.goto('/settings')
+  await page.getByRole('tab', { name: 'Администраторы' }).click()
+  for (const { row, listText, scopeText } of cases) {
+    const card = page.getByTestId(`administrator-card-${row.id}`)
+    await expect(card.getByText(`Филиал: ${listText}`)).toBeVisible()
+    await card.getByRole('button', { name: 'Группы посещений' }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByText(`Филиал: ${scopeText}`)).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+  }
+})
+
 async function mockSettingsApi(page: Page) {
   const state: {
     putPayload: Record<string, unknown> | null

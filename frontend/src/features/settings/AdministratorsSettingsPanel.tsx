@@ -93,6 +93,7 @@ export function AdministratorsSettingsPanel({
   const [scopeAdministrator, setScopeAdministrator] = useState<UserListItem | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const submittingRef = useRef(false)
+  const scopeOpenerRef = useRef<HTMLButtonElement | null>(null)
   const modalOpenerRef = useRef<HTMLElement | null>(null)
   const activeBranches = useMemo(
     () => branches.filter((branch) => !branch.isArchived),
@@ -232,6 +233,16 @@ export function AdministratorsSettingsPanel({
     setFormError(null)
     setFormErrorCode(null)
     setModalState({ mode: 'create' })
+  }
+
+  function openAttendanceScope(administrator: UserListItem, opener: HTMLButtonElement) {
+    scopeOpenerRef.current = opener
+    setScopeAdministrator(administrator)
+  }
+
+  function closeAttendanceScope() {
+    setScopeAdministrator(null)
+    restoreModalOpenerFocus(scopeOpenerRef.current)
   }
 
   function openEditModal(administrator: UserListItem, opener: HTMLButtonElement) {
@@ -466,7 +477,7 @@ export function AdministratorsSettingsPanel({
                       {administrator.role === 'Administrator' ? (
                         <>
                           <Text c="dimmed" size="sm">
-                            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_40c98d2e}{administrator.branchName ?? fe11SettingsUsersText.administratorsSettingsPanel_string_b921a80b}
+                            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_40c98d2e}{formatAdministratorBranch(administrator)}
                           </Text>
                           <Text c="dimmed" size="sm">
                             {formatAttendanceScopeSummary(administrator)}
@@ -488,7 +499,7 @@ export function AdministratorsSettingsPanel({
                         {canManageAttendanceScope(administrator) ? (
                           <Button
                             leftSection={<IconUsersGroup size={18} />}
-                            onClick={() => setScopeAdministrator(administrator)}
+                            onClick={(event) => openAttendanceScope(administrator, event.currentTarget)}
                             variant="pill"
                           >
                             {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_c50470cc}</Button>
@@ -585,7 +596,7 @@ export function AdministratorsSettingsPanel({
                 onOpenAttendanceScope={
                   formErrorCode === 'attendance_grants_must_be_revoked' &&
                   modalState.administrator.role === 'Administrator'
-                    ? () => setScopeAdministrator(modalState.administrator)
+                    ? (opener) => openAttendanceScope(modalState.administrator, opener)
                     : undefined
                 }
               />
@@ -638,7 +649,7 @@ export function AdministratorsSettingsPanel({
 
       <AdministratorAttendanceScopeModal
         administrator={scopeAdministrator}
-        onClose={() => setScopeAdministrator(null)}
+        onClose={closeAttendanceScope}
         onSaved={(administratorId, grantedGroupCount) =>
           setAdministrators((current) =>
             current.map((administrator) =>
@@ -658,7 +669,7 @@ function AdministratorFormError({
   onOpenAttendanceScope,
 }: {
   message: string | null
-  onOpenAttendanceScope?: () => void
+  onOpenAttendanceScope?: (opener: HTMLButtonElement) => void
 }) {
   if (!message) {
     return null
@@ -677,7 +688,7 @@ function AdministratorFormError({
           <div>
             <Button
               leftSection={<IconUsersGroup size={18} />}
-              onClick={onOpenAttendanceScope}
+              onClick={(event) => onOpenAttendanceScope(event.currentTarget)}
               variant="secondary"
             >
               {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_5336bb8f}</Button>
@@ -940,6 +951,12 @@ function canEditStaffTarget(user: UserListItem) {
 
 function canManageAttendanceScope(user: UserListItem) {
   return user.allowedActions?.includes('ManageAttendanceScope') === true
+}
+
+function formatAdministratorBranch({ branchId, branchName }: UserListItem) {
+  if (branchId && branchName) return branchName
+  if (branchId === null && branchName === null) return fe11SettingsUsersText.administratorBranchUnassigned
+  return fe11SettingsUsersText.administratorBranchUnavailable
 }
 
 function formatAttendanceScopeSummary(user: UserListItem) {

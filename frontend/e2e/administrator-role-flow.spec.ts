@@ -260,7 +260,7 @@ test('HeadCoach получает стабильную проблему при п
 })
 
 test('форма администратора сохраняет геометрию, footer и focus contract на целевых размерах', async ({
-  page,
+  page, hasTouch,
 }) => {
   await mockAdministratorGeometryApi(page)
   await page.setViewportSize({ width: 360, height: 780 })
@@ -272,8 +272,8 @@ test('форма администратора сохраняет геометр�
     { width: 390, height: 844, fullScreen: true },
     { width: 768, height: 1024, fullScreen: false },
     { width: 1440, height: 1200, fullScreen: false },
-    { width: 912, height: 420, fullScreen: false },
-    { width: 956, height: 440, fullScreen: false },
+    { width: 912, height: 420, fullScreen: hasTouch },
+    { width: 956, height: 440, fullScreen: hasTouch },
   ]
 
   for (const viewport of targetViewports) {
@@ -424,7 +424,7 @@ test('администрирование администраторов испо
   const managedCard = page.getByTestId('administrator-card-admin-actions')
   const viewOnlyCard = page.getByTestId('administrator-card-admin-view-only')
 
-  await expect(managedCard).toBeVisible()
+  await expect(managedCard).toContainText('Доступ: все филиалы')
   await expect(viewOnlyCard).toBeVisible()
 
   await expect(managedCard.getByRole('button', { name: 'Группы посещений' })).toBeVisible()
@@ -433,6 +433,38 @@ test('администрирование администраторов испо
   await expect(viewOnlyCard.getByText('Только просмотр', { exact: true }).first()).toBeVisible()
   await expect(viewOnlyCard.getByRole('button', { name: 'Группы посещений' })).toHaveCount(0)
   await expect(viewOnlyCard.getByRole('button', { name: 'Редактировать' })).toHaveCount(0)
+})
+
+test('saved administrator branch is visible immediately and after reload', async ({ page }) => {
+  await mockAdministratorGeometryApi(page)
+  let employee = {
+    id: 'admin-edited', fullName: 'Администратор', login: 'admin-edited', role: 'Administrator',
+    isActive: true, mustChangePassword: false, allowedActions: ['Edit'], roleOptions: ['Administrator'],
+    branchId: 'branch-1', branchName: 'Центр',
+  }
+  await page.route('**/api/settings/administrators', route =>
+    fulfillJson(route, 200, { items: [employee], createRoleOptions: [] }))
+  await page.route('**/api/settings/administrators/admin-edited', async route => {
+    expect(route.request().method()).toBe('PUT')
+    const payload = route.request().postDataJSON()
+    expect(payload).toMatchObject({ fullName: 'Анна Петрова', branchId: 'branch-1' })
+    employee = { ...employee, fullName: payload.fullName, branchName: 'Центр на набережной' }
+    await fulfillJson(route, 200, employee)
+  })
+  await page.goto('/settings')
+  const tab = page.getByRole('tab', { name: 'Администраторы' })
+  await tab.click()
+  const card = page.getByTestId('administrator-card-admin-edited')
+  await expect(card).toContainText('Филиал: Центр')
+  await card.getByRole('button', { name: 'Редактировать' }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('ФИО').fill('Анна Петрова')
+  await dialog.getByRole('button', { name: 'Сохранить' }).click()
+  await expect(dialog).toBeHidden()
+  await expect(card).toContainText('Филиал: Центр на набережной')
+  await page.reload()
+  await tab.click()
+  await expect(card).toContainText('Филиал: Центр на набережной')
 })
 
 async function mockAdministratorGeometryApi(page: Page) {

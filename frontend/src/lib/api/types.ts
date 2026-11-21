@@ -93,8 +93,8 @@ export type UserListItem = {
   isActive: boolean
   messengerPlatform: MessengerPlatform | null
   messengerPlatformUserId: string | null
-  branchId: string | null
-  branchName: string | null
+  branchId: string | null | undefined
+  branchName: string | null | undefined
   attendanceGroupGrantCount?: number
   allowedActions?: UserAllowedAction[]
   roleOptions?: UserRole[]
@@ -222,7 +222,7 @@ export type AdministratorAttendanceScopeResponse = {
     id: string
     name: string
     isArchived: boolean
-  } | null
+  } | null | undefined
   grantedGroupIds: string[]
   groups: AdministratorAttendanceScopeGroup[]
   unavailableGrants: AdministratorUnavailableAttendanceGrant[]

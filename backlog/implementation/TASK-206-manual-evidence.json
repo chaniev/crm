@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-206",
+  "confirmations": [
+    {
+      "id": "manual.branch-display",
+      "note": "Сопоставлены снимки. Проверены открытие с клавиатуры, сведения филиала, ошибка и возврат фокуса к вызвавшей кнопке.",
+      "artifacts": [
+        "backlog/implementation/TASK-206-evidence/acceptance.md"
+      ],
+      "actor": "coding-agent:TASK-206",
+      "performed_at": "2026-11-21T16:07:35+03:00"
+    }
+  ]
+}

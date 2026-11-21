@@ -63,6 +63,35 @@ describe('administrators API', () => {
     })
   })
 
+  test.each([
+    [{ BranchId: 'b', BranchName: 'Центр' }, 'b', 'Центр'],
+    [{ branchId: null, branchName: null }, null, null],
+    [{}, undefined, undefined],
+    [{ BranchId: null }, null, undefined],
+    [{ branchId: 'b', branchName: '   ' }, 'b', undefined],
+  ] as const)('preserves branch fields from %o', async (fields, branchId, branchName) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ items: [fields] })))
+    const { items } = await getAdministrators()
+    expect(items[0].branchId).toBe(branchId)
+    expect(items[0].branchName).toBe(branchName)
+  })
+
+  test.each([
+    [{ Branch: { Id: 'b', Name: 'Центр' } }, { id: 'b', name: 'Центр' }],
+    [{ branch: null }, null],
+    [{}, undefined],
+    [{ branch: { id: 'b', name: ' ' } }, undefined],
+    [{ branch: { name: 'Центр' } }, undefined],
+  ] as const)('distinguishes missing attendance branch data in %o', async (fields, expected) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(fields)))
+    const { branch } = await getAdministratorAttendanceScope('administrator-1')
+    if (expected) {
+      expect(branch).toMatchObject(expected)
+    } else {
+      expect(branch).toBe(expected)
+    }
+  })
+
   test('sends explicit role and nullable branch in create and update payloads', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse({

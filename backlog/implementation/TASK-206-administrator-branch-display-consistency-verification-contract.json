@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "task_id": "TASK-206",
+  "expected_branch": "codex/TASK-206-administrator-branch-display-consistency",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.administrator-attendance-scope",
+      "spec": "e2e/administrator-attendance-scope.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.administrator-role-flow",
+      "spec": "e2e/administrator-role-flow.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-206-manual-evidence.json",
+  "manual_checks": [
+    {
+      "id": "manual.branch-display",
+      "description": "Сравнить строку и диалог до и после, проверить длинное имя, ошибку загрузки и возврат фокуса."
+    }
+  ]
+}

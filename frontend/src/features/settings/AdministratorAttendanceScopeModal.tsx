@@ -216,6 +216,10 @@ export function AdministratorAttendanceScopeModal({
     })
   }
 
+  const branch = scope?.administrator.id === administrator.id ? scope.branch : undefined
+  const branchLabel = branch === null
+    ? fe11SettingsUsersText.administratorBranchUnassigned
+    : branch?.name ?? fe11SettingsUsersText.administratorBranchUnavailable
   const changed =
     selectedGroupIds.length !== expectedSet.size ||
     selectedGroupIds.some((groupId) => !expectedSet.has(groupId))
@@ -250,9 +254,12 @@ export function AdministratorAttendanceScopeModal({
       <Stack className="administrator-attendance-scope-modal" gap="lg">
           <Stack gap={4}>
             <Text fw={700}>{activeAdministrator.fullName}</Text>
-            <Text c="dimmed" size="sm">
-              {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_40c98d2e}{scope?.branch?.name ?? activeAdministrator.branchName ?? fe11SettingsUsersText.administratorAttendanceScopeModal_string_b921a80b}
-            </Text>
+            {!loading && !loadError && scope ? (
+              <Text c="dimmed" size="sm">
+                {fe11SettingsUsersText.administratorAttendanceScopeModal_jsxText_40c98d2e}
+                {branchLabel}
+              </Text>
+            ) : null}
           </Stack>
 
           {loading ? <LoadingState label={fe11SettingsUsersText.administratorAttendanceScopeModal_label_be99fd52} /> : null}

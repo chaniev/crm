@@ -5,6 +5,7 @@ import {
   readBoolean,
   readNumber,
   readString,
+  readValue,
 } from './read-helpers'
 import { mapUserRole } from './mappers'
 import { request } from './transport'
@@ -116,11 +117,11 @@ function mapAdministratorListItem(payload: UserResponsePayload): UserListItem {
       mustChangePassword: false,
       isActive: false,
       messengerPlatform: null,
-    messengerPlatformUserId: null,
-    branchId: null,
-    branchName: null,
-    attendanceGroupGrantCount: 0,
-  }
+      messengerPlatformUserId: null,
+      branchId: undefined,
+      branchName: undefined,
+      attendanceGroupGrantCount: 0,
+    }
   }
 
   return {
@@ -139,8 +140,8 @@ function mapAdministratorListItem(payload: UserResponsePayload): UserListItem {
         'messengerPlatformUserId',
         'MessengerPlatformUserId',
       ]) ?? null,
-    branchId: readString(payload, ['branchId', 'BranchId']) ?? null,
-    branchName: readString(payload, ['branchName', 'BranchName']) ?? null,
+    branchId: readBranchField(readValue(payload, ['branchId', 'BranchId'])),
+    branchName: readBranchField(readValue(payload, ['branchName', 'BranchName'])),
     attendanceGroupGrantCount:
       readNumber(payload, [
         'attendanceGroupGrantCount',
@@ -151,6 +152,11 @@ function mapAdministratorListItem(payload: UserResponsePayload): UserListItem {
     allowedActions: mapAllowedActions(payload),
     roleOptions: mapRoleOptions(payload, ['roleOptions', 'RoleOptions']),
   }
+}
+
+function readBranchField(value: unknown) {
+  if (value === null) return null
+  return typeof value === 'string' ? value.trim() || undefined : undefined
 }
 
 function mapAdministratorDetails(payload: UserResponsePayload): UserDetails {
@@ -172,7 +178,7 @@ function mapAdministratorAttendanceScope(
   const administrator = mapScopeAdministrator(
     source.administrator ?? source.Administrator ?? source.target ?? source.Target,
   )
-  const branch = mapScopeBranch(source.branch ?? source.Branch)
+  const branch = mapScopeBranch(readValue(source, ['branch', 'Branch']))
   const grantedGroupIds = mapStringArray(
     source.grantedGroupIds ?? source.GrantedGroupIds ?? source.groupIds ?? source.GroupIds,
   )
@@ -206,18 +212,18 @@ function mapScopeAdministrator(payload: unknown) {
 }
 
 function mapScopeBranch(payload: unknown) {
+  if (payload === null) return null
   if (!isRecord(payload)) {
-    return null
+    return undefined
   }
 
   const id = readString(payload, ['id', 'Id', 'branchId', 'BranchId'])
-  if (!id) {
-    return null
-  }
+  const name = readString(payload, ['name', 'Name', 'branchName', 'BranchName'])
+  if (!id || !name) return undefined
 
   return {
     id,
-    name: readString(payload, ['name', 'Name', 'branchName', 'BranchName']) ?? '',
+    name,
     isArchived: readBoolean(payload, ['isArchived', 'IsArchived']) ?? false,
   }
 }

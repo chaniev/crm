@@ -19,6 +19,81 @@ namespace GymCrm.Tests;
 
 public class AdministratorAttendanceGrantApiTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Administrator_list_details_and_attendance_scope_report_the_assigned_branch(bool archived)
+    {
+        await using var factory = new AdministratorAttendanceGrantAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        if (archived)
+        {
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            (await db.Branches.SingleAsync(branch => branch.Id == seeded.AssignedBranchId)).IsArchived = true;
+            await db.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient();
+        await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        const string collection = "/settings/administrators";
+        var detailsUrl = $"{collection}/{seeded.AdministratorId}";
+        var list = await client.GetFromJsonAsync<JsonElement>(collection);
+        var details = await client.GetFromJsonAsync<JsonElement>(detailsUrl);
+        var attendance = await client.GetFromJsonAsync<JsonElement>($"{detailsUrl}/attendance-groups");
+        var branch = attendance.GetProperty("branch");
+        Assert.Equal(seeded.AssignedBranchId, branch.GetProperty("id").GetGuid());
+        Assert.Equal("Task080 Branch", branch.GetProperty("name").GetString());
+        var items = list.GetProperty("items").EnumerateArray();
+        var row = items.Single(user => user.GetProperty("id").GetGuid() == seeded.AdministratorId);
+        foreach (var user in new[] { row, details })
+        {
+            Assert.Equal(seeded.AssignedBranchId, user.GetProperty("branchId").GetGuid());
+            Assert.Equal(branch.GetProperty("name").GetString(), user.GetProperty("branchName").GetString());
+        }
+
+        var global = items.Single(user => user.GetProperty("id").GetGuid() == seeded.SuperAdministratorId);
+        Assert.Equal(JsonValueKind.Null, global.GetProperty("branchId").ValueKind);
+        Assert.Equal(JsonValueKind.Null, global.GetProperty("branchName").ValueKind);
+    }
+
+    [Fact]
+    public async Task Administrator_mutations_report_the_saved_branch_in_the_response_and_subsequent_read()
+    {
+        await using var factory = new AdministratorAttendanceGrantAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        using var client = factory.CreateClient();
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        const string collection = "/settings/administrators";
+        var request = new
+        {
+            FullName = "Новый администратор",
+            Login = "new-admin",
+            Password = seeded.SharedPassword,
+            Role = "Administrator",
+            MustChangePassword = false,
+            IsActive = true,
+            BranchId = seeded.SecondBranchId
+        };
+        using var create = await PostJsonAsync(client, collection, request, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Created, create.StatusCode);
+        var created = await ReadJsonElementAsync(create);
+        var url = $"{collection}/{created.GetProperty("id").GetGuid()}";
+        AssertBranch(created, seeded.SecondBranchId, "Task080 Branch II");
+        AssertBranch(await client.GetFromJsonAsync<JsonElement>(url), seeded.SecondBranchId, "Task080 Branch II");
+
+        using var update = await PutJsonAsync(client, url, request with { BranchId = seeded.AssignedBranchId }, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, update.StatusCode);
+        AssertBranch(await ReadJsonElementAsync(update), seeded.AssignedBranchId, "Task080 Branch");
+        AssertBranch(await client.GetFromJsonAsync<JsonElement>(url), seeded.AssignedBranchId, "Task080 Branch");
+
+        static void AssertBranch(JsonElement user, Guid id, string name)
+        {
+            Assert.Equal(id, user.GetProperty("branchId").GetGuid());
+            Assert.Equal(name, user.GetProperty("branchName").GetString());
+        }
+    }
+
     [Fact]
     public async Task Task080_administrator_grant_management_get_returns_summary_with_unavailable_stale_grant()
     {
