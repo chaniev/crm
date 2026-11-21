@@ -4,13 +4,13 @@
 - source_task: /backlog/needs-clarification/TASK-205-attendance-lesson-context.md
 - requirements: REQ-ATT-001 (implements); REQ-ATT-002 (constrains); REQ-NFR-001 (constrains)
 - branch: codex/TASK-205-attendance-lesson-context
-- readiness: no — Нет прототипа шапки и подтверждённого read-контракта контекста LessonOccurrence для прямого открытия.
+- readiness: no — Ожидаются выбор владельца по проверенному прототипу и подтверждение read-контракта LessonOccurrence для прямого открытия.
 - product_decisions: accepted
 - technical_decisions: none — локальная доработка существующих компонентов; read-контракт контекста ещё не принят
 - architecture_decisions: none — необходимость ADR оценить после определения read-контракта
-- open_questions: Нет прототипа шапки и подтверждённого read-контракта контекста LessonOccurrence для прямого открытия.
+- open_questions: Ожидаются выбор владельца по проверенному прототипу и подтверждение read-контракта LessonOccurrence для прямого открытия.
 - dependencies: none
-- risk: medium — Нет прототипа шапки и подтверждённого read-контракта контекста LessonOccurrence для прямого открытия.
+- risk: medium — Ожидаются выбор владельца по проверенному прототипу и подтверждение read-контракта LessonOccurrence для прямого открытия.
 
 ## Goal
 Перед отметкой пользователь видит, какую группу и конкретное занятие он открыл, и может вернуться к выбору.
@@ -27,6 +27,8 @@ AttendanceScreen получает lessonOccurrenceId/lessonDate, отключа�
 ## Decision evidence
 Решение владельца в текущем чате 20.11.2026: прототипов нет; TASK-019 пропустить для отдельного разбора. Это подтверждает блокеры, а не согласование UX.
 - product: [Исходная задача](/backlog/needs-clarification/TASK-205-attendance-lesson-context.md) — owner: владелец продукта; decision: принятый объём ограничен Requirements и Acceptance criteria; открытые вопросы не утверждены.
+
+- design: [Прототип и проверка от 21.11.2026](../mockups/TASK-205-attendance-lesson-context/README.md). Вариант представлен владельцу для выбора.
 
 ## Scope
 ### In
@@ -57,5 +59,5 @@ AttendanceScreen получает lessonOccurrenceId/lessonDate, отключа�
 - Описанные пользовательские assertions выполняются в затронутом Playwright-сценарии на desktop и target-iPhone.
 
 ## Risks and stop conditions
-- Нет прототипа шапки и подтверждённого read-контракта контекста LessonOccurrence для прямого открытия. До снятия блокера код не менять.
+- Ожидаются выбор владельца по проверенному прототипу и подтверждение read-контракта LessonOccurrence для прямого открытия. До снятия блокера код не менять.
 - При завершении актуализировать состояние связанных требований и `docs/requirements/CHANGELOG.md`, сохранив не относящиеся к задаче незавершённые части.
