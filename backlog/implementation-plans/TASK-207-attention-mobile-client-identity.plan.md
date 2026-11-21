@@ -2,15 +2,15 @@
 
 ## Metadata
 - source_task: /backlog/needs-clarification/TASK-207-attention-mobile-client-identity.md
-- requirements: REQ-ATTN-001 (implements); REQ-NFR-001 (implements)
+- requirements: REQ-ATTN-001 (changes); REQ-NFR-001 (implements)
 - branch: codex/TASK-207-attention-mobile-client-identity
-- readiness: no — Нет выбранного прототипа, совместимого с вертикальным бюджетом TASK-163.
+- readiness: no — Владелец сравнивает два макета; исключение из бюджета TASK-163 для длинных записей не согласовано.
 - product_decisions: accepted
 - technical_decisions: none — локальная доработка существующих компонентов; новый архитектурный механизм не вводится
 - architecture_decisions: none — границы слоёв и API не меняются
-- open_questions: Нет выбранного прототипа, совместимого с вертикальным бюджетом TASK-163.
+- open_questions: Владелец сравнивает два макета; исключение из бюджета TASK-163 для длинных записей не согласовано.
 - dependencies: TASK-163 — сохранить принятый бюджет; TASK-210 вне scope
-- risk: medium — Нет выбранного прототипа, совместимого с вертикальным бюджетом TASK-163.
+- risk: medium — Владелец сравнивает два макета; исключение из бюджета TASK-163 для длинных записей не согласовано.
 
 ## Goal
 На телефоне можно различить однофамильцев и прочитать причину до запуска связи.
@@ -27,6 +27,8 @@ App.css содержит ellipsis у attention-client-row__name и причин;
 ## Decision evidence
 Решение владельца в текущем чате 20.11.2026: прототипов нет; TASK-019 пропустить для отдельного разбора. Это подтверждает блокеры, а не согласование UX.
 - product: [Исходная задача](/backlog/needs-clarification/TASK-207-attention-mobile-client-identity.md) — owner: владелец продукта; decision: принятый объём ограничен Requirements и Acceptance criteria; открытые вопросы не утверждены.
+
+21.11.2026 владелец согласовал перенос полного ФИО и показ каждой причины с числом до звонка. [Макеты и фактическая плотность](../needs-clarification/TASK-207-attention-mobile-client-identity.md#решение-владельца-и-сравнение-плотности--21112026). Выбор компоновки открыт.
 
 ## Scope
 ### In
@@ -57,5 +59,5 @@ App.css содержит ellipsis у attention-client-row__name и причин;
 - Описанные пользовательские assertions выполняются в затронутом Playwright-сценарии на desktop и target-iPhone.
 
 ## Risks and stop conditions
-- Нет выбранного прототипа, совместимого с вертикальным бюджетом TASK-163. До снятия блокера код не менять.
+- Владелец сравнивает два макета; исключение из бюджета TASK-163 для длинных записей не согласовано. До снятия блокера код не менять.
 - При завершении актуализировать состояние связанных требований и `docs/requirements/CHANGELOG.md`, сохранив не относящиеся к задаче незавершённые части.
