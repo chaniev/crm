@@ -2,7 +2,7 @@
 
 ## 2026-11-21 — идентификация клиента во «Внимании»
 
-Для REQ-ATTN-001 владелец согласовал перенос полного ФИО и показ каждой причины с доступным числом до связи. Плотность мобильного списка рассматривается на макетах. Реализация требования остаётся частичной. [TASK-207](../../backlog/needs-clarification/TASK-207-attention-mobile-client-identity.md).
+Для REQ-ATTN-001 владелец согласовал перенос полного ФИО и показ каждой причины с доступным числом до связи. Владелец выбрал вариант А со звонком по номеру и ростом строки для длинных записей. Реализация требования остаётся частичной. [TASK-207](../../backlog/tasks-ready/TASK-207-attention-mobile-client-identity.md).
 
 ## 2026-11-21 — приёмка четырёх изменений интерфейса
 
@@ -18,7 +18,7 @@
 ## 2026-11-20 — пробелы реализации из локального аудита интерфейса
 
 - REQ-CLI-008, REQ-ATT-001, REQ-ATTN-001 и REQ-AUD-002: состояние реализации уточнено с «реализовано» на «частично» по сохранённым наблюдениям поиска, контекста занятия, читаемости клиента и технических строк журнала. Нормативные тексты и решения «принято» не изменены.
-- Связанные исправления: [TASK-204](../../backlog/done/2026-11-20/TASK-204-client-full-name-search.md), [TASK-205](../../backlog/needs-clarification/TASK-205-attendance-lesson-context.md), [TASK-207](../../backlog/needs-clarification/TASK-207-attention-mobile-client-identity.md), [TASK-208](../../backlog/needs-clarification/TASK-208-audit-list-technical-metadata.md).
+- Связанные исправления: [TASK-204](../../backlog/done/2026-11-20/TASK-204-client-full-name-search.md), [TASK-205](../../backlog/needs-clarification/TASK-205-attendance-lesson-context.md), [TASK-207](../../backlog/tasks-ready/TASK-207-attention-mobile-client-identity.md), [TASK-208](../../backlog/needs-clarification/TASK-208-audit-list-technical-metadata.md).
 - [Разбор и ограничения доказательств](../../backlog/processed/2026-11-20-interface-audit/TRIAGE.md): runtime повторно не запускался, причины дефектов устанавливаются до исправлений; регрессия между версиями не заявлена. Исторические done-задачи не переоткрыты. Новая навигация/фильтры TASK-209/210 не приняты.
 
 - 19.11.2026 — REQ-GRP-008: [TASK-203](../../backlog/done/2026-11-19/TASK-203-group-create-single-action.md) проверена и интегрирована в локальную main (`97a70ce`); реализация текущей редакции — «реализовано».
