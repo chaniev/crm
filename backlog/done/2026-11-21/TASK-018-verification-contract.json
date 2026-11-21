@@ -2,7 +2,7 @@
   "version": 1,
   "task_id": "TASK-018",
   "expected_branch": "codex/TASK-018-client-detail-visual-noise",
-  "manual_evidence": "backlog/implementation/TASK-018-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-11-21/TASK-018-manual-evidence.json",
   "areas": ["frontend"],
   "playwright": [{
     "id": "frontend.client-profile-context",

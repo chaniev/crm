@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ClientForm } from '../../../frontend/src/features/clients/ClientForm'
-import { normalizeContacts, useClientForm, validateClientForm, type ClientFormValues } from '../../../frontend/src/features/clients/ClientManagement.form'
+import { ClientForm } from '../../../../frontend/src/features/clients/ClientForm'
+import { normalizeContacts, useClientForm, validateClientForm, type ClientFormValues } from '../../../../frontend/src/features/clients/ClientManagement.form'
 import { branches, groups } from './fixtures'
 
 export function PrototypeForm({ initial, photo, onSave, onCancel, failNextSave }: {

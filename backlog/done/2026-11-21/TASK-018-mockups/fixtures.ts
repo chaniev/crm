@@ -1,6 +1,6 @@
 export { default as demoPhoto } from './assets/demo-client.jpg'
-import type { ClientFormValues } from '../../../frontend/src/features/clients/ClientManagement.form'
-import type { Branch, TrainingGroupListItem } from '../../../frontend/src/lib/api'
+import type { ClientFormValues } from '../../../../frontend/src/features/clients/ClientManagement.form'
+import type { Branch, TrainingGroupListItem } from '../../../../frontend/src/lib/api'
 
 export const examples = {
   empty: 'Клиент без фото',

@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import { Alert, FileButton, Group, Modal } from '@mantine/core'
 import { IconAlertCircle, IconCamera, IconZoomIn } from '@tabler/icons-react'
-import { Button } from '../../../frontend/src/features/shared/Button'
-import { clientPhotoAcceptValue, validateClientPhotoFile } from '../../../frontend/src/features/clients/ClientManagement.formatting'
+import { Button } from '../../../../frontend/src/features/shared/Button'
+import { clientPhotoAcceptValue, validateClientPhotoFile } from '../../../../frontend/src/features/clients/ClientManagement.formatting'
 import { demoPhoto } from './fixtures'
 
 export type PhotoValue = { src: string | null; broken: boolean }
