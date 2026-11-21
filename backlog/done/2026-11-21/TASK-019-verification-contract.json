@@ -42,5 +42,5 @@
       "description": "Сравнить вкладки с прототипом на телефоне, планшете и компьютере. Проверить сохранение и возврат с работающим backend, клавиатуру, ошибки и ограничения тренера."
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-019-manual-evidence.json"
+  "manual_evidence": "backlog/done/2026-11-21/TASK-019-manual-evidence.json"
 }

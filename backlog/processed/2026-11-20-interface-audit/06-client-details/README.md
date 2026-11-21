@@ -48,7 +48,7 @@ updated_existing_tasks:
 none — этот отчёт фиксирует наблюдения и предложения; поведение продукта, принятые требования и статусы задач не изменяются. Ограничивающие источники для последующей доработки:
 
 - [TASK-018-client-detail-visual-noise.md](../../../done/2026-11-21/TASK-018-client-detail-visual-noise.md)
-- [TASK-019-client-card-tabs.md](../../../implementation/TASK-019-client-card-tabs.md)
+- [TASK-019-client-card-tabs.md](../../../done/2026-11-21/TASK-019-client-card-tabs.md)
 - [TASK-020-client-empty-states-action-reasons.md](../../../risky/TASK-020-client-empty-states-action-reasons.md)
 - [01-клиенты.md](../../../../docs/requirements/01-клиенты.md)
 - [10-внимание-и-чат.md](../../../../docs/requirements/10-внимание-и-чат.md)
