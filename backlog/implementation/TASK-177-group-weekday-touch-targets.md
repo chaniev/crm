@@ -1,7 +1,7 @@
 # TASK-177: Довести цели выбора дней недели до 44×44
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-NFR-001 — implements
@@ -73,3 +73,10 @@ tasks-ready
 На трёх основных профилях прошли существующие браузерные сценарии для семи выбранных дней, малой высоты, длинной ошибки субботы и перехода из редактирования группы в редактор серии. При ожидании ответа на создание все семь флажков блокируются. В форме редактирования те же семь флажков больше не показываются. См. [приёмку TASK-188](../done/2026-10-23/TASK-188-evidence/validation.md) и [приёмку TASK-189](../done/2026-10-23/TASK-189-evidence/validation.md).
 
 Статус `tasks-ready`. Оставшаяся работа касается попадания по флажку внутри уже увеличенной цели. При проверке исправления нужно коснуться подтверждённой проблемной точки и проверить состояние соответствующего дня.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-21 19:05
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-177-group-weekday-touch-targets.plan.md
+- implementation_branch: fix/TASK-177-group-weekday-hit-area
+- execution_started: no — подготовлен [план реализации](../implementation-plans/TASK-177-group-weekday-touch-targets.plan.md).

@@ -62,7 +62,7 @@ done
   ошибки не первого слота, сохранение ввода при отказе.
 - [x] API round-trip начальной серии; отказ preview без частичного создания.
 - [x] Playwright mobile/desktop: создание → reload → календарь; ограниченная роль.
-- [x] Проверить touch-target coverage нового контрола с учётом пересечения с [TASK-177](../../tasks-ready/TASK-177-group-weekday-touch-targets.md).
+- [x] Проверить touch-target coverage нового контрола с учётом пересечения с [TASK-177](../../implementation/TASK-177-group-weekday-touch-targets.md).
 
 ## AI safety
 - Safe for autonomous implementation: yes, после ready plan и применимого design gate.

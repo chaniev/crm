@@ -34,10 +34,10 @@ updated_existing_tasks:
 | [TASK-019](../../tasks-ready/TASK-019-client-card-tabs.md) | tasks-ready | Вкладки карточки клиента | Выбор структуры полной/краткой карточки; ещё не принято решение этим аудитом. |
 | [TASK-020](../../risky/TASK-020-client-empty-states-action-reasons.md) | risky | Пустые состояния и причины действий | Пустые контакты, Telegram, фото; важные причины не прятать. |
 | [TASK-021](../../tasks-ready/TASK-021-client-detail-responsive-regression.md) | tasks-ready | Адаптивность карточки | Использовать новые снимки как входящие доказательства, не как пройденную приёмку. |
-| [TASK-174](../../tasks-ready/TASK-174-secondary-text-contrast-regression.md) | tasks-ready | Контраст вторичных текстов | Визуально слабые подписи отмечать для измерения; этот аудит контраст не измерял. |
+| [TASK-174](../../implementation/TASK-174-secondary-text-contrast-regression.md) | tasks-ready | Контраст вторичных текстов | Визуально слабые подписи отмечать для измерения; этот аудит контраст не измерял. |
 | [TASK-175](../../needs-clarification/TASK-175-user-visible-date-format.md) | needs-clarification | Формат дат | ISO в посещениях и каталоге; вопрос не решён здесь. |
 | [TASK-176](../../tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md) | tasks-ready | Локализованные доступные имена | Toggle password visibility воспроизведён; ошибки и перевод фокуса форм отдельно. |
-| [TASK-177](../../tasks-ready/TASK-177-group-weekday-touch-targets.md) | tasks-ready | Сенсорные цели дней недели | Создание группы проверено визуально; размеры целей отдельно не измерялись. |
+| [TASK-177](../../implementation/TASK-177-group-weekday-touch-targets.md) | tasks-ready | Сенсорные цели дней недели | Создание группы проверено визуально; размеры целей отдельно не измерялись. |
 | [TASK-179](../../needs-clarification/TASK-179-professional-catalog-seed-presentation.md) | needs-clarification | Профессиональный тариф в каталоге | Не удалять Professional и тестовые названия по одному визуальному впечатлению. |
 | [TASK-181](../../tasks-ready/TASK-181-native-navigation-links.md) | tasks-ready | Нативные ссылки навигации | NAV-02 уже покрывается существующей карточкой. |
 | [TASK-182](../../tasks-ready/TASK-182-schedule-weekday-calendar-date.md) | tasks-ready | Дата и день недели расписания | SCH-03 не требует новой дублирующей карточки. |

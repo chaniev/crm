@@ -1,7 +1,7 @@
 # TASK-174: Восстановить контраст вторичного текста в рабочих экранах
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-NFR-001 — implements
@@ -75,3 +75,10 @@ tasks-ready
 Для каждого состояния прочитан вычисленный цвет текста, проверена непрозрачность по цепочке предков и взят фон из снимка той же области при прозрачном тексте. Ответ списка задавала браузерная фикстура. Обе пары воспроизводят сентябрьские замеры. Задача остаётся в `tasks-ready` для исправления и повторной проверки.
 
 Снимки до исправления на профиле iPhone 17 Pro Max в зелёной теме. [Время проверки](TASK-174-evidence/checked-empty.png) · [Описание пустого списка](TASK-174-evidence/empty-description.png).
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-21 19:05
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-174-secondary-text-contrast-regression.plan.md
+- implementation_branch: fix/TASK-174-secondary-text-contrast
+- execution_started: no — подготовлен [план реализации](../implementation-plans/TASK-174-secondary-text-contrast-regression.plan.md).
