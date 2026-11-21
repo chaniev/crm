@@ -1,5 +1,5 @@
 
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, useEffect, useRef, type ReactNode } from 'react'
 import { ActionIcon, Alert, Button, Group, MultiSelect, Paper, Select, SimpleGrid, Stack, Text, Textarea, TextInput } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { type UseFormReturnType } from '@mantine/form'
@@ -47,6 +47,47 @@ export function ClientForm({
   submitLabel,
   submitting,
 }: ClientFormProps) {
+  const fieldset = useRef<HTMLFieldSetElement>(null)
+  const isProfile = Boolean(profile)
+  const dirty = form.isDirty()
+  useEffect(() => {
+    const viewport = window.visualViewport
+    const element = fieldset.current
+    if (!isProfile || !viewport || !element) return
+
+    const updateInset = () => {
+      // Safari anchors fixed controls to the layout viewport behind the keyboard.
+      const covered = window.innerHeight - (viewport.offsetTop + viewport.height)
+      element.style.setProperty('--crm-form-viewport-inset', Math.max(0, covered) + 'px')
+      return covered
+    }
+    let frame = 0
+    const revealField = () => {
+      const covered = updateInset()
+      cancelAnimationFrame(frame)
+      if (!dirty || covered <= 0) return
+      frame = requestAnimationFrame(() => {
+        const field = document.activeElement
+        if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) || !element.contains(field)) return
+        const actions = element.querySelector('.sticky-form-actions--page')
+        if (!actions) return
+        const overlap = field.getBoundingClientRect().bottom - actions.getBoundingClientRect().top
+        if (overlap >= 0) window.scrollBy(0, overlap + 8)
+      })
+    }
+    revealField()
+    element.addEventListener('focusin', revealField)
+    viewport.addEventListener('resize', revealField)
+    viewport.addEventListener('scroll', updateInset)
+    return () => {
+      cancelAnimationFrame(frame)
+      element.removeEventListener('focusin', revealField)
+      viewport.removeEventListener('resize', revealField)
+      viewport.removeEventListener('scroll', updateInset)
+      element.style.removeProperty('--crm-form-viewport-inset')
+    }
+  }, [isProfile, dirty])
+
   const selectedBranchId =
     form.values.branchId ||
     branchOptions.find((branch) => !branch.isArchived)?.id ||
@@ -133,7 +174,7 @@ export function ClientForm({
         }),
       )}
     >
-      <fieldset className={profile ? 'client-editor-fieldset client-editor-fieldset--profile' : 'client-editor-fieldset'} disabled={submitting}>
+      <fieldset ref={fieldset} className={profile ? 'client-editor-fieldset client-editor-fieldset--profile' : 'client-editor-fieldset'} disabled={submitting}>
         <Stack gap="lg">
           {formError ? (
             <Alert
@@ -281,7 +322,7 @@ export function ClientForm({
             ) : undefined}
             primaryAction={<Button
               leftSection={<IconDeviceFloppy size={18} />}
-              disabled={Boolean(profile) && !form.isDirty()}
+              disabled={Boolean(profile) && !dirty}
               loading={submitting}
               type="submit"
             >

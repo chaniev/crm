@@ -1395,7 +1395,7 @@
     position: fixed;
     z-index: var(--crm-layer-sticky-action-bar);
     inset-inline: 0;
-    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    bottom: max(calc(80px + env(safe-area-inset-bottom, 0px)), var(--crm-form-viewport-inset, 0px));
   }
 
   .sticky-form-actions--drawer {
