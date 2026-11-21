@@ -77,3 +77,7 @@ needs-clarification
 - Проверка: статический анализ текущего main и сохранённого аудита; новая runtime-приёмка не выполнялась.
 - readiness: no — TASK-019 отложена владельцем; конечная структура карточки и её прототип не определены.
 - implementation_plan: /backlog/implementation-plans/TASK-021-client-detail-responsive-regression.plan.md
+
+## Status audit 2026-11-21
+- needs-clarification: нужны реализация TASK-018 и согласование отложенной TASK-019; готовый план TASK-018 не означает завершение UI.
+- Основание: локальная main, связанные планы и записи согласования; нового runtime-аудита не было.

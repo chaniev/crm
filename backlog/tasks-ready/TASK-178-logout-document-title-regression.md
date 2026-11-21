@@ -54,3 +54,7 @@ tasks-ready
 - Mode: triage; scope: два файла inbox, без глобальной сверки статусов.
 - Duplicate check: TASK-126 декомпозировала shell. Новый аудит — отдельный regression candidate, не основание переоткрывать весь рефакторинг.
 - Проверены активные карточки, unfinished plans и рекурсивный done; новые ID выделены после TASK-171.
+
+## Status audit 2026-11-21
+- tasks-ready: title lifecycle уже учитывает session; закрытие требует browser logout/login и build evidence.
+- Основание: локальная main, связанные планы и записи согласования; нового runtime-аудита не было.
