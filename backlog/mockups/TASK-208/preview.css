@@ -1,0 +1,44 @@
+body { background: var(--crm-surface-page); }
+.review-page { width: min(100%, 76rem); margin: auto; padding: 2rem 1.5rem; }
+.review-page > h1 { margin-bottom: 1rem; }
+.review-page .audit-log-header, .review-row {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 2.2fr) minmax(0, 1fr) 5rem;
+  align-items: center;
+  column-gap: 1.25rem;
+  padding-inline: 1rem;
+}
+.review-page .audit-log-header { font-size: .75rem; }
+.review-page .audit-log-header > :last-child { text-align: right; }
+.review-row { padding-block: .75rem; border: 1px solid var(--crm-surface-list-row-border);
+  border-radius: var(--crm-radius-list-row); background: var(--crm-surface-list-row); }
+.review-row > div { min-width: 0; }
+.review-date time { display: flex; flex-direction: column; gap: 2px; font-size: .875rem;
+  line-height: 1.35; font-variant-numeric: tabular-nums; color: var(--crm-text-secondary); }
+.review-date strong { font-weight: 700; color: var(--crm-text-primary); }
+.review-description { font-weight: 600; font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
+.review-author { line-height: 1.35; overflow-wrap: anywhere; }
+.review-name { font-size: .9375rem; font-weight: 600; }
+.review-channel, .review-author-label { color: var(--crm-text-secondary); font-size: .8125rem; }
+.review-channel { margin-top: .25rem; }
+.review-detail-badges:empty { display: none; }
+.review-author-label { display: none; }
+.review-action { justify-self: end; }
+.review-action button { min-width: 4.75rem; min-height: 44px; }
+@media (max-width: 48em) {
+  .review-page { padding: 1rem .75rem max(1rem, env(safe-area-inset-bottom)); }
+  .review-page > h1 { margin: 0 .25rem .75rem; }
+  .review-page .audit-log-header { display: none; }
+  .review-page .page-section { padding: .5rem; }
+  .review-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "date date" "description description" "author action";
+    gap: .35rem .75rem; padding: .75rem; align-items: start;
+  }
+  .review-date { grid-area: date; }
+  .review-date time { flex-direction: row; gap: .5rem; align-items: baseline; }
+  .review-event { grid-area: description; }
+  .review-action { grid-area: action; align-self: end; }
+  .review-author { grid-area: author; align-self: center; padding-top: .25rem; }
+  .review-author-label { display: inline; font-weight: 400; }
+}

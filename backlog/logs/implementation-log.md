@@ -2331,3 +2331,7 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - TASK-174 — `6db97d0a`, ветка `fix/TASK-174-secondary-text-contrast`. Обе темы, две подписи и повторное использование EmptyState в «Посещениях». [Приёмка](../done/2026-11-21/TASK-174-evidence/acceptance.md).
 - TASK-177 — `ace8c018`, ветка `fix/TASK-177-group-weekday-hit-area`. Мышь, сенсорный Chromium и два целевых профиля WebKit. [Приёмка](../done/2026-11-21/TASK-177-evidence/acceptance.md).
 - Локальная main приняла обе задачи в указанном порядке. Коммит `db3f22e6`, дерево `73ab57fb694b90e1c4fd6baa7c7517b525c467ad` совпадает с проверенным кандидатом. Общая проверка прошла 820 модульных и 73 браузерных теста. В WebKit два пропуска специфичного для Chromium теста. Карточки, планы, контракты и доказательства перенесены из implementation и implementation-plans в done/2026-11-21.
+
+## 21.11.2026 — согласование TASK-208
+
+Владелец утвердил текущий прототип строки журнала и окна «Детали» для телефона и компьютера. [Карточка](../tasks-ready/TASK-208-audit-list-technical-metadata.md) переведена в `tasks-ready`, [план](../implementation-plans/TASK-208-audit-list-technical-metadata.plan.md) готов к исполнению.
