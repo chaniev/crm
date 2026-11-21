@@ -10,6 +10,7 @@ import {
   Skeleton,
   Stack,
   Text,
+  Title,
 } from '@mantine/core'
 import {
   IconAlertCircle,
@@ -23,6 +24,7 @@ import {
 } from '@tabler/icons-react'
 import { buildClientPreviewViewModel } from './clientListViewModel'
 import type { ClientsListState } from './useClientsListState'
+import { fe6ClientProfileText } from '../../../resources/fe-6-client-profile'
 import { fe5ClientListText } from '../../../resources/fe-5-client-list'
 
 
@@ -114,76 +116,58 @@ export function ClientPreviewPanel({
   return (
     <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
       <Stack gap="md">
-        <PreviewPanelHeader onCollapse={onCollapse} />
-        <Group align="flex-start" gap="sm" wrap="nowrap">
-          <Avatar
-            name={preview.fullName}
-            radius="xl"
-            size={56}
-            src={preview.photoUrl}
-          />
-          <div>
-            <Text fw={800}>{preview.fullName}</Text>
-            {preview.phoneLabel ? (
-              <Text c="dimmed" size="sm">
-                {preview.phoneLabel}
-              </Text>
-            ) : null}
-            <Badge
-              color={state.selectedPreview.status === 'Active' ? 'teal' : 'gray'}
-              mt={6}
-              variant="light"
-            >
-              {preview.statusLabel}
-            </Badge>
-          </div>
+        <Group align="flex-start" gap="sm" wrap="nowrap" className="client-profile-identity">
+          <Avatar aria-hidden name={preview.fullName} radius="xl" size={48} src={preview.photoUrl} />
+          <Stack gap={4} flex={1}>
+            <Title order={2}>{preview.fullName}</Title>
+            {preview.phoneLabel && <Text size="sm">{preview.phoneLabel}</Text>}
+            {canManage && (
+              <Badge color={state.selectedPreview.status === 'Active' ? 'teal' : 'gray'} variant="light">
+                {preview.statusLabel}
+              </Badge>
+            )}
+          </Stack>
+          <PreviewPanelHeader onCollapse={onCollapse} />
         </Group>
 
-        <Paper className="clients-v7-preview__need" radius="md">
-          <Text c="dimmed" size="xs" tt="uppercase">
-            {fe5ClientListText.clientPreviewPanel_jsxText_1e125223}</Text>
-          <Group gap="xs" mt={6}>
-            <Badge color={preview.nextAction.tone} variant="filled">
-              {preview.nextAction.label}
-            </Badge>
-            {preview.nextAction.description ? (
-              <Text size="sm">{preview.nextAction.description}</Text>
-            ) : null}
-          </Group>
-        </Paper>
+        {!canManage && (
+          <Alert color="blue" title={fe6ClientProfileText.clientOverviewSection_title_09f75b9f}>
+            {fe6ClientProfileText.clientOverviewSection_jsxText_8afc6d90}
+          </Alert>
+        )}
 
-        <Stack gap={8}>
-          {preview.facts.map((fact) => (
-            <Group justify="space-between" key={fact.label} wrap="nowrap">
-              <Text c="dimmed" size="sm">
-                {fact.label}
-              </Text>
-              <Text fw={600} size="sm" ta="right">
-                {fact.value}
-              </Text>
+        {(preview.membershipLabel || preview.hint) && (
+          <Paper className="clients-v7-preview__need" radius="md" role="note" aria-label={fe5ClientListText.previewMembershipStatus}>
+            <Group gap="xs">
+              {preview.membershipLabel && <Text fw={700}>{preview.membershipLabel}</Text>}
+              {preview.hint && <Text className="client-preview-hint" data-tone={preview.hint.tone} fw={600} size="sm">{preview.hint.description || preview.hint.title}</Text>}
             </Group>
-          ))}
-        </Stack>
+            {preview.hint?.description && <Text size="sm">{preview.hint.title}</Text>}
+          </Paper>
+        )}
 
-        <Divider />
+        {preview.facts.length > 0 && (
+          <dl className="client-preview-facts">
+            {preview.facts.map(fact => (
+              <div key={fact.label}>
+                <Text component="dt" c="dimmed" size="sm">{fact.label}</Text>
+                <Text component="dd" fw={600} m={0} size="sm">{fact.value}</Text>
+              </div>
+            ))}
+          </dl>
+        )}
 
-        <Stack gap={8}>
-          <Text fw={700} size="sm">
-            {fe5ClientListText.clientPreviewPanel_jsxText_18e1009d}</Text>
-          {preview.events.length > 0 ? (
-            preview.events.map((event, index) => (
-              <Group justify="space-between" key={`${event.label}-${index}`} wrap="nowrap">
+        {preview.events.length > 0 && (
+          <Stack gap="xs">
+            <Text fw={700} size="sm">{fe5ClientListText.clientPreviewPanel_jsxText_18e1009d}</Text>
+            {preview.events.map((event, index) => (
+              <Group justify="space-between" key={`${event.label}-${index}`}>
                 <Text size="sm">{event.label}</Text>
-                <Text c="dimmed" size="sm" ta="right">
-                  {event.value}
-                </Text>
+                <Text c="dimmed" size="sm">{event.value}</Text>
               </Group>
-            ))
-          ) : (
-            <Text c="dimmed" size="sm">
-              {fe5ClientListText.clientPreviewPanel_jsxText_3d64c6af}</Text>
-          )}
-        </Stack>
+            ))}
+          </Stack>
+        )}
 
         <div className="clients-v7-preview__actions">
           {canManage ? (
@@ -211,7 +195,7 @@ export function ClientPreviewPanel({
           <Button
             leftSection={canManage ? <IconExternalLink size={16} /> : <IconUserHeart size={16} />}
             onClick={() => onOpen(selectedClientId)}
-            variant={canManage ? 'default' : 'light'}
+            variant="filled"
           >
             {fe5ClientListText.clientPreviewPanel_jsxText_82efa6ea}</Button>
         </div>
