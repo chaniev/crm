@@ -6,7 +6,7 @@
       "id": "manual.attendance-roster-filter",
       "note": "На 390 и 1440 px сверены шапка и порядок карточек с макетом. Через Tab и стрелки проверены фокус фильтра и переход к отметке клиента.",
       "artifacts": [
-        "backlog/implementation/TASK-219-evidence/acceptance.md"
+        "backlog/done/2026-11-22/TASK-219-evidence/acceptance.md"
       ],
       "actor": "coding-agent:TASK-219",
       "performed_at": "2026-11-22T00:25:55+03:00"

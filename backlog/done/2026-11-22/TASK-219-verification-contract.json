@@ -20,7 +20,7 @@
       "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"]
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-219-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-11-22/TASK-219-manual-evidence.json",
   "manual_checks": [
     {
       "id": "manual.attendance-roster-filter",

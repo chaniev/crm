@@ -2360,3 +2360,7 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - planned_in_place: none
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-219-lesson-mixed-roster.plan.md, /backlog/implementation-plans/TASK-221-attention-one-row-per-client.plan.md
+
+## 2026-11-22 — завершение TASK-219 и TASK-221
+
+Обе задачи интегрированы в локальную main. Карточки, планы, контракты, сравнительные макеты и доказательства перенесены из рабочих каталогов в [архив 2026-11-22](../done/2026-11-22/).

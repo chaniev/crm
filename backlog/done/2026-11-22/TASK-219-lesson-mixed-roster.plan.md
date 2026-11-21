@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-219 — полный состав выбранного занятия
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-219-lesson-mixed-roster.md
+- source_task: /backlog/done/2026-11-22/TASK-219-lesson-mixed-roster.md
 - requirements: REQ-ATT-001 (implements)
 - branch: fix/TASK-219-lesson-mixed-roster
 - readiness: yes
@@ -62,7 +62,7 @@
 
 ### Manual evidence
 
-Планировочное сравнение на локальных данных, слева исходный экран, справа выбран режим «Все». В Chromium 390 и 1440 px и WebKit 420 и 440 px проверены оба направления переключения, повтор открытия после ошибки, число строк и отсутствие POST. [Сравнение при 390 px](../mockups/TASK-219/mixed-roster.png).
+Планировочное сравнение на локальных данных, слева исходный экран, справа выбран режим «Все». В Chromium 390 и 1440 px и WebKit 420 и 440 px проверены оба направления переключения, повтор открытия после ошибки, число строк и отсутствие POST. [Сравнение при 390 px](TASK-219-mockups/mixed-roster.png).
 
 При приёмке сверить расположение переключателя, пройти его клавиатурой и проверить видимый фокус отдельно от управления отметками через `crm-interface-audit`. Эмуляция использует тестовые ответы, проверка устройства относится к приёмке.
 
