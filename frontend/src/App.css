@@ -6482,6 +6482,12 @@
 
 .group-weekday-choice .mantine-Checkbox-inner {
   z-index: var(--crm-layer-raised, 1);
+  /* Let the expanded label receive taps outside the rounded input. */
+  pointer-events: none;
+}
+
+.group-weekday-choice .mantine-Checkbox-input {
+  pointer-events: auto;
 }
 
 .group-weekday-time .mantine-InputWrapper-label,

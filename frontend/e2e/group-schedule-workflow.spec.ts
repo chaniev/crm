@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Route } from '@playwright/test'
+import { devices, expect, test, type Locator, type Page, type Route } from '@playwright/test'
 import type { UpsertTrainingGroupRequest } from '../src/lib/api'
 
 const session = {
@@ -168,6 +168,79 @@ test('weekday controls wrap with seven accessible targets at required geometries
   await expect(page.getByLabel('Время начала: Понедельник')).toHaveCount(0)
   await page.keyboard.press('Space')
   await expect(page.getByLabel('Время начала: Понедельник')).toHaveValue('18:00')
+})
+
+async function pressDayAt(body: Locator, touch: boolean, offsetX: number, offsetY: number) {
+  const origin = await body.evaluate(element => {
+    element.scrollIntoView({ block: 'center' })
+    const { x, y } = element.getBoundingClientRect()
+    return { x, y }
+  })
+  const x = origin.x + offsetX
+  const y = origin.y + offsetY
+  if (touch) await body.page().touchscreen.tap(x, y)
+  else await body.page().mouse.click(x, y)
+}
+
+async function verifyWeekdayHitAreas(page: Page, touch: boolean) {
+  await mockGroups(page, async () => false)
+  await page.goto('/groups/new')
+  const bodies = page.locator('.group-weekday-choice .mantine-Checkbox-body')
+  const checkedDays = bodies.locator('input:checked')
+  await expect(bodies).toHaveCount(7)
+  await page.evaluate(() => document.fonts.ready.then(() => undefined))
+  const metrics = []
+  for (const body of await bodies.all()) {
+    const input = body.getByRole('checkbox')
+    const name = await body.locator('label').innerText()
+    await expect(checkedDays).toHaveCount(0)
+    // The corner of the square checkbox used to hit its decorative wrapper.
+    await pressDayAt(body, touch, 28, 32)
+    await expect(input, name + ' at (28, 32)').toBeChecked()
+    await expect(checkedDays).toHaveCount(1)
+    await expect(page.getByLabel(/^Время начала:/)).toHaveCount(1)
+    await pressDayAt(body, touch, 42, 23)
+    await expect(input).not.toBeChecked()
+    await expect(checkedDays).toHaveCount(0)
+    await expect(page.getByLabel(/^Время начала:/)).toHaveCount(0)
+
+    const area = await body.evaluate(element => {
+      element.scrollIntoView({ block: 'center' })
+      const box = element.getBoundingClientRect()
+      const input = element.querySelector('input')!
+      // Sample pixel centers across the required square. The label activates its control.
+      const left = box.x + (box.width - 44) / 2
+      const top = box.y + (box.height - 44) / 2
+      for (let y = 0; y < 44; y++) {
+        for (let x = 0; x < 44; x++) {
+          const hit = document.elementFromPoint(left + x + 0.5, top + y + 0.5)
+          if (hit !== input && hit?.closest('label')?.control !== input) {
+            return { width: box.width, height: box.height, missed: { x, y } }
+          }
+        }
+      }
+      return { width: box.width, height: box.height, missed: null }
+    })
+    expect(area.width).toBeGreaterThanOrEqual(44)
+    expect(area.height).toBeGreaterThanOrEqual(44)
+    expect(area.missed, name).toBeNull()
+    metrics.push({ name, ...area })
+  }
+  await test.info().attach('weekday-hit-areas', { body: JSON.stringify(metrics), contentType: 'application/json' })
+}
+
+test('all seven weekdays respond across the full hit area', async ({ page, hasTouch }) => {
+  await verifyWeekdayHitAreas(page, hasTouch)
+})
+
+test('touch Chromium selects and clears each weekday at the checkbox edge', async ({ browser, browserName, baseURL }) => {
+  test.skip(browserName !== 'chromium', 'The WebKit projects already use touch input')
+  const page = await browser.newPage({ ...devices['Pixel 7'], baseURL })
+  try {
+    await verifyWeekdayHitAreas(page, true)
+  } finally {
+    await page.close()
+  }
 })
 
 test('weekday creation respects backend session permission', async ({ page }) => {
@@ -439,7 +512,7 @@ for (const state of ['dirty', 'pending', 'unknown'] as const) {
   })
 }
 
-test('create guard protects app actions, restores focus, and permits pending departure once', async ({ page }, testInfo) => {
+test('create guard protects app actions, restores focus, and permits pending departure once', async ({ page, hasTouch }, testInfo) => {
   let creates = 0
   let release!: () => void
   const pending = new Promise<void>(resolve => { release = resolve })
@@ -469,6 +542,11 @@ test('create guard protects app actions, restores focus, and permits pending dep
   }
   await page.getByRole('button', { name: 'Создать группу' }).click()
   await expect.poll(() => creates).toBe(1)
+  const choices = page.locator('.group-weekday-choice')
+  for (const day of await choices.getByRole('checkbox').all()) await expect(day).toBeDisabled()
+  const tuesday = choices.filter({ has: page.getByRole('checkbox', { name: 'Вт', exact: true }) })
+  await pressDayAt(tuesday.locator('.mantine-Checkbox-body'), hasTouch, 28, 32)
+  await expect(tuesday.getByRole('checkbox')).not.toBeChecked()
   await back.click()
   await expect(page.getByRole('dialog')).toContainText('группа может быть создана после вашего ухода')
   await noOverflow(page)

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "task_id": "TASK-177",
+  "expected_branch": "fix/TASK-177-group-weekday-hit-area",
+  "areas": [
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.group-schedule-workflow",
+      "spec": "e2e/group-schedule-workflow.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1200
+    }
+  ]
+}
