@@ -4059,3 +4059,16 @@
 - Current task: [TASK-204](../implementation/TASK-204-client-full-name-search.md).
 - Plan: [TASK-204](../implementation-plans/TASK-204-client-full-name-search.plan.md).
 - Status: implementation; исполнение не начато, создан готовый план по запросу пользователя. Прежние записи и JSON evidence не переписывались.
+
+# 2026-11-21 14:50 — Предложения по интерфейсам спортивных CRM
+
+- Режим triage по прямому запросу пользователя. Обработан [источник с пятью предложениями](../processed/2026-11-21-crm-interface-recommendations.md) из текущего чата.
+- Созданы пять карточек в needs-clarification, по одной на предложение в порядке обсуждения:
+  - [TASK-211 — Повторный контакт с клиентом](../needs-clarification/TASK-211-attention-contact-reminder.md).
+  - [TASK-212 — Уведомление о переносе или отмене](../needs-clarification/TASK-212-schedule-change-group-notification.md).
+  - [TASK-213 — Оформление абонемента из списка занятия](../needs-clarification/TASK-213-membership-sale-from-attendance.md).
+  - [TASK-214 — Экран «Мои занятия» для спортсмена или родителя](../needs-clarification/TASK-214-client-family-telegram-lessons.md).
+  - [TASK-215 — Запись на пробную тренировку по ссылке](../needs-clarification/TASK-215-public-trial-booking.md).
+- Проверены активные задачи, незавершённые планы и архив done. Ближайшие связанные задачи TASK-012, TASK-016, TASK-039, TASK-067, TASK-071, TASK-116, TASK-207 и TASK-210 указаны в соответствующих карточках. Полных дублей не найдено.
+- Новые продуктовые решения ожидают уточнения. Открыты правила ответственности за звонок, выбора адресатов, выбора абонемента из занятия, доступа представителя и подтверждения пробной записи. Источник перенесён из processing в processed.
+- Проверки пройдены. Harness проверил инструкции, архитектурные решения, готовность планов и реестр требований. Отдельно сверены ссылки, статусы, ID и соответствие пяти карточек обработанному источнику.
