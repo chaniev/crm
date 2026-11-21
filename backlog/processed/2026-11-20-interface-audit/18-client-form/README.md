@@ -46,7 +46,7 @@ updated_existing_tasks:
 none — этот отчёт фиксирует наблюдения и предложения; поведение продукта, принятые требования и статусы задач не изменяются. Ограничивающие источники для последующей доработки:
 
 - [01-клиенты.md](../../../../docs/requirements/01-клиенты.md)
-- [TASK-018-client-detail-visual-noise.md](../../../tasks-ready/TASK-018-client-detail-visual-noise.md)
+- [TASK-018-client-detail-visual-noise.md](../../../done/2026-11-21/TASK-018-client-detail-visual-noise.md)
 
 ## Доказательства
 
