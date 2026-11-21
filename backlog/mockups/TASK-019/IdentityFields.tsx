@@ -1,6 +1,7 @@
-import { createContext, useContext, type ReactNode, type RefObject } from 'react'
+import { createContext, Fragment, useContext, type ReactNode, type RefObject } from 'react'
 import { Alert, Button, FileButton, Stack, TextInput } from '@mantine/core'
 import type { UseFormReturnType } from '@mantine/form'
+import { useMediaQuery } from '@mantine/hooks'
 import { IconCamera } from '@tabler/icons-react'
 import { getClientAgeDisplayValue } from '../../../frontend/src/features/clients/clientBirthDate'
 import { clientPhotoAcceptValue } from '../../../frontend/src/features/clients/ClientManagement.formatting'
@@ -15,8 +16,10 @@ export function IdentitySlot() {
 export function IdentityFields({ photo, form, businessDate }: {
   photo: ReactNode; form: UseFormReturnType<ClientFormValues>; businessDate: string
 }) {
-  return <div className="editor-identity">
-    {photo}
+  const phone = useMediaQuery('(max-width: 37.49em), (max-width: 62em) and (max-height: 30em) and (pointer: coarse)',
+    undefined, { getInitialValueInEffect: false })
+  const portrait = <Fragment key="photo">{photo}</Fragment>
+  const fields = <Fragment key="fields">
     <Stack className="editor-names" gap="xs">
       <TextInput label="Фамилия" autoComplete="family-name" {...form.getInputProps('lastName')}/>
       <TextInput label="Имя" autoComplete="given-name" {...form.getInputProps('firstName')}/>
@@ -25,6 +28,9 @@ export function IdentityFields({ photo, form, businessDate }: {
     <TextInput className="editor-birth-date" label="Дата рождения" type="date"
       description={form.values.birthDate && getClientAgeDisplayValue(form.values.birthDate, businessDate)}
       {...form.getInputProps('birthDate')}/>
+  </Fragment>
+  return <div className={phone ? 'editor-identity editor-identity--phone' : 'editor-identity'}>
+    {phone ? [portrait, fields] : [fields, portrait]}
   </div>
 }
 
@@ -46,7 +52,9 @@ export function EditPortrait({ preview, onPick, resetRef, uploading, error }: Po
   </FileButton>
   return <>
     <div className="editor-portrait">{preview || upload}</div>
-    {preview && <div className="editor-photo-action">{upload}</div>}
-    {error && <Alert className="editor-photo-error" color="red" role="alert" title="Не удалось загрузить фото">{error}</Alert>}
+    {(preview || error) && <Stack className="editor-photo-action" gap="xs">
+      {preview && upload}
+      {error && <Alert color="red" role="alert" title="Не удалось загрузить фото">{error}</Alert>}
+    </Stack>}
   </>
 }

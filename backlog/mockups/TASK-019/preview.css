@@ -48,8 +48,8 @@ body.app-shell { background: var(--crm-surface-page); }
 }
 .editor-identity {
   display: grid;
-  grid-template-columns: clamp(94px, 32%, 185px) minmax(0, 1fr);
-  grid-template-areas: "portrait names" "photo-action birth";
+  grid-template-columns: minmax(0, 1fr) minmax(0, 185px);
+  grid-template-areas: "names portrait" "birth photo-action";
   column-gap: clamp(10px, 2vw, 22px);
   row-gap: var(--mantine-spacing-md);
 }
@@ -79,4 +79,12 @@ body.app-shell { background: var(--crm-surface-page); }
 .editor-photo-action { grid-area: photo-action; align-self: start; }
 .portrait-replace { width: 100%; min-height: 44px; padding-inline: 4px; }
 .portrait-replace .mantine-Button-label { gap: 6px; }
-.editor-photo-error { grid-column: 1 / -1; grid-row: 3; }
+.editor-identity--phone {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "portrait" "photo-action" "names" "birth";
+  grid-template-rows: 1fr auto 1fr auto;
+  row-gap: var(--mantine-spacing-xs);
+}
+.editor-identity--phone .editor-portrait,
+.editor-identity--phone .portrait-replace { width: min(100%, 185px); justify-self: center; }
+.editor-identity--phone .editor-photo-action { align-items: center; }
