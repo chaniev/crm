@@ -1,0 +1,33 @@
+.lesson-context__layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--mantine-spacing-sm) var(--mantine-spacing-lg);
+}
+.lesson-context__identity { flex: 1 1 24rem; min-width: 0; }
+.lesson-context h1 {
+  margin: 0;
+  font-size: var(--crm-type-heading2-size);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.lesson-context h1:focus { outline: none; }
+.lesson-context__when {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--mantine-spacing-md);
+  margin-top: var(--mantine-spacing-xs);
+  font-variant-numeric: tabular-nums;
+}
+.lesson-context__when span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+.lesson-context__when svg { color: var(--crm-text-muted); }
+.lesson-context__back { min-height: 44px; }
+.mobile-bottom-nav__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* The isolated wrapper supplies the proposed header in place of the original date-only section. */
+.prototype-roster [data-testid="attendance-workspace"] > .page-section:first-child { display: none; }

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "task_id": "TASK-205",
+  "expected_branch": "codex/TASK-205-attendance-lesson-context",
+  "areas": ["frontend"],
+  "playwright": [
+    {
+      "id": "frontend.attendance-today-context",
+      "spec": "e2e/attendance-today-worklist.spec.ts",
+      "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.schedule-attendance-context",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.client-profile-context",
+      "spec": "e2e/client-profile-context-navigation.spec.ts",
+      "projects": ["chromium"],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.attendance-context-review",
+      "description": "Сверить рабочую шапку с принятым прототипом на телефоне и компьютере. Отдельно проверить клавиатуру, видимый фокус и возврат к исходному занятию после ошибки и перехода через карточку клиента."
+    }
+  ]
+}

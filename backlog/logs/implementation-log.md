@@ -2296,3 +2296,10 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-206-administrator-branch-display-consistency.plan.md
 - Обновление к записи от 20.11: проверка на bf14d61 подтвердила расхождение трёх ответов API одной учётной записи. План прошёл preflight до переноса. Выполнено только планирование.
+
+# 2026-11-21 16:05 — TASK-205: принят прототип и подготовлен план
+- moved: TASK-205 → /backlog/implementation/TASK-205-attendance-lesson-context.md
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md
+- Основание: решение владельца «прототип принимаю» и проверка существующих Staff API расписания и состава. Подготовлен план и контракт проверок. Рабочая реализация предстоит.
