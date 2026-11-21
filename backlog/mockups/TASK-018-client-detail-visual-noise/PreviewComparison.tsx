@@ -1,12 +1,14 @@
 import { useState, type Ref } from 'react'
 import { NativeSelect } from '@mantine/core'
 import { PreviewCard, type PreviewProps } from './PreviewCard'
+import type { Example } from './fixtures'
+import { phoneUrl } from './PhoneReview'
 import auditImage from '../../processed/2026-11-20-interface-audit/05-client-card/mobile.jpg'
 
 type Version = 'crm' | 'first' | 'new'
 const names = { crm: 'Текущая CRM', first: 'Первый прототип', new: 'Новый вариант' } as const
-export function PreviewComparison({ data, auditAvailable, titleRef, returnVariant, openRef, left, setLeft, onOpen }: {
-  data: PreviewProps; auditAvailable: boolean; titleRef: Ref<HTMLHeadingElement>
+export function PreviewComparison({ data, sample, auditAvailable, titleRef, returnVariant, openRef, left, setLeft, onOpen }: {
+  data: PreviewProps; sample: Example; auditAvailable: boolean; titleRef: Ref<HTMLHeadingElement>
   openRef: Ref<HTMLButtonElement>; left: 'crm' | 'first'; setLeft: (value: 'crm' | 'first') => void
   returnVariant: 'first' | 'new'; onOpen: (variant: 'first' | 'new') => void
 }) {
@@ -16,6 +18,7 @@ export function PreviewComparison({ data, auditAvailable, titleRef, returnVarian
   const choices: Version[] = auditAvailable ? ['crm','first','new'] : ['first','new']
   return <div className="comparison">
     <header className="compare-heading"><h1 ref={titleRef} tabIndex={-1}>Сравнение кратких карточек</h1>
+      <a className="phone-entry" href={phoneUrl('both', sample)}>Сравнить на телефоне</a>
       <NativeSelect disabled={!auditAvailable} className="compare-desktop-select" label="С чем сравнить новый вариант" value={baseline}
         data={choices.filter(key => key !== 'new').map(value => ({value,label:names[value]}))}
         onChange={event => setLeft(event.target.value as 'crm' | 'first')}/>

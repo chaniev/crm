@@ -30,5 +30,6 @@ const packageLicenses = output.find(asset => asset.fileName === 'licenses.txt').
 const fontLicense = await readFile(resolve(frontend, 'node_modules/@fontsource/onest/LICENSE'), 'utf8')
 const licenses = JSON.stringify([packageLicenses, fontLicense]).replaceAll('<', '\\u003c')
 const filename = resolve(process.argv[2] || resolve(here, 'prototype.html'))
-await writeFile(filename, `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>TASK-018 · Карточка клиента</title><style>${css}</style></head><body><div id="root"></div><script type="application/json" id="licenses">${licenses}</script><script>${js}</script></body></html>`)
+const mobileEntry = process.argv.includes('--mobile')
+await writeFile(filename, `<!doctype html><html lang="ru"${mobileEntry ? ' data-view="phone"' : ''}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>TASK-018 · Карточка клиента</title><style>${css}</style></head><body><div id="root"></div><script type="application/json" id="licenses">${licenses}</script><script>${js}</script></body></html>`)
 console.log(filename)

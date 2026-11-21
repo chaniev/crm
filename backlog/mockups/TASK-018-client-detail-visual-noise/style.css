@@ -161,3 +161,23 @@ main { width: 100%; min-width: 0; max-width: 1100px; margin-inline: auto; paddin
   .compare-column[data-narrow="false"] { display: none; }
   .compare-label h2 { display: none; }
 }
+
+.phone-entry { color: var(--crm-action-primary); display: inline-flex; min-height: 44px; align-items: center; font-weight: 600; }
+.phone-gallery { max-width: 1120px; padding: 26px 24px 48px; }
+.gallery-heading, .gallery-controls, .phone-pair { display: flex; align-items: center; gap: 16px; }
+.gallery-heading { justify-content: space-between; margin-bottom: 24px; }
+.gallery-heading h1 { margin-top: 5px; }
+.gallery-controls select, .bar select { min-height: 44px; font-size: 1rem; }
+.phone-pair { align-items: start; justify-content: center; gap: 32px; }
+.phone-panel { flex: none; }
+.phone-panel h2 { margin: 0 0 10px; }
+.phone-panel iframe { display: block; border: 0; border-radius: 18px; outline: 1px solid var(--crm-border-strong); background: var(--crm-surface-page); }
+.phone-layout main { max-width: 760px; }
+.phone-switch { position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 12px; background: var(--crm-surface-card); border-bottom: 1px solid var(--crm-border-default); }
+.phone-switch button { min-height: 44px; padding: 6px; color: var(--crm-text-primary); background: transparent; border: 0; border-radius: 10px; font-size: .9rem; font-weight: 600; }
+.phone-switch button[aria-pressed="true"] { background: var(--crm-selection-bg); color: var(--crm-accent-1-fg); }
+.phone-layout .preview-name { font-size: 1.375rem; }
+.phone-layout .preview .actions { gap: 8px; }
+@media (max-width: 71.99rem) {
+  .compare-heading { flex-wrap: wrap; gap: 4px 12px; }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useMediaQuery } from '@mantine/hooks'
 import { createRoot } from 'react-dom/client'
 import { Alert, Badge, Group, MantineProvider, Modal, NativeSelect } from '@mantine/core'
 import { IconArrowLeft, IconColumns2, IconCalendar, IconChevronRight, IconCircleCheck, IconCreditCard,
@@ -21,6 +22,7 @@ import '@fontsource/onest/latin-700.css'
 import { branches, demoPhoto, examples, fixture, groups, type Example } from './fixtures'
 import { Photo, type PhotoValue } from './Photo'
 import { PreviewCard, type PreviewProps } from './PreviewCard'
+import { PhoneGallery, phoneUrl, phoneVariants, type PhoneVariant } from './PhoneReview'
 import { PreviewComparison } from './PreviewComparison'
 import { PrototypeForm } from './PrototypeForm'
 import './style.css'
@@ -38,9 +40,13 @@ const screens = {
 }
 type Screen = keyof typeof screens
 const mobileLabels: Record<Screen, string> = { detail: 'Подробности', preview: 'Краткая', compare: 'Сравнение', edit: 'Правка', create: 'Создание' }
+const search = new URLSearchParams(location.search)
+const phoneMode = search.has('phone') || document.documentElement.dataset.view === 'phone'
+const embeddedPhone = phoneMode && window.parent !== window && search.get('frame') === '1'
+
 function startScreen(): Screen {
   const key = location.hash.slice(1)
-  return Object.hasOwn(screens, key) ? key as Screen : 'detail'
+  return Object.hasOwn(screens, key) ? key as Screen : phoneMode ? 'preview' : 'detail'
 }
 function Fact({ label, children, icon }: { label: string; children: ReactNode; icon: ReactNode }) {
   return <div className="fact"><dt>{icon}{label}</dt><dd>{children}</dd></div>
@@ -49,7 +55,10 @@ function Section({ title, icon, children }: { title: string; icon: ReactNode; ch
   return <section className="section"><h2>{icon}{title}</h2><div>{children}</div></section>
 }
 
-function ExampleView({ example, changeExample }: { example: Example; changeExample: (example: Example) => void }) {
+function ExampleView({ example, changeExample, phoneVariant, changeVariant }: {
+  example: Example; changeExample: (example: Example) => void
+  phoneVariant: PhoneVariant; changeVariant: (variant: PhoneVariant) => void
+}) {
   const manage = example !== 'coach'
   const [screen, setScreen] = useState<Screen>(() => {
     const target = startScreen()
@@ -122,9 +131,15 @@ function ExampleView({ example, changeExample }: { example: Example; changeExamp
   }
   return <>
     <header className="bar"><div className="brand"><span className="brand-symbol"><IconUsersGroup size={20}/></span>K-4PRO</div>
-      <span className="review-id">Прототип <b>TASK-018</b></span></header>
-    <div className="layout">
-      <aside className="sidebar" aria-label="Управление прототипом">
+      {phoneMode && !embeddedPhone ? <NativeSelect aria-label="Пример данных" value={example}
+        data={Object.entries(examples).map(([value,label]) => ({value,label}))}
+        onChange={e => changeExample(e.target.value as Example)}/> : <span className="review-id">Прототип <b>TASK-018</b></span>}</header>
+    {phoneMode && !embeddedPhone && screen === 'preview' && <div className="phone-switch" role="group" aria-label="Версия краткой карточки">
+      {(Object.keys(phoneVariants) as PhoneVariant[]).map(key =>
+        <button key={key} aria-pressed={key === phoneVariant} onClick={() => changeVariant(key)}>{phoneVariants[key]}</button>)}
+    </div>}
+    <div className={phoneMode ? 'phone-layout' : 'layout'}>
+      {!phoneMode && <aside className="sidebar" aria-label="Управление прототипом">
         <div className="nav-title">Экраны прототипа</div>
         <nav>{nav.map(([key, {label, icon: Icon}]) =>
           <button key={key} type="button" aria-current={key === screen ? 'page' : undefined} onClick={() => go(key as Screen)}>
@@ -133,15 +148,15 @@ function ExampleView({ example, changeExample }: { example: Example; changeExamp
           value={screen} onChange={e => go(e.target.value as Screen)}/>
         <NativeSelect className="example" label="Пример данных" value={example} onChange={e => changeExample(e.target.value as Example)}
           data={Object.entries(examples).map(([value,label]) => ({value,label}))}/>
-      </aside>
+      </aside>}
       <main className={screen === 'compare' ? 'comparison-page' : undefined}>
         {!form && screen !== 'compare' && <div className="crumb">Клиенты <IconChevronRight size={14}/>{screens[screen].label}</div>}
-        {screen === 'compare' && <PreviewComparison data={previewData} auditAvailable={auditAvailable} titleRef={heading}
+        {screen === 'compare' && <PreviewComparison data={previewData} sample={example} auditAvailable={auditAvailable} titleRef={heading}
           returnVariant={compareVersion.current} openRef={focusOpen} left={compareBaseline} setLeft={setCompareBaseline}
           onOpen={variant => { compareVersion.current = variant; go('detail') }}/>}
         {screen === 'preview' && <>
-          <button className="compare-link" onClick={() => go('compare')}><IconColumns2 size={18}/>Сравнить варианты</button>
-          <PreviewCard {...previewData} variant="first" titleRef={heading} openRef={focusOpen}/>
+          {!phoneMode && <button className="compare-link" onClick={() => go('compare')}><IconColumns2 size={18}/>Сравнить варианты</button>}
+          <PreviewCard {...previewData} variant={phoneMode ? phoneVariant : 'first'} titleRef={heading} openRef={focusOpen}/>
         </>}
         {screen === 'detail' && <article className="sheet identity">
           <header className="identity-header"><ClientAvatar aria-hidden name={name}  radius="xl" size={60} color="brand"/>
@@ -195,7 +210,27 @@ function ExampleView({ example, changeExample }: { example: Example; changeExamp
   </>
 }
 function App() {
-  const [example, setExample] = useState<Example>('empty')
-  return <MantineProvider theme={theme}><ExampleView key={example} example={example} changeExample={setExample}/></MantineProvider>
+  const [example, setExample] = useState<Example>(() => {
+    const sample = search.get('sample')
+    return phoneMode && sample && Object.hasOwn(examples, sample) ? sample as Example : 'empty'
+  })
+  const [variant, setVariant] = useState<PhoneVariant>(() => search.get('phone') === 'first' ? 'first' : 'new')
+  const wide = useMediaQuery('(min-width: 960px) and (min-height: 540px)', undefined, { getInitialValueInEffect: false })
+  function changeVariant(next: PhoneVariant) {
+    setVariant(next)
+    history.replaceState(null, '', phoneUrl(next, example))
+  }
+  function changeExample(next: Example) {
+    setExample(next)
+    if (phoneMode && !embeddedPhone) {
+      const url = new URL(location.href)
+      url.searchParams.set('sample', next)
+      history.replaceState(null, '', url)
+    }
+  }
+  return <MantineProvider theme={theme}>{phoneMode && wide && !embeddedPhone
+    ? <PhoneGallery sample={example} onSample={changeExample}/>
+    : <ExampleView key={example} example={example} changeExample={changeExample} phoneVariant={variant} changeVariant={changeVariant}/>}
+  </MantineProvider>
 }
 createRoot(document.getElementById('root')!).render(<App/>)
