@@ -1,11 +1,12 @@
 # TASK-205: Сохранять группу и время в посещаемости занятия
 
 ## Status
-needs-clarification
+implementation
 
 ## Requirements
 - REQ-ATT-001 — implements
 - REQ-ATT-002 — constrains
+- REQ-ATT-003 — constrains
 - REQ-NFR-001 — constrains
 
 ## Goal
@@ -69,4 +70,11 @@ ROS-01: после перехода в состав остаются «Посе�
 - implementation_plan: /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md
 
 ## Прототип от 21.11.2026
-Подготовлен [интерактивный прототип шапки](../mockups/TASK-205-attendance-lesson-context/preview.html). [Описание, снимки и результаты проверки](../mockups/TASK-205-attendance-lesson-context/README.md) включают возврат в оба списка, прямой вход и восстановление после ошибки. Ожидаются выбор владельца и согласование источника данных о конкретном занятии.
+Подготовлен [интерактивный прототип шапки](../mockups/TASK-205-attendance-lesson-context/preview.html). [Описание, снимки и результаты проверки](../mockups/TASK-205-attendance-lesson-context/README.md) включают возврат в оба списка, прямой вход и восстановление после ошибки. Владелец продукта принял этот вариант 21.11.2026. Источник группы и интервала подтверждён действующим API деталей расписания, доступ к составу проверяет API посещений.
+
+## Implementation lifecycle
+- readiness: yes
+- moved_to_implementation_at: 2026-11-21 16:05 (Europe/Moscow)
+- moved_from: /backlog/needs-clarification
+- implementation_plan: /backlog/implementation-plans/TASK-205-attendance-lesson-context.plan.md
+- implementation_branch: codex/TASK-205-attendance-lesson-context
