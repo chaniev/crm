@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { checkClientViewports, expectNoHorizontalOverflow, expectReachableActions } from './support/client-action-layout'
 import { lesson } from './support/schedule-lesson'
 
 const APP_CONFIG = {
@@ -530,17 +531,6 @@ async function fulfillJson(route: RouteMockContext['route'], status: number, pay
   })
 }
 
-async function expectNoHorizontalOverflow(page: Page) {
-  const metrics = await page.evaluate(() => ({
-    bodyScrollWidth: document.body.scrollWidth,
-    documentScrollWidth: document.documentElement.scrollWidth,
-    viewportWidth: window.innerWidth,
-  }))
-
-  expect(metrics.documentScrollWidth).toBeLessThanOrEqual(metrics.viewportWidth + 1)
-  expect(metrics.bodyScrollWidth).toBeLessThanOrEqual(metrics.viewportWidth + 1)
-}
-
 test.describe('TASK-116: контекст возврата в карточку клиента', () => {
   test('Карточка клиента из посещений открывается и возвращает точный контекст', async ({
     page,
@@ -888,18 +878,55 @@ test.describe('TASK-018 · карточка и формы клиента', () =>
   })
 
   test('краткая карточка объединяет тип и предупреждение перед филиалом', async ({ page }) => {
-    await page.goto(profile + '/preview')
-    const panel = page.getByTestId('client-preview-panel')
-    await expect(panel.getByText(fullName)).toBeVisible()
-    await expect(panel.getByText('Активный', { exact: true })).toHaveCount(1)
-    const membership = panel.getByRole('note', { name: 'Состояние абонемента' })
-    await expect(membership.getByText('На срок')).toBeVisible()
-    await expect(membership.getByText('Абонемент просрочен')).toBeVisible()
-    await expect(panel.getByText('Контакты', { exact: true })).toHaveCount(0)
-    const warning = await membership.boundingBox()
-    const branch = await panel.getByText('Филиал', { exact: true }).boundingBox()
-    expect(warning!.y + warning!.height).toBeLessThanOrEqual(branch!.y + 1)
-    await expectNoHorizontalOverflow(page)
+    await checkClientViewports(page, async () => {
+      await page.goto(profile + '/preview')
+      const panel = page.getByTestId('client-preview-panel')
+      await expect(panel.getByText(fullName)).toBeVisible()
+      await expect(panel.getByText('Активный', { exact: true })).toHaveCount(1)
+      const membership = panel.getByRole('note', { name: 'Состояние абонемента' })
+      await expect(membership.getByText('На срок')).toBeVisible()
+      await expect(membership.getByText('Абонемент просрочен')).toBeVisible()
+      await expect(panel.getByText('Контакты', { exact: true })).toHaveCount(0)
+      const warning = await membership.boundingBox()
+      const branch = await panel.getByText('Филиал', { exact: true }).boundingBox()
+      expect(warning!.y + warning!.height).toBeLessThanOrEqual(branch!.y + 1)
+      await expectReachableActions(panel, ['Оформить абонемент', 'Сообщение', 'Посещение', 'Открыть карточку'])
+      await panel.getByRole('button', { name: 'Открыть карточку' }).click()
+      await expect(page.getByRole('heading', { level: 1, name: fullName })).toBeVisible()
+      await expect(page.getByRole('tab', { name: 'Основная информация' })).toHaveAttribute('aria-selected', 'true')
+    })
+  })
+
+  test('отмена изменений профиля и архивации активного клиента', async ({ page }) => {
+    let archiveRequests = 0
+    page.on('request', request => {
+      if (new URL(request.url()).pathname === '/api' + profile + '/archive') archiveRequests++
+    })
+
+    await checkClientViewports(page, async () => {
+      await page.goto(profile)
+      const surname = page.getByLabel('Фамилия', { exact: true })
+      await expect(surname).toHaveValue(lastName)
+      await surname.fill('Черновик')
+      const actions = ['Сохранить изменения', 'Отменить изменения']
+      await expectReachableActions(page, actions)
+      for (const name of actions) {
+        const label = page.getByRole('button', { name, exact: true }).getByText(name, { exact: true })
+        const clipped = await label.evaluate(el => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1)
+        expect(clipped, `Обрезана подпись «${name}»`).toBe(false)
+      }
+      await page.getByRole('button', { name: 'Отменить изменения' }).click()
+      await expect(surname).toHaveValue(lastName)
+
+      await expectReachableActions(page, ['Перевести', 'В архив'])
+      await page.getByRole('button', { name: 'В архив', exact: true }).click()
+      const dialog = page.getByRole('dialog', { name: 'Перевести клиента в архив?' })
+      await expect(dialog).toBeVisible()
+      await dialog.getByRole('button', { name: 'Отмена', exact: true }).click()
+      await expect(dialog).toBeHidden()
+      await expect(page.getByText('Активный', { exact: true })).toBeVisible()
+      expect(archiveRequests).toBe(0)
+    })
   })
 
   test('полная карточка один раз показывает имя и состояние Telegram', async ({ page }) => {
@@ -960,6 +987,8 @@ test.describe('TASK-018 · карточка и формы клиента', () =>
     await expect(page.getByRole('tab', { name: 'Сообщения' })).toHaveCount(0)
     await expect(page.getByLabel('Telegram', { exact: true })).toHaveCount(0)
     await expect(page.getByRole('tab', { name: 'Абонементы' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Перевести', exact: true })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'В архив', exact: true })).toHaveCount(0)
     expect(requests).toEqual([])
   })
 
@@ -983,14 +1012,23 @@ test.describe('TASK-018 · карточка и формы клиента', () =>
   })
 
   test('создание оставляет подсказку о фото и добавляет поля контакта по запросу', async ({ page }) => {
-    await page.goto('/clients/new')
-    await expect(page.getByLabel('Фамилия', { exact: true })).toBeVisible()
-    await expect(page.getByText('Фотографию можно добавить после сохранения клиента.')).toBeVisible()
-    await expect(page.getByText('Фото пока не показано')).toHaveCount(0)
-    await expect(page.getByText('Контактные лица пока не добавлены.')).toHaveCount(0)
-    await page.getByRole('button', { name: 'Добавить контакт' }).click()
-    await expect(page.getByLabel('ФИО контактного лица')).toBeVisible()
-    await expectNoHorizontalOverflow(page)
+    await checkClientViewports(page, async () => {
+      await page.goto('/clients/new')
+      await expect(page.getByLabel('Фамилия', { exact: true })).toBeVisible()
+      await expect(page.getByText('Фотографию можно добавить после сохранения клиента.')).toBeVisible()
+      await expect(page.getByText('Фото пока не показано')).toHaveCount(0)
+      await expect(page.getByText('Контактные лица пока не добавлены.')).toHaveCount(0)
+      await page.getByRole('button', { name: 'Добавить контакт' }).click()
+      await expect(page.getByLabel('ФИО контактного лица')).toBeVisible()
+      const actions = ['Сохранить клиента', 'Отменить']
+      await expectReachableActions(page, actions)
+      await page.getByRole('button', { name: 'Сохранить клиента' }).click()
+      await expect(page.getByText('Укажите хотя бы одно из полей ФИО клиента.')).toBeVisible()
+      await expect(page.getByText('Укажите телефон клиента.', { exact: true })).toBeVisible()
+      await expect(page.getByLabel('ФИО контактного лица')).toBeVisible()
+      await expect(page).toHaveURL(/\/clients\/new$/)
+      await expectReachableActions(page, actions)
+    })
   })
 
   test('ошибка замены сохраняет снимок и допускает повтор с тем же файлом', async ({ page }) => {

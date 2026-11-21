@@ -69,6 +69,11 @@
 .client-assignment-copy span { color: var(--crm-text-secondary); font-size: var(--mantine-font-size-sm); }
 
 @media (max-width: 48rem), (max-height: 30rem) {
+  .client-editor-fieldset--profile .sticky-form-actions--page .mantine-Button-label {
+    white-space: normal;
+    line-height: 1.2;
+  }
+
   .client-editor-fieldset--profile .sticky-form-actions--page:not(:has(.sticky-form-actions__secondary)) {
     position: static;
     box-shadow: none;

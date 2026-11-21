@@ -2,10 +2,10 @@
 
 ## Metadata
 - source_task: /backlog/implementation/TASK-021-client-detail-responsive-regression.md
-- requirements: REQ-CLI-001 (verifies); REQ-NFR-001 (verifies)
+- requirements: REQ-CLI-001 (verifies); REQ-NFR-001 (implements)
 - branch: codex/TASK-021-client-detail-responsive-regression
 - readiness: yes
-- product_decisions: none — задача проверяет принятые сценарии карточки.
+- product_decisions: accepted
 - technical_decisions: none — достаточно существующих спецификаций Playwright, их фикстур и проектов.
 - architecture_decisions: none — изменения ограничены проверкой интерфейса.
 - open_questions: none
@@ -18,12 +18,16 @@
 ## Decisions and contracts
 Проверить действующие точки входа и результат нажатия. В краткой карточке уже согласовано открытие полной карточки выбранного клиента. Для кнопок «Оформить абонемент», «Сообщение» и «Посещение» проверять доступность и геометрию. Их общий переход в профиль зафиксирован как проблема TASK-016. Назначение этих переходов остаётся в её границах.
 
+При согласованном исправлении панель изменённого профиля показывает обе подписи целиком. Добавить проверку обрезания, подтвердить её падение на исходной версии и повторить браузерную и визуальную приёмку после локальной CSS-правки.
+
 ## Decision evidence
+- product: [Решение по подписям](/backlog/implementation/TASK-021-client-detail-responsive-regression.md#решение-владельца-по-подписям-кнопок) — owner: владелец продукта; decision: исправить обрезание подписей сохранения и отмены в TASK-021 и повторить приёмку.
 - [Исходная задача](/backlog/implementation/TASK-021-client-detail-responsive-regression.md) задаёт объём проверки. Требования к карточке и адаптивности приняты в [REQ-CLI-001](/docs/requirements/01-клиенты.md) и [REQ-NFR-001](/docs/requirements/08-нефункциональные.md).
 - Владелец согласовал пять вкладок, редактирование доступных полей и компоновку телефона и планшета в [TASK-019](/backlog/done/2026-11-21/TASK-019-client-card-tabs.md). Для визуальной сверки использовать [утверждённый прототип](/backlog/mockups/TASK-019/README.md). Открытые решения о быстрых действиях записаны в [TASK-016](/backlog/needs-clarification/TASK-016-client-card-quick-actions.md).
 
 ## Scope
 ### In
+- Полные подписи сохранения и отмены в панели изменённого профиля.
 - Регрессии краткой и полной карточек, формы создания, редактора профиля и формы продления. Данные — клиент с длинным ФИО, сотрудник с правом управления и тренер с доступом на чтение.
 ### Out
 - Новые действия и вкладки, изменения прав, покупок, архивации или API. Задача про проверку существующего интерфейса.

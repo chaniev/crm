@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
+import { checkClientViewports, expectReachableActions } from './support/client-action-layout'
 
 const session = {
   isAuthenticated: true,
@@ -82,6 +83,10 @@ test.describe('TASK-077 membership sale pricing', () => {
   })
 
   test('renewal requires a new pricing choice and keeps previous pricing as context only', async ({ page }) => {
+    let renewalRequests = 0
+    page.on('request', request => {
+      if (new URL(request.url()).pathname === '/api/clients/client-1/membership/renew') renewalRequests++
+    })
     await mockMembershipPricingApi(
       page,
       buildClient({
@@ -92,16 +97,24 @@ test.describe('TASK-077 membership sale pricing', () => {
       }),
     )
 
-    await page.goto('/clients/client-1')
-    await page.getByRole('tab', { name: 'Абонементы' }).click()
-    await page.getByRole('button', { name: 'Продлить', exact: true }).click()
+    await checkClientViewports(page, async () => {
+      await page.goto('/clients/client-1')
+      await page.getByRole('tab', { name: 'Абонементы' }).click()
+      await page.getByRole('button', { name: 'Продлить', exact: true }).click()
 
-    await expect(page.getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
-    await expect(page.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
-    await expect(page.getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
-    await expect(page.getByText('Предыдущая продажа', { exact: true })).toBeVisible()
-    await expect(page.getByText('Месяц • 4 100 ₽', { exact: true })).toBeVisible()
-    await expect(page.locator('input[value="4100"]')).toHaveCount(0)
+      await expect(page.getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
+      await expect(page.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
+      await expect(page.getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
+      await expect(page.getByText('Предыдущая продажа', { exact: true })).toBeVisible()
+      await expect(page.getByText('Месяц • 4 100 ₽', { exact: true })).toBeVisible()
+      await expect(page.locator('input[value="4100"]')).toHaveCount(0)
+      const renewal = page.locator('form').filter({ has: page.getByRole('button', { name: 'Продлить абонемент' }) })
+      await expectReachableActions(renewal, ['Продлить абонемент', 'Отменить'])
+      await renewal.getByRole('button', { name: 'Отменить' }).click()
+      await expect(renewal).toBeHidden()
+      await expect(page.getByRole('button', { name: 'Продлить', exact: true })).toBeVisible()
+      expect(renewalRequests).toBe(0)
+    })
   })
 
   test('branch assignment transfer has no membership sale controls', async ({ page }) => {

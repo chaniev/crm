@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "task_id": "TASK-021",
+  "expected_branch": "codex/TASK-021-client-detail-responsive-regression",
+  "areas": ["frontend"],
+  "playwright": [
+    {
+      "id": "frontend.client-profile-context",
+      "spec": "e2e/client-profile-context-navigation.spec.ts",
+      "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.client-membership-pricing",
+      "spec": "e2e/membership-sale-pricing.spec.ts",
+      "projects": ["chromium"],
+      "timeout_seconds": 1200
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.client-action-layout",
+      "description": "Сверить действия карточки с прототипом на телефоне и планшете, открыть и закрыть подтверждение архива с клавиатуры."
+    },
+    {
+      "id": "manual.safari-profile-keyboard",
+      "description": "В Safari на iOS Simulator проверить достижимость панели изменённого профиля при открытой экранной клавиатуре."
+    }
+  ],
+  "manual_evidence": "backlog/implementation/TASK-021-manual-evidence.json"
+}
