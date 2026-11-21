@@ -1,0 +1,392 @@
+<div id="crm-schedule-redesign">
+  <section class="crm-phone" aria-label="Макет мобильного расписания K-4PRO">
+    <header class="crm-shell-header">
+      <div class="crm-brand-mark" aria-hidden="true"><i data-lucide="scan-line"></i></div>
+      <strong>K-4PRO</strong>
+      <button type="button" class="crm-icon-button crm-profile" aria-label="Открыть профиль">
+        <i data-lucide="chevron-down" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <main class="crm-schedule-main">
+      <div class="crm-date-toolbar" aria-label="Выбор даты расписания">
+        <button type="button" class="crm-icon-button" aria-label="Предыдущий день" data-day-step="-1">
+          <i data-lucide="chevron-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="crm-date-button" aria-label="Выбрать дату">
+          <i data-lucide="calendar-days" aria-hidden="true"></i>
+          <span><b data-date>29.08.2026</b><small data-weekday>суббота</small></span>
+        </button>
+        <button type="button" class="crm-icon-button" aria-label="Следующий день" data-day-step="1">
+          <i data-lucide="chevron-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="crm-icon-button crm-create" aria-label="Создать разовое занятие">
+          <i data-lucide="plus" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="crm-schedule-summary">
+        <span><b data-count>14 занятий</b><small>3 временных блока</small></span>
+        <button type="button" class="crm-filter-button" aria-expanded="false">
+          <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
+          Фильтры
+        </button>
+      </div>
+
+      <div class="crm-filter-state" hidden>
+        <span>Все филиалы · Все тренеры</span>
+        <button type="button" aria-label="Закрыть фильтры"><i data-lucide="x" aria-hidden="true"></i></button>
+      </div>
+
+      <section class="crm-time-group" aria-labelledby="time-10">
+        <div class="crm-time-heading">
+          <h2 id="time-10">10:00–11:30</h2>
+          <span>5 занятий</span>
+        </div>
+
+        <article class="crm-lesson-row">
+          <button type="button" class="crm-lesson-main" aria-label="Открыть занятие Кикбоксинг группа 03 — Филиал Центр">
+            <span class="crm-lesson-title">Кикбоксинг группа 03</span>
+            <span class="crm-lesson-place">Филиал Центр · Зал 3</span>
+            <span class="crm-lesson-trainer">Тренер 03</span>
+          </button>
+          <div class="crm-lesson-actions">
+            <span class="crm-status">Без отметок</span>
+            <button type="button" class="crm-attendance">Посещаемость</button>
+            <button type="button" class="crm-more" aria-label="Ещё действия для Кикбоксинг группа 03"><i data-lucide="ellipsis" aria-hidden="true"></i></button>
+          </div>
+        </article>
+
+        <article class="crm-lesson-row">
+          <button type="button" class="crm-lesson-main" aria-label="Открыть занятие Кикбоксинг группа 15 — Филиал Север">
+            <span class="crm-lesson-title">Кикбоксинг группа 15</span>
+            <span class="crm-lesson-place">Филиал Север · Зал 3</span>
+            <span class="crm-lesson-trainer">Тренер 05</span>
+          </button>
+          <div class="crm-lesson-actions">
+            <span class="crm-status">Без отметок</span>
+            <button type="button" class="crm-attendance">Посещаемость</button>
+            <button type="button" class="crm-more" aria-label="Ещё действия для Кикбоксинг группа 15"><i data-lucide="ellipsis" aria-hidden="true"></i></button>
+          </div>
+        </article>
+
+        <article class="crm-lesson-row">
+          <button type="button" class="crm-lesson-main" aria-label="Открыть занятие Кикбоксинг группа 27 — Филиал Запад">
+            <span class="crm-lesson-title">Кикбоксинг группа 27</span>
+            <span class="crm-lesson-place">Филиал Запад · Зал 1</span>
+            <span class="crm-lesson-trainer">Тренер 07</span>
+          </button>
+          <div class="crm-lesson-actions">
+            <span class="crm-status">Без отметок</span>
+            <button type="button" class="crm-attendance">Посещаемость</button>
+            <button type="button" class="crm-more" aria-label="Ещё действия для Кикбоксинг группа 27"><i data-lucide="ellipsis" aria-hidden="true"></i></button>
+          </div>
+        </article>
+
+        <article class="crm-lesson-row">
+          <button type="button" class="crm-lesson-main" aria-label="Открыть занятие ММА группа 09 — Филиал Центр">
+            <span class="crm-lesson-title">ММА группа 09</span>
+            <span class="crm-lesson-place">Филиал Центр · Зал 3</span>
+            <span class="crm-lesson-trainer">Тренер 09</span>
+          </button>
+          <div class="crm-lesson-actions">
+            <span class="crm-status">Без отметок</span>
+            <button type="button" class="crm-attendance">Посещаемость</button>
+            <button type="button" class="crm-more" aria-label="Ещё действия для ММА группа 09"><i data-lucide="ellipsis" aria-hidden="true"></i></button>
+          </div>
+        </article>
+      </section>
+
+      <div class="crm-next-time">
+        <b>16:00–17:00</b><span>5 занятий</span>
+      </div>
+    </main>
+
+    <nav class="crm-bottom-nav" aria-label="Мобильная навигация">
+      <button type="button"><i data-lucide="clipboard-check" aria-hidden="true"></i><span>Посещения</span></button>
+      <button type="button"><i data-lucide="triangle-alert" aria-hidden="true"></i><span>Внимание</span></button>
+      <button type="button" class="crm-nav-active" aria-current="page"><i data-lucide="calendar-days" aria-hidden="true"></i><span>Расписание</span></button>
+      <button type="button"><i data-lucide="users" aria-hidden="true"></i><span>Клиенты</span></button>
+      <button type="button"><i data-lucide="ellipsis" aria-hidden="true"></i><span>Ещё</span></button>
+    </nav>
+
+    <div class="crm-toast" role="status" aria-live="polite"></div>
+  </section>
+</div>
+
+<style>
+  #crm-schedule-redesign {
+    display: grid;
+    place-items: start center;
+    width: 100%;
+    font-family: Onest, system-ui, sans-serif;
+    color: light-dark(#17221f, #eef5f2);
+    color-scheme: light dark;
+  }
+  #crm-schedule-redesign * { box-sizing: border-box; }
+  #crm-schedule-redesign button { font: inherit; color: inherit; }
+  #crm-schedule-redesign .crm-phone {
+    position: relative;
+    display: grid;
+    grid-template-rows: 62px 1fr 72px;
+    width: min(420px, 100%);
+    height: 912px;
+    overflow: hidden;
+    background: light-dark(#f7f6f1, #111815);
+    border: 1px solid light-dark(#d8d9d4, #34403b);
+    border-radius: 28px;
+    box-shadow: 0 18px 46px light-dark(rgb(25 42 35 / 16%), rgb(0 0 0 / 42%));
+  }
+  #crm-schedule-redesign .crm-shell-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: light-dark(#ffffff, #19211e);
+    border-bottom: 1px solid light-dark(#ddded9, #33403a);
+  }
+  #crm-schedule-redesign .crm-brand-mark {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    color: #ffffff;
+    background: #438b75;
+    border-radius: 50%;
+  }
+  #crm-schedule-redesign .crm-shell-header strong { font-size: 16px; font-weight: 500; }
+  #crm-schedule-redesign .crm-profile { margin-left: auto; }
+  #crm-schedule-redesign .crm-icon-button,
+  #crm-schedule-redesign .crm-more {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid light-dark(#d9ddd8, #3a4741);
+    border-radius: 12px;
+    background: light-dark(#ffffff, #202a26);
+  }
+  #crm-schedule-redesign .crm-schedule-main {
+    min-height: 0;
+    overflow: hidden;
+    padding: 12px 14px 0;
+  }
+  #crm-schedule-redesign .crm-date-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #crm-schedule-redesign .crm-date-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    height: 52px;
+    flex: 1 1 auto;
+    padding: 6px 12px;
+    text-align: left;
+    border: 1px solid light-dark(#d9ddd8, #3a4741);
+    border-radius: 12px;
+    background: light-dark(#ffffff, #202a26);
+  }
+  #crm-schedule-redesign .crm-date-button span { display: grid; gap: 1px; }
+  #crm-schedule-redesign .crm-date-button b { font-size: 16px; font-weight: 500; }
+  #crm-schedule-redesign .crm-date-button small { font-size: 12px; color: light-dark(#5d6964, #b9c5bf); }
+  #crm-schedule-redesign .crm-create { color: #ffffff; border-color: #438b75; background: #438b75; }
+  #crm-schedule-redesign .crm-schedule-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 54px;
+    padding: 4px 0;
+  }
+  #crm-schedule-redesign .crm-schedule-summary > span { display: grid; gap: 1px; }
+  #crm-schedule-redesign .crm-schedule-summary b { font-size: 15px; font-weight: 500; }
+  #crm-schedule-redesign .crm-schedule-summary small { font-size: 12px; color: light-dark(#5d6964, #b9c5bf); }
+  #crm-schedule-redesign .crm-filter-button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 44px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 11px;
+    background: light-dark(#e4efea, #263a33);
+    color: light-dark(#245e4d, #bde0d2);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  #crm-schedule-redesign .crm-filter-state {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 40px;
+    margin-bottom: 8px;
+    padding: 0 10px 0 12px;
+    border-radius: 10px;
+    color: light-dark(#245e4d, #c6e4d8);
+    background: light-dark(#eaf4f0, #21362f);
+    font-size: 13px;
+  }
+  #crm-schedule-redesign .crm-filter-state[hidden] { display: none; }
+  #crm-schedule-redesign .crm-filter-state button { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; background: transparent; }
+  #crm-schedule-redesign .crm-time-heading,
+  #crm-schedule-redesign .crm-next-time {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 34px;
+  }
+  #crm-schedule-redesign .crm-time-heading h2,
+  #crm-schedule-redesign .crm-next-time b { margin: 0; font-size: 16px; font-weight: 500; }
+  #crm-schedule-redesign .crm-time-heading span,
+  #crm-schedule-redesign .crm-next-time span { font-size: 12px; color: light-dark(#5d6964, #b9c5bf); }
+  #crm-schedule-redesign .crm-time-group {
+    overflow: hidden;
+    background: light-dark(#ffffff, #19211e);
+    border: 1px solid light-dark(#dfe1dc, #34403b);
+    border-radius: 14px;
+  }
+  #crm-schedule-redesign .crm-time-heading { padding: 0 12px; background: light-dark(#eef2ee, #202b27); }
+  #crm-schedule-redesign .crm-lesson-row { padding: 8px 10px; border-top: 1px solid light-dark(#e5e7e2, #303c37); }
+  #crm-schedule-redesign .crm-lesson-main {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 10px;
+    width: 100%;
+    min-height: 45px;
+    padding: 0 24px 0 0;
+    text-align: left;
+    border: 0;
+    background: transparent;
+  }
+  #crm-schedule-redesign .crm-lesson-main::after {
+    content: "›";
+    position: absolute;
+    top: -1px;
+    right: 2px;
+    color: light-dark(#52625c, #a7b6b0);
+    font-size: 22px;
+  }
+  #crm-schedule-redesign .crm-lesson-title { grid-column: 1 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 500; }
+  #crm-schedule-redesign .crm-lesson-place,
+  #crm-schedule-redesign .crm-lesson-trainer { font-size: 13px; color: light-dark(#53605b, #c1cbc7); }
+  #crm-schedule-redesign .crm-lesson-trainer { text-align: right; }
+  #crm-schedule-redesign .crm-lesson-actions { display: flex; align-items: center; gap: 8px; min-height: 36px; }
+  #crm-schedule-redesign .crm-status {
+    margin-right: auto;
+    padding: 3px 7px;
+    border-radius: 7px;
+    color: light-dark(#276450, #bce6d7);
+    background: light-dark(#dff2ea, #234036);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  #crm-schedule-redesign .crm-attendance {
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1px solid light-dark(#9ab9ae, #507767);
+    border-radius: 9px;
+    color: light-dark(#276450, #c8e5db);
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  #crm-schedule-redesign .crm-more { flex-basis: 36px; width: 36px; height: 36px; border-radius: 9px; }
+  #crm-schedule-redesign .crm-next-time { padding: 6px 4px 0; }
+  #crm-schedule-redesign .crm-bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 4px 8px 8px;
+    background: light-dark(#ffffff, #19211e);
+    border-top: 1px solid light-dark(#dfe1dc, #34403b);
+  }
+  #crm-schedule-redesign .crm-bottom-nav button {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    min-width: 0;
+    min-height: 56px;
+    padding: 4px 2px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    font-size: 10px;
+  }
+  #crm-schedule-redesign .crm-bottom-nav .crm-nav-active { color: light-dark(#245e4d, #d2eee4); background: light-dark(#e0eee8, #28453b); }
+  #crm-schedule-redesign .crm-toast {
+    position: absolute;
+    left: 50%;
+    bottom: 82px;
+    z-index: 2;
+    transform: translateX(-50%);
+    min-width: max-content;
+    padding: 9px 13px;
+    border-radius: 10px;
+    color: #ffffff;
+    background: #264d41;
+    box-shadow: 0 8px 22px rgb(0 0 0 / 22%);
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease;
+  }
+  #crm-schedule-redesign .crm-toast.crm-toast-visible { opacity: 1; }
+  @media (max-width: 360px) {
+    #crm-schedule-redesign .crm-phone { border-radius: 20px; }
+    #crm-schedule-redesign .crm-date-toolbar { gap: 5px; }
+    #crm-schedule-redesign .crm-date-button { padding-inline: 8px; }
+    #crm-schedule-redesign .crm-attendance { padding-inline: 7px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #crm-schedule-redesign .crm-toast { transition: none; }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById('crm-schedule-redesign');
+    const toast = root.querySelector('.crm-toast');
+    let toastTimer;
+    const showToast = (message) => {
+      toast.textContent = message;
+      toast.classList.add('crm-toast-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('crm-toast-visible'), 1400);
+    };
+
+    root.querySelectorAll('.crm-attendance').forEach((button) => {
+      button.addEventListener('click', () => showToast('Открываем посещаемость'));
+    });
+    root.querySelector('.crm-create').addEventListener('click', () => showToast('Создать разовое занятие'));
+
+    const filterButton = root.querySelector('.crm-filter-button');
+    const filterState = root.querySelector('.crm-filter-state');
+    const setFiltersOpen = (open) => {
+      filterButton.setAttribute('aria-expanded', String(open));
+      filterState.hidden = !open;
+    };
+    filterButton.addEventListener('click', () => setFiltersOpen(filterState.hidden));
+    filterState.querySelector('button').addEventListener('click', () => setFiltersOpen(false));
+
+    const dates = [
+      ['28.08.2026', 'пятница', '12 занятий'],
+      ['29.08.2026', 'суббота', '14 занятий'],
+      ['30.08.2026', 'воскресенье', '9 занятий']
+    ];
+    let dateIndex = 1;
+    root.querySelectorAll('[data-day-step]').forEach((button) => {
+      button.addEventListener('click', () => {
+        dateIndex = Math.max(0, Math.min(dates.length - 1, dateIndex + Number(button.dataset.dayStep)));
+        root.querySelector('[data-date]').textContent = dates[dateIndex][0];
+        root.querySelector('[data-weekday]').textContent = dates[dateIndex][1];
+        root.querySelector('[data-count]').textContent = dates[dateIndex][2];
+      });
+    });
+  })();
+</script>
