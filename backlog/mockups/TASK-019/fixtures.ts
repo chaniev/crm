@@ -1,4 +1,4 @@
-import { branches, fixture, groups } from '../../done/2026-11-21/TASK-018-mockups/fixtures'
+import { branches, demoPhoto, fixture, groups } from '../../done/2026-11-21/TASK-018-mockups/fixtures'
 
 export const demoGroups = [...groups, {
   ...groups[0], id: 'kick-morning', name: 'Кикбоксинг · утренняя группа', trainingStartTime: '09:00', weekdays: [1, 3, 5],
@@ -28,7 +28,7 @@ export function makeClient(example: Example) {
   return { ...form, id: 'preview-client', fullName: [form.lastName,form.firstName,form.middleName].join(' '),
     groupIds: example === 'empty' ? [] : [group.id], groups: example === 'empty' ? [] : [group], branchName: group.branchName, status: 'Active', businessDate: '2026-11-21',
     contacts: example === 'empty' || example === 'coach' ? [] : [{ id: 'contact', type: 'Мама', fullName: 'Марина Алексеева', phone: '+7 900 000-03-18' }],
-    isProfessional: false, photo: null, currentMemberships: sales, membershipHistory: [...sales],
+    isProfessional: false, photo: example === 'standard' ? { path: demoPhoto, contentType: 'image/jpeg' } : null, currentMemberships: sales, membershipHistory: [...sales],
     hasCurrentMembership: sales.length > 0, hasActiveMembership: sales.length > 0,
     attendanceHistory: example === 'empty' ? [] : history,
     notes: example === 'empty' ? '' : form.notes, notesLastChangedByName: 'Мария Орлова', notesLastChangedAt: '2026-11-20T12:34:00Z',
@@ -46,6 +46,22 @@ export function installFixtures(example: Example) {
     const path = url.pathname.replace(/^\/api/, '')
     const method = init?.method ?? 'GET'
     if (path === '/clients/preview-client' && method === 'GET') return Response.json(client)
+    if (path === '/clients/preview-client/photo' && method === 'POST') {
+      const file = (init?.body as FormData).get('photo')
+      if (!(file instanceof File)) return Response.json({ detail: 'Выберите фотографию.' }, { status: 422 })
+      const src = URL.createObjectURL(file)
+      const image = new Image()
+      image.src = src
+      try {
+        await image.decode()
+      } catch {
+        URL.revokeObjectURL(src)
+        return Response.json({ detail: 'Не удалось прочитать файл. Выберите другое изображение.' }, { status: 422 })
+      }
+      if (client.photo?.path.startsWith('blob:')) URL.revokeObjectURL(client.photo.path)
+      client.photo = { path: src, contentType: file.type }
+      return Response.json({})
+    }
     if (path === '/clients/preview-client' && method === 'PUT') {
       if (failEdit) {
         failEdit = false

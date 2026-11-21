@@ -22,11 +22,23 @@ const [bundle] = await build({
       if (id === resolve(clients, 'ClientOverviewSection.tsx')) {
         return source.replace(sliceAt(source, '<Group gap="sm" wrap="nowrap"', '{!canManage'), '')
       }
+      const identityModule = JSON.stringify(resolve(here, 'IdentityFields.tsx'))
+      if (id === resolve(clients, 'ClientPhotoSection.tsx')) {
+        const beforeRender = '  if (!previewUrl && !canUpload) return null'
+        const portrait = `  if (variant === 'edit' && canUpload) return <EditPortrait
+          preview={previewUrl && <SavedPhoto key={previewUrl} clientName={clientName} url={previewUrl}/>}
+          onPick={handleFileChange} resetRef={resetFile} uploading={uploading} error={uploadError} />`
+        return 'import { EditPortrait } from ' + identityModule + '\n' +
+          source.replace("buildClientPhotoUrl(clientId, previewVersion ?? photo.uploadedAt ?? photo.path ?? 'current')", 'photo.path')
+            .replace(/const src = attempt[^\n]+/, 'const src = url')
+            .replace(beforeRender, portrait + '\n' + beforeRender)
+      }
       if (id === resolve(clients, 'ClientForm.tsx')) {
-        const groupPicker = sliceAt(source, '<MultiSelect', '            <TextInput')
-        return source.replace(groupPicker, '').replace('loading={submitting}', 'disabled={!form.isDirty()} loading={submitting}')
-          .replace('type="date"', `type="date" description={form.values.birthDate && getClientAgeDisplayValue(form.values.birthDate, '2026-11-21')}`)
-          .replace("import type { ReactNode }", "import { getClientAgeDisplayValue } from './clientBirthDate'\nimport type { ReactNode }")
+        const names = sliceAt(source, '<SimpleGrid cols={{ base: 1, md: 3 }}>', '          <SimpleGrid cols={{ base: 1, md: 2 }}>')
+        const groupAndDate = sliceAt(source, '<SimpleGrid cols={{ base: 1, md: 2 }}>\n            <MultiSelect', '          <Textarea')
+        return 'import { IdentitySlot } from ' + identityModule + '\n' +
+          source.replace(names, '<IdentitySlot/>\n').replace(groupAndDate, '')
+            .replace('loading={submitting}', 'disabled={!form.isDirty()} loading={submitting}')
       }
       const panel = ['MembershipCorrectionPanel', 'MembershipPurchasePanel', 'MembershipRenewPanel']
         .find(name => id === resolve(clients, 'membership', name + '.tsx'))

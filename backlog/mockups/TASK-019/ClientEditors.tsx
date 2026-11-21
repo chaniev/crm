@@ -9,6 +9,7 @@ import { PageSection } from '../../../frontend/src/features/shared/ux'
 import { formatGroupSchedule } from '../../../frontend/src/lib/groupSchedule'
 import { branches } from '../../done/2026-11-21/TASK-018-mockups/fixtures'
 import { demoGroups } from './fixtures'
+import { IdentityFields, IdentityHeader } from './IdentityFields'
 import { useDraftState } from './DraftState'
 
 type EditorProps = { client: ClientDetails; onSaved: (client: ClientDetails) => void }
@@ -60,12 +61,13 @@ export function InfoEditor({ client, onSaved, photo, actions }: EditorProps & { 
   return <PageSection>
     <Stack gap="md">
       {client.isProfessional && <Alert title="Профессионал">{client.professionalComment}</Alert>}
-      {photo}
-      <ClientForm form={form} branchOptions={branches} groupOptions={[]} lockBranch
-        cancelAction={form.isDirty() ? { label: 'Отменить изменения', onClick: reset } : null}
-        formError={state.error || null} submitting={state.saving} submitLabel="Сохранить изменения" onSubmit={save}
-        photoSection={client.notesLastChangedByName && client.notesLastChangedAt &&
-          <ClientNoteAttribution authorName={client.notesLastChangedByName} changedAt={client.notesLastChangedAt}/>} />
+      <IdentityHeader.Provider value={<IdentityFields form={form} photo={photo} businessDate={client.businessDate}/>}>
+        <ClientForm form={form} branchOptions={branches} groupOptions={[]} lockBranch
+          cancelAction={form.isDirty() ? { label: 'Отменить изменения', onClick: reset } : null}
+          formError={state.error || null} submitting={state.saving} submitLabel="Сохранить изменения" onSubmit={save}
+          photoSection={client.notesLastChangedByName && client.notesLastChangedAt &&
+            <ClientNoteAttribution authorName={client.notesLastChangedByName} changedAt={client.notesLastChangedAt}/>} />
+      </IdentityHeader.Provider>
       {state.notice && !form.isDirty() && <Text role="status" c="teal">{state.notice}</Text>}
       {actions}
     </Stack>
