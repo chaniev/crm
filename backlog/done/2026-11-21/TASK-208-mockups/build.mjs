@@ -2,14 +2,14 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { build } from '../../../frontend/node_modules/vite/dist/node/index.js'
+import { build } from '../../../../frontend/node_modules/vite/dist/node/index.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const auditScreen = resolve(here, '../../../frontend/src/features/audit/AuditLogScreen.tsx')
+const auditScreen = resolve(here, '../../../../frontend/src/features/audit/AuditLogScreen.tsx')
 const row = await readFile(resolve(here, 'row.tsx'), 'utf8')
 const detailSummary = await readFile(resolve(here, 'detail-summary.tsx'), 'utf8')
 const [result] = await build({
-  configFile: false, root: resolve(here, '../../../frontend'), publicDir: false,
+  configFile: false, root: resolve(here, '../../../../frontend'), publicDir: false,
   resolve: { dedupe: ['react', 'react-dom', '@mantine/core', '@mantine/hooks', '@tabler/icons-react', '@fontsource/onest'] },
   plugins: [{
     name: 'offline-audit-row', enforce: 'pre',

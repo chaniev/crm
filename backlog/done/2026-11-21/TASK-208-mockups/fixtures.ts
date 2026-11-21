@@ -1,5 +1,5 @@
-import type { AuditLogEntry, AuditLogFilterUser, AuthenticatedUser, GetAuditLogParams } from '../../../frontend/src/lib/api/types'
-export { ApiError } from '../../../frontend/src/lib/api'
+import type { AuditLogEntry, AuditLogFilterUser, AuthenticatedUser, GetAuditLogParams } from '../../../../frontend/src/lib/api/types'
+export { ApiError } from '../../../../frontend/src/lib/api'
 
 const users: AuditLogFilterUser[] = [
   { id: '1', fullName: 'Ирина Волкова', login: 'i.volkova', role: 'HeadCoach' },

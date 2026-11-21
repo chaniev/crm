@@ -10,7 +10,7 @@
 2. [TASK-016](../../risky/TASK-016-client-card-quick-actions.md) — быстрые действия открывают обещанный сценарий; рискованная карточка требует проверки прав и операций.
 3. [TASK-205](../../done/2026-11-21/TASK-205-attendance-lesson-context.md), [TASK-206](../../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md), [TASK-207](../../done/2026-11-21/TASK-207-attention-mobile-client-identity.md) — контекст занятия, достоверный филиал, различимость клиента.
 4. [TASK-018](../../done/2026-11-21/TASK-018-client-detail-visual-noise.md) / [TASK-019](../../tasks-ready/TASK-019-client-card-tabs.md) / [TASK-020](../../risky/TASK-020-client-empty-states-action-reasons.md) — убрать повторы и развести задачи в карточке; не начинать с глобальной смены оформления.
-5. [TASK-208](../../tasks-ready/TASK-208-audit-list-technical-metadata.md) и [TASK-184](../../tasks-ready/TASK-184-finance-duplicate-warning-once.md) — убрать технические строки журнала и повтор финансового предупреждения.
+5. [TASK-208](../../done/2026-11-21/TASK-208-audit-list-technical-metadata.md) и [TASK-184](../../tasks-ready/TASK-184-finance-duplicate-warning-once.md) — убрать технические строки журнала и повтор финансового предупреждения.
 
 Это рекомендация очередности, не принятие плана или разрешение изменения кода. `tasks-ready` означает достаточный предмет для планирования; готовые планы и согласованные прототипы этим разбором не созданы.
 
@@ -22,7 +22,7 @@
 | [TASK-205](../../done/2026-11-21/TASK-205-attendance-lesson-context.md): Сохранять группу и время в посещаемости занятия | tasks-ready | 21-attendance-lesson |
 | [TASK-206](../../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md): Согласовать отображение филиала администратора в списке и диалоге | done | 14-settings-administrators |
 | [TASK-207](../../done/2026-11-21/TASK-207-attention-mobile-client-identity.md): Сохранять различимость клиента и причины во «Внимании» | tasks-ready | 02-attention |
-| [TASK-208](../../tasks-ready/TASK-208-audit-list-technical-metadata.md): Убрать технические метаданные из рабочих строк журнала | tasks-ready | 09-audit-log |
+| [TASK-208](../../done/2026-11-21/TASK-208-audit-list-technical-metadata.md): Убрать технические метаданные из рабочих строк журнала | done | 09-audit-log |
 | [TASK-209](../../needs-clarification/TASK-209-mobile-navigation-clients-slot.md): Выбрать поведение четвёртого пункта мобильного меню | needs-clarification | 00-navigation |
 | [TASK-210](../../needs-clarification/TASK-210-attention-search-information-priority.md): Согласовать поиск и состав видимой информации во «Внимании» | needs-clarification | 02-attention |
 
@@ -60,7 +60,7 @@ TASK-016 приведена к уже принятому REQ-SUB-003: отдел
 | [06-client-details](06-client-details/README.md) | DET-01/02 → [TASK-018](../../done/2026-11-21/TASK-018-client-detail-visual-noise.md)/020; DET-03 → [TASK-019](../../tasks-ready/TASK-019-client-card-tabs.md). [TASK-021](../../tasks-ready/TASK-021-client-detail-responsive-regression.md) получает снимки для будущей проверки. Историю и восстановление фото не удалять; новая гипотеза четырёх вкладок не отменяет исходные шесть. |
 | [07-groups](07-groups/README.md) | GRP-01/02/03 → D05: показ времени, повтор общего счётчика и нейтральные статусы. Сначала определить отображение разных времён по дням; счётчик «Без тренера» не превращать в новый фильтр без выбора. |
 | [08-coaches](08-coaches/README.md) | COA-01/02 → D06: вложенные поверхности и повтор «Логин:» — малая визуальная отдача; оценить вместе со списками настроек после рабочих сценариев. |
-| [09-audit-log](09-audit-log/README.md) | AUD-01 → [TASK-208](../../tasks-ready/TASK-208-audit-list-technical-metadata.md); AUD-02 → [TASK-185](../../needs-clarification/TASK-185-ui-copy-and-unit-consistency.md). AUD-03 → D07: повтор автора внутри сохранённого описания не удалять правкой истории. Детали и фильтры сохраняются. |
+| [09-audit-log](09-audit-log/README.md) | AUD-01 → [TASK-208](../../done/2026-11-21/TASK-208-audit-list-technical-metadata.md); AUD-02 → [TASK-185](../../needs-clarification/TASK-185-ui-copy-and-unit-consistency.md). AUD-03 → D07: повтор автора внутри сохранённого описания не удалять правкой истории. Детали и фильтры сохраняются. |
 | [10-finance](10-finance/README.md) | FIN-01 → [TASK-184](../../tasks-ready/TASK-184-finance-duplicate-warning-once.md). FIN-02/03 и переключение месяца/года → D08: иерархия разбивок/периода не выбрана. Пять метрик, нулевые возвраты и предупреждение о двойном учёте сохраняются. |
 | [11-settings-catalog](11-settings-catalog/README.md) | CAT-02 → [TASK-175](../../needs-clarification/TASK-175-user-visible-date-format.md)/185; Professional и нулевая цена → [TASK-179](../../needs-clarification/TASK-179-professional-catalog-seed-presentation.md), не доказанный дефект. CAT-01 → D06: плотность списка каталога отложена. |
 | [12-settings-group-types](12-settings-group-types/README.md) | TYP-01 → D06: демонстрационный текст не доказательство бесполезности реальных описаний. TYP-02 → D09: проверить причину запрета удаления в доступном состоянии перед созданием дефекта. Число связанных групп оставить. |

@@ -32,7 +32,7 @@
       "timeout_seconds": 600
     }
   ],
-  "manual_evidence": "backlog/implementation/TASK-208-manual-evidence.json",
+  "manual_evidence": "backlog/done/2026-11-21/TASK-208-manual-evidence.json",
   "manual_checks": [{
     "id": "manual.audit-presentation",
     "description": "Сверить строку и детали с прототипом на 390, 768 и 1440 px. Проверить клавиатуру, видимость и возврат фокуса."
