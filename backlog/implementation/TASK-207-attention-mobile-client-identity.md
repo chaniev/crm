@@ -1,7 +1,7 @@
 # TASK-207: Сохранять различимость клиента и причины во «Внимании»
 
 ## Status
-tasks-ready
+implementation
 
 ## Requirements
 - REQ-ATTN-001 — changes

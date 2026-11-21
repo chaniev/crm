@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-207 Сохранять различимость клиента и причины во «Внимании»
 
 ## Metadata
-- source_task: /backlog/tasks-ready/TASK-207-attention-mobile-client-identity.md
+- source_task: /backlog/implementation/TASK-207-attention-mobile-client-identity.md
 - requirements: REQ-ATTN-001 (changes); REQ-NFR-001 (implements)
 - branch: codex/TASK-207-attention-mobile-client-identity
 - readiness: yes
@@ -27,7 +27,7 @@ App.css содержит ellipsis у attention-client-row__name и причин;
 
 ## Decision evidence
 
-- product: [Выбор владельца и результаты сравнения](/backlog/tasks-ready/TASK-207-attention-mobile-client-identity.md) — owner: владелец продукта; decision: 21.11.2026 выбран вариант А со звонком по номеру, полным ФИО, видимыми причинами и ростом строки для длинных записей.
+- product: [Выбор владельца и результаты сравнения](/backlog/implementation/TASK-207-attention-mobile-client-identity.md) — owner: владелец продукта; decision: 21.11.2026 выбран вариант А со звонком по номеру, полным ФИО, видимыми причинами и ростом строки для длинных записей.
 
 ## Scope
 

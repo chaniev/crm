@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-207",
+  "actor": "coding-agent:TASK-207",
+  "performed_at": "2026-11-21T16:54:26+03:00",
+  "confirmations": [
+    {
+      "id": "manual.attention-mobile",
+      "note": "Сопоставлены снимки Chromium и вариант А. Отдельно проверены увеличение текста, ошибки, ограничения доступа и фокус после касания меню в двух профилях WebKit.",
+      "artifacts": [
+        "backlog/implementation/TASK-207-evidence/acceptance.md"
+      ]
+    }
+  ]
+}

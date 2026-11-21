@@ -4782,6 +4782,79 @@
   white-space: nowrap;
 }
 
+.attention-client-row-card[data-mobile] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--crm-space-1) / 2);
+  padding: calc(var(--crm-space-3) / 2) calc(var(--crm-space-5) / 2);
+  overflow-wrap: anywhere;
+}
+
+.attention-client-row-card[data-mobile] .attention-client-row__content,
+.attention-client-row-card[data-mobile] .attention-client-row__reasons {
+  display: grid;
+  gap: 0;
+}
+
+.attention-client-row-card[data-mobile] :is(.attention-client-row__name, .attention-client-row__reasons, .attention-client-row__reasons > *) {
+  overflow: visible;
+  white-space: normal;
+}
+
+.attention-client-row-card[data-mobile] .attention-client-row__reasons {
+  color: var(--crm-text-heading);
+  font-size: var(--crm-type-body-size);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.attention-client-row__details {
+  color: var(--crm-text-secondary);
+  font-size: var(--crm-type-body-compact-size);
+  line-height: 1.3;
+}
+
+.attention-client-row-card[data-mobile] .attention-client-row__actions {
+  flex-wrap: wrap;
+}
+
+.attention-client-row-card[data-mobile] .attention-client-row__more {
+  margin-inline-start: auto;
+}
+
+.attention-client-row-card[data-mobile] .attention-client-row__primary {
+  display: inline-grid;
+  place-items: center;
+  max-width: 100%;
+  height: auto;
+  padding-inline: var(--crm-space-3);
+  white-space: normal;
+}
+
+.attention-client-row-card[data-mobile] .mantine-Button-label {
+  height: auto;
+  overflow: visible;
+  white-space: normal;
+}
+
+.attention-client-row__call {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--crm-space-1);
+  min-width: 44px;
+  min-height: 44px;
+  max-width: 100%;
+  color: var(--crm-action-primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+@media (max-width: 24em) {
+  .attention-client-row__call {
+    font-size: var(--crm-type-body-compact-size);
+  }
+}
+
 .attention-client-row__error {
   grid-column: 1 / -1;
   font-size: var(--crm-type-body-compact-size);

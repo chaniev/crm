@@ -8,7 +8,7 @@
 
 1. [TASK-204](../../implementation/TASK-204-client-full-name-search.md) — поиск фамилии и имени: сначала воспроизводимый пример и установленная причина.
 2. [TASK-016](../../risky/TASK-016-client-card-quick-actions.md) — быстрые действия открывают обещанный сценарий; рискованная карточка требует проверки прав и операций.
-3. [TASK-205](../../implementation/TASK-205-attendance-lesson-context.md), [TASK-206](../../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md), [TASK-207](../../tasks-ready/TASK-207-attention-mobile-client-identity.md) — контекст занятия, достоверный филиал, различимость клиента.
+3. [TASK-205](../../implementation/TASK-205-attendance-lesson-context.md), [TASK-206](../../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md), [TASK-207](../../implementation/TASK-207-attention-mobile-client-identity.md) — контекст занятия, достоверный филиал, различимость клиента.
 4. [TASK-018](../../tasks-ready/TASK-018-client-detail-visual-noise.md) / [TASK-019](../../tasks-ready/TASK-019-client-card-tabs.md) / [TASK-020](../../risky/TASK-020-client-empty-states-action-reasons.md) — убрать повторы и развести задачи в карточке; не начинать с глобальной смены оформления.
 5. [TASK-208](../../tasks-ready/TASK-208-audit-list-technical-metadata.md) и [TASK-184](../../tasks-ready/TASK-184-finance-duplicate-warning-once.md) — убрать технические строки журнала и повтор финансового предупреждения.
 
@@ -21,7 +21,7 @@
 | [TASK-204](../../implementation/TASK-204-client-full-name-search.md): Находить клиента по сочетанию фамилии и имени | tasks-ready | 04-clients |
 | [TASK-205](../../implementation/TASK-205-attendance-lesson-context.md): Сохранять группу и время в посещаемости занятия | tasks-ready | 21-attendance-lesson |
 | [TASK-206](../../done/2026-11-21/TASK-206-administrator-branch-display-consistency.md): Согласовать отображение филиала администратора в списке и диалоге | done | 14-settings-administrators |
-| [TASK-207](../../tasks-ready/TASK-207-attention-mobile-client-identity.md): Сохранять различимость клиента и причины во «Внимании» | tasks-ready | 02-attention |
+| [TASK-207](../../implementation/TASK-207-attention-mobile-client-identity.md): Сохранять различимость клиента и причины во «Внимании» | tasks-ready | 02-attention |
 | [TASK-208](../../tasks-ready/TASK-208-audit-list-technical-metadata.md): Убрать технические метаданные из рабочих строк журнала | tasks-ready | 09-audit-log |
 | [TASK-209](../../needs-clarification/TASK-209-mobile-navigation-clients-slot.md): Выбрать поведение четвёртого пункта мобильного меню | needs-clarification | 00-navigation |
 | [TASK-210](../../needs-clarification/TASK-210-attention-search-information-priority.md): Согласовать поиск и состав видимой информации во «Внимании» | needs-clarification | 02-attention |
@@ -53,7 +53,7 @@ TASK-016 приведена к уже принятому REQ-SUB-003: отдел
 |---|---|
 | [00-navigation](00-navigation/README.md) | NAV-01 → [TASK-209](../../needs-clarification/TASK-209-mobile-navigation-clients-slot.md); NAV-02 → [TASK-181](../../tasks-ready/TASK-181-native-navigation-links.md). NAV-03 → D01: перенос/удаление обновления зависит от модели актуальности; сначала проверить REQ-NFR-006. |
 | [01-attendance](01-attendance/README.md) | ATT-L-01/02 → D02: компактная шапка, фильтр филиала/переход к ближайшему времени требуют выбора. Дополнительно проверить различие «всё отмечено» / нет доступных занятий; отсутствие переключателя полного состава проверить отдельно после отметки, если релевантно сценарию. |
-| [02-attention](02-attention/README.md) | ATN-01 → [TASK-207](../../tasks-ready/TASK-207-attention-mobile-client-identity.md). ATN-02/03, раскрытие комментария и карточка по имени за одно действие → [TASK-210](../../needs-clarification/TASK-210-attention-search-information-priority.md). Все серверные причины и доступ к связи сохраняются. |
+| [02-attention](02-attention/README.md) | ATN-01 → [TASK-207](../../implementation/TASK-207-attention-mobile-client-identity.md). ATN-02/03, раскрытие комментария и карточка по имени за одно действие → [TASK-210](../../needs-clarification/TASK-210-attention-search-information-priority.md). Все серверные причины и доступ к связи сохраняются. |
 | [03-schedule](03-schedule/README.md) | SCH-03 → [TASK-182](../../tasks-ready/TASK-182-schedule-weekday-calendar-date.md). SCH-01/02 → D03: плотность строк, нейтральные статусы и перенос длинных названий проверить на прототипе с контрактом выполненной TASK-157. |
 | [04-clients](04-clients/README.md) | CLI-01 → [TASK-204](../../implementation/TASK-204-client-full-name-search.md). CLI-02 → D04: удаление повторных нейтральных desktop-сигналов отложено до поиска и карточки; мобильный список уже компактен. |
 | [05-client-card](05-client-card/README.md) | PRE-01 → [TASK-016](../../risky/TASK-016-client-card-quick-actions.md). PRE-02 → [TASK-018](../../tasks-ready/TASK-018-client-detail-visual-noise.md)/020; адаптивная регрессия → [TASK-021](../../tasks-ready/TASK-021-client-detail-responsive-regression.md). Три нажатия до формы — наблюдение, два — цель для согласования; сохранение не измерялось. |

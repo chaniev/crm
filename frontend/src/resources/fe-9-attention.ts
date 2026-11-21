@@ -1,4 +1,16 @@
+const plural = new Intl.PluralRules('ru')
+const missedForms: Record<string, string> = { one: 'пропуск', few: 'пропуска', many: 'пропусков' }
+
 export const fe9AttentionText = {
+  missedInARow: (count: number) => `${count} ${missedForms[plural.select(count)] ?? 'пропуска'} подряд`,
+  expired: 'Абонемент истёк',
+  expiring: 'Абонемент скоро истечёт',
+  expiredToday: 'Абонемент истёк сегодня',
+  expiresToday: 'Абонемент истекает сегодня',
+  expiredDaysAgo: (days: number, word: string) => `Абонемент истёк ${days} ${word} назад`,
+  expiresInDays: (days: number, word: string) => `Абонемент истекает через ${days} ${word}`,
+  noPhone: 'Нет телефона',
+  callNumber: (name: string, phone: string) => `Позвонить ${name}, ${phone}`,
   attentionDashboard_title_f17ceff0: "Внимание",
   attentionPanel_ariaLabel_93096e67: "Причины",
   attentionPanel_jsxText_0701381c: "Позвонить ",
