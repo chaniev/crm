@@ -9,6 +9,7 @@ import {
 import type { UseFormReturnType } from '@mantine/form'
 import type { ReactNode } from 'react'
 import type { MessengerPlatform, UserRole } from '../../lib/api'
+import { fe11SettingsUsersText } from '../../resources/fe-11-settings-users'
 import { resources } from '../../lib/resources'
 import {
   messengerPlatformOptions,
@@ -42,6 +43,7 @@ type UserFormFieldsProps<FormValues extends BaseUserFormValues> = {
   credentialsFields: ReactNode
   form: UseFormReturnType<FormValues>
   fullNameInputProps?: FullNameInputProps
+  passwordResetPending?: boolean
   isActiveDisabled?: boolean
   isActiveLabel?: string
   onRoleChange?: (value: UserRole | null) => void
@@ -55,6 +57,7 @@ export function UserFormFields<FormValues extends BaseUserFormValues>({
   credentialsFields,
   form,
   fullNameInputProps,
+  passwordResetPending = false,
   isActiveDisabled = false,
   isActiveLabel = resources.users.form.labels.isActive,
   onRoleChange,
@@ -124,6 +127,8 @@ export function UserFormFields<FormValues extends BaseUserFormValues>({
           {...form.getInputProps('isActive', { type: 'checkbox' })}
         />
         <Switch
+          disabled={passwordResetPending}
+          description={passwordResetPending ? fe11SettingsUsersText.passwordReset.locked : undefined}
           label={resources.users.form.labels.mustChangePassword}
           {...form.getInputProps('mustChangePassword', {
             type: 'checkbox',

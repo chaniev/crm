@@ -35,12 +35,13 @@ internal static class StaffManagementBoundary
             actor.Id == target.Id);
     }
 
-    public static IReadOnlyList<string> GetAllowedActions(User actor, User target)
+    public static IReadOnlyList<string> GetAllowedActions(User actor, User target, bool hasPrimaryAssignmentInBranch = false)
     {
         return UserRoleAuthorizationPolicy.GetAllowedTargetActions(
                 actor.Role,
                 target.Role,
-                actor.Id == target.Id)
+                actor.Id == target.Id,
+                hasPrimaryAssignmentInBranch)
             .Select(action => action.ToString())
             .ToArray();
     }

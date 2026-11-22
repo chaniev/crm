@@ -172,6 +172,7 @@ export const resources = {
       Login: 'Вход в систему',
       Logout: 'Выход из системы',
       PasswordChanged: 'Смена пароля',
+      PasswordReset: 'Сброс пароля',
       UserCreated: 'Создание пользователя',
       UserUpdated: 'Редактирование пользователя',
       ClientCreated: 'Создание клиента',

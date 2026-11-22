@@ -29,6 +29,42 @@ public class InternalBotApiTests
     private const string ServiceToken = "bot-internal-service-token";
 
     [Fact]
+    public async Task Staff_reset_blocks_linked_administrator_until_personal_password_change()
+    {
+        await using var factory = new InternalBotAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        using var manager = factory.CreateClient();
+        using var recipient = factory.CreateClient();
+        var menu = $"/internal/bot/menu?platform=Telegram&platformUserId={seeded.AdminTelegramId}";
+        using var before = await SendBotRequestAsync(recipient, HttpMethod.Get, menu);
+        Assert.Equal(HttpStatusCode.OK, before.StatusCode);
+
+        var managerToken = await StaffLoginAsync(manager, "bot-headcoach", "internal-bot-password");
+        using var reset = await BranchSettingsAppFactory.SendAsync(manager, HttpMethod.Post,
+            $"/settings/administrators/{seeded.AdminId}/reset-password", new { temporaryPassword = "temporary-test" }, managerToken);
+        Assert.Equal(HttpStatusCode.NoContent, reset.StatusCode);
+        using var blocked = await SendBotRequestAsync(recipient, HttpMethod.Get, menu);
+        Assert.Equal(HttpStatusCode.Forbidden, blocked.StatusCode);
+        Assert.Equal("PasswordChangeRequired", (await ReadJsonElementAsync(blocked)).GetProperty("title").GetString());
+
+        var recipientToken = await StaffLoginAsync(recipient, "bot-admin", "temporary-test");
+        using var changed = await BranchSettingsAppFactory.SendAsync(recipient, HttpMethod.Post, "/auth/change-password",
+            new { currentPassword = "temporary-test", newPassword = "Personal-test173" }, recipientToken);
+        Assert.Equal(HttpStatusCode.OK, changed.StatusCode);
+        using var restored = await SendBotRequestAsync(recipient, HttpMethod.Get, menu);
+        Assert.Equal(HttpStatusCode.OK, restored.StatusCode);
+    }
+
+    private static async Task<string> StaffLoginAsync(HttpClient client, string login, string password)
+    {
+        var session = await client.GetFromJsonAsync<JsonElement>("/auth/session");
+        using var response = await BranchSettingsAppFactory.SendAsync(client, HttpMethod.Post, "/auth/login",
+            new { login, password }, session.GetProperty("csrfToken").GetString());
+        response.EnsureSuccessStatusCode();
+        return (await ReadJsonElementAsync(response)).GetProperty("csrfToken").GetString()!;
+    }
+
+    [Fact]
     public async Task Photo_requires_service_token_bound_employee_and_current_client_scope()
     {
         await using var factory = new InternalBotAppFactory();

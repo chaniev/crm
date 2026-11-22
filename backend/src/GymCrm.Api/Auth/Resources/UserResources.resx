@@ -72,4 +72,13 @@
   <data name="UserUpdatedDescription" xml:space="preserve">
     <value>Пользователь '{0}' изменил пользователя '{1}'.</value>
   </data>
+  <data name="TemporaryPasswordRequired" xml:space="preserve">
+    <value>Введите временный пароль.</value>
+  </data>
+  <data name="TemporaryPasswordUnchanged" xml:space="preserve">
+    <value>Этот временный пароль уже действует. Введите другой временный пароль.</value>
+  </data>
+  <data name="PasswordResetDescription" xml:space="preserve">
+    <value>Пользователь '{0}' сбросил пароль пользователя '{1}'.</value>
+  </data>
 </root>

@@ -446,7 +446,7 @@ function UserListCard({
     })
   }
 
-  if (canEditUser(user)) {
+  if (canEditUser(user) || user.allowedActions?.includes('ResetPassword')) {
     return (
       <button
         aria-label={fe11SettingsUsersText.usersListScreen_template_1fa0371e(user.fullName)}

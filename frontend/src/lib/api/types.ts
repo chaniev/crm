@@ -83,6 +83,7 @@ export type UserAllowedAction =
   | 'Deactivate'
   | 'Reactivate'
   | 'Delete'
+  | 'ResetPassword'
   | 'ManageAttendanceScope'
 
 export type UserListItem = {
@@ -96,6 +97,7 @@ export type UserListItem = {
   messengerPlatformUserId: string | null
   branchId: string | null | undefined
   branchName: string | null | undefined
+  passwordResetPending?: boolean
   attendanceGroupGrantCount?: number
   allowedActions?: UserAllowedAction[]
   roleOptions?: UserRole[]

@@ -121,6 +121,62 @@ public class AuthFlowTests
     }
 
     [Fact]
+    public async Task Repeated_reset_and_personal_change_reject_prior_tickets_even_at_same_timestamp()
+    {
+        await using var factory = new BranchSettingsAppFactory();
+        await factory.SeedAsync();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var coach = await db.Users.SingleAsync(user => user.Role == UserRole.Coach);
+        var (manager, token) = await factory.LoginAsync(UserRole.HeadCoach);
+        using var managerClient = manager;
+        var path = $"/coaches/{coach.Id}/reset-password";
+        using var first = await PostJsonAsync(manager, path, new { temporaryPassword = "first-temporary" }, token);
+        Assert.Equal(HttpStatusCode.NoContent, first.StatusCode);
+        using var previous = factory.CreateClient();
+        using var firstLogin = await PostJsonAsync(previous, "/auth/login",
+            new LoginRequest(coach.Login, "first-temporary"), (await GetSessionAsync(previous)).CsrfToken);
+        Assert.True((await ReadJsonAsync<SessionPayload>(firstLogin)).User!.MustChangePassword);
+        await db.Entry(coach).ReloadAsync();
+        var firstVersion = coach.CredentialVersion;
+        var firstTime = coach.UpdatedAt;
+        Assert.NotNull(firstVersion);
+
+        using var second = await PostJsonAsync(manager, path, new { temporaryPassword = "second-temporary" }, token);
+        Assert.Equal(HttpStatusCode.NoContent, second.StatusCode);
+        await db.Entry(coach).ReloadAsync();
+        var secondVersion = coach.CredentialVersion;
+        Assert.NotNull(secondVersion);
+        Assert.NotEqual(firstVersion, secondVersion);
+        coach.UpdatedAt = firstTime;
+        await db.SaveChangesAsync();
+        Assert.False((await GetSessionAsync(previous)).IsAuthenticated);
+
+        using var current = factory.CreateClient();
+        var anonymous = await GetSessionAsync(current);
+        using var refused = await PostJsonAsync(current, "/auth/login",
+            new LoginRequest(coach.Login, "first-temporary"), anonymous.CsrfToken);
+        Assert.Equal(HttpStatusCode.Unauthorized, refused.StatusCode);
+        using var secondLogin = await PostJsonAsync(current, "/auth/login",
+            new LoginRequest(coach.Login, "second-temporary"), anonymous.CsrfToken);
+        var temporarySession = await ReadJsonAsync<SessionPayload>(secondLogin);
+        Assert.True(temporarySession.User!.MustChangePassword);
+        using var denied = await current.GetAsync("/auth/profile");
+        Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
+        using var change = await PostJsonAsync(current, "/auth/change-password",
+            new ChangePasswordRequest("second-temporary", "New-personal173"), temporarySession.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, change.StatusCode);
+        var personalSession = await ReadJsonAsync<SessionPayload>(change);
+        Assert.Equal(coach.Id.ToString(), personalSession.User!.Id);
+        Assert.False(personalSession.User.MustChangePassword);
+        await db.Entry(coach).ReloadAsync();
+        Assert.False(coach.PasswordResetPending);
+        Assert.NotNull(coach.CredentialVersion);
+        Assert.NotEqual(secondVersion, coach.CredentialVersion);
+        Assert.False((await GetSessionAsync(previous)).IsAuthenticated);
+    }
+
+    [Fact]
     public async Task Change_password_without_csrf_token_is_rejected()
     {
         await using var factory = new AuthAppFactory();

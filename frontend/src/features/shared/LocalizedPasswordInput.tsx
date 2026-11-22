@@ -1,8 +1,8 @@
 import { PasswordInput, type PasswordInputProps } from '@mantine/core'
-import { useState, type MouseEvent } from 'react'
+import { useState, type Ref, type MouseEvent } from 'react'
 import { fe17SharedRoutingThemeText as text } from '../../resources/fe-17-shared-routing-theme'
 
-export function LocalizedPasswordInput(props: PasswordInputProps) {
+export function LocalizedPasswordInput(props: PasswordInputProps & { ref?: Ref<HTMLInputElement> }) {
   const [visible, setVisible] = useState(false)
 
   return (

@@ -16,6 +16,7 @@ internal static class AdministratorEndpoints
 
         group.MapGet("/", ListAdministratorsAsync);
         group.MapGet("/{id:guid}", GetAdministratorAsync);
+        StaffPasswordResetEndpoints.Map(group, StaffEndpointRoleFamily.Administrators);
         group.MapPost("/", CreateAdministratorAsync);
         group.MapPut("/{id:guid}", UpdateAdministratorAsync);
 
@@ -256,6 +257,7 @@ internal static class AdministratorEndpoints
                 currentUser,
                 user,
                 StaffEndpointRoleFamily.Administrators),
-            attendanceGrantCount);
+            attendanceGrantCount,
+            user.PasswordResetPending);
     }
 }

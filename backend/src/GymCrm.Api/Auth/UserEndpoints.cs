@@ -1,3 +1,4 @@
+using GymCrm.Application.Attendance;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -16,6 +17,7 @@ internal static class UserEndpoints
 
         group.MapGet("/", ListUsersAsync);
         group.MapGet("/{id:guid}", GetUserAsync);
+        StaffPasswordResetEndpoints.Map(group, StaffEndpointRoleFamily.Trainers);
         group.MapPost("/", CreateUserAsync);
         group.MapPut("/{id:guid}", UpdateUserAsync);
 
@@ -25,6 +27,7 @@ internal static class UserEndpoints
     private static async Task<Results<Ok<UserListResponse>, ProblemHttpResult, UnauthorizedHttpResult>> ListUsersAsync(
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider dates,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -39,16 +42,19 @@ internal static class UserEndpoints
             return StaffProblemDetails.FromDenial(readDecision.Denial);
         }
 
-        IReadOnlyList<UserResponse> users = await dbContext.Users
+        var branchCoachIds = currentUser.Role == UserRole.Administrator && currentUser.BranchId is Guid branchId
+            ? await StaffPasswordResetScope.ActiveAssignments(dbContext, branchId, dates.Today)
+                .Select(a => a.TrainerId).Distinct().ToHashSetAsync(cancellationToken)
+            : [];
+        var coaches = await dbContext.Users
             .AsNoTracking()
             .Where(user => user.Role == UserRole.Coach)
             .OrderBy(user => user.FullName)
             .ThenBy(user => user.Login)
-            .Select(user => ToResponse(user, currentUser))
             .ToListAsync(cancellationToken);
 
         return TypedResults.Ok(new UserListResponse(
-            users,
+            coaches.Select(user => ToResponse(user, currentUser, branchCoachIds.Contains(user.Id))).ToArray(),
             StaffManagementBoundary.GetCreateRoleOptions(currentUser, StaffEndpointRoleFamily.Trainers)));
     }
 
@@ -56,6 +62,7 @@ internal static class UserEndpoints
         Guid id,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider dates,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -78,13 +85,15 @@ internal static class UserEndpoints
 
         return user is null
             ? StaffProblemDetails.NotFound()
-            : TypedResults.Ok(ToResponse(user, currentUser));
+            : TypedResults.Ok(ToResponse(user, currentUser,
+                await StaffPasswordResetScope.HasAssignmentAsync(dbContext, currentUser, user.Id, dates.Today, cancellationToken)));
     }
 
     private static async Task<Results<Created<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateUserAsync(
         CreateUserRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider dates,
         IPasswordHashService passwordHashService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -134,7 +143,9 @@ internal static class UserEndpoints
         }
 
         var user = mutationResult.User!;
-        return TypedResults.Created($"/coaches/{user.Id}", ToResponse(user, currentUser));
+        var hasAssignment = await StaffPasswordResetScope.HasAssignmentAsync(
+            dbContext, currentUser, user.Id, dates.Today, cancellationToken);
+        return TypedResults.Created($"/coaches/{user.Id}", ToResponse(user, currentUser, hasAssignment));
     }
 
     private static async Task<Results<Ok<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateUserAsync(
@@ -142,6 +153,7 @@ internal static class UserEndpoints
         UpdateUserRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider dates,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -200,10 +212,12 @@ internal static class UserEndpoints
             await AuthSessionSync.SyncCurrentSessionAsync(httpContext, user);
         }
 
-        return TypedResults.Ok(ToResponse(user, currentUser));
+        var hasAssignment = await StaffPasswordResetScope.HasAssignmentAsync(
+            dbContext, currentUser, user.Id, dates.Today, cancellationToken);
+        return TypedResults.Ok(ToResponse(user, currentUser, hasAssignment));
     }
 
-    private static UserResponse ToResponse(User user, User currentUser)
+    private static UserResponse ToResponse(User user, User currentUser, bool hasPrimaryAssignmentInBranch)
     {
         return new UserResponse(
             user.Id,
@@ -218,11 +232,12 @@ internal static class UserEndpoints
             user.UpdatedAt,
             user.BranchId,
             user.Branch?.Name,
-            StaffManagementBoundary.GetAllowedActions(currentUser, user),
+            StaffManagementBoundary.GetAllowedActions(currentUser, user, hasPrimaryAssignmentInBranch),
             StaffManagementBoundary.GetUpdateRoleOptions(
                 currentUser,
                 user,
                 StaffEndpointRoleFamily.Trainers,
-                allowHeadCoachSelfUpdateException: true));
+                allowHeadCoachSelfUpdateException: true),
+            PasswordResetPending: user.PasswordResetPending);
     }
 }

@@ -40,17 +40,13 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
             .AsNoTracking()
             .SingleOrDefaultAsync(candidate => candidate.Id == userId, context.RequestAborted);
 
-        if (user is null || !user.IsActive)
+        if (user is null || !AuthSessionSync.IsCurrentSession(context.User, user))
         {
+            // SignOut suppresses sliding renewal. A delayed response for a revoked ticket
+            // must also leave any replacement cookie already received by the browser intact.
+            var existingCookies = context.Response.Headers.SetCookie;
             await AuthSessionSync.SignOutAsync(context);
-            await next(context);
-            return;
-        }
-
-        var userVersion = context.User.FindFirstValue(AuthConstants.UserVersionClaimType);
-        if (!string.Equals(userVersion, AuthSessionSync.FormatUserVersion(user.UpdatedAt), StringComparison.Ordinal))
-        {
-            await AuthSessionSync.SignOutAsync(context);
+            context.Response.Headers.SetCookie = existingCookies;
             await next(context);
             return;
         }

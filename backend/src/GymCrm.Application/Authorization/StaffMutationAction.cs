@@ -6,5 +6,6 @@ public enum StaffMutationAction
     Edit = 2,
     Deactivate = 3,
     Reactivate = 4,
-    ManageAttendanceScope = 5
+    ManageAttendanceScope = 5,
+    ResetPassword = 6
 }

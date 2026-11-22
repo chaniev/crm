@@ -439,14 +439,18 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
             await using (var migrationDb = CreateDbContext(fixture.ConnectionString))
             {
                 await migrationDb.Database.EnsureDeletedAsync();
-                await migrationDb.GetService<IMigrator>().MigrateAsync(
-                    previousSchema ? "20261121010000_AddClientTelegramContact" : null);
+                await migrationDb.Database.MigrateAsync();
             }
 
             factory = new TestAppFactory(
                 fixture.ConnectionString,
                 throwSubstitutionAudit);
             var seeded = await SeedBaseDataAsync(factory);
+            if (previousSchema)
+            {
+                await using var migrationDb = CreateDbContext(fixture.ConnectionString);
+                await migrationDb.GetService<IMigrator>().MigrateAsync("20261121010000_AddClientTelegramContact");
+            }
             return new TestContext(
                 fixture.ConnectionString,
                 factory,

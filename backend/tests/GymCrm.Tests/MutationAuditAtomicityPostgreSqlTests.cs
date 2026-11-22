@@ -181,6 +181,31 @@ public class MutationAuditAtomicityPostgreSqlTests
     }
 
     [Fact]
+    public async Task Reset_audit_failure_preserves_both_credentials_and_existing_session()
+    {
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        var interceptor = new AuditFailureInterceptor("PasswordReset");
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString(), interceptor);
+        await factory.SeedAsync();
+        var (manager, token) = await factory.LoginAsync(UserRole.HeadCoach);
+        var (recipient, _) = await factory.LoginAsync(UserRole.Coach);
+        using var managerClient = manager;
+        using var recipientClient = recipient;
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var coach = await db.Users.SingleAsync(u => u.Role == UserRole.Coach);
+        var before = await SnapshotAsync(factory);
+        using var response = await BranchSettingsAppFactory.SendAsync(manager, HttpMethod.Post,
+            $"/coaches/{coach.Id}/reset-password", new { temporaryPassword = "temporary-test" }, token);
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.True(interceptor.FailureInjected);
+        Assert.Equal(before, await SnapshotAsync(factory));
+        using var profile = await recipient.GetAsync("/auth/profile");
+        Assert.Equal(HttpStatusCode.OK, profile.StatusCode);
+    }
+
+    [Fact]
     public async Task Password_audit_failure_preserves_credentials_and_allows_retry()
     {
         await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
@@ -300,7 +325,7 @@ public class MutationAuditAtomicityPostgreSqlTests
             groups = await db.TrainingGroups.AsNoTracking().OrderBy(item => item.Id)
                 .Select(item => new { item.Id, item.Name, item.BranchId, item.HallId, item.GroupTypeId, item.IsActive, item.UpdatedAt }).ToArrayAsync(),
             users = await db.Users.AsNoTracking().OrderBy(item => item.Id)
-                .Select(item => new { item.Id, item.PasswordHash, item.MustChangePassword, item.UpdatedAt }).ToArrayAsync(),
+                .Select(item => new { item.Id, item.PasswordHash, item.CredentialVersion, item.PasswordResetPending, item.MustChangePassword, item.UpdatedAt }).ToArrayAsync(),
             accounts = await db.ClientMessengerAccounts.AsNoTracking().OrderBy(item => item.Id).ToArrayAsync(),
             tokens = await db.ClientMessengerLinkTokens.AsNoTracking().OrderBy(item => item.Id).ToArrayAsync(),
             audits = await db.AuditLogs.AsNoTracking().OrderBy(item => item.Id).ToArrayAsync()

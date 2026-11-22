@@ -49,10 +49,10 @@ public class TrainerPeriodMigrationTests
         var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
         var migrator = db.GetService<IMigrator>();
         await migrator.MigrateAsync(Previous);
-        var trainer = await db.Users.SingleAsync(u => u.Role == UserRole.Coach);
+        var trainerId = await db.Users.Where(u => u.Role == UserRole.Coach).Select(u => u.Id).SingleAsync();
         var start = new DateOnly(2035, 1, 1);
-        var first = Period(group, trainer.Id, start, start.AddDays(1));
-        var second = Period(group, trainer.Id, start.AddDays(conflict ? 1 : 3), null);
+        var first = Period(group, trainerId, start, start.AddDays(1));
+        var second = Period(group, trainerId, start.AddDays(conflict ? 1 : 3), null);
         db.GroupTrainerAssignments.AddRange(first, second);
         await db.SaveChangesAsync();
         if (conflict)
@@ -65,7 +65,7 @@ public class TrainerPeriodMigrationTests
         else
         {
             await migrator.MigrateAsync();
-            db.GroupTrainerAssignments.Add(Period(group, trainer.Id, start.AddDays(1), start.AddDays(2)));
+            db.GroupTrainerAssignments.Add(Period(group, trainerId, start.AddDays(1), start.AddDays(2)));
             var error = await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
             Assert.Contains("EX_GroupTrainerAssignments_TrainerGroup_Period_NoOverlap", error.ToString(), StringComparison.Ordinal);
         }

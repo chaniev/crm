@@ -1,3 +1,4 @@
+export { observeProtectedUnauthorized } from './api/transport'
 export type {
   AccessPermissions,
   AppConfigResponse,
@@ -193,12 +194,14 @@ export {
   getAdministrators,
   replaceAdministratorAttendanceScope,
   updateAdministrator,
+  resetAdministratorPassword,
 } from './api/administrators'
 export {
   createUser,
   getUser,
   getUsers,
   updateUser,
+  resetUserPassword,
 } from './api/users'
 export {
   archiveClient,

@@ -21,9 +21,13 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(user => user.Id);
+        builder.Property(user => user.PasswordResetPending).HasDefaultValue(false);
 
         builder.ToTable(tableBuilder =>
         {
+            tableBuilder.HasCheckConstraint(
+                "CK_Users_PasswordResetPending",
+                """NOT "PasswordResetPending" OR ("MustChangePassword" AND "CredentialVersion" IS NOT NULL)""");
             tableBuilder.HasCheckConstraint(
                 "CK_Users_MessengerIdentity_Consistency",
                 MessengerIdentityConstraint);

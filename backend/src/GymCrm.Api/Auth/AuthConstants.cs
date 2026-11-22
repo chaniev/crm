@@ -18,6 +18,7 @@ internal static class AuthConstants
     public const string LogoutPath = AuthRoutePrefix + LogoutRoute;
     public const string ChangePasswordPath = AuthRoutePrefix + ChangePasswordRoute;
     public const string LoginClaimType = "gym-crm:login";
+    public const string CredentialVersionClaimType = "gym-crm:credential-version";
     public const string UserVersionClaimType = "gym-crm:user-version";
     public const string AuthenticatedUserItemKey = "gym-crm:authenticated-user";
     public const string InvalidCredentialsProblemTitle = "InvalidCredentials";

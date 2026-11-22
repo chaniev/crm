@@ -25,6 +25,13 @@ import type {
 import { fe17SharedRoutingThemeText } from '../../resources/fe-17-shared-routing-theme'
 
 
+export async function resetAdministratorPassword(administratorId: string, temporaryPassword: string) {
+  await request<void>(API_ENDPOINTS.administrators.resetPassword(administratorId), {
+    method: 'POST',
+    body: JSON.stringify({ temporaryPassword }),
+  })
+}
+
 export async function getAdministrators(signal?: AbortSignal) {
   const payload = await request<unknown>(API_ENDPOINTS.administrators.collection, {
     signal,
@@ -129,6 +136,7 @@ function mapAdministratorListItem(payload: UserResponsePayload): UserListItem {
     fullName: readString(payload, ['fullName', 'FullName']) ?? '',
     login: readString(payload, ['login', 'Login']) ?? '',
     role: mapUserRole(readString(payload, ['role', 'Role'])) ?? 'Administrator',
+    passwordResetPending: readBoolean(payload, ['passwordResetPending', 'PasswordResetPending']) ?? false,
     mustChangePassword:
       readBoolean(payload, ['mustChangePassword', 'MustChangePassword']) ?? false,
     isActive: readBoolean(payload, ['isActive', 'IsActive']) ?? false,

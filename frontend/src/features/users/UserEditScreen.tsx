@@ -1,3 +1,4 @@
+import { StaffPasswordReset } from './StaffPasswordReset'
 import { useUserFormErrorFocus } from './useUserFormErrorFocus'
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -10,6 +11,7 @@ import {
   ApiError,
   applyFieldErrors,
   getUser,
+  resetUserPassword,
   updateUser,
   type UserDetails,
 } from '../../lib/api'
@@ -197,11 +199,20 @@ export function UserEditScreen({
                 />
               ) : null}
 
+              {user && <StaffPasswordReset key={user.id} user={user} reset={resetUserPassword} reload={getUser}
+                onUpdated={(updated, reason) => {
+                  setUser(updated)
+                  if (reason === 'reset') {
+                    form.setFieldValue('mustChangePassword', updated.mustChangePassword)
+                  }
+                }} />}
+
               <form className="trainer-form" ref={formElement} onSubmit={form.onSubmit((values) => void submit(values), focusFirstError)}>
                 <Stack gap="lg">
                   <UserFormFields
                     credentialsFields={<UserEditCredentialsFields form={form} />}
                     form={form}
+                    passwordResetPending={user?.passwordResetPending}
                     isActiveDisabled={!userCanMutate}
                     roleOptions={[]}
                     showRoleField={false}

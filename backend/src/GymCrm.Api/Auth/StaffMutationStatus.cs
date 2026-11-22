@@ -6,5 +6,6 @@ internal enum StaffMutationStatus
     Updated = 2,
     ValidationFailed = 3,
     Forbidden = 4,
-    NotFound = 5
+    NotFound = 5,
+    Unauthorized = 6
 }

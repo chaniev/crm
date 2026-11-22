@@ -26,6 +26,8 @@ import {
   applyFieldErrors,
   createAdministrator,
   getAdministrators,
+  getAdministrator,
+  resetAdministratorPassword,
   getBranches,
   updateAdministrator,
   type AdministrativeUserRole,
@@ -59,6 +61,7 @@ import {
   toEditUserFormValues,
   toUpdateUserPayload,
 } from '../users/UserManagement.mappers'
+import { StaffPasswordReset } from '../users/StaffPasswordReset'
 import { AdministratorAttendanceScopeModal } from './AdministratorAttendanceScopeModal'
 import { fe11SettingsUsersText } from '../../resources/fe-11-settings-users'
 
@@ -494,29 +497,36 @@ export function AdministratorsSettingsPanel({
                       ) : null}
                     </Stack>
 
-                    {canEditStaffTarget(administrator) || canManageAttendanceScope(administrator) ? (
-                      <ResponsiveButtonGroup justify="flex-end">
-                        {canManageAttendanceScope(administrator) ? (
-                          <Button
-                            leftSection={<IconUsersGroup size={18} />}
-                            onClick={(event) => openAttendanceScope(administrator, event.currentTarget)}
-                            variant="pill"
-                          >
-                            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_c50470cc}</Button>
-                        ) : null}
-                        {canEditStaffTarget(administrator) ? (
-                          <Button
-                            leftSection={<IconEdit size={18} />}
-                            onClick={(event) => openEditModal(administrator, event.currentTarget)}
-                            variant="pill"
-                          >
-                            {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_59792556}</Button>
-                        ) : null}
-                      </ResponsiveButtonGroup>
-                    ) : (
-                      <Badge color="gray" radius="xl" variant="light">
-                        {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_65329f77}</Badge>
-                    )}
+                    <ResponsiveButtonGroup justify="flex-end">
+                      <StaffPasswordReset
+                        user={administrator}
+                        reset={resetAdministratorPassword}
+                        reload={getAdministrator}
+                        onUpdated={updated => setAdministrators(current => current.map(item =>
+                          item.id === updated.id ? updated : item))}
+                      />
+                      {canManageAttendanceScope(administrator) ? (
+                        <Button
+                          leftSection={<IconUsersGroup size={18} />}
+                          onClick={(event) => openAttendanceScope(administrator, event.currentTarget)}
+                          variant="pill"
+                        >
+                          {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_c50470cc}</Button>
+                      ) : null}
+                      {canEditStaffTarget(administrator) ? (
+                        <Button
+                          leftSection={<IconEdit size={18} />}
+                          onClick={(event) => openEditModal(administrator, event.currentTarget)}
+                          variant="pill"
+                        >
+                          {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_59792556}</Button>
+                      ) : null}
+                    </ResponsiveButtonGroup>
+                    {!canEditStaffTarget(administrator) && !canManageAttendanceScope(administrator)
+                      && !administrator.allowedActions?.includes('ResetPassword') && (
+                        <Badge color="gray" radius="xl" variant="light">
+                          {fe11SettingsUsersText.administratorsSettingsPanel_jsxText_65329f77}</Badge>
+                      )}
                   </Group>
                 </Paper>
               ))}
@@ -602,6 +612,7 @@ export function AdministratorsSettingsPanel({
               />
               <UserFormFields
                 credentialsFields={<UserEditCredentialsFields form={editForm} />}
+                passwordResetPending={modalState.administrator.passwordResetPending}
                 form={editForm}
                 fullNameInputProps={{ autoFocus: true, 'data-autofocus': true }}
                 isActiveLabel={resolveActiveLabel(editForm.values.role)}

@@ -16,10 +16,12 @@ export const API_ENDPOINTS = {
   },
   users: {
     collection: '/coaches',
+    resetPassword: (userId: string) => `/coaches/${userId}/reset-password`,
     byId: (userId: string) => `/coaches/${userId}`,
   },
   administrators: {
     collection: '/settings/administrators',
+    resetPassword: (administratorId: string) => `/settings/administrators/${administratorId}/reset-password`,
     byId: (administratorId: string) => `/settings/administrators/${administratorId}`,
     attendanceGroups: (administratorId: string) =>
       `/settings/administrators/${administratorId}/attendance-groups`,

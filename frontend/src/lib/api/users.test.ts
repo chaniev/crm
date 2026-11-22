@@ -1,11 +1,19 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
-import { createUser, getUser, getUsers, updateUser } from './users'
+import { resetUserPassword, createUser, getUser, getUsers, updateUser } from './users'
 
 afterEach(() => {
   vi.unstubAllGlobals()
 })
 
 describe('users API', () => {
+  test('posts a temporary password verbatim without profile fields', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+    await resetUserPassword('staff-id', '  example  ')
+    expect(fetchMock).toHaveBeenCalledWith('/api/coaches/staff-id/reset-password',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ temporaryPassword: '  example  ' }) }))
+  })
+
   test('maps coach list envelope and fixed create options', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       jsonResponse({
@@ -19,7 +27,8 @@ describe('users API', () => {
             isActive: true,
             branchId: null,
             branchName: null,
-            allowedActions: ['Edit'],
+            allowedActions: ['Edit', 'ResetPassword'],
+            passwordResetPending: true,
           },
         ],
         createRoleOptions: ['Coach'],
@@ -36,7 +45,8 @@ describe('users API', () => {
           id: 'coach-1',
           role: 'Coach',
           branchId: null,
-          allowedActions: ['Edit'],
+          allowedActions: ['Edit', 'ResetPassword'],
+          passwordResetPending: true,
         }),
       ],
       createRoleOptions: ['Coach'],

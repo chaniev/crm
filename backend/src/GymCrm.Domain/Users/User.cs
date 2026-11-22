@@ -17,6 +17,8 @@ public class User
     public UserRole Role { get; set; }
     public MessengerPlatform? MessengerPlatform { get; set; }
     public string? MessengerPlatformUserId { get; set; }
+    public Guid? CredentialVersion { get; set; }
+    public bool PasswordResetPending { get; set; }
     public bool MustChangePassword { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; }

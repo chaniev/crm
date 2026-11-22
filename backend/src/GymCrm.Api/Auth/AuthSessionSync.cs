@@ -12,6 +12,15 @@ internal static class AuthSessionSync
         return updatedAt.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
     }
 
+    public static bool CredentialVersionMatches(ClaimsPrincipal principal, User user) =>
+        string.Equals(principal.FindFirstValue(AuthConstants.CredentialVersionClaimType),
+            user.CredentialVersion?.ToString(), StringComparison.Ordinal);
+
+    public static bool IsCurrentSession(ClaimsPrincipal principal, User user) =>
+        user.IsActive && CredentialVersionMatches(principal, user) &&
+        string.Equals(principal.FindFirstValue(AuthConstants.UserVersionClaimType),
+            FormatUserVersion(user.UpdatedAt), StringComparison.Ordinal);
+
     public static ClaimsPrincipal CreatePrincipal(User user)
     {
         var claims = new List<Claim>
@@ -22,6 +31,11 @@ internal static class AuthSessionSync
             new(AuthConstants.LoginClaimType, user.Login),
             new(AuthConstants.UserVersionClaimType, FormatUserVersion(user.UpdatedAt))
         };
+
+        if (user.CredentialVersion is { } version)
+        {
+            claims.Add(new Claim(AuthConstants.CredentialVersionClaimType, version.ToString()));
+        }
 
         var identity = new ClaimsIdentity(
             claims,

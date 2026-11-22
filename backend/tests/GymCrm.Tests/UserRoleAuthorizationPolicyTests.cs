@@ -133,9 +133,21 @@ public class UserRoleAuthorizationPolicyTests
                     _ => []
                 };
 
-                Assert.Equal(
-                    expectedActions,
-                    UserRoleAuthorizationPolicy.GetAllowedTargetActions(actor, target, isSelfTarget: false));
+                foreach (var hasAssignment in new[] { false, true })
+                {
+                    var expectedReset = actor switch
+                    {
+                        UserRole.HeadCoach or UserRole.SuperAdministrator => target is UserRole.Administrator or UserRole.Coach,
+                        UserRole.Administrator => hasAssignment && target == UserRole.Coach,
+                        _ => false
+                    };
+                    Assert.Equal(expectedReset,
+                        UserRoleAuthorizationPolicy.CanResetPassword(actor, target, false, hasAssignment).Allowed);
+                    Assert.False(UserRoleAuthorizationPolicy.CanResetPassword(actor, target, true, hasAssignment).Allowed);
+                    Assert.Equal(
+                        expectedReset ? [.. expectedActions, StaffMutationAction.ResetPassword] : expectedActions,
+                        UserRoleAuthorizationPolicy.GetAllowedTargetActions(actor, target, false, hasAssignment));
+                }
                 Assert.Empty(UserRoleAuthorizationPolicy.GetAllowedTargetActions(actor, target, isSelfTarget: true));
             }
         }

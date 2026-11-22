@@ -1,4 +1,5 @@
 import {
+  API_ENDPOINTS,
   CSRF_HEADER_NAME,
   DEFAULT_REQUEST_ERROR_MESSAGE,
   GET_METHOD,
@@ -21,11 +22,21 @@ type ProblemPayload = {
 }
 
 let csrfToken = ''
+let onUnauthorized: (() => void) | undefined
+
+// Capture the authenticated boundary at dispatch so a late 401 cannot sign out a new session.
+export function observeProtectedUnauthorized(handler: () => void) {
+  onUnauthorized = handler
+  return () => {
+    if (onUnauthorized === handler) onUnauthorized = undefined
+  }
+}
 
 export async function request<T>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
+  const sessionObserver = onUnauthorized
   const method = (init.method ?? GET_METHOD).toUpperCase()
   const headers = new Headers(init.headers)
   const isFormDataBody = init.body instanceof FormData
@@ -47,12 +58,17 @@ export async function request<T>(
     credentials: 'include',
   })
 
+  if (response.status === 401 && sessionObserver === onUnauthorized &&
+      path !== API_ENDPOINTS.auth.session && path !== API_ENDPOINTS.auth.login &&
+      path !== API_ENDPOINTS.config.current) {
+    sessionObserver?.()
+  }
   const contentType = response.headers.get('content-type') ?? ''
   const payload = isJsonContentType(contentType)
     ? ((await response.json()) as ProblemPayload & T)
     : null
 
-  if (payload?.csrfToken) {
+  if (payload?.csrfToken && sessionObserver === onUnauthorized && !init.signal?.aborted) {
     csrfToken = payload.csrfToken
   }
 

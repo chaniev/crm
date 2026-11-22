@@ -8,6 +8,7 @@ import {
   showPoliteStatusNotification,
 } from './features/shared/notifications'
 import App from './App'
+import { request } from './lib/api/transport'
 
 vi.mock('./features/shared/notifications', () => ({
   showAppNotification: vi.fn(),
@@ -992,4 +993,34 @@ describe('App route access contract', () => {
       title: 'Пароль обновлен, открыт доступный раздел',
     }))
   })
+})
+
+
+test('confirms a protected 401, retires the old workspace and ignores late failures after login', async () => {
+  renderAppAt('/clients', baseSession)
+  await screen.findByTestId('clients-list-screen')
+  let sendLate!: (response: Response) => void
+  const fetchMock = vi.fn().mockImplementationOnce(() => new Promise<Response>(resolve => { sendLate = resolve }))
+    .mockImplementation(() => Promise.resolve(new Response(null, { status: 401 })))
+  vi.stubGlobal('fetch', fetchMock)
+  try {
+    const lateRequest = request('/groups').catch(() => {})
+    loadSessionMock.mockResolvedValue({ bootstrapMode: false, csrfToken: 'anonymous', isAuthenticated: false, user: null })
+    await act(async () => {
+      await expect(request('/clients')).rejects.toMatchObject({ status: 401 })
+    })
+    expect(await screen.findByRole('button', { name: 'Войти' })).toBeVisible()
+    expect(screen.queryByTestId('clients-list-screen')).toBeNull()
+    loginMock.mockResolvedValue(mockSession(baseSession))
+    fireEvent.change(screen.getByLabelText('Логин'), { target: { value: 'mock-user' } })
+    fireEvent.change(screen.getByLabelText('Пароль'), { target: { value: 'new credential' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Войти' }))
+    await getProfileMenuTrigger()
+    const reads = loadSessionMock.mock.calls.length
+    await act(async () => { sendLate(new Response(null, { status: 401 })); await lateRequest })
+    expect(loadSessionMock).toHaveBeenCalledTimes(reads)
+    expect(await getProfileMenuTrigger()).toBeVisible()
+  } finally {
+    vi.unstubAllGlobals()
+  }
 })

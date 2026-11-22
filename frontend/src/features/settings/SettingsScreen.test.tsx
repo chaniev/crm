@@ -3,6 +3,8 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
   createAdministrator,
+  getAdministrator,
+  resetAdministratorPassword,
   getAdministratorAttendanceScope,
   getAdministrators,
   getBranches,
@@ -24,6 +26,8 @@ import { SettingsScreen } from './SettingsScreen'
 vi.mock('../../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../lib/api')>()),
   createAdministrator: vi.fn(),
+  getAdministrator: vi.fn(),
+  resetAdministratorPassword: vi.fn(),
   getAdministratorAttendanceScope: vi.fn(),
   getAdministrators: vi.fn(),
   getBranches: vi.fn(),
@@ -1045,3 +1049,23 @@ function buildAttendanceScope(
     ...overrides,
   }
 }
+
+
+test('opens the shared reset from the administrator row and locks the refreshed edit switch', async () => {
+  const administrator = buildAdministrator({ allowedActions: ['Edit', 'ResetPassword'] })
+  vi.mocked(getAdministrators).mockResolvedValue({ items: [administrator], createRoleOptions: [] })
+  vi.mocked(getAdministrator).mockResolvedValue({ ...administrator, mustChangePassword: true, passwordResetPending: true })
+  renderSettings()
+  fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+  const row = await screen.findByTestId('administrator-card-' + administrator.id)
+  fireEvent.click(within(row).getByRole('button', { name: 'Сбросить пароль' }))
+  const dialog = await screen.findByRole('dialog')
+  await waitFor(() => expect(within(dialog).getByText(administrator.fullName)).toBeVisible())
+  fireEvent.change(within(dialog).getByLabelText('Временный пароль'), { target: { value: 'temporary' } })
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Сбросить пароль' }))
+  await screen.findByText(/Пароль сброшен/)
+  expect(resetAdministratorPassword).toHaveBeenCalledWith(administrator.id, 'temporary')
+  fireEvent.click(within(row).getByRole('button', { name: 'Редактировать' }))
+  expect(screen.getByLabelText(/Требовать смену пароля/)).toBeDisabled()
+  expect(screen.getByLabelText(/Требовать смену пароля/)).toBeChecked()
+})

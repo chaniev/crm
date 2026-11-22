@@ -6,6 +6,8 @@ import {
   getBranches,
   getUser,
   getUsers,
+  resetUserPassword,
+  ApiError,
   updateUser,
   type Branch,
   type UserDetails,
@@ -21,6 +23,7 @@ vi.mock('../../lib/api', async (importOriginal) => ({
   getBranches: vi.fn(),
   getUser: vi.fn(),
   getUsers: vi.fn(),
+  resetUserPassword: vi.fn(),
   updateUser: vi.fn(),
 }))
 
@@ -67,6 +70,7 @@ beforeEach(() => {
   vi.mocked(getBranches).mockReset()
   vi.mocked(getUser).mockReset()
   vi.mocked(getUsers).mockReset()
+  vi.mocked(resetUserPassword).mockReset()
   vi.mocked(updateUser).mockReset()
   vi.mocked(getBranches).mockResolvedValue(branches)
 })
@@ -681,4 +685,56 @@ describe('UserEditScreen', () => {
   })
 
 
+})
+
+
+function openCoachEditor(user: UserDetails) {
+  vi.mocked(getUser).mockResolvedValue(user)
+  renderWithProviders(<UserEditScreen currentUserId="other-user" onBack={vi.fn()}
+    onRefreshSession={vi.fn()} userId={user.id} />)
+}
+
+test('resets independently of a trainer draft and refreshes only the recovery state', async () => {
+  const user: UserDetails = { ...coach, allowedActions: ['Edit', 'ResetPassword'] }
+  openCoachEditor(user)
+  const trigger = await screen.findByRole('button', { name: 'Сбросить пароль' })
+  const name = screen.getByDisplayValue(user.fullName)
+  fireEvent.change(name, { target: { value: 'Несохранённое имя' } })
+  fireEvent.click(trigger)
+  const dialog = await screen.findByRole('dialog')
+  const input = within(dialog).getByLabelText('Временный пароль')
+  fireEvent.change(input, { target: { value: '  temporary  ' } })
+  vi.mocked(getUser).mockResolvedValue({ ...user, passwordResetPending: true, mustChangePassword: true })
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Сбросить пароль' }))
+  await screen.findByText(/Пароль сброшен/)
+  expect(resetUserPassword).toHaveBeenCalledWith(user.id, '  temporary  ')
+  expect(updateUser).not.toHaveBeenCalled()
+  expect(name).toHaveValue('Несохранённое имя')
+  expect(screen.getByLabelText(/Требовать смену пароля/)).toBeDisabled()
+  expect(screen.getByLabelText(/Требовать смену пароля/)).toBeChecked()
+})
+
+test('keeps uncertain delivery separate from a denied reset and never retries the POST', async () => {
+  openCoachEditor({ ...coach, allowedActions: ['ResetPassword'] })
+  fireEvent.click(await screen.findByRole('button', { name: 'Сбросить пароль' }))
+  const dialog = await screen.findByRole('dialog')
+  const input = within(dialog).getByLabelText('Временный пароль')
+  const submit = within(dialog).getByRole('button', { name: 'Сбросить пароль' })
+  vi.mocked(resetUserPassword).mockRejectedValueOnce(new TypeError('Network error'))
+  fireEvent.change(input, { target: { value: 'temporary' } })
+  fireEvent.click(submit)
+  await screen.findByText('Подтверждение не получено')
+  expect(input).toHaveValue('')
+  expect(resetUserPassword).toHaveBeenCalledTimes(1)
+  vi.mocked(resetUserPassword).mockRejectedValueOnce(new ApiError('Forbidden', 403))
+  fireEvent.change(input, { target: { value: 'new temporary' } })
+  fireEvent.click(submit)
+  await screen.findByText('Право на сброс изменилось')
+  expect(screen.queryByRole('button', { name: 'Сбросить пароль' })).toBeNull()
+})
+
+test('editing a trainer does not by itself allow a password reset', async () => {
+  openCoachEditor(coach)
+  await screen.findByDisplayValue(coach.fullName)
+  expect(screen.queryByRole('button', { name: 'Сбросить пароль' })).toBeNull()
 })

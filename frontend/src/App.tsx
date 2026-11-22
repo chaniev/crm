@@ -2,6 +2,8 @@ import {
   startTransition,
   useCallback,
   useEffect,
+  useEffectEvent,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -22,6 +24,7 @@ import {
   changePassword,
   loadSession,
   login,
+  observeProtectedUnauthorized,
   logout,
   type AppConfigResponse,
   type ChangePasswordRequest,
@@ -97,6 +100,42 @@ export function App({ appConfig, authBackground }: AppProps) {
   const registerSettingsNavigationGuard = useCallback((guard: NavigationGuard | null) => { settingsNavigationGuard.current = guard }, [])
   const managedNavigation = (action: () => void) => { if (settingsNavigationGuard.current) settingsNavigationGuard.current(action); else action() }
   const displayedClubName = appConfig.clubName
+  const sessionId = session?.user?.id
+  const mustChangePassword = session?.user?.mustChangePassword
+  const sessionBoundary = useRef<AbortController | null>(null)
+
+  const returnToLogin = useEffectEvent((anonymous: SessionResponse) => {
+    setPasswordReturnState(null)
+    setSession(anonymous)
+    navigate('/', { replace: true })
+  })
+
+  useLayoutEffect(() => {
+    if (!sessionId) return
+    const boundary = new AbortController()
+    sessionBoundary.current = boundary
+    let checking = false
+    async function checkSession() {
+      if (checking) return
+      checking = true
+      try {
+        const current = await loadSession(boundary.signal)
+        if (!boundary.signal.aborted && !current.isAuthenticated) {
+          returnToLogin(current)
+        }
+      } catch {
+        // A failed availability check leaves the session open for the next request.
+      } finally {
+        checking = false
+      }
+    }
+    const unsubscribe = observeProtectedUnauthorized(() => { void checkSession() })
+    return () => {
+      unsubscribe()
+      boundary.abort()
+      sessionBoundary.current = null
+    }
+  }, [sessionId, mustChangePassword])
 
   const routeAccess = useMemo(() => {
     if (!session?.isAuthenticated || !session.user || session.user.mustChangePassword) {
@@ -253,11 +292,14 @@ export function App({ appConfig, authBackground }: AppProps) {
   }
 
   async function refreshSessionState() {
-    const currentSession = await loadSession()
+    const boundary = sessionBoundary.current
+    const currentSession = await loadSession(boundary?.signal)
 
-    startTransition(() => {
-      setSession(currentSession)
-    })
+    if (!boundary?.signal.aborted) {
+      startTransition(() => {
+        setSession(currentSession)
+      })
+    }
 
     return currentSession
   }

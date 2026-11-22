@@ -194,7 +194,41 @@ public static class UserRoleAuthorizationPolicy
         };
     }
 
+    public static StaffAuthorizationDecision CanResetPassword(
+        UserRole actorRole,
+        UserRole targetRole,
+        bool isSelfTarget,
+        bool hasPrimaryAssignmentInBranch)
+    {
+        if (!CanManageStaff(actorRole))
+        {
+            return StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.StaffManagementForbidden);
+        }
+
+        if (isSelfTarget || targetRole is not (UserRole.Administrator or UserRole.Coach) ||
+            actorRole == UserRole.Administrator && targetRole != UserRole.Coach)
+        {
+            return StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.TargetForbidden);
+        }
+
+        return actorRole == UserRole.Administrator && !hasPrimaryAssignmentInBranch
+            ? StaffAuthorizationDecision.Deny(StaffAuthorizationDenial.BranchScopeForbidden)
+            : StaffAuthorizationDecision.Allow();
+    }
+
     public static IReadOnlyList<StaffMutationAction> GetAllowedTargetActions(
+        UserRole actorRole,
+        UserRole targetRole,
+        bool isSelfTarget,
+        bool hasPrimaryAssignmentInBranch = false)
+    {
+        var actions = GetStaffEditActions(actorRole, targetRole, isSelfTarget);
+        return CanResetPassword(actorRole, targetRole, isSelfTarget, hasPrimaryAssignmentInBranch).Allowed
+            ? [.. actions, StaffMutationAction.ResetPassword]
+            : actions;
+    }
+
+    private static IReadOnlyList<StaffMutationAction> GetStaffEditActions(
         UserRole actorRole,
         UserRole targetRole,
         bool isSelfTarget)

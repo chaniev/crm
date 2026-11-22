@@ -288,7 +288,7 @@ internal static class StaffManagementMutationService
         user.BranchId = destinationRole == UserRole.Administrator ? command.BranchId : null;
         user.MessengerPlatform = messengerIdentity.Platform;
         user.MessengerPlatformUserId = messengerIdentity.PlatformUserId;
-        user.MustChangePassword = command.MustChangePassword;
+        user.MustChangePassword = user.PasswordResetPending || command.MustChangePassword;
         user.IsActive = command.IsActive;
         user.UpdatedAt = DateTimeOffset.UtcNow;
 

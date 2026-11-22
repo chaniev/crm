@@ -197,10 +197,20 @@ internal static class AuthEndpoints
             });
         }
 
+        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
+        if (dbContext.Database.IsNpgsql())
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""SELECT 1 FROM "Users" WHERE "Id" = {currentUser.Id} FOR UPDATE""", cancellationToken);
+        }
+
         var user = await dbContext.Users
             .SingleOrDefaultAsync(candidate => candidate.Id == currentUser.Id, cancellationToken);
 
-        if (user is null || !user.IsActive)
+        if (user is null || !AuthSessionSync.IsCurrentSession(httpContext.User, user))
         {
             return TypedResults.Unauthorized();
         }
@@ -213,16 +223,17 @@ internal static class AuthEndpoints
             });
         }
 
-        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
-            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
-            : null;
-
         var oldState = JsonSerializer.Serialize(
             new { user.MustChangePassword },
             AuditSerializerOptions);
 
         var now = DateTimeOffset.UtcNow;
         user.PasswordHash = passwordHashService.HashPassword(user, request.NewPassword);
+        user.PasswordResetPending = false;
+        if (user.CredentialVersion.HasValue)
+        {
+            user.CredentialVersion = Guid.NewGuid();
+        }
         user.MustChangePassword = false;
         user.UpdatedAt = now;
 

@@ -12,6 +12,13 @@ import type {
   UserResponsePayload,
 } from './types'
 
+export async function resetUserPassword(userId: string, temporaryPassword: string) {
+  await request<void>(API_ENDPOINTS.users.resetPassword(userId), {
+    method: 'POST',
+    body: JSON.stringify({ temporaryPassword }),
+  })
+}
+
 export async function getUsers(signal?: AbortSignal) {
   const payload = await request<unknown>(API_ENDPOINTS.users.collection, { signal })
 
@@ -70,6 +77,7 @@ function mapUserListItem(payload: UserResponsePayload): UserListItem {
     fullName: readString(payload, ['fullName', 'FullName']) ?? '',
     login: readString(payload, ['login', 'Login']) ?? '',
     role: mapUserRole(readString(payload, ['role', 'Role'])) ?? 'Coach',
+    passwordResetPending: readBoolean(payload, ['passwordResetPending', 'PasswordResetPending']) ?? false,
     mustChangePassword:
       readBoolean(payload, ['mustChangePassword', 'MustChangePassword']) ?? false,
     isActive: readBoolean(payload, ['isActive', 'IsActive']) ?? false,
@@ -154,6 +162,7 @@ function mapAllowedAction(action: string): UserAllowedAction | null {
     action === 'Deactivate' ||
     action === 'Reactivate' ||
     action === 'Delete' ||
+    action === 'ResetPassword' ||
     action === 'ManageAttendanceScope'
   ) {
     return action

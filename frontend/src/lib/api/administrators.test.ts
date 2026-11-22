@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
+  resetAdministratorPassword,
   createAdministrator,
   getAdministratorAttendanceScope,
   getAdministrators,
@@ -12,6 +13,14 @@ afterEach(() => {
 })
 
 describe('administrators API', () => {
+  test('posts a temporary password verbatim without profile fields', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+    await resetAdministratorPassword('staff-id', '  example  ')
+    expect(fetchMock).toHaveBeenCalledWith('/api/settings/administrators/staff-id/reset-password',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ temporaryPassword: '  example  ' }) }))
+  })
+
   test('maps mixed administrative roles, nullable scope and backend actions/options', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
       items: [
@@ -25,7 +34,8 @@ describe('administrators API', () => {
           branchId: 'branch-1',
           branchName: 'Центр',
           attendanceGroupGrantCount: 2,
-          allowedActions: ['Edit', 'ManageAttendanceScope'],
+          allowedActions: ['Edit', 'ManageAttendanceScope', 'ResetPassword'],
+          passwordResetPending: true,
           roleOptions: ['Administrator', 'SuperAdministrator'],
         },
         {
@@ -49,7 +59,8 @@ describe('administrators API', () => {
         expect.objectContaining({
           role: 'Administrator',
           branchId: 'branch-1',
-          allowedActions: ['Edit', 'ManageAttendanceScope'],
+          allowedActions: ['Edit', 'ManageAttendanceScope', 'ResetPassword'],
+          passwordResetPending: true,
           roleOptions: ['Administrator', 'SuperAdministrator'],
         }),
         expect.objectContaining({

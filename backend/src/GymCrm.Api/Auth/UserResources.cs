@@ -55,6 +55,14 @@ internal static class UserResources
         return Format(nameof(UserUpdatedDescription), actorLogin, targetLogin);
     }
 
+    public static string TemporaryPasswordRequired => GetString(nameof(TemporaryPasswordRequired));
+    public static string TemporaryPasswordUnchanged => GetString(nameof(TemporaryPasswordUnchanged));
+
+    public static string PasswordResetDescription(string actorLogin, string targetLogin)
+    {
+        return Format(nameof(PasswordResetDescription), actorLogin, targetLogin);
+    }
+
     private static string Format(string name, params object[] args)
     {
         return string.Format(CultureInfo.CurrentCulture, GetString(name), args);

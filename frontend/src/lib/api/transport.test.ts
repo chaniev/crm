@@ -1,11 +1,29 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
-import { request } from './transport'
+import { observeProtectedUnauthorized, request } from './transport'
 
 afterEach(() => {
   vi.unstubAllGlobals()
 })
 
 describe('API transport', () => {
+  test('only protected 401 responses ask the app to check its session', async () => {
+    const check = vi.fn()
+    const unsubscribe = observeProtectedUnauthorized(check)
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 403 }))
+      .mockImplementation(() => Promise.resolve(new Response(null, { status: 401 }))))
+    try {
+      await expect(request('/coaches')).rejects.toMatchObject({ status: 403 })
+      await expect(request('/auth/login')).rejects.toMatchObject({ status: 401 })
+      await expect(request('/auth/session')).rejects.toMatchObject({ status: 401 })
+      expect(check).not.toHaveBeenCalled()
+      await expect(request('/coaches')).rejects.toMatchObject({ status: 401 })
+      expect(check).toHaveBeenCalledOnce()
+    } finally {
+      unsubscribe()
+    }
+  })
+
   test('parses application/problem+json validation payloads', async () => {
     vi.stubGlobal(
       'fetch',

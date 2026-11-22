@@ -1114,7 +1114,7 @@ public partial class UsersApiTests
             Assert.All(items, item => Assert.Equal("Coach", GetStringFromProperty(item, "role")));
             var coach = items.Single(item => GetGuidFromProperty(item, "id") == seeded.CoachId);
             Assert.Equal(
-                ["Edit", "Deactivate", "Reactivate"],
+                administrator ? ["Edit", "Deactivate", "Reactivate"] : new[] { "Edit", "Deactivate", "Reactivate", "ResetPassword" },
                 coach.GetProperty("allowedActions")
                     .EnumerateArray()
                     .Select(item => item.GetString()!)

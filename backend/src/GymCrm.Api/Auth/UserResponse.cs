@@ -15,4 +15,5 @@ internal sealed record UserResponse(
     string? BranchName = null,
     IReadOnlyList<string>? AllowedActions = null,
     IReadOnlyList<string>? RoleOptions = null,
-    int? AttendanceGrantCount = null);
+    int? AttendanceGrantCount = null,
+    bool PasswordResetPending = false);

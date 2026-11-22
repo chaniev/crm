@@ -2076,6 +2076,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("CredentialVersion")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -2110,6 +2113,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
 
+                    b.Property<bool>("PasswordResetPending")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -2135,6 +2143,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_Users_AdministratorBranch", "(\"Role\" = 'Administrator' AND \"BranchId\" IS NOT NULL) OR (\"Role\" <> 'Administrator' AND \"BranchId\" IS NULL)");
 
                             t.HasCheckConstraint("CK_Users_MessengerIdentity_Consistency", "(\"MessengerPlatform\" IS NULL AND (\"MessengerPlatformUserId\" IS NULL OR btrim(\"MessengerPlatformUserId\") = '')) OR (\"MessengerPlatform\" = 'Telegram' AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> '')");
+
+                            t.HasCheckConstraint("CK_Users_PasswordResetPending", "NOT \"PasswordResetPending\" OR (\"MustChangePassword\" AND \"CredentialVersion\" IS NOT NULL)");
                         });
                 });
 
