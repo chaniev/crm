@@ -1,0 +1,760 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-22T08:55:53.444535+00:00",
+  "repository": "TASK-220-attendance-historical-time",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "bot.sync",
+    "bot.lint",
+    "bot.user-facing-text",
+    "bot.format",
+    "bot.types",
+    "bot.test",
+    "frontend.playwright.install",
+    "frontend.client-attendance-history"
+  ],
+  "base": "main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "a765d3927726454e80225919abf015cacd629c4e",
+    "head_tree_sha": "03ace33dd3b5dadea1cfc65a1e4739730c714210",
+    "base_sha": "c456aff0669d3893f1993ccb020eaf73abeb7ea6",
+    "merge_base_sha": "41a9dfdca38fa2094fefb5f16e53d13480d1f771",
+    "branch": "fix/TASK-220-attendance-historical-time",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-220-verification-contract.json",
+    "task_id": "TASK-220",
+    "expected_branch": "fix/TASK-220-attendance-historical-time",
+    "sha256": "a050cbfc192a9da48fef1b183c515d2026a7e9c2f605044d903c9dead331e7ea",
+    "verified_head_sha": "a765d3927726454e80225919abf015cacd629c4e",
+    "verified_head_tree_sha": "03ace33dd3b5dadea1cfc65a1e4739730c714210",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-220\",\n  \"expected_branch\": \"fix/TASK-220-attendance-historical-time\",\n  \"areas\": [\"backend\", \"frontend\", \"bot\"],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.client-attendance-history\",\n      \"spec\": \"e2e/client-profile-context-navigation.spec.ts\",\n      \"projects\": [\"chromium\", \"iphone-air-webkit\", \"iphone-17-pro-max-webkit\"]\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-220",
+      "expected_branch": "fix/TASK-220-attendance-historical-time",
+      "areas": [
+        "backend",
+        "frontend",
+        "bot"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.client-attendance-history",
+          "spec": "e2e/client-profile-context-navigation.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ]
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-220",
+  "source_ref": null,
+  "e2e_port": 34220,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6",
+    "uv": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AttendanceTestLessons.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/InternalBotApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-220-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/tests/test_client_flow.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/client-profile-context-navigation.spec.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+    "backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+    "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+    "backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+    "backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+    "backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+    "backlog/implementation/TASK-220-verification-contract.json",
+    "bot/tests/test_client_flow.py",
+    "frontend/e2e/client-profile-context-navigation.spec.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend",
+    "bot"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation/TASK-220-verification-contract.json"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+      "task contract TASK-220 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+      "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+      "task contract TASK-220 requires frontend"
+    ],
+    "bot": [
+      "bot-owned path changed: bot/tests/test_client_flow.py",
+      "task contract TASK-220 requires bot"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-220-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:55:53.600663+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-22T08:55:53.640731+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-220-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:55:53.641572+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-22T08:55:53.681987+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-220-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:55:53.682801+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.078,
+      "completed_at": "2026-11-22T08:55:53.760464+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation/TASK-220-verification-contract.json"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:55:53.761350+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-11-22T08:55:53.838701+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-220 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:55:53.839548+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.786,
+      "completed_at": "2026-11-22T08:55:54.625349+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-220 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:55:54.626378+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.269,
+      "completed_at": "2026-11-22T08:55:55.895427+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-220 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:55:55.896440+00:00",
+      "exit_code": 0,
+      "duration_seconds": 12.144,
+      "completed_at": "2026-11-22T08:56:08.040543+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-220 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:56:08.041430+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.234,
+      "completed_at": "2026-11-22T08:56:12.275912+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-220 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:56:12.276963+00:00",
+      "exit_code": 0,
+      "duration_seconds": 200.547,
+      "completed_at": "2026-11-22T08:59:32.823590+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-220 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:59:32.825625+00:00",
+      "exit_code": 0,
+      "duration_seconds": 3.162,
+      "completed_at": "2026-11-22T08:59:35.987791+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "task contract TASK-220 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:59:35.988858+00:00",
+      "exit_code": 0,
+      "duration_seconds": 6.281,
+      "completed_at": "2026-11-22T08:59:42.269760+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "task contract TASK-220 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:59:42.270839+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.047,
+      "completed_at": "2026-11-22T08:59:43.317458+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "task contract TASK-220 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:59:43.318568+00:00",
+      "exit_code": 0,
+      "duration_seconds": 27.261,
+      "completed_at": "2026-11-22T09:00:10.579138+00:00"
+    },
+    {
+      "id": "bot.sync",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--extra",
+        "dev"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "task contract TASK-220 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:00:10.580494+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.129,
+      "completed_at": "2026-11-22T09:00:10.709845+00:00"
+    },
+    {
+      "id": "bot.lint",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "task contract TASK-220 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:00:10.711058+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.073,
+      "completed_at": "2026-11-22T09:00:10.783813+00:00"
+    },
+    {
+      "id": "bot.user-facing-text",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "python",
+        "scripts/check_user_facing_text.py",
+        ".."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "task contract TASK-220 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:00:10.784967+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.127,
+      "completed_at": "2026-11-22T09:00:10.912368+00:00"
+    },
+    {
+      "id": "bot.format",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "task contract TASK-220 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:00:10.913374+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.039,
+      "completed_at": "2026-11-22T09:00:10.952733+00:00"
+    },
+    {
+      "id": "bot.types",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "mypy"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "task contract TASK-220 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:00:10.953811+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.347,
+      "completed_at": "2026-11-22T09:00:11.300484+00:00"
+    },
+    {
+      "id": "bot.test",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "pytest"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "task contract TASK-220 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:00:11.301542+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.708,
+      "completed_at": "2026-11-22T09:00:13.009411+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "task contract TASK-220 requires frontend",
+        "task contract TASK-220 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:00:13.010449+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.505,
+      "completed_at": "2026-11-22T09:00:13.515075+00:00"
+    },
+    {
+      "id": "frontend.client-attendance-history",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/client-profile-context-navigation.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "task contract TASK-220 requires frontend",
+        "task contract TASK-220 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:00:13.516263+00:00",
+      "exit_code": 0,
+      "duration_seconds": 45.657,
+      "completed_at": "2026-11-22T09:00:59.173323+00:00"
+    }
+  ],
+  "completed_at": "2026-11-22T09:00:59.178441+00:00"
+}

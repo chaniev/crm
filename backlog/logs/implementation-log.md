@@ -2402,3 +2402,7 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - planned_in_place: none
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md
+
+## 2026-11-22 — завершение TASK-220
+
+Версия `a765d392` прошла контракт TASK-220 и интегрирована в локальную main. Карточка, план и контракт перенесены из рабочих каталогов в [архив задачи](../done/2026-11-22/TASK-220-attendance-historical-time.md).

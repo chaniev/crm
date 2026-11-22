@@ -99,7 +99,7 @@ Chromium с тестовыми ответами Staff API, 10 сценариев
 - [TASK-217 · Групповой охват замещения](../../implementation/TASK-217-substitute-group-period-access.md)
 - [TASK-218 · День +10 в списке бота](../../tasks-ready/TASK-218-bot-expiration-window.md)
 - [TASK-219 · Переключение смешанного состава](../2026-11-22/TASK-219-lesson-mixed-roster.md)
-- [TASK-220 · Историческое время в истории и «Внимании»](../../implementation/TASK-220-attendance-historical-time.md)
+- [TASK-220 · Историческое время в истории и «Внимании»](../2026-11-22/TASK-220-attendance-historical-time.md)
 - [TASK-221 · Одна строка клиента и приоритет истёкшего абонемента](../2026-11-22/TASK-221-attention-one-row-per-client.md)
 - [TASK-222 · Частота команд бота](../../needs-clarification/TASK-222-bot-command-rate.md)
 - [TASK-223 · Архивация и удаление зала со ссылками из расписания](../2026-11-22/TASK-223-hall-schedule-archive-guard.md)
