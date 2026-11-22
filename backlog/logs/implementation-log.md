@@ -2370,3 +2370,9 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - planned_in_place: none
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md
+
+# 2026-11-22 11:38
+- moved: TASK-223
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md
