@@ -8,7 +8,7 @@ import httpx
 import pytest
 import respx
 
-from gym_crm_bot.core.client_flow import ClientFlow
+from gym_crm_bot.core.client_flow import ClientFlow, render_client_card
 from gym_crm_bot.core.crm_error_mapping import CrmErrorMapper
 from gym_crm_bot.core.dialog_state import (
     ATTENDANCE_SCENARIO,
@@ -26,6 +26,35 @@ from gym_crm_bot.crm.models import (
 )
 from gym_crm_bot.resources.messages import TEMPORARY_ERROR_MESSAGE
 from gym_crm_bot.telegram.normalization import NormalizedTelegramEvent
+
+
+def test_card_renders_first_five_attendance_marks_in_api_order() -> None:
+    card = ClientCardResponse.model_validate(
+        {
+            "id": "00000000-0000-0000-0000-000000000031",
+            "fullName": "Петр Иванов",
+            "attendanceHistory": [
+                {"trainingDate": date, "groupName": "Группа", "isPresent": present}
+                for date, present in [
+                    ("2026-11-20", False),
+                    ("2026-11-20", True),
+                    ("2026-11-19", True),
+                    ("2026-11-18", True),
+                    ("2026-11-17", True),
+                    ("2026-11-16", True),
+                ]
+            ],
+        }
+    )
+
+    rows = [line for line in render_client_card(card).splitlines() if line.startswith("- ")]
+    assert rows == [
+        "- 20.11.2026 | Группа | Не был",
+        "- 20.11.2026 | Группа | Был",
+        "- 19.11.2026 | Группа | Был",
+        "- 18.11.2026 | Группа | Был",
+        "- 17.11.2026 | Группа | Был",
+    ]
 
 
 @dataclass

@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- source_task: /backlog/implementation/TASK-220-attendance-historical-time.md
+- source_task: /backlog/done/2026-11-22/TASK-220-attendance-historical-time.md
 - requirements: REQ-ATT-002 (implements), REQ-ATTN-001 (implements)
 - branch: fix/TASK-220-attendance-historical-time
 - readiness: yes
@@ -27,7 +27,7 @@
 ## Decision evidence
 
 - product: [REQ-ATT-002](/docs/requirements/04-посещения.md) — owner: владелец продукта; decision: использовать время конкретного занятия для истории посещений и расчёта пропусков в вебе и боте.
-- product: [Уточнение границ TASK-220 от 22.11.2026](/backlog/implementation/TASK-220-attendance-historical-time.md) — owner: владелец продукта; decision: исключить отдельную обработку исторических данных, в том числе восстановление неизвестного времени и исправление прежних подтверждений.
+- product: [Уточнение границ TASK-220 от 22.11.2026](/backlog/done/2026-11-22/TASK-220-attendance-historical-time.md) — owner: владелец продукта; decision: исключить отдельную обработку исторических данных, в том числе восстановление неизвестного времени и исправление прежних подтверждений.
 - [REQ-ATTN-001](/docs/requirements/10-внимание-и-чат.md) задаёт порог и правила разрыва серии. [ADR-0009](/docs/architecture/adr/0009-client-attention-response.md) задаёт ответ списка и команды.
 
 ## Implementation slices

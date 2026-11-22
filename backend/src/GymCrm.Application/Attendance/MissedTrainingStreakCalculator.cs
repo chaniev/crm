@@ -37,8 +37,7 @@ public sealed class MissedTrainingStreakCalculator
             return true;
         }
 
-        // Rows which already existed when the employee contacted the client stay handled even if
-        // a group's mutable start time later moves their calculated order past the stored cutoff.
+        // Only marks made after contact can start a new streak beyond the stored lesson boundary.
         if (attendanceEvent.MarkedAt <= boundary.AcknowledgedAt)
         {
             return false;

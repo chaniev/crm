@@ -967,18 +967,17 @@ test.describe('TASK-018 · карточка и формы клиента', () =>
     await expectNoHorizontalOverflow(page)
   })
 
-  test('посещения догружаются со следующей позиции', async ({ page }) => {
+  test('при догрузке посещений вечерний пропуск остаётся перед утренним посещением', async ({ page }) => {
     await page.route(url => url.pathname === '/api' + profile, route => {
-      const skip = new URL(route.request().url()).searchParams.get('attendanceSkip')
+      const morning = new URL(route.request().url()).searchParams.get('attendanceSkip') === '1'
       return route.fulfill({ json: { ...CLIENT_DETAILS_RESPONSE, attendanceHistoryTotalCount: 2,
-        attendanceHistory: [{ id: skip === '1' ? 'older' : 'recent', isPresent: true, trainingDate: '2026-04-17',
-          groupName: skip === '1' ? 'Вторая группа' : 'Первая группа' }] } })
+        attendanceHistory: [{ id: morning ? 'morning' : 'evening', isPresent: morning, trainingDate: '2026-04-17',
+          groupName: 'Одна группа', groupTrainingStartTime: morning ? '10:00' : '18:00' }] } })
     })
     await page.goto(profile + '#visits')
-    await expect(page.getByText('Первая группа')).toBeVisible()
+    await expect(page.getByText('Отсутствовал', { exact: true })).toBeVisible()
     await page.getByRole('button', { name: 'Показать ещё посещения' }).click()
-    await expect(page.getByText('Вторая группа')).toBeVisible()
-    await expect(page.getByText('Первая группа')).toBeVisible()
+    await expect(page.getByText(/^(Отсутствовал|Присутствовал)$/)).toHaveText(['Отсутствовал', 'Присутствовал'])
     await expect(page.getByRole('button', { name: 'Показать ещё посещения' })).toHaveCount(0)
   })
 

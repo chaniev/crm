@@ -23,9 +23,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Testcontainers.PostgreSql;
 
 namespace GymCrm.Tests;
 
@@ -4444,6 +4446,99 @@ public class ClientsApiTests
             reason => AssertSaleReason(reason, second, "Вечерний тариф", seeded.GroupTwoId, today));
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Missed_streak_follows_lesson_time_within_the_day(bool presentInMorning)
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        var clientId = Guid.NewGuid();
+        var date = GetBusinessToday().AddDays(-2);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        db.Clients.Add(NewAttentionClient(clientId, seeded.BranchId, "Серия"));
+        SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, date,
+            presentInMorning, new TimeOnly(10, 0), MorningAttendanceId);
+        SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, date,
+            !presentInMorning, new TimeOnly(18, 0), EveningAttendanceId);
+        SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, date.AddDays(1), false);
+        SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, date.AddDays(2), false);
+        await db.SaveChangesAsync();
+
+        using var http = factory.CreateClient();
+        await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
+        Assert.Equal(presentInMorning ? 3 : null, await ReadMissedCountAsync(http, clientId));
+    }
+
+    // The larger ID is deliberately on the earlier lesson.
+    private static readonly Guid MorningAttendanceId = Guid.Parse("00000000-0000-0000-0000-000000000002");
+    private static readonly Guid EveningAttendanceId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+    [Fact]
+    public async Task Contacted_uses_last_lesson_time_for_history_audit_and_new_absences_on_postgres()
+    {
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        await using var factory = new ClientsAppFactory(postgresConnection: postgres.GetConnectionString());
+        var seeded = await SeedClientsDataAsync(factory);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var clientId = Guid.NewGuid();
+        var date = GetBusinessToday().AddDays(-2);
+        db.Clients.Add(NewAttentionClient(clientId, seeded.BranchId, "Граница"));
+        void AddAbsence(DateOnly lessonDate, int hour, Guid? id = null) =>
+            SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, lessonDate,
+                false, new TimeOnly(hour, 0), id);
+
+        AddAbsence(date.AddDays(-1), 10);
+        AddAbsence(date, 18, EveningAttendanceId);
+        AddAbsence(date, 10, MorningAttendanceId);
+        await db.SaveChangesAsync();
+
+        using var http = factory.CreateClient();
+        var session = await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var path = $"/clients/{clientId}/attention/missed-training/contacted";
+        using var contacted = await PostJsonAsync(http, path, new { }, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.NoContent, contacted.StatusCode);
+        (await db.TrainingGroups.SingleAsync(group => group.Id == seeded.GroupOneId)).TrainingStartTime = new TimeOnly(21, 0);
+        await db.SaveChangesAsync();
+        using var repeat = await PostJsonAsync(http, path, new { }, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.NoContent, repeat.StatusCode);
+
+        var boundary = await db.ClientMissedTrainingAcknowledgements.SingleAsync();
+        Assert.Equal(EveningAttendanceId, boundary.LastAttendanceId);
+        Assert.Equal(date, boundary.LastTrainingDate);
+        Assert.Equal(new TimeOnly(18, 0), boundary.LastTrainingStartTime);
+        var audit = await db.AuditLogs.SingleAsync(row => row.ActionType == "ClientMissedTrainingContacted");
+        using var auditData = JsonDocument.Parse(audit.NewValueJson!);
+        Assert.Equal(EveningAttendanceId, auditData.RootElement.GetProperty("LastAttendanceId").GetGuid());
+        Assert.Equal(date, auditData.RootElement.GetProperty("LastTrainingDate").Deserialize<DateOnly>());
+        Assert.Equal(new TimeOnly(18, 0), auditData.RootElement.GetProperty("LastTrainingStartTime").Deserialize<TimeOnly>());
+
+        var card = await http.GetFromJsonAsync<JsonElement>($"/clients/{clientId}?attendanceTake=2");
+        Assert.Equal(new[] { EveningAttendanceId, MorningAttendanceId },
+            card.GetProperty("attendanceHistory").EnumerateArray().Select(row => row.GetProperty("id").GetGuid()));
+
+        AddAbsence(date, 15);
+        AddAbsence(date, 20);
+        AddAbsence(date.AddDays(1), 10);
+        await db.SaveChangesAsync();
+        Assert.Null(await ReadMissedCountAsync(http, clientId));
+        AddAbsence(date.AddDays(2), 10);
+        await db.SaveChangesAsync();
+        Assert.Equal(3, await ReadMissedCountAsync(http, clientId));
+    }
+
+    private static async Task<int?> ReadMissedCountAsync(HttpClient http, Guid clientId)
+    {
+        var list = await http.GetFromJsonAsync<JsonElement>("/clients/attention");
+        return list.EnumerateArray().Where(card => card.GetProperty("clientId").GetGuid() == clientId)
+            .SelectMany(card => card.GetProperty("reasons").EnumerateArray())
+            .Where(reason => reason.GetProperty("type").GetString() == "missedTraining")
+            .Select(reason => (int?)reason.GetProperty("missedCount").GetInt32()).SingleOrDefault();
+    }
+
     [Fact]
     public async Task Contacted_returns_both_sales_on_each_attempt_and_records_the_boundary_once()
     {
@@ -4922,7 +5017,9 @@ public class ClientsApiTests
         dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.AddRange(groupOne, groupTwo);
         dbContext.Clients.Add(archivedClient);
-        dbContext.MembershipCatalogItems.AddRange(termCatalogItem, singleVisitCatalogItem, professionalCatalogItem);
+        dbContext.MembershipCatalogItems.AddRange(termCatalogItem, singleVisitCatalogItem);
+        if (!await dbContext.MembershipCatalogItems.AnyAsync(item => item.BehaviorKind == MembershipBehaviorKind.Professional))
+            dbContext.MembershipCatalogItems.Add(professionalCatalogItem);
         await dbContext.SaveChangesAsync();
 
         return new SeededClientsData(
@@ -4947,12 +5044,16 @@ public class ClientsApiTests
         Guid groupId,
         Guid markedByUserId,
         DateOnly trainingDate,
-        bool isPresent)
+        bool isPresent,
+        TimeOnly? startTime = null,
+        Guid? attendanceId = null)
     {
         var now = DateTimeOffset.UtcNow;
+        var group = dbContext.TrainingGroups.Find(groupId)!;
         dbContext.Attendance.Add(new Attendance
         {
-            Id = Guid.NewGuid(),
+            Id = attendanceId ?? Guid.NewGuid(),
+            LessonOccurrence = AttendanceTestLessons.OneOff(group, trainingDate, startTime ?? group.TrainingStartTime),
             ClientId = clientId,
             GroupId = groupId,
             TrainingDate = trainingDate,
@@ -6003,7 +6104,8 @@ public class ClientsApiTests
 
     private sealed class ClientsAppFactory(
         IReadOnlyDictionary<string, string?>? configurationOverrides = null,
-        DateOnly? businessDate = null) : WebApplicationFactory<Program>
+        DateOnly? businessDate = null,
+        string? postgresConnection = null) : WebApplicationFactory<Program>
     {
         public string PhotoStorageRootPath { get; } = Path.Combine(
             Path.GetTempPath(),
@@ -6017,8 +6119,8 @@ public class ClientsApiTests
             {
                 var settings = new Dictionary<string, string?>
                 {
-                    ["ConnectionStrings:Postgres"] = "Host=localhost;Port=5432;Database=gym_crm;Username=gym_crm;Password=gym_crm",
-                    ["Persistence:ApplyMigrationsOnStartup"] = "false",
+                    ["ConnectionStrings:Postgres"] = postgresConnection ?? "Host=localhost;Port=5432;Database=gym_crm;Username=gym_crm;Password=gym_crm",
+                    ["Persistence:ApplyMigrationsOnStartup"] = (postgresConnection is not null).ToString(),
                     ["BootstrapUser:Login"] = "bootstrap-stage6a",
                     ["BootstrapUser:FullName"] = "Bootstrap Stage 6a",
                     ["ClientPhoto:StorageRootPath"] = PhotoStorageRootPath,
@@ -6051,15 +6153,23 @@ public class ClientsApiTests
                     }
                 }
 
-                var databaseName = $"gym-crm-clients-tests-{Guid.NewGuid():N}";
-                var entityFrameworkProvider = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .BuildServiceProvider();
+                services.RemoveAll<IDbContextOptionsConfiguration<GymCrmDbContext>>();
+                if (postgresConnection is not null)
+                {
+                    services.AddDbContext<GymCrmDbContext>(options => options.UseNpgsql(postgresConnection));
+                }
+                else
+                {
+                    var databaseName = $"gym-crm-clients-tests-{Guid.NewGuid():N}";
+                    var entityFrameworkProvider = new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .BuildServiceProvider();
 
-                services.AddDbContext<GymCrmDbContext>(options =>
-                    options
-                        .UseInMemoryDatabase(databaseName)
-                        .UseInternalServiceProvider(entityFrameworkProvider));
+                    services.AddDbContext<GymCrmDbContext>(options =>
+                        options
+                            .UseInMemoryDatabase(databaseName)
+                            .UseInternalServiceProvider(entityFrameworkProvider));
+                }
 
                 if (businessDate.HasValue)
                 {
