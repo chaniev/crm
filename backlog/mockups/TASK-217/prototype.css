@@ -1,0 +1,34 @@
+@font-face { font-family:Onest; src:url('@fontsource/onest/files/onest-cyrillic-400-normal.woff2'); font-weight:400; font-display:swap; unicode-range:U+0400-052F; }
+@font-face { font-family:Onest; src:url('@fontsource/onest/files/onest-latin-400-normal.woff2'); font-weight:400; font-display:swap; unicode-range:U+0000-00FF; }
+@font-face { font-family:Onest; src:url('@fontsource/onest/files/onest-cyrillic-700-normal.woff2'); font-weight:600 900; font-display:swap; unicode-range:U+0400-052F; }
+@font-face { font-family:Onest; src:url('@fontsource/onest/files/onest-latin-700-normal.woff2'); font-weight:600 900; font-display:swap; unicode-range:U+0000-00FF; }
+body{background:var(--crm-surface-page);color:var(--crm-text-primary)}
+.brand{background:var(--crm-surface-card);border-bottom:1px solid var(--crm-border-default)}
+.brand div, main, footer{max-width:880px;margin:auto;padding:20px 28px}
+.brand div{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand b{font-size:1.25rem;color:var(--crm-action-primary)}
+main{padding-top:32px}
+.box{padding:26px;margin-top:24px;border-radius:20px;display:grid;gap:22px}
+.sectionHead,.row{display:flex;gap:14px;align-items:center}
+.sectionHead{justify-content:space-between;flex-wrap:wrap}
+h2{font-size:1.5rem!important}
+h3{font-size:1rem!important}
+.row{padding:14px 0;border-bottom:1px solid var(--crm-border-default);overflow-wrap:anywhere}
+.row>div:first-child{flex:1;min-width:0}
+.history>p{max-width:230px}
+.dateFields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+footer{color:var(--crm-text-secondary);font-size:.875rem}
+summary{cursor:pointer;padding:8px 0}
+details{max-width:340px}
+button.shared-button{min-height:44px;white-space:normal}
+:focus-visible{outline:2px solid var(--crm-action-primary);outline-offset:2px}
+@media(max-width:620px){
+  .brand div,main,footer{padding:16px}
+  .sectionHead{align-items:flex-start;gap:12px;flex-direction:column}
+  .box{margin-top:16px;padding:16px;gap:20px}
+  .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+  .row .shared-button,.history>p{grid-column:1/-1;justify-self:start}
+  .dateFields{grid-template-columns:1fr}
+}
+
+.mantine-Modal-close,.mantine-Input-input{min-height:44px}.mantine-Modal-close{min-width:44px}

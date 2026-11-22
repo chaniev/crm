@@ -29,3 +29,7 @@ risky
 ## Source notes
 [Сверка main 3e729130 и решения владельца от 21.11.2026](../done/2026-11-21/TASK-216-requirements-audit.md).
 В обсуждении TASK-217 от 22.11.2026 владелец уточнил правила разовых замен, исторических записей и исправления посещений, а также границы задачи для ранее оформленных разовых замен.
+
+## Implementation lifecycle
+- implementation_plan: [План TASK-217](../implementation-plans/TASK-217-substitute-group-period-access.plan.md)
+- implementation_branch: feature/TASK-217-substitute-group-period-access
