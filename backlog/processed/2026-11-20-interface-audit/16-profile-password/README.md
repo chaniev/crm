@@ -46,7 +46,7 @@ none — этот отчёт фиксирует наблюдения и пред
 
 - [08-нефункциональные.md](../../../../docs/requirements/08-нефункциональные.md)
 - [TASK-176-russian-accessibility-and-validation-focus.md](../../../tasks-ready/TASK-176-russian-accessibility-and-validation-focus.md)
-- [TASK-172-password-policy.md](../../../implementation/TASK-172-password-policy.md)
+- [TASK-172-password-policy.md](../../../done/2026-11-22/TASK-172-password-policy.md)
 
 ## Доказательства
 

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "task_id": "TASK-172",
+  "started_at": "2026-11-22T15:24:42.136937+00:00",
+  "status": "passed",
+  "project_name": "crm-task-172-94783-bf52",
+  "ports": {
+    "backend": 63459,
+    "frontend": 63460
+  },
+  "bot_enabled": false,
+  "checks": [
+    {
+      "id": "runtime.compose.up",
+      "command": [
+        "docker",
+        "compose",
+        "--project-name",
+        "crm-task-172-94783-bf52",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.yml",
+        "up",
+        "--build",
+        "-d",
+        "frontend"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 1,
+      "completed_at": "2026-11-22T15:25:11.609685+00:00"
+    },
+    {
+      "id": "runtime.reset-ready",
+      "command": [
+        "curl",
+        "-fsS",
+        "http://127.0.0.1:63459/health/ready"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 1,
+      "completed_at": "2026-11-22T15:25:11.634176+00:00"
+    },
+    {
+      "id": "runtime.staff-password-reset",
+      "command": [
+        "env",
+        "TASK173_RUNTIME_URL=http://127.0.0.1:63460",
+        "E2E_BASE_URL=http://127.0.0.1:63460",
+        "E2E_PORT=63460",
+        "npm",
+        "--prefix",
+        "frontend",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/staff-password-reset-runtime.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit",
+        "--workers=1"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 1,
+      "completed_at": "2026-11-22T15:25:24.948337+00:00"
+    }
+  ],
+  "cleanup": {
+    "command": [
+      "docker",
+      "compose",
+      "--project-name",
+      "crm-task-172-94783-bf52",
+      "--project-directory",
+      ".",
+      "--env-file",
+      "deploy/.env.example",
+      "-f",
+      "deploy/docker-compose.yml",
+      "down",
+      "--remove-orphans"
+    ],
+    "status": "passed",
+    "exit_code": 0,
+    "completed_at": "2026-11-22T15:25:25.834516+00:00"
+  },
+  "completed_at": "2026-11-22T15:25:25.834572+00:00"
+}
