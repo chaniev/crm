@@ -240,15 +240,7 @@ internal sealed class ClientMembershipSaleLifecycleService(
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ProfessionalPermissionDenied);
         }
 
-        var lastEnd = await dbContext.ClientMemberships
-            .Where(membership => membership.ClientId == clientId && membership.IndividualValidTo != null)
-            .MaxAsync(membership => membership.IndividualValidTo, cancellationToken);
-        if (lastEnd is null)
-        {
-            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.RenewalNotAllowed);
-        }
-
-        var validFrom = lastEnd.Value.AddDays(1);
+        var validFrom = currentMembership.IndividualValidTo.Value.AddDays(1);
         var duration = currentMembership.IndividualValidTo.Value.DayNumber -
                        currentMembership.IndividualValidFrom!.Value.DayNumber;
         var validTo = validFrom.AddDays(duration);

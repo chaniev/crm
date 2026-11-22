@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,6 +30,7 @@ namespace GymCrm.Tests;
 
 public sealed class ClientMembershipWriteRegressionApiTests
 {
+    private static readonly DateOnly DecemberFirst = new(2026, 12, 1);
     private static readonly JsonSerializerOptions IdempotencyJsonOptions = new(JsonSerializerDefaults.Web);
 
     [Fact]
@@ -1221,6 +1223,138 @@ public sealed class ClientMembershipWriteRegressionApiTests
         await context.AssertIdempotencyCountAsync(1);
     }
 
+    [Theory]
+    [InlineData(true, "2026-12-11", "2026-12-20")]
+    [InlineData(false, "2026-12-21", "2027-01-09")]
+    public async Task Renewal_uses_the_selected_sale_period(bool selectShorter, string expectedStart, string expectedEnd)
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var shorter = await context.PurchaseTermPeriodAsync(DecemberFirst, DecemberFirst.AddDays(9), context.SourceGroupId);
+        var longer = await context.PurchaseTermPeriodAsync(DecemberFirst, DecemberFirst.AddDays(19), context.TargetGroupId);
+
+        using var response = await context.RenewPeriodAsync(selectShorter ? shorter : longer,
+            selectShorter ? context.SourceGroupId : context.TargetGroupId, "renew-selected");
+        response.EnsureSuccessStatusCode();
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var renewal = Assert.Single(document.RootElement.GetProperty("currentMemberships").EnumerateArray(),
+            membership => membership.GetProperty("changeReason").GetString() == "Renewal");
+        Assert.Equal(expectedStart, renewal.GetProperty("individualValidFrom").GetString());
+        Assert.Equal(expectedEnd, renewal.GetProperty("individualValidTo").GetString());
+
+        var renewed = ReadMembershipTarget(renewal);
+        Assert.NotEqual(shorter.SaleId, renewed.SaleId);
+        Assert.NotEqual(longer.SaleId, renewed.SaleId);
+        await context.AssertStoredPeriodAsync(renewed,
+            DateOnly.Parse(expectedStart, CultureInfo.InvariantCulture), DateOnly.Parse(expectedEnd, CultureInfo.InvariantCulture));
+        await context.AssertStoredPeriodAsync(shorter, DecemberFirst, DecemberFirst.AddDays(9));
+        await context.AssertStoredPeriodAsync(longer, DecemberFirst, DecemberFirst.AddDays(19));
+    }
+
+    [Fact]
+    public async Task Renewal_rejects_an_occupied_period_without_moving_the_future_sale()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var group = context.SourceGroupId;
+        var original = await context.PurchaseTermPeriodAsync(DecemberFirst, DecemberFirst.AddDays(9), group);
+        var future = await context.PurchaseTermPeriodAsync(DecemberFirst.AddDays(10), DecemberFirst.AddDays(19), group);
+
+        using var response = await context.RenewPeriodAsync(original, group, "renew-overlap");
+        await AssertProblemAsync(response, HttpStatusCode.Conflict, "membership-overlap");
+        await context.AssertCountsAsync(expectedSales: 2, expectedMemberships: 2, expectedMembershipAudits: 2);
+        await context.AssertStoredPeriodAsync(future, DecemberFirst.AddDays(10), DecemberFirst.AddDays(19));
+    }
+
+    [Fact]
+    public async Task Renewal_uses_corrected_version_and_preserves_a_previously_booked_renewal()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var group = context.SourceGroupId;
+        var original = await context.PurchaseTermPeriodAsync(DecemberFirst, DecemberFirst.AddDays(29), group);
+        using var bookedResponse = await context.RenewPeriodAsync(original, group, "book-before-correction");
+        bookedResponse.EnsureSuccessStatusCode();
+        using var bookedDocument = JsonDocument.Parse(await bookedResponse.Content.ReadAsStringAsync());
+        var booked = ReadMembershipTarget(Assert.Single(bookedDocument.RootElement.GetProperty("currentMemberships").EnumerateArray(),
+            membership => membership.GetProperty("saleId").GetGuid() != original.SaleId));
+
+        using var correction = await context.CorrectAsync(JsonSerializer.Serialize(new
+        {
+            saleId = original.SaleId,
+            expectedMembershipId = original.MembershipId,
+            validFrom = DecemberFirst,
+            validTo = DecemberFirst.AddDays(9),
+            paymentDate = context.Today
+        }), "shorten-period");
+        correction.EnsureSuccessStatusCode();
+        using var correctedDocument = JsonDocument.Parse(await correction.Content.ReadAsStringAsync());
+        var corrected = ReadMembershipTarget(Assert.Single(correctedDocument.RootElement.GetProperty("currentMemberships").EnumerateArray(),
+            membership => membership.GetProperty("saleId").GetGuid() == original.SaleId));
+
+        using var stale = await context.RenewPeriodAsync(original, group, "renew-stale");
+        await AssertProblemAsync(stale, HttpStatusCode.Conflict, "membership-target-conflict");
+        using var response = await context.RenewPeriodAsync(corrected, group, "renew-corrected");
+        response.EnsureSuccessStatusCode();
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var renewed = ReadMembershipTarget(Assert.Single(document.RootElement.GetProperty("currentMemberships").EnumerateArray(),
+            membership => membership.GetProperty("saleId").GetGuid() != corrected.SaleId &&
+                          membership.GetProperty("saleId").GetGuid() != booked.SaleId));
+        await context.AssertStoredPeriodAsync(renewed, DecemberFirst.AddDays(10), DecemberFirst.AddDays(19));
+        await context.AssertStoredPeriodAsync(booked, DecemberFirst.AddDays(30), DecemberFirst.AddDays(59));
+    }
+
+    [Fact]
+    public async Task Concurrent_renewals_of_one_period_conflict_and_winning_key_replays_once()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var group = context.SourceGroupId;
+        var original = await context.PurchaseTermPeriodAsync(DecemberFirst, DecemberFirst.AddDays(9), group);
+
+        var firstRequest = context.RenewPeriodAsync(original, group, "renew-first");
+        var secondRequest = context.RenewPeriodAsync(original, group, "renew-second");
+        using var first = await firstRequest;
+        using var second = await secondRequest;
+        var firstWon = first.StatusCode == HttpStatusCode.OK;
+        var winner = firstWon ? first : second;
+        Assert.Equal(HttpStatusCode.OK, winner.StatusCode);
+        await AssertProblemAsync(firstWon ? second : first, HttpStatusCode.Conflict, "membership-overlap");
+
+        using var replay = await context.RenewPeriodAsync(original, group, firstWon ? "renew-first" : "renew-second");
+        Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+        Assert.Equal(await winner.Content.ReadAsStringAsync(), await replay.Content.ReadAsStringAsync());
+        await context.AssertCountsAsync(expectedSales: 2, expectedMemberships: 2, expectedMembershipAudits: 2);
+        await using var scope = context.Factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(1, await db.AuditLogs.CountAsync(log => log.ActionType == "ClientMembershipRenewed"));
+    }
+
+    [Fact]
+    public async Task Single_visit_renewal_is_rejected_without_creating_a_sale()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var singleVisit = await context.SeedSingleVisitClientAsync();
+        using var purchase = await context.PurchaseAsync(JsonSerializer.Serialize(new
+        {
+            membershipCatalogItemId = singleVisit.CatalogItemId,
+            paymentDate = context.Today
+        }), "purchase-single-visit");
+        purchase.EnsureSuccessStatusCode();
+        var original = await context.LoadCurrentTargetAsync();
+
+        using var renewal = await context.RenewAsync(JsonSerializer.Serialize(new
+        {
+            membershipCatalogItemId = singleVisit.CatalogItemId,
+            saleId = original.SaleId,
+            expectedMembershipId = original.MembershipId,
+            paymentDate = context.Today
+        }), "renew-single-visit");
+        await AssertValidationProblemAsync(renewal, HttpStatusCode.BadRequest, "membership");
+        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 1, expectedMembershipAudits: 1);
+    }
+
+    private static MembershipTarget ReadMembershipTarget(JsonElement membership) => new(
+        membership.GetProperty("id").GetGuid(),
+        membership.GetProperty("saleId").GetGuid(),
+        membership.GetProperty("purchaseDate").Deserialize<DateOnly>());
+
     [Fact]
     public async Task Current_membership_collection_is_deterministic_and_renewal_is_explicitly_addressed()
     {
@@ -1804,6 +1938,42 @@ public sealed class ClientMembershipWriteRegressionApiTests
 
         public Task<HttpResponseMessage> RenewAsync(string rawJson, string? idempotencyKey) =>
             SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/renew", WithTargetGroup(rawJson), CsrfToken, idempotencyKey);
+
+        public async Task<MembershipTarget> PurchaseTermPeriodAsync(DateOnly validFrom, DateOnly validTo, Guid group)
+        {
+            using var response = await PurchaseAsync(JsonSerializer.Serialize(new
+            {
+                manualSaleAmount = 1500,
+                validFrom,
+                validTo,
+                paymentDate = Today,
+                targetGroupIds = new[] { group }
+            }), $"purchase-{group}-{validFrom:yyyy-MM-dd}");
+            response.EnsureSuccessStatusCode();
+            using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            return ReadMembershipTarget(Assert.Single(document.RootElement.GetProperty("currentMemberships").EnumerateArray(),
+                membership => membership.GetProperty("individualValidTo").Deserialize<DateOnly>() == validTo));
+        }
+
+        public Task<HttpResponseMessage> RenewPeriodAsync(MembershipTarget target, Guid group, string key) =>
+            RenewAsync(JsonSerializer.Serialize(new
+            {
+                manualSaleAmount = 1500,
+                saleId = target.SaleId,
+                expectedMembershipId = target.MembershipId,
+                paymentDate = Today,
+                targetGroupIds = new[] { group }
+            }), key);
+
+        public async Task AssertStoredPeriodAsync(MembershipTarget target, DateOnly start, DateOnly end)
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var membership = await db.ClientMemberships.AsNoTracking().SingleAsync(m => m.Id == target.MembershipId);
+            Assert.Equal(target.SaleId, membership.SaleId);
+            Assert.Equal(start, membership.IndividualValidFrom);
+            Assert.Equal(end, membership.IndividualValidTo);
+        }
 
         public Task<HttpResponseMessage> CorrectAsync(string rawJson, string? idempotencyKey) =>
             SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/correct", WithTargetGroup(rawJson), CsrfToken, idempotencyKey);

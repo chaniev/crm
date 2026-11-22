@@ -118,6 +118,78 @@ public sealed class AdministratorClientScopePostgreSqlTests
     }
 
     [Fact]
+    public async Task Professional_renewal_requires_head_coach_and_respects_future_sales_in_other_groups()
+    {
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        await using var factory = new BranchSettingsAppFactory(postgres.GetConnectionString());
+        await factory.SeedAsync();
+        var (clientId, _) = await SeedClientAsync(factory);
+        var (group, _) = await SeedResponseGroupAsync(factory, clientId);
+        var (otherGroup, _) = await SeedResponseGroupAsync(factory, clientId, suffix: " B");
+        using var scope = factory.Services.CreateScope();
+        var today = scope.ServiceProvider.GetRequiredService<IBusinessDateProvider>().Today;
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var catalogId = await db.MembershipCatalogItems.Where(item => item.BehaviorKind == MembershipBehaviorKind.Professional)
+            .Select(item => item.Id).SingleAsync();
+        var coachSession = await factory.LoginAsync(UserRole.HeadCoach);
+        var adminSession = await factory.LoginAsync(UserRole.Administrator);
+        using var headCoach = coachSession.Client;
+        using var admin = adminSession.Client;
+        var path = $"/clients/{clientId}/membership";
+
+        using var professional = await PostAsync(headCoach, coachSession.Token, "purchase", "buy-professional", new
+        {
+            membershipCatalogItemId = catalogId,
+            paymentDate = today,
+            validFrom = today,
+            validTo = today.AddDays(9),
+            targetGroupIds = new[] { group },
+            professionalComment = "Professional period"
+        });
+        professional.EnsureSuccessStatusCode();
+        var details = await professional.Content.ReadFromJsonAsync<JsonElement>();
+        var original = Assert.Single(details.GetProperty("currentMemberships").EnumerateArray());
+        var renewal = new
+        {
+            saleId = original.GetProperty("saleId").GetGuid(),
+            expectedMembershipId = original.GetProperty("id").GetGuid(),
+            membershipCatalogItemId = catalogId,
+            paymentDate = today,
+            targetGroupIds = new[] { group },
+            professionalComment = "Professional renewal"
+        };
+        using var denied = await PostAsync(admin, adminSession.Token, "renew", "admin-renew", renewal);
+        Assert.Equal(HttpStatusCode.BadRequest, denied.StatusCode);
+        var problem = await denied.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(problem.GetProperty("errors").TryGetProperty("membershipCatalogItemId", out _));
+
+        using var future = await PostAsync(headCoach, coachSession.Token, "purchase", "buy-future", new
+        {
+            manualSaleAmount = 1500,
+            paymentDate = today,
+            validFrom = today.AddDays(10),
+            validTo = today.AddDays(19),
+            targetGroupIds = new[] { otherGroup }
+        });
+        future.EnsureSuccessStatusCode();
+        using var overlap = await PostAsync(headCoach, coachSession.Token, "renew", "coach-renew", renewal);
+        Assert.Equal(HttpStatusCode.Conflict, overlap.StatusCode);
+        var conflict = await overlap.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("membership-overlap", conflict.GetProperty("type").GetString());
+        Assert.Equal(2, await db.ClientMembershipSales.CountAsync(sale => sale.ClientId == clientId));
+        Assert.False(await db.AuditLogs.AnyAsync(log => log.ActionType == "ClientMembershipRenewed"));
+
+        async Task<HttpResponseMessage> PostAsync(HttpClient http, string token, string action, string key, object payload)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"{path}/{action}") { Content = JsonContent.Create(payload) };
+            request.Headers.Add("Idempotency-Key", key);
+            request.Headers.Add("X-CSRF-TOKEN", token);
+            return await http.SendAsync(request);
+        }
+    }
+
+    [Fact]
     public async Task Moved_group_is_reloaded_before_waiting_administrator_mutation()
     {
         var barrier = new BeforeLockBarrier("Branches");
@@ -186,18 +258,18 @@ public sealed class AdministratorClientScopePostgreSqlTests
             .Where(log => log.ActionType == "TrainingGroupUpdated").ToArrayAsync());
     }
 
-    private static async Task<(Guid GroupId, Guid TypeId)> SeedResponseGroupAsync(BranchSettingsAppFactory factory, Guid clientId, bool includeClient = true)
+    private static async Task<(Guid GroupId, Guid TypeId)> SeedResponseGroupAsync(BranchSettingsAppFactory factory, Guid clientId, bool includeClient = true, string suffix = "")
     {
         using var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-        var type = new GroupType { Id = Guid.NewGuid(), Name = "Response scope" };
+        var type = new GroupType { Id = Guid.NewGuid(), Name = "Response scope" + suffix };
         var group = new TrainingGroup
         {
             Id = Guid.NewGuid(),
             BranchId = factory.OwnBranchId,
             HallId = factory.OwnHallId,
             GroupTypeId = type.Id,
-            Name = "Response group",
+            Name = "Response group" + suffix,
             DurationMinutes = 60,
             Weekdays = [1],
             TrainingStartTime = new TimeOnly(12, 0)
