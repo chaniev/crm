@@ -381,8 +381,12 @@ public class BranchesApiTests
         };
         var slot = new LessonScheduleSlot
         {
-            RuleVersion = version, HallId = factory.OwnHallId, SlotLineageId = Guid.NewGuid(),
-            IsoWeekday = 1, StartTime = new TimeOnly(10, 0), DurationMinutes = 60
+            RuleVersion = version,
+            HallId = factory.OwnHallId,
+            SlotLineageId = Guid.NewGuid(),
+            IsoWeekday = 1,
+            StartTime = new TimeOnly(10, 0),
+            DurationMinutes = 60
         };
         using (var scope = factory.Services.CreateScope())
         {
@@ -412,9 +416,13 @@ public class BranchesApiTests
         var groupId = await factory.SeedGroupInAnotherHallAsync();
         var lesson = new LessonOccurrence
         {
-            GroupId = groupId, HallId = factory.OwnHallId, LessonDate = new DateOnly(year, 3, 2),
-            StartTime = new TimeOnly(9, 0), DurationMinutes = 60,
-            Status = status, SourceKind = LessonOccurrenceSourceKind.OneOff
+            GroupId = groupId,
+            HallId = factory.OwnHallId,
+            LessonDate = new DateOnly(year, 3, 2),
+            StartTime = new TimeOnly(9, 0),
+            DurationMinutes = 60,
+            Status = status,
+            SourceKind = LessonOccurrenceSourceKind.OneOff
         };
         using (var scope = factory.Services.CreateScope())
         {

@@ -60,6 +60,10 @@ import { getSemanticToneComponentProps } from '../../theme/semanticTones'
 import { fe10SettingsBranchesShellText } from '../../resources/fe-10-settings-branches-shell'
 
 
+function revealActionError(element: HTMLDivElement | null) {
+  element?.scrollIntoView({ block: 'center' })
+}
+
 type BranchFormValues = {
   name: string
   address: string
@@ -445,6 +449,7 @@ export function BranchSettingsScreen({
 
           {actionError ? (
             <Alert
+              ref={revealActionError}
               color="red"
               icon={<IconAlertCircle size={18} />}
               title={fe10SettingsBranchesShellText.branchSettingsScreen_title_7530f803}

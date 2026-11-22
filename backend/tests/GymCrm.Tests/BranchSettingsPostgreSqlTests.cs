@@ -128,8 +128,12 @@ public class BranchSettingsPostgreSqlTests
         {
             writer.LessonOccurrences.Add(new LessonOccurrence
             {
-                GroupId = groupId, HallId = factory.OwnHallId, LessonDate = new DateOnly(2020, 8, 10),
-                StartTime = new TimeOnly(9, 0), DurationMinutes = 60, SourceKind = LessonOccurrenceSourceKind.OneOff
+                GroupId = groupId,
+                HallId = factory.OwnHallId,
+                LessonDate = new DateOnly(2020, 8, 10),
+                StartTime = new TimeOnly(9, 0),
+                DurationMinutes = 60,
+                SourceKind = LessonOccurrenceSourceKind.OneOff
             });
         }
         else
@@ -140,10 +144,14 @@ public class BranchSettingsPostgreSqlTests
                 RuleVersion = new LessonScheduleRuleVersion
                 {
                     LessonSeries = new LessonSeries { GroupId = groupId, StartsOn = start },
-                    VersionNumber = 1, EffectiveFrom = start
+                    VersionNumber = 1,
+                    EffectiveFrom = start
                 },
-                HallId = factory.OwnHallId, SlotLineageId = Guid.NewGuid(),
-                IsoWeekday = 1, StartTime = new TimeOnly(9, 0), DurationMinutes = 60
+                HallId = factory.OwnHallId,
+                SlotLineageId = Guid.NewGuid(),
+                IsoWeekday = 1,
+                StartTime = new TimeOnly(9, 0),
+                DurationMinutes = 60
             });
         }
         await writer.SaveChangesAsync();

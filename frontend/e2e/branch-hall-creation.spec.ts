@@ -149,7 +149,14 @@ for (const action of ['archive', 'delete'] as const) {
       await page.getByRole('dialog').getByRole('button', { name: 'Удалить зал', exact: true }).click()
       await expect(page.getByRole('dialog')).toBeHidden()
     }
-    await expect(page.getByRole('alert').getByText(reason)).toBeVisible()
+    const message = page.getByRole('alert').getByText(reason)
+    await expect(message).toBeVisible()
+    await expect(message).toBeInViewport({ ratio: 1 })
+    await expect.poll(() => message.evaluate(element => {
+      const box = element.getBoundingClientRect()
+      const center = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)
+      return element.contains(center)
+    })).toBe(true)
     await expect(archiveButton).toBeEnabled()
     await expect(page.getByText('Основной зал', { exact: true })).toBeVisible()
     await noOverflow(page)
