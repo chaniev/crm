@@ -487,7 +487,7 @@ internal sealed class TestDataSeeder : IAsyncDisposable
             {
                 Id = SeedIds.Administrator(number),
                 FullName = $"Администратор {number:00}",
-                Login = $"seed.admin{number:00}",
+                Login = $"admin{number:00}",
                 Role = UserRole.Administrator,
                 BranchId = SeedIds.Branch(((number - 1) % SeedIds.BranchCount) + 1),
                 MustChangePassword = SeedUserMustChangePassword,

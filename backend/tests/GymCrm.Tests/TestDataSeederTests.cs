@@ -453,6 +453,13 @@ public sealed class TestDataSeederTests
         DateOnly deploymentDateLowerBound,
         DateOnly deploymentDateUpperBound)
     {
+        var administratorLogins = await dbContext.Users
+            .Where(user => SeedIds.UserIds.Contains(user.Id) && user.Role == UserRole.Administrator)
+            .OrderBy(user => user.Login)
+            .Select(user => user.Login)
+            .ToArrayAsync();
+        Assert.Equal(["admin01", "admin02", "admin03", "admin04", "admin05"], administratorLogins);
+
         var seededClientIds = SeedIds.ClientIds;
         var memberships = await dbContext.ClientMemberships
             .AsNoTracking()
