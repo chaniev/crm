@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "task_id": "TASK-217",
+  "started_at": "2026-11-22T09:26:28.089293+00:00",
+  "status": "passed",
+  "project_name": "crm-task-217-38981-6e14",
+  "ports": {
+    "backend": 57692,
+    "frontend": 57693
+  },
+  "bot_enabled": false,
+  "checks": [
+    {
+      "id": "runtime.compose.up",
+      "command": [
+        "docker",
+        "compose",
+        "--project-name",
+        "crm-task-217-38981-6e14",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.yml",
+        "up",
+        "--build",
+        "-d",
+        "backend"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 1,
+      "completed_at": "2026-11-22T09:26:44.278159+00:00"
+    },
+    {
+      "id": "runtime.backend-ready",
+      "command": [
+        "curl",
+        "-fsS",
+        "http://127.0.0.1:57692/health/ready"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 2,
+      "completed_at": "2026-11-22T09:26:46.573973+00:00"
+    },
+    {
+      "id": "runtime.staff-session",
+      "command": [
+        "curl",
+        "-fsS",
+        "-o",
+        "/dev/null",
+        "http://127.0.0.1:57692/auth/session"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "attempts": 1,
+      "completed_at": "2026-11-22T09:26:46.619593+00:00"
+    }
+  ],
+  "cleanup": {
+    "command": [
+      "docker",
+      "compose",
+      "--project-name",
+      "crm-task-217-38981-6e14",
+      "--project-directory",
+      ".",
+      "--env-file",
+      "deploy/.env.example",
+      "-f",
+      "deploy/docker-compose.yml",
+      "down",
+      "--remove-orphans"
+    ],
+    "status": "passed",
+    "exit_code": 0,
+    "completed_at": "2026-11-22T09:26:47.238357+00:00"
+  },
+  "completed_at": "2026-11-22T09:26:47.238419+00:00"
+}

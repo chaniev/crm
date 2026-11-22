@@ -1,0 +1,2636 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-22T09:21:08.965730+00:00",
+  "repository": "TASK-217-substitute-group-period-access",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "bot.sync",
+    "bot.lint",
+    "bot.user-facing-text",
+    "bot.format",
+    "bot.types",
+    "bot.test",
+    "deploy.compose.local",
+    "deploy.compose.server",
+    "deploy.shell",
+    "frontend.playwright.install",
+    "frontend.e2e.group-trainer-substitutions",
+    "frontend.e2e.group-schedule",
+    "frontend.e2e.attendance-today-worklist",
+    "runtime.stack"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "b1cd79501a22a95069c6f4b8847a88caba949996",
+    "head_tree_sha": "c3d1e1fa21c865ce2191b26e319c09bdfba4906b",
+    "base_sha": "c40f9080c65bb9df12208d9a8a0c48decb2f1153",
+    "merge_base_sha": "c40f9080c65bb9df12208d9a8a0c48decb2f1153",
+    "branch": "feature/TASK-217-substitute-group-period-access",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json",
+    "task_id": "TASK-217",
+    "expected_branch": "feature/TASK-217-substitute-group-period-access",
+    "sha256": "3c9b223fddd967bfdae02ac26d67bf0673d73ae1669d20d7f4476510821dfc02",
+    "verified_head_sha": "b1cd79501a22a95069c6f4b8847a88caba949996",
+    "verified_head_tree_sha": "c3d1e1fa21c865ce2191b26e319c09bdfba4906b",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-217\",\n  \"expected_branch\": \"feature/TASK-217-substitute-group-period-access\",\n  \"areas\": [\n    \"backend\",\n    \"bot\",\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.group-trainer-substitutions\",\n      \"spec\": \"e2e/group-trainer-substitutions.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.group-schedule\",\n      \"spec\": \"e2e/group-schedule.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    },\n    {\n      \"id\": \"frontend.e2e.attendance-today-worklist\",\n      \"spec\": \"e2e/attendance-today-worklist.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 1800\n    }\n  ],\n  \"runtime_stack\": {\n    \"compose_file\": \"deploy/docker-compose.yml\",\n    \"env_file\": \"deploy/.env.example\",\n    \"services\": [\n      \"backend\"\n    ],\n    \"startup_timeout_seconds\": 1200,\n    \"cleanup_timeout_seconds\": 180,\n    \"readiness\": [\n      {\n        \"id\": \"runtime.backend-ready\",\n        \"command\": [\n          \"curl\",\n          \"-fsS\",\n          \"http://127.0.0.1:{backend_port}/health/ready\"\n        ],\n        \"timeout_seconds\": 120\n      }\n    ],\n    \"smoke\": [\n      {\n        \"id\": \"runtime.staff-session\",\n        \"command\": [\n          \"curl\",\n          \"-fsS\",\n          \"-o\", \"/dev/null\", \"http://127.0.0.1:{backend_port}/auth/session\"\n        ],\n        \"timeout_seconds\": 30\n      }\n    ]\n  }\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-217",
+      "expected_branch": "feature/TASK-217-substitute-group-period-access",
+      "areas": [
+        "backend",
+        "bot",
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.group-trainer-substitutions",
+          "spec": "e2e/group-trainer-substitutions.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.group-schedule",
+          "spec": "e2e/group-schedule.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        },
+        {
+          "id": "frontend.e2e.attendance-today-worklist",
+          "spec": "e2e/attendance-today-worklist.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        }
+      ],
+      "runtime_stack": {
+        "compose_file": "deploy/docker-compose.yml",
+        "env_file": "deploy/.env.example",
+        "services": [
+          "backend"
+        ],
+        "startup_timeout_seconds": 1200,
+        "cleanup_timeout_seconds": 180,
+        "readiness": [
+          {
+            "id": "runtime.backend-ready",
+            "command": [
+              "curl",
+              "-fsS",
+              "http://127.0.0.1:{backend_port}/health/ready"
+            ],
+            "timeout_seconds": 120
+          }
+        ],
+        "smoke": [
+          {
+            "id": "runtime.staff-session",
+            "command": [
+              "curl",
+              "-fsS",
+              "-o",
+              "/dev/null",
+              "http://127.0.0.1:{backend_port}/auth/session"
+            ],
+            "timeout_seconds": 30
+          }
+        ]
+      }
+    }
+  },
+  "task_id": "TASK-217",
+  "source_ref": null,
+  "e2e_port": 55184,
+  "github": {},
+  "tool_versions": {
+    "bash": "GNU bash, version 3.2.57(1)-release (arm64-apple-darwin26)",
+    "docker": "Docker version 29.4.2, build 055a478",
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6",
+    "uv": "uv 0.11.8 (0e961dd9a 2026-04-27 aarch64-apple-darwin)"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchResources.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Bot/BotApiContracts.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Clients/IClientPhotoService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "C097",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AttendanceApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AttendanceTestLessons.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchesApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/ClientsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/InternalBotApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/done/2026-11-21/TASK-216-requirements-audit.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R052",
+      "paths": [
+        "backlog/implementation/TASK-220-attendance-historical-time.md",
+        "backlog/done/2026-11-22/TASK-220-attendance-historical-time.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R095",
+      "paths": [
+        "backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md",
+        "backlog/done/2026-11-22/TASK-220-attendance-historical-time.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-22/TASK-220-evidence/verification.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-22/TASK-220-verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-22/TASK-223-evidence/verification.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R054",
+      "paths": [
+        "backlog/implementation/TASK-223-hall-schedule-archive-guard.md",
+        "backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R096",
+      "paths": [
+        "backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md",
+        "backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R061",
+      "paths": [
+        "backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R095",
+      "paths": [
+        "backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-217-substitute-group-period-access.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/implementation-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-217/Prototype.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-217/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-217/create-mobile.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-217/index.html"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-217/periods-desktop.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-217/prototype.css"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "D",
+      "paths": [
+        "backlog/risky/TASK-217-substitute-group-period-access.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/core/attendance_flow.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/core/client_flow.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/core/service.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/core/service_types.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/crm/client.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/crm/models.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/resources/bot_2_attendance.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/resources/keyboards.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/resources/messages.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/telegram/adapter.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/src/gym_crm_bot/telegram/mtproto_adapter.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/tests/test_attendance_flow.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/tests/test_bot_service.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "bot/tests/test_client_flow.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "bot/tests/test_client_photo_delivery.py"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/architecture/adr/0010-substitute-group-period-access.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/01-клиенты.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/02-группы.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/03-абонементы-и-оплаты.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/04-посещения.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/09-филиалы-и-настройки.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/10-внимание-и-чат.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/administrator-client-branch-access.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/branch-hall-creation.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/client-profile-context-navigation.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-schedule-workflow.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-schedule.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/group-trainer-substitutions.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/groups-registry.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.css"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupEditScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupManagement.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/groups/SubstitutionPeriodDialog.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/groups/formatSubstitutionPeriod.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/BranchSettingsScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/endpoints.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/groupTrainerSubstitutions.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/types.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-14-group-staffing.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+    "backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/BranchResources.cs",
+    "backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+    "backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs",
+    "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+    "backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+    "backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+    "backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs",
+    "backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs",
+    "backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+    "backend/src/GymCrm.Application/Clients/IClientPhotoService.cs",
+    "backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+    "backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs",
+    "backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+    "backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs",
+    "backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+    "backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+    "backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+    "backend/tests/GymCrm.Tests/AttendanceApiTests.cs",
+    "backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+    "backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+    "backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+    "backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs",
+    "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs",
+    "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs",
+    "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs",
+    "backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+    "backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+    "backlog/done/2026-11-22/TASK-220-attendance-historical-time.md",
+    "backlog/done/2026-11-22/TASK-220-attendance-historical-time.plan.md",
+    "backlog/done/2026-11-22/TASK-220-evidence/verification.json",
+    "backlog/done/2026-11-22/TASK-220-verification-contract.json",
+    "backlog/done/2026-11-22/TASK-223-evidence/verification.json",
+    "backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md",
+    "backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.plan.md",
+    "backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+    "backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+    "backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+    "backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md",
+    "backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md",
+    "backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md",
+    "backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+    "backlog/implementation/TASK-217-substitute-group-period-access.md",
+    "backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json",
+    "backlog/implementation/TASK-220-attendance-historical-time.md",
+    "backlog/implementation/TASK-223-hall-schedule-archive-guard.md",
+    "backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+    "backlog/logs/implementation-log.md",
+    "backlog/mockups/TASK-217/Prototype.tsx",
+    "backlog/mockups/TASK-217/README.md",
+    "backlog/mockups/TASK-217/create-mobile.png",
+    "backlog/mockups/TASK-217/index.html",
+    "backlog/mockups/TASK-217/periods-desktop.png",
+    "backlog/mockups/TASK-217/prototype.css",
+    "backlog/risky/TASK-217-substitute-group-period-access.md",
+    "bot/src/gym_crm_bot/core/attendance_flow.py",
+    "bot/src/gym_crm_bot/core/client_flow.py",
+    "bot/src/gym_crm_bot/core/service.py",
+    "bot/src/gym_crm_bot/core/service_types.py",
+    "bot/src/gym_crm_bot/crm/client.py",
+    "bot/src/gym_crm_bot/crm/models.py",
+    "bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+    "bot/src/gym_crm_bot/resources/keyboards.py",
+    "bot/src/gym_crm_bot/resources/messages.py",
+    "bot/src/gym_crm_bot/telegram/adapter.py",
+    "bot/src/gym_crm_bot/telegram/mtproto_adapter.py",
+    "bot/tests/test_attendance_flow.py",
+    "bot/tests/test_bot_service.py",
+    "bot/tests/test_client_flow.py",
+    "bot/tests/test_client_photo_delivery.py",
+    "docs/architecture/adr/0010-substitute-group-period-access.md",
+    "docs/architecture/adr/README.md",
+    "docs/requirements/01-клиенты.md",
+    "docs/requirements/02-группы.md",
+    "docs/requirements/03-абонементы-и-оплаты.md",
+    "docs/requirements/04-посещения.md",
+    "docs/requirements/09-филиалы-и-настройки.md",
+    "docs/requirements/10-внимание-и-чат.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/administrator-client-branch-access.spec.ts",
+    "frontend/e2e/branch-hall-creation.spec.ts",
+    "frontend/e2e/client-profile-context-navigation.spec.ts",
+    "frontend/e2e/group-schedule-workflow.spec.ts",
+    "frontend/e2e/group-schedule.spec.ts",
+    "frontend/e2e/group-trainer-substitutions.spec.ts",
+    "frontend/e2e/groups-registry.spec.ts",
+    "frontend/playwright.config.ts",
+    "frontend/src/App.css",
+    "frontend/src/features/groups/GroupEditScreen.tsx",
+    "frontend/src/features/groups/GroupManagement.test.tsx",
+    "frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+    "frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+    "frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+    "frontend/src/features/groups/formatSubstitutionPeriod.ts",
+    "frontend/src/features/settings/BranchSettingsScreen.tsx",
+    "frontend/src/lib/api.ts",
+    "frontend/src/lib/api/endpoints.ts",
+    "frontend/src/lib/api/groupTrainerSubstitutions.ts",
+    "frontend/src/lib/api/types.ts",
+    "frontend/src/resources/fe-14-group-staffing.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend",
+    "bot",
+    "deploy"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.md",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.plan.md",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-evidence/verification.json",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-verification-contract.json",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-evidence/verification.json",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.plan.md",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.md",
+      "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-220-attendance-historical-time.md",
+      "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.md",
+      "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+      "documentation or instructions changed: backlog/logs/implementation-log.md",
+      "documentation or instructions changed: backlog/mockups/TASK-217/Prototype.tsx",
+      "documentation or instructions changed: backlog/mockups/TASK-217/README.md",
+      "documentation or instructions changed: backlog/mockups/TASK-217/create-mobile.png",
+      "documentation or instructions changed: backlog/mockups/TASK-217/index.html",
+      "documentation or instructions changed: backlog/mockups/TASK-217/periods-desktop.png",
+      "documentation or instructions changed: backlog/mockups/TASK-217/prototype.css",
+      "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+      "documentation or instructions changed: docs/architecture/adr/0010-substitute-group-period-access.md",
+      "documentation or instructions changed: docs/architecture/adr/README.md",
+      "documentation or instructions changed: docs/requirements/01-клиенты.md",
+      "documentation or instructions changed: docs/requirements/02-группы.md",
+      "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+      "documentation or instructions changed: docs/requirements/04-посещения.md",
+      "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+      "documentation or instructions changed: docs/requirements/10-внимание-и-чат.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientPhotoService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+      "backend-owned path changed: backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+      "task contract TASK-217 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+      "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+      "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+      "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+      "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+      "frontend-owned path changed: frontend/e2e/group-schedule.spec.ts",
+      "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+      "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/App.css",
+      "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+      "frontend-owned path changed: frontend/src/features/groups/formatSubstitutionPeriod.ts",
+      "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "frontend-owned path changed: frontend/src/lib/api.ts",
+      "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+      "frontend-owned path changed: frontend/src/lib/api/groupTrainerSubstitutions.ts",
+      "frontend-owned path changed: frontend/src/lib/api/types.ts",
+      "frontend-owned path changed: frontend/src/resources/fe-14-group-staffing.ts",
+      "task contract TASK-217 requires frontend"
+    ],
+    "bot": [
+      "Internal Bot API boundary changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+      "Internal Bot API boundary changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+      "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+      "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/core/client_flow.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/core/service.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/core/service_types.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/crm/models.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/resources/keyboards.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/telegram/adapter.py",
+      "bot-owned path changed: bot/src/gym_crm_bot/telegram/mtproto_adapter.py",
+      "bot-owned path changed: bot/tests/test_attendance_flow.py",
+      "bot-owned path changed: bot/tests/test_bot_service.py",
+      "bot-owned path changed: bot/tests/test_client_flow.py",
+      "bot-owned path changed: bot/tests/test_client_photo_delivery.py",
+      "task contract TASK-217 requires bot"
+    ],
+    "deploy": [
+      "task contract TASK-217 requires deploy"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-verification-contract.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-220-attendance-historical-time.md",
+        "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.md",
+        "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-217/Prototype.tsx",
+        "documentation or instructions changed: backlog/mockups/TASK-217/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-217/create-mobile.png",
+        "documentation or instructions changed: backlog/mockups/TASK-217/index.html",
+        "documentation or instructions changed: backlog/mockups/TASK-217/periods-desktop.png",
+        "documentation or instructions changed: backlog/mockups/TASK-217/prototype.css",
+        "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/architecture/adr/0010-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/04-посещения.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/10-внимание-и-чат.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:09.198687+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.046,
+      "completed_at": "2026-11-22T09:21:09.244919+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-verification-contract.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-220-attendance-historical-time.md",
+        "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.md",
+        "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-217/Prototype.tsx",
+        "documentation or instructions changed: backlog/mockups/TASK-217/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-217/create-mobile.png",
+        "documentation or instructions changed: backlog/mockups/TASK-217/index.html",
+        "documentation or instructions changed: backlog/mockups/TASK-217/periods-desktop.png",
+        "documentation or instructions changed: backlog/mockups/TASK-217/prototype.css",
+        "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/architecture/adr/0010-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/04-посещения.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/10-внимание-и-чат.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:09.246388+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.047,
+      "completed_at": "2026-11-22T09:21:09.293459+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-verification-contract.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-220-attendance-historical-time.md",
+        "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.md",
+        "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-217/Prototype.tsx",
+        "documentation or instructions changed: backlog/mockups/TASK-217/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-217/create-mobile.png",
+        "documentation or instructions changed: backlog/mockups/TASK-217/index.html",
+        "documentation or instructions changed: backlog/mockups/TASK-217/periods-desktop.png",
+        "documentation or instructions changed: backlog/mockups/TASK-217/prototype.css",
+        "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/architecture/adr/0010-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/04-посещения.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/10-внимание-и-чат.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:09.294948+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.046,
+      "completed_at": "2026-11-22T09:21:09.340818+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-attendance-historical-time.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-220-verification-contract.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-evidence/verification.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.plan.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-220-attendance-historical-time.md",
+        "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.md",
+        "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-217/Prototype.tsx",
+        "documentation or instructions changed: backlog/mockups/TASK-217/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-217/create-mobile.png",
+        "documentation or instructions changed: backlog/mockups/TASK-217/index.html",
+        "documentation or instructions changed: backlog/mockups/TASK-217/periods-desktop.png",
+        "documentation or instructions changed: backlog/mockups/TASK-217/prototype.css",
+        "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/architecture/adr/0010-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/01-клиенты.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/04-посещения.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/10-внимание-и-чат.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:09.342262+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.082,
+      "completed_at": "2026-11-22T09:21:09.424110+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-217 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:09.425508+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.749,
+      "completed_at": "2026-11-22T09:21:10.174152+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-217 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:10.175645+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.097,
+      "completed_at": "2026-11-22T09:21:12.272625+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-217 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:12.274177+00:00",
+      "exit_code": 0,
+      "duration_seconds": 12.462,
+      "completed_at": "2026-11-22T09:21:24.735735+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-217 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:24.737716+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.146,
+      "completed_at": "2026-11-22T09:21:28.883945+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-217 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:21:28.885592+00:00",
+      "exit_code": 0,
+      "duration_seconds": 213.455,
+      "completed_at": "2026-11-22T09:25:02.340468+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ClientResponseMapper.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/IEffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/TrainerGroupAccess.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Clients/IClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Groups/GroupTrainerSubstitutionPeriod.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Authorization/EffectiveGroupAssignmentService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Clients/ClientPhotoService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/GroupTrainerSubstitutionPeriodConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122090204_AddGroupTrainerSubstitutionPeriods.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Scheduling/ScheduleLessonReader.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTestLessons.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AttendanceTransitionServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/ClientsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/EffectiveGroupAssignmentServiceTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.Periods.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionAccessMatrixTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "task contract TASK-217 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:02.347881+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.975,
+      "completed_at": "2026-11-22T09:25:05.322674+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/formatSubstitutionPeriod.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groupTrainerSubstitutions.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-14-group-staffing.ts",
+        "task contract TASK-217 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:05.324380+00:00",
+      "exit_code": 0,
+      "duration_seconds": 7.306,
+      "completed_at": "2026-11-22T09:25:12.630671+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/formatSubstitutionPeriod.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groupTrainerSubstitutions.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-14-group-staffing.ts",
+        "task contract TASK-217 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:12.632519+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.093,
+      "completed_at": "2026-11-22T09:25:13.725566+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/formatSubstitutionPeriod.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groupTrainerSubstitutions.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-14-group-staffing.ts",
+        "task contract TASK-217 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:13.727103+00:00",
+      "exit_code": 0,
+      "duration_seconds": 25.122,
+      "completed_at": "2026-11-22T09:25:38.849101+00:00"
+    },
+    {
+      "id": "bot.sync",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--extra",
+        "dev"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Internal Bot API boundary changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "Internal Bot API boundary changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/client_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service_types.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/models.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/keyboards.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/adapter.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/mtproto_adapter.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_client_photo_delivery.py",
+        "task contract TASK-217 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:38.851363+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.091,
+      "completed_at": "2026-11-22T09:25:38.942859+00:00"
+    },
+    {
+      "id": "bot.lint",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Internal Bot API boundary changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "Internal Bot API boundary changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/client_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service_types.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/models.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/keyboards.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/adapter.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/mtproto_adapter.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_client_photo_delivery.py",
+        "task contract TASK-217 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:38.944393+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.076,
+      "completed_at": "2026-11-22T09:25:39.020549+00:00"
+    },
+    {
+      "id": "bot.user-facing-text",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "python",
+        "scripts/check_user_facing_text.py",
+        ".."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "Internal Bot API boundary changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "Internal Bot API boundary changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/client_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service_types.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/models.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/keyboards.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/adapter.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/mtproto_adapter.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_client_photo_delivery.py",
+        "task contract TASK-217 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:39.022251+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.14,
+      "completed_at": "2026-11-22T09:25:39.162220+00:00"
+    },
+    {
+      "id": "bot.format",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Internal Bot API boundary changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "Internal Bot API boundary changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/client_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service_types.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/models.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/keyboards.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/adapter.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/mtproto_adapter.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_client_photo_delivery.py",
+        "task contract TASK-217 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:39.163945+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-22T09:25:39.203841+00:00"
+    },
+    {
+      "id": "bot.types",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "mypy"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Internal Bot API boundary changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "Internal Bot API boundary changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/client_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service_types.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/models.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/keyboards.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/adapter.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/mtproto_adapter.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_client_photo_delivery.py",
+        "task contract TASK-217 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:39.205550+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.32,
+      "completed_at": "2026-11-22T09:25:39.525600+00:00"
+    },
+    {
+      "id": "bot.test",
+      "area": "bot",
+      "working_directory": "bot",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "--extra",
+        "dev",
+        "pytest"
+      ],
+      "depends_on": [
+        "bot.sync"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "Internal Bot API boundary changed: backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs",
+        "Internal Bot API boundary changed: backend/src/GymCrm.Application/Bot/BotApiContracts.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/attendance_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/client_flow.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/core/service_types.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/client.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/crm/models.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/bot_2_attendance.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/keyboards.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/resources/messages.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/adapter.py",
+        "bot-owned path changed: bot/src/gym_crm_bot/telegram/mtproto_adapter.py",
+        "bot-owned path changed: bot/tests/test_attendance_flow.py",
+        "bot-owned path changed: bot/tests/test_bot_service.py",
+        "bot-owned path changed: bot/tests/test_client_flow.py",
+        "bot-owned path changed: bot/tests/test_client_photo_delivery.py",
+        "task contract TASK-217 requires bot"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:39.528077+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.534,
+      "completed_at": "2026-11-22T09:25:41.062253+00:00"
+    },
+    {
+      "id": "deploy.compose.local",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "docker",
+        "compose",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.yml",
+        "config",
+        "--quiet"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-217 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:41.063816+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.123,
+      "completed_at": "2026-11-22T09:25:41.187148+00:00"
+    },
+    {
+      "id": "deploy.compose.server",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "docker",
+        "compose",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.server.yml",
+        "config",
+        "--quiet"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-217 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:41.188919+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.073,
+      "completed_at": "2026-11-22T09:25:41.262159+00:00"
+    },
+    {
+      "id": "deploy.shell",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "bash",
+        "-n",
+        "deploy/build-images.sh",
+        "deploy/export-images.sh",
+        "deploy/load-images.sh",
+        "deploy/lib/images.sh"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-217 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:41.263889+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.006,
+      "completed_at": "2026-11-22T09:25:41.270327+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/formatSubstitutionPeriod.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groupTrainerSubstitutions.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-14-group-staffing.ts",
+        "task contract TASK-217 requires frontend",
+        "task contract TASK-217 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:41.271982+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.49,
+      "completed_at": "2026-11-22T09:25:41.762373+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-trainer-substitutions",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-trainer-substitutions.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/formatSubstitutionPeriod.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groupTrainerSubstitutions.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-14-group-staffing.ts",
+        "task contract TASK-217 requires frontend",
+        "task contract TASK-217 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:41.763949+00:00",
+      "exit_code": 0,
+      "duration_seconds": 6.163,
+      "completed_at": "2026-11-22T09:25:47.927195+00:00"
+    },
+    {
+      "id": "frontend.e2e.group-schedule",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/group-schedule.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/formatSubstitutionPeriod.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groupTrainerSubstitutions.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-14-group-staffing.ts",
+        "task contract TASK-217 requires frontend",
+        "task contract TASK-217 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:25:47.929329+00:00",
+      "exit_code": 0,
+      "duration_seconds": 34.632,
+      "completed_at": "2026-11-22T09:26:22.561738+00:00"
+    },
+    {
+      "id": "frontend.e2e.attendance-today-worklist",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/attendance-today-worklist.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AttendanceGroupClientsResponse.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientPhotoEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/GroupTrainerSubstitutionPeriodEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs",
+        "Shared schedule boundary changed: backend/src/GymCrm.Application/Scheduling/IScheduleLessonReader.cs",
+        "frontend-owned path changed: frontend/e2e/administrator-client-branch-access.spec.ts",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/client-profile-context-navigation.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule-workflow.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-schedule.spec.ts",
+        "frontend-owned path changed: frontend/e2e/group-trainer-substitutions.spec.ts",
+        "frontend-owned path changed: frontend/e2e/groups-registry.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.css",
+        "frontend-owned path changed: frontend/src/features/groups/GroupEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.test.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/GroupTrainerSubstitutionsSection.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/SubstitutionPeriodDialog.tsx",
+        "frontend-owned path changed: frontend/src/features/groups/formatSubstitutionPeriod.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/groupTrainerSubstitutions.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-14-group-staffing.ts",
+        "task contract TASK-217 requires frontend",
+        "task contract TASK-217 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:26:22.564227+00:00",
+      "exit_code": 0,
+      "duration_seconds": 5.433,
+      "completed_at": "2026-11-22T09:26:27.997120+00:00"
+    },
+    {
+      "id": "runtime.stack",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/runtime_stack.py",
+        "--task-contract",
+        "backlog/implementation/TASK-217-substitute-group-period-access.verification-contract.json",
+        "--report",
+        ".artifacts/verification/TASK-217-runtime.json"
+      ],
+      "depends_on": [
+        "requirements.agent-instructions",
+        "requirements.architecture-decisions",
+        "requirements.plan-readiness",
+        "requirements.registry",
+        "backend.restore",
+        "backend.user-facing-text",
+        "backend.format",
+        "backend.build",
+        "backend.test",
+        "backend.audit",
+        "frontend.install",
+        "frontend.audit",
+        "frontend.check",
+        "bot.sync",
+        "bot.lint",
+        "bot.user-facing-text",
+        "bot.format",
+        "bot.types",
+        "bot.test",
+        "deploy.compose.local",
+        "deploy.compose.server",
+        "deploy.shell"
+      ],
+      "timeout_seconds": 1590.0,
+      "selection_reasons": [
+        "task contract TASK-217 requires deploy",
+        "task contract TASK-217 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T09:26:27.998934+00:00",
+      "exit_code": 0,
+      "duration_seconds": 19.296,
+      "completed_at": "2026-11-22T09:26:47.294685+00:00"
+    }
+  ],
+  "completed_at": "2026-11-22T09:26:47.298037+00:00"
+}
