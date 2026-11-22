@@ -443,9 +443,14 @@ public class InternalBotApiTests
         var hiddenGroup = await db.TrainingGroups.SingleAsync(item => item.Id == seeded.AdminGroupId);
         db.Attendance.Add(new Attendance
         {
-            Id = Guid.NewGuid(), ClientId = clientId, GroupId = hiddenGroup.Id, TrainingDate = today,
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            GroupId = hiddenGroup.Id,
+            TrainingDate = today,
             LessonOccurrence = AttendanceTestLessons.OneOff(hiddenGroup, today, new TimeOnly(20, 0)),
-            MarkedByUserId = seeded.SuperAdministratorId, MarkedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+            MarkedByUserId = seeded.SuperAdministratorId,
+            MarkedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
         });
         await db.SaveChangesAsync();
 
@@ -464,13 +469,14 @@ public class InternalBotApiTests
             result.EnsureSuccessStatusCode();
         }
 
-        await MarkMorningAsync("Absent");
+        await MarkMorningAsync("Present");
         using var bot = factory.CreateClient();
         using var save = await SendBotRequestAsync(bot, HttpMethod.Post,
             $"/internal/bot/attendance/lessons/{evening.Id}?lessonDate={today:yyyy-MM-dd}",
             new BotSaveAttendanceRequest("Telegram", seeded.HeadCoachTelegramId, today.ToString("yyyy-MM-dd"),
                 [new BotAttendanceMarkRequest(clientId, false)]), "evening-absent");
         save.EnsureSuccessStatusCode();
+        await MarkMorningAsync("Absent");
         await MarkMorningAsync("Present");
 
         async Task AssertHistoryAsync()
