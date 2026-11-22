@@ -4,11 +4,13 @@ using System.Text.Json;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using Testcontainers.PostgreSql;
 
 namespace GymCrm.Tests;
@@ -101,6 +103,105 @@ public class BranchSettingsPostgreSqlTests
         Assert.False(await db.Halls.AnyAsync(x => x.Name == "Must rollback"));
         Assert.False(await db.AuditLogs.AnyAsync(x => x.ActionType == action));
         Assert.True(await db.AuditLogs.AnyAsync(x => x.ActionType == "Login"));
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task Hall_command_waits_for_schedule_writer(bool archive, bool commitSchedule)
+    {
+        await using var postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        await postgres.StartAsync();
+        var connectionString = postgres.GetConnectionString();
+        await using var factory = new BranchSettingsAppFactory(connectionString);
+        await factory.SeedAsync();
+        var groupId = await factory.SeedGroupInAnotherHallAsync();
+        var (client, token) = await factory.LoginAsync(UserRole.HeadCoach);
+        using var hallClient = client;
+        using var writerScope = factory.Services.CreateScope();
+        var writer = writerScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        await using var transaction = await writer.Database.BeginTransactionAsync();
+        // Both tables have a restrictive FK. Exercise one through each command.
+        if (archive)
+        {
+            writer.LessonOccurrences.Add(new LessonOccurrence
+            {
+                GroupId = groupId, HallId = factory.OwnHallId, LessonDate = new DateOnly(2020, 8, 10),
+                StartTime = new TimeOnly(9, 0), DurationMinutes = 60, SourceKind = LessonOccurrenceSourceKind.OneOff
+            });
+        }
+        else
+        {
+            var start = new DateOnly(2020, 8, 10);
+            writer.LessonScheduleSlots.Add(new LessonScheduleSlot
+            {
+                RuleVersion = new LessonScheduleRuleVersion
+                {
+                    LessonSeries = new LessonSeries { GroupId = groupId, StartsOn = start },
+                    VersionNumber = 1, EffectiveFrom = start
+                },
+                HallId = factory.OwnHallId, SlotLineageId = Guid.NewGuid(),
+                IsoWeekday = 1, StartTime = new TimeOnly(9, 0), DurationMinutes = 60
+            });
+        }
+        await writer.SaveChangesAsync();
+
+        var path = $"/halls/{factory.OwnHallId}";
+        var request = BranchSettingsAppFactory.SendAsync(hallClient, archive ? HttpMethod.Put : HttpMethod.Delete,
+            archive ? path + "/archive" : path, null, token);
+        var writerPid = ((NpgsqlConnection)writer.Database.GetDbConnection()).ProcessID;
+        await WaitForHallCommandAsync(connectionString, writerPid, request);
+        if (commitSchedule)
+        {
+            await transaction.CommitAsync();
+        }
+        else
+        {
+            await transaction.RollbackAsync();
+        }
+
+        using var response = await request.WaitAsync(TimeSpan.FromSeconds(10));
+        using var checkScope = factory.Services.CreateScope();
+        var db = checkScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var hall = await db.Halls.SingleOrDefaultAsync(x => x.Id == factory.OwnHallId);
+        var audits = await db.AuditLogs.Where(x => x.EntityId == factory.OwnHallId.ToString()).Select(x => x.ActionType).ToListAsync();
+        var hasLink = archive
+            ? await db.LessonOccurrences.AnyAsync(x => x.HallId == factory.OwnHallId)
+            : await db.LessonScheduleSlots.AnyAsync(x => x.HallId == factory.OwnHallId);
+        Assert.Equal(commitSchedule, hasLink);
+        if (commitSchedule)
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Contains("расписани", payload.GetProperty("errors").GetProperty("hall")[0].GetString());
+            Assert.False(Assert.IsType<Hall>(hall).IsArchived);
+            Assert.Empty(audits);
+        }
+        else
+        {
+            Assert.Equal(archive ? HttpStatusCode.OK : HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(archive ? true : (bool?)null, hall?.IsArchived);
+            Assert.Equal(archive ? "HallArchived" : "HallDeleted", Assert.Single(audits));
+        }
+    }
+
+    private static async Task WaitForHallCommandAsync(string connectionString, int writerPid, Task<HttpResponseMessage> request)
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        await using var observer = new NpgsqlConnection(connectionString);
+        await observer.OpenAsync(timeout.Token);
+        await using var command = new NpgsqlCommand("""
+            SELECT EXISTS (SELECT 1 FROM pg_stat_activity
+                WHERE datname = current_database() AND $1 = ANY(pg_blocking_pids(pid)))
+            """, observer);
+        command.Parameters.Add(new NpgsqlParameter<int> { TypedValue = writerPid });
+        while (await command.ExecuteScalarAsync(timeout.Token) is not true)
+        {
+            Assert.False(request.IsCompleted, "Hall command finished before the schedule transaction released its lock.");
+            await Task.Delay(25, timeout.Token);
+        }
     }
 
     [Fact]

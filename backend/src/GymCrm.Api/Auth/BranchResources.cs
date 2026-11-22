@@ -21,7 +21,9 @@ internal static class BranchResources
     public static string HallMustExist => GetString(nameof(HallMustExist));
     public static string HallMustBeActive => GetString(nameof(HallMustBeActive));
     public static string HallCannotBeArchivedWithGroups => GetString(nameof(HallCannotBeArchivedWithGroups));
+    public static string HallCannotBeArchivedWithSchedule => GetString(nameof(HallCannotBeArchivedWithSchedule));
     public static string HallCannotBeDeletedWithGroups => GetString(nameof(HallCannotBeDeletedWithGroups));
+    public static string HallCannotBeDeletedWithSchedule => GetString(nameof(HallCannotBeDeletedWithSchedule));
 
     public static string BranchNameTooLong(int maxLength)
     {

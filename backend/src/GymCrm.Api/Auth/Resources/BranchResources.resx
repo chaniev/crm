@@ -54,8 +54,14 @@
   <data name="HallCannotBeArchivedWithGroups" xml:space="preserve">
     <value>Нельзя архивировать зал, к которому привязаны группы.</value>
   </data>
+  <data name="HallCannotBeArchivedWithSchedule" xml:space="preserve">
+    <value>Нельзя архивировать зал, пока он используется в расписании.</value>
+  </data>
   <data name="HallCannotBeDeletedWithGroups" xml:space="preserve">
     <value>Нельзя удалить зал, к которому привязаны группы.</value>
+  </data>
+  <data name="HallCannotBeDeletedWithSchedule" xml:space="preserve">
+    <value>Нельзя удалить зал, пока он используется в расписании.</value>
   </data>
   <data name="BranchCreatedDescription" xml:space="preserve">
     <value>Пользователь '{0}' создал филиал '{1}'.</value>

@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
+using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -97,6 +98,25 @@ internal sealed class BranchSettingsAppFactory(string? connectionString = null, 
             db.Users.Add(user);
         }
         await db.SaveChangesAsync();
+    }
+
+    public async Task<Guid> SeedGroupInAnotherHallAsync()
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var group = new TrainingGroup
+        {
+            BranchId = OwnBranchId,
+            Name = "Morning group",
+            Hall = new Hall { BranchId = OwnBranchId, Name = "Group hall" },
+            GroupType = new GroupType { Name = "Morning" },
+            TrainingStartTime = new TimeOnly(9, 0),
+            DurationMinutes = 60,
+            Weekdays = [1]
+        };
+        db.TrainingGroups.Add(group);
+        await db.SaveChangesAsync();
+        return group.Id;
     }
 
     public async Task<(HttpClient Client, string Token)> LoginAsync(UserRole? role)
