@@ -1,12 +1,12 @@
 # TASK-217: Предоставить замещающему тренеру доступ к группе на период замещения
 
 ## Status
-risky
+implementation
 
 ## Requirements
 - REQ-GRP-006 — changes
 - REQ-CLI-009 — implements
-- REQ-CLI-004 — implements
+- REQ-CLI-004 — changes
 - REQ-GRP-005 — implements
 - REQ-ATT-003 — changes
 
@@ -36,6 +36,10 @@ risky
 
 Владелец согласовал [прототип управления периодами](../mockups/TASK-217/index.html): назначение, отмена и просмотр истории находятся в карточке группы. Разовая замена остаётся действием конкретного занятия в расписании.
 
+22.11.2026 владелец подтвердил оба оставшихся решения словами «согласен с обоими». Новые периодные замещения хранятся в отдельной таблице. По кнопке «Показать фото» бот проверяет право сотрудника на конкретный снимок при каждом запросе и отправляет его в личный чат. После отзыва доступа по замещению новый запрос по этому основанию отклоняется. Ранее отправленный снимок остаётся в переписке. [ADR-0010](../../docs/architecture/adr/0010-substitute-group-period-access.md).
+
 ## Implementation lifecycle
+- moved_to_implementation_at: 2026-11-22 11:57
+- moved_from: /backlog/risky
 - implementation_plan: [План TASK-217](../implementation-plans/TASK-217-substitute-group-period-access.plan.md)
 - implementation_branch: feature/TASK-217-substitute-group-period-access

@@ -1,14 +1,14 @@
 # Implementation Plan: TASK-217 Доступ замещающего тренера к группе на период
 
 ## Metadata
-- source_task: /backlog/risky/TASK-217-substitute-group-period-access.md
-- requirements: REQ-GRP-006 (changes), REQ-CLI-009 (implements), REQ-CLI-004 (implements), REQ-GRP-005 (implements), REQ-ATT-003 (changes)
+- source_task: /backlog/implementation/TASK-217-substitute-group-period-access.md
+- requirements: REQ-GRP-006 (changes), REQ-CLI-009 (implements), REQ-CLI-004 (changes), REQ-GRP-005 (implements), REQ-ATT-003 (changes)
 - branch: feature/TASK-217-substitute-group-period-access
-- readiness: no — требуется решение владельца по хранению новых периодов и выдаче фото в боте (ADR-0010).
+- readiness: yes
 - product_decisions: accepted
-- technical_decisions: pending — предложены контракты хранения, выдачи доступа и доставки фото в ADR-0010.
-- architecture_decisions: ADR-0010 (Proposed), ADR-0008 (Accepted)
-- open_questions: принять ли отдельную таблицу новых периодов и отправку фотографии в личный чат по запросу с проверкой доступа (ADR-0010).
+- technical_decisions: accepted
+- architecture_decisions: ADR-0010, ADR-0008
+- open_questions: none
 - dependencies: none — один согласованный выпуск backend, frontend и бота.
 - risk: high — выдача персональных данных и право записи посещений зависят от основания доступа, даты запроса и фактической даты занятия.
 
@@ -25,13 +25,14 @@
 | Разовая замена | Доступ к выбранному занятию по действующему контракту, в том числе когда у группы два занятия за день. Назначение на одно занятие не открывает весь список клиентов и фото группы. |
 | Прежняя запись о периоде | Остаётся доступной для просмотра сотрудникам с правом управления. Сама по себе не даёт полномочий даже при совпадении дат с сегодняшним днём. |
 
-Вариант хранения, предлагаемые маршруты и выдача фото описаны в [ADR-0010](../../docs/architecture/adr/0010-substitute-group-period-access.md). Общая проекция фактических занятий и повторная проверка полномочий при сохранении следуют [ADR-0008](../../docs/architecture/adr/0008-shared-schedule-projection.md). Привязка права к группе сама по себе не меняет список тренеров, ведущих конкретное занятие.
+Хранение новых периодов, маршруты и выдача фото описаны в [ADR-0010](../../docs/architecture/adr/0010-substitute-group-period-access.md). Общая проекция фактических занятий и повторная проверка полномочий при сохранении следуют [ADR-0008](../../docs/architecture/adr/0008-shared-schedule-projection.md). Привязка права к группе сама по себе не меняет список тренеров, ведущих конкретное занятие.
 
 ## Decision evidence
 
-- product: [Решения 21 и 22 ноября в карточке TASK-217](/backlog/risky/TASK-217-substitute-group-period-access.md) — owner: владелец CRM; decision: групповое замещение действует включительно, разовая замена остаётся отдельной, историческая запись не даёт прав, обе даты ограничивают запись посещений, переход для прежних разовых замен вне задачи.
+- product: [Решения 21 и 22 ноября в карточке TASK-217](/backlog/implementation/TASK-217-substitute-group-period-access.md) — owner: владелец CRM; decision: групповое замещение действует включительно, разовая замена остаётся отдельной, историческая запись не даёт прав, обе даты ограничивают запись посещений, переход для прежних разовых замен вне задачи.
+- technical: [ADR-0010](/docs/architecture/adr/0010-substitute-group-period-access.md) — owner: владелец проекта; decision: отдельная таблица новых периодов и отправка фото в личный чат Telegram с проверкой прав при каждом запросе. Ранее отправленное фото остаётся в чате.
 - Независимое ревью прав, хранения и потребителей 22.11.2026 выявило, что один список ID групп потеряет основание права на запись, действующая команда перехода читает историческую таблицу, а Python-карточка не показывает снимок из метаданных. По результатам уточнены этапы и тесты ниже.
-- Владелец 22.11.2026 исключил возврат к предыдущему выпуску из границ задачи и согласовал проверенный прототип управления периодами. [Запись решения](/backlog/risky/TASK-217-substitute-group-period-access.md)
+- Владелец 22.11.2026 исключил возврат к предыдущему выпуску из границ задачи и согласовал проверенный прототип управления периодами. [Запись решения](/backlog/implementation/TASK-217-substitute-group-period-access.md)
 
 ## UX contract
 

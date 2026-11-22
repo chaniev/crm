@@ -96,7 +96,7 @@ Chromium с тестовыми ответами Staff API, 10 сценариев
 
 ## Открытые расхождения
 
-- [TASK-217 · Групповой охват замещения](../../risky/TASK-217-substitute-group-period-access.md)
+- [TASK-217 · Групповой охват замещения](../../implementation/TASK-217-substitute-group-period-access.md)
 - [TASK-218 · День +10 в списке бота](../../tasks-ready/TASK-218-bot-expiration-window.md)
 - [TASK-219 · Переключение смешанного состава](../2026-11-22/TASK-219-lesson-mixed-roster.md)
 - [TASK-220 · Историческое время в истории и «Внимании»](../../implementation/TASK-220-attendance-historical-time.md)
