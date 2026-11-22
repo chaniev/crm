@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-225 — дата продления выбранного абонемента
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-225-renewal-selected-membership-end.md
+- source_task: /backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md
 - requirements: REQ-SUB-002 (implements), REQ-SUB-006 (constrains)
 - branch: fix/TASK-225-renewal-selected-membership-end
 - readiness: yes
@@ -25,7 +25,7 @@
 ## Decision evidence
 
 - product: [Решение владельца от 21.11.2026](/backlog/done/2026-11-21/TASK-216-requirements-audit.md) — owner: владелец продукта; decision: при окончаниях 10 и 20 декабря выбор первого абонемента даёт начало продления 11 декабря.
-- product: [Границы исправления в TASK-225](/backlog/implementation/TASK-225-renewal-selected-membership-end.md) — owner: владелец продукта; decision: 22.11.2026 подтверждено применение правила к новым продлениям с сохранением ранее оформленных периодов.
+- product: [Границы исправления в TASK-225](/backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md) — owner: владелец продукта; decision: 22.11.2026 подтверждено применение правила к новым продлениям с сохранением ранее оформленных периодов.
 - [ADR-0007](/docs/architecture/adr/0007-membership-execution-boundary.md) закрепляет действующую границу транзакции, авторизации, повторного запроса и аудита.
 
 ## Implementation slices
