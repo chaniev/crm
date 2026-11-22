@@ -1,0 +1,738 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-22T08:48:05.938495+00:00",
+  "repository": "TASK-223-hall-schedule-archive-guard",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "frontend.playwright.install",
+    "frontend.e2e.branch-hall-creation"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "96a2e408d566a9f3c28f6c95dc5a53f9c081afbf",
+    "head_tree_sha": "8d62a0f64facd236d109964cf85f171f58c5fbb2",
+    "base_sha": "c40f9080c65bb9df12208d9a8a0c48decb2f1153",
+    "merge_base_sha": "c40f9080c65bb9df12208d9a8a0c48decb2f1153",
+    "branch": "fix/TASK-223-hall-schedule-archive-guard",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+    "task_id": "TASK-223",
+    "expected_branch": "fix/TASK-223-hall-schedule-archive-guard",
+    "sha256": "e625916f752f885666f2e8e6e57486915ff1312569058122f76131d0b6b61933",
+    "verified_head_sha": "96a2e408d566a9f3c28f6c95dc5a53f9c081afbf",
+    "verified_head_tree_sha": "8d62a0f64facd236d109964cf85f171f58c5fbb2",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-223\",\n  \"expected_branch\": \"fix/TASK-223-hall-schedule-archive-guard\",\n  \"areas\": [\"backend\", \"frontend\"],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.branch-hall-creation\",\n      \"spec\": \"e2e/branch-hall-creation.spec.ts\",\n      \"projects\": [\"chromium\", \"iphone-air-webkit\", \"iphone-17-pro-max-webkit\"],\n      \"timeout_seconds\": 1800\n    }\n  ]\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-223",
+      "expected_branch": "fix/TASK-223-hall-schedule-archive-guard",
+      "areas": [
+        "backend",
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.branch-hall-creation",
+          "spec": "e2e/branch-hall-creation.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 1800
+        }
+      ]
+    }
+  },
+  "task_id": "TASK-223",
+  "source_ref": null,
+  "e2e_port": 57693,
+  "github": {},
+  "tool_versions": {
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/BranchResources.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/BranchesApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/done/2026-11-21/TASK-216-requirements-audit.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R061",
+      "paths": [
+        "backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "R095",
+      "paths": [
+        "backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-223-hall-schedule-archive-guard.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/implementation-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/risky/TASK-217-substitute-group-period-access.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/02-группы.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/03-абонементы-и-оплаты.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/04-посещения.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/09-филиалы-и-настройки.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/e2e/branch-hall-creation.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/BranchSettingsScreen.tsx"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/BranchResources.cs",
+    "backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+    "backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+    "backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+    "backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+    "backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+    "backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+    "backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+    "backlog/implementation/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+    "backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+    "backlog/logs/implementation-log.md",
+    "backlog/risky/TASK-217-substitute-group-period-access.md",
+    "docs/requirements/02-группы.md",
+    "docs/requirements/03-абонементы-и-оплаты.md",
+    "docs/requirements/04-посещения.md",
+    "docs/requirements/09-филиалы-и-настройки.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/branch-hall-creation.spec.ts",
+    "frontend/src/features/settings/BranchSettingsScreen.tsx"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+      "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+      "documentation or instructions changed: backlog/logs/implementation-log.md",
+      "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+      "documentation or instructions changed: docs/requirements/02-группы.md",
+      "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+      "documentation or instructions changed: docs/requirements/04-посещения.md",
+      "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+      "task contract TASK-223 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+      "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+      "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+      "task contract TASK-223 requires frontend"
+    ]
+  },
+  "manual_checks": [],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/04-посещения.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:06.238177+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.068,
+      "completed_at": "2026-11-22T08:48:06.306644+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/04-посещения.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:06.307985+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-22T08:48:06.348254+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/04-посещения.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:06.349329+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.073,
+      "completed_at": "2026-11-22T08:48:06.422072+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/done/2026-11-21/TASK-216-requirements-audit.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/done/2026-11-22/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-225-renewal-selected-membership-end.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-223-hall-schedule-archive-guard.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-225-renewal-selected-membership-end.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/risky/TASK-217-substitute-group-period-access.md",
+        "documentation or instructions changed: docs/requirements/02-группы.md",
+        "documentation or instructions changed: docs/requirements/03-абонементы-и-оплаты.md",
+        "documentation or instructions changed: docs/requirements/04-посещения.md",
+        "documentation or instructions changed: docs/requirements/09-филиалы-и-настройки.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:06.423088+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "completed_at": "2026-11-22T08:48:06.499801+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "task contract TASK-223 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:06.500766+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.714,
+      "completed_at": "2026-11-22T08:48:07.214981+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "task contract TASK-223 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:07.215987+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.155,
+      "completed_at": "2026-11-22T08:48:08.370677+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "task contract TASK-223 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:08.371617+00:00",
+      "exit_code": 0,
+      "duration_seconds": 13.786,
+      "completed_at": "2026-11-22T08:48:22.158058+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "task contract TASK-223 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:22.164093+00:00",
+      "exit_code": 0,
+      "duration_seconds": 6.533,
+      "completed_at": "2026-11-22T08:48:28.696774+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "task contract TASK-223 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:48:28.698152+00:00",
+      "exit_code": 0,
+      "duration_seconds": 322.567,
+      "completed_at": "2026-11-22T08:53:51.265247+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/BranchResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/BranchResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/HallUsage.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsAppFactory.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchSettingsPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/BranchesApiTests.cs",
+        "task contract TASK-223 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:53:51.272132+00:00",
+      "exit_code": 0,
+      "duration_seconds": 2.774,
+      "completed_at": "2026-11-22T08:53:54.045679+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "task contract TASK-223 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:53:54.046924+00:00",
+      "exit_code": 0,
+      "duration_seconds": 31.514,
+      "completed_at": "2026-11-22T08:54:25.561402+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "task contract TASK-223 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:54:25.562948+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.047,
+      "completed_at": "2026-11-22T08:54:26.609805+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "task contract TASK-223 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:54:26.611279+00:00",
+      "exit_code": 0,
+      "duration_seconds": 29.282,
+      "completed_at": "2026-11-22T08:54:55.892796+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "task contract TASK-223 requires frontend",
+        "task contract TASK-223 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:54:55.894984+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.502,
+      "completed_at": "2026-11-22T08:54:56.397490+00:00"
+    },
+    {
+      "id": "frontend.e2e.branch-hall-creation",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/branch-hall-creation.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/BranchEndpoints.cs",
+        "frontend-owned path changed: frontend/e2e/branch-hall-creation.spec.ts",
+        "frontend-owned path changed: frontend/src/features/settings/BranchSettingsScreen.tsx",
+        "task contract TASK-223 requires frontend",
+        "task contract TASK-223 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T08:54:56.398982+00:00",
+      "exit_code": 0,
+      "duration_seconds": 23.428,
+      "completed_at": "2026-11-22T08:55:19.826725+00:00"
+    }
+  ],
+  "completed_at": "2026-11-22T08:55:19.828726+00:00"
+}

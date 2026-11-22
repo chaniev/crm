@@ -2392,3 +2392,7 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - planned_in_place: TASK-217
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-217-substitute-group-period-access.plan.md
+
+## 2026-11-22 — завершение TASK-223
+
+Защита используемого зала интегрирована в локальную main. Проверены архивация, удаление, ожидание конкурентной записи расписания на PostgreSQL и показ причины отказа сотруднику. [Карточка и результаты проверок](../done/2026-11-22/TASK-223-hall-schedule-archive-guard.md).
