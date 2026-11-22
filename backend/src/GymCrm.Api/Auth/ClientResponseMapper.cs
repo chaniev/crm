@@ -35,7 +35,7 @@ internal static class ClientResponseMapper
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderByDescending(attendance => attendance.TrainingDate)
-            .ThenByDescending(attendance => attendance.UpdatedAt)
+            .ThenByDescending(attendance => attendance.LessonOccurrence.StartTime)
             .ThenByDescending(attendance => attendance.Id)
             .Skip(paging.Skip)
             .Take(paging.Take)
@@ -45,7 +45,7 @@ internal static class ClientResponseMapper
                 attendance.IsPresent,
                 attendance.GroupId,
                 attendance.Group.Name,
-                attendance.Group.TrainingStartTime.ToString("HH\\:mm"),
+                attendance.LessonOccurrence.StartTime.ToString("HH\\:mm"),
                 attendance.Group.DurationMinutes,
                 attendance.Group.Weekdays))
             .ToArrayAsync(cancellationToken);

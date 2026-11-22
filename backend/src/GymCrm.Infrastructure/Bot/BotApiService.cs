@@ -765,7 +765,7 @@ internal sealed class BotApiService(
 
         var attendanceHistory = await attendanceHistoryQuery
             .OrderByDescending(attendance => attendance.TrainingDate)
-            .ThenByDescending(attendance => attendance.UpdatedAt)
+            .ThenByDescending(attendance => attendance.LessonOccurrence.StartTime)
             .ThenByDescending(attendance => attendance.Id)
             .Take(ClientCardAttendanceTake)
             .Select(attendance => new BotAttendanceHistoryItem(

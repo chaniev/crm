@@ -426,6 +426,84 @@ public class InternalBotApiTests
     }
 
     [Fact]
+    public async Task Staff_and_bot_history_follow_lesson_time_after_edits_and_schedule_changes()
+    {
+        await using var factory = new InternalBotAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        var today = GetBusinessToday();
+        var clientId = seeded.CoachClientId;
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var group = await db.TrainingGroups.SingleAsync(item => item.Id == seeded.CoachGroupId);
+        var morning = AttendanceTestLessons.OneOff(group, today, new TimeOnly(10, 0));
+        var evening = AttendanceTestLessons.OneOff(group, today, new TimeOnly(18, 0));
+        db.LessonOccurrences.AddRange(morning, evening);
+        group.TrainingStartTime = new TimeOnly(12, 0);
+        // The same client's attendance in a different group stays outside the coach's card.
+        var hiddenGroup = await db.TrainingGroups.SingleAsync(item => item.Id == seeded.AdminGroupId);
+        db.Attendance.Add(new Attendance
+        {
+            Id = Guid.NewGuid(), ClientId = clientId, GroupId = hiddenGroup.Id, TrainingDate = today,
+            LessonOccurrence = AttendanceTestLessons.OneOff(hiddenGroup, today, new TimeOnly(20, 0)),
+            MarkedByUserId = seeded.SuperAdministratorId, MarkedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+        });
+        await db.SaveChangesAsync();
+
+        using var staff = factory.CreateClient();
+        var initialSession = await staff.GetFromJsonAsync<JsonElement>("/auth/session");
+        staff.DefaultRequestHeaders.Add("X-CSRF-TOKEN", initialSession.GetProperty("csrfToken").GetString());
+        using var login = await staff.PostAsJsonAsync("/auth/login", new { login = "bot-coach", password = "internal-bot-password" });
+        login.EnsureSuccessStatusCode();
+        var session = await ReadJsonElementAsync(login);
+        staff.DefaultRequestHeaders.Remove("X-CSRF-TOKEN");
+        staff.DefaultRequestHeaders.Add("X-CSRF-TOKEN", session.GetProperty("csrfToken").GetString());
+        var morningPath = $"/attendance/lessons/{morning.Id}?lessonDate={today:yyyy-MM-dd}";
+        async Task MarkMorningAsync(string state)
+        {
+            using var result = await staff.PostAsJsonAsync(morningPath, new { attendanceMarks = new[] { new { clientId, state } } });
+            result.EnsureSuccessStatusCode();
+        }
+
+        await MarkMorningAsync("Absent");
+        using var bot = factory.CreateClient();
+        using var save = await SendBotRequestAsync(bot, HttpMethod.Post,
+            $"/internal/bot/attendance/lessons/{evening.Id}?lessonDate={today:yyyy-MM-dd}",
+            new BotSaveAttendanceRequest("Telegram", seeded.HeadCoachTelegramId, today.ToString("yyyy-MM-dd"),
+                [new BotAttendanceMarkRequest(clientId, false)]), "evening-absent");
+        save.EnsureSuccessStatusCode();
+        await MarkMorningAsync("Present");
+
+        async Task AssertHistoryAsync()
+        {
+            var card = await staff.GetFromJsonAsync<JsonElement>($"/clients/{clientId}");
+            var history = card.GetProperty("attendanceHistory").EnumerateArray().ToArray();
+            Assert.Equal(3, card.GetProperty("attendanceHistoryTotalCount").GetInt32());
+            Assert.Equal(new[] { "18:00", "10:00", "08:00" },
+                history.Select(row => row.GetProperty("groupTrainingStartTime").GetString()));
+            Assert.Equal(new[] { false, true, true }, history.Select(row => row.GetProperty("isPresent").GetBoolean()));
+            for (var skip = 0; skip < 2; skip++)
+            {
+                var page = await staff.GetFromJsonAsync<JsonElement>($"/clients/{clientId}?attendanceSkip={skip}&attendanceTake=1");
+                var row = Assert.Single(page.GetProperty("attendanceHistory").EnumerateArray());
+                Assert.Equal(history[skip].GetProperty("id").GetGuid(), row.GetProperty("id").GetGuid());
+            }
+
+            using var response = await SendBotRequestAsync(bot, HttpMethod.Get,
+                $"/internal/bot/clients/{clientId}?platform=Telegram&platformUserId={seeded.CoachTelegramId}");
+            response.EnsureSuccessStatusCode();
+            var botCard = await ReadJsonElementAsync(response);
+            var botHistory = botCard.GetProperty("attendanceHistory").EnumerateArray().ToArray();
+            Assert.All(botHistory, row => Assert.Equal(group.Id, row.GetProperty("groupId").GetGuid()));
+            Assert.Equal(new[] { false, true, true }, botHistory.Select(row => row.GetProperty("isPresent").GetBoolean()));
+        }
+
+        await AssertHistoryAsync();
+        group.TrainingStartTime = new TimeOnly(21, 0);
+        await db.SaveChangesAsync();
+        await AssertHistoryAsync();
+    }
+
+    [Fact]
     public async Task Coach_client_payload_is_restricted_and_membership_lists_are_role_scoped()
     {
         await using var factory = new InternalBotAppFactory();
@@ -797,8 +875,8 @@ public class InternalBotApiTests
             paymentClient,
             professionalPaymentClient);
         dbContext.GroupTrainers.Add(new GroupTrainer { GroupId = coachGroup.Id, TrainerId = coach.Id });
-        var coachSlotLineageIds = AddLessonSeriesForAllWeekdays(dbContext, coachGroup, coachHall.Id, now);
-        _ = AddLessonSeriesForAllWeekdays(dbContext, adminGroup, adminHall.Id, now);
+        AddLessonSeriesForAllWeekdays(dbContext, coachGroup, coachHall.Id, now);
+        AddLessonSeriesForAllWeekdays(dbContext, adminGroup, adminHall.Id, now);
         dbContext.ClientGroups.AddRange(
             new ClientGroup { ClientId = coachClient.Id, GroupId = coachGroup.Id, BranchId = coachBranch.Id },
             new ClientGroup { ClientId = expiringTodayClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id },
@@ -824,9 +902,7 @@ public class InternalBotApiTests
             Id = Guid.NewGuid(),
             ClientId = coachClient.Id,
             GroupId = coachGroup.Id,
-            LessonOccurrenceId = LessonOccurrenceIdPolicy.CreateRecurring(
-                coachSlotLineageIds[ToIsoWeekday(today.AddDays(-1))],
-                today.AddDays(-1)),
+            LessonOccurrence = AttendanceTestLessons.OneOff(coachGroup, today.AddDays(-1), new TimeOnly(8, 0)),
             TrainingDate = today.AddDays(-1),
             IsPresent = true,
             MarkedByUserId = coach.Id,
@@ -978,7 +1054,7 @@ public class InternalBotApiTests
         return membership;
     }
 
-    private static IReadOnlyDictionary<int, Guid> AddLessonSeriesForAllWeekdays(
+    private static void AddLessonSeriesForAllWeekdays(
         GymCrmDbContext dbContext,
         TrainingGroup group,
         Guid hallId,
@@ -986,7 +1062,6 @@ public class InternalBotApiTests
     {
         var seriesId = Guid.NewGuid();
         var versionId = Guid.NewGuid();
-        var slotLineageIds = new Dictionary<int, Guid>();
         var version = new LessonScheduleRuleVersion
         {
             Id = versionId,
@@ -997,13 +1072,11 @@ public class InternalBotApiTests
         };
         foreach (var weekday in Enumerable.Range(1, 7))
         {
-            var slotLineageId = Guid.NewGuid();
-            slotLineageIds[weekday] = slotLineageId;
             version.Slots.Add(new LessonScheduleSlot
             {
                 Id = Guid.NewGuid(),
                 LessonScheduleRuleVersionId = versionId,
-                SlotLineageId = slotLineageId,
+                SlotLineageId = Guid.NewGuid(),
                 IsoWeekday = weekday,
                 StartTime = group.TrainingStartTime,
                 DurationMinutes = group.DurationMinutes,
@@ -1022,7 +1095,6 @@ public class InternalBotApiTests
             UpdatedAt = now,
             RuleVersions = { version }
         });
-        return slotLineageIds;
     }
 
     private static async Task<Guid> ResolveLessonOccurrenceIdAsync(

@@ -113,13 +113,13 @@ internal static class ClientAttentionEndpoints
         var lastAttendance = await dbContext.Attendance
             .Where(attendance => attendance.ClientId == clientId)
             .OrderByDescending(attendance => attendance.TrainingDate)
-            .ThenByDescending(attendance => attendance.Group.TrainingStartTime)
+            .ThenByDescending(attendance => attendance.LessonOccurrence.StartTime)
             .ThenByDescending(attendance => attendance.Id)
             .Select(attendance => new
             {
                 attendance.Id,
                 attendance.TrainingDate,
-                attendance.Group.TrainingStartTime
+                attendance.LessonOccurrence.StartTime
             })
             .FirstAsync(cancellationToken);
 
@@ -143,7 +143,7 @@ internal static class ClientAttentionEndpoints
             var acknowledgedAt = DateTimeOffset.UtcNow;
             acknowledgement.LastAttendanceId = lastAttendance.Id;
             acknowledgement.LastTrainingDate = lastAttendance.TrainingDate;
-            acknowledgement.LastTrainingStartTime = lastAttendance.TrainingStartTime;
+            acknowledgement.LastTrainingStartTime = lastAttendance.StartTime;
             acknowledgement.AcknowledgedAt = acknowledgedAt;
             acknowledgement.AcknowledgedByUserId = currentUser.Id;
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -236,7 +236,7 @@ internal static class ClientAttentionEndpoints
                     .ThenInclude(target => target.Group)
                         .ThenInclude(group => group.Branch)
             .Include(client => client.AttendanceEntries)
-                .ThenInclude(attendance => attendance.Group)
+                .ThenInclude(attendance => attendance.LessonOccurrence)
             .Include(client => client.MissedTrainingAcknowledgements)
             .Include(client => client.MessengerAccounts)
             .AsSplitQuery()
@@ -264,7 +264,7 @@ internal static class ClientAttentionEndpoints
                 client.AttendanceEntries.Select(attendance => new MissedTrainingAttendanceEvent(
                     attendance.Id,
                     attendance.TrainingDate,
-                    attendance.Group.TrainingStartTime,
+                    attendance.LessonOccurrence.StartTime,
                     attendance.IsPresent ? AttendanceState.Present : AttendanceState.Absent,
                     attendance.MarkedAt)),
                 boundary);

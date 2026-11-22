@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "task_id": "TASK-220",
+  "expected_branch": "fix/TASK-220-attendance-historical-time",
+  "areas": ["backend", "frontend", "bot"],
+  "playwright": [
+    {
+      "id": "frontend.client-attendance-history",
+      "spec": "e2e/client-profile-context-navigation.spec.ts",
+      "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"]
+    }
+  ]
+}
