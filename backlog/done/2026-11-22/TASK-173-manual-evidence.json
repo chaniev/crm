@@ -6,9 +6,9 @@
       "id": "manual.reset-ui",
       "note": "Снимки открытого диалога сопоставлены с прототипом. Отдельно проверены клавиатура, фокус, ошибки, потеря права и повторный вход в трёх проектах Playwright.",
       "artifacts": [
-        "backlog/implementation/TASK-173-evidence/acceptance.md",
-        "backlog/implementation/TASK-173-evidence/reset-desktop.png",
-        "backlog/implementation/TASK-173-evidence/reset-mobile.png"
+        "backlog/done/2026-11-22/TASK-173-evidence/acceptance.md",
+        "backlog/done/2026-11-22/TASK-173-evidence/reset-desktop.png",
+        "backlog/done/2026-11-22/TASK-173-evidence/reset-mobile.png"
       ],
       "actor": "coding-agent:TASK-173",
       "performed_at": "2026-11-22T17:44:36+03:00"

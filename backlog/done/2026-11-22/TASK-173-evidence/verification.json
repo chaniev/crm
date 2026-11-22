@@ -1,0 +1,1816 @@
+{
+  "schema_version": 5,
+  "runner_version": "5.0",
+  "started_at": "2026-11-22T14:45:35.472745+00:00",
+  "repository": "TASK-173-administrator-password-reset",
+  "profile": "local",
+  "verification_mode": "final",
+  "requested_check_ids": [],
+  "required_check_ids": [
+    "requirements.agent-instructions",
+    "requirements.architecture-decisions",
+    "requirements.plan-readiness",
+    "requirements.registry",
+    "backend.restore",
+    "backend.user-facing-text",
+    "backend.format",
+    "backend.build",
+    "backend.test",
+    "backend.audit",
+    "frontend.install",
+    "frontend.audit",
+    "frontend.check",
+    "deploy.compose.local",
+    "deploy.compose.server",
+    "deploy.shell",
+    "frontend.playwright.install",
+    "frontend.e2e.staff-reset-recovery",
+    "runtime.stack"
+  ],
+  "base": "origin/main",
+  "dry_run": false,
+  "status": "passed",
+  "git": {
+    "head_sha": "5e09f061f8eaa2197ea46929b8de864578381e2f",
+    "head_tree_sha": "3df53a8167f84f7b81fdc02c33743df7d1a35b81",
+    "base_sha": "065291fb0969d456055cdc05c0c0e72fee167483",
+    "merge_base_sha": "065291fb0969d456055cdc05c0c0e72fee167483",
+    "branch": "feature/TASK-173-administrator-password-reset",
+    "working_tree_dirty": false,
+    "base_error": null
+  },
+  "task_contract": {
+    "path": "backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json",
+    "task_id": "TASK-173",
+    "expected_branch": "feature/TASK-173-administrator-password-reset",
+    "sha256": "ef614e8031207842d08e4a5033e8a8c61c54007a19da4f4042bab9357875f078",
+    "verified_head_sha": "5e09f061f8eaa2197ea46929b8de864578381e2f",
+    "verified_head_tree_sha": "3df53a8167f84f7b81fdc02c33743df7d1a35b81",
+    "content": "{\n  \"version\": 1,\n  \"task_id\": \"TASK-173\",\n  \"expected_branch\": \"feature/TASK-173-administrator-password-reset\",\n  \"areas\": [\n    \"backend\",\n    \"frontend\"\n  ],\n  \"playwright\": [\n    {\n      \"id\": \"frontend.e2e.staff-reset-recovery\",\n      \"spec\": \"e2e/staff-password-reset.spec.ts\",\n      \"projects\": [\n        \"chromium\",\n        \"iphone-air-webkit\",\n        \"iphone-17-pro-max-webkit\"\n      ],\n      \"timeout_seconds\": 600\n    }\n  ],\n  \"runtime_stack\": {\n    \"compose_file\": \"deploy/docker-compose.yml\",\n    \"env_file\": \"deploy/.env.example\",\n    \"services\": [\n      \"frontend\"\n    ],\n    \"startup_timeout_seconds\": 1200,\n    \"cleanup_timeout_seconds\": 180,\n    \"readiness\": [\n      {\n        \"id\": \"runtime.reset-ready\",\n        \"command\": [\n          \"curl\",\n          \"-fsS\",\n          \"http://127.0.0.1:{backend_port}/health/ready\"\n        ],\n        \"timeout_seconds\": 120\n      }\n    ],\n    \"smoke\": [\n      {\n        \"id\": \"runtime.staff-password-reset\",\n        \"command\": [\n          \"env\",\n          \"TASK173_RUNTIME_URL=http://127.0.0.1:{frontend_port}\",\n          \"E2E_BASE_URL=http://127.0.0.1:{frontend_port}\",\n          \"E2E_PORT={frontend_port}\",\n          \"npm\",\n          \"--prefix\",\n          \"frontend\",\n          \"run\",\n          \"test:e2e\",\n          \"--\",\n          \"e2e/staff-password-reset-runtime.spec.ts\",\n          \"--project=chromium\",\n          \"--project=iphone-air-webkit\",\n          \"--project=iphone-17-pro-max-webkit\",\n          \"--workers=1\"\n        ],\n        \"timeout_seconds\": 600\n      }\n    ]\n  },\n  \"manual_checks\": [\n    {\n      \"id\": \"manual.reset-ui\",\n      \"description\": \"Сопоставить диалог с прототипом на мобильном и настольном экране и независимо проверить фокус, ошибки и восстановление.\"\n    }\n  ],\n  \"manual_evidence\": \"backlog/implementation/TASK-173-manual-evidence.json\"\n}\n",
+    "parsed": {
+      "version": 1,
+      "task_id": "TASK-173",
+      "expected_branch": "feature/TASK-173-administrator-password-reset",
+      "areas": [
+        "backend",
+        "frontend"
+      ],
+      "playwright": [
+        {
+          "id": "frontend.e2e.staff-reset-recovery",
+          "spec": "e2e/staff-password-reset.spec.ts",
+          "projects": [
+            "chromium",
+            "iphone-air-webkit",
+            "iphone-17-pro-max-webkit"
+          ],
+          "timeout_seconds": 600
+        }
+      ],
+      "runtime_stack": {
+        "compose_file": "deploy/docker-compose.yml",
+        "env_file": "deploy/.env.example",
+        "services": [
+          "frontend"
+        ],
+        "startup_timeout_seconds": 1200,
+        "cleanup_timeout_seconds": 180,
+        "readiness": [
+          {
+            "id": "runtime.reset-ready",
+            "command": [
+              "curl",
+              "-fsS",
+              "http://127.0.0.1:{backend_port}/health/ready"
+            ],
+            "timeout_seconds": 120
+          }
+        ],
+        "smoke": [
+          {
+            "id": "runtime.staff-password-reset",
+            "command": [
+              "env",
+              "TASK173_RUNTIME_URL=http://127.0.0.1:{frontend_port}",
+              "E2E_BASE_URL=http://127.0.0.1:{frontend_port}",
+              "E2E_PORT={frontend_port}",
+              "npm",
+              "--prefix",
+              "frontend",
+              "run",
+              "test:e2e",
+              "--",
+              "e2e/staff-password-reset-runtime.spec.ts",
+              "--project=chromium",
+              "--project=iphone-air-webkit",
+              "--project=iphone-17-pro-max-webkit",
+              "--workers=1"
+            ],
+            "timeout_seconds": 600
+          }
+        ]
+      },
+      "manual_checks": [
+        {
+          "id": "manual.reset-ui",
+          "description": "Сопоставить диалог с прототипом на мобильном и настольном экране и независимо проверить фокус, ошибки и восстановление."
+        }
+      ],
+      "manual_evidence": "backlog/implementation/TASK-173-manual-evidence.json"
+    }
+  },
+  "task_id": "TASK-173",
+  "source_ref": null,
+  "e2e_port": 54404,
+  "github": {},
+  "tool_versions": {
+    "bash": "GNU bash, version 3.2.57(1)-release (arm64-apple-darwin26)",
+    "docker": "Docker version 29.4.2, build 055a478",
+    "dotnet": "10.0.202",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "npm": "11.12.1",
+    "python3": "Python 3.9.6"
+  },
+  "changes": [
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AuthConstants.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AuthEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AuthSessionSync.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/Resources/UserResources.resx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/UserAuditConstants.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/UserEndpoints.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/UserResources.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Api/Auth/UserResponse.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Domain/Users/User.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "C099",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/AuthFlowTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/InternalBotApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backend/tests/GymCrm.Tests/UsersApiTests.cs"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-173-administrator-password-reset.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-173-evidence/acceptance.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-173-evidence/reset-desktop.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-173-evidence/reset-mobile.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/implementation/TASK-173-manual-evidence.json"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/inbox/2026-11-22.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/implementation-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/logs/triage-log.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-173/Prototype.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-173/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-173/index.html"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-173/prototype.css"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-173/reset-desktop.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/mockups/TASK-173/reset-mobile.png"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "D",
+      "paths": [
+        "backlog/needs-clarification/TASK-172-password-policy.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "D",
+      "paths": [
+        "backlog/needs-clarification/TASK-173-administrator-password-reset.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "backlog/processed/2026-11-20-interface-audit/16-profile-password/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "backlog/risky/TASK-172-password-policy.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "docs/architecture/adr/0011-staff-password-reset.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/architecture/adr/README.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/05-пользователи-и-роли.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "docs/requirements/CHANGELOG.md"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/staff-password-reset-runtime.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/e2e/staff-password-reset.spec.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/playwright.config.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/App.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/AdministratorsSettingsPanel.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/settings/SettingsScreen.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/shared/LocalizedPasswordInput.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "A",
+      "paths": [
+        "frontend/src/features/users/StaffPasswordReset.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/users/UserEditScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/users/UserFormFields.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/users/UserManagement.test.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/features/users/UsersListScreen.tsx"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/administrators.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/administrators.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/endpoints.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/transport.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/transport.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/types.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/users.test.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/api/users.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/lib/resources.ts"
+      ],
+      "source": "committed"
+    },
+    {
+      "status": "M",
+      "paths": [
+        "frontend/src/resources/fe-11-settings-users.ts"
+      ],
+      "source": "committed"
+    }
+  ],
+  "changed_paths": [
+    "backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+    "backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/AuthSessionSync.cs",
+    "backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs",
+    "backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+    "backend/src/GymCrm.Api/Auth/Resources/UserResources.resx",
+    "backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+    "backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+    "backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs",
+    "backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs",
+    "backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs",
+    "backend/src/GymCrm.Api/Auth/UserAuditConstants.cs",
+    "backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+    "backend/src/GymCrm.Api/Auth/UserResources.cs",
+    "backend/src/GymCrm.Api/Auth/UserResponse.cs",
+    "backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs",
+    "backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+    "backend/src/GymCrm.Domain/Users/User.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs",
+    "backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+    "backend/tests/GymCrm.Tests/AuthFlowTests.cs",
+    "backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+    "backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs",
+    "backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+    "backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+    "backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs",
+    "backend/tests/GymCrm.Tests/UsersApiTests.cs",
+    "backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md",
+    "backlog/implementation/TASK-173-administrator-password-reset.md",
+    "backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json",
+    "backlog/implementation/TASK-173-evidence/acceptance.md",
+    "backlog/implementation/TASK-173-evidence/reset-desktop.png",
+    "backlog/implementation/TASK-173-evidence/reset-mobile.png",
+    "backlog/implementation/TASK-173-manual-evidence.json",
+    "backlog/inbox/2026-11-22.md",
+    "backlog/logs/implementation-log.md",
+    "backlog/logs/triage-log.md",
+    "backlog/mockups/TASK-173/Prototype.tsx",
+    "backlog/mockups/TASK-173/README.md",
+    "backlog/mockups/TASK-173/index.html",
+    "backlog/mockups/TASK-173/prototype.css",
+    "backlog/mockups/TASK-173/reset-desktop.png",
+    "backlog/mockups/TASK-173/reset-mobile.png",
+    "backlog/needs-clarification/TASK-172-password-policy.md",
+    "backlog/needs-clarification/TASK-173-administrator-password-reset.md",
+    "backlog/processed/2026-11-20-interface-audit/16-profile-password/README.md",
+    "backlog/risky/TASK-172-password-policy.md",
+    "docs/architecture/adr/0011-staff-password-reset.md",
+    "docs/architecture/adr/README.md",
+    "docs/requirements/05-пользователи-и-роли.md",
+    "docs/requirements/CHANGELOG.md",
+    "frontend/e2e/staff-password-reset-runtime.spec.ts",
+    "frontend/e2e/staff-password-reset.spec.ts",
+    "frontend/playwright.config.ts",
+    "frontend/src/App.test.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+    "frontend/src/features/settings/SettingsScreen.test.tsx",
+    "frontend/src/features/shared/LocalizedPasswordInput.tsx",
+    "frontend/src/features/users/StaffPasswordReset.tsx",
+    "frontend/src/features/users/UserEditScreen.tsx",
+    "frontend/src/features/users/UserFormFields.tsx",
+    "frontend/src/features/users/UserManagement.test.tsx",
+    "frontend/src/features/users/UsersListScreen.tsx",
+    "frontend/src/lib/api.ts",
+    "frontend/src/lib/api/administrators.test.ts",
+    "frontend/src/lib/api/administrators.ts",
+    "frontend/src/lib/api/endpoints.ts",
+    "frontend/src/lib/api/transport.test.ts",
+    "frontend/src/lib/api/transport.ts",
+    "frontend/src/lib/api/types.ts",
+    "frontend/src/lib/api/users.test.ts",
+    "frontend/src/lib/api/users.ts",
+    "frontend/src/lib/resources.ts",
+    "frontend/src/resources/fe-11-settings-users.ts"
+  ],
+  "selected_areas": [
+    "requirements",
+    "backend",
+    "frontend",
+    "deploy"
+  ],
+  "reasons": {
+    "requirements": [
+      "repository traceability is validated for every change",
+      "documentation or instructions changed: backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md",
+      "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.md",
+      "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json",
+      "documentation or instructions changed: backlog/implementation/TASK-173-evidence/acceptance.md",
+      "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-desktop.png",
+      "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-mobile.png",
+      "documentation or instructions changed: backlog/implementation/TASK-173-manual-evidence.json",
+      "documentation or instructions changed: backlog/inbox/2026-11-22.md",
+      "documentation or instructions changed: backlog/logs/implementation-log.md",
+      "documentation or instructions changed: backlog/logs/triage-log.md",
+      "documentation or instructions changed: backlog/mockups/TASK-173/Prototype.tsx",
+      "documentation or instructions changed: backlog/mockups/TASK-173/README.md",
+      "documentation or instructions changed: backlog/mockups/TASK-173/index.html",
+      "documentation or instructions changed: backlog/mockups/TASK-173/prototype.css",
+      "documentation or instructions changed: backlog/mockups/TASK-173/reset-desktop.png",
+      "documentation or instructions changed: backlog/mockups/TASK-173/reset-mobile.png",
+      "documentation or instructions changed: backlog/needs-clarification/TASK-172-password-policy.md",
+      "documentation or instructions changed: backlog/needs-clarification/TASK-173-administrator-password-reset.md",
+      "documentation or instructions changed: backlog/processed/2026-11-20-interface-audit/16-profile-password/README.md",
+      "documentation or instructions changed: backlog/risky/TASK-172-password-policy.md",
+      "documentation or instructions changed: docs/architecture/adr/0011-staff-password-reset.md",
+      "documentation or instructions changed: docs/architecture/adr/README.md",
+      "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+      "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+    ],
+    "backend": [
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthSessionSync.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/UserResources.resx",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserAuditConstants.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResources.cs",
+      "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs",
+      "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+      "backend-owned path changed: backend/src/GymCrm.Domain/Users/User.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs",
+      "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/AuthFlowTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs",
+      "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+      "task contract TASK-173 requires backend"
+    ],
+    "frontend": [
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+      "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+      "frontend-owned path changed: frontend/e2e/staff-password-reset-runtime.spec.ts",
+      "frontend-owned path changed: frontend/e2e/staff-password-reset.spec.ts",
+      "frontend-owned path changed: frontend/playwright.config.ts",
+      "frontend-owned path changed: frontend/src/App.test.tsx",
+      "frontend-owned path changed: frontend/src/App.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+      "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+      "frontend-owned path changed: frontend/src/features/shared/LocalizedPasswordInput.tsx",
+      "frontend-owned path changed: frontend/src/features/users/StaffPasswordReset.tsx",
+      "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+      "frontend-owned path changed: frontend/src/features/users/UserFormFields.tsx",
+      "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+      "frontend-owned path changed: frontend/src/features/users/UsersListScreen.tsx",
+      "frontend-owned path changed: frontend/src/lib/api.ts",
+      "frontend-owned path changed: frontend/src/lib/api/administrators.test.ts",
+      "frontend-owned path changed: frontend/src/lib/api/administrators.ts",
+      "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+      "frontend-owned path changed: frontend/src/lib/api/transport.test.ts",
+      "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+      "frontend-owned path changed: frontend/src/lib/api/types.ts",
+      "frontend-owned path changed: frontend/src/lib/api/users.test.ts",
+      "frontend-owned path changed: frontend/src/lib/api/users.ts",
+      "frontend-owned path changed: frontend/src/lib/resources.ts",
+      "frontend-owned path changed: frontend/src/resources/fe-11-settings-users.ts",
+      "task contract TASK-173 requires frontend"
+    ],
+    "deploy": [
+      "task contract TASK-173 requires deploy"
+    ]
+  },
+  "manual_checks": [
+    {
+      "id": "manual.reset-ui",
+      "description": "Сопоставить диалог с прототипом на мобильном и настольном экране и независимо проверить фокус, ошибки и восстановление.",
+      "status": "confirmed",
+      "actor": "coding-agent:TASK-173",
+      "performed_at": "2026-11-22T17:44:36+03:00",
+      "note": "Снимки открытого диалога сопоставлены с прототипом. Отдельно проверены клавиатура, фокус, ошибки, потеря права и повторный вход в трёх проектах Playwright.",
+      "artifacts": [
+        "backlog/implementation/TASK-173-evidence/acceptance.md",
+        "backlog/implementation/TASK-173-evidence/reset-desktop.png",
+        "backlog/implementation/TASK-173-evidence/reset-mobile.png"
+      ],
+      "evidence_path": "backlog/implementation/TASK-173-manual-evidence.json",
+      "evidence_sha256": "5acdd0032780781bd65508feb5081203f6d5d747149ffdf4cc6fdfc085e6f77c"
+    }
+  ],
+  "checks": [
+    {
+      "id": "requirements.agent-instructions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_agent_instructions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/acceptance.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-mobile.png",
+        "documentation or instructions changed: backlog/implementation/TASK-173-manual-evidence.json",
+        "documentation or instructions changed: backlog/inbox/2026-11-22.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-173/Prototype.tsx",
+        "documentation or instructions changed: backlog/mockups/TASK-173/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-173/index.html",
+        "documentation or instructions changed: backlog/mockups/TASK-173/prototype.css",
+        "documentation or instructions changed: backlog/mockups/TASK-173/reset-desktop.png",
+        "documentation or instructions changed: backlog/mockups/TASK-173/reset-mobile.png",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-172-password-policy.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-173-administrator-password-reset.md",
+        "documentation or instructions changed: backlog/processed/2026-11-20-interface-audit/16-profile-password/README.md",
+        "documentation or instructions changed: backlog/risky/TASK-172-password-policy.md",
+        "documentation or instructions changed: docs/architecture/adr/0011-staff-password-reset.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:35.644953+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.04,
+      "completed_at": "2026-11-22T14:45:35.685209+00:00"
+    },
+    {
+      "id": "requirements.architecture-decisions",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_architecture_decisions.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/acceptance.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-mobile.png",
+        "documentation or instructions changed: backlog/implementation/TASK-173-manual-evidence.json",
+        "documentation or instructions changed: backlog/inbox/2026-11-22.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-173/Prototype.tsx",
+        "documentation or instructions changed: backlog/mockups/TASK-173/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-173/index.html",
+        "documentation or instructions changed: backlog/mockups/TASK-173/prototype.css",
+        "documentation or instructions changed: backlog/mockups/TASK-173/reset-desktop.png",
+        "documentation or instructions changed: backlog/mockups/TASK-173/reset-mobile.png",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-172-password-policy.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-173-administrator-password-reset.md",
+        "documentation or instructions changed: backlog/processed/2026-11-20-interface-audit/16-profile-password/README.md",
+        "documentation or instructions changed: backlog/risky/TASK-172-password-policy.md",
+        "documentation or instructions changed: docs/architecture/adr/0011-staff-password-reset.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:35.686944+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.039,
+      "completed_at": "2026-11-22T14:45:35.725583+00:00"
+    },
+    {
+      "id": "requirements.plan-readiness",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/validate_plan_readiness.py"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 60.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/acceptance.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-mobile.png",
+        "documentation or instructions changed: backlog/implementation/TASK-173-manual-evidence.json",
+        "documentation or instructions changed: backlog/inbox/2026-11-22.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-173/Prototype.tsx",
+        "documentation or instructions changed: backlog/mockups/TASK-173/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-173/index.html",
+        "documentation or instructions changed: backlog/mockups/TASK-173/prototype.css",
+        "documentation or instructions changed: backlog/mockups/TASK-173/reset-desktop.png",
+        "documentation or instructions changed: backlog/mockups/TASK-173/reset-mobile.png",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-172-password-policy.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-173-administrator-password-reset.md",
+        "documentation or instructions changed: backlog/processed/2026-11-20-interface-audit/16-profile-password/README.md",
+        "documentation or instructions changed: backlog/risky/TASK-172-password-policy.md",
+        "documentation or instructions changed: docs/architecture/adr/0011-staff-password-reset.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:35.727230+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.076,
+      "completed_at": "2026-11-22T14:45:35.802854+00:00"
+    },
+    {
+      "id": "requirements.registry",
+      "area": "requirements",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/validate_requirements.py",
+        "--base",
+        "origin/main"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "repository traceability is validated for every change",
+        "documentation or instructions changed: backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/acceptance.md",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-desktop.png",
+        "documentation or instructions changed: backlog/implementation/TASK-173-evidence/reset-mobile.png",
+        "documentation or instructions changed: backlog/implementation/TASK-173-manual-evidence.json",
+        "documentation or instructions changed: backlog/inbox/2026-11-22.md",
+        "documentation or instructions changed: backlog/logs/implementation-log.md",
+        "documentation or instructions changed: backlog/logs/triage-log.md",
+        "documentation or instructions changed: backlog/mockups/TASK-173/Prototype.tsx",
+        "documentation or instructions changed: backlog/mockups/TASK-173/README.md",
+        "documentation or instructions changed: backlog/mockups/TASK-173/index.html",
+        "documentation or instructions changed: backlog/mockups/TASK-173/prototype.css",
+        "documentation or instructions changed: backlog/mockups/TASK-173/reset-desktop.png",
+        "documentation or instructions changed: backlog/mockups/TASK-173/reset-mobile.png",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-172-password-policy.md",
+        "documentation or instructions changed: backlog/needs-clarification/TASK-173-administrator-password-reset.md",
+        "documentation or instructions changed: backlog/processed/2026-11-20-interface-audit/16-profile-password/README.md",
+        "documentation or instructions changed: backlog/risky/TASK-172-password-policy.md",
+        "documentation or instructions changed: docs/architecture/adr/0011-staff-password-reset.md",
+        "documentation or instructions changed: docs/architecture/adr/README.md",
+        "documentation or instructions changed: docs/requirements/05-пользователи-и-роли.md",
+        "documentation or instructions changed: docs/requirements/CHANGELOG.md"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:35.804527+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.073,
+      "completed_at": "2026-11-22T14:45:35.877855+00:00"
+    },
+    {
+      "id": "backend.restore",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "restore",
+        "backend/GymCrm.slnx"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthSessionSync.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/UserResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Users/User.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-173 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:35.879244+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.98,
+      "completed_at": "2026-11-22T14:45:36.859138+00:00"
+    },
+    {
+      "id": "backend.user-facing-text",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "backend/scripts/GymCrm.UserFacingTextGuard/GymCrm.UserFacingTextGuard.csproj",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "--",
+        "."
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthSessionSync.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/UserResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Users/User.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-173 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:36.861357+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.419,
+      "completed_at": "2026-11-22T14:45:38.279962+00:00"
+    },
+    {
+      "id": "backend.format",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "format",
+        "backend/GymCrm.slnx",
+        "--no-restore",
+        "--verify-no-changes"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthSessionSync.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/UserResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Users/User.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-173 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:38.281242+00:00",
+      "exit_code": 0,
+      "duration_seconds": 12.468,
+      "completed_at": "2026-11-22T14:45:50.748893+00:00"
+    },
+    {
+      "id": "backend.build",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "build",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-restore",
+        "-warnaserror"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 900.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthSessionSync.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/UserResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Users/User.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-173 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:50.750480+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.186,
+      "completed_at": "2026-11-22T14:45:54.936012+00:00"
+    },
+    {
+      "id": "backend.test",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/GymCrm.slnx",
+        "--configuration",
+        "Release",
+        "--no-build"
+      ],
+      "depends_on": [
+        "backend.build"
+      ],
+      "timeout_seconds": 3600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthSessionSync.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/UserResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Users/User.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-173 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:45:54.937416+00:00",
+      "exit_code": 0,
+      "duration_seconds": 218.659,
+      "completed_at": "2026-11-22T14:49:33.596728+00:00"
+    },
+    {
+      "id": "backend.audit",
+      "area": "backend",
+      "working_directory": ".",
+      "command": [
+        "dotnet",
+        "list",
+        "backend/GymCrm.slnx",
+        "package",
+        "--vulnerable",
+        "--include-transitive"
+      ],
+      "depends_on": [
+        "backend.restore"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthSessionSync.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/AuthenticatedUserMiddleware.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/Resources/UserResources.resx",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementBoundary.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffManagementMutationService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffMutationStatus.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetScope.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetService.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserAuditConstants.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResources.cs",
+        "backend-owned path changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/StaffMutationAction.cs",
+        "backend-owned path changed: backend/src/GymCrm.Application/Authorization/UserRoleAuthorizationPolicy.cs",
+        "backend-owned path changed: backend/src/GymCrm.Domain/Users/User.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.Designer.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/20261122143448_StaffPasswordReset.cs",
+        "backend-owned path changed: backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/AuthFlowTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/GroupTrainerSubstitutionPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/InternalBotApiTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/MutationAuditAtomicityPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/StaffPasswordResetPostgreSqlTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/TrainerPeriodMigrationTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.PasswordReset.cs",
+        "backend-owned path changed: backend/tests/GymCrm.Tests/UsersApiTests.cs",
+        "task contract TASK-173 requires backend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:49:33.598728+00:00",
+      "exit_code": 0,
+      "duration_seconds": 45.679,
+      "completed_at": "2026-11-22T14:50:19.278155+00:00"
+    },
+    {
+      "id": "frontend.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/LocalizedPasswordInput.tsx",
+        "frontend-owned path changed: frontend/src/features/users/StaffPasswordReset.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserFormFields.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UsersListScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-11-settings-users.ts",
+        "task contract TASK-173 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:50:19.280581+00:00",
+      "exit_code": 0,
+      "duration_seconds": 27.308,
+      "completed_at": "2026-11-22T14:50:46.588330+00:00"
+    },
+    {
+      "id": "frontend.audit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "audit"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 300.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/LocalizedPasswordInput.tsx",
+        "frontend-owned path changed: frontend/src/features/users/StaffPasswordReset.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserFormFields.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UsersListScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-11-settings-users.ts",
+        "task contract TASK-173 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:50:46.589702+00:00",
+      "exit_code": 0,
+      "duration_seconds": 1.068,
+      "completed_at": "2026-11-22T14:50:47.657615+00:00"
+    },
+    {
+      "id": "frontend.check",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1800.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/LocalizedPasswordInput.tsx",
+        "frontend-owned path changed: frontend/src/features/users/StaffPasswordReset.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserFormFields.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UsersListScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-11-settings-users.ts",
+        "task contract TASK-173 requires frontend"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:50:47.659117+00:00",
+      "exit_code": 0,
+      "duration_seconds": 25.412,
+      "completed_at": "2026-11-22T14:51:13.070788+00:00"
+    },
+    {
+      "id": "deploy.compose.local",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "docker",
+        "compose",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.yml",
+        "config",
+        "--quiet"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-173 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:51:13.072496+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.131,
+      "completed_at": "2026-11-22T14:51:13.203276+00:00"
+    },
+    {
+      "id": "deploy.compose.server",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "docker",
+        "compose",
+        "--project-directory",
+        ".",
+        "--env-file",
+        "deploy/.env.example",
+        "-f",
+        "deploy/docker-compose.server.yml",
+        "config",
+        "--quiet"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-173 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:51:13.204636+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.073,
+      "completed_at": "2026-11-22T14:51:13.277656+00:00"
+    },
+    {
+      "id": "deploy.shell",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "bash",
+        "-n",
+        "deploy/build-images.sh",
+        "deploy/export-images.sh",
+        "deploy/load-images.sh",
+        "deploy/lib/images.sh"
+      ],
+      "depends_on": [],
+      "timeout_seconds": 120.0,
+      "selection_reasons": [
+        "task contract TASK-173 requires deploy"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:51:13.278992+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.005,
+      "completed_at": "2026-11-22T14:51:13.284447+00:00"
+    },
+    {
+      "id": "frontend.playwright.install",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:install"
+      ],
+      "depends_on": [
+        "frontend.install"
+      ],
+      "timeout_seconds": 1200.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/LocalizedPasswordInput.tsx",
+        "frontend-owned path changed: frontend/src/features/users/StaffPasswordReset.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserFormFields.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UsersListScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-11-settings-users.ts",
+        "task contract TASK-173 requires frontend",
+        "task contract TASK-173 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:51:13.285559+00:00",
+      "exit_code": 0,
+      "duration_seconds": 0.462,
+      "completed_at": "2026-11-22T14:51:13.747949+00:00"
+    },
+    {
+      "id": "frontend.e2e.staff-reset-recovery",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/staff-password-reset.spec.ts",
+        "--project=chromium",
+        "--project=iphone-air-webkit",
+        "--project=iphone-17-pro-max-webkit"
+      ],
+      "depends_on": [
+        "frontend.playwright.install"
+      ],
+      "timeout_seconds": 600.0,
+      "selection_reasons": [
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AdministratorEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/AuthEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/ResetStaffPasswordRequest.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/StaffPasswordResetEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserEndpoints.cs",
+        "Staff API boundary changed: backend/src/GymCrm.Api/Auth/UserResponse.cs",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset-runtime.spec.ts",
+        "frontend-owned path changed: frontend/e2e/staff-password-reset.spec.ts",
+        "frontend-owned path changed: frontend/playwright.config.ts",
+        "frontend-owned path changed: frontend/src/App.test.tsx",
+        "frontend-owned path changed: frontend/src/App.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/AdministratorsSettingsPanel.tsx",
+        "frontend-owned path changed: frontend/src/features/settings/SettingsScreen.test.tsx",
+        "frontend-owned path changed: frontend/src/features/shared/LocalizedPasswordInput.tsx",
+        "frontend-owned path changed: frontend/src/features/users/StaffPasswordReset.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserEditScreen.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserFormFields.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UserManagement.test.tsx",
+        "frontend-owned path changed: frontend/src/features/users/UsersListScreen.tsx",
+        "frontend-owned path changed: frontend/src/lib/api.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/administrators.ts",
+        "frontend-owned path changed: frontend/src/lib/api/endpoints.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/transport.ts",
+        "frontend-owned path changed: frontend/src/lib/api/types.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.test.ts",
+        "frontend-owned path changed: frontend/src/lib/api/users.ts",
+        "frontend-owned path changed: frontend/src/lib/resources.ts",
+        "frontend-owned path changed: frontend/src/resources/fe-11-settings-users.ts",
+        "task contract TASK-173 requires frontend",
+        "task contract TASK-173 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:51:13.749212+00:00",
+      "exit_code": 0,
+      "duration_seconds": 4.621,
+      "completed_at": "2026-11-22T14:51:18.369850+00:00"
+    },
+    {
+      "id": "runtime.stack",
+      "area": "deploy",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/runtime_stack.py",
+        "--task-contract",
+        "backlog/implementation/TASK-173-administrator-password-reset.verification-contract.json",
+        "--report",
+        ".artifacts/verification/TASK-173-runtime.json"
+      ],
+      "depends_on": [
+        "requirements.agent-instructions",
+        "requirements.architecture-decisions",
+        "requirements.plan-readiness",
+        "requirements.registry",
+        "backend.restore",
+        "backend.user-facing-text",
+        "backend.format",
+        "backend.build",
+        "backend.test",
+        "backend.audit",
+        "frontend.install",
+        "frontend.audit",
+        "frontend.check",
+        "deploy.compose.local",
+        "deploy.compose.server",
+        "deploy.shell"
+      ],
+      "timeout_seconds": 2160.0,
+      "selection_reasons": [
+        "task contract TASK-173 requires deploy",
+        "task contract TASK-173 defines this check"
+      ],
+      "status": "passed",
+      "started_at": "2026-11-22T14:51:18.371731+00:00",
+      "exit_code": 0,
+      "duration_seconds": 42.819,
+      "completed_at": "2026-11-22T14:52:01.190491+00:00"
+    }
+  ],
+  "completed_at": "2026-11-22T14:52:01.196446+00:00"
+}
