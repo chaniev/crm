@@ -2424,6 +2424,13 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - plans: /backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md
 - После согласования владельцем ADR-0011 и прототипа карточка перенесена из needs-clarification через tasks-ready в [implementation](../implementation/TASK-173-administrator-password-reset.md).
 
+# 2026-11-22 17:50
+- moved: TASK-172
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-172-password-policy.plan.md
+- Уточнён алфавит личного пароля. После проверки исключений при входе, создании и сбросе и сравнения обоих режимов формы карточка прошла из risky через tasks-ready в [implementation](../implementation/TASK-172-password-policy.md).
+
 ## 2026-11-22 — завершение TASK-173
 
 Коммит `5e09f061` прошёл полный контракт и интегрирован в локальную main. [Карточка и результаты проверки](../done/2026-11-22/TASK-173-administrator-password-reset.md).
