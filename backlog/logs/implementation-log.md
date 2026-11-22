@@ -2377,6 +2377,12 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md
 
+# 2026-11-22 11:39
+- moved: TASK-220
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md
+
 ## 2026-11-22 — завершение TASK-225
 
 Коммит `3ffc0bf6` интегрирован в локальную main. Карточка и план перенесены из рабочих каталогов в [архив задачи](../done/2026-11-22/TASK-225-renewal-selected-membership-end.md).
