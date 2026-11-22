@@ -4,6 +4,7 @@ using System.Text.Json;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -351,15 +352,137 @@ public class BranchesApiTests
         {
             Assert.Equal(HttpStatusCode.BadRequest, archiveHallResponse.StatusCode);
             var payload = await ReadJsonElementAsync(archiveHallResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("hall", out _));
+            Assert.Equal("Нельзя архивировать зал, к которому привязаны группы.", payload.GetProperty("errors").GetProperty("hall")[0].GetString());
         }
 
         using (var deleteHallResponse = await DeleteAsync(client, $"/halls/{hallId}", session.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.BadRequest, deleteHallResponse.StatusCode);
             var payload = await ReadJsonElementAsync(deleteHallResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("hall", out _));
+            Assert.Equal("Нельзя удалить зал, к которому привязаны группы.", payload.GetProperty("errors").GetProperty("hall")[0].GetString());
         }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Schedule_slot_alone_preserves_hall_and_rule_version(bool ended)
+    {
+        await using var factory = new BranchSettingsAppFactory();
+        await factory.SeedAsync();
+        var groupId = await factory.SeedGroupInAnotherHallAsync();
+        var start = new DateOnly(2020, 1, 1);
+        var version = new LessonScheduleRuleVersion
+        {
+            LessonSeries = new LessonSeries { GroupId = groupId, StartsOn = start },
+            VersionNumber = 1,
+            EffectiveFrom = start,
+            EffectiveTo = ended ? start.AddYears(1) : null
+        };
+        var slot = new LessonScheduleSlot
+        {
+            RuleVersion = version,
+            HallId = factory.OwnHallId,
+            SlotLineageId = Guid.NewGuid(),
+            IsoWeekday = 1,
+            StartTime = new TimeOnly(10, 0),
+            DurationMinutes = 60
+        };
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.LessonScheduleSlots.Add(slot);
+            await db.SaveChangesAsync();
+        }
+
+        await AssertScheduleProtectsHallAsync(factory);
+
+        using var check = factory.Services.CreateScope();
+        var checkDb = check.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var saved = await checkDb.LessonScheduleSlots.Include(x => x.RuleVersion).SingleAsync(x => x.Id == slot.Id);
+        Assert.Equal(factory.OwnHallId, saved.HallId);
+        Assert.Equal(version.Id, saved.RuleVersion.Id);
+        Assert.Equal(version.EffectiveTo, saved.RuleVersion.EffectiveTo);
+    }
+
+    [Theory]
+    [InlineData(2099, LessonOccurrenceStatus.Scheduled)]
+    [InlineData(2020, LessonOccurrenceStatus.Scheduled)]
+    [InlineData(2020, LessonOccurrenceStatus.Cancelled)]
+    public async Task One_off_lesson_alone_preserves_hall_and_history(int year, LessonOccurrenceStatus status)
+    {
+        await using var factory = new BranchSettingsAppFactory();
+        await factory.SeedAsync();
+        var groupId = await factory.SeedGroupInAnotherHallAsync();
+        var lesson = new LessonOccurrence
+        {
+            GroupId = groupId,
+            HallId = factory.OwnHallId,
+            LessonDate = new DateOnly(year, 3, 2),
+            StartTime = new TimeOnly(9, 0),
+            DurationMinutes = 60,
+            Status = status,
+            SourceKind = LessonOccurrenceSourceKind.OneOff
+        };
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.LessonOccurrences.Add(lesson);
+            await db.SaveChangesAsync();
+        }
+
+        await AssertScheduleProtectsHallAsync(factory);
+
+        using var check = factory.Services.CreateScope();
+        var checkDb = check.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var saved = await checkDb.LessonOccurrences.SingleAsync(x => x.Id == lesson.Id);
+        Assert.Equal((lesson.HallId, lesson.LessonDate, status), (saved.HallId, saved.LessonDate, saved.Status));
+    }
+
+    private static async Task AssertScheduleProtectsHallAsync(BranchSettingsAppFactory factory)
+    {
+        var (client, token) = await factory.LoginAsync(UserRole.HeadCoach);
+        using (client)
+        {
+            foreach (var (method, suffix, verb) in new[] { (HttpMethod.Put, "/archive", "архивировать"), (HttpMethod.Delete, "", "удалить") })
+            {
+                using var response = await BranchSettingsAppFactory.SendAsync(client, method, $"/halls/{factory.OwnHallId}{suffix}", null, token);
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+                var payload = await ReadJsonElementAsync(response);
+                var reason = payload.GetProperty("errors").GetProperty("hall")[0].GetString();
+                Assert.Contains(verb, reason);
+                Assert.Contains("расписани", reason);
+            }
+        }
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.False((await db.Halls.SingleAsync(x => x.Id == factory.OwnHallId)).IsArchived);
+        Assert.False(await db.AuditLogs.AnyAsync(x => x.EntityId == factory.OwnHallId.ToString()));
+    }
+
+    [Fact]
+    public async Task Free_hall_transitions_write_one_audit_per_change()
+    {
+        await using var factory = new BranchSettingsAppFactory();
+        await factory.SeedAsync();
+        var (client, token) = await factory.LoginAsync(UserRole.HeadCoach);
+        using (client)
+        {
+            foreach (var action in new[] { "archive", "archive", "restore" })
+            {
+                using var response = await PutWithoutBodyAsync(client, $"/halls/{factory.OwnHallId}/{action}", token);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal(action == "archive", (await ReadJsonElementAsync(response)).GetProperty("isArchived").GetBoolean());
+            }
+            using var deleted = await DeleteAsync(client, $"/halls/{factory.OwnHallId}", token);
+            Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
+        }
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.False(await db.Halls.AnyAsync(x => x.Id == factory.OwnHallId));
+        var actions = await db.AuditLogs.Where(x => x.EntityId == factory.OwnHallId.ToString())
+            .OrderBy(x => x.ActionType).Select(x => x.ActionType).ToArrayAsync();
+        Assert.Equal(["HallArchived", "HallDeleted", "HallRestored"], actions);
     }
 
     private static async Task<SeededBranchData> SeedDataAsync(BranchesAppFactory factory)

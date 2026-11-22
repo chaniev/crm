@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "task_id": "TASK-223",
+  "expected_branch": "fix/TASK-223-hall-schedule-archive-guard",
+  "areas": ["backend", "frontend"],
+  "playwright": [
+    {
+      "id": "frontend.e2e.branch-hall-creation",
+      "spec": "e2e/branch-hall-creation.spec.ts",
+      "projects": ["chromium", "iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 1800
+    }
+  ]
+}

@@ -128,6 +128,42 @@ test('empty list offers first branch, branch validation preserves all fields', a
   await expect(page.getByRole('button', { name: 'Добавить зал' })).toBeEnabled()
 })
 
+for (const action of ['archive', 'delete'] as const) {
+  test(`HeadCoach sees schedule rejection for hall ${action}`, async ({ page }, testInfo) => {
+    const fixture = await mockSettings(page, 'HeadCoach')
+    fixture.halls[0].groupCount = 0
+    const archive = action === 'archive'
+    const reason = archive
+      ? 'Нельзя архивировать зал, пока он используется в расписании.'
+      : 'Нельзя удалить зал, пока он используется в расписании.'
+    await page.route(archive ? '**/api/halls/hall-1/archive' : '**/api/halls/hall-1', async route => {
+      expect(route.request().method()).toBe(archive ? 'PUT' : 'DELETE')
+      await json(route, { title: 'Ошибка проверки данных', errors: { hall: [reason] } }, 400)
+    })
+    await openBranches(page)
+    const archiveButton = page.getByRole('button', { name: 'Архивировать зал Основной зал' })
+    if (archive) {
+      await archiveButton.click()
+    } else {
+      await page.getByRole('button', { name: 'Удалить зал Основной зал' }).click()
+      await page.getByRole('dialog').getByRole('button', { name: 'Удалить зал', exact: true }).click()
+      await expect(page.getByRole('dialog')).toBeHidden()
+    }
+    const message = page.getByRole('alert').getByText(reason)
+    await expect(message).toBeVisible()
+    await expect(message).toBeInViewport({ ratio: 1 })
+    await expect.poll(() => message.evaluate(element => {
+      const box = element.getBoundingClientRect()
+      const center = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)
+      return element.contains(center)
+    })).toBe(true)
+    await expect(archiveButton).toBeEnabled()
+    await expect(page.getByText('Основной зал', { exact: true })).toBeVisible()
+    await noOverflow(page)
+    await page.screenshot({ path: testInfo.outputPath('schedule-rejection.png'), fullPage: true, animations: 'disabled' })
+  })
+}
+
 for (const role of ['Administrator', 'Coach']) {
   test(`${role} receives no branch panel or create controls`, async ({ page }) => {
     await mockSettings(page, role)

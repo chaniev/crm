@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Authorization;
@@ -676,23 +677,42 @@ internal static class BranchEndpoints
             return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
-        var hall = await dbContext.Halls.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
-        if (hall is null)
+        var branchId = await LoadHallBranchIdAsync(id, dbContext, cancellationToken);
+        if (branchId is null)
         {
             return TypedResults.NotFound();
         }
 
-        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, hall.BranchId))
+        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, branchId))
         {
             return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
-        if (isArchived && await IsHallReferencedByGroupsAsync(id, dbContext, cancellationToken))
+        await using var transaction = dbContext.Database.IsNpgsql()
+            ? await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken)
+            : null;
+
+        Hall? hall;
+        if (isArchived)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            var usage = await HallUsage.LoadForUpdateAsync(dbContext, id, cancellationToken);
+            if (usage is { HasGroups: true } or { HasSchedule: true })
             {
-                ["hall"] = [BranchResources.HallCannotBeArchivedWithGroups]
-            });
+                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["hall"] = [usage.HasGroups ? BranchResources.HallCannotBeArchivedWithGroups : BranchResources.HallCannotBeArchivedWithSchedule]
+                });
+            }
+            hall = usage?.Hall;
+        }
+        else
+        {
+            hall = await dbContext.Halls.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
+        }
+
+        if (hall is null)
+        {
+            return TypedResults.NotFound();
         }
 
         if (hall.IsArchived == isArchived)
@@ -701,10 +721,6 @@ internal static class BranchEndpoints
                 ?? throw new InvalidOperationException($"Hall '{hall.Id}' was not found after archive state check.");
             return TypedResults.Ok(MapHall(currentHall));
         }
-
-        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
-            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
-            : null;
 
         var oldState = SerializeHallAuditState(hall);
         hall.IsArchived = isArchived;
@@ -722,13 +738,13 @@ internal static class BranchEndpoints
                 SerializeHallAuditState(hall)),
             cancellationToken);
 
+        var updatedHall = await LoadHallSnapshotAsync(hall.Id, dbContext, cancellationToken)
+            ?? throw new InvalidOperationException($"Updated hall '{hall.Id}' was not found.");
+
         if (transaction is not null)
         {
             await transaction.CommitAsync(cancellationToken);
         }
-
-        var updatedHall = await LoadHallSnapshotAsync(hall.Id, dbContext, cancellationToken)
-            ?? throw new InvalidOperationException($"Updated hall '{hall.Id}' was not found.");
 
         return TypedResults.Ok(MapHall(updatedHall));
     }
@@ -759,29 +775,34 @@ internal static class BranchEndpoints
             return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
-        var hall = await dbContext.Halls.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
-        if (hall is null)
+        var branchId = await LoadHallBranchIdAsync(id, dbContext, cancellationToken);
+        if (branchId is null)
         {
             return TypedResults.NotFound();
         }
 
-        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, hall.BranchId))
+        if (!BranchSettingsActionPolicy.CanMutateTarget(currentUser, action, branchId))
         {
             return StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
         }
 
-        if (await IsHallReferencedByGroupsAsync(id, dbContext, cancellationToken))
+        await using var transaction = dbContext.Database.IsNpgsql()
+            ? await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken)
+            : null;
+        var usage = await HallUsage.LoadForUpdateAsync(dbContext, id, cancellationToken);
+        if (usage is null)
+        {
+            return TypedResults.NotFound();
+        }
+        if (usage.HasGroups || usage.HasSchedule)
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["hall"] = [BranchResources.HallCannotBeDeletedWithGroups]
+                ["hall"] = [usage.HasGroups ? BranchResources.HallCannotBeDeletedWithGroups : BranchResources.HallCannotBeDeletedWithSchedule]
             });
         }
 
-        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
-            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
-            : null;
-
+        var hall = usage.Hall;
         var oldState = SerializeHallAuditState(hall);
         dbContext.Halls.Remove(hall);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -931,14 +952,11 @@ internal static class BranchEndpoints
         return errors;
     }
 
-    private static async Task<bool> IsHallReferencedByGroupsAsync(
-        Guid hallId,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+    private static Task<Guid?> LoadHallBranchIdAsync(Guid id, GymCrmDbContext dbContext, CancellationToken cancellationToken)
     {
-        return await dbContext.TrainingGroups
-            .AsNoTracking()
-            .AnyAsync(group => group.HallId == hallId, cancellationToken);
+        return dbContext.Halls.Where(hall => hall.Id == id)
+            .Select(hall => (Guid?)hall.BranchId)
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
     private static string? NormalizeOptionalText(string? value)

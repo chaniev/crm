@@ -60,6 +60,10 @@ import { getSemanticToneComponentProps } from '../../theme/semanticTones'
 import { fe10SettingsBranchesShellText } from '../../resources/fe-10-settings-branches-shell'
 
 
+function revealActionError(element: HTMLDivElement | null) {
+  element?.scrollIntoView({ block: 'center' })
+}
+
 type BranchFormValues = {
   name: string
   address: string
@@ -373,10 +377,9 @@ export function BranchSettingsScreen({
         color: 'teal',
       })
     } catch (error) {
+      const reason = !hall.isArchived && error instanceof ApiError ? error.fieldErrors.hall?.[0] : undefined
       setActionError(
-        error instanceof Error
-          ? error.message
-          : fe10SettingsBranchesShellText.branchSettingsScreen_string_b1511003,
+        reason ?? (error instanceof Error ? error.message : fe10SettingsBranchesShellText.branchSettingsScreen_string_b1511003),
       )
     } finally {
       setHallPendingId(null)
@@ -405,10 +408,9 @@ export function BranchSettingsScreen({
       setHallToDelete(null)
       setReloadKey((currentKey) => currentKey + 1)
     } catch (error) {
+      const reason = error instanceof ApiError ? error.fieldErrors.hall?.[0] : undefined
       setActionError(
-        error instanceof Error
-          ? error.message
-          : fe10SettingsBranchesShellText.branchSettingsScreen_string_a2ba13b7,
+        reason ?? (error instanceof Error ? error.message : fe10SettingsBranchesShellText.branchSettingsScreen_string_a2ba13b7),
       )
       setHallToDelete(null)
     } finally {
@@ -447,6 +449,7 @@ export function BranchSettingsScreen({
 
           {actionError ? (
             <Alert
+              ref={revealActionError}
               color="red"
               icon={<IconAlertCircle size={18} />}
               title={fe10SettingsBranchesShellText.branchSettingsScreen_title_7530f803}
