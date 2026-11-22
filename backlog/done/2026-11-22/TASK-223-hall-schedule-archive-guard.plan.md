@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- source_task: /backlog/implementation/TASK-223-hall-schedule-archive-guard.md
+- source_task: /backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md
 - requirements: REQ-BRN-001 (implements)
 - branch: fix/TASK-223-hall-schedule-archive-guard
 - readiness: yes
@@ -26,7 +26,7 @@
 ## Decision evidence
 
 - product: [Принятое REQ-BRN-001](/docs/requirements/09-филиалы-и-настройки.md) — owner: владелец продукта; decision: любая сохраняющаяся привязка к группе или расписанию запрещает обе операции.
-- product: [Уточнение границ от 22.11.2026](/backlog/implementation/TASK-223-hall-schedule-archive-guard.md) — owner: владелец продукта; decision: изменить только архивацию и удаление, правила назначения зала в расписание рассматривать отдельно.
+- product: [Уточнение границ от 22.11.2026](/backlog/done/2026-11-22/TASK-223-hall-schedule-archive-guard.md) — owner: владелец продукта; decision: изменить только архивацию и удаление, правила назначения зала в расписание рассматривать отдельно.
 - Показ причины отказа уже входит в контракт панели. [TASK-032](/backlog/done/2026-05-12/TASK-032-branches-frontend-settings-and-forms.md)
 
 ## Implementation slices
