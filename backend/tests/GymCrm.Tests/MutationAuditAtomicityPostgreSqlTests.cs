@@ -225,7 +225,7 @@ public class MutationAuditAtomicityPostgreSqlTests
         using (client)
         {
             var before = await SnapshotAsync(factory);
-            var body = new { currentPassword = BranchSettingsAppFactory.Password, newPassword = "changed-test-password" };
+            var body = new { currentPassword = BranchSettingsAppFactory.Password, newPassword = "Changed-test-password2" };
             using var failed = await BranchSettingsAppFactory.SendAsync(client, HttpMethod.Post, "/auth/change-password", body, token);
 
             Assert.Equal(HttpStatusCode.InternalServerError, failed.StatusCode);

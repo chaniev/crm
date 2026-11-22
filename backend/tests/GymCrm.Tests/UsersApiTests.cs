@@ -260,7 +260,7 @@ public partial class UsersApiTests
                    {
                        FullName = "Администратор из настроек",
                        Login = createLogin,
-                       Password = "12345Aa!",
+                       Password = "x",
                        Role = "Administrator",
                        MustChangePassword = true,
                        IsActive = true,
@@ -1136,7 +1136,7 @@ public partial class UsersApiTests
                    {
                        FullName = "SA Happy Coach",
                        Login = coachLogin,
-                       Password = "12345Aa!",
+                       Password = "x",
                        Role = "Coach",
                        MustChangePassword = false,
                        IsActive = true,

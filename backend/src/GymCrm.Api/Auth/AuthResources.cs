@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Resources;
+using GymCrm.Application.Security;
 
 namespace GymCrm.Api.Auth;
 
@@ -26,6 +27,8 @@ internal static class AuthResources
     public static string InvalidCsrfProblemDetail => GetString(nameof(InvalidCsrfProblemDetail));
 
     public static string PasswordChangeRequiredProblemDetail => GetString(nameof(PasswordChangeRequiredProblemDetail));
+
+    public static string PersonalPasswordMessage(PersonalPasswordError error) => GetString($"PersonalPassword{error}");
 
     private static string GetString(string name)
     {

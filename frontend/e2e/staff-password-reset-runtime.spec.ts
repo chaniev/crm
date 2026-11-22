@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
 
 const initialPassword = 'Synthetic-original-173'
 const firstPassword = 'synthetic-first-173'
-const lastPassword = 'synthetic-last-173'
+const lastPassword = ' synthetic-last-173 '
 const personalPassword = 'Synthetic-personal-173'
 
 async function login(request: APIRequestContext, loginName: string, password: string) {
@@ -131,8 +131,15 @@ test('Сброс отзывает обе сессии тренера, повто
     await expect(recipient.getByRole('heading', { name: 'Смените пароль' })).toBeVisible()
     expect((await first.request.get('/api/attendance/groups')).status()).toBe(403)
     await recipient.getByLabel('Текущий пароль').fill(lastPassword)
-    await recipient.getByPlaceholder('Придумайте новый пароль').fill(personalPassword)
-    await recipient.getByPlaceholder('Повторите новый пароль').fill(personalPassword)
+    const personal = recipient.getByLabel('Новый пароль', { exact: true })
+    const confirmation = recipient.getByLabel('Повторите новый пароль')
+    await personal.fill('Synthetic 173')
+    await confirmation.fill('Synthetic 173')
+    await recipient.getByRole('button', { name: 'Сменить пароль и продолжить' }).click()
+    await expect(personal).toHaveAccessibleDescription(/недопустимые символы/)
+    expect((await first.request.get('/api/attendance/groups')).status()).toBe(403)
+    await personal.fill(personalPassword)
+    await confirmation.fill(personalPassword)
     await recipient.getByRole('button', { name: 'Сменить пароль и продолжить' }).click()
     await expect(recipient.getByRole('heading', { name: 'Смените пароль' })).toBeHidden()
     expect((await first.request.get('/api/attendance/groups')).status()).toBe(200)

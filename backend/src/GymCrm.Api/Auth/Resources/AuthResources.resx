@@ -39,4 +39,19 @@
   <data name="PasswordChangeRequiredProblemDetail" xml:space="preserve">
     <value>Сначала смените пароль, чтобы продолжить работу.</value>
   </data>
+  <data name="PersonalPasswordTooShort" xml:space="preserve">
+    <value>Используйте минимум 8 символов.</value>
+  </data>
+  <data name="PersonalPasswordInvalidCharacter" xml:space="preserve">
+    <value>Уберите пробелы и другие недопустимые символы.</value>
+  </data>
+  <data name="PersonalPasswordMissingDigit" xml:space="preserve">
+    <value>Добавьте хотя бы одну цифру.</value>
+  </data>
+  <data name="PersonalPasswordMissingUppercase" xml:space="preserve">
+    <value>Добавьте хотя бы одну заглавную букву.</value>
+  </data>
+  <data name="PersonalPasswordMissingLowercase" xml:space="preserve">
+    <value>Добавьте хотя бы одну строчную букву.</value>
+  </data>
 </root>

@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 const BOOTSTRAP_LOGIN = 'headcoach'
 const BOOTSTRAP_PASSWORD = '12345678'
-const UPDATED_PASSWORD = 'gym-crm-e2e-password'
+const UPDATED_PASSWORD = 'Gym-crm-e2e-password'
 
 type AuthFixtureConfig = {
   clubName: string
@@ -137,6 +137,11 @@ test.describe('Аутентификация', () => {
         expect(route.request().headers()['x-csrf-token']).toBe(
           forcedPasswordSession.csrfToken,
         )
+        if (payload.newPassword === 'NoDigits') {
+          expect(payload.currentPassword).toBe(BOOTSTRAP_PASSWORD)
+          await fulfillJson(route, 400, { errors: { newPassword: ['Добавьте хотя бы одну цифру.'] } })
+          return true
+        }
         expect(payload).toEqual({
           currentPassword: BOOTSTRAP_PASSWORD,
           newPassword: UPDATED_PASSWORD,
@@ -196,7 +201,14 @@ test.describe('Аутентификация', () => {
     ).toHaveCount(0)
     await expectAuthBackgroundToContainDefaultAsset(page)
 
+    const personal = page.getByLabel('Новый пароль', { exact: true })
+    await expect(personal).toHaveAccessibleDescription(/Минимум 8 символов/)
     await page.getByLabel('Текущий пароль').fill(BOOTSTRAP_PASSWORD)
+    await personal.fill('NoDigits')
+    await page.getByLabel('Повторите новый пароль').fill('NoDigits')
+    await page.getByRole('button', { name: 'Сменить пароль и продолжить' }).click()
+    await expect(personal).toHaveAccessibleDescription(/Добавьте хотя бы одну цифру/)
+    await expect(personal).toHaveAttribute('aria-invalid', 'true')
     await page.getByPlaceholder('Придумайте новый пароль').fill(UPDATED_PASSWORD)
     await page.getByPlaceholder('Повторите новый пароль').fill(UPDATED_PASSWORD)
     await page.getByRole('button', { name: 'Сменить пароль и продолжить' }).click()
@@ -205,6 +217,11 @@ test.describe('Аутентификация', () => {
     await expect(
       page.getByText('Никому не требуется внимание'),
     ).toBeVisible()
+    await page.getByRole('button', { name: /Открыть профильное меню/ }).click()
+    await page.getByRole('menuitem', { name: 'Смена пароля' }).click()
+    await expect(personal).toHaveAccessibleDescription(/Минимум 8 символов/)
+    await page.getByRole('button', { name: 'Назад', exact: true }).click()
+    await expect(page.getByTestId('attention-screen')).toBeVisible()
   })
 
   test('На mobile сразу показывает форму входа и основное действие', async ({

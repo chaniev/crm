@@ -158,7 +158,7 @@ public class BranchSettingsApiTests
             AssertActions(first, expected);
             AssertActions(await client.GetFromJsonAsync<JsonElement>("/auth/session"), expected);
             using var changed = await BranchSettingsAppFactory.SendAsync(client, HttpMethod.Post, "/auth/change-password",
-                new { currentPassword = BranchSettingsAppFactory.Password, newPassword = "changed-password" }, first.GetProperty("csrfToken").GetString());
+                new { currentPassword = BranchSettingsAppFactory.Password, newPassword = "Changed-password2" }, first.GetProperty("csrfToken").GetString());
             changed.EnsureSuccessStatusCode();
             AssertActions(await changed.Content.ReadFromJsonAsync<JsonElement>(), expected);
             var roleOptions = first.GetProperty("user").GetProperty("createRoleOptions").EnumerateArray().Select(x => x.GetString()).ToArray();

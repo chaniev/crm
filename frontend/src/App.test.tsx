@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import type { AppConfigResponse, AuthenticatedUser } from './lib/api/types'
-import { changePassword, loadSession, login, logout } from './lib/api'
+import { ApiError, changePassword, loadSession, login, logout } from './lib/api'
 import {
   showAppNotification,
   showPoliteStatusNotification,
@@ -897,6 +897,26 @@ describe('App route access contract', () => {
     expect(screen.queryByRole('button', { name: 'К группе' })).not.toBeInTheDocument()
   })
 
+  test.each([true, false])('describes the new password and associates its server error (forced=%s)', async (forced) => {
+    renderAppAt('/password', { ...baseSession, mustChangePassword: forced })
+    const current = await screen.findByLabelText('Текущий пароль')
+    const personal = screen.getByLabelText('Новый пароль')
+    const repeat = screen.getByLabelText('Повторите новый пароль')
+    expect(personal).toHaveAccessibleDescription('Минимум 8 символов, включая цифру, заглавную и строчную буквы. Разрешены русские и английские буквы, цифры 0–9 и знаки !+=-@^$#;')
+    expect(current).not.toHaveAccessibleDescription()
+    expect(repeat).not.toHaveAccessibleDescription()
+
+    const reason = 'Добавьте хотя бы одну цифру.'
+    changePasswordMock.mockRejectedValueOnce(new ApiError('Проверьте поля.', 400, { newPassword: [reason] }))
+    fireEvent.change(current, { target: { value: 'old_password' } })
+    fireEvent.change(personal, { target: { value: 'NoDigits' } })
+    fireEvent.change(repeat, { target: { value: 'NoDigits' } })
+    fireEvent.click(screen.getByRole('button', { name: forced ? 'Сменить пароль и продолжить' : 'Сохранить новый пароль' }))
+    expect(await screen.findByText(reason)).toBeVisible()
+    expect(personal).toHaveAccessibleDescription(expect.stringContaining(reason))
+    expect(personal).toHaveAttribute('aria-invalid', 'true')
+  })
+
   test('renders utility password route from direct path and keeps direct return target', async () => {
     renderAppAt('/password', baseSession)
 
@@ -976,10 +996,10 @@ describe('App route access contract', () => {
       target: { value: 'old-password' },
     })
     fireEvent.change(screen.getByLabelText('Новый пароль'), {
-      target: { value: 'new-password' },
+      target: { value: 'New-password1' },
     })
     fireEvent.change(screen.getByLabelText('Повторите новый пароль'), {
-      target: { value: 'new-password' },
+      target: { value: 'New-password1' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить новый пароль' }))
 

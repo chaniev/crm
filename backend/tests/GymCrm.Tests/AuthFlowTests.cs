@@ -76,7 +76,7 @@ public class AuthFlowTests
         using var changePasswordResponse = await PostJsonAsync(
             client,
             "/auth/change-password",
-            new ChangePasswordRequest("12345678", "gym-crm-stage-2-password"),
+            new ChangePasswordRequest("12345678", "Gym-crm-stage-2-password"),
             loggedInSession.CsrfToken);
         var changedSession = await ReadJsonAsync<SessionPayload>(changePasswordResponse);
 
@@ -120,6 +120,62 @@ public class AuthFlowTests
             auditEntries.Select(entry => entry.Description));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Personal_password_rejection_preserves_credentials_access_and_audit(bool forced)
+    {
+        const string legacy = "old_password";
+        const string personal = "НовыйЁж1";
+        await using var factory = new AuthAppFactory();
+        var id = await SeedActiveCoachAsync(factory, "policy-coach", legacy, isActive: true, mustChangePassword: forced);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var before = await db.Users.AsNoTracking().SingleAsync(u => u.Id == id);
+        using var client = factory.CreateClient();
+
+        async Task<HttpResponseMessage> LoginAsync(HttpClient browser, string password) =>
+            await PostJsonAsync(browser, "/auth/login", new LoginRequest(before.Login, password), (await GetSessionAsync(browser)).CsrfToken);
+
+        using var login = await LoginAsync(client, legacy);
+        var session = await ReadJsonAsync<SessionPayload>(login);
+        Assert.Equal(forced, session.User!.MustChangePassword);
+
+        using var wrongCurrent = await PostJsonAsync(client, "/auth/change-password",
+            new ChangePasswordRequest("incorrect", "weak"), session.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, wrongCurrent.StatusCode);
+        var currentError = await ReadJsonAsync<ValidationPayload>(wrongCurrent);
+        Assert.Equal("currentPassword", Assert.Single(currentError.Errors).Key);
+
+        using var rejected = await PostJsonAsync(client, "/auth/change-password",
+            new ChangePasswordRequest(legacy, "NoDigits"), session.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, rejected.StatusCode);
+        var error = await ReadJsonAsync<ValidationPayload>(rejected);
+        Assert.Equal("Добавьте хотя бы одну цифру.", Assert.Single(error.Errors["newPassword"]));
+        var after = await db.Users.AsNoTracking().SingleAsync(u => u.Id == id);
+        Assert.Equal(before.PasswordHash, after.PasswordHash);
+        Assert.Equal(forced, after.MustChangePassword);
+        Assert.False(await db.AuditLogs.AnyAsync(a => a.ActionType == "PasswordChanged"));
+        using var profile = await client.GetAsync("/auth/profile");
+        Assert.Equal(forced ? HttpStatusCode.Forbidden : HttpStatusCode.OK, profile.StatusCode);
+
+        using var secondBrowser = factory.CreateClient();
+        using var retryLogin = await LoginAsync(secondBrowser, legacy);
+        Assert.Equal(HttpStatusCode.OK, retryLogin.StatusCode);
+        using var accepted = await PostJsonAsync(client, "/auth/change-password",
+            new ChangePasswordRequest(legacy, personal), session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, accepted.StatusCode);
+        Assert.False((await ReadJsonAsync<SessionPayload>(accepted)).User!.MustChangePassword);
+        using var freshBrowser = factory.CreateClient();
+        using var oldLogin = await LoginAsync(freshBrowser, legacy);
+        Assert.Equal(HttpStatusCode.Unauthorized, oldLogin.StatusCode);
+        using var newLogin = await LoginAsync(freshBrowser, personal);
+        Assert.Equal(HttpStatusCode.OK, newLogin.StatusCode);
+        using var unlocked = await freshBrowser.GetAsync("/auth/profile");
+        Assert.Equal(HttpStatusCode.OK, unlocked.StatusCode);
+        Assert.Equal(1, await db.AuditLogs.CountAsync(a => a.ActionType == "PasswordChanged"));
+    }
+
     [Fact]
     public async Task Repeated_reset_and_personal_change_reject_prior_tickets_even_at_same_timestamp()
     {
@@ -142,7 +198,7 @@ public class AuthFlowTests
         var firstTime = coach.UpdatedAt;
         Assert.NotNull(firstVersion);
 
-        using var second = await PostJsonAsync(manager, path, new { temporaryPassword = "second-temporary" }, token);
+        using var second = await PostJsonAsync(manager, path, new { temporaryPassword = " second-temporary " }, token);
         Assert.Equal(HttpStatusCode.NoContent, second.StatusCode);
         await db.Entry(coach).ReloadAsync();
         var secondVersion = coach.CredentialVersion;
@@ -158,13 +214,20 @@ public class AuthFlowTests
             new LoginRequest(coach.Login, "first-temporary"), anonymous.CsrfToken);
         Assert.Equal(HttpStatusCode.Unauthorized, refused.StatusCode);
         using var secondLogin = await PostJsonAsync(current, "/auth/login",
-            new LoginRequest(coach.Login, "second-temporary"), anonymous.CsrfToken);
+            new LoginRequest(coach.Login, " second-temporary "), anonymous.CsrfToken);
         var temporarySession = await ReadJsonAsync<SessionPayload>(secondLogin);
         Assert.True(temporarySession.User!.MustChangePassword);
         using var denied = await current.GetAsync("/auth/profile");
         Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
+        using var invalid = await PostJsonAsync(current, "/auth/change-password",
+            new ChangePasswordRequest(" second-temporary ", "New personal173"), temporarySession.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
+        await db.Entry(coach).ReloadAsync();
+        Assert.Equal(secondVersion, coach.CredentialVersion);
+        Assert.True(coach.PasswordResetPending);
+        Assert.True(coach.MustChangePassword);
         using var change = await PostJsonAsync(current, "/auth/change-password",
-            new ChangePasswordRequest("second-temporary", "New-personal173"), temporarySession.CsrfToken);
+            new ChangePasswordRequest(" second-temporary ", "New-personal173"), temporarySession.CsrfToken);
         Assert.Equal(HttpStatusCode.OK, change.StatusCode);
         var personalSession = await ReadJsonAsync<SessionPayload>(change);
         Assert.Equal(coach.Id.ToString(), personalSession.User!.Id);
@@ -197,7 +260,7 @@ public class AuthFlowTests
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "/auth/change-password")
         {
-            Content = JsonContent.Create(new ChangePasswordRequest("12345678", "another-password"))
+            Content = JsonContent.Create(new ChangePasswordRequest("12345678", "Another-password2"))
         };
 
         using var changePasswordResponse = await client.SendAsync(request);
@@ -291,7 +354,8 @@ public class AuthFlowTests
         AuthAppFactory factory,
         string login,
         string password,
-        bool isActive)
+        bool isActive,
+        bool mustChangePassword = false)
     {
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -303,7 +367,7 @@ public class AuthFlowTests
             FullName = $"Тренер {login}",
             Login = login,
             Role = UserRole.Coach,
-            MustChangePassword = false,
+            MustChangePassword = mustChangePassword,
             IsActive = isActive,
             CreatedAt = now,
             UpdatedAt = now
@@ -354,6 +418,8 @@ public class AuthFlowTests
     }
 
     private sealed record LoginRequest(string Login, string Password);
+
+    private sealed record ValidationPayload(Dictionary<string, string[]> Errors);
 
     private sealed record ProblemPayload(string Title, string Detail);
 

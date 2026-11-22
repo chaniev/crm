@@ -223,6 +223,14 @@ internal static class AuthEndpoints
             });
         }
 
+        if (PersonalPasswordPolicy.Validate(request.NewPassword) is { } error)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["newPassword"] = [AuthResources.PersonalPasswordMessage(error)]
+            });
+        }
+
         var oldState = JsonSerializer.Serialize(
             new { user.MustChangePassword },
             AuditSerializerOptions);

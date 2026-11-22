@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
 
 // Invoked by TASK-187's managed runtime probe against a disposable task stack.
 const runtimeUrl = process.env.TASK187_RUNTIME_URL
-const password = 'task187-runtime-password'
+const password = 'Task187-runtime-password'
 
 test('TASK-187 real backend: two administrators, global coaches and branch-owned groups', async ({ browser, playwright }, testInfo) => {
   test.skip(!runtimeUrl, 'Requires the isolated TASK-187 runtime stack')

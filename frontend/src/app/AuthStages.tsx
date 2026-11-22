@@ -285,6 +285,7 @@ export function PasswordScreen({
             />
             <LocalizedPasswordInput
               autoComplete="new-password"
+              description={fe1AppShellAuthText.personalPasswordRequirements}
               label={fe1AppShellAuthText.authStages_label_f104cf99}
               placeholder={fe1AppShellAuthText.authStages_placeholder_63cd6ea9}
               {...form.getInputProps('newPassword')}
