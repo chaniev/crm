@@ -2410,3 +2410,16 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 ## 2026-11-22 — завершение TASK-217
 
 Коммит `b1cd7950` прошёл полный контракт и интегрирован в локальную main. Карточка, план, контракт и отчёты перенесены в [архив задачи](../done/2026-11-22/TASK-217-substitute-group-period-access.md).
+
+# 2026-11-22 17:27
+- moved: none
+- planned_in_place: TASK-173
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md
+
+# 2026-11-22 17:29
+- moved: TASK-173
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-173-administrator-password-reset.plan.md
+- После согласования владельцем ADR-0011 и прототипа карточка перенесена из needs-clarification через tasks-ready в [implementation](../implementation/TASK-173-administrator-password-reset.md).
