@@ -2376,3 +2376,9 @@ REQ-USR-001/004 реализованы; REQ-USR-002 остаётся части�
 - planned_in_place: none
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-223-hall-schedule-archive-guard.plan.md
+
+# 2026-11-22 11:39
+- moved: TASK-220
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-220-attendance-historical-time.plan.md
