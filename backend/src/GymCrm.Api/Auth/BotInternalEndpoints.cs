@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using GymCrm.Application.Bot;
+using GymCrm.Application.Clients;
 using Microsoft.Extensions.Options;
 
 namespace GymCrm.Api.Auth;
@@ -27,6 +28,7 @@ internal static class BotInternalEndpoints
         group.MapGet("/clients/expiring-memberships", ListExpiringMembershipsAsync);
         group.MapGet("/clients/unpaid-memberships", ListUnpaidMembershipsAsync);
         group.MapGet("/clients/{clientId:guid}", GetClientCardAsync);
+        group.MapGet("/clients/{clientId:guid}/photo", GetClientPhotoAsync);
         group.MapPost("/clients/{clientId:guid}/membership/mark-payment", MarkMembershipPaymentAsync);
         group.MapPost("/audit/access-denied", WriteAccessDeniedAuditAsync);
 
@@ -263,6 +265,27 @@ internal static class BotInternalEndpoints
             skip.GetValueOrDefault(0),
             take.GetValueOrDefault(10),
             cancellationToken));
+    }
+
+    private static async Task<IResult> GetClientPhotoAsync(
+        Guid clientId,
+        string? platform,
+        string? platformUserId,
+        HttpContext httpContext,
+        IBotApiService botApiService,
+        IClientPhotoService photoService,
+        CancellationToken cancellationToken)
+    {
+        var identity = ToIdentity(platform, platformUserId);
+        var resolved = await botApiService.ResolveUserContextAsync(identity, cancellationToken);
+        if (!resolved.Succeeded)
+        {
+            return ToHttpResult(resolved);
+        }
+
+        return await ClientPhotoEndpoints.ReadPhotoAsync(clientId,
+            new ClientPhotoReadCommand(resolved.Value!.UserId, identity.PlatformUserId),
+            httpContext, photoService, cancellationToken);
     }
 
     private static async Task<IResult> GetClientCardAsync(

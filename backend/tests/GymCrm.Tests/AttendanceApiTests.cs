@@ -1386,7 +1386,7 @@ public class AttendanceApiTests
             """);
     }
 
-    private static async Task AddMembershipAsync(
+    internal static async Task AddMembershipAsync(
         GymCrmDbContext dbContext,
         Guid clientId,
         Guid changedByUserId,

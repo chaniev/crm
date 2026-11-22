@@ -1245,6 +1245,58 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainerSubstitutionPeriod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("EndsOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartsOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("SubstituteTrainerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CancelledByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("SubstituteTrainerId");
+
+                    b.HasIndex("GroupId", "SubstituteTrainerId", "StartsOn", "EndsOn");
+
+                    b.ToTable("GroupTrainerSubstitutionPeriods", t =>
+                        {
+                            t.HasCheckConstraint("CK_GroupTrainerSubstitutionPeriods_Period_Inclusive", "\"EndsOn\" >= \"StartsOn\"");
+                        });
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Groups.GroupType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2622,6 +2674,38 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasOne("GymCrm.Domain.Users.User", "SubstituteTrainer")
                         .WithMany("GroupTrainerSubstitutions")
+                        .HasForeignKey("SubstituteTrainerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Group");
+
+                    b.Navigation("SubstituteTrainer");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainerSubstitutionPeriod", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("CancelledByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "SubstituteTrainer")
+                        .WithMany()
                         .HasForeignKey("SubstituteTrainerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();

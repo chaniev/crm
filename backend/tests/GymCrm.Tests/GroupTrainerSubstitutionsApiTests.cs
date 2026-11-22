@@ -25,6 +25,129 @@ public class GroupTrainerSubstitutionsApiTests
     private const string BotToken = "substitution-bot-token";
     private static readonly DateOnly BusinessDate = new(2026, 7, 25);
 
+    [Fact]
+    public async Task New_period_is_managed_separately_from_matching_history()
+    {
+        await using var factory = new SubstitutionAppFactory(BusinessDate);
+        var seeded = await SeedAsync(factory, createActiveSubstitution: true);
+        using var client = factory.CreateClient();
+        var session = await LoginAsync(client, "administrator");
+        var path = $"/groups/{seeded.GroupId}/trainer-substitution-periods";
+        var payload = new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = BusinessDate, endsOn = BusinessDate };
+
+        using var initial = await client.GetAsync(path);
+        Assert.Equal(HttpStatusCode.OK, initial.StatusCode);
+        Assert.Empty((await ReadJsonElementAsync(initial)).GetProperty("current").EnumerateArray());
+        using var historicalCancel = await PostWithoutBodyAsync(client, $"{path}/{seeded.ActiveSubstitutionId}/cancel", session.CsrfToken);
+        Assert.Equal(HttpStatusCode.NotFound, historicalCancel.StatusCode);
+
+        using var created = await PostJsonAsync(client, path, payload, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var row = await ReadJsonElementAsync(created);
+        var id = row.GetProperty("id").GetGuid();
+        Assert.NotEqual(seeded.ActiveSubstitutionId, id);
+        Assert.Equal("Active", row.GetProperty("status").GetString());
+        Assert.True(row.GetProperty("allowedActions").GetProperty("canCancel").GetBoolean());
+        Assert.False(row.GetProperty("allowedActions").GetProperty("canEdit").GetBoolean());
+        using var overlap = await PostJsonAsync(client, path, payload, session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Conflict, overlap.StatusCode);
+        Assert.Equal("group_trainer_substitution_overlap", (await ReadJsonElementAsync(overlap)).GetProperty("code").GetString());
+
+        using var cancelled = await PostWithoutBodyAsync(client, $"{path}/{id}/cancel", session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, cancelled.StatusCode);
+        Assert.False((await ReadJsonElementAsync(cancelled)).GetProperty("allowedActions").GetProperty("canCancel").GetBoolean());
+        using var after = await client.GetAsync(path);
+        var list = await ReadJsonElementAsync(after);
+        Assert.Empty(list.GetProperty("current").EnumerateArray());
+        Assert.Equal(id, Assert.Single(list.GetProperty("history").GetProperty("items").EnumerateArray()).GetProperty("id").GetGuid());
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Null((await db.GroupTrainerSubstitutions.SingleAsync()).CancelledAt);
+        Assert.Equal(2, await db.AuditLogs.CountAsync(a => a.EntityId == id.ToString() && a.EntityType == "GroupTrainerSubstitutionPeriod"));
+    }
+
+    [Fact]
+    public async Task Period_creation_requires_an_active_group_eligible_substitute_and_csrf()
+    {
+        await using var factory = new SubstitutionAppFactory(BusinessDate);
+        var seeded = await SeedAsync(factory);
+        using var manager = factory.CreateClient();
+        var auth = await LoginAsync(manager, "headcoach");
+        var path = $"/groups/{seeded.GroupId}/trainer-substitution-periods";
+        var payload = new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = BusinessDate, endsOn = BusinessDate };
+
+        using var noCsrf = await manager.PostAsJsonAsync(path, payload);
+        Assert.Equal(HttpStatusCode.BadRequest, noCsrf.StatusCode);
+        using var inactiveGroup = await PostJsonAsync(manager, $"/groups/{seeded.InactiveGroupId}/trainer-substitution-periods", payload, auth.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, inactiveGroup.StatusCode);
+        Assert.True((await ReadJsonElementAsync(inactiveGroup)).GetProperty("errors").TryGetProperty("groupId", out _));
+
+        foreach (var trainerId in new[] { seeded.BadRoleUserId, seeded.InactiveCoachId, seeded.PrimaryCoachId })
+        {
+            using var ineligible = await PostJsonAsync(manager, path, payload with { substituteTrainerId = trainerId }, auth.CsrfToken);
+            Assert.Equal(HttpStatusCode.BadRequest, ineligible.StatusCode);
+            Assert.True((await ReadJsonElementAsync(ineligible)).GetProperty("errors").TryGetProperty("substituteTrainerId", out _));
+        }
+        using var created = await PostJsonAsync(manager, path, payload, auth.CsrfToken);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var rowId = (await ReadJsonElementAsync(created)).GetProperty("id").GetGuid();
+        using var noCancelCsrf = await manager.PostAsync($"{path}/{rowId}/cancel", null);
+        Assert.Equal(HttpStatusCode.BadRequest, noCancelCsrf.StatusCode);
+        using var otherGroup = await PostWithoutBodyAsync(manager,
+            $"/groups/{seeded.InactiveGroupId}/trainer-substitution-periods/{rowId}/cancel", auth.CsrfToken);
+        Assert.Equal(HttpStatusCode.NotFound, otherGroup.StatusCode);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Null((await db.GroupTrainerSubstitutionPeriods.SingleAsync()).CancelledAt);
+    }
+
+    [Theory]
+    [InlineData("coach")]
+    [InlineData("foreign-admin")]
+    public async Task Group_management_permissions_and_branch_scope_protect_period_list_create_and_cancel(string login)
+    {
+        await using var factory = new SubstitutionAppFactory(BusinessDate);
+        var seeded = await SeedAsync(factory);
+        var path = $"/groups/{seeded.GroupId}/trainer-substitution-periods";
+        using var manager = factory.CreateClient();
+        var session = await LoginAsync(manager, "headcoach");
+        var payload = new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = BusinessDate, endsOn = BusinessDate };
+        using var created = await PostJsonAsync(manager, path, payload, session.CsrfToken);
+        var rowId = (await ReadJsonElementAsync(created)).GetProperty("id").GetGuid();
+
+        using var restricted = factory.CreateClient();
+        var auth = await LoginAsync(restricted, login);
+        using var list = await restricted.GetAsync(path);
+        using var create = await PostJsonAsync(restricted, path, payload, auth.CsrfToken);
+        using var cancel = await PostWithoutBodyAsync(restricted, $"{path}/{rowId}/cancel", auth.CsrfToken);
+        Assert.Equal(HttpStatusCode.Forbidden, list.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, create.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, cancel.StatusCode);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Null((await db.GroupTrainerSubstitutionPeriods.SingleAsync()).CancelledAt);
+    }
+
+    [Theory]
+    [InlineData(-1, 0, "startsOn")]
+    [InlineData(1, 0, "endsOn")]
+    public async Task Invalid_period_dates_are_rejected(int startsOffset, int endsOffset, string field)
+    {
+        await using var factory = new SubstitutionAppFactory(BusinessDate);
+        var seeded = await SeedAsync(factory);
+        using var manager = factory.CreateClient();
+        var auth = await LoginAsync(manager, "headcoach");
+        using var response = await PostJsonAsync(manager, $"/groups/{seeded.GroupId}/trainer-substitution-periods", new
+        {
+            substituteTrainerId = seeded.SubstituteCoachId,
+            startsOn = BusinessDate.AddDays(startsOffset),
+            endsOn = BusinessDate.AddDays(endsOffset)
+        }, auth.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.True((await ReadJsonElementAsync(response)).GetProperty("errors").TryGetProperty(field, out _));
+    }
+
     [Theory]
     [InlineData("headcoach")]
     [InlineData("administrator")]
@@ -483,11 +606,14 @@ public class GroupTrainerSubstitutionsApiTests
         await File.WriteAllBytesAsync(Path.Combine(factory.PhotoStorageRootPath, photoPath), [0x01, 0x02, 0x03]);
 
         db.Branches.Add(new Branch { Id = branchId, Name = "Branch", CreatedAt = now, UpdatedAt = now });
+        var foreignBranchId = Guid.NewGuid();
+        db.Branches.Add(new Branch { Id = foreignBranchId, Name = "Foreign Branch", CreatedAt = now, UpdatedAt = now });
         db.Halls.Add(new Hall { Id = hallId, BranchId = branchId, Name = "Hall", CreatedAt = now, UpdatedAt = now });
         db.GroupTypes.Add(new GroupType { Id = groupTypeId, Name = "Group Type", CreatedAt = now, UpdatedAt = now });
         db.Users.AddRange(
             CreateUser(Guid.NewGuid(), "headcoach", UserRole.HeadCoach, passwordHashService, now),
             CreateUser(Guid.NewGuid(), "administrator", UserRole.Administrator, passwordHashService, now, branchId),
+            CreateUser(Guid.NewGuid(), "foreign-admin", UserRole.Administrator, passwordHashService, now, foreignBranchId),
             CreateUser(Guid.NewGuid(), "superadmin", UserRole.SuperAdministrator, passwordHashService, now),
             CreateUser(Guid.NewGuid(), "coach", UserRole.Coach, passwordHashService, now),
             CreateUser(primaryCoachId, "primary", UserRole.Coach, passwordHashService, now),

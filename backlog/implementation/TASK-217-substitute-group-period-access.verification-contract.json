@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "task_id": "TASK-217",
+  "expected_branch": "feature/TASK-217-substitute-group-period-access",
+  "areas": [
+    "backend",
+    "bot",
+    "frontend"
+  ],
+  "playwright": [
+    {
+      "id": "frontend.e2e.group-trainer-substitutions",
+      "spec": "e2e/group-trainer-substitutions.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.group-schedule",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.e2e.attendance-today-worklist",
+      "spec": "e2e/attendance-today-worklist.spec.ts",
+      "projects": [
+        "chromium",
+        "iphone-air-webkit",
+        "iphone-17-pro-max-webkit"
+      ],
+      "timeout_seconds": 1800
+    }
+  ],
+  "runtime_stack": {
+    "compose_file": "deploy/docker-compose.yml",
+    "env_file": "deploy/.env.example",
+    "services": [
+      "backend"
+    ],
+    "startup_timeout_seconds": 1200,
+    "cleanup_timeout_seconds": 180,
+    "readiness": [
+      {
+        "id": "runtime.backend-ready",
+        "command": [
+          "curl",
+          "-fsS",
+          "http://127.0.0.1:{backend_port}/health/ready"
+        ],
+        "timeout_seconds": 120
+      }
+    ],
+    "smoke": [
+      {
+        "id": "runtime.staff-session",
+        "command": [
+          "curl",
+          "-fsS",
+          "-o", "/dev/null", "http://127.0.0.1:{backend_port}/auth/session"
+        ],
+        "timeout_seconds": 30
+      }
+    ]
+  }
+}

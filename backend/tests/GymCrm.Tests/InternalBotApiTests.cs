@@ -12,6 +12,7 @@ using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Bot;
 using GymCrm.Infrastructure.Persistence;
 using GymCrm.Infrastructure.Persistence.Configurations;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +27,35 @@ namespace GymCrm.Tests;
 public class InternalBotApiTests
 {
     private const string ServiceToken = "bot-internal-service-token";
+
+    [Fact]
+    public async Task Photo_requires_service_token_bound_employee_and_current_client_scope()
+    {
+        await using var factory = new InternalBotAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        using var client = factory.CreateClient();
+        var url = $"/internal/bot/clients/{seeded.CoachClientId}/photo?platform=Telegram&platformUserId=";
+
+        using var anonymous = await client.GetAsync(url + seeded.CoachTelegramId);
+        Assert.Equal(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+
+        using var inactive = await SendBotRequestAsync(client, HttpMethod.Get, url + seeded.InactiveTelegramId);
+        Assert.Equal(HttpStatusCode.Forbidden, inactive.StatusCode);
+
+        using var unknown = await SendBotRequestAsync(client, HttpMethod.Get, url + "unlinked");
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+        Assert.Equal("TelegramUserNotConfigured", (await ReadJsonElementAsync(unknown)).GetProperty("title").GetString());
+
+        using var absent = await SendBotRequestAsync(client, HttpMethod.Get, url + seeded.CoachTelegramId);
+        Assert.Equal(HttpStatusCode.NotFound, absent.StatusCode);
+
+        using var foreignBranch = await SendBotRequestAsync(client, HttpMethod.Get, url + seeded.AdminTelegramId);
+        Assert.Equal(HttpStatusCode.NotFound, foreignBranch.StatusCode);
+
+        using var outsideGroup = await SendBotRequestAsync(client, HttpMethod.Get,
+            $"/internal/bot/clients/{seeded.PaymentClientId}/photo?platformUserId={seeded.CoachTelegramId}");
+        Assert.Equal(HttpStatusCode.Forbidden, outsideGroup.StatusCode);
+    }
 
     [Fact]
     public async Task Internal_bot_requires_service_token_and_resolves_identity_states()
@@ -623,6 +653,36 @@ public class InternalBotApiTests
             log.Source == "Bot" &&
             log.MessengerPlatform == "Telegram");
         Assert.Equal(1, accessDeniedAuditCount);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Attendance_write_rechecks_initially_resolved_bot_actor_at_mutation(bool passwordChangeRequired)
+    {
+        await using var factory = new InternalBotAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        var today = GetBusinessToday();
+        var lessonId = await ResolveLessonOccurrenceIdAsync(factory, seeded.CoachGroupId, today);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var actor = await db.Users.SingleAsync(user => user.MessengerPlatformUserId == seeded.CoachTelegramId);
+        var command = new SaveAttendanceCommand(lessonId, seeded.CoachGroupId, today, actor.Id, actor.Login,
+            new AttendanceAuditContext("Bot", "Telegram", BotHashing.ComputeSha256(seeded.CoachTelegramId)),
+            [new AttendanceMarkCommand(seeded.CoachClientId, AttendanceState.Present)]);
+
+        if (passwordChangeRequired)
+            actor.MustChangePassword = true;
+        else
+            actor.MessengerPlatformUserId = "rebound-telegram-id";
+        await db.SaveChangesAsync();
+
+        var result = await scope.ServiceProvider.GetRequiredService<IAttendanceService>()
+            .SaveAsync(command, CancellationToken.None);
+
+        Assert.Equal(AttendanceBatchMutationError.Forbidden, result.Error);
+        Assert.False(await db.Attendance.AnyAsync(item => item.LessonOccurrenceId == lessonId));
+        Assert.False(await db.AuditLogs.AnyAsync(log => log.Source == "Bot"));
     }
 
     [Fact]

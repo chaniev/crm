@@ -271,3 +271,55 @@ async def test_stale_client_callback_replaces_card_and_keyboard_on_resource_404(
     )
     assert denied.reply_markup is None
     assert route.call_count == 2
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_photo_button_refetches_bytes_and_preserves_card_when_photo_disappears() -> None:
+    client_id = UUID("00000000-0000-0000-0000-000000000191")
+    url = f"http://crm.local/internal/bot/clients/{client_id}"
+    card = {"id": str(client_id), "fullName": "Клиент"}
+    respx.get(url).mock(
+        side_effect=[
+            httpx.Response(200, json=card),
+            httpx.Response(200, json={**card, "photo": {"hasPhoto": True, "path": "private.jpg"}}),
+        ]
+    )
+    photo = respx.get(f"{url}/photo").mock(
+        side_effect=[
+            httpx.Response(200, content=b"photo bytes", headers={"Content-Type": "image/png"}),
+            httpx.Response(404),
+            httpx.Response(403),
+        ]
+    )
+    respx.post("http://crm.local/internal/bot/audit/access-denied").mock(
+        return_value=httpx.Response(200, json={})
+    )
+    async with httpx.AsyncClient(base_url="http://crm.local") as http:
+        crm = CrmBotApiClient(
+            base_url="http://crm.local",
+            service_token="service",
+            timeout_seconds=5,
+            http_client=http,
+        )
+        flow = ClientFlow(
+            crm_client=crm, state_store=InMemoryDialogState(), error_mapper=CrmErrorMapper(crm)
+        )
+        event = _event(update_id=1, kind="callback", callback_data=f"cph|{client_id}")
+        assert (await flow.show_card(event, client_id, replace_existing=True)).reply_markup is None
+        with_photo = await flow.show_card(event, client_id, replace_existing=True)
+        button = with_photo.reply_markup.inline_keyboard[0][0]
+        assert button.text == "Показать фото"
+        assert button.callback_data == event.callback_data
+        first = await flow.show_photo(event, client_id)
+        assert first.photo.content == b"photo bytes"
+        assert first.photo.filename == "photo.png"
+        missing = await flow.show_photo(event, client_id)
+        assert missing.photo is None and not missing.replace_existing
+        denied = await flow.show_photo(event, client_id)
+        assert denied.photo is None and denied.replace_existing
+    assert photo.call_count == 3
+    assert len({call.request.headers["X-Request-Id"] for call in photo.calls}) == 3
+    for call in photo.calls:
+        assert dict(call.request.url.params) == {"platform": "Telegram", "platformUserId": "777"}
+        assert call.request.headers["Authorization"] == "Bearer service"

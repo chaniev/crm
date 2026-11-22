@@ -14,6 +14,7 @@ const apiMocks = vi.hoisted(() => ({
   getGroupClients: vi.fn(),
   getGroups: vi.fn(),
   getGroupSummary: vi.fn(),
+  getGroupTrainerSubstitutionPeriods: vi.fn(),
   getGroupTrainerSubstitutions: vi.fn(),
   getGroupTypes: vi.fn(),
   getHalls: vi.fn(),
@@ -34,6 +35,7 @@ vi.mock('../../lib/api', async (importOriginal) => ({
   getGroupClients: apiMocks.getGroupClients,
   getGroups: apiMocks.getGroups,
   getGroupSummary: apiMocks.getGroupSummary,
+  getGroupTrainerSubstitutionPeriods: apiMocks.getGroupTrainerSubstitutionPeriods,
   getGroupTrainerSubstitutions: apiMocks.getGroupTrainerSubstitutions,
   getGroupTypes: apiMocks.getGroupTypes,
   getHalls: apiMocks.getHalls,
@@ -277,6 +279,7 @@ describe('GroupsListScreen', () => {
 describe('GroupEditScreen', () => {
   beforeEach(() => {
     Object.values(apiMocks).forEach((mock) => mock.mockReset())
+    apiMocks.getGroupTrainerSubstitutionPeriods.mockResolvedValue({ current: [], history: { items: [], totalCount: 0 }, canCreate: false })
   })
 
   afterEach(() => {
@@ -308,6 +311,7 @@ describe('GroupEditScreen', () => {
 
     editView.unmount()
     Object.values(apiMocks).forEach((mock) => mock.mockReset())
+    apiMocks.getGroupTrainerSubstitutionPeriods.mockResolvedValue({ current: [], history: { items: [], totalCount: 0 }, canCreate: false })
     setupGroupFormOptions()
 
     renderWithProviders(
@@ -613,7 +617,8 @@ describe('GroupEditScreen', () => {
     )
 
     expect(await screen.findByText('Временные замещения')).toBeVisible()
-    expect(await screen.findByText('Замещающий Тренер')).toBeVisible()
+    fireEvent.click(await screen.findByRole('button', { name: 'Показать историю' }))
+    expect(await screen.findByText('Архивная запись. Доступ к группе не предоставляется.')).toBeVisible()
     expect(screen.queryByRole('button', { name: 'Назначить замещение' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Изменить замещение/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Отменить замещение/ })).not.toBeInTheDocument()
@@ -1177,6 +1182,7 @@ const groupSeries = {
 describe('Group schedule entry', () => {
   beforeEach(() => {
     Object.values(apiMocks).forEach(mock => mock.mockReset())
+    apiMocks.getGroupTrainerSubstitutionPeriods.mockResolvedValue({ current: [], history: { items: [], totalCount: 0 }, canCreate: false })
     setupGroupEditWithClient()
     apiMocks.getGroupLessonSeries.mockResolvedValue(groupSeries)
     apiMocks.updateGroup.mockImplementation(async (_id, payload) => ({ ...group, ...payload }))

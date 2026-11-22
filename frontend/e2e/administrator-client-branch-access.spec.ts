@@ -45,7 +45,7 @@ async function mockScope(page: Page, options: { denied?: boolean; failTransfer?:
     if (path === '/halls') return json([{ id: 'hall-1', branchId: 'branch-1', branchName: 'Центр', name: 'Зал', isArchived: false, groupCount: 1 }])
     if (path === '/group-types') return json([{ id: 'type-1', name: 'Базовый', groupCount: 1 }])
     if (path === '/groups/options/trainers') return json([])
-    if (path.endsWith('/trainer-substitutions')) return json({ current: [], history: { items: [], totalCount: 0, skip: 0, take: 20 }, canCreate: false })
+    if (path.endsWith('/trainer-substitutions') || path.endsWith('/trainer-substitution-periods')) return json({ current: [], history: { items: [], totalCount: 0, skip: 0, take: 20 }, canCreate: false })
     if (path.endsWith('/lesson-series')) return route.fulfill({ status: 404 })
     if (path.endsWith('/messenger')) return json({ platforms: [], accounts: [], unreadCount: 0 })
     if (path.endsWith('/messages')) return json({ items: [], hasMore: false })

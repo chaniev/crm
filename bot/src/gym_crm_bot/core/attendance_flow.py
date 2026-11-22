@@ -108,7 +108,16 @@ class AttendanceFlow:
                 "training_date": training_date.isoformat(),
             },
         )
-        groups = [(item.id, item.name) for item in response.items if item.can_edit_attendance]
+        groups = [
+            (
+                item.id,
+                bot_2_attendance_text.lesson_button(
+                    item.name, item.start_time, item.can_edit_attendance
+                ),
+            )
+            for item in response.items
+            if item.can_view_attendance
+        ]
         return BotResponse(
             text=render_attendance_groups_text(training_date, response.items),
             reply_markup=render_attendance_groups_keyboard(groups),
@@ -126,6 +135,17 @@ class AttendanceFlow:
 
         lesson_occurrence_id = UUID(group_id_value)
         training_date = date.fromisoformat(state["training_date"])
+        return await self._show_roster(event, lesson_occurrence_id, training_date)
+
+    async def _show_roster(
+        self,
+        event: NormalizedTelegramEvent,
+        lesson_occurrence_id: UUID,
+        training_date: date,
+        *,
+        draft_marks: dict[str, bool] | None = None,
+        toggled_client_id: str | None = None,
+    ) -> BotResponse:
         try:
             roster = await self._crm_client.get_attendance_lesson_roster(
                 event.identity,
@@ -136,7 +156,7 @@ class AttendanceFlow:
         except CrmClientError as exc:
             return await self._error_mapper.map(exc, event, audit_reason="attendance_roster")
 
-        marks = [
+        marks: list[dict[str, Any]] = [
             {
                 "client_id": str(client.id),
                 "full_name": client.full_name,
@@ -145,8 +165,24 @@ class AttendanceFlow:
             }
             for client in roster.clients
         ]
+        if not roster.can_edit_attendance:
+            await self._state_store.save(
+                event,
+                ATTENDANCE_SCENARIO,
+                {"step": "select_lesson", "training_date": training_date.isoformat()},
+            )
+            return BotResponse(
+                text=self._render_roster_text(roster.group.name, training_date, marks),
+                replace_existing=True,
+            )
+
+        if draft_marks is not None:
+            for mark in marks:
+                key = mark["client_id"]
+                staged = draft_marks.get(key, mark["is_present"])
+                mark["is_present"] = not staged if key == toggled_client_id else staged
         keyboard_marks = [
-            (client.id, client.full_name, client.is_present) for client in roster.clients
+            (UUID(mark["client_id"]), mark["full_name"], mark["is_present"]) for mark in marks
         ]
 
         await self._state_store.save(
@@ -176,26 +212,12 @@ class AttendanceFlow:
         if state is None:
             return await self.start(event)
 
-        updated_marks = []
-        for item in state["marks"]:
-            is_present = item["is_present"]
-            if item["client_id"] == client_id:
-                is_present = not is_present
-            updated_marks.append({**item, "is_present": is_present})
-
-        state["marks"] = updated_marks
-        await self._state_store.save(event, ATTENDANCE_SCENARIO, state)
-
-        training_date = date.fromisoformat(state["training_date"])
-        return BotResponse(
-            text=self._render_roster_text(state["group_name"], training_date, updated_marks),
-            reply_markup=render_attendance_roster_keyboard(
-                [
-                    (UUID(item["client_id"]), item["full_name"], item["is_present"])
-                    for item in updated_marks
-                ]
-            ),
-            replace_existing=True,
+        return await self._show_roster(
+            event,
+            UUID(state["lesson_occurrence_id"]),
+            date.fromisoformat(state["training_date"]),
+            draft_marks={item["client_id"]: item["is_present"] for item in state["marks"]},
+            toggled_client_id=client_id,
         )
 
     async def save(self, event: NormalizedTelegramEvent) -> BotResponse:

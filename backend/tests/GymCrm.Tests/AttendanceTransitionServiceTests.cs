@@ -187,6 +187,16 @@ public sealed class AttendanceTransitionServiceTests
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
         });
+        dbContext.GroupTrainerSubstitutionPeriods.Add(new GroupTrainerSubstitutionPeriod
+        {
+            GroupId = groupId,
+            SubstituteTrainerId = Guid.NewGuid(),
+            StartsOn = date,
+            EndsOn = date,
+            CreatedByUserId = operatorId,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        });
         await dbContext.SaveChangesAsync();
         var service = new AttendanceTransitionService(dbContext, TimeProvider.System);
 

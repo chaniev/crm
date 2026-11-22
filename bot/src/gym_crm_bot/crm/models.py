@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 from typing import Any, Literal
@@ -181,6 +182,7 @@ class AttendanceRosterClient(ApiModel):
 
 
 class AttendanceRosterResponse(ApiModel):
+    can_edit_attendance: bool = Field(default=False, alias="canEditAttendance")
     group_id: UUID = Field(alias="groupId")
     group_name: str = Field(alias="groupName")
     training_date: date = Field(alias="trainingDate")
@@ -311,6 +313,16 @@ class ClientGroupSummary(ApiModel):
     weekdays: list[int] = Field(default_factory=list)
 
 
+@dataclass(frozen=True, slots=True)
+class ClientPhotoContent:
+    content: bytes
+    filename: str
+
+
+class ClientPhotoMetadata(ApiModel):
+    has_photo: bool = Field(alias="hasPhoto")
+
+
 class ClientCardResponse(ApiModel):
     id: UUID
     full_name: str = Field(alias="fullName")
@@ -324,7 +336,7 @@ class ClientCardResponse(ApiModel):
         default=None,
         validation_alias=AliasChoices("warning", "membershipWarning"),
     )
-    photo_url: str | None = Field(default=None, alias="photoUrl")
+    photo: ClientPhotoMetadata | None = None
     current_memberships: list[ClientCardMembership] = Field(
         default_factory=list,
         alias="currentMemberships",

@@ -169,6 +169,34 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(page.getByTestId('schedule-card-occ-evening')).toBeFocused()
   })
 
+  test('stale substitute roster clears client data after the server rejects a save', async ({ page }) => {
+    let saves = 0
+    await mockApi(page, async ({ method, pathname, route }) => {
+      if (pathname === '/api/auth/session') {
+        await fulfillJson(route, 200, { ...session, user: { ...session.user,
+          role: 'Coach', assignedGroupIds: ['group-1'], allowedSections: ['Attendance', 'Schedule', 'Clients'],
+          attendanceScope: { kind: 'TrainerAssignments', groupIds: ['group-1'] },
+          permissions: { ...session.user.permissions, canManageGroups: false, canManageClients: false },
+        } })
+      } else if (pathname === '/api/schedule/lessons/occ-evening') {
+        await fulfillJson(route, 200, lesson({ lessonOccurrenceId: 'occ-evening' }))
+      } else if (pathname === '/api/attendance/lessons/occ-evening/clients') {
+        await fulfillJson(route, 200, rosterResponse('occ-evening'))
+      } else if (pathname === '/api/attendance/lessons/occ-evening' && method === 'POST') {
+        saves++
+        await fulfillJson(route, 403, { code: 'attendance_group_forbidden' })
+      } else return false
+      return true
+    })
+    await page.goto('/attendance/occ-evening?lessonDate=2026-08-20')
+    await expect(page.getByText('Иван Иванов', { exact: true })).toBeVisible()
+    await page.getByRole('radio', { name: 'Был', exact: true }).click()
+    await expect(page.getByText('Занятие недоступно', { exact: true })).toBeVisible()
+    await expect(page.getByText('Иван Иванов', { exact: true })).toHaveCount(0)
+    await expect(page.getByRole('radio')).toHaveCount(0)
+    expect(saves).toBe(1)
+  })
+
   test('week mode renders seven vertical sections and tools drawer preserves filters in URL', async ({ page }) => {
     await mockApi(page)
     await page.setViewportSize({ width: 390, height: 844 })

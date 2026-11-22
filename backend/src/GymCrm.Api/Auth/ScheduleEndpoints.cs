@@ -997,19 +997,6 @@ internal static partial class ScheduleEndpoints
             paging.Take));
     }
 
-    internal static async Task<LegacyScheduleOccurrenceResolution?> ResolveLegacyProjectedOccurrenceAsync(
-        Guid lessonOccurrenceId,
-        DateOnly lessonDate,
-        User currentUser,
-        IScheduleLessonReader lessonReader,
-        CancellationToken cancellationToken)
-    {
-        var resolved = await lessonReader.FindRecurringAsync(currentUser, lessonOccurrenceId, lessonDate, cancellationToken);
-        return resolved is null
-            ? null
-            : new LegacyScheduleOccurrenceResolution(resolved.GroupId, lessonDate, resolved.StartTime, resolved.DurationMinutes);
-    }
-
     private static ScheduleLessonResponse MapMaterializedLesson(
         LessonOccurrence occurrence,
         User currentUser,
@@ -1271,10 +1258,3 @@ internal static partial class ScheduleEndpoints
         LessonOccurrenceStatus Status,
         LessonOccurrenceSourceKind SourceKind);
 }
-
-internal sealed record LegacyScheduleOccurrenceResolution(
-    Guid GroupId,
-    DateOnly LessonDate,
-    TimeOnly StartTime,
-    int DurationMinutes,
-    bool IsOccurrenceScopedAccess = false);

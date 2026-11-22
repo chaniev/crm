@@ -879,6 +879,12 @@ export type GroupTrainerSubstitutionsResponse = {
   createUnavailableReason: GroupTrainerSubstitutionCreateUnavailableReason | null
 }
 
+export type CreateGroupTrainerSubstitutionPeriodRequest = {
+  substituteTrainerId: string
+  startsOn: string
+  endsOn: string
+}
+
 export type GetGroupTrainerSubstitutionsParams = {
   historySkip?: number
   historyTake?: number

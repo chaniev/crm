@@ -136,7 +136,8 @@ internal static class ClientQueryEndpoints
 
         if (groupId.HasValue)
         {
-            clientsQuery = clientsQuery.Where(client => client.Groups.Any(clientGroup => clientGroup.GroupId == groupId.Value));
+            var canFilterByGroup = hasElevatedClientAccess || effectiveGroupIds.Contains(groupId.Value);
+            clientsQuery = clientsQuery.Where(client => canFilterByGroup && client.Groups.Any(clientGroup => clientGroup.GroupId == groupId.Value));
         }
 
         if (hasCurrentMembership.HasValue)

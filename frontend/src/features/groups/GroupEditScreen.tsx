@@ -458,7 +458,10 @@ export function GroupEditScreen({
 
           <PageSection>
             <GroupTrainerSubstitutionsSection
+              key={groupId}
               groupId={groupId}
+              groupName={groupName}
+              trainerOptions={trainerOptions}
             />
           </PageSection>
 

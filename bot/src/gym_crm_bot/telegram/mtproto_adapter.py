@@ -5,6 +5,7 @@ import hashlib
 import logging
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Protocol, cast
 
@@ -158,6 +159,12 @@ class TelegramMtProtoAdapter:
         response = await self._handle_guarded_event(normalized_event)
         await event.answer()
         if response is None:
+            return
+
+        if response.photo is not None:
+            with BytesIO(response.photo.content) as photo:
+                photo.name = response.photo.filename
+                await event.respond(file=photo)
             return
 
         buttons = _to_telethon_buttons(response.reply_markup)

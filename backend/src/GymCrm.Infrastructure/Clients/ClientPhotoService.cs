@@ -213,6 +213,13 @@ internal sealed class ClientPhotoService(
             return ClientPhotoReadResult.Failure(ClientPhotoError.UserMissing);
         }
 
+        if (command.ExpectedTelegramUserId is not null &&
+            (actor.MustChangePassword || actor.MessengerPlatform != MessengerPlatform.Telegram ||
+             actor.MessengerPlatformUserId != command.ExpectedTelegramUserId))
+        {
+            return ClientPhotoReadResult.Failure(ClientPhotoError.Forbidden);
+        }
+
         if (actor.Role == UserRole.Administrator &&
             !await ClientAccessTransaction.CanAccessAsync(dbContext, actor, clientId, cancellationToken))
         {

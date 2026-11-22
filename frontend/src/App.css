@@ -4314,19 +4314,53 @@
   min-height: 44px;
 }
 
-.group-trainer-substitution-row {
+.group-substitutions__heading,
+.group-substitutions__row {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-md);
+}
+
+.group-substitutions__heading {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.group-substitutions__heading h2 { font-size: 1.5rem; }
+
+.group-substitutions__row {
+  border-bottom: 1px solid var(--crm-border-default);
+  padding-block: var(--mantine-spacing-sm);
   overflow-wrap: anywhere;
 }
 
-.group-trainer-substitution-row__action {
-  min-height: 2.75rem;
-}
+.group-substitutions__row > :first-child { flex: 1; min-width: 0; }
+.group-substitutions__archive { max-width: 15rem; }
+.group-substitution-dialog { overflow-wrap: anywhere; }
+.group-substitution-dialog .mantine-Modal-title { font-size: var(--mantine-h2-font-size); }
+.group-substitutions button, .group-substitution-dialog :is(input, select, button) { min-height: 44px; }
+.group-substitution-dialog .mantine-Modal-close { min-width: 44px; }
 
-@media (max-width: 48em) {
-  .group-trainer-substitution-row .page-header__actions,
-  .group-trainer-substitution-row__action {
-    width: 100%;
+@media (max-width: 38.75em) {
+  .group-substitutions__heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--mantine-spacing-sm);
   }
+
+  .group-substitutions__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--mantine-spacing-xs);
+  }
+
+  .group-substitutions__row > :is(button, .group-substitutions__archive) {
+    grid-column: 1 / -1;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .group-substitution-dialog :is(input, select) { font-size: 1rem; }
 }
 
 .attendance-context-controls {

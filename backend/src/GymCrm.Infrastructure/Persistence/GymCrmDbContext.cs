@@ -44,6 +44,7 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<GroupTrainer> GroupTrainers => Set<GroupTrainer>();
     public DbSet<GroupTrainerAssignment> GroupTrainerAssignments => Set<GroupTrainerAssignment>();
     public DbSet<GroupTrainerSubstitution> GroupTrainerSubstitutions => Set<GroupTrainerSubstitution>();
+    public DbSet<GroupTrainerSubstitutionPeriod> GroupTrainerSubstitutionPeriods => Set<GroupTrainerSubstitutionPeriod>();
     public DbSet<Attendance> Attendance => Set<Attendance>();
     public DbSet<AttendanceTransitionRun> AttendanceTransitionRuns => Set<AttendanceTransitionRun>();
     public DbSet<AttendanceTransitionReportItem> AttendanceTransitionReportItems => Set<AttendanceTransitionReportItem>();

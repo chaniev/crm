@@ -94,6 +94,8 @@ class BotService:
                 UUID(payload.parts[0]),
                 replace_existing=True,
             )
+        if action == "cph" and len(payload.parts) == 1:
+            return await self._clients.show_photo(event, UUID(payload.parts[0]))
         if action == "mlp" and len(payload.parts) == 2:
             return await self._clients.show_memberships(
                 event,

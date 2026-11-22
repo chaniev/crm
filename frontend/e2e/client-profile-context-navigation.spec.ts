@@ -448,7 +448,7 @@ async function mockTask116Api(
       return
     }
 
-    if (context.pathname === '/api/groups/group-1/trainer-substitutions' && context.method === 'GET') {
+    if (['/api/groups/group-1/trainer-substitutions', '/api/groups/group-1/trainer-substitution-periods'].includes(context.pathname) && context.method === 'GET') {
       await fulfillJson(context.route, 200, {
         current: [],
         history: { items: [], totalCount: 0, skip: 0, take: 20 },

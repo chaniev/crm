@@ -138,10 +138,17 @@ internal static class ClientPhotoEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var result = await photoService.OpenReadAsync(
-            id,
-            new ClientPhotoReadCommand(currentUser.Id),
-            cancellationToken);
+        return await ReadPhotoAsync(id, new ClientPhotoReadCommand(currentUser.Id), httpContext, photoService, cancellationToken);
+    }
+
+    internal static async Task<Results<FileStreamHttpResult, NotFound, ForbidHttpResult, ProblemHttpResult, UnauthorizedHttpResult>> ReadPhotoAsync(
+        Guid clientId,
+        ClientPhotoReadCommand command,
+        HttpContext httpContext,
+        IClientPhotoService photoService,
+        CancellationToken cancellationToken)
+    {
+        var result = await photoService.OpenReadAsync(clientId, command, cancellationToken);
 
         return result.Error switch
         {

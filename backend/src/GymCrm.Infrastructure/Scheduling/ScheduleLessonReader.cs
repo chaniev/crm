@@ -11,11 +11,25 @@ namespace GymCrm.Infrastructure.Scheduling;
 internal sealed class ScheduleLessonReader(
     GymCrmDbContext dbContext,
     IAccessScopeService accessScopeService,
+    IEffectiveGroupAssignmentService assignmentService,
     IAttendanceDatePolicy attendanceDatePolicy) : IScheduleLessonReader
 {
     public async Task<ScheduleReadResult> ReadAsync(User actor, ScheduleReadQuery query, CancellationToken cancellationToken)
     {
-        var scopedSeries = await LoadScopedSeriesAsync(actor, query.From, query.To, dbContext, accessScopeService, cancellationToken);
+        var coachAssignments = actor.Role == UserRole.Coach
+            ? (await assignmentService.ListCurrentAssignmentsAsync(actor.Id, null, cancellationToken)).ToLookup(a => a.GroupId)
+            : null;
+        HashSet<Guid>? accessibleGroupIds;
+        if (coachAssignments is not null)
+        {
+            accessibleGroupIds = coachAssignments.Select(group => group.Key).ToHashSet();
+        }
+        else
+        {
+            var scope = await accessScopeService.GetAccessScopeAsync(actor, cancellationToken);
+            accessibleGroupIds = scope.AttendanceScope.Kind == AttendanceScopeKind.Global ? null : scope.AttendanceScope.GroupIds.ToHashSet();
+        }
+        var scopedSeries = await LoadScopedSeriesAsync(accessibleGroupIds, query.From, query.To, dbContext, cancellationToken);
         var filterOptions = BuildFilterOptions(scopedSeries);
         var series = scopedSeries.AsEnumerable();
         if (query.BranchId.HasValue) series = series.Where(item => item.Group.BranchId == query.BranchId.Value);
@@ -26,29 +40,34 @@ internal sealed class ScheduleLessonReader(
 
         var attendanceMarks = await LoadAttendanceMarkFactsAsync(dbContext, query.From, query.To, cancellationToken);
         var substituteIds = await LoadAccessibleSubstituteOccurrenceIdsAsync(dbContext, actor, query.From, query.To, cancellationToken);
-        var standaloneIds = await LoadStandaloneOccurrenceIdsAsync(actor, query,
+        var standaloneIds = await LoadStandaloneOccurrenceIdsAsync(accessibleGroupIds, query,
             scopedSeries.Select(item => item.GroupId).ToHashSet(), cancellationToken);
         var materialized = await LoadMaterializedOccurrencesAsync(dbContext,
             series.Select(item => item.GroupId).ToHashSet(), substituteIds.Concat(standaloneIds).ToHashSet(),
             query.From, query.To, cancellationToken);
         var lessons = ScheduleLessonProjector.Project(series, materialized, query.From, query.To,
                 actor.Role, attendanceDatePolicy, attendanceMarks)
-            .Select(lesson => lesson with { IsAccessibleThroughSubstitution = substituteIds.Contains(lesson.LessonOccurrenceId) })
+            .Select(lesson =>
+            {
+                var byOccurrence = substituteIds.Contains(lesson.LessonOccurrenceId);
+                var coversDate = coachAssignments is null || byOccurrence ||
+                    coachAssignments[lesson.GroupId].Any(assignment => assignment.Covers(lesson.LessonDate));
+                return lesson with
+                {
+                    IsAccessibleThroughSubstitution = byOccurrence,
+                    CanEditAttendance = lesson.CanEditAttendance && coversDate
+                };
+            })
             .ToArray();
         return new ScheduleReadResult(lessons, filterOptions);
     }
 
     private async Task<HashSet<Guid>> LoadStandaloneOccurrenceIdsAsync(
-        User actor,
+        HashSet<Guid>? accessibleGroupIds,
         ScheduleReadQuery request,
         IReadOnlySet<Guid> overlappingSeriesGroupIds,
         CancellationToken cancellationToken)
     {
-        var scope = await accessScopeService.GetAccessScopeAsync(actor, cancellationToken);
-        var accessibleGroupIds = scope.AttendanceScope.Kind == AttendanceScopeKind.Global
-            ? null
-            : scope.AttendanceScope.GroupIds.ToHashSet();
-
         // A one-off or moved lesson can outlive its series. Keep existing-series filters unchanged.
         var query = dbContext.LessonOccurrences.AsNoTracking()
             .Where(occurrence => !overlappingSeriesGroupIds.Contains(occurrence.GroupId) &&
@@ -61,26 +80,13 @@ internal sealed class ScheduleLessonReader(
         return (await query.Select(occurrence => occurrence.Id).ToArrayAsync(cancellationToken)).ToHashSet();
     }
 
-    public async Task<ScheduleLessonFacts?> FindRecurringAsync(User actor, Guid occurrenceId, DateOnly date, CancellationToken cancellationToken)
-    {
-        var series = await LoadScopedSeriesAsync(actor, date, date, dbContext, accessScopeService, cancellationToken);
-        return ScheduleLessonProjector.Project(series, [], date, date, actor.Role, attendanceDatePolicy, new HashSet<Guid>())
-            .SingleOrDefault(lesson => lesson.LessonOccurrenceId == occurrenceId);
-    }
-
     private static async Task<List<LessonSeries>> LoadScopedSeriesAsync(
-        User currentUser,
+        HashSet<Guid>? accessibleGroupIds,
         DateOnly from,
         DateOnly to,
         GymCrmDbContext dbContext,
-        IAccessScopeService accessScopeService,
         CancellationToken cancellationToken)
     {
-        var accessScope = await accessScopeService.GetAccessScopeAsync(currentUser, cancellationToken);
-        var accessibleGroupIds = accessScope.AttendanceScope.Kind == AttendanceScopeKind.Global
-            ? null
-            : accessScope.AttendanceScope.GroupIds.ToHashSet();
-
         var query = dbContext.LessonSeries
             .AsNoTracking()
             .Where(series =>

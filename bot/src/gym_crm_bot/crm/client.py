@@ -28,6 +28,7 @@ from gym_crm_bot.crm.models import (
     AttendanceSaveResponse,
     BotUserContext,
     ClientCardResponse,
+    ClientPhotoContent,
     ClientSearchResponse,
     MembershipListResponse,
     MenuResponse,
@@ -213,6 +214,28 @@ class CrmBotApiClient:
             safe_read=True,
         )
 
+    async def get_client_photo(
+        self,
+        identity: TelegramIdentity,
+        *,
+        client_id: UUID,
+        request_id: str,
+    ) -> ClientPhotoContent:
+        response = await self._request(
+            "GET",
+            f"/internal/bot/clients/{client_id}/photo",
+            request_id=request_id,
+            params=identity.as_query_params(),
+            safe_read=True,
+        )
+        content_type = response.headers.get("Content-Type", "").partition(";")[0].lower()
+        extension = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}.get(
+            content_type
+        )
+        if not extension or not response.content:
+            raise CrmTemporaryError("CRM returned an invalid photo response.")
+        return ClientPhotoContent(response.content, f"photo.{extension}")
+
     async def list_expiring_memberships(
         self,
         identity: TelegramIdentity,
@@ -292,6 +315,28 @@ class CrmBotApiClient:
         idempotency_key: str | None = None,
         safe_read: bool = False,
     ) -> Any:
+        response = await self._request(
+            method,
+            path,
+            request_id=request_id,
+            params=params,
+            json_body=json_body,
+            idempotency_key=idempotency_key,
+            safe_read=safe_read,
+        )
+        return response.json() if response.content else {}
+
+    async def _request(
+        self,
+        method: str,
+        path: str,
+        *,
+        request_id: str,
+        params: dict[str, str] | None = None,
+        json_body: dict[str, Any] | None = None,
+        idempotency_key: str | None = None,
+        safe_read: bool = False,
+    ) -> httpx.Response:
         attempts = self._read_retry_attempts if safe_read else 1
         last_error: Exception | None = None
 
@@ -318,9 +363,7 @@ class CrmBotApiClient:
                 if response.is_error:
                     raise self._build_error(response)
 
-                if not response.content:
-                    return {}
-                return response.json()
+                return response
             except httpx.RequestError as exc:
                 temporary = CrmTemporaryError(str(exc))
                 if safe_read and attempt < attempts:

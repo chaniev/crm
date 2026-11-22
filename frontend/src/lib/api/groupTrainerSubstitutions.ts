@@ -4,15 +4,29 @@ import {
 } from './endpoints'
 import { request } from './transport'
 import type {
+  CreateGroupTrainerSubstitutionPeriodRequest,
   GetGroupTrainerSubstitutionsParams,
+  GroupTrainerSubstitution,
   GroupTrainerSubstitutionsResponse,
 } from './types'
 
-export async function getGroupTrainerSubstitutions(
+export function getGroupTrainerSubstitutions(
   groupId: string,
   params: GetGroupTrainerSubstitutionsParams = {},
   signal?: AbortSignal,
 ) {
+  return listSubstitutions(API_ENDPOINTS.groups.trainerSubstitutions(groupId), params, signal)
+}
+
+export function getGroupTrainerSubstitutionPeriods(
+  groupId: string,
+  params: GetGroupTrainerSubstitutionsParams = {},
+  signal?: AbortSignal,
+) {
+  return listSubstitutions(API_ENDPOINTS.groups.trainerSubstitutionPeriods(groupId), params, signal)
+}
+
+async function listSubstitutions(path: string, params: GetGroupTrainerSubstitutionsParams, signal?: AbortSignal) {
   const searchParams = new URLSearchParams()
 
   if (typeof params.historySkip === 'number') {
@@ -31,7 +45,7 @@ export async function getGroupTrainerSubstitutions(
 
   const query = searchParams.toString()
   const payload = await request<GroupTrainerSubstitutionsResponse>(
-    `${API_ENDPOINTS.groups.trainerSubstitutions(groupId)}${query ? `?${query}` : ''}`,
+    `${path}${query ? `?${query}` : ''}`,
     { signal },
   )
 
@@ -41,4 +55,16 @@ export async function getGroupTrainerSubstitutions(
     canCreate: payload.canCreate,
     createUnavailableReason: payload.createUnavailableReason,
   } satisfies GroupTrainerSubstitutionsResponse
+}
+
+export function createGroupTrainerSubstitutionPeriod(groupId: string, payload: CreateGroupTrainerSubstitutionPeriodRequest) {
+  return request<GroupTrainerSubstitution>(API_ENDPOINTS.groups.trainerSubstitutionPeriods(groupId), {
+    method: 'POST', body: JSON.stringify(payload),
+  })
+}
+
+export function cancelGroupTrainerSubstitutionPeriod(groupId: string, periodId: string) {
+  return request<GroupTrainerSubstitution>(API_ENDPOINTS.groups.cancelTrainerSubstitutionPeriod(groupId, periodId), {
+    method: 'POST',
+  })
 }

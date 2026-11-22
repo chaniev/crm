@@ -67,6 +67,7 @@ export type {
   FinancialReportTotals,
   FinancialReportTrainerBreakdownRow,
   GetFinancialReportParams,
+  CreateGroupTrainerSubstitutionPeriodRequest,
   GetGroupTrainerSubstitutionsParams,
   GetAuditLogParams,
   GetClientsParams,
@@ -267,6 +268,9 @@ export {
   updateGroup,
 } from './api/groups'
 export {
+  cancelGroupTrainerSubstitutionPeriod,
+  createGroupTrainerSubstitutionPeriod,
+  getGroupTrainerSubstitutionPeriods,
   getGroupTrainerSubstitutions,
 } from './api/groupTrainerSubstitutions'
 export {

@@ -1,302 +1,185 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Alert, Badge, Group, Paper, Stack, Text } from '@mantine/core'
+import { useEffect, useRef, useState } from 'react'
+import { Alert, Badge, Group, Stack, Text, Title } from '@mantine/core'
 import {
-  IconAlertCircle,
-  IconRefresh,
-  IconUserCheck,
-} from '@tabler/icons-react'
-import {
-  getGroupTrainerSubstitutions,
-  type GroupTrainerSubstitution,
-  type GroupTrainerSubstitutionsResponse,
+  getGroupTrainerSubstitutionPeriods, getGroupTrainerSubstitutions,
+  type GroupTrainerSubstitution, type GroupTrainerSubstitutionsResponse, type TrainerOption,
 } from '../../lib/api'
-import {
-  Button,
-  EmptyState,
-  LoadingState,
-  ResponsiveButtonGroup,
-  SectionHeader,
-} from '../shared/ux'
-import { fe14GroupStaffingText } from '../../resources/fe-14-group-staffing'
+import { fe14GroupStaffingText as copy } from '../../resources/fe-14-group-staffing'
+import { Button, LoadingState } from '../shared/ux'
+import { formatPeriod } from './formatSubstitutionPeriod'
+import { SubstitutionPeriodDialog } from './SubstitutionPeriodDialog'
 
+type Props = { groupId: string; groupName: string; trainerOptions: TrainerOption[] }
+type Lists = { periods: GroupTrainerSubstitutionsResponse; legacy: GroupTrainerSubstitutionsResponse }
 
-const HISTORY_TAKE = 20
+const historyTake = 20
 
-type GroupTrainerSubstitutionsSectionProps = {
-  groupId: string
+function hasMore(list: GroupTrainerSubstitutionsResponse) {
+  return list.history.items.length < list.history.totalCount
 }
 
-const STATUS_LABELS: Record<GroupTrainerSubstitution['status'], string> = {
-  Active: fe14GroupStaffingText.groupTrainerSubstitutionsSection_active_68505b6d,
-  Upcoming: fe14GroupStaffingText.groupTrainerSubstitutionsSection_upcoming_c4c9abc1,
-  Expired: fe14GroupStaffingText.groupTrainerSubstitutionsSection_expired_b459ff8f,
-  Cancelled: fe14GroupStaffingText.groupTrainerSubstitutionsSection_cancelled_23a2a9bf,
-}
+export function GroupTrainerSubstitutionsSection({ groupId, groupName, trainerOptions }: Props) {
+  const [data, setData] = useState<Lists | null>(null)
+  const [error, setError] = useState('')
+  const [revision, setRevision] = useState(0)
+  const [expanded, setExpanded] = useState(false)
+  const [paging, setPaging] = useState(false)
+  const [pageError, setPageError] = useState('')
+  const [dialog, setDialog] = useState<'create' | GroupTrainerSubstitution | null>(null)
+  const [notice, setNotice] = useState('')
+  const returnTarget = useRef<HTMLElement | null>(null)
+  const heading = useRef<HTMLHeadingElement>(null)
+  const focusAfterCreate = useRef(false)
 
-const STATUS_COLORS: Record<GroupTrainerSubstitution['status'], string> = {
-  Active: 'teal',
-  Upcoming: 'var(--crm-brand-primary-soft)',
-  Expired: 'gray',
-  Cancelled: 'red',
-}
-
-export function GroupTrainerSubstitutionsSection({
-  groupId,
-}: GroupTrainerSubstitutionsSectionProps) {
-  const [data, setData] = useState<GroupTrainerSubstitutionsResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
-  const [historyOpened, setHistoryOpened] = useState(false)
-  const [historyLoading, setHistoryLoading] = useState(false)
-  const [historyError, setHistoryError] = useState<string | null>(null)
-
-  const loadFirstPage = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true)
-    setLoadError(null)
-    setHistoryError(null)
-
-    try {
-      const nextData = await getGroupTrainerSubstitutions(
-        groupId,
-        { historySkip: 0, historyTake: HISTORY_TAKE },
-        signal,
-      )
-      setData(nextData)
-    } catch (error) {
-      if (signal?.aborted) {
-        return
-      }
-
-      setLoadError(error instanceof Error ? error.message : fe14GroupStaffingText.groupTrainerSubstitutionsSection_string_0cb0e0e6)
-    } finally {
-      if (!signal?.aborted) {
-        setLoading(false)
-      }
-    }
-  }, [groupId])
+  useEffect(() => {
+    if (!focusAfterCreate.current || (!data && !error)) return
+    focusAfterCreate.current = false
+    const target = document.getElementById('group-substitution-create') ?? heading.current
+    target?.focus()
+  }, [data, error])
 
   useEffect(() => {
     const controller = new AbortController()
-
-    void loadFirstPage(controller.signal)
-
+    const params = { historySkip: 0, historyTake }
+    Promise.all([
+      getGroupTrainerSubstitutionPeriods(groupId, params, controller.signal),
+      getGroupTrainerSubstitutions(groupId, params, controller.signal),
+    ]).then(([periods, legacy]) => {
+      if (!controller.signal.aborted) setData({ periods, legacy })
+    }).catch((cause) => {
+      if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : copy.loadFailure)
+    })
     return () => controller.abort()
-  }, [groupId, loadFirstPage])
+  }, [groupId, revision])
 
-  async function loadMoreHistory() {
-    if (!data || historyLoading) {
-      return
+  function reload() {
+    setError('')
+    setPageError('')
+    setData(null)
+    setRevision((current) => current + 1)
+  }
+
+  async function loadMore() {
+    if (!data || paging) return
+    setPaging(true)
+    setPageError('')
+    async function nextPage(list: GroupTrainerSubstitutionsResponse, get: typeof getGroupTrainerSubstitutions) {
+      if (!hasMore(list)) return list
+      const next = await get(groupId, { historySkip: list.history.items.length, historyTake })
+      return { ...next, history: { ...next.history, items: [...list.history.items, ...next.history.items] } }
     }
-
-    setHistoryLoading(true)
-    setHistoryError(null)
-
     try {
-      const nextData = await getGroupTrainerSubstitutions(groupId, {
-        historySkip: data.history.items.length,
-        historyTake: HISTORY_TAKE,
-      })
-      setData({
-        ...nextData,
-        history: {
-          ...nextData.history,
-          items: [...data.history.items, ...nextData.history.items],
-          totalCount: nextData.history.totalCount,
-          skip: 0,
-          take: data.history.items.length + nextData.history.items.length,
-        },
-      })
-    } catch (error) {
-      setHistoryError(
-        error instanceof Error ? error.message : fe14GroupStaffingText.groupTrainerSubstitutionsSection_string_e92898f1,
-      )
+      const [periods, legacy] = await Promise.all([
+        nextPage(data.periods, getGroupTrainerSubstitutionPeriods), nextPage(data.legacy, getGroupTrainerSubstitutions),
+      ])
+      setData((current) => current === data ? { periods, legacy } : current)
+    } catch (cause) {
+      setPageError(cause instanceof Error ? cause.message : copy.loadFailure)
     } finally {
-      setHistoryLoading(false)
+      setPaging(false)
     }
   }
 
-  const historyItems = data?.history.items ?? []
-  const historyTotalCount = data?.history.totalCount ?? 0
-  const hasMoreHistory = data
-    ? data.history.items.length < data.history.totalCount
-    : false
+  function open(next: NonNullable<typeof dialog>, trigger: HTMLElement) {
+    setNotice('')
+    returnTarget.current = trigger
+    setDialog(next)
+  }
+
+  function close() {
+    setDialog(null)
+    requestAnimationFrame(() => {
+      const target = returnTarget.current?.isConnected ? returnTarget.current : heading.current
+      target?.focus()
+    })
+  }
+
+  const archived = data ? [...data.legacy.current, ...data.legacy.history.items] : []
 
   return (
-    <section aria-labelledby="group-trainer-substitutions-title">
+    <section aria-labelledby="group-substitutions-title" className="group-substitutions">
       <Stack gap="lg">
-        <SectionHeader
-          description={fe14GroupStaffingText.groupTrainerSubstitutionsSection_description_bfe9a56a}
-          title={fe14GroupStaffingText.groupTrainerSubstitutionsSection_title_4e2bc0cd}
-          titleId="group-trainer-substitutions-title"
-        />
-
-        {loading ? (
-          <LoadingState label={fe14GroupStaffingText.groupTrainerSubstitutionsSection_label_10365fea} />
-        ) : null}
-
-        {!loading && loadError ? (
-          <Alert
-            color="red"
-            icon={<IconAlertCircle size={18} />}
-            role="alert"
-            title={fe14GroupStaffingText.groupTrainerSubstitutionsSection_title_3b8a3e5b}
-            variant="light"
-          >
-            <Stack gap="sm">
-              <Text>{loadError}</Text>
-              <ResponsiveButtonGroup>
-                <Button
-                  leftSection={<IconRefresh size={18} />}
-                  onClick={() => void loadFirstPage()}
-                  variant="secondary"
-                >
-                  {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_34a89a26}</Button>
-              </ResponsiveButtonGroup>
-            </Stack>
-          </Alert>
-        ) : null}
-
-        {historyError ? (
-          <Alert
-            color="red"
-            icon={<IconAlertCircle size={18} />}
-            role="alert"
-            title={fe14GroupStaffingText.groupTrainerSubstitutionsSection_title_2e1514c4}
-            variant="light"
-          >
-            {historyError}
-          </Alert>
-        ) : null}
-
-        {!loading && !loadError && data ? (
-          <Stack gap="md">
-            <Alert color="gray" variant="light">
-              {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_993cc81f}</Alert>
-
-            <Stack gap="sm">
-              <Text component="h3" fw={700} size="md">
-                {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_7ca077e4}</Text>
-
-              {data.current.length === 0 ? (
-                <EmptyState
-                  description={fe14GroupStaffingText.groupTrainerSubstitutionsSection_description_fcc54bde}
-                  icon={<IconUserCheck size={24} />}
-                  title={fe14GroupStaffingText.groupTrainerSubstitutionsSection_title_38aa0143}
-                />
-              ) : (
-                <Stack aria-label={fe14GroupStaffingText.groupTrainerSubstitutionsSection_ariaLabel_8c0dc67f} gap="sm" role="list">
-                  {data.current.map((substitution) => (
-                    <SubstitutionCard
-                      key={substitution.id}
-                      substitution={substitution}
-                    />
+        <div className="group-substitutions__heading">
+          <Title id="group-substitutions-title" order={2} ref={heading} tabIndex={-1}>{copy.periodSection}</Title>
+          {data?.periods.canCreate && (
+            <Button id="group-substitution-create" onClick={(event) => open('create', event.currentTarget)}>{copy.assignPeriod}</Button>
+          )}
+        </div>
+        {notice && <Alert role="status" color="teal">{notice}</Alert>}
+        {error ? (
+          <Alert role="alert" color="red"><Stack align="start">
+            <Text>{error}</Text><Button variant="secondary" onClick={reload}>{copy.retry}</Button>
+          </Stack></Alert>
+        ) : !data ? (
+          <LoadingState label={copy.loadingPeriods} />
+        ) : (
+          <>
+            {!data.periods.canCreate && data.periods.createUnavailableReason && <Text>{data.periods.createUnavailableReason.message}</Text>}
+            <div>
+              <Title order={3} size="md">{copy.periodCurrent}</Title>
+              {data.periods.current.length ? (
+                <div aria-label={copy.periodCurrent} role="list">
+                  {data.periods.current.map((row) => (
+                    <PeriodRow key={row.id} row={row} onCancel={(trigger) => open(row, trigger)} />
                   ))}
-                </Stack>
-              )}
-            </Stack>
-
-            <Stack gap="sm">
-              <Group justify="space-between" wrap="wrap">
-                <Stack gap={2}>
-                  <Text component="h3" fw={700} size="md">
-                    {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_1417b779}</Text>
-                  <Text c="dimmed" size="sm">
-                    {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_1a48f320}{historyItems.length} {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_7f4adf31}{historyTotalCount}
-                  </Text>
-                </Stack>
-                <Button
-                  aria-controls="group-trainer-substitutions-history"
-                  aria-expanded={historyOpened}
-                  disabled={historyTotalCount === 0}
-                  onClick={() => setHistoryOpened((opened) => !opened)}
-                  variant="subtle"
-                >
-                  {historyOpened ? fe14GroupStaffingText.groupTrainerSubstitutionsSection_string_f3b6b22a : fe14GroupStaffingText.groupTrainerSubstitutionsSection_string_2d015c26}
-                </Button>
-              </Group>
-
-              {historyOpened ? (
-                <Stack
-                  aria-label={fe14GroupStaffingText.groupTrainerSubstitutionsSection_ariaLabel_c3c5b156}
-                  gap="sm"
-                  id="group-trainer-substitutions-history"
-                  role="list"
-                >
-                  {historyItems.map((substitution) => (
-                    <SubstitutionCard
-                      key={substitution.id}
-                      substitution={substitution}
-                    />
-                  ))}
-
-                  {hasMoreHistory ? (
-                    <ResponsiveButtonGroup>
-                      <Button
-                        loading={historyLoading}
-                        onClick={() => void loadMoreHistory()}
-                        variant="secondary"
-                      >
-                        {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_c6826c78}</Button>
-                    </ResponsiveButtonGroup>
-                  ) : null}
-                </Stack>
-              ) : null}
-            </Stack>
-          </Stack>
-        ) : null}
+                </div>
+              ) : <Text c="dimmed">{copy.periodEmpty}</Text>}
+            </div>
+            <div>
+              <Button variant="secondary" aria-expanded={expanded} aria-controls="group-period-history"
+                onClick={() => setExpanded(!expanded)}>{expanded ? copy.hideHistory : copy.showHistory}</Button>
+              {expanded && <Stack gap="sm" id="group-period-history" mt="md">
+                <Title order={3} size="md">{copy.periodHistory}</Title>
+                {!data.periods.history.totalCount && !archived.length && <Text c="dimmed">{copy.emptyHistory}</Text>}
+                <div aria-label={copy.periodHistory} role="list">
+                  {data.periods.history.items.map((row) => <PeriodRow key={row.id} row={row} />)}
+                  {archived.map((row) => <PeriodRow key={`legacy-${row.id}`} row={row} legacy />)}
+                </div>
+                {pageError && <Alert color="red" role="alert">{pageError}</Alert>}
+                {(hasMore(data.periods) || hasMore(data.legacy)) && (
+                  <Group><Button loading={paging} variant="secondary" onClick={() => void loadMore()}>{copy.showMore}</Button></Group>
+                )}
+              </Stack>}
+            </div>
+          </>
+        )}
       </Stack>
+      {dialog && <SubstitutionPeriodDialog groupId={groupId} groupName={groupName} trainerOptions={trainerOptions}
+        period={dialog === 'create' ? null : dialog} onClose={close} onSaved={(message) => {
+          setNotice(message)
+          if (dialog === 'create') {
+            focusAfterCreate.current = true
+            setDialog(null)
+          } else {
+            returnTarget.current = heading.current
+            close()
+          }
+          reload()
+        }} />}
     </section>
   )
 }
 
-type SubstitutionCardProps = {
-  substitution: GroupTrainerSubstitution
-}
-
-function SubstitutionCard({
-  substitution,
-}: SubstitutionCardProps) {
+function PeriodRow({ row, legacy = false, onCancel }: {
+  row: GroupTrainerSubstitution
+  legacy?: boolean
+  onCancel?: (trigger: HTMLElement) => void
+}) {
   return (
-    <Paper
-      className="list-row-card group-trainer-substitution-row"
-      data-testid={`group-trainer-substitution-${substitution.id}`}
-      radius="24px"
-      role="listitem"
-      withBorder
-    >
-      <Stack gap="md">
-        <Group align="flex-start" justify="space-between" wrap="wrap">
-          <Stack gap={6}>
-            <Group gap="sm" wrap="wrap">
-              <Text fw={700}>{substitution.substituteTrainer.fullName}</Text>
-              <Badge color={STATUS_COLORS[substitution.status]} radius="xl" variant="light">
-                {STATUS_LABELS[substitution.status]}
-              </Badge>
-              {!substitution.substituteTrainer.isActive ? (
-                <Badge color="gray" radius="xl" variant="outline">
-                  {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_5539f6e6}</Badge>
-              ) : null}
-            </Group>
-            <Text c="dimmed" size="sm">
-              {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_8541e28c}{substitution.substituteTrainer.login}
-            </Text>
-            <Text c="dimmed" size="sm">
-              <time dateTime={substitution.startsOn}>
-                {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_a1f5d39a}{formatDateOnly(substitution.startsOn)}
-              </time>
-              {' - '}
-              <time dateTime={substitution.endsOn}>
-                {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_51ad1397}{formatDateOnly(substitution.endsOn)} {fe14GroupStaffingText.groupTrainerSubstitutionsSection_jsxText_e072195b}</time>
-            </Text>
-          </Stack>
-        </Group>
-      </Stack>
-    </Paper>
+    <div className="group-substitutions__row" role="listitem">
+      <div>
+        <Text fw={700}>{row.substituteTrainer.fullName}</Text>
+        <Text size="sm">{formatPeriod(row)}</Text>
+      </div>
+      {legacy ? <Text className="group-substitutions__archive" size="sm" c="dimmed">{copy.archiveExplanation}</Text> : (
+        <Badge variant="light" color={{ Active: 'teal', Upcoming: 'blue', Expired: 'gray', Cancelled: 'gray' }[row.status]}>
+          {copy.periodStatuses[row.status]}
+        </Badge>
+      )}
+      {onCancel && row.allowedActions.canCancel && (
+        <Button variant="secondary" aria-label={`${copy.cancelPeriod} ${row.substituteTrainer.fullName}`}
+          onClick={(event) => onCancel(event.currentTarget)}>{copy.cancel}</Button>
+      )}
+    </div>
   )
-}
-
-function formatDateOnly(value: string) {
-  const [year, month, day] = value.split('-')
-
-  return year && month && day ? `${day}.${month}.${year}` : value
 }

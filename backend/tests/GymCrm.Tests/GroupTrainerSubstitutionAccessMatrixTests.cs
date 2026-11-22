@@ -20,7 +20,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GymCrm.Tests;
 
-public class GroupTrainerSubstitutionAccessMatrixTests
+public partial class GroupTrainerSubstitutionAccessMatrixTests
 {
     private const string Password = "substitution-access-matrix-password";
     private const string BotToken = "substitution-access-matrix-bot-token";
@@ -1088,6 +1088,6 @@ public class GroupTrainerSubstitutionAccessMatrixTests
 
     private sealed class FixedBusinessDateProvider(DateOnly today) : IBusinessDateProvider
     {
-        public DateOnly Today { get; } = today;
+        public DateOnly Today { get; set; } = today;
     }
 }

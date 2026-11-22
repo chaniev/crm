@@ -76,3 +76,8 @@ def ATTENDANCE_FLOW_LINE_295_12B8B72F(value_0: object) -> str:
 ATTENDANCE_FLOW_LINE_297_8A097230 = "отменено"
 
 ATTENDANCE_FLOW_LINE_63_62EAB7BE = "Выберите дату тренировки."
+
+
+def lesson_button(name: str, start_time: str, editable: bool) -> str:
+    title = f"{start_time} · {name}"
+    return title if editable else f"Состав · {title}"

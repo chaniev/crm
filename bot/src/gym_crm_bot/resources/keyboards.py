@@ -81,6 +81,18 @@ def render_attendance_roster_keyboard(
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
+def render_client_photo_keyboard(client_id: UUID) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Показать фото", callback_data=encode_callback("cph", str(client_id))
+                )
+            ]
+        ]
+    )
+
+
 def render_search_results_keyboard(
     items: list[ClientListItem],
     *,

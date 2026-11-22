@@ -21,7 +21,7 @@ public sealed class ClientPhotoUploadCommand
     public required Stream Content { get; init; }
 }
 
-public sealed record ClientPhotoReadCommand(Guid RequestedByUserId);
+public sealed record ClientPhotoReadCommand(Guid RequestedByUserId, string? ExpectedTelegramUserId = null);
 
 public enum ClientPhotoError
 {

@@ -9,19 +9,22 @@ from gym_crm_bot.core.idempotency import build_request_id
 from gym_crm_bot.core.rendering import format_client_group
 from gym_crm_bot.core.service_types import BotResponse
 from gym_crm_bot.crm.client import CrmBotApiClient
-from gym_crm_bot.crm.errors import CrmClientError
+from gym_crm_bot.crm.errors import CrmClientError, CrmNotFoundError
 from gym_crm_bot.crm.models import (
     ClientCardResponse,
     MembershipListResponse,
 )
 from gym_crm_bot.resources import bot_3_clients_rendering as bot_3_clients_rendering_text
 from gym_crm_bot.resources.keyboards import (
+    render_client_photo_keyboard,
     render_membership_list_keyboard,
     render_search_results_keyboard,
 )
 from gym_crm_bot.resources.messages import (
     EMPTY_SEARCH_RESULTS_MESSAGE,
     EXPIRING_EMPTY_MESSAGE,
+    PHOTO_UNAVAILABLE_MESSAGE,
+    PRIVATE_CHAT_ONLY_MESSAGE,
     SEARCH_PROMPT_MESSAGE,
 )
 from gym_crm_bot.telegram.normalization import NormalizedTelegramEvent
@@ -120,7 +123,26 @@ class ClientFlow:
             )
         except CrmClientError as exc:
             return await self._error_mapper.map(exc, event, audit_reason="client_card")
-        return BotResponse(text=render_client_card(card), replace_existing=replace_existing)
+        return BotResponse(
+            text=render_client_card(card),
+            reply_markup=render_client_photo_keyboard(card.id)
+            if card.photo and card.photo.has_photo
+            else None,
+            replace_existing=replace_existing,
+        )
+
+    async def show_photo(self, event: NormalizedTelegramEvent, client_id: UUID) -> BotResponse:
+        if event.chat_type != "private":
+            return BotResponse(text=PRIVATE_CHAT_ONLY_MESSAGE)
+        try:
+            photo = await self._crm_client.get_client_photo(
+                event.identity, client_id=client_id, request_id=build_request_id()
+            )
+        except CrmNotFoundError:
+            return BotResponse(text=PHOTO_UNAVAILABLE_MESSAGE)
+        except CrmClientError as exc:
+            return await self._error_mapper.map(exc, event, audit_reason="client_photo")
+        return BotResponse(text="", photo=photo)
 
     async def show_memberships(
         self,

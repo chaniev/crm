@@ -209,7 +209,16 @@ internal sealed class BotApiService(
             return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.Forbidden);
         }
 
-        if (!attendanceDatePolicy.IsAllowed(user.Role, trainingDate))
+        var canEditAttendance = attendanceDatePolicy.IsAllowed(user.Role, trainingDate);
+        if (lessonOccurrenceId.HasValue)
+        {
+            var lesson = await ResolveProjectedLessonAsync(identity, lessonOccurrenceId.Value, trainingDate, cancellationToken);
+            if (lesson.Error.HasValue) return BotApiResult<BotAttendanceRoster>.Failure(lesson.Error.Value);
+            if (lesson.GroupId != groupId) return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.NotFound);
+            occurrenceScopeAccessAllowed = lesson.IsOccurrenceScopedAccess;
+            canEditAttendance = lesson.CanEditAttendance;
+        }
+        else if (!canEditAttendance)
         {
             return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.InvalidAttendanceDate);
         }
@@ -229,12 +238,6 @@ internal sealed class BotApiService(
                 .Where(id => id != Guid.Empty)
                 .ToArray()
             : null;
-        if (lessonOccurrenceId.HasValue)
-        {
-            var currentLesson = await ResolveProjectedLessonAsync(identity, lessonOccurrenceId.Value, trainingDate, cancellationToken);
-            if (currentLesson.Error.HasValue) return BotApiResult<BotAttendanceRoster>.Failure(currentLesson.Error.Value);
-            occurrenceScopeAccessAllowed = currentLesson.IsOccurrenceScopedAccess;
-        }
         var candidateIds = await dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(user))
             .Where(client => client.Status == ClientStatus.Active && client.Groups.Any(link => link.GroupId == groupId))
             .Select(client => client.Id).ToArrayAsync(cancellationToken);
@@ -295,7 +298,8 @@ internal sealed class BotApiService(
                     trainingDate,
                     businessDateProvider.Today,
                     entitlementByClientId[client.Id]))
-                .ToArray()));
+                .ToArray(),
+            canEditAttendance));
     }
 
     public async Task<BotApiResult<BotAttendanceRoster>> GetAttendanceRosterByLessonAsync(
@@ -388,7 +392,9 @@ internal sealed class BotApiService(
         {
             var currentLesson = await ResolveProjectedLessonAsync(identity, lessonOccurrenceId.Value, trainingDate, cancellationToken);
             if (currentLesson.Error.HasValue) return BotApiResult<BotAttendanceSaveResponse>.Failure(currentLesson.Error.Value);
+            if (currentLesson.GroupId != groupId) return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound);
             if (!currentLesson.IsScheduled) return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate);
+            if (!currentLesson.CanEditAttendance) return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.Forbidden);
             occurrenceScopeAccessAllowed = currentLesson.IsOccurrenceScopedAccess;
         }
         var groupAccess = await GetAccessibleGroupAsync(user, groupId, cancellationToken);
@@ -440,9 +446,9 @@ internal sealed class BotApiService(
                     user.Id,
                     user.Login,
                     new AttendanceAuditContext(
-                        "Bot",
-                        identity.Platform,
-                        BotHashing.ComputeSha256(identity.PlatformUserId)),
+                        AuditSource.Bot,
+                        BotAuditConstants.TelegramPlatform,
+                        BotHashing.ComputeSha256(identity.PlatformUserId.Trim())),
                     marks.Select(mark => new AttendanceMarkCommand(
                         mark.ClientId,
                         mark.IsPresent ? AttendanceState.Present : AttendanceState.Absent)).ToArray()),
@@ -1011,7 +1017,8 @@ internal sealed class BotApiService(
             ? LessonResolutionResult.Success(
                 lesson.GroupId,
                 access != GroupAccessDecision.Allowed && lesson.IsAccessibleThroughSubstitution,
-                lesson.Status == LessonOccurrenceStatus.Scheduled)
+                lesson.Status == LessonOccurrenceStatus.Scheduled,
+                lesson.CanEditAttendance)
             : LessonResolutionResult.Failure(BotApiError.NotFound);
     }
 
@@ -1466,11 +1473,13 @@ internal sealed class BotApiService(
         BotApiError? Error,
         Guid GroupId,
         bool IsOccurrenceScopedAccess,
-        bool IsScheduled)
+        bool IsScheduled,
+        bool CanEditAttendance)
     {
-        public static LessonResolutionResult Success(Guid groupId, bool isOccurrenceScopedAccess, bool isScheduled) => new(null, groupId, isOccurrenceScopedAccess, isScheduled);
+        public static LessonResolutionResult Success(Guid groupId, bool isOccurrenceScopedAccess, bool isScheduled, bool canEditAttendance) =>
+            new(null, groupId, isOccurrenceScopedAccess, isScheduled, canEditAttendance);
 
-        public static LessonResolutionResult Failure(BotApiError error) => new(error, Guid.Empty, false, false);
+        public static LessonResolutionResult Failure(BotApiError error) => new(error, Guid.Empty, false, false, false);
     }
 
     private sealed record MembershipWarningResult(bool HasWarning, string? Message);

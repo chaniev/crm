@@ -4,7 +4,7 @@ from typing import Any
 
 from aiogram import Bot, Dispatcher, Router
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import BufferedInputFile, CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from gym_crm_bot.config import Settings
@@ -84,6 +84,11 @@ class TelegramPollingAdapter:
     @staticmethod
     async def _send_callback_response(callback_query: CallbackQuery, response: BotResponse) -> None:
         target_message = callback_query.message
+        if response.photo is not None and isinstance(target_message, Message):
+            await target_message.answer_photo(
+                BufferedInputFile(response.photo.content, filename=response.photo.filename)
+            )
+            return
         if response.replace_existing and isinstance(target_message, Message):
             await target_message.edit_text(response.text, reply_markup=response.reply_markup)
             return

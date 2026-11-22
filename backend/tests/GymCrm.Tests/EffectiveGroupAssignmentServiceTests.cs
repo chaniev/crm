@@ -1,3 +1,4 @@
+using GymCrm.Application.Attendance;
 using GymCrm.Domain.Groups;
 using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
@@ -34,7 +35,7 @@ public class EffectiveGroupAssignmentServiceTests
             CreateSubstitution(cancelledGroupId, trainerId, BusinessDate.AddDays(-1), BusinessDate.AddDays(1), cancelled: true));
         await dbContext.SaveChangesAsync();
 
-        var service = new EffectiveGroupAssignmentService(dbContext);
+        var service = new EffectiveGroupAssignmentService(dbContext, new TestDateProvider());
 
         var groupIds = await service.ListEffectiveAssignedGroupIdsAsync(trainerId, CancellationToken.None);
 
@@ -61,7 +62,7 @@ public class EffectiveGroupAssignmentServiceTests
             BusinessDate));
         await dbContext.SaveChangesAsync();
 
-        var service = new EffectiveGroupAssignmentService(dbContext);
+        var service = new EffectiveGroupAssignmentService(dbContext, new TestDateProvider());
 
         Assert.Empty(await service.ListEffectiveAssignedGroupIdsAsync(Guid.Empty, CancellationToken.None));
         Assert.Empty(await service.ListEffectiveAssignedGroupIdsAsync(Guid.NewGuid(), CancellationToken.None));
@@ -121,13 +122,18 @@ public class EffectiveGroupAssignmentServiceTests
 
         await dbContext.SaveChangesAsync();
 
-        var service = new EffectiveGroupAssignmentService(dbContext);
+        var service = new EffectiveGroupAssignmentService(dbContext, new TestDateProvider());
         var actualTrainerId = scenario == "EmptyTrainer" ? Guid.Empty : trainerId;
         var actualGroupId = scenario == "EmptyGroup" ? Guid.Empty : groupId;
 
         Assert.Equal(
             expected,
             await service.HasEffectiveAssignmentAsync(actualTrainerId, actualGroupId, CancellationToken.None));
+    }
+
+    private sealed class TestDateProvider : IBusinessDateProvider
+    {
+        public DateOnly Today => BusinessDate;
     }
 
     private static GymCrmDbContext CreateDbContext()

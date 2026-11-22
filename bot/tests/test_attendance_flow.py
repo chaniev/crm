@@ -5,7 +5,9 @@ from datetime import date
 from typing import Any
 from uuid import UUID
 
+import httpx
 import pytest
+import respx
 
 from gym_crm_bot.core.attendance_flow import AttendanceFlow
 from gym_crm_bot.core.crm_error_mapping import CrmErrorMapper
@@ -15,9 +17,10 @@ from gym_crm_bot.core.dialog_state import (
     SEARCH_SCENARIO,
 )
 from gym_crm_bot.core.service_types import BotResponse
+from gym_crm_bot.crm.client import CrmBotApiClient
 from gym_crm_bot.crm.errors import CrmTemporaryError
 from gym_crm_bot.crm.models import AttendanceLessonsResponse, AttendanceSaveResponse
-from gym_crm_bot.resources.messages import TEMPORARY_ERROR_MESSAGE
+from gym_crm_bot.resources.messages import RESOURCE_UNAVAILABLE_MESSAGE, TEMPORARY_ERROR_MESSAGE
 from gym_crm_bot.telegram.normalization import NormalizedTelegramEvent
 
 
@@ -132,7 +135,7 @@ def _save_event() -> NormalizedTelegramEvent:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("cancelled_only", [False, True])
-async def test_select_date_keeps_cancelled_rows_without_attendance_buttons(
+async def test_select_date_distinguishes_readonly_rosters_from_editable_lessons(
     cancelled_only: bool,
 ) -> None:
     cancelled_id = UUID("00000000-0000-0000-0000-000000000101")
@@ -192,9 +195,17 @@ async def test_select_date_keeps_cancelled_rows_without_attendance_buttons(
     assert "Actual trainer" in response.text
     assert response.reply_markup is not None
     buttons = [button for row in response.reply_markup.inline_keyboard for button in row]
-    assert [button.text for button in buttons] == ([] if cancelled_only else ["Editable lesson"])
-    assert all(str(cancelled_id) not in (button.callback_data or "") for button in buttons)
-    assert all(str(restricted_id) not in (button.callback_data or "") for button in buttons)
+    assert [(button.text, button.callback_data) for button in buttons] == [
+        ("Состав · 12:30 · Cancelled lesson", f"agr|{cancelled_id}"),
+        *(
+            []
+            if cancelled_only
+            else [
+                ("12:30 · Editable lesson", f"agr|{editable_id}"),
+                ("Состав · 12:30 · Restricted lesson", f"agr|{restricted_id}"),
+            ]
+        ),
+    ]
     state = await state_store.get(event, ATTENDANCE_SCENARIO)
     assert state is not None
     assert state["step"] == "select_lesson"
@@ -259,3 +270,59 @@ async def test_save_error_retry_reuses_idempotency_and_cleans_only_after_success
         "tg:777:920:attendance:00000000-0000-0000-0000-000000000021",
     ]
     assert state_store.states == {}
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_revoked_draft_cannot_reveal_cached_roster_or_report_saved_on_repeat() -> None:
+    lesson_id = UUID("00000000-0000-0000-0000-000000000021")
+    client_id = UUID("00000000-0000-0000-0000-000000000031")
+    path = f"http://crm.local/internal/bot/attendance/lessons/{lesson_id}"
+    roster = {
+        "groupId": str(lesson_id),
+        "groupName": "Группа",
+        "trainingDate": "2026-12-12",
+        "attendanceDateWindow": {
+            "today": "2026-12-12",
+            "minTrainingDate": "2026-12-10",
+            "maxTrainingDate": "2026-12-12",
+        },
+        "canEditAttendance": True,
+        "clients": [{"id": str(client_id), "fullName": "Прежнее имя", "isPresent": False}],
+    }
+    respx.get(path + "/clients").mock(
+        side_effect=[
+            httpx.Response(200, json=roster),
+            httpx.Response(404),
+            httpx.Response(200, json={**roster, "canEditAttendance": False}),
+        ]
+    )
+    save = respx.post(path).mock(return_value=httpx.Response(404))
+    async with httpx.AsyncClient(base_url="http://crm.local") as http:
+        crm = CrmBotApiClient(
+            base_url="http://crm.local",
+            service_token="service",
+            timeout_seconds=5,
+            http_client=http,
+        )
+        state = InMemoryDialogState()
+        flow = AttendanceFlow(crm_client=crm, state_store=state, error_mapper=CrmErrorMapper(crm))
+        event = _save_event()
+        await state.save(
+            event, ATTENDANCE_SCENARIO, {"step": "select_lesson", "training_date": "2026-12-12"}
+        )
+        assert (await flow.select_group(event, str(lesson_id))).reply_markup is not None
+        denied = await flow.toggle_mark(event, str(client_id))
+        assert denied.reply_markup is None and "Прежнее имя" not in denied.text
+        for _ in range(2):
+            result = await flow.save(event)
+            assert result.text == RESOURCE_UNAVAILABLE_MESSAGE
+            assert result.reply_markup is None
+        readonly = await flow.select_group(event, str(lesson_id))
+        assert "Прежнее имя" in readonly.text and readonly.reply_markup is None
+        assert "marks" not in state.states[ATTENDANCE_SCENARIO]
+    assert save.call_count == 2
+    assert (
+        save.calls[0].request.headers["Idempotency-Key"]
+        == save.calls[1].request.headers["Idempotency-Key"]
+    )

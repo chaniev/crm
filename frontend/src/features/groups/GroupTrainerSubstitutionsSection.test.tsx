@@ -1,174 +1,80 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { renderWithProviders } from '../../test/render'
 import { GroupTrainerSubstitutionsSection } from './GroupTrainerSubstitutionsSection'
 
-const apiMocks = vi.hoisted(() => ({
+const api = vi.hoisted(() => ({
+  getGroupTrainerSubstitutionPeriods: vi.fn(),
   getGroupTrainerSubstitutions: vi.fn(),
+  createGroupTrainerSubstitutionPeriod: vi.fn(),
+  cancelGroupTrainerSubstitutionPeriod: vi.fn(),
 }))
-
 vi.mock('../../lib/api', async (importOriginal) => ({
   ...await importOriginal<typeof import('../../lib/api')>(),
-  getGroupTrainerSubstitutions: apiMocks.getGroupTrainerSubstitutions,
+  ...api,
 }))
 
-const baseItem = {
-  id: 'substitution-1',
-  groupId: 'group-1',
-  substituteTrainer: {
-    id: 'trainer-2',
-    fullName: 'Ирина Замена',
-    login: 'irina',
-    isActive: true,
-  },
-  startsOn: '2026-08-01',
-  endsOn: '2026-08-05',
-  status: 'Upcoming',
-  cancelledAt: null,
-  createdAt: '2026-07-25T08:00:00Z',
-  updatedAt: '2026-07-25T08:00:00Z',
-  allowedActions: {
-    canEdit: true,
-    canCancel: true,
-  },
-} as const
+const trainer = { id: 'trainer-2', fullName: 'Ирина Замена', login: 'irina', isActive: true }
+const period = {
+  id: 'new', groupId: 'group-1', substituteTrainer: trainer, startsOn: '2026-12-10', endsOn: '2026-12-15',
+  status: 'Upcoming', allowedActions: { canCancel: true, canEdit: false },
+}
+const empty = { current: [], history: { items: [], totalCount: 0, skip: 0, take: 20 }, canCreate: true, createUnavailableReason: null }
 
-function response(overrides: Partial<Awaited<ReturnType<typeof apiMocks.getGroupTrainerSubstitutions>>> = {}) {
-  return {
-    current: [],
-    history: {
-      items: [],
-      totalCount: 0,
-      skip: 0,
-      take: 20,
-    },
-    canCreate: true,
-    createUnavailableReason: null,
-    ...overrides,
-  }
+function renderSection() {
+  renderWithProviders(<GroupTrainerSubstitutionsSection groupId="group-1" groupName="Юниоры" trainerOptions={[trainer]} />)
 }
 
 describe('GroupTrainerSubstitutionsSection', () => {
   beforeEach(() => {
-    Object.values(apiMocks).forEach((mock) => mock.mockReset())
+    vi.resetAllMocks()
+    api.getGroupTrainerSubstitutions.mockResolvedValue(empty)
+    api.getGroupTrainerSubstitutionPeriods.mockResolvedValue(empty)
   })
 
-  test('loads independently, shows an alert on failure and retries without blocking parent content', async () => {
-    apiMocks.getGroupTrainerSubstitutions
-      .mockRejectedValueOnce(new Error('network down'))
-      .mockResolvedValueOnce(response())
-
-    renderWithProviders(
-      <>
-        <div>Основная форма группы доступна</div>
-        <GroupTrainerSubstitutionsSection groupId="group-1" />
-      </>,
-    )
-
-    expect(screen.getByText('Основная форма группы доступна')).toBeVisible()
+  test('allows retrying a failed list request', async () => {
+    api.getGroupTrainerSubstitutionPeriods.mockRejectedValueOnce(new Error('network down'))
+    renderSection()
     expect(await screen.findByRole('alert')).toHaveTextContent('network down')
-
-    fireEvent.click(screen.getByRole('button', { name: 'Повторить загрузку замещений' }))
-
-    await waitFor(() => expect(apiMocks.getGroupTrainerSubstitutions).toHaveBeenCalledTimes(2))
-    expect(await screen.findByText('Текущих и будущих замещений нет')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: /Повторить/ }))
+    expect(await screen.findByRole('button', { name: 'Назначить на период' })).toBeVisible()
   })
 
-  test('renders backend statuses and periods read-only without legacy mutation controls', async () => {
-    apiMocks.getGroupTrainerSubstitutions.mockResolvedValue(response({
-      current: [
-        { ...baseItem, id: 'active', status: 'Active' },
-        { ...baseItem, id: 'upcoming', startsOn: '2026-08-10', endsOn: '2026-08-12', status: 'Upcoming' },
-      ],
-      history: {
-        items: [
-          { ...baseItem, id: 'expired', status: 'Expired', allowedActions: { canEdit: false, canCancel: false } },
-          { ...baseItem, id: 'cancelled', status: 'Cancelled', allowedActions: { canEdit: false, canCancel: false } },
-        ],
-        totalCount: 2,
-        skip: 0,
-        take: 20,
-      },
-    }))
-
-    renderWithProviders(
-      <GroupTrainerSubstitutionsSection groupId="group-1" />,
-    )
-
-    expect(await screen.findByRole('heading', { name: 'Текущие и будущие' })).toBeVisible()
-    expect(await screen.findByText('Активно')).toBeVisible()
-    expect(screen.getByText('Запланировано')).toBeVisible()
-    expect(screen.getByText('Создание, изменение и отмена периодных замещений отключены в календаре занятий.')).toBeVisible()
-    expect(screen.getByRole('heading', { name: 'История' })).toBeVisible()
-    expect(screen.getByText('Показано 2 из 2')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Показать историю замещений' })).toHaveAttribute('aria-expanded', 'false')
-    fireEvent.click(screen.getByRole('button', { name: 'Показать историю замещений' }))
-    expect(screen.getByText('Завершено')).toBeVisible()
-    expect(screen.getByText('Отменено')).toBeVisible()
-    expect(screen.getAllByText(/по 05\.08\.2026 включительно/)).toHaveLength(3)
-
-    expect(screen.queryByRole('button', { name: 'Назначить замещение' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Изменить замещение/ })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Отменить замещение/ })).not.toBeInTheDocument()
-    expect(screen.queryByRole('combobox', { name: 'Замещающий тренер' })).not.toBeInTheDocument()
-    expect(screen.queryByLabelText('Начало периода')).not.toBeInTheDocument()
-    expect(screen.queryByLabelText('Окончание периода')).not.toBeInTheDocument()
+  test('keeps the form after a conflict and uses the confirmed server record after retry', async () => {
+    api.createGroupTrainerSubstitutionPeriod.mockRejectedValueOnce(new Error('Период пересекается')).mockResolvedValueOnce(period)
+    renderSection()
+    fireEvent.click(await screen.findByRole('button', { name: 'Назначить на период' }))
+    const form = within(screen.getByRole('dialog'))
+    fireEvent.change(form.getByLabelText(/Замещающий тренер/), { target: { value: trainer.id } })
+    fireEvent.change(form.getByLabelText(/Дата начала/), { target: { value: period.startsOn } })
+    fireEvent.change(form.getByLabelText(/Дата окончания/), { target: { value: period.endsOn } })
+    fireEvent.click(form.getByRole('button', { name: 'Назначить' }))
+    expect(await form.findByRole('alert')).toHaveTextContent('Период пересекается')
+    expect(form.getByLabelText(/Дата окончания/)).toHaveValue(period.endsOn)
+    api.getGroupTrainerSubstitutionPeriods.mockResolvedValue({ ...empty, current: [period] })
+    fireEvent.click(form.getByRole('button', { name: 'Назначить' }))
+    expect(await screen.findByRole('button', { name: 'Отменить замещение Ирина Замена' })).toBeVisible()
+    expect(api.createGroupTrainerSubstitutionPeriod).toHaveBeenCalledWith('group-1', {
+      substituteTrainerId: trainer.id, startsOn: period.startsOn, endsOn: period.endsOn,
+    })
   })
 
-  test('keeps current block visible with an empty message when only history exists', async () => {
-    apiMocks.getGroupTrainerSubstitutions.mockResolvedValue(response({
-      history: {
-        items: [
-          { ...baseItem, id: 'expired', status: 'Expired', allowedActions: { canEdit: false, canCancel: false } },
-        ],
-        totalCount: 3,
-        skip: 0,
-        take: 1,
-      },
-    }))
-
-    renderWithProviders(
-      <GroupTrainerSubstitutionsSection groupId="group-1" />,
-    )
-
-    expect(await screen.findByRole('heading', { name: 'Текущие и будущие' })).toBeVisible()
-    expect(screen.getByText('Текущих и будущих замещений нет')).toBeVisible()
-    expect(screen.getByRole('heading', { name: 'История' })).toBeVisible()
-    expect(screen.getByText('Показано 1 из 3')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Показать историю замещений' })).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByText('Завершено')).not.toBeInTheDocument()
-  })
-
-  test('loads additional history through read-only pagination only', async () => {
-    apiMocks.getGroupTrainerSubstitutions
-      .mockResolvedValueOnce(response({
-        history: {
-          items: [{ ...baseItem, id: 'expired-1', status: 'Expired' }],
-          totalCount: 2,
-          skip: 0,
-          take: 1,
-        },
-      }))
-      .mockResolvedValueOnce(response({
-        history: {
-          items: [{ ...baseItem, id: 'expired-2', startsOn: '2026-08-10', endsOn: '2026-08-11', status: 'Expired' }],
-          totalCount: 2,
-          skip: 1,
-          take: 1,
-        },
-      }))
-
-    renderWithProviders(
-      <GroupTrainerSubstitutionsSection groupId="group-1" />,
-    )
-
-    fireEvent.click(await screen.findByRole('button', { name: 'Показать историю замещений' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Показать ещё' }))
-
-    await waitFor(() => expect(apiMocks.getGroupTrainerSubstitutions).toHaveBeenLastCalledWith(
-      'group-1',
-      { historySkip: 1, historyTake: 20 },
-    ))
-    expect(await screen.findByTestId('group-trainer-substitution-expired-2')).toBeVisible()
+  test('shows server restrictions and offers no mutation for legacy rows even when their dates are current', async () => {
+    api.getGroupTrainerSubstitutionPeriods.mockResolvedValue({
+      ...empty, canCreate: false, createUnavailableReason: { code: 'group_inactive', message: 'Группа неактивна.' },
+      current: [{ ...period, allowedActions: { canCancel: false, canEdit: false } }],
+    })
+    api.getGroupTrainerSubstitutions.mockResolvedValueOnce({
+      ...empty, current: [period],
+      history: { items: [{ ...period, id: 'expired' }], totalCount: 2, skip: 0, take: 1 },
+    }).mockResolvedValueOnce({ ...empty, current: [period], history: { items: [{ ...period, id: 'oldest' }], totalCount: 2, skip: 1, take: 1 } })
+    renderSection()
+    expect(await screen.findByText('Группа неактивна.')).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Назначить на период' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Показать историю' }))
+    expect(await screen.findAllByText(/Архивная запись/)).toHaveLength(2)
+    fireEvent.click(screen.getByRole('button', { name: /Показать ещё/ }))
+    await waitFor(() => expect(screen.getAllByText(/Архивная запись/)).toHaveLength(3))
+    expect(screen.queryByRole('button', { name: /Отменить замещение/ })).toBeNull()
   })
 })

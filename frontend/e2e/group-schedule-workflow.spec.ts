@@ -44,6 +44,7 @@ async function mockGroups(page: Page, handler: (route: Route, path: string) => P
       '/api/groups': { items: [group], totalCount: 1, skip: 0, take: 10 },
       '/api/groups/group-1': group,
       '/api/groups/group-1/clients': { groupId: 'group-1', clients: [] },
+      '/api/groups/group-1/trainer-substitution-periods': { current: [], history: { items: [], totalCount: 0, skip: 0, take: 20 }, canCreate: true, createUnavailableReason: null },
       '/api/groups/group-1/trainer-substitutions': { current: [], history: { items: [], totalCount: 0, skip: 0, take: 20 }, canCreate: false, createUnavailableReason: 'NoPermission' },
     }
     if (route.request().method() === 'GET' && path in responses) return json(route, responses[path])

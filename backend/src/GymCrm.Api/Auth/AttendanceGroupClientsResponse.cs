@@ -7,4 +7,5 @@ internal sealed record AttendanceGroupClientsResponse(
     DateOnly Today,
     DateOnly? MinTrainingDate,
     DateOnly MaxTrainingDate,
-    IReadOnlyList<AttendanceClientResponse> Clients);
+    IReadOnlyList<AttendanceClientResponse> Clients,
+    ScheduleActionResponse? CanEditAttendance = null);

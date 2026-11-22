@@ -4,6 +4,8 @@ using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Clients;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
@@ -13,6 +15,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -29,6 +32,171 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
     private const string SubstitutionEntityType = "GroupTrainerSubstitution";
     private static readonly DateOnly BusinessDate = new(2026, 7, 25);
     private static readonly DateTimeOffset SeededAt = new(2026, 7, 20, 10, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    public async Task Attendance_save_waiting_behind_period_cancellation_rechecks_access_under_the_group_lock()
+    {
+        await using var context = await CreateContextAsync();
+        var seeded = context.Seeded;
+        await using var db = context.CreateDbContext();
+        var group = await db.TrainingGroups.SingleAsync();
+        var client = new Client { BranchId = group.BranchId, FirstName = "Test", Phone = "70000000000", CreatedAt = SeededAt, UpdatedAt = SeededAt };
+        db.Clients.Add(client);
+        db.ClientGroups.Add(new ClientGroup { ClientId = client.Id, GroupId = group.Id, BranchId = group.BranchId });
+        var lesson = new LessonOccurrence
+        {
+            GroupId = group.Id,
+            LessonDate = BusinessDate,
+            StartTime = group.TrainingStartTime,
+            DurationMinutes = group.DurationMinutes,
+            HallId = group.HallId,
+            Status = LessonOccurrenceStatus.Scheduled,
+            SourceKind = LessonOccurrenceSourceKind.LegacyAttendance,
+            CreatedAt = SeededAt,
+            UpdatedAt = SeededAt
+        };
+        db.LessonOccurrences.Add(lesson);
+        await db.SaveChangesAsync();
+
+        using var manager = context.CreateClient();
+        using var coach = context.CreateClient();
+        var csrf = await LoginAsync(manager, seeded.ManagerLogin);
+        var path = $"/groups/{group.Id}/trainer-substitution-periods";
+        using var create = await PostJsonAsync(manager, path, new { seeded.SubstituteTrainerId, startsOn = BusinessDate, endsOn = BusinessDate }, csrf);
+        Assert.Equal(HttpStatusCode.Created, create.StatusCode);
+        var periodId = (await create.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+        var coachCsrf = await LoginAsync(coach, "task073-pg-substitute");
+        var lessonPath = $"/attendance/lessons/{lesson.Id}";
+        using var roster = await coach.GetAsync($"{lessonPath}/clients?lessonDate={BusinessDate:yyyy-MM-dd}");
+        Assert.Equal(HttpStatusCode.OK, roster.StatusCode);
+
+        await using var blocker = new NpgsqlConnection(context.ConnectionString);
+        await blocker.OpenAsync();
+        await using var transaction = await blocker.BeginTransactionAsync();
+        await using (var groupLock = new NpgsqlCommand("""SELECT 1 FROM "TrainingGroups" WHERE "Id" = $1 FOR UPDATE""", blocker, transaction))
+        {
+            groupLock.Parameters.AddWithValue(group.Id);
+            await groupLock.ExecuteScalarAsync();
+        }
+
+        var cancel = PostWithoutBodyAsync(manager, $"{path}/{periodId}/cancel", csrf);
+        await WaitForGroupLockQueueAsync(context.ConnectionString, 1);
+        var save = PostJsonAsync(coach, $"{lessonPath}?lessonDate={BusinessDate:yyyy-MM-dd}", new
+        {
+            trainingDate = BusinessDate,
+            attendanceMarks = new[] { new { clientId = client.Id, state = "Present" } }
+        }, coachCsrf);
+        await WaitForGroupLockQueueAsync(context.ConnectionString, 2);
+        await transaction.CommitAsync();
+
+        using var cancelled = await cancel;
+        using var denied = await save;
+        Assert.Equal(HttpStatusCode.OK, cancelled.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
+        Assert.False(await db.Attendance.AnyAsync());
+        Assert.False(await db.AuditLogs.AnyAsync(a => a.ActionType == "AttendanceMarked"));
+    }
+
+    private static async Task WaitForGroupLockQueueAsync(string connectionString, int requiredWaiters)
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        await using var observer = new NpgsqlConnection(connectionString);
+        await observer.OpenAsync(timeout.Token);
+        await using var command = new NpgsqlCommand(
+            """
+            SELECT count(*) FROM pg_stat_activity
+            WHERE datname = current_database() AND wait_event_type = 'Lock'
+                AND query LIKE '%"TrainingGroups"%FOR UPDATE%'
+            """, observer);
+        while ((long)(await command.ExecuteScalarAsync(timeout.Token))! < requiredWaiters)
+        {
+            await Task.Delay(25, timeout.Token);
+        }
+    }
+
+    [Fact]
+    public async Task Forward_upgrade_keeps_history_and_allows_one_new_period_for_concurrent_overlapping_requests()
+    {
+        await using var context = await CreateContextAsync(previousSchema: true);
+        var historicalId = await context.SeedSubstitutionAsync(BusinessDate, BusinessDate);
+        await using var db = context.CreateDbContext();
+        await db.Database.MigrateAsync();
+        Assert.Empty(await db.GroupTrainerSubstitutionPeriods.ToArrayAsync());
+
+        using var client = context.CreateClient();
+        var csrf = await LoginAsync(client, context.Seeded.ManagerLogin);
+        var path = $"/groups/{context.Seeded.GroupId}/trainer-substitution-periods";
+        var payload = new { context.Seeded.SubstituteTrainerId, startsOn = BusinessDate, endsOn = BusinessDate };
+        var requests = await Task.WhenAll(PostJsonAsync(client, path, payload, csrf), PostJsonAsync(client, path, payload, csrf));
+        using var created = Assert.Single(requests, response => response.StatusCode == HttpStatusCode.Created);
+        using var conflict = Assert.Single(requests, response => response.StatusCode == HttpStatusCode.Conflict);
+        var period = await db.GroupTrainerSubstitutionPeriods.AsNoTracking().SingleAsync();
+        Assert.Equal(context.Seeded.ManagerId, period.CreatedByUserId);
+        Assert.Equal(historicalId, (await db.GroupTrainerSubstitutions.SingleAsync()).Id);
+        Assert.Equal(1, await db.AuditLogs.CountAsync(a => a.EntityId == period.Id.ToString()));
+
+        // Exercise the database invariant for writers outside the HTTP transaction.
+        period.Id = Guid.NewGuid();
+        db.Add(period);
+        var exception = await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
+        Assert.Equal("EX_GroupTrainerSubstitutionPeriods_Pair_NoOverlap", Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
+        db.ChangeTracker.Clear();
+
+        using var cancelled = await PostWithoutBodyAsync(client, $"{path}/{(await db.GroupTrainerSubstitutionPeriods.SingleAsync()).Id}/cancel", csrf);
+        Assert.Equal(HttpStatusCode.OK, cancelled.StatusCode);
+        Assert.Equal(context.Seeded.ManagerId, (await db.GroupTrainerSubstitutionPeriods.AsNoTracking().SingleAsync()).CancelledByUserId);
+        using var replacement = await PostJsonAsync(client, path, payload, csrf);
+        Assert.Equal(HttpStatusCode.Created, replacement.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Period_mutation_rolls_back_when_mandatory_audit_fails(bool cancel)
+    {
+        await using var context = await CreateContextAsync(throwSubstitutionAudit: true);
+        await using var db = context.CreateDbContext();
+        using var client = context.CreateClient();
+        var csrf = await LoginAsync(client, context.Seeded.ManagerLogin);
+        var path = $"/groups/{context.Seeded.GroupId}/trainer-substitution-periods";
+        HttpResponseMessage response;
+        if (cancel)
+        {
+            var period = new GroupTrainerSubstitutionPeriod
+            {
+                GroupId = context.Seeded.GroupId,
+                SubstituteTrainerId = context.Seeded.SubstituteTrainerId,
+                StartsOn = BusinessDate,
+                EndsOn = BusinessDate,
+                CreatedByUserId = context.Seeded.ManagerId,
+                CreatedAt = SeededAt,
+                UpdatedAt = SeededAt
+            };
+            db.Add(period);
+            await db.SaveChangesAsync();
+            response = await PostWithoutBodyAsync(client, $"{path}/{period.Id}/cancel", csrf);
+        }
+        else
+        {
+            response = await PostJsonAsync(client, path, new { context.Seeded.SubstituteTrainerId, startsOn = BusinessDate, endsOn = BusinessDate }, csrf);
+        }
+        using (response)
+        {
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+        var rows = await db.GroupTrainerSubstitutionPeriods.AsNoTracking().ToArrayAsync();
+        if (cancel)
+        {
+            var row = Assert.Single(rows);
+            Assert.Null(row.CancelledAt);
+            Assert.Null(row.CancelledByUserId);
+        }
+        else
+        {
+            Assert.Empty(rows);
+        }
+        Assert.False(await db.AuditLogs.AnyAsync(a => a.EntityType == "GroupTrainerSubstitutionPeriod"));
+    }
 
     [Fact]
     public async Task Clean_initial_migration_installs_extension_check_and_exclusion_constraints()
@@ -262,7 +430,7 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
     }
 
     private async Task<TestContext> CreateContextAsync(
-        bool throwSubstitutionAudit = false)
+        bool throwSubstitutionAudit = false, bool previousSchema = false)
     {
         await fixture.AcquireAsync();
         TestAppFactory? factory = null;
@@ -271,7 +439,8 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
             await using (var migrationDb = CreateDbContext(fixture.ConnectionString))
             {
                 await migrationDb.Database.EnsureDeletedAsync();
-                await migrationDb.Database.MigrateAsync();
+                await migrationDb.GetService<IMigrator>().MigrateAsync(
+                    previousSchema ? "20261121010000_AddClientTelegramContact" : null);
             }
 
             factory = new TestAppFactory(
@@ -603,7 +772,7 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
             AuditLogEntry entry,
             CancellationToken cancellationToken = default)
         {
-            if (entry.EntityType == SubstitutionEntityType)
+            if (entry.EntityType is SubstitutionEntityType or "GroupTrainerSubstitutionPeriod")
             {
                 throw new InvalidOperationException(
                     "Mandatory substitution audit failed for TASK-073 PostgreSQL regression test.");

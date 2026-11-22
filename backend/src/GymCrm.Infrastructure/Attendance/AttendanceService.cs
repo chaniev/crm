@@ -4,10 +4,12 @@ using GymCrm.Application.Audit;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Application.Scheduling;
+using GymCrm.Domain.Audit;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Authorization;
+using GymCrm.Infrastructure.Bot;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
@@ -76,6 +78,12 @@ internal sealed class AttendanceService(
         }
         try
         {
+            if (dbContext.Database.IsNpgsql())
+            {
+                // Keep a concurrent move, cancellation or lesson substitution change ordered with this save.
+                await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                    $"""SELECT 1 FROM "LessonOccurrences" WHERE "Id" = {command.LessonOccurrenceId} FOR SHARE""", cancellationToken);
+            }
             var lesson = await ResolveLessonForSaveAsync(command, cancellationToken);
             if (lesson is null)
             {
@@ -91,9 +99,17 @@ internal sealed class AttendanceService(
                 return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.LessonOccurrenceUnavailable);
             }
 
+            var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, command.MarkedByUserId, cancellationToken);
+            if (actor is null || !HasCurrentMessengerBinding(actor, command.AuditContext))
+            {
+                await RollbackAsync();
+                return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.Forbidden);
+            }
+
             var authorization = await EvaluateLockedAuthorizationAsync(
-                command.MarkedByUserId,
+                actor,
                 lesson.GroupId,
+                command.LessonOccurrenceId,
                 lesson.LessonDate,
                 cancellationToken);
             if (authorization == AttendanceBatchMutationError.Forbidden ||
@@ -105,9 +121,8 @@ internal sealed class AttendanceService(
                 return AttendanceBatchMutationResult.Failure(authorization);
             }
 
-            var actor = await ClientAccessTransaction.LoadActorAsync(dbContext, command.MarkedByUserId, cancellationToken);
-            var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(actor!)).Select(client => client.Id);
-            if (actor!.Role == UserRole.Administrator &&
+            var visibleClientIds = dbContext.Clients.Where(ClientAccessPolicy.BranchRestriction(actor)).Select(client => client.Id);
+            if (actor.Role == UserRole.Administrator &&
                 await visibleClientIds.CountAsync(clientId => requestedClientIds.Contains(clientId), cancellationToken) != requestedClientIds.Length)
             {
                 await RollbackAsync();
@@ -438,22 +453,21 @@ internal sealed class AttendanceService(
         return date.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)date.DayOfWeek;
     }
 
+    private static bool HasCurrentMessengerBinding(User actor, AttendanceAuditContext context) =>
+        context.Source != AuditSource.Bot ||
+        (!actor.MustChangePassword &&
+         actor.MessengerPlatform == MessengerPlatform.Telegram &&
+         string.Equals(context.MessengerPlatform, nameof(MessengerPlatform.Telegram), StringComparison.OrdinalIgnoreCase) &&
+         actor.MessengerPlatformUserId is { Length: > 0 } boundId &&
+         BotHashing.ComputeSha256(boundId) == context.MessengerPlatformUserIdHash);
+
     private async Task<AttendanceBatchMutationError> EvaluateLockedAuthorizationAsync(
-        Guid actorId,
+        User actor,
         Guid groupId,
+        Guid lessonOccurrenceId,
         DateOnly trainingDate,
         CancellationToken cancellationToken)
     {
-        var actor = await dbContext.Users
-            .AsNoTracking()
-            .Where(user => user.Id == actorId && user.IsActive)
-            .Select(user => new { user.Id, user.Role, user.BranchId })
-            .SingleOrDefaultAsync(cancellationToken);
-        if (actor is null)
-        {
-            return AttendanceBatchMutationError.Forbidden;
-        }
-
         if (!attendanceDatePolicy.IsAllowed(actor.Role, trainingDate))
         {
             return trainingDate > attendanceDatePolicy.GetWindow(actor.Role).MaxTrainingDate
@@ -464,10 +478,11 @@ internal sealed class AttendanceService(
         return actor.Role switch
         {
             UserRole.HeadCoach or UserRole.SuperAdministrator => AttendanceBatchMutationError.None,
-            UserRole.Coach => await effectiveGroupAssignmentService.HasEffectiveAssignmentAsync(
-                    actorId,
-                    groupId,
-                    cancellationToken)
+            UserRole.Coach => (await effectiveGroupAssignmentService.ListCurrentAssignmentsAsync(actor.Id, groupId, cancellationToken))
+                    .Any(assignment => assignment.Covers(trainingDate)) ||
+                await dbContext.LessonOccurrenceTrainerSubstitutions.AnyAsync(substitution =>
+                    substitution.LessonOccurrenceId == lessonOccurrenceId && substitution.SubstituteTrainerId == actor.Id &&
+                    substitution.CancelledAt == null, cancellationToken)
                 ? AttendanceBatchMutationError.None
                 : AttendanceBatchMutationError.Forbidden,
             UserRole.Administrator => await dbContext.AdministratorAttendanceGroupGrants
@@ -475,7 +490,7 @@ internal sealed class AttendanceService(
                 .AnyAsync(
                     grant =>
                         grant.GroupId == groupId &&
-                        grant.AdministratorId == actorId &&
+                        grant.AdministratorId == actor.Id &&
                         grant.Administrator.Role == UserRole.Administrator &&
                         grant.Administrator.IsActive &&
                         grant.Administrator.BranchId == grant.BranchId &&

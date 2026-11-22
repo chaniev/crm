@@ -1006,7 +1006,7 @@ async function mockApi(
       return
     }
 
-    if (pathname.endsWith('/trainer-substitutions') && method === 'GET') {
+    if ((pathname.endsWith('/trainer-substitutions') || pathname.endsWith('/trainer-substitution-periods')) && method === 'GET') {
       await fulfillJson(context.route, 200, TRAINER_SUBSTITUTIONS_RESPONSE)
       return
     }

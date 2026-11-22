@@ -93,7 +93,7 @@ const group = {
 
 const trainerOptions = [
   { id: 'trainer-main', fullName: 'Основной Тренер', login: 'main' },
-  { id: 'trainer-substitute', fullName: 'Замещающий Тренер', login: 'sub' },
+  { id: 'trainer-substitute', fullName: 'Анастасия Александровна Миронова-Лебедева', login: 'sub' },
 ] as const
 
 type Substitution = {
@@ -117,40 +117,45 @@ type Substitution = {
   }
 }
 
-test('HeadCoach sees legacy trainer substitutions as read-only historical data', async ({ page }) => {
-  await mockApi(page, {
-    session: headCoachSession,
-    substitutions: [
-      buildSubstitution({
-        id: 'substitution-current',
-        startsOn: '2026-08-10',
-        endsOn: '2026-08-15',
-        allowedActions: { canEdit: true, canCancel: true },
-      }),
-      buildSubstitution({
-        id: 'substitution-history',
-        status: 'Cancelled',
-        allowedActions: { canEdit: false, canCancel: false },
-      }),
-    ],
-  })
-
+test('assigns after resolving a conflict, distinguishes legacy data and confirms revocation', async ({ page }) => {
+  await mockApi(page, { session: headCoachSession, substitutions: [buildSubstitution({ id: 'legacy' })], overlap: true })
   await page.goto('/groups/group-1/edit')
-
-  await expect(page.getByRole('heading', { name: 'Временные замещения' })).toBeVisible()
-  await expect(page.getByText('Старые периодные замещения доступны только для просмотра.')).toBeVisible()
-  await expect(page.getByText('Создание, изменение и отмена периодных замещений отключены в календаре занятий.')).toBeVisible()
-  await expect(page.getByTestId('group-trainer-substitution-substitution-current')).toContainText('Замещающий Тренер')
-  await expect(page.getByTestId('group-trainer-substitution-substitution-current')).toContainText('по 15.08.2026 включительно')
-
-  await expect(page.getByRole('button', { name: 'Назначить замещение' })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: /Изменить замещение/ })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: /Отменить замещение/ })).toHaveCount(0)
-  await expect(page.getByRole('combobox', { name: 'Замещающий тренер' })).toHaveCount(0)
+  const section = page.getByRole('region', { name: 'Временные замещения' })
+  const assign = section.getByRole('button', { name: 'Назначить на период' })
+  await assign.click()
+  await page.keyboard.press('Escape')
+  await expect(assign).toBeFocused()
+  await assign.click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Замещающий тренер').selectOption('trainer-substitute')
+  await dialog.getByLabel('Дата начала').fill('2026-12-10')
+  await dialog.getByLabel('Дата окончания').fill('2026-12-15')
+  await expect(dialog).toContainText('Миронова-Лебедева получит доступ к группе «Юниоры 18:00»')
+  await dialog.getByRole('button', { name: 'Назначить', exact: true }).click()
+  await expect(dialog.getByRole('alert')).toContainText('Проверьте период')
+  await expect(dialog.getByLabel('Дата начала')).toHaveValue('2026-12-10')
+  await expect(dialog.getByLabel('Замещающий тренер')).toHaveValue('trainer-substitute')
+  await dialog.getByLabel('Дата окончания').fill('2026-12-14')
+  await dialog.getByRole('button', { name: 'Назначить', exact: true }).click()
+  await expect(section.getByRole('status')).toContainText('Замещение назначено.')
+  await expect(assign).toBeFocused()
+  const cancel = section.getByRole('button', { name: /Отменить замещение Анастасия/ })
+  await expect(section.getByRole('list', { name: 'Текущие и будущие' })).toContainText('10.12.2026 — 14.12.2026')
+  await section.getByRole('button', { name: 'Показать историю' }).click()
+  const history = section.getByRole('list', { name: 'История замещений' })
+  await expect(history).toContainText('Архивная запись. Доступ к группе не предоставляется.')
+  await expect(history.getByRole('button')).toHaveCount(0)
+  await cancel.click()
+  await expect(dialog).toContainText('Отмена прекращает доступ по этому назначению.')
+  await dialog.getByRole('button', { name: 'Оставить' }).click()
+  await expect(cancel).toBeFocused()
+  await cancel.click()
+  await dialog.getByRole('button', { name: 'Отменить замещение' }).click()
+  await expect(section.getByRole('heading', { name: 'Временные замещения' })).toBeFocused()
+  await expect(section.getByRole('status')).toContainText('Замещение отменено.')
+  await expect(cancel).toHaveCount(0)
+  await expect(history).toContainText('Отменено')
   await expectNoHorizontalOverflow(page)
-
-  await page.getByRole('button', { name: 'Показать историю замещений' }).click()
-  await expect(page.getByTestId('group-trainer-substitution-substitution-history')).toContainText('Отменено')
 })
 
 test('Coach direct group management route is denied by app routing', async ({ page }) => {
@@ -170,34 +175,47 @@ test('Coach direct group management route is denied by app routing', async ({ pa
   await expect(page.getByRole('heading', { name: 'Временные замещения' })).toHaveCount(0)
 })
 
-for (const width of [320, 390, 440, 1440]) {
-  test(`read-only substitution section has no horizontal overflow at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 860 })
-    await mockApi(page, {
-      session: headCoachSession,
-      substitutions: [
-        buildSubstitution({
-          id: 'substitution-long',
-          startsOn: '2026-08-10',
-          endsOn: '2026-08-20',
-        }),
-      ],
-    })
-
-    await page.goto('/groups/group-1/edit')
-    await expect(page.getByRole('heading', { name: 'Временные замещения' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Назначить замещение' })).toHaveCount(0)
+test('section, confirmation and date fields fit the desktop, narrow and compact-height layouts', async ({ page, browserName }) => {
+  await mockApi(page, { session: headCoachSession, substitutions: [] })
+  await page.goto('/groups/group-1/edit')
+  const sizes = browserName === 'chromium'
+    ? [[360, 780], [390, 844], [420, 912], [440, 956], [768, 1024], [1440, 1200], [912, 420], [956, 440]]
+    : []
+  const verifyDialog = async () => {
+    const assign = page.getByRole('button', { name: 'Назначить на период' })
+    await assign.click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByLabel('Замещающий тренер')).toBeFocused()
+    await dialog.getByLabel('Замещающий тренер').selectOption('trainer-substitute')
+    await expect(dialog).toContainText('Анастасия Александровна Миронова-Лебедева получит доступ')
     await expectNoHorizontalOverflow(page)
-  })
-}
+    const controls = dialog.locator('input, select, button')
+    for (const target of await controls.all()) {
+      const bounds = await target.boundingBox()
+      expect(bounds?.height).toBeGreaterThanOrEqual(44)
+      expect(bounds?.width).toBeGreaterThanOrEqual(44)
+    }
+    await dialog.getByRole('button', { name: 'Назначить', exact: true }).scrollIntoViewIfNeeded()
+    await dialog.getByRole('button', { name: 'Закрыть', exact: true }).last().click()
+    await expect(assign).toBeFocused()
+  }
+  if (!sizes.length) await verifyDialog()
+  for (const [width, height] of sizes) {
+    await page.setViewportSize({ width, height })
+    await verifyDialog()
+  }
+})
 
 async function mockApi(
   page: Page,
   options: {
     session: typeof headCoachSession | typeof coachSession
     substitutions: Substitution[]
+    overlap?: boolean
   },
 ) {
+  const periods: Substitution[] = []
+  let overlap = options.overlap
   await page.route('**/api/**', async (route) => {
     const request = route.request()
     const url = new URL(request.url())
@@ -221,6 +239,35 @@ async function mockApi(
 
     if (pathname.endsWith('/lesson-series') && method === 'GET') {
       await fulfillJson(route, 404, { title: 'Расписание не найдено', code: 'lesson-series-not-found' })
+      return
+    }
+
+    const periodsPath = '/api/groups/group-1/trainer-substitution-periods'
+    if (pathname === periodsPath && method === 'GET') {
+      await fulfillJson(route, 200, { ...buildSubstitutionsResponse(periods), canCreate: true, createUnavailableReason: null })
+      return
+    }
+    if (pathname === periodsPath && method === 'POST') {
+      expect(request.headers()['x-csrf-token']).toBe(options.session.csrfToken)
+      const payload = request.postDataJSON()
+      expect(payload.substituteTrainerId).toBe('trainer-substitute')
+      if (overlap) {
+        overlap = false
+        await fulfillJson(route, 409, { code: 'group_trainer_substitution_overlap', detail: 'Проверьте период или выберите другого тренера.' })
+        return
+      }
+      const row = buildSubstitution({
+        id: 'period-1', startsOn: payload.startsOn, endsOn: payload.endsOn,
+        substituteTrainer: { ...trainerOptions[1], isActive: true }, allowedActions: { canEdit: false, canCancel: true },
+      })
+      periods.push(row)
+      await fulfillJson(route, 201, row)
+      return
+    }
+    if (pathname === `${periodsPath}/period-1/cancel` && method === 'POST') {
+      expect(request.headers()['x-csrf-token']).toBe(options.session.csrfToken)
+      periods[0] = { ...periods[0], status: 'Cancelled', allowedActions: { canEdit: false, canCancel: false } }
+      await fulfillJson(route, 200, periods[0])
       return
     }
 

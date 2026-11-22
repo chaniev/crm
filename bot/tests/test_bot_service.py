@@ -233,6 +233,7 @@ class TranscriptCrmClient:
     ) -> AttendanceRosterResponse:
         self.request_ids.append(request_id)
         return AttendanceRosterResponse(
+            canEditAttendance=True,
             groupId=group_id,
             groupName="Группа",
             trainingDate=training_date,
@@ -503,6 +504,7 @@ class SameGroupSameDayCrmClient:
         self.request_ids.append(request_id)
         self.roster_requests.append((lesson_occurrence_id, lesson_date))
         return AttendanceRosterResponse(
+            canEditAttendance=True,
             groupId=self.group_id,
             groupName="Группа",
             trainingDate=lesson_date,
@@ -1471,7 +1473,13 @@ async def test_attendance_transcript_saves_with_idempotency_and_cleans_state(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     request_ids = iter(
-        ["attendance-menu", "attendance-groups", "attendance-roster", "attendance-save"]
+        [
+            "attendance-menu",
+            "attendance-groups",
+            "attendance-roster",
+            "attendance-toggle",
+            "attendance-save",
+        ]
     )
     monkeypatch.setattr(
         "gym_crm_bot.core.attendance_flow.build_request_id",
@@ -1571,6 +1579,7 @@ async def test_attendance_transcript_saves_with_idempotency_and_cleans_state(
         "attendance-menu",
         "attendance-groups",
         "attendance-roster",
+        "attendance-toggle",
         "attendance-save",
     ]
 

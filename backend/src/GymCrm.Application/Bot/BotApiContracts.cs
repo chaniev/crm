@@ -92,7 +92,8 @@ public sealed record BotAttendanceRoster(
     string GroupName,
     DateOnly TrainingDate,
     BotAttendanceDateWindow AttendanceDateWindow,
-    IReadOnlyList<BotAttendanceClient> Clients);
+    IReadOnlyList<BotAttendanceClient> Clients,
+    bool CanEditAttendance);
 
 public sealed record BotAttendanceClient(
     Guid Id,

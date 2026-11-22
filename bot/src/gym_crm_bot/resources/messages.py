@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+PHOTO_UNAVAILABLE_MESSAGE = "Фото клиента больше недоступно."
+
 UNKNOWN_USER_TEMPLATE = (
     "Ваш Telegram ID: {telegram_id}. Передайте его администратору CRM для подключения бота."
 )
