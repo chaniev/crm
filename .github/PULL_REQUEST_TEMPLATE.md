@@ -14,6 +14,7 @@
 
 ## Delivery checks
 
+- [ ] Code changes follow the `CODE_STYLE.md` guide in each affected stack.
 - [ ] Active TASK and implementation plan contain matching requirement metadata.
 - [ ] No task enters implementation through a `предложено`, `отклонено`, or
       `pending` requirement.

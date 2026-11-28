@@ -297,6 +297,19 @@ dotnet dotnet-ef database update --project src/GymCrm.Infrastructure/GymCrm.Infr
 5. `frontend` стартует после readiness backend и проксирует `/api/*` во внутренний сервис `backend`.
 6. `bot` стартует после readiness `db` и `backend`.
 
+## Кодстайл
+
+Перед изменением кода откройте руководство каждого затронутого стека.
+
+- [C# и .NET — backend](backend/CODE_STYLE.md)
+- [TypeScript и React — frontend](frontend/CODE_STYLE.md)
+- [Python — Telegram-бот](bot/CODE_STYLE.md)
+
+При ревью сверьте изменённый код с соглашениями, которые требуют оценки разработчика.
+Автоматические проверки для затронутых файлов запускаются из корня репозитория командой
+`python3 scripts/harness/verify_change.py --base origin/main`. Для задачи с контрактом
+проверок добавьте `--task-id TASK-NNN`. [Порядок проверки](docs/HARNESS.md)
+
 ## Проверки
 
 Backend:

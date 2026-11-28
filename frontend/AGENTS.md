@@ -5,6 +5,8 @@
 Applies to all tasks inside `frontend/` together with the root `AGENTS.md`.
 Frontend owns UX and typed consumption of backend contracts.
 
+For TypeScript and React implementation and review, follow `frontend/CODE_STYLE.md`.
+
 ---
 
 ## Main areas

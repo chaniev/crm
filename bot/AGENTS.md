@@ -5,6 +5,8 @@
 Applies to all tasks inside `bot/` together with the root `AGENTS.md`.
 Bot is a thin Telegram adapter over backend APIs.
 
+For Python implementation and review, follow `bot/CODE_STYLE.md`.
+
 ---
 
 ## Main areas

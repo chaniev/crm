@@ -5,6 +5,8 @@
 Applies to all tasks inside `backend/` together with the root `AGENTS.md`.
 Backend is the source of truth for CRM domain behavior.
 
+For C# implementation and review, follow `backend/CODE_STYLE.md`.
+
 ---
 
 ## Main areas

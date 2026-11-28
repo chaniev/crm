@@ -16,6 +16,11 @@ only the directory where editing starts. A shared-contract change applies to
 the owning backend scope and every affected consumer scope. Paths without a
 nested file use these repository-wide rules.
 
+Before editing code, read the code style guide named in each affected stack's
+instructions. Apply it to new and modified code. During review, check the
+documented conventions that tools cannot enforce and use the verification
+harness for automated checks. Update the guide alongside changes to its rules.
+
 ---
 
 ## Terminology and task scope
